@@ -91,21 +91,26 @@ public class ARCurveInserter {
 //		String dir = "/home/kevin/CyberShake/baseMaps/2012_05_22-cvmh/AVG2008";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2013_11_07-cvm4-cs-nga2/CY2013/curves/imrs1/";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec/CB2008/curves/imrs1.bin";
-		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec/AVE2008/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec/AVE2008/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2015_05_27-cvm4i26-cs-nga-2sec/NGA_2008/curves/imrs1.bin";
+		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec/AVE2008/curves/imrs1.bin";
+		// UPDATE IM TYPE AND DATE BELOW!!!!!!!!!!!!!!!!!!!!!!!
 		boolean deleteOld = false;
 		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
 		imr.setParamDefaults();
-		setTruncation(imr, 3.0);
+		setTruncation(imr, 3d);
 		int erfID = 35;
 //		int velModelID = 1;
 //		int velModelID = 8; // BBP 1D
-//		int velModelID = 5; // CVMS-4i26
-		int velModelID = 7; // CVM-H 11.9 no gtl
+		int velModelID = 5; // CVMS-4i26
+//		int velModelID = 7; // CVM-H 11.9 no gtl
 		int probModelID = 1;
 		int timeSpanID = 1;
-		int imTypeID = 21;
+//		int imTypeID = 21; // 3sec GEOM
+//		int imTypeID = 26; // 2sec GEOM
+		int imTypeID = 11; // 5sec GEOM
 		Calendar cal = GregorianCalendar.getInstance();
-		cal.set(2014, 3, 5);
+		cal.set(2014, 3, 18);
 		Date calcDate = cal.getTime();
 		Date timeSpanDate = null;
 		// for small insert tests

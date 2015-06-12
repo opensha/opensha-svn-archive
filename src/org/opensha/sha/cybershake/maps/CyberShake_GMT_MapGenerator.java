@@ -21,6 +21,7 @@ import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.plot.ScatterSymbol;
 
@@ -78,10 +79,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //	public static final Color OUTSIDE_REGION_COLOR = Color.WHITE;
 	
 	public static CPT getHazardCPT() throws IOException {
-//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-//				"/resources/cpt/MaxSpectrum2.cpt"));
 		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
+				"/resources/cpt/MaxSpectrum2.cpt"));
+//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
 		return cpt;
 	}
@@ -92,6 +93,8 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //		return ratioCPT;
 		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
 				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
+//		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
+//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio_tighter.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
 		return cpt;
 	}
@@ -103,6 +106,18 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
 				"/org/opensha/sha/cybershake/conf/cpt/cptFile_diff.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
+		cpt = cpt.rescale(-0.15, 0.15);
+		// this yeilds ugly vals, round
+		for (CPTVal val : cpt) {
+			double start = val.start;
+			start *= 1000d;
+			start = Math.round(start)/1000d;
+			double end = val.end;
+			end *= 1000d;
+			end = Math.round(end)/1000d;
+			val.start = (float)start;
+			val.end = (float)end;
+		}
 		return cpt;
 	}
 	

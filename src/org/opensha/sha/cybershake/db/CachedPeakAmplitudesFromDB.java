@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.util.ExceptionUtils;
@@ -23,6 +24,7 @@ import org.opensha.sha.earthquake.ERF;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -35,6 +37,7 @@ import com.google.common.primitives.Doubles;
 public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	
 	private static final boolean D = true;
+	public static boolean DD = false;
 	
 	private File cacheDir;
 	/**
@@ -48,7 +51,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	private SiteInfo2DB sites2db;
 	private Runs2DB runs2db;
 	
-	private static int max_rups_per_query = 1000;
+	private static int max_rups_per_query = 500;
 	
 	private class CacheKey {
 		private Integer runID;
@@ -203,13 +206,14 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	private void fillInAmpsFromDB(int runID, CybershakeIM im, List<Integer> sources, double[][][] vals)
 			throws SQLException {
 		Preconditions.checkArgument(!sources.isEmpty());
-		String sql = "SELECT Source_ID,Rupture_ID,IM_Value from "+TABLE_NAME+" where Run_ID="+runID
+		String sql = "SELECT Source_ID,Rupture_ID,Rup_Var_ID,IM_Value from "+TABLE_NAME+" where Run_ID="+runID
 				+" and IM_Type_ID = '"+im.getID()+"' and Source_ID IN ("+Joiner.on(",").join(sources)
-				+") ORDER BY Source_ID,Rupture_ID,Rup_Var_ID";
-//		if (D) System.out.println(sql);
+				+")";
+		// not explicitly sorting because it's much faster this way but including checks to ensure that it's in order already
+		if (DD) System.out.println(sql);
 		ResultSet rs = null;
 		try {
-			rs = dbaccess.selectData(sql);
+			rs = dbaccess.selectData(sql, max_rups_per_query*10);
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -229,15 +233,19 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		while (valid) {
 			int sourceID = rs.getInt(1);
 			int rupID = rs.getInt(2);
-			double imVal = rs.getDouble(3);
+			int rvID = rs.getInt(3);
+			double imVal = rs.getDouble(4);
 			
 			if (prevSourceID != sourceID) {
 				// new source
 				Preconditions.checkState(vals[sourceID] == null, "duplicate source?");
 				vals[sourceID] = new double[erf.getNumRuptures(sourceID)][];
+				Preconditions.checkState(sourceID >= prevSourceID, "Source IDs not sorted?");
 			}
 			
 			if (prevSourceID != sourceID || prevRupID != rupID) {
+				if (prevSourceID == sourceID)
+					Preconditions.checkState(rupID >= prevRupID, "Rup IDs not sorted?");
 				if (curIMs != null) {
 					Preconditions.checkState(vals[prevSourceID].length > prevRupID);
 					Preconditions.checkState(vals[prevSourceID][prevRupID] == null, "duplicate rup");
@@ -247,6 +255,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 				prevRupID = rupID;
 				curIMs = Lists.newArrayList();
 			}
+			Preconditions.checkState(rvID == curIMs.size(), "RV IDs not returned in order");
 			curIMs.add(imVal);
 			valid = rs.next();
 		}
@@ -262,6 +271,10 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		if (cacheDir == null)
 			return null;
 		return new File(cacheDir, "run_"+runID+"_im_"+im.getID()+".bin");
+	}
+	
+	public boolean isFileCached(int runID, CybershakeIM im) {
+		return getCacheFile(runID, im).exists();
 	}
 	
 	private static void writeCacheFile(double[][][] cache, File file) throws IOException {
@@ -357,7 +370,10 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		CybershakeIM im = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);
 		int runID = 2703;
 		try {
+			Stopwatch watch = Stopwatch.createStarted();
 			amps2db.getAllIM_Values(runID, im);
+			watch.stop();
+			System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+" secs");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

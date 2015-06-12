@@ -65,10 +65,15 @@ public class CBSiteAmpCalc {
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_bssa");
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_bssa_redo");
 		boolean ddwCorr = false;
-		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_mean_redo");
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/gmpe_site_amp_all_classes_mean_redo");
+		boolean twoPercentIn50 = false;
+		boolean noDeterministic = true;
+		File outputDir = new File("/home/kevin/CyberShake/MCER/"
+				+ "gmpe_site_amp_all_classes_mean_no_determ");
 //		File outputDir = new File("/tmp/asdf");
 		
-		boolean includeASCE = false; 
+		if (twoPercentIn50)
+			outputDir = new File(outputDir.getParentFile(), outputDir.getName()+"_2pin50");
 		
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
@@ -79,8 +84,10 @@ public class CBSiteAmpCalc {
 //				2657, 3037, 2722, 3022, 3030, 3027, 2636,
 //				2638, 2660, 2703, 3504, 2988, 2965, 3007);
 				
+				2988, 2657);
+				
 //				2657, 3037, 2722, 3022, 3030, 3027, 2636);
-				2638, 2660, 2703, 3504, 2988, 2965, 3007);
+//				2638, 2660, 2703, 3504, 2988, 2965, 3007);
 		
 //				2636);
 		
@@ -121,6 +128,8 @@ public class CBSiteAmpCalc {
 				0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0);
 //		List<Double> periods = Lists.newArrayList(2.0,3.0,4.0,5.0,7.5,10.0);
 		
+//		double[] vs30s = {1620d};
+//		boolean[] nullBasins = {true};
 		double[] vs30s = {1620d, 1524d, 914d, 762d, 488d, 366d, 265d, 183d, 155d};
 		boolean[] nullBasins = {true, false};
 //		double[] vs30s = {1524d, 762d, 488d, 265d};
@@ -234,33 +243,39 @@ public class CBSiteAmpCalc {
 				List<SiteDataValue<?>> siteDatas = siteDatasList.get(s);
 				for (AttenuationRelationship attenRel : attenRels)
 					attenRel.setParamDefaults();
-				detCalc.setSiteData(siteDatas);
-				
-				detCalc.calc();
-				
-				Table<Double, AttenuationRelationship, DeterministicResult> detVals = detCalc.getResults();
-				DiscretizedFunc detFunc = new ArbitrarilyDiscretizedFunc();
-				for (double period : periods) {
-					double maxY = 0;
-					for (AttenuationRelationship attenRel : attenRels)
-						maxY = Math.max(maxY, detVals.get(period, attenRel).getVal());
-					detFunc.set(period, maxY);
-				}
-				detFunc = RTGMCalc.saToPsuedoVel(detFunc);
 				
 				RTGMCalc rtgmCalc = new RTGMCalc(runID, comp, null, db);
+				rtgmCalc.setUse2PercentIn50(twoPercentIn50);
 				rtgmCalc.setSiteDatas(siteDatas);
 				rtgmCalc.setGMPEs(probERF, meanGMPEList);
 				rtgmCalc.setForceAddIMs(forceAddIMs);
 				Preconditions.checkState(rtgmCalc.calc());
-
+				
 				DiscretizedFunc probFunc = RTGMCalc.saToPsuedoVel(rtgmCalc.getGMPESpectrumMap().get(comp).get(0));
-				Preconditions.checkState(probFunc.size() == detFunc.size(), probFunc.size()+" != "+detFunc.size());
+				
+				DiscretizedFunc detFunc = null;
+				if (!twoPercentIn50 && !noDeterministic) {
+					detCalc.setSiteData(siteDatas);
+					
+					detCalc.calc();
+					
+					Table<Double, AttenuationRelationship, DeterministicResult> detVals = detCalc.getResults();
+					detFunc = new ArbitrarilyDiscretizedFunc();
+					for (double period : periods) {
+						double maxY = 0;
+						for (AttenuationRelationship attenRel : attenRels)
+							maxY = Math.max(maxY, detVals.get(period, attenRel).getVal());
+						detFunc.set(period, maxY);
+					}
+					detFunc = RTGMCalc.saToPsuedoVel(detFunc);
+					
+					Preconditions.checkState(probFunc.size() == detFunc.size(), probFunc.size()+" != "+detFunc.size());
+				}
 				
 				double vs30 = (Double)attenRels.get(0).getParameter(Vs30_Param.NAME).getValue();
 				
 				DiscretizedFunc asceDeterm = RTGMCalc.saToPsuedoVel(
-						MCERDataProductsCalc.calcASCE_DetLowerLimit(detFunc.deepClone(), vs30, site.createLocation()));
+						MCERDataProductsCalc.calcASCE_DetLowerLimit(probFunc.deepClone(), vs30, site.createLocation()));
 //				if (includeASCE) {
 //					DiscretizedFunc xVals = detFunc.deepClone();
 //					HSSFRow row = null;

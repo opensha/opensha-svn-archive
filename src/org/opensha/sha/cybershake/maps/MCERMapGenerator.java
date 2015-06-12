@@ -154,6 +154,7 @@ public class MCERMapGenerator {
 					gmpeDetData.set(loc, maxGMPEDet);
 				}
 			}
+			System.out.println("Completed site "+i+"/"+sites.size());
 		}
 		
 		if (gmpes != null) {
@@ -357,7 +358,7 @@ public class MCERMapGenerator {
 //		
 //		generateMaps(probData, null, null, new File("/tmp/mcer_test"), 3d, false);
 //		generateMaps(probData, null, null, new File("/tmp/mcer_test"), 3d, true);
-		int datasetID = 35;
+		int datasetID = 57;
 		// geom mean 3s
 //		int imTypeID = 21;
 //		double period = 3d;
@@ -373,14 +374,20 @@ public class MCERMapGenerator {
 //		double period = 10d;
 //		String outputName = "test1_geom";
 		
-		// RotD100 3s
+		// RotD100
+		int imTypeID = 151;
+		double period = 2d;
+		
 //		int imTypeID = 146;
 //		double period = 3d;
+		
 //		int imTypeID = 142;
 //		double period = 5d;
-		int imTypeID = 136;
-		double period = 10d;
-		String outputName = "test1_rotd100";
+		
+//		int imTypeID = 136;
+//		double period = 10d;
+		
+		String outputName = "study_15_4_rotd100";
 		
 		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/"+outputName+"/"+(int)period+"s");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());

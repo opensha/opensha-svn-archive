@@ -66,19 +66,33 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 	private DBAccess db;
 	private int erfID;
 	private int rvScenID;
+	
 	private RealDistribution dist;
+	private DiscretizedFunc func;
 	
 	/*
 	 * Table organized by sourceID, ruptureID to already cached variation probabilities
 	 */
 	private Table<Integer, Integer, List<Double>> varProbsCache = HashBasedTable.create();
 	
-	public ConditionalHypocenterDistribution(ERF erf, DBAccess db, int erfID, int rvScenID, RealDistribution dist) {
+	public ConditionalHypocenterDistribution(ERF erf, DBAccess db, int erfID, int rvScenID,
+			RealDistribution dist) {
 		this.erf = erf;
 		this.db = db;
 		this.erfID = erfID;
 		this.rvScenID = rvScenID;
 		this.dist = dist;
+	}
+	
+	public ConditionalHypocenterDistribution(ERF erf, DBAccess db, int erfID, int rvScenID,
+			DiscretizedFunc func) {
+		this.erf = erf;
+		this.db = db;
+		this.erfID = erfID;
+		this.rvScenID = rvScenID;
+		Preconditions.checkArgument((float)func.getMinX() == 0f);
+		Preconditions.checkArgument((float)func.getMaxX() == 1f);
+		this.func = func;
 	}
 	
 	private List<Location> loadRVHypos(int sourceID, int rupID) {
@@ -232,7 +246,11 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		double sumHypoProbs = 0d;
 		for (int rvIndex=0; rvIndex<dasVals.size(); rvIndex++) {
 			double das = dasVals.get(rvIndex);
-			double hypocenterProb = dist.density(das);
+			double hypocenterProb;
+			if (dist != null)
+				hypocenterProb = dist.density(das);
+			else
+				hypocenterProb = func.getInterpolatedY(das);
 			if (add_random_noise
 //					&& Math.random() < 0.1
 					) {
@@ -334,6 +352,34 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		PlotSpec spec = new PlotSpec(funcs, chars, "DAS vs Hypo Loc", xLabel, "DAS");
 		new GraphWindow(spec);
 	}
+	
+	private static DiscretizedFunc getCustomFunc() {
+		// from Jessica via e-mal "Re: CyberShake hazard curves" 6/2/15
+		ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		
+		func.set(0d,0.638655462185526);
+		func.set(0.0526315789473684,0.638655462185692);
+		func.set(0.105263157894737,0.638655488376696);
+		func.set(0.157894736842105,0.638672707923049);
+		func.set(0.210526315789474,0.639805013114497);
+		func.set(0.263157894736842,0.659570892181832);
+		func.set(0.315789473684211,0.798958630903336);
+		func.set(0.368421052631579,0.846212807747123);
+		func.set(0.421052631578947,1.75155788103647);
+		func.set(0.473684210526316,2.56858338543854);
+		func.set(0.526315789473684,2.56858338543854);
+		func.set(0.578947368421053,1.75155788103647);
+		func.set(0.631578947368421,0.846212807747125);
+		func.set(0.684210526315790,0.798958630903336);
+		func.set(0.736842105263158,0.659570892181832);
+		func.set(0.789473684210526,0.639805013114497);
+		func.set(0.842105263157895,0.638672707923049);
+		func.set(0.894736842105263,0.638655488376696);
+		func.set(0.947368421052632,0.638655462185692);
+		func.set(1d,0.638655462185526);
+		
+		return func;
+	}
 
 	public static void main(String[] args) throws FileNotFoundException, ClassNotFoundException, IOException, GMT_MapException, SQLException {
 		// CVM-S4i26, AWP GPU
@@ -344,8 +390,13 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		
 		File outputDir = new File("/home/kevin/CyberShake/cond_hypo");
 		
-		RealDistribution dist = new BetaDistribution(2.5d, 2.5d);
-		outputDir = new File(outputDir, "results_betadist_a2.5_b2.5");
+		DiscretizedFunc func = getCustomFunc();
+		RealDistribution dist = null;
+		outputDir = new File(outputDir, "results_customdist");
+		
+//		DiscretizedFunc func = null;
+//		RealDistribution dist = new BetaDistribution(2.5d, 2.5d);
+//		outputDir = new File(outputDir, "results_betadist_a2.5_b2.5");
 		
 //		RealDistribution dist = new BetaDistribution(1d, 1d);
 //		outputDir = new File(outputDir, "results_betadist_a1.0_b1.0");
@@ -381,7 +432,12 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		calc.setPeakAmpsAccessor(new CachedPeakAmplitudesFromDB(db,
 				new File("/home/kevin/CyberShake/MCER/.amps_cache"), erf));
-		calc.setRupVarProbModifier(new ConditionalHypocenterDistribution(erf, db, erfID, rvScenID, dist));
+		ConditionalHypocenterDistribution mod;
+		if (dist != null)
+			mod = new ConditionalHypocenterDistribution(erf, db, erfID, rvScenID, dist);
+		else
+			mod = new ConditionalHypocenterDistribution(erf, db, erfID, rvScenID, func);
+		calc.setRupVarProbModifier(mod);
 		
 		// the point on the hazard curve we are plotting
 //		boolean isProbAt_IML = false;
@@ -392,13 +448,13 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 //		Double customMax = 1d;
 //		boolean logPlot = false;
 		
-		boolean isProbAt_IML = true;
-		double val = 0.3;
-		String valStr = "1yr POE 0.3g";
-		String valFileStr = "0.3g";
-		Double customMin = -5d;
-		Double customMax = -1d;
-		boolean logPlot = true;
+//		boolean isProbAt_IML = true;
+//		double val = 0.3;
+//		String valStr = "1yr POE 0.3g";
+//		String valFileStr = "0.3g";
+//		Double customMin = -5d;
+//		Double customMax = -1d;
+//		boolean logPlot = true;
 		
 //		boolean isProbAt_IML = true;
 //		double val = 0.2;
@@ -408,13 +464,13 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 //		Double customMax = -1d;
 //		boolean logPlot = true;
 		
-//		boolean isProbAt_IML = true;
-//		double val = 0.1;
-//		String valStr = "1yr POE 0.1g";
-//		String valFileStr = "0.1g";
-//		Double customMin = -5d;
-//		Double customMax = -1d;
-//		boolean logPlot = true;
+		boolean isProbAt_IML = true;
+		double val = 0.1;
+		String valStr = "1yr POE 0.1g";
+		String valFileStr = "0.1g";
+		Double customMin = -5d;
+		Double customMax = -1d;
+		boolean logPlot = true;
 		
 		// use this to find run IDs, will recalculate curves
 		HazardCurveFetcher fetch = new HazardCurveFetcher(db, datasetID, imTypeID);
@@ -464,10 +520,10 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 				gp.setPlotLabelFontSize(21);
 				gp.setBackgroundColor(Color.WHITE);
 				
-//				gp.setUserBounds(new Range(1e-2, 3e0), new Range(1.0E-5, 0.2));
-//				gp.drawGraphPanel(spec, true, true);
-				gp.setUserBounds(new Range(0, 2), new Range(1.0E-6, 1));
-				gp.drawGraphPanel(spec, false, true);
+				gp.setUserBounds(new Range(1e-2, 3e0), new Range(1.0E-5, 0.2));
+				gp.drawGraphPanel(spec, true, true);
+//				gp.setUserBounds(new Range(0, 2), new Range(1.0E-6, 1));
+//				gp.drawGraphPanel(spec, false, true);
 				gp.getCartPanel().setSize(1000, 800);
 				File outputFile = new File(curveDir, site.short_name+"_comparison");
 				gp.saveAsPNG(outputFile.getAbsolutePath()+".png");

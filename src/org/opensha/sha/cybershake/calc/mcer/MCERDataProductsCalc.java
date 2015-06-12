@@ -609,10 +609,14 @@ public class MCERDataProductsCalc {
 		// curve at each period; the result is the deterministic MCER. Then take the lower of the
 		// probabilistic MCER and the deterministic MCER; this curve is the MCER.
 		
-		for (Point2D pt : determ) {
+		for (Point2D pt : prob) {
 			double x = pt.getX();
 			
-			double dVal = determ.getY(x);
+			double dVal;
+			if (determ == null)
+				dVal = Double.POSITIVE_INFINITY;
+			else
+				dVal = determ.getY(x);
 			Preconditions.checkState(dVal >= 0, "Deterministic value must be >= 0");
 			double pVal = prob.getY(x);
 			Preconditions.checkState(pVal >= 0, "Probabilistic value must be >= 0");

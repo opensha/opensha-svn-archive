@@ -534,7 +534,6 @@ public class CybershakeSiteInfo2DB {
 		return site2db.getAllSitesFromDB();
 	}
 	
-	
 	public static void main(String args[]) {
 		
 		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);

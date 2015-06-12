@@ -39,6 +39,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
+import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
@@ -102,6 +103,8 @@ public class RTGMCalc {
 	private List<SiteDataValue<?>> siteDatas;
 	
 	private int forceSingleIMTypeID = -1;
+	
+	private boolean twoPercentIn50 = false; // if true, use 2% in 50 instead of RTGM
 	
 	public RTGMCalc(CommandLine cmd, DBAccess db) {
 		Preconditions.checkArgument(cmd.hasOption("run-id"));
@@ -225,6 +228,14 @@ public class RTGMCalc {
 		this.forceSingleIMTypeID = forceSingleIMTypeID;
 	}
 	
+	/**
+	 * If set to true, 2% in 50 values will be used instead of RTGM
+	 * @param twoPercentIn50
+	 */
+	public void setUse2PercentIn50(boolean twoPercentIn50) {
+		this.twoPercentIn50 = twoPercentIn50;
+	}
+	
 	public boolean calc() throws IOException {
 		List<Integer> curveIDs = curves2db.getAllHazardCurveIDs(runID, forceSingleIMTypeID);
 		// filter out any oddball probability models
@@ -343,14 +354,20 @@ public class RTGMCalc {
 			} else {
 				line = Lists.newArrayList(site.short_name, runID+"", im.getID()+"",
 						im.getMeasure().getShortName(), im.getComponent().getShortName(), (float)im.getVal()+"");
-				validateCurveForRTGM(curve);
 				
-				System.out.println("Calculating RTGM for: "+Joiner.on(",").join(line));
+				if (twoPercentIn50) {
+					rtgm = HazardDataSetLoader.getCurveVal(curve, false, 4e-4);
+				} else {
+					validateCurveForRTGM(curve);
+					
+					System.out.println("Calculating RTGM for: "+Joiner.on(",").join(line));
+					
+					// calculate RTGM
+					// first null is frequency which is used for a scaling factor, which we disable
+					// second null is Beta value, we want default
+					rtgm = calcRTGM(curve);
+				}
 				
-				// calculate RTGM
-				// first null is frequency which is used for a scaling factor, which we disable
-				// second null is Beta value, we want default
-				rtgm = calcRTGM(curve);
 				line.add(rtgm+"");
 				
 				DiscretizedFunc csSpectrum = csSpectrumMap.get(im.getComponent());
@@ -401,7 +418,11 @@ public class RTGMCalc {
 					String metadata = hazFunction.getInfo().trim().replaceAll("\n", "");
 					
 					curves.add(hazFunction);
-					rtgm = calcRTGM(hazFunction);
+					if (twoPercentIn50) {
+						rtgm = HazardDataSetLoader.getCurveVal(hazFunction, false, 4e-4);
+					} else {
+						rtgm = calcRTGM(hazFunction);
+					}
 					Preconditions.checkState(rtgm > 0, "RTGM is not positive");
 					line.add(metadata);
 					line.add(rtgm+"");

@@ -794,8 +794,14 @@ public class DBAccess implements Runnable{
       * @return
       */
      public ResultSet selectData(String sql) throws java.sql.SQLException {
+    	 return selectData(sql, -1);
+     }
+     
+     public ResultSet selectData(String sql, int fetchSize) throws java.sql.SQLException {
        Connection conn = getConnection();
        Statement stat = conn.createStatement();
+       if (fetchSize >= 0)
+    	   stat.setFetchSize(fetchSize);
        //gets the resultSet after running the query
        //System.out.println("Query = "+sql);
        ResultSet result = stat.executeQuery(sql+";");

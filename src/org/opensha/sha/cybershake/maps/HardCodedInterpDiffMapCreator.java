@@ -23,6 +23,8 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
+import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
@@ -49,6 +51,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncLevelParam;
 import org.opensha.sha.imr.param.OtherParams.SigmaTruncTypeParam;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -315,21 +318,32 @@ public class HardCodedInterpDiffMapCreator {
 	public static void main(String[] args){
 		try {
 			boolean logPlot = false;
-			int imTypeID = 26; // 2 sec SA, GEOM
+			
+//			int imTypeID = 26; // 2 sec SA, GEOM
+//			String imtLabel = "2sec SA";
+			
 //			int imTypeID = 21; // 3 sec SA, GEOM
-//			int imTypeID = 11; // 5 sec SA, GEOM
+//			String imtLabel = "3sec SA";
+			
+			int imTypeID = 11; // 5 sec SA, GEOM
+			String imtLabel = "5sec SA";
+			
 //			int imTypeID = 1; // 10 sec SA, GEOM
+//			String imtLabel = "10sec SA";
 			
-			// map label
-			String customLabel = "2sec SA, 2% in 50 yrs";
+			String prefix = "study_15_4";
+			String compPrefix = prefix+"_vs_14_2";
+			File downloadDir = new File("/tmp/cs_maps");
 			
-			Collection<Integer> siteTypes = CybershakeSite.getTypesExcept(
-					CybershakeSite.TYPE_TEST_SITE, CybershakeSite.TYPE_GRID_05_KM);
-//			Collection<Integer> siteTypes = null; // will still exclude test if null
+//			Collection<Integer> siteTypes = CybershakeSite.getTypesExcept(
+//					CybershakeSite.TYPE_TEST_SITE, CybershakeSite.TYPE_GRID_05_KM);
+			Collection<Integer> siteTypes = null; // will still exclude test if null
 			
 			// the point on the hazard curve we are plotting
 			boolean isProbAt_IML = false;
 			double val = 0.0004;
+			String durationLabel = "2% in 50 yrs";
+			
 //			boolean isProbAt_IML = true;
 //			double val = 0.2;
 			
@@ -359,8 +373,8 @@ public class HardCodedInterpDiffMapCreator {
 //			List<Integer> datasetIDs = Lists.newArrayList(12);
 			
 			// comparison dataset for ratio maps
-			List<Integer> compDatasetIDs = Lists.newArrayList(35);
-//			List<Integer> compDatasetIDs = null;
+//			List<Integer> compDatasetIDs = Lists.newArrayList(35);
+			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;
@@ -392,11 +406,11 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			// GMPE that we are using for the basemap
 			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
-//			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
-			ScalarIMR baseMapIMR = null;
+//			ScalarIMR baseMapIMR = null;
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);
@@ -410,18 +424,39 @@ public class HardCodedInterpDiffMapCreator {
 			// always leave false, used for previous study
 			boolean probGain = false;
 			
+			// map label
+			String customLabel = imtLabel+", "+durationLabel;
 			
 			String addr = getMap(logPlot, velModelID, datasetIDs, imTypeID, siteTypes, customMin, customMax,
 					isProbAt_IML, val, baseMapIMR, config, probGain,
 					customLabel);
 			
 			System.out.println("Map address: " + addr);
+			if (downloadDir != null) {
+				Preconditions.checkState(downloadDir.exists() || downloadDir.mkdir());
+				if (prefix == null)
+					prefix = "dataset_"+Joiner.on("_").join(datasetIDs);
+				
+				FileUtils.downloadURL(addr+"interpolated_marks.150.png", new File(downloadDir, prefix+"_marks.png"));
+				FileUtils.downloadURL(addr+"interpolated.150.png", new File(downloadDir, prefix+".png"));
+			}
 			
 			if (compDatasetIDs != null && !compDatasetIDs.isEmpty()) {
-				addr = getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, siteTypes,
+				String[] addrs = getCompareMap(logPlot, datasetIDs, compDatasetIDs, imTypeID, siteTypes,
 						isProbAt_IML, val, customLabel);
 				
-				System.out.println("Comp map address: " + addr);
+				String diff = addrs[0];
+				String ratio = addrs[1];
+				
+				System.out.println("Comp map address:\n\tdiff: "+diff+"\n\tratio: "+ratio);
+				
+				if (downloadDir != null) {
+					if (compPrefix == null)
+						compPrefix = prefix+"_vs_"+Joiner.on("_").join(compDatasetIDs);
+					
+					FileUtils.downloadURL(diff+"interpolated_marks.150.png", new File(downloadDir, compPrefix+"_diff.png"));
+					FileUtils.downloadURL(ratio+"interpolated_marks.150.png", new File(downloadDir, compPrefix+"_ratio.png"));
+				}
 			}
 			
 			System.exit(0);
@@ -527,7 +562,7 @@ public class HardCodedInterpDiffMapCreator {
 		return CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
 	}
 	
-	protected static String getCompareMap(boolean logPlot, List<Integer> dataset1IDs,
+	protected static String[] getCompareMap(boolean logPlot, List<Integer> dataset1IDs,
 			List<Integer> dataset2IDs, int imTypeID, Collection<Integer> siteTypes,
 			boolean isProbAt_IML, double val, String customLabel) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
@@ -535,8 +570,7 @@ public class HardCodedInterpDiffMapCreator {
 		AbstractGeoDataSet scatterData1 = getMainScatter(isProbAt_IML, val, dataset1IDs, imTypeID, siteTypes);
 		AbstractGeoDataSet scatterData2 = getMainScatter(isProbAt_IML, val, dataset2IDs, imTypeID, siteTypes);
 		
-		String[] addrs = getCompareMap(logPlot, scatterData1, scatterData2, imTypeID, customLabel, false);
-		return "diff: "+addrs[0]+" ratio: "+addrs[1];
+		return getCompareMap(logPlot, scatterData1, scatterData2, imTypeID, customLabel, false);
 	}
 	
 	
@@ -567,6 +601,17 @@ public class HardCodedInterpDiffMapCreator {
 		
 		AbstractGeoDataSet diffData = ProbGainCalc.calcProbDiff(scatterData2, scatterData1);
 		AbstractGeoDataSet ratioData = ProbGainCalc.calcProbGain(scatterData2, scatterData1);
+		
+		MinMaxAveTracker diffTrack = new MinMaxAveTracker();
+		MinMaxAveTracker ratioTrack = new MinMaxAveTracker();
+		
+		for (int index=0; index<diffData.size(); index++) {
+			diffTrack.addValue(diffData.get(index));
+			ratioTrack.addValue(ratioData.get(index));
+		}
+		
+		System.out.println("Diff stats: "+diffTrack);
+		System.out.println("Ratio stats: "+ratioTrack);
 		
 		InterpDiffMap map = new InterpDiffMap(region, null, 0.005, diffCPT, diffData, interpSettings, mapTypes);
 		map.setCustomLabel("Difference, "+customLabel);

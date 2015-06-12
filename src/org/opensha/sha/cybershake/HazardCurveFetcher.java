@@ -131,6 +131,7 @@ public class HazardCurveFetcher {
 		for (int runID : runIDs) {
 			try {
 				vals.add(detCalc.calculate(runID, im).getVal());
+				System.out.println("Finished Det Calc "+vals.size()+"/"+runIDs.size());
 			} catch (SQLException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}

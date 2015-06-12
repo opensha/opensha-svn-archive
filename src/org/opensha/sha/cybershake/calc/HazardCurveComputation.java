@@ -249,8 +249,8 @@ public class HazardCurveComputation {
 		int numSrcs = srcIdList.size();
 		for(int srcIndex =0;srcIndex<numSrcs;++srcIndex){
 			//			updateProgress(srcIndex, numSrcs);
-//			System.out.println("Source " + srcIndex + " of " + numSrcs + ".");
 			int srcId = srcIdList.get(srcIndex);
+//			System.out.println("Source "+srcIndex+"/"+numSrcs+" (SourceID="+srcId+")");
 			List<Integer> rupIdList = siteDB.getRupIdsForSite(siteID, erfID, srcId);
 			int numRupSize = rupIdList.size();
 			for(int rupIndex = 0;rupIndex<numRupSize;++rupIndex){
