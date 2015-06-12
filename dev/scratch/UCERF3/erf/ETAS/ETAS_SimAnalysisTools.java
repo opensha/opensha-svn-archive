@@ -1543,6 +1543,24 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	/**
+	 * This will return a catalog that contains only ruptures that are direct children of the given parent ID,
+	 * the parent rupture and any further generations are excluded
+	 * 
+	 * @param catalog
+	 * @param parentID
+	 * @return
+	 */
+	public static List<ETAS_EqkRupture> getPrimaryAftershocks(List<ETAS_EqkRupture> catalog, int parentID) {
+		List<ETAS_EqkRupture> ret = Lists.newArrayList();
+		
+		for (ETAS_EqkRupture rup : catalog)
+			if (rup.getParentID() == parentID)
+				ret.add(rup);
+		
+		return ret;
+	}
+	
+	/**
 	 * Generates a scatter plot of the number of aftershocks vs the maximum aftershock magnitude for a given
 	 * suite of ETAS simulated catalogs. If parentID is supplied, the catalogs will first be filtered to only
 	 * contain descendants of that rupture.
