@@ -9,11 +9,12 @@ import java.util.concurrent.ExecutionException;
 import org.opensha.commons.util.ExceptionUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 
 /**
@@ -34,7 +35,8 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 	private CacheLoader<Integer, IntegerPDF_FunctionSampler> loader;
 	private Map<Integer, Integer> numForthcomingMap;
 	
-	private Map<Integer, IntegerPDF_FunctionSampler> cache;
+//	private Map<Integer, IntegerPDF_FunctionSampler> cache;
+	private Cache<Integer, IntegerPDF_FunctionSampler> cache;
 	
 	private int getCount = 0;
 	private int loadCount = 0;
@@ -43,19 +45,23 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 	private HashSet<Integer> regenTracker;
 	
 	public CubeSamplerCache(int size, CacheLoader<Integer, IntegerPDF_FunctionSampler> loader,
-			Map<Integer, Integer> numForthcomingMap) {
+			Map<Integer, Integer> numForthcomingMap, boolean softCacheValues) {
 		this.size = size;
 		this.loader = loader;
 		this.numForthcomingMap = numForthcomingMap;
 		
-		cache = Maps.newHashMap();
+		// make this cache bigger since we're doing manual eviction
+		CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder().maximumSize(size*2);
+		if (softCacheValues)
+			builder = builder.softValues();
+		cache = builder.build();
 		
 		regenTracker = new HashSet<Integer>();
 	}
 	
 	public synchronized IntegerPDF_FunctionSampler get(Integer index) {
 		getCount++;
-		IntegerPDF_FunctionSampler ret = cache.get(index);
+		IntegerPDF_FunctionSampler ret = cache.getIfPresent(index);
 		if (ret == null) {
 			if (DD) System.out.println("Cache miss for "+index+" size="+cache.size());
 			try {
@@ -73,7 +79,7 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 				// try to free up space
 				int myPriority = getNumForthcoming(index);
 				int toRemoveIndex = -1;
-				for (int key : cache.keySet()) {
+				for (int key : cache.asMap().keySet()) {
 					int oPriority = getNumForthcoming(key);
 					if (oPriority <= myPriority) {
 						toRemoveIndex = key;
@@ -85,7 +91,8 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 				if (toRemoveIndex >= 0) {
 					if (DD) System.out.println("Evicting "+toRemoveIndex+" with p="
 							+getNumForthcoming(toRemoveIndex)+" <= "+myPriority);
-					Preconditions.checkNotNull(cache.remove(toRemoveIndex));
+					cache.invalidate(toRemoveIndex);
+//					Preconditions.checkNotNull(cache.remove(toRemoveIndex));
 				} else {
 					// nothing evictable, don't cache current result
 					break;
@@ -109,7 +116,7 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 	}
 
 	public void invalidateAll() {
-		cache.clear();
+		cache.invalidateAll();
 	}
 
 	@Override
@@ -119,29 +126,28 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 	public synchronized IntegerPDF_FunctionSampler get(Integer key,
 			Callable<? extends IntegerPDF_FunctionSampler> valueLoader)
 			throws ExecutionException {
-		throw new UnsupportedOperationException("Use get(kev)");
+		return cache.get(key, valueLoader);
 	}
 
 	@Override
 	public ImmutableMap<Integer, IntegerPDF_FunctionSampler> getAllPresent(
 			Iterable<?> keys) {
-		throw new UnsupportedOperationException("");
+		return cache.getAllPresent(keys);
 	}
 
 	@Override
 	public IntegerPDF_FunctionSampler getIfPresent(Object key) {
-		return cache.get(key);
+		return cache.getIfPresent(key);
 	}
 
 	@Override
 	public void invalidate(Object key) {
-		cache.remove(key);
+		cache.invalidate(key);
 	}
 
 	@Override
 	public void invalidateAll(Iterable<?> keys) {
-		for (Object key : keys)
-			invalidate(key);
+		cache.invalidateAll();
 	}
 
 	@Override
@@ -162,7 +168,7 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 
 	@Override
 	public CacheStats stats() {
-		return null;
+		return cache.stats();
 	}
 
 	@Override
@@ -172,13 +178,13 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 
 	@Override
 	public ConcurrentMap<Integer, IntegerPDF_FunctionSampler> asMap() {
-		throw new UnsupportedOperationException("Use get(kev)");
+		return cache.asMap();
 	}
 
 	@Override
 	public ImmutableMap<Integer, IntegerPDF_FunctionSampler> getAll(
 			Iterable<? extends Integer> keys) throws ExecutionException {
-		throw new UnsupportedOperationException("Use get(kev)");
+		return cache.getAllPresent(keys);
 	}
 
 	@Override
@@ -188,7 +194,11 @@ public class CubeSamplerCache implements LoadingCache<Integer, IntegerPDF_Functi
 
 	@Override
 	public void refresh(Integer key) {
-		// do nothing
+		try {
+			cache.put(key, loader.load(key));
+		} catch (Exception e) {
+			ExceptionUtils.throwAsRuntimeException(e);
+		}
 	}
 
 }
