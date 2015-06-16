@@ -1174,7 +1174,7 @@ public class ETAS_Simulator {
 		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
 //		params.set_d_MinDist(2.0);
-//		params.setImposeGR(true);
+		params.setImposeGR(true);
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
@@ -1190,11 +1190,11 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_New_5", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_newApproach", null);	// aveStrike=295.0367915096109; All Hell!
-		runTest(TestScenario.MOJAVE, params, 1433962852173l, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, 1433962852173l, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noER", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
-//		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_01", null);	// aveStrike=295.0367915096109
+		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_grCorr_01", null);	// aveStrike=295.0367915096109
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109
