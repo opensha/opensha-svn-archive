@@ -6,6 +6,7 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -92,6 +93,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -109,18 +111,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
+import com.ibm.icu.text.DecimalFormat;
 
 public class ETASCurveCalc {
 	
 	protected DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 	
-	private static final File amps_cache_dir = new File("/home/kevin/CyberShake/amps_cache");
+	private static final File amps_cache_dir = new File("/home/kevin/CyberShake/MCER/.amps_cache");
+	private static String gmpe_cache_prefix;
 	private static final File gmpe_cache_dir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/.gmpe_cache");
 	
 	private HazardCurveComputation calc;
 	private ETASModProbConfig conf;
 	private int refDatasetID;
 	private int imTypeID;
+	private String imLabel;
 	private CybershakeIM imType;
 	
 	private Map<CybershakeSite, DiscretizedFunc> prevCurves;
@@ -139,10 +144,16 @@ public class ETASCurveCalc {
 	private HazardCurve2DB curve2db;
 	private Runs2DB runs2db;
 	
-	private static final int ref_dataset_ID = 35;
-	private static final int erfID = 35;
+//	private static final int ref_dataset_ID = 35;
+//	private static final int erfID = 35;
+//	private static final int sgtVarID = 8;
+//	private static final int rupVarScenID = 4;
+//	private static final int velModelID = 5;
+	
+	private static final int ref_dataset_ID = 57;
+	private static final int erfID = 36;
 	private static final int sgtVarID = 8;
-	private static final int rupVarScenID = 4;
+	private static final int rupVarScenID = 6;
 	private static final int velModelID = 5;
 	
 	private static boolean isProbAt_IML = true;
@@ -157,7 +168,7 @@ public class ETASCurveCalc {
 	private static GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
 	private static InterpDiffMapType[] mapTypes = {InterpDiffMapType.INTERP_MARKS};
 	
-	private NGAWest_2014_Averaged_AttenRel imr;
+	private AttenuationRelationship[] imrs;
 	
 	private static final TopographicSlopeFile topo_slope_res = TopographicSlopeFile.CA_THREE;
 //	private static final TopographicSlopeFile topo_slope_res = TopographicSlopeFile.US_EIGHTEEN;
@@ -188,6 +199,9 @@ public class ETASCurveCalc {
 		curve2db = new HazardCurve2DB(db);
 		runs2db = new Runs2DB(db);
 		imType = curve2db.getIMFromID(imTypeID);
+		
+		double period = imType.getVal();
+		imLabel = new DecimalFormat("0.##").format(period)+"s SA";
 	}
 	
 	public ArbDiscrGeoDataSet calcMap() throws IOException {
@@ -220,7 +234,7 @@ public class ETASCurveCalc {
 //		Double customMin = -7d;
 //		Double customMax = -1d;
 		
-		String labelAdd = ", "+(float)val+"G 3s SA";
+		String labelAdd = ", "+(float)val+"G "+imLabel;
 		
 		boolean authenticated = false;
 		
@@ -384,11 +398,19 @@ public class ETASCurveCalc {
 	}
 	
 	private synchronized void checkInitGMPE() {
-		if (imr == null) {
-			imr = new NGAWest_2014_Averaged_AttenRel(null, false);
-			imr.setParamDefaults();
-			imr.setIntensityMeasure(SA_Param.NAME);
-			SA_Param.setPeriodInSA_Param(imr.getIntensityMeasure(), 3d);
+		if (imrs == null) {
+			imrs = new AttenuationRelationship[Runtime.getRuntime().availableProcessors()];
+			
+			double period = imType.getVal();
+			// round it to fix the 3.00003 issue
+			period = (double)((int)(period * 100d))/100d;
+			
+			for (int i=0; i<imrs.length; i++) {
+				imrs[i] = new NGAWest_2014_Averaged_AttenRel(null, false);
+				imrs[i].setParamDefaults();
+				imrs[i].setIntensityMeasure(SA_Param.NAME);
+				SA_Param.setPeriodInSA_Param(imrs[i].getIntensityMeasure(), period);
+			}
 		}
 	}
 	
@@ -405,10 +427,22 @@ public class ETASCurveCalc {
 		
 		checkInitGMPE();
 		
-		File cacheFile = new File(gmpe_cache_dir, conf.getScenario().name()+"_"+conf.getTimeSpan().name()
-				+"_"+imr.getShortName()+"_ref"+refDatasetID+".bin");
+		String cacheName;
+		if (gmpe_cache_prefix != null && conf.getScenario().isETAS())
+			cacheName = gmpe_cache_prefix+"_";
+		else
+			cacheName = "";
+		cacheName += conf.getScenario().name()+"_"+conf.getTimeSpan().name()
+				+"_"+imrs[0].getShortName()+"_ref"+refDatasetID+"_im"+imType.getID();
+		if (conf.getScenario().isETAS()) {
+			int num = conf.getCatalogs().size();
+			cacheName += "_"+num+"sims";
+		}
+		cacheName += ".bin";
+		File cacheFile = new File(gmpe_cache_dir, cacheName);
+		System.out.println("Cache file: "+cacheFile.getAbsolutePath()+" exits? "+cacheFile.exists());
 		
-		Map<String, ArbitrarilyDiscretizedFunc> cachedCurveMap = Maps.newHashMap();
+		final Map<String, ArbitrarilyDiscretizedFunc> cachedCurveMap = Maps.newHashMap();
 		if (cacheFile.exists()) {
 			try {
 				BinaryHazardCurveReader br = new BinaryHazardCurveReader(cacheFile.getAbsolutePath());
@@ -421,11 +455,9 @@ public class ETASCurveCalc {
 			} catch (Exception e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
-		} else {
-			cachedCurveMap = Maps.newHashMap();
 		}
 		
-		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
+		final ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(true);
 //		boolean logPlot = false;
 //		boolean isProbAt_IML = false;
 //		double val = 0.0004;
@@ -437,63 +469,145 @@ public class ETASCurveCalc {
 //		Double customMin = -7d;
 //		Double customMax = -1d;
 		
-		String labelAdd = ", "+(float)val+"G 3s SA";
+		String labelAdd = ", "+(float)val+"G "+imLabel;
 		
-		ERF gmpeERF = conf.getModERFforGMPE();
-		HazardCurveCalculator calc = new HazardCurveCalculator();
+		final ERF gmpeERF = conf.getModERFforGMPE();
 		
-		List<Parameter<?>> siteParams = Lists.newArrayList();
-		for (Parameter<?> param : imr.getSiteParams())
+		final List<Parameter<?>> siteParams = Lists.newArrayList();
+		for (Parameter<?> param : imrs[0].getSiteParams())
 			siteParams.add((Parameter<?>) param.clone());
 		
-		DiscretizedFunc xVals = IMT_Info.getUSGS_SA_Function();
+		final DiscretizedFunc xVals = IMT_Info.getUSGS_SA_Function();
 		
-		OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(velModelID);
-		SiteTranslator trans = new SiteTranslator();
+		final OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(velModelID);
+		final SiteTranslator trans = new SiteTranslator();
 		
-		Map<Location, ArbitrarilyDiscretizedFunc> curvesToBeWritten = Maps.newHashMap();
+		final Map<Location, ArbitrarilyDiscretizedFunc> curvesToBeWritten = Maps.newHashMap();
 		
-		for (int i = 0; i < sites.size(); i++) {
-			CybershakeSite site = sites.get(i);
-			if (site.type_id == 4)
-				continue; // TEST
+		final ArrayDeque<CybershakeSite> sitesDeque = new ArrayDeque<CybershakeSite>(sites);
+		
+		List<Thread> calcThreads = Lists.newArrayList();
+		
+		for (int i=0; i<imrs.length; i++) {
+			final HazardCurveCalculator calc = new HazardCurveCalculator();
+			final ScalarIMR imr = imrs[i];
 			
-			Location loc = site.createLocation();
-			ArbitrarilyDiscretizedFunc func = null;
-			String cacheStr = (int)(loc.getLatitude()*100d)+"_"+(int)(loc.getLongitude()*100d);
-			if (cachedCurveMap.containsKey(cacheStr)) {
-				System.out.println("Loaded "+site.name+" from cache");
-				func = cachedCurveMap.get(cacheStr);
-			} else {
-				System.out.println("Calculating GMPE for: "+site.name);
-				// create site with site params
-				Site gmpeSite = new Site(loc);
-				ArrayList<SiteDataValue<?>> datas = provs.getBestAvailableData(gmpeSite.getLocation());
-				for (Parameter<?> param : siteParams) {
-					param = (Parameter<?>) param.clone();
-					trans.setParameterValue(param, datas);
-					gmpeSite.addParameter(param);
+			final int t = i;
+			
+			calcThreads.add(new Thread() {
+				
+				@Override
+				public void run() {
+					System.out.println("Starting GMPE calc thread "+t);
+					while (true) {
+						CybershakeSite site;
+						synchronized (ETASCurveCalc.class) {
+							try {
+								site = sitesDeque.pop();
+							} catch (Exception e) {
+								site = null;
+							}
+						}
+						if (site == null)
+							break;
+						if (site.type_id == 4)
+							continue; // TEST
+						
+						Location loc = site.createLocation();
+						ArbitrarilyDiscretizedFunc func = null;
+						String cacheStr = (int)(loc.getLatitude()*100d)+"_"+(int)(loc.getLongitude()*100d);
+						if (cachedCurveMap.containsKey(cacheStr)) {
+//							System.out.println("Loaded "+site.name+" from cache");
+							func = cachedCurveMap.get(cacheStr);
+						} else {
+							System.out.println("Calculating GMPE for: "+site.name);
+							// create site with site params
+							Site gmpeSite = new Site(loc);
+							ArrayList<SiteDataValue<?>> datas = provs.getBestAvailableData(gmpeSite.getLocation());
+							for (Parameter<?> param : siteParams) {
+								param = (Parameter<?>) param.clone();
+								trans.setParameterValue(param, datas);
+								gmpeSite.addParameter(param);
+							}
+							
+							// now calculate
+							func = HazardCurveSetCalculator.getLogFunction(xVals);
+							calc.getHazardCurve(func, gmpeSite, imr, gmpeERF);
+							// un-log
+							func = HazardCurveSetCalculator.unLogFunction(xVals, func);
+							
+							cachedCurveMap.put(cacheStr, func);
+						}
+						
+						double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
+						Preconditions.checkState(Doubles.isFinite(zVal), "Z not finite: "+zVal);
+						if (logPlot && zVal < log_plot_min)
+							zVal = log_plot_min;
+						Preconditions.checkState(!logPlot || zVal >= log_plot_min);
+						synchronized (ETASCurveCalc.class) {
+							xyz.set(new Location(site.lat, site.lon), zVal);
+							prevGMPECurves.put(site, func);
+							
+							curvesToBeWritten.put(loc, func);
+						}
+					}
+					System.out.println("Done with GMPE calc thread "+t);
 				}
-				
-				// now calculate
-				func = HazardCurveSetCalculator.getLogFunction(xVals);
-				calc.getHazardCurve(func, gmpeSite, imr, gmpeERF);
-				// un-log
-				func = HazardCurveSetCalculator.unLogFunction(xVals, func);
-				
-				cachedCurveMap.put(cacheStr, func);
-			}
-			
-			double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
-			Preconditions.checkState(Doubles.isFinite(zVal), "Z not finite: "+zVal);
-			if (logPlot && zVal < log_plot_min)
-				zVal = log_plot_min;
-			Preconditions.checkState(!logPlot || zVal >= log_plot_min);
-			xyz.set(new Location(site.lat, site.lon), zVal);
-			prevGMPECurves.put(site, func);
-			
-			curvesToBeWritten.put(loc, func);
+			});
 		}
+		
+		for (Thread thread : calcThreads)
+			thread.start();
+		
+		for (Thread thread : calcThreads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e1) {
+				ExceptionUtils.throwAsRuntimeException(e1);
+			}
+		}
+		
+//		for (int i = 0; i < sites.size(); i++) {
+//			CybershakeSite site = sites.get(i);
+//			if (site.type_id == 4)
+//				continue; // TEST
+//			
+//			Location loc = site.createLocation();
+//			ArbitrarilyDiscretizedFunc func = null;
+//			String cacheStr = (int)(loc.getLatitude()*100d)+"_"+(int)(loc.getLongitude()*100d);
+//			if (cachedCurveMap.containsKey(cacheStr)) {
+//				System.out.println("Loaded "+site.name+" from cache");
+//				func = cachedCurveMap.get(cacheStr);
+//			} else {
+//				System.out.println("Calculating GMPE for: "+site.name);
+//				// create site with site params
+//				Site gmpeSite = new Site(loc);
+//				ArrayList<SiteDataValue<?>> datas = provs.getBestAvailableData(gmpeSite.getLocation());
+//				for (Parameter<?> param : siteParams) {
+//					param = (Parameter<?>) param.clone();
+//					trans.setParameterValue(param, datas);
+//					gmpeSite.addParameter(param);
+//				}
+//				
+//				// now calculate
+//				func = HazardCurveSetCalculator.getLogFunction(xVals);
+//				calc.getHazardCurve(func, gmpeSite, imr, gmpeERF);
+//				// un-log
+//				func = HazardCurveSetCalculator.unLogFunction(xVals, func);
+//				
+//				cachedCurveMap.put(cacheStr, func);
+//			}
+//			
+//			double zVal = HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val);
+//			Preconditions.checkState(Doubles.isFinite(zVal), "Z not finite: "+zVal);
+//			if (logPlot && zVal < log_plot_min)
+//				zVal = log_plot_min;
+//			Preconditions.checkState(!logPlot || zVal >= log_plot_min);
+//			xyz.set(new Location(site.lat, site.lon), zVal);
+//			prevGMPECurves.put(site, func);
+//			
+//			curvesToBeWritten.put(loc, func);
+//		}
 		
 		// write cache
 		BinaryHazardCurveWriter bw = new BinaryHazardCurveWriter(cacheFile);
@@ -676,7 +790,7 @@ public class ETASCurveCalc {
 	}
 	
 	private static void plotComparisonCurves(List<ETASCurveCalc> calcs, List<String> labels,
-			List<Color> colors, String siteShortName, File outputDir) throws IOException {
+			List<Color> colors, String siteShortName, File outputDir, String imLabel) throws IOException {
 		// input validation
 		Preconditions.checkArgument(!calcs.isEmpty(), "Must supply at least one calc");
 		Preconditions.checkState(calcs.size() == labels.size() && calcs.size() == colors.size(), "List sizes incorrect");
@@ -716,7 +830,7 @@ public class ETASCurveCalc {
 		for (int i=1; i<calcs.size(); i++)
 			Preconditions.checkState(calcs.get(i).conf.getTimeSpan() == timeSpan, "inconsistent time spans");
 		
-		PlotSpec spec = new PlotSpec(curves, chars, "CyberShake OEF Curves: "+site.short_name, "3s SA (g)",
+		PlotSpec spec = new PlotSpec(curves, chars, "CyberShake OEF Curves: "+site.short_name, imLabel+" (g)",
 				timeSpan.toString()+" Probability of Exceedance");
 		spec.setLegendVisible(true);
 		
@@ -801,6 +915,8 @@ public class ETASCurveCalc {
 		
 		ShakeMapComputation calc = new ShakeMapComputation(Cybershake_OpenSHA_DBApplication.db);
 		calc.setValForMissing(valForMissing);
+		
+		AttenuationRelationship imr = imrs[0];
 		
 		ScenarioShakeMapCalculator gmpeCalc = null;
 		ArrayList<Site> gmpeSites = null;
@@ -1163,7 +1279,7 @@ public class ETASCurveCalc {
 		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLACK));
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, scenario.toString(), "Trigger Rup/Site Dist (km)",
-				(float)val+"G 3s SA Gain");
+				(float)val+"G "+imLabel+" Gain");
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setTickLabelFontSize(18);
@@ -1179,6 +1295,27 @@ public class ETASCurveCalc {
 		gp.saveAsPDF(new File(outputDir, "dist_gain_"+scenario.name()+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, "dist_gain_"+scenario.name()+".png").getAbsolutePath());
 	}
+	
+	private static File[] getZipFiles(File dir, String dateStr, boolean combined, boolean indep,
+			int[] rounds, String name) {
+		String fName = dateStr+"-"+name;
+		if (indep)
+			fName += "-indep";
+		if (combined) {
+			return new File[] { new File (dir, fName+"-combined.zip") };
+		} else {
+			if (rounds == null || rounds.length == 0)
+				rounds = new int[] { -1 };
+			File[] ret = new File[rounds.length];
+			for (int i=0; i<rounds.length; i++) {
+				String roundAdd = "";
+				if (rounds[i] >= 0)
+					roundAdd = "-round"+rounds[i];
+				ret[i] = new File(dir, fName+roundAdd+File.separator+"results.zip");
+			}
+			return ret;
+		}
+	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		try {
@@ -1193,9 +1330,18 @@ public class ETASCurveCalc {
 			if (indep)
 				indepStr = "_indep";
 			
+//			boolean combined = false;
+//			int[] rounds = { 1 };
+			boolean combined = true;
+			int[] rounds = null;
+			String dateStr = "2015_03_23";
+			gmpe_cache_prefix = dateStr;
+			
+			int imTypeID = 21;
+			
 			File parentDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas");
 			
-			File mainDir = new File(parentDir, "results_"+timeSpan.name().toLowerCase()+indepStr);
+			File mainDir = new File(parentDir, "results_"+dateStr+"_"+timeSpan.name().toLowerCase()+indepStr);
 			if (!mainDir.exists())
 				mainDir.mkdir();
 			File simsDir = new File(mainDir.getParentFile(), "sims");
@@ -1206,7 +1352,7 @@ public class ETASCurveCalc {
 			boolean doNormalizedCalcs = false;
 			boolean doDistGain = false; // only when makeMaps=true
 			boolean doGMPE = true;
-			boolean doAllRV_Equal = true; // change
+			boolean doAllRV_Equal = false; // change
 			publish_curves = false;
 			force_recalc = true;
 			
@@ -1280,19 +1426,10 @@ public class ETASCurveCalc {
 			List<Color> colors = Lists.newArrayList();
 			List<ArbDiscrGeoDataSet> maps = Lists.newArrayList();
 			
-			File[] parkfieldFiles;
-			if (indep) {
-				parkfieldFiles = new File[] {
-						new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-combined.zip")
-				};
-			} else {
-				parkfieldFiles = new File[] {
-						new File(simsDir, "2015_03_23-u2mapped-parkfield-combined.zip")
-				};
-			}
+			File[] parkfieldFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds, "u2mapped-parkfield");
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
-					parkfieldFiles, mappingFile);
-			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+					parkfieldFiles, mappingFile, erfID, rupVarScenID);
+			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("parkfield");
 			colors.add(Color.RED);
@@ -1305,26 +1442,18 @@ public class ETASCurveCalc {
 //							new File(simsDir, "2015_03_23-u2mapped-bombay_beach_m6-round1/results.zip")},
 ////							new File(simsDir, "2015_03_23-u3inverted-bombay_beach_m6-round1/results.zip")},
 //					mappingFile);
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 //			calcs.add(calc);
 //			filePrefixes.add("bombay");
 //			colors.add(Color.ORANGE);
 //			if (!debugSiteCalcOnly && makeMaps)
 //				maps.add(calc.calcMap(new File(mapDir, "bombay_hazard.png")));
 			
-			File[] brawleyFiles;
-			if (indep) {
-				brawleyFiles = new File[] {
-						new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-combined.zip")
-				};
-			} else {
-				brawleyFiles = new File[] {
-						new File(simsDir, "2015_03_23-u2mapped-bombay_beach_brawley_fault_m6-combined.zip")
-				};
-			}
+			File[] brawleyFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds,
+					"u2mapped-bombay_beach_brawley_fault_m6");
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6, timeSpan, sol,
-					brawleyFiles, mappingFile);
-			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+					brawleyFiles, mappingFile, erfID, rupVarScenID);
+			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("bombay_flt");
 			colors.add(Color.ORANGE);
@@ -1335,7 +1464,7 @@ public class ETASCurveCalc {
 //					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
 //							+ "2014_12_01-mojave_s_point_m6-combined.zip")},
 //					mappingFile);
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 //			calcs.add(calc);
 //			filePrefixes.add("mojave");
 //			colors.add(Color.MAGENTA);
@@ -1346,7 +1475,7 @@ public class ETASCurveCalc {
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
 //					mappingFile);
 //			publish_curves = false;
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 //			calcs.add(calc);
 //			filePrefixes.add("test_negligable");
 //			colors.add(Color.GRAY);
@@ -1357,14 +1486,14 @@ public class ETASCurveCalc {
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_31-bombay_beach_m6/results.zip"),
 //					mappingFile);
 //			publish_curves = false;
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 //			ArbDiscrGeoDataSet modMap = calc.calcMap(new File(mapDir, "test_bombay_subset_hazard.png"));
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_BOMBAY_M6_SUBSET_FIRST, timeSpan, sol,
 //					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results.zip")},
 //					mappingFile);
 //			publish_curves = false;
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 //			calcs.add(calc);
 //			filePrefixes.add("bombay_first");
 //			colors.add(Color.MAGENTA);
@@ -1375,7 +1504,7 @@ public class ETASCurveCalc {
 //					new File[] {new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results.zip")},
 //					mappingFile);
 //			publish_curves = false;
-//			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 //			calcs.add(calc);
 //			filePrefixes.add("bombay_second");
 //			colors.add(Color.PINK);
@@ -1388,8 +1517,9 @@ public class ETASCurveCalc {
 				conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP,
 						timeSpan, timeDepSol,
 						new File[0],
-						new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u2_mapped_mappings.csv"));
-				calc = new ETASCurveCalc(conf, 21, refDatasetID);
+						new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u2_mapped_mappings.csv"),
+						erfID, rupVarScenID);
+				calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 				calcs.add(calc);
 				filePrefixes.add("ucerf2_dep");
 				colors.add(Color.GREEN);
@@ -1400,8 +1530,8 @@ public class ETASCurveCalc {
 			
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, timeSpan, sol,
 					new File[0],
-					mappingFile);
-			calc = new ETASCurveCalc(conf, 21, refDatasetID);
+					mappingFile, erfID, rupVarScenID);
+			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("ucerf2");
 			colors.add(Color.BLUE);
@@ -1423,6 +1553,7 @@ public class ETASCurveCalc {
 				for (String siteName : curveSites)
 					calc.manualCalc(siteName);
 			} else if (makeMaps) {
+				System.out.println("Making ratio maps");
 				// create ratio maps
 				ArbDiscrGeoDataSet baseMap = refCalc.calcMap(new File(mapDir, "ref_hazard.png"));
 				for (int i=0; i<calcs.size() && makeMaps; i++) {
@@ -1440,11 +1571,14 @@ public class ETASCurveCalc {
 //			createRatioMap(modMap, baseMap, "Test Negligable Prob Gain", new File(outputDir, "test_negligable_gain.png"));
 //			createRatioMap(modMap, baseMap, "Test Bombay 50% Subset Prob Gain", new File(outputDir, "test_bombay_subset_gain.png"));
 			
-			if (debugSiteCalcOnly || makeMaps)
+			if (debugSiteCalcOnly || makeMaps) {
+				System.out.println("Making ratio maps");
 				for (String siteName : curveSites)
-					plotComparisonCurves(calcs, names, colors, siteName, curveDir);
+					plotComparisonCurves(calcs, names, colors, siteName, curveDir, calc.imLabel);
+			}
 			
 			if (doConvergence && !debugSiteCalcOnly) {
+				System.out.println("Doing ocnvergence");
 				for (int i=0; i<calcs.size(); i++) {
 					Map<Integer, Map<CybershakeSite, DiscretizedFunc>> sizeCurvesMap =
 							calcs.get(i).calcConvergeCurves(convergeInterval, false);
@@ -1456,6 +1590,7 @@ public class ETASCurveCalc {
 			}
 			
 			if (doAllRV_Equal) {
+				System.out.println("Doing all RV's equal calcs");
 				List<ArbDiscrGeoDataSet> equalMaps = Lists.newArrayList();
 				for (int i=0; i<calcs.size(); i++) {
 					ETASCurveCalc myCalc = calcs.get(i);
@@ -1476,7 +1611,8 @@ public class ETASCurveCalc {
 				// curves
 				if (debugSiteCalcOnly || makeMaps)
 					for (String siteName : curveSites)
-						plotComparisonCurves(calcs, names, colors, siteName, allRV_EqualCurveDir);
+						plotComparisonCurves(calcs, names, colors, siteName, allRV_EqualCurveDir, calc.imLabel);
+				// undo everything we just did
 				for (int i=0; i<calcs.size(); i++) {
 					ETASCurveCalc myCalc = calcs.get(i);
 					myCalc.conf.setTriggerAllHyposEqually(false);
@@ -1486,6 +1622,7 @@ public class ETASCurveCalc {
 			}
 			
 			if (doNormalizedCalcs) {
+				System.out.println("Making normalized maps");
 				List<ArbDiscrGeoDataSet> normMaps = Lists.newArrayList();
 				for (int i=0; i<calcs.size(); i++) {
 					ETASCurveCalc myCalc = calcs.get(i);
@@ -1505,9 +1642,10 @@ public class ETASCurveCalc {
 				// curves
 				if (debugSiteCalcOnly || makeMaps)
 					for (String siteName : curveSites)
-						plotComparisonCurves(calcs, names, colors, siteName, normCurvesDir);
+						plotComparisonCurves(calcs, names, colors, siteName, normCurvesDir, calc.imLabel);
 			}
 			
+			System.out.println("Calculating MFDs");
 			IncrementalMagFreqDist longTermIndepMFD = null;
 			IncrementalMagFreqDist longTermDepMFD = null;
 			List<IncrementalMagFreqDist> mfds = Lists.newArrayList();
@@ -1548,6 +1686,7 @@ public class ETASCurveCalc {
 			ETASModProbConfig.writeCombinedMFDs(mfdDir, mfds, plotColors, longTermIndepMFD, longTermDepMFD, timeSpan);
 			
 			if (doGMPE) {
+				System.out.println("Doing GMPE calculations");
 				ArbDiscrGeoDataSet baseMap = refCalc.calcGMPEMap(new File(gmpeMapDir, "ref_hazard.png"));
 				for (int i=0; i<calcs.size(); i++) {
 					ArbDiscrGeoDataSet newMap = calcs.get(i).calcGMPEMap(
@@ -1558,9 +1697,13 @@ public class ETASCurveCalc {
 			}
 			
 			if (plotShakemaps && !debugSiteCalcOnly) {
+				System.out.println("Calculating shakemaps");
 				for (int i=0; i<calcs.size(); i++)
 					calcs.get(i).plotMostTriggeredRVs(shakemapDir, filePrefixes.get(i), numShakemaps, doGMPE);
 			}
+			
+			for (ETASCurveCalc myCalc : calcs)
+				myCalc.conf.printRVCountStats();
 			
 			System.exit(0);
 		} catch (Exception e) {

@@ -20,6 +20,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.ui.TextAnchor;
@@ -36,6 +37,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.cybershake.AbstractModProbConfig;
@@ -82,6 +84,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
+import com.google.common.primitives.Doubles;
 
 public class ETASModProbConfig extends AbstractModProbConfig {
 	
@@ -276,17 +279,23 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	// if set to true, will bump up probability for all RVs equally instead of the closest hypocenters to
 	// the etas rupture hypos
 	private boolean triggerAllHyposEqually = false;
+	
+	private int erfID;
+	private int rupVarScenID;
 
 	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
-			FaultSystemSolution sol, File catalogsDir, File mappingsCSVFile)
+			FaultSystemSolution sol, File catalogsDir, File mappingsCSVFile, int erfID, int rupVarScenID)
 			throws IOException {
-		this(scenario, timeSpan, sol, new File[] {catalogsDir}, mappingsCSVFile);
+		this(scenario, timeSpan, sol, new File[] {catalogsDir}, mappingsCSVFile, erfID, rupVarScenID);
 	}
 
 	public ETASModProbConfig(ETAS_CyberShake_Scenarios scenario, ETAS_Cybershake_TimeSpans timeSpan,
-			FaultSystemSolution sol, File[] catalogsDirs, File mappingsCSVFile)
+			FaultSystemSolution sol, File[] catalogsDirs, File mappingsCSVFile, int erfID, int rupVarScenID)
 			throws IOException {
 		super(scenario+" ("+timeSpan+")", scenario.probModelID, timeSpan.timeSpanID);
+		
+		this.erfID = erfID;
+		this.rupVarScenID = rupVarScenID;
 		
 		this.catalogsDirs = catalogsDirs;
 		
@@ -651,8 +660,6 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		hypoLocationsByRV = Maps.newHashMap();
 		
 		System.out.println("Loading hypos");
-		int ERFID = 35;
-		int RUP_VAR_SCEN_ID = 4;
 		
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			for (ETAS_EqkRupture rup : catalog) {
@@ -666,7 +673,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				Preconditions.checkNotNull(pair, "No mapping for rupture that occurred: "+fssIndex);
 				
 				String sql = "SELECT Rup_Var_ID,Hypocenter_Lat,Hypocenter_Lon,Hypocenter_Depth FROM Rupture_Variations " +
-						"WHERE ERF_ID=" + ERFID + " AND Rup_Var_Scenario_ID=" + RUP_VAR_SCEN_ID + " " +
+						"WHERE ERF_ID=" + erfID + " AND Rup_Var_Scenario_ID=" + rupVarScenID + " " +
 						"AND Source_ID=" + pair.getID1() + " AND Rupture_ID=" + pair.getID2();
 				
 				Map<Location, List<Integer>> locsMap = Maps.newHashMap();
@@ -712,9 +719,10 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		mod = null;
 	}
 	
+	private List<Double> rvCountTrack = Lists.newArrayList();
+	
 	private void loadRVProbs() {
 		// loads in probabilities for rupture variations from the ETAS catalogs
-		
 		RuptureProbabilityModifier probMod = getRupProbModifier();
 		
 		double prob = 1d/catalogs.size();
@@ -722,7 +730,6 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			// make the probability gain super small which should result if almost zero gain if implemented correctly
 			prob = 1e-20;
 		// TODO correctly deal with exceedence probs, as a rup can happen more than once in a catalog 
-		MinMaxAveTracker rvTrack = new MinMaxAveTracker();
 		
 		double occurMult = 1d;
 		if (normalizedTriggerRate > 0d) {
@@ -791,7 +798,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 						toBePromoted.addAll(rvHypoLocs.get(hypoLoc));
 					}
 				}
-				rvTrack.addValue(toBePromoted.size());
+				rvCountTrack.add((double)toBePromoted.size());
 				Preconditions.checkState(toBePromoted.size() >= 1,
 						"Should be more than one ID for each hypo (size="+toBePromoted.size()+")");
 				
@@ -854,7 +861,6 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 //				}
 			}
 		}
-		System.out.println("RV counts for hypos encountered: "+rvTrack);
 		
 		// now build rv probs
 		rvProbs = Maps.newHashMap();
@@ -904,6 +910,17 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			
 			rvProbs.put(pair, rvProbsList);
 		}
+	}
+	
+	public void printRVCountStats() {
+		if (rvCountTrack.isEmpty())
+			return;
+		double[] vals = Doubles.toArray(rvCountTrack);
+		System.out.println(scenario+" RV Counts:");
+		System.out.println("\tMin:"+StatUtils.min(vals));
+		System.out.println("\tMax:"+StatUtils.max(vals));
+		System.out.println("\tMean:"+StatUtils.mean(vals));
+		System.out.println("\tMedian:"+DataUtils.median(vals));
 	}
 	
 	public void setTriggerAllHyposEqually(boolean triggerAllHyposEqually) {
@@ -1494,9 +1511,11 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	public static void main(String[] args) throws IOException, DocumentException {
 		ETAS_Cybershake_TimeSpans timeSpan = ETAS_Cybershake_TimeSpans.ONE_WEEK;
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
+		int erfID = 35;
+		int rupVarScenID = 4;
 		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
 				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-parkfield-nospont/results.zip"),
-				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));
+				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"), erfID, rupVarScenID);
 //		ETASModProbConfig conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_M6, timeSpan, sol,
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_09_02-bombay_beach_m6-nospont/results.zip"),
 //				new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mappings.csv"));

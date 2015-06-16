@@ -319,17 +319,24 @@ public class HardCodedInterpDiffMapCreator {
 		try {
 			boolean logPlot = false;
 			
+			// 167: RotD50 2sec
+			// 162: RotD50 3sec
+			
 //			int imTypeID = 26; // 2 sec SA, GEOM
 //			String imtLabel = "2sec SA";
+//			Double customMax = 1.0;
 			
 //			int imTypeID = 21; // 3 sec SA, GEOM
 //			String imtLabel = "3sec SA";
+//			Double customMax = 1.0;
 			
 			int imTypeID = 11; // 5 sec SA, GEOM
 			String imtLabel = "5sec SA";
+			Double customMax = 0.8;
 			
 //			int imTypeID = 1; // 10 sec SA, GEOM
 //			String imtLabel = "10sec SA";
+//			Double customMax = 0.6;
 			
 			String prefix = "study_15_4";
 			String compPrefix = prefix+"_vs_14_2";
@@ -379,7 +386,6 @@ public class HardCodedInterpDiffMapCreator {
 			// in G
 			Double customMin = 0d;
 ////			Double customMax = 1.4;
-			Double customMax = 1.0;
 //			Double customMax = 1.2;
 //			Double customMin = -8d;
 //			Double customMax = -2d;

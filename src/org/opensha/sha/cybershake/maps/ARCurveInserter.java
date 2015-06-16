@@ -93,7 +93,8 @@ public class ARCurveInserter {
 //		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_03-cvm4i26-cs-nga-3sec/CB2008/curves/imrs1.bin";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_05-cvmhnogtl-cs-nga-3sec/AVE2008/curves/imrs1.bin";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2015_05_27-cvm4i26-cs-nga-2sec/NGA_2008/curves/imrs1.bin";
-		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec/AVE2008/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec/AVE2008/curves/imrs1.bin";
+		String dir = "/home/kevin/CyberShake/baseMaps/2015_06_12-cvm4i26-cs-nga-10sec/NGA_2008/curves/imrs1.bin";
 		// UPDATE IM TYPE AND DATE BELOW!!!!!!!!!!!!!!!!!!!!!!!
 		boolean deleteOld = false;
 		ScalarIMR imr = AttenRelRef.NGA_2008_4AVG.instance(null);
@@ -108,9 +109,10 @@ public class ARCurveInserter {
 		int timeSpanID = 1;
 //		int imTypeID = 21; // 3sec GEOM
 //		int imTypeID = 26; // 2sec GEOM
-		int imTypeID = 11; // 5sec GEOM
+//		int imTypeID = 11; // 5sec GEOM
+		int imTypeID = 1; // 10sec GEOM
 		Calendar cal = GregorianCalendar.getInstance();
-		cal.set(2014, 3, 18);
+		cal.set(2015, 6, 12);
 		Date calcDate = cal.getTime();
 		Date timeSpanDate = null;
 		// for small insert tests
