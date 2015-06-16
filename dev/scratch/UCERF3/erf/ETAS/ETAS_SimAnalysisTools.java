@@ -11,14 +11,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.TimeZone;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
@@ -1260,9 +1263,19 @@ public class ETAS_SimAnalysisTools {
 	 * @throws IOException
 	 */
 	public static void writeEventHeaderToFile(FileWriter fileWriter) throws IOException {
-		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\tFSS_ID\tGridNodeIndex\n");
+		// OLD FORMAT
+//		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\tFSS_ID\tGridNodeIndex\n");
+		// NEW FORMAT: Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
+		// 				distToParent nthERF fssIndex gridNodeIndex
+		fileWriter.write("# Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\t"
+				+ "ID\tparID\tGen\tOrigTime\tdistToParent\tnthERFIndex\tFSS_ID\tGridNodeIndex\n");
 	}
-	
+
+	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
+	private static final TimeZone utc = TimeZone.getTimeZone("UTC");
+	static {
+		catDateFormat.setTimeZone(utc);
+	}
 	
 	/**
 	 * This writes the given rupture to the given fileWriter
@@ -1272,10 +1285,30 @@ public class ETAS_SimAnalysisTools {
 	 */
 	public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) throws IOException {
 		Location hypoLoc = rup.getHypocenterLocation();
-		fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
-					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
-					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()
-					+"\t"+rup.getFSSIndex()+"\t"+rup.getGridNodeIndex()+"\n");
+		
+		// OLD FORMAT: nthERF id parentID gen origTime distToParent mag lat lon depth [fssIndex gridNodeIndex]
+//		fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
+//					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
+//					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()
+//					+"\t"+rup.getFSSIndex()+"\t"+rup.getGridNodeIndex()+"\n");
+		
+		// NEW FORMAT: Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
+		// 				distToParent nthERF fssIndex gridNodeIndex
+		StringBuilder sb = new StringBuilder();
+		sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
+		sb.append(hypoLoc.getLatitude()).append("\t");
+		sb.append(hypoLoc.getLongitude()).append("\t");
+		sb.append(hypoLoc.getDepth()).append("\t");
+		sb.append(rup.getMag()).append("\t");
+		sb.append(rup.getID()).append("\t");
+		sb.append(rup.getParentID()).append("\t");
+		sb.append(rup.getGeneration()).append("\t");
+		sb.append(rup.getOriginTime()).append("\t");
+		sb.append(rup.getDistanceToParent()).append("\t");
+		sb.append(rup.getNthERF_Index()).append("\t");
+		sb.append(rup.getFSSIndex()).append("\t");
+		sb.append(rup.getGridNodeIndex()).append("\n");
+		fileWriter.write(sb.toString());
 	}
 	
 	/**
@@ -1288,23 +1321,64 @@ public class ETAS_SimAnalysisTools {
 		line = line.trim();
 		
 		String[] split = line.split("\t");
-		Preconditions.checkState(split.length == 10 || split.length == 12, "Line has unexpected number of items."
-				+ "Expected 10/12, got "+split.length+". Line: "+line);
+		Preconditions.checkState(split.length == 10 || split.length == 12 || split.length == 18,
+				"Line has unexpected number of items. Expected 10/12/18, got %s. Line: %s", split.length, line);
 		
-		int nthERFIndex = Integer.parseInt(split[0]);
-		int id = Integer.parseInt(split[1]);
-		int parentID = Integer.parseInt(split[2]);
-		int gen = Integer.parseInt(split[3]);
-		long origTime = Long.parseLong(split[4]);
-		double distToParent = Double.parseDouble(split[5]);
-		double mag = Double.parseDouble(split[6]);
-		double lat = Double.parseDouble(split[7]);
-		double lon = Double.parseDouble(split[8]);
-		double depth = Double.parseDouble(split[9]);
+		int nthERFIndex, fssIndex, gridNodeIndex, id, parentID, gen;
+		long origTime;
+		double distToParent, mag, lat, lon, depth;
+		
+		if (split.length == 10 || split.length == 12) {
+			// old format
+			
+			// nthERF id parentID gen origTime distToParent mag lat lon depth [fssIndex gridNodeIndex]
+			
+			nthERFIndex = Integer.parseInt(split[0]);
+			id = Integer.parseInt(split[1]);
+			parentID = Integer.parseInt(split[2]);
+			gen = Integer.parseInt(split[3]);
+			origTime = Long.parseLong(split[4]);
+			distToParent = Double.parseDouble(split[5]);
+			mag = Double.parseDouble(split[6]);
+			lat = Double.parseDouble(split[7]);
+			lon = Double.parseDouble(split[8]);
+			depth = Double.parseDouble(split[9]);
+			
+			if (split.length == 12) {
+				// has FSS and grid node indexes
+				fssIndex = Integer.parseInt(split[10]);
+				gridNodeIndex = Integer.parseInt(split[11]);
+			} else {
+				fssIndex = -1;
+				gridNodeIndex = -1;
+			}
+		} else {
+			// new format
+			
+			// Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
+			// 			distToParent nthERF fssIndex gridNodeIndex
+			
+			// skip year/month/day/hour/min/sec, use epoch seconds
+			lat = Double.parseDouble(split[6]);
+			lon = Double.parseDouble(split[7]);
+			depth = Double.parseDouble(split[8]);
+			mag = Double.parseDouble(split[9]);
+			id = Integer.parseInt(split[10]);
+			parentID = Integer.parseInt(split[11]);
+			gen = Integer.parseInt(split[12]);
+			origTime = Long.parseLong(split[13]);
+			distToParent = Double.parseDouble(split[14]);
+			nthERFIndex = Integer.parseInt(split[15]);
+			fssIndex = Integer.parseInt(split[16]);
+			gridNodeIndex = Integer.parseInt(split[17]);
+		}
+		
+		
 		
 		Location loc = new Location(lat, lon, depth);
 		
 		ETAS_EqkRupture rup = new ETAS_EqkRupture();
+		
 		rup.setNthERF_Index(nthERFIndex);
 		rup.setID(id);
 		rup.setParentID(parentID);
@@ -1313,12 +1387,8 @@ public class ETAS_SimAnalysisTools {
 		rup.setDistanceToParent(distToParent);
 		rup.setMag(mag);
 		rup.setHypocenterLocation(loc);
-		
-		if (split.length == 12) {
-			// has FSS and grid node indexes
-			rup.setFSSIndex(Integer.parseInt(split[10]));
-			rup.setGridNodeIndex(Integer.parseInt(split[11]));
-		}
+		rup.setFSSIndex(fssIndex);
+		rup.setGridNodeIndex(gridNodeIndex);
 		
 		return rup;
 	}
@@ -1793,17 +1863,17 @@ public class ETAS_SimAnalysisTools {
 //		plotCatalogGMT(catalog, new File("/tmp"), "etas_catalog", true);
 		
 //		File catalogsDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_07_30-bombay_beach-extra/results");
-		File catalogsDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_interns/2014_07_09-64481/results");
-		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
-		for (File subdir : catalogsDir.listFiles()) {
-			if (!subdir.getName().startsWith("sim_") || !subdir.isDirectory())
-				continue;
-			if (!MPJ_ETAS_Simulator.isAlreadyDone(subdir))
-				continue;
-			File catalogFile = new File(subdir, "simulatedEvents.txt");
-			catalogs.add(loadCatalog(catalogFile));
-		}
-		plotMaxMagVsNumAftershocks(catalogs, 0);
+//		File catalogsDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_interns/2014_07_09-64481/results");
+//		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+//		for (File subdir : catalogsDir.listFiles()) {
+//			if (!subdir.getName().startsWith("sim_") || !subdir.isDirectory())
+//				continue;
+//			if (!MPJ_ETAS_Simulator.isAlreadyDone(subdir))
+//				continue;
+//			File catalogFile = new File(subdir, "simulatedEvents.txt");
+//			catalogs.add(loadCatalog(catalogFile));
+//		}
+//		plotMaxMagVsNumAftershocks(catalogs, 0);
 	}
 
 }
