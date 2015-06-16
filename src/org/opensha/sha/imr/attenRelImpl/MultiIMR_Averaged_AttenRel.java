@@ -693,14 +693,8 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	public double getExceedProbability() throws ParameterException,
 			IMRException {
-		double[] vals = new double[imrs.size()];
-		for (int i=0; i<imrs.size(); i++) {
-			if (canSkipIMR(i))
-				continue;
-			ScalarIMR imr = imrs.get(i);
-			vals[i] = imr.getExceedProbability();
-		}
-		return getWeightedValue(vals);
+		double iml = (Double) getIntensityMeasure().getValue();
+		return getExceedProbability(iml);
 	}
 
 	@Override
