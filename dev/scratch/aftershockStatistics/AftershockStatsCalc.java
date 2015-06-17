@@ -26,12 +26,12 @@ public class AftershockStatsCalc {
 	 * This computes the log-likelihood for the given modified Omori parameters according to 
 	 * equation (6) of Ogata (1983; J. Phys. Earth, 31,115-124).
 	 * @param k
-	 * @param c
 	 * @param p
+	 * @param c
 	 * @param relativeEventTimes - in order of occurrence relative to main shock
 	 * @return
 	 */
-	public static double getLogLikelihoodForOmoriParams(double k, double c, double p, double[] relativeEventTimes) {
+	public static double getLogLikelihoodForOmoriParams(double k, double p, double c, double[] relativeEventTimes) {
 		double funcA=Double.NaN;
 		int n=relativeEventTimes.length;
 		double t_beg = relativeEventTimes[0];
@@ -44,6 +44,77 @@ public class AftershockStatsCalc {
 		for(double t : relativeEventTimes)
 			sumLn_t += Math.log(t+c);
 		return n*Math.log(k) - p*sumLn_t - k*funcA;
+	}
+	
+	
+	
+	
+	/**
+	 * This gives the productivity value "k" for the given parameters
+	 * @param a
+	 * @param b
+	 * @param magMain
+	 * @param magMin
+	 * @return
+	 */
+	public static double getProductivity_k(double a, double b, double magMain, double magMin) {
+		return Math.pow(10.0, a+b*(magMain-magMin));
+	}
+	
+	/**
+	 * This gives the productivity value "a" for the given parameters
+	 * @param k
+	 * @param b
+	 * @param magMain
+	 * @param magMin
+	 * @return
+	 */
+	public static double getProductivity_a(double k, double b, double magMain, double magMin) {
+		return Math.log10(k) - b*(magMain-magMin);
+	}
+
+	/**
+	 * This returns the expected number of primary aftershocks between time tMin and tMax (days) for 
+	 * the given arguments.
+	 * @param k
+	 * @param p - must be > 1.0 (exception thrown); TODO relax this restriction
+	 * @param magMain - main shock magnitude
+	 * @param magMin - minimum magnitude
+	 * @param c - days
+	 * @param tMin - beginning of forecast time window (since origin time), in days
+	 * @param tMax - end of forecast time window (since origin time), in days
+	 * @return
+	 */
+	public static double getExpectedNumEvents(double k, double p, double magMain, double magMin, double c, double tMinDays, double tMaxDays) {
+		if(p<=1)
+			throw new RuntimeException ("p must be greater than 1.0");
+		double oneMinusP= 1-p;
+		double lambda = k*Math.pow(10,magMain-magMin)/oneMinusP;
+		lambda *= Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP);
+		return lambda;
+	}
+
+	
+	/**
+	 * This returns the poisson probability given the expected number of events
+	 * @param expectedNum
+	 * @return
+	 */
+	public static double getPoissonProbability(double expectedNum) {
+		return 1.0-Math.exp(-expectedNum);
+	}
+	
+	
+	/**
+	 * This returns the maximum-likelihood b-value defined by Aki (1965, Bull. Earthq. Res. Inst., 43, 237-239)
+	 * @param magMean - mean magnitude above magComplete
+	 * @param magComplete - the magnitude above which no events have gone undetected
+	 * @param magPrecision - the degree to which magnitude have been rounded
+	 * @return
+	 */
+	public static double getMaxLikelihood_b_value(double magMean, double magComplete, double magPrecision) {
+		return Math.log10(Math.E) /(magMean - (magComplete-0.5*magPrecision));
+		
 	}
 	
 	
@@ -75,6 +146,8 @@ public class AftershockStatsCalc {
 	
 	
 	
+	
+	
 	public static void testAndyCalc() {
 		
 		double c = 0.05;
@@ -87,10 +160,16 @@ public class AftershockStatsCalc {
 		double p_max = 1.15; 
 		double p_delta = 0.0125;
 		
-		int k_num = (int)((k_max-k_min)/k_delta)+1;		
-		int p_num = (int)((p_max-p_min)/p_delta)+1;
+		int k_num = (int)Math.round((k_max-k_min)/k_delta) + 1;		
+		int p_num = (int)Math.round((p_max-p_min)/p_delta) + 1;
 		
-		double[] relativeEventTimes;
+		if(true) {
+			System.out.println("k1\t"+k_min+"\t"+k_max+"\t"+k_num+"\t"+k_delta);
+			System.out.println("p1\t"+p_min+"\t"+p_max+"\t"+p_num+"\t"+p_delta);
+		}
+
+		
+		double[] relativeEventTimes = readAndysFile();
 
 		// x-axis is k and y-axis is p
 		EvenlyDiscrXYZ_DataSet xyzLogLikelihood = new EvenlyDiscrXYZ_DataSet(k_num, p_num, k_min, p_min, k_delta, p_delta);
@@ -100,7 +179,7 @@ public class AftershockStatsCalc {
 		double maxLike_p=Double.NaN;
 		for(int x=0;x<xyzLogLikelihood.getNumX();x++) {
 			for(int y=0;y<xyzLogLikelihood.getNumY();y++) {
-				double logLike = getLogLikelihoodForOmoriParams(xyzLogLikelihood.getX(x), c, xyzLogLikelihood.getY(y), readAndysFile());
+				double logLike = getLogLikelihoodForOmoriParams(xyzLogLikelihood.getX(x), xyzLogLikelihood.getY(y), c, relativeEventTimes);
 				xyzLogLikelihood.set(x, y, logLike);
 				if(logLike>maxLike) {
 					maxLike=logLike;
@@ -120,6 +199,9 @@ public class AftershockStatsCalc {
 		}
 		XYZPlotSpec logLikeSpec = new XYZPlotSpec(xyzLogLikelihood, cpt, "Log Likelihood", "k", "p", "log-likelihood");
 		XYZPlotWindow window_logLikeSpec = new XYZPlotWindow(logLikeSpec, new Range(k_min,k_max), new Range(p_min,p_max));
+		
+		
+		OmoriParamDistribution distArray = new OmoriParamDistribution(k_min, k_max, k_num, p_min, p_max, p_num, c, c, 1, relativeEventTimes);
 
 	}
 
