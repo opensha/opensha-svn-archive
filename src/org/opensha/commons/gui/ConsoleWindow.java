@@ -35,24 +35,40 @@ public class ConsoleWindow {
 	private JScrollPane scroll = new JScrollPane(text);
 	
 	public ConsoleWindow() {
-		System.setErr(new ConsoleStream(System.err));
-		System.setOut(new ConsoleStream(System.out));
-		initGUI();
+		this(false);
 	}
 	
-	public void initGUI() {
-		frame = new JDialog(new JFrame(), "Console Window");
-		frame.setLocationRelativeTo(null);
-		frame.setSize(800,500);
-		frame.add(scroll);
+	public ConsoleWindow(boolean noFrame) {
+		System.setErr(new ConsoleStream(System.err));
+		System.setOut(new ConsoleStream(System.out));
+		initGUI(noFrame);
+	}
+	
+	public void initGUI(boolean noFrame) {
+		if (!noFrame) {
+			frame = new JDialog(new JFrame(), "Console Window");
+			frame.setLocationRelativeTo(null);
+			frame.setSize(800,500);
+			frame.add(scroll);
+		}
 		text.setEditable(false);
 	}
 	
+	public JScrollPane getScrollPane() {
+		return scroll;
+	}
+	
+	public JTextArea getTextArea() {
+		return text;
+	}
+	
 	public void setVisible(boolean show) {
-		frame.setLocationRelativeTo(null);
-		text.setCaretPosition(0);
-		text.setCaretPosition(text.getText().length());
-		frame.setVisible(show);
+		if (frame != null) {
+			frame.setLocationRelativeTo(null);
+			text.setCaretPosition(0);
+			text.setCaretPosition(text.getText().length());
+			frame.setVisible(show);
+		}
 	}
 	
 	private class ConsoleStream extends PrintStream {

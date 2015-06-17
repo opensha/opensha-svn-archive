@@ -14,6 +14,7 @@ import org.opensha.commons.param.editor.impl.LocationParameterEditor;
 public class LocationParameter extends AbstractParameter<Location> {
 	
 	private transient ParameterEditor<Location> paramEdit = null;
+	private boolean showDepthInEditor = true;
 	
 	public LocationParameter(String name) {
 		this(name, null);
@@ -36,7 +37,7 @@ public class LocationParameter extends AbstractParameter<Location> {
 		if (paramEdit == null) {
 			ParameterConstraint<Location> constraint = getConstraint();
 			if (constraint == null) {
-				paramEdit = new LocationParameterEditor(this);
+				paramEdit = new LocationParameterEditor(this, showDepthInEditor);
 			} else {
 				paramEdit = new ConstrainedDiscreteLocationParameterEditor(this);
 			}
@@ -53,6 +54,16 @@ public class LocationParameter extends AbstractParameter<Location> {
 	protected boolean setIndividualParamValueFromXML(Element el) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	/**
+	 * If false, this will hide the depth parameter in the editor;
+	 * @param showDepthInEditor
+	 */
+	public void setShowDepthInEditor(boolean showDepthInEditor) {
+		this.showDepthInEditor = showDepthInEditor;
+		if (paramEdit != null && paramEdit instanceof LocationParameterEditor)
+			((LocationParameterEditor)paramEdit).setShowDepth(showDepthInEditor);
 	}
 
 }

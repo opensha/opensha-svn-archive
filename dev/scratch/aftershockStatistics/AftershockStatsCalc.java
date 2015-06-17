@@ -3,10 +3,12 @@
  */
 package scratch.aftershockStatistics;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.jfree.data.Range;
@@ -15,6 +17,13 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * @author field
@@ -126,6 +135,27 @@ public class AftershockStatsCalc {
 		return 1.0-Math.exp(-expectedNum);
 	}
 	
+	/**
+	 * This returns the maximum-likelihood b-value defined by Aki (1965, Bull. Earthq. Res. Inst., 43, 237-239)
+	 * @param rups - obs eqk rupture list
+	 * @param magComplete - the magnitude above which no events have gone undetected
+	 * @param magPrecision - the degree to which magnitude have been rounded
+	 * @return
+	 */
+	public static double getMaxLikelihood_b_value(ObsEqkRupList rups, double magComplete,
+			double magPrecision) {
+		double magMean = 0d;
+		int num = 0;
+		for (ObsEqkRupture rup : rups) {
+			if (rup.getMag() >= magComplete) {
+				num++;
+				magMean += rup.getMag();
+			}
+		}
+		Preconditions.checkState(num > 0, "No ruptures above mc="+magComplete);
+		magMean /= (double)num;
+		return getMaxLikelihood_b_value(magMean, magComplete, magPrecision);
+	}
 	
 	/**
 	 * This returns the maximum-likelihood b-value defined by Aki (1965, Bull. Earthq. Res. Inst., 43, 237-239)
@@ -136,7 +166,6 @@ public class AftershockStatsCalc {
 	 */
 	public static double getMaxLikelihood_b_value(double magMean, double magComplete, double magPrecision) {
 		return Math.log10(Math.E) /(magMean - (magComplete-0.5*magPrecision));
-		
 	}
 	
 	
@@ -230,6 +259,28 @@ public class AftershockStatsCalc {
 		OmoriParamDistribution distArray2 = new OmoriParamDistribution(k_min, k_max, k_num, p, p, 1, c, c, 1, relativeEventTimes);
 		System.out.println("distArray2.getTempMaxLike_k() = "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, relativeEventTimes));
 
+	}
+	
+	public static double getMmaxC(IncrementalMagFreqDist mfd) {
+		List<Double> magsAtMax = Lists.newArrayList();
+		double max = 0d;
+		
+		for (Point2D pt : mfd) {
+			if (pt.getY() == max)
+				magsAtMax.add(pt.getX());
+			else if (pt.getY() > max) {
+				// start over
+				magsAtMax = Lists.newArrayList(pt.getX());
+				max = pt.getY();
+			}
+		}
+		
+		double mmaxc = 0;
+		for (double mag : magsAtMax)
+			mmaxc += mag;
+		mmaxc /= (double)magsAtMax.size();
+		System.out.println("Mmaxc="+(float)mmaxc+" from MFD mode(s): "+Joiner.on(",").join(magsAtMax));
+		return mmaxc;
 	}
 
 
