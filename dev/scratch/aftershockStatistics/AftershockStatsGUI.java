@@ -13,11 +13,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
-import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DatasetBinner;
@@ -25,7 +25,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.ConsoleWindow;
-import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.GraphWidget;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -45,7 +45,6 @@ import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -53,7 +52,6 @@ import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -122,7 +120,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private ParameterList regionList;
 	private ParameterListParameter regionEditParam;
 	
+	private JTabbedPane tabbedPane;
 	private JScrollPane consoleScroll;
+	
+	private static final int hypo_tab_index = 1;
+	private static final int mag_num_tab_index = 2;
+	private static final int mag_time_tab_index = 3;
+	private GraphWidget hypocenterGraph;
+	private GraphWidget magNumGraph;
+	private GraphWidget magTimeGraph;
 	
 	private ComcatAccessor accessor;
 	private WC1994_MagLengthRelationship wcMagLen;
@@ -206,6 +212,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		text.setCaretPosition(0);
 		text.setCaretPosition(text.getText().length());
 		
+		tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Console", null, consoleScroll, "View Console");
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(editor, BorderLayout.WEST);
@@ -213,7 +222,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 //		JPanel scrollPanel = new JPanel();
 //		scrollPanel.add(consoleScroll);
 //		panel.add(scrollPanel, BorderLayout.EAST);
-		panel.add(consoleScroll, BorderLayout.CENTER);
+		panel.add(tabbedPane, BorderLayout.CENTER);
 		
 		setContentPane(panel);
 		setSize(1000, 800);
@@ -443,12 +452,19 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		Collections.reverse(chars);
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Hypocenters", "Longitude", "Latitude");
-		GraphWindow gw = new GraphWindow(spec, false);
+		if (hypocenterGraph == null)
+			hypocenterGraph = new GraphWidget(spec);
+		else
+			hypocenterGraph.setPlotSpec(spec);
 		
 		double regBuff = 0.05;
-		gw.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
+		hypocenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
 				region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
-		gw.setVisible(true);
+		
+		if (tabbedPane.getTabCount() == hypo_tab_index)
+			tabbedPane.addTab("Hypocenters", null, hypocenterGraph, "Hypocenter Map");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > hypo_tab_index, "Plots added out of order");
 	}
 	
 	private void buildFuncsCharsForBinned(XY_DataSet[] binnedFuncs,
@@ -496,13 +512,28 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		funcs.add(xy);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
+		if (bParam.getValue() != null) {
+			// add best fitting G-R
+			double b = bParam.getValue();
+			
+			// TODO
+		}
+		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Mag Num Dist", "Magnitude", "Count");
 		spec.setLegendVisible(true);
 		
-		GraphWindow gw = new GraphWindow(spec, false);
-		gw.setYLog(true);
-		gw.setY_AxisRange(plotMinY, plotMaxY);
-		gw.setVisible(true);
+		if (magNumGraph == null)
+			magNumGraph = new GraphWidget(spec);
+		else
+			magNumGraph.setPlotSpec(spec);
+		magNumGraph.setY_Log(true);
+		magNumGraph.setY_AxisRange(plotMinY, plotMaxY);
+		
+		if (tabbedPane.getTabCount() == mag_num_tab_index)
+			tabbedPane.addTab("Mag/Num Dist", null, magNumGraph,
+					"Aftershock Magnitude vs Number Distribution");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > mag_num_tab_index, "Plots added out of order");
 	}
 	
 	private double getTimeSinceMainshock(ObsEqkRupture rup) {
@@ -537,10 +568,19 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		buildFuncsCharsForBinned(binnedFuncs, funcs, chars);
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Magnitude Vs Time", "Days Since Mainshock", "Magnitude");
-		GraphWindow gw = new GraphWindow(spec, false);
-		gw.setX_AxisRange(-0.75, endTimeParam.getValue()+0.75);
-		gw.setY_AxisRange(Math.max(0, magTrack.getMin()-1d), magTrack.getMax()+1d);
-		gw.setVisible(true);
+		
+		if (magTimeGraph == null)
+			magTimeGraph = new GraphWidget(spec);
+		else
+			magTimeGraph.setPlotSpec(spec);
+		magTimeGraph.setX_AxisRange(-0.75, endTimeParam.getValue()+0.75);
+		magTimeGraph.setY_AxisRange(Math.max(0, magTrack.getMin()-1d), magTrack.getMax()+1d);
+		
+		if (tabbedPane.getTabCount() == mag_time_tab_index)
+			tabbedPane.addTab("Mag/Time Plot", null, magTimeGraph,
+					"Aftershock Magnitude vs Time Plot");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > mag_time_tab_index, "Plots added out of order");
 	}
 
 	@Override
