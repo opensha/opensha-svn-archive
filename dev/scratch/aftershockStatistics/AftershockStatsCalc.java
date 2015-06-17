@@ -48,6 +48,29 @@ public class AftershockStatsCalc {
 	
 	
 	
+	/**
+	 * This computes the maximum likelihood k values for constrained 
+	 * values of p and c as given.
+	 * @param p
+	 * @param c
+	 * @param relativeEventTimes
+	 * @return
+	 */
+	public static double getMaxLikelihood_k(double p, double c, double[] relativeEventTimes) {
+		double funcA=Double.NaN;
+		int n=relativeEventTimes.length;
+		double t_beg = relativeEventTimes[0];
+		double t_end = relativeEventTimes[n-1];
+		if(p == 1)
+			funcA = Math.log(t_end+c) - Math.log(t_beg+c);
+		else
+			funcA = (Math.pow(t_end+c,1-p) - Math.pow(t_beg+c,1-p)) / (1-p);
+		
+		return (double)n/funcA;
+	}
+	
+
+	
 	
 	/**
 	 * This gives the productivity value "k" for the given parameters
@@ -77,21 +100,20 @@ public class AftershockStatsCalc {
 	 * This returns the expected number of primary aftershocks between time tMin and tMax (days) for 
 	 * the given arguments.
 	 * @param k
-	 * @param p - must be > 1.0 (exception thrown); TODO relax this restriction
-	 * @param magMain - main shock magnitude
-	 * @param magMin - minimum magnitude
+	 * @param p 
 	 * @param c - days
 	 * @param tMin - beginning of forecast time window (since origin time), in days
 	 * @param tMax - end of forecast time window (since origin time), in days
 	 * @return
 	 */
-	public static double getExpectedNumEvents(double k, double p, double magMain, double magMin, double c, double tMinDays, double tMaxDays) {
-		if(p<=1)
-			throw new RuntimeException ("p must be greater than 1.0");
-		double oneMinusP= 1-p;
-		double lambda = k*Math.pow(10,magMain-magMin)/oneMinusP;
-		lambda *= Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP);
-		return lambda;
+	public static double getExpectedNumEvents(double k, double p, double c, double tMinDays, double tMaxDays) {
+		if(p!=1) {
+			double oneMinusP= 1-p;
+			return (k/oneMinusP)*Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP);
+		}
+		else {
+			return c*(tMaxDays-tMinDays) + 0.5*(tMaxDays*tMaxDays-tMinDays*tMinDays);
+		}
 	}
 
 	
@@ -202,6 +224,11 @@ public class AftershockStatsCalc {
 		
 		
 		OmoriParamDistribution distArray = new OmoriParamDistribution(k_min, k_max, k_num, p_min, p_max, p_num, c, c, 1, relativeEventTimes);
+		
+		// test the maximum likelihood k value for constrained p and c
+		double p = distArray.getMaxLikelihood_p();
+		OmoriParamDistribution distArray2 = new OmoriParamDistribution(k_min, k_max, k_num, p, p, 1, c, c, 1, relativeEventTimes);
+		System.out.println("distArray2.getTempMaxLike_k() = "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, relativeEventTimes));
 
 	}
 

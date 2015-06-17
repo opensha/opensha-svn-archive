@@ -34,6 +34,7 @@ public class OmoriParamDistribution {
 		this.min_c = min_c;
 		this.max_c = max_c;
 		this.num_c = num_c;
+		this.relativeEventTimes = relativeEventTimes;
 		
 		if(num_k>1) // otherwise defaults to zero
 			delta_k = (max_k-min_k)/((double)num_k - 1.);
@@ -59,7 +60,7 @@ public class OmoriParamDistribution {
 					double c = get_c(cIndex);
 					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, relativeEventTimes);
 					double like = Math.exp(logLike);
-System.out.println(get_k(kIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
+// System.out.println(get_k(kIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
 					array[kIndex][pIndex][cIndex] = like;
 					total += like;
 					if(maxVal<like) {
@@ -105,7 +106,6 @@ System.out.println(get_k(kIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logL
 	public double getMaxLikelihood_c() { return get_c(max_c_index);}
 	
 
-	
 	public double getMin_k() { return min_k;}
 	public double getMin_p() { return min_p;}
 	public double getMin_c() { return min_c;}
