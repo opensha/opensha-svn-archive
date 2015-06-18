@@ -108,20 +108,24 @@ public class AftershockStatsCalc {
 	/**
 	 * This returns the expected number of primary aftershocks between time tMin and tMax (days) for 
 	 * the given arguments.
-	 * @param k
+	 * @param a
+	 * @param b
+	 * @param magMain
+	 * @param magMin
 	 * @param p 
 	 * @param c - days
 	 * @param tMin - beginning of forecast time window (since origin time), in days
 	 * @param tMax - end of forecast time window (since origin time), in days
 	 * @return
 	 */
-	public static double getExpectedNumEvents(double k, double p, double c, double tMinDays, double tMaxDays) {
+	public static double getExpectedNumEvents(double a, double b, double magMain, double magMin, double p, double c, double tMinDays, double tMaxDays) {
+		double k = getProductivity_k(a, b, magMain, magMin);
 		if(p!=1) {
 			double oneMinusP= 1-p;
 			return (k/oneMinusP)*Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP);
 		}
 		else {
-			return c*(tMaxDays-tMinDays) + 0.5*(tMaxDays*tMaxDays-tMinDays*tMinDays);
+			return k*(c*(tMaxDays-tMinDays) + 0.5*(tMaxDays*tMaxDays-tMinDays*tMinDays));
 		}
 	}
 
@@ -252,12 +256,23 @@ public class AftershockStatsCalc {
 		XYZPlotWindow window_logLikeSpec = new XYZPlotWindow(logLikeSpec, new Range(k_min,k_max), new Range(p_min,p_max));
 		
 		
-		OmoriParamDistribution distArray = new OmoriParamDistribution(k_min, k_max, k_num, p_min, p_max, p_num, c, c, 1, relativeEventTimes);
+		// test model assuming b=1
+		double b = 1;
+		double magMain = 7;	// assumed value for Andy's data
+		double magMin = 5;	// assumed value for Andy's data
+		double a_min = getProductivity_a(k_min, b, magMain, magMin);
+		double a_max = getProductivity_a(k_max, b, magMain, magMin);
+		int a_num = k_num;
+		
+		ReasenbergJonesAftershockModel distArray = new ReasenbergJonesAftershockModel(b, magMain, magMin, a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1, relativeEventTimes);
+		System.out.println("max likelihood gridded k =  "+getProductivity_k(distArray.getMaxLikelihood_a(), b, magMain, magMin));
 		
 		// test the maximum likelihood k value for constrained p and c
 		double p = distArray.getMaxLikelihood_p();
-		OmoriParamDistribution distArray2 = new OmoriParamDistribution(k_min, k_max, k_num, p, p, 1, c, c, 1, relativeEventTimes);
-		System.out.println("distArray2.getTempMaxLike_k() = "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, relativeEventTimes));
+		ReasenbergJonesAftershockModel distArray2 = new ReasenbergJonesAftershockModel(b, magMain, magMin, a_min, a_max, a_num, p, p, 1, c, c, 1, relativeEventTimes);
+		System.out.println("2nd max likelihood gridded k =  "+getProductivity_k(distArray2.getMaxLikelihood_a(), b, magMain, magMin));
+
+		System.out.println("2nd max likelihood analytic k =  "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, relativeEventTimes));
 
 	}
 	
