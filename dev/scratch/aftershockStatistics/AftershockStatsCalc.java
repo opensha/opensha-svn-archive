@@ -19,6 +19,7 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Joiner;
@@ -30,6 +31,10 @@ import com.google.common.collect.Lists;
  *
  */
 public class AftershockStatsCalc {
+	
+	public final static double MILLISEC_PER_YEAR = 1000*60*60*24*365.25;
+	public final static long MILLISEC_PER_DAY = 1000*60*60*24;
+
 	
 	/**
 	 * This computes the log-likelihood for the given modified Omori parameters according to 
@@ -82,31 +87,32 @@ public class AftershockStatsCalc {
 	
 	
 	/**
-	 * This gives the productivity value "k" for the given parameters
+	 * This converts the productivity value from "a" to "k"
 	 * @param a
 	 * @param b
 	 * @param magMain
 	 * @param magMin
 	 * @return
 	 */
-	public static double getProductivity_k(double a, double b, double magMain, double magMin) {
+	public static double convertProductivityTo_k(double a, double b, double magMain, double magMin) {
 		return Math.pow(10.0, a+b*(magMain-magMin));
 	}
 	
 	/**
-	 * This gives the productivity value "a" for the given parameters
+	 * This converts the productivity value from "k" to "a"
 	 * @param k
 	 * @param b
 	 * @param magMain
 	 * @param magMin
 	 * @return
 	 */
-	public static double getProductivity_a(double k, double b, double magMain, double magMin) {
+	public static double convertProductivityTo_a(double k, double b, double magMain, double magMin) {
 		return Math.log10(k) - b*(magMain-magMin);
 	}
 
 	/**
-	 * This returns the expected number of primary aftershocks between time tMin and tMax (days) for 
+	 * This returns the Reasenberg Jones (1989, 1994) expected number of primary aftershocks 
+	 * between time tMin and tMax (days) for 
 	 * the given arguments.
 	 * @param a
 	 * @param b
@@ -119,10 +125,10 @@ public class AftershockStatsCalc {
 	 * @return
 	 */
 	public static double getExpectedNumEvents(double a, double b, double magMain, double magMin, double p, double c, double tMinDays, double tMaxDays) {
-		double k = getProductivity_k(a, b, magMain, magMin);
+		double k = convertProductivityTo_k(a, b, magMain, magMin);
 		if(p!=1) {
 			double oneMinusP= 1-p;
-			return (k/oneMinusP)*Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP);
+			return (k/oneMinusP)*(Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP));
 		}
 		else {
 			return k*(c*(tMaxDays-tMinDays) + 0.5*(tMaxDays*tMaxDays-tMinDays*tMinDays));
@@ -159,6 +165,21 @@ public class AftershockStatsCalc {
 		Preconditions.checkState(num > 0, "No ruptures above mc="+magComplete);
 		magMean /= (double)num;
 		return getMaxLikelihood_b_value(magMean, magComplete, magPrecision);
+	}
+	
+	/**
+	 * This does not check for negative values
+	 * @param mainShock
+	 * @param aftershockList
+	 * @return
+	 */
+	public static double[] getDaysSinceMainShockArray(ObsEqkRupture mainShock, ObsEqkRupList aftershockList) {
+		double[] relativeEventTimesDays = new double[aftershockList.size()];
+		for(int i=0; i<aftershockList.size();i++) {
+			long epochDiff = aftershockList.get(i).getOriginTime()-mainShock.getOriginTime();
+			relativeEventTimesDays[i] = (double)(epochDiff) / (double)MILLISEC_PER_DAY;
+		}
+		return relativeEventTimesDays;
 	}
 	
 	/**
@@ -200,7 +221,17 @@ public class AftershockStatsCalc {
 	}
 	
 	
-	
+	public static void plot2D_PDF(EvenlyDiscrXYZ_DataSet pdf2D, String title,
+			String xAxisLabel, String yAxisLabel, String zAxisLabel) {
+		CPT cpt=null;
+		try {
+			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(pdf2D.getMinZ(), pdf2D.getMaxZ());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		XYZPlotSpec logLikeSpec = new XYZPlotSpec(pdf2D, cpt, title, xAxisLabel, yAxisLabel, zAxisLabel);
+		XYZPlotWindow window_logLikeSpec = new XYZPlotWindow(logLikeSpec, new Range(pdf2D.getMinX(),pdf2D.getMaxX()), new Range(pdf2D.getMinY(),pdf2D.getMaxY()));
+	}
 	
 	
 	public static void testAndyCalc() {
@@ -259,18 +290,39 @@ public class AftershockStatsCalc {
 		// test model assuming b=1
 		double b = 1;
 		double magMain = 7;	// assumed value for Andy's data
-		double magMin = 5;	// assumed value for Andy's data
-		double a_min = getProductivity_a(k_min, b, magMain, magMin);
-		double a_max = getProductivity_a(k_max, b, magMain, magMin);
+		double magComplete = 5;	// assumed value for Andy's data
+		double a_min = convertProductivityTo_a(k_min, b, magMain, magComplete);
+		double a_max = convertProductivityTo_a(k_max, b, magMain, magComplete);
 		int a_num = k_num;
+		ObsEqkRupture dummyMainShock = new ObsEqkRupture();
+		dummyMainShock.setMag(magMain);
+		dummyMainShock.setOriginTime(0l);
+		ObsEqkRupList dummyAftershocks = new ObsEqkRupList();
+		for(double relTime:relativeEventTimes) {
+			ObsEqkRupture newRup = new ObsEqkRupture();
+			long ot = (long)(relTime*(double)MILLISEC_PER_DAY);
+			newRup.setOriginTime(ot);
+			newRup.setMag(magComplete+1); // anything above magComplete);
+			dummyAftershocks.add(newRup);
+		}
 		
-		ReasenbergJonesAftershockModel distArray = new ReasenbergJonesAftershockModel(b, magMain, magMin, a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1, relativeEventTimes);
-		System.out.println("max likelihood gridded k =  "+getProductivity_k(distArray.getMaxLikelihood_a(), b, magMain, magMin));
+		ReasenbergJonesAftershockModel distArray = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b,
+				a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1);
+		System.out.println("max likelihood gridded k =  "+distArray.getMaxLikelihood_k());
+		System.out.println("distArray.getPDF_a():\n"+distArray.getPDF_a());
+		System.out.println("distArray.getPDF_p():\n"+distArray.getPDF_p());
+		System.out.println("distArray.getPDF_c():\n"+distArray.getPDF_c());
+		plot2D_PDF(distArray.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
+		GutenbergRichterMagFreqDist mfd = distArray.getExpectedNumMFD(3.0, 9.0, 61, 0.0, 7.0);
+		System.out.println("distArray.getExpectedNumMFD():\n"+mfd);
+
 		
 		// test the maximum likelihood k value for constrained p and c
 		double p = distArray.getMaxLikelihood_p();
-		ReasenbergJonesAftershockModel distArray2 = new ReasenbergJonesAftershockModel(b, magMain, magMin, a_min, a_max, a_num, p, p, 1, c, c, 1, relativeEventTimes);
-		System.out.println("2nd max likelihood gridded k =  "+getProductivity_k(distArray2.getMaxLikelihood_a(), b, magMain, magMin));
+		ReasenbergJonesAftershockModel distArray2 = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b, 
+				a_min, a_max, a_num, p, p, 1, c, c, 1);
+		System.out.println("2nd max likelihood gridded k =  "+distArray2.getMaxLikelihood_k());
+		
 
 		System.out.println("2nd max likelihood analytic k =  "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, relativeEventTimes));
 
