@@ -285,7 +285,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      * @param rate
      */
 
-    public void scaleToCumRate(double mag,double rate) {
+    public void scaleToCumRate(double mag, double rate) {
         int index = getXIndex(mag);
         scaleToCumRate(index,rate);
     }

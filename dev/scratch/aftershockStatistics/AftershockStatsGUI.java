@@ -16,11 +16,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import org.jfree.data.Range;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DatasetBinner;
+import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
@@ -40,8 +44,10 @@ import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.ButtonParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.EnumParameter;
+import org.opensha.commons.param.impl.IntegerParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.param.impl.ParameterListParameter;
+import org.opensha.commons.param.impl.RangeParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
@@ -51,6 +57,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
@@ -58,9 +65,13 @@ import com.google.common.collect.Lists;
 
 public class AftershockStatsGUI extends JFrame implements ParameterChangeListener {
 	
+	/*
+	 * Data parameters
+	 */
+	
 	private StringParameter eventIDParam;
-	private DoubleParameter startTimeParam;
-	private DoubleParameter endTimeParam;
+	private DoubleParameter dataStartTimeParam;
+	private DoubleParameter dataEndTimeParam;
 	
 	private enum RegionType {
 		CIRCULAR("Circular"),
@@ -111,15 +122,41 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private EnumParameter<RegionCenterType> regionCenterTypeParam;
 	private LocationParameter regionCenterLocParam;
 	
+	private ParameterList regionList;
+	private ParameterListParameter regionEditParam;
+	
 	private ButtonParameter fetchButton;
+	
+	/*
+	 * B-value fit parameters
+	 */
 	
 	private DoubleParameter mcParam;
 	private DoubleParameter magPrecisionParam;
 	private ButtonParameter computeBButton;
 	private DoubleParameter bParam;
 	
-	private ParameterList regionList;
-	private ParameterListParameter regionEditParam;
+	/*
+	 * Aftershock model parameters
+	 */
+	
+	private RangeParameter aValRangeParam;
+	private IntegerParameter aValNumParam;
+	private RangeParameter pValRangeParam;
+	private IntegerParameter pValNumParam;
+	private RangeParameter cValRangeParam;
+	private IntegerParameter cValNumParam;
+	
+	private ButtonParameter computeAftershockParamsButton;
+	
+	private DoubleParameter aValParam;
+	private DoubleParameter pValParam;
+	private DoubleParameter cValParam;
+	
+	private DoubleParameter forecastStartTimeParam;
+	private DoubleParameter forecastEndTimeParam;
+	
+	private ButtonParameter computeAftershockForecastButton;
 	
 	private JTabbedPane tabbedPane;
 	private JScrollPane consoleScroll;
@@ -127,9 +164,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private static final int hypo_tab_index = 1;
 	private static final int mag_num_tab_index = 2;
 	private static final int mag_time_tab_index = 3;
+	private static final int pdf_tab_index = 4;
 	private GraphWidget hypocenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
+	private JTabbedPane pdfGraphsPane;
 	
 	private ComcatAccessor accessor;
 	private WC1994_MagLengthRelationship wcMagLen;
@@ -141,28 +180,33 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private IncrementalMagFreqDist aftershockMND;
 	private double mmaxc;
 	
+	private ReasenbergJonesAftershockModel model;
+	
 	public AftershockStatsGUI() {
-		ParameterList params = new ParameterList();
+		/*
+		 * Data parameters
+		 */
+		ParameterList dataParams = new ParameterList();
 		
 		eventIDParam = new StringParameter("USGS Event ID");
 		eventIDParam.setValue("us20002926");
 		eventIDParam.addParameterChangeListener(this);
-		params.addParameter(eventIDParam);
+		dataParams.addParameter(eventIDParam);
 		
-		startTimeParam = new DoubleParameter("Start Time", 0d, 3650, new Double(0d));
-		startTimeParam.setUnits("Days");
-		startTimeParam.addParameterChangeListener(this);
-		params.addParameter(startTimeParam);
+		dataStartTimeParam = new DoubleParameter("Data Start Time", 0d, 3650, new Double(0d));
+		dataStartTimeParam.setUnits("Days");
+		dataStartTimeParam.addParameterChangeListener(this);
+		dataParams.addParameter(dataStartTimeParam);
 		
-		endTimeParam = new DoubleParameter("End Time", 0d, 3650, new Double(7d));
-		endTimeParam.setUnits("Days");
-		endTimeParam.addParameterChangeListener(this);
-		params.addParameter(endTimeParam);
+		dataEndTimeParam = new DoubleParameter("Data End Time", 0d, 3650, new Double(7d));
+		dataEndTimeParam.setUnits("Days");
+		dataEndTimeParam.addParameterChangeListener(this);
+		dataParams.addParameter(dataEndTimeParam);
 		
 		regionTypeParam = new EnumParameter<AftershockStatsGUI.RegionType>(
 				"Region Type", EnumSet.allOf(RegionType.class), RegionType.CIRCULAR_WC94, null);
 		regionTypeParam.addParameterChangeListener(this);
-		params.addParameter(regionTypeParam);
+		dataParams.addParameter(regionTypeParam);
 		
 		// these are inside region editor
 		radiusParam = new DoubleParameter("Radius", 0d, 1000, new Double(20));
@@ -176,7 +220,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(20));
 		maxDepthParam.setUnits("km");
 		regionCenterTypeParam = new EnumParameter<AftershockStatsGUI.RegionCenterType>(
-				"Region Center", EnumSet.allOf(RegionCenterType.class), RegionCenterType.EPICENTER, null);
+				"Region Center", EnumSet.allOf(RegionCenterType.class), RegionCenterType.CENTROID, null);
 		regionCenterLocParam = new LocationParameter("Region Center Location");
 		regionCenterTypeParam.addParameterChangeListener(this);
 		
@@ -184,34 +228,101 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		regionEditParam = new ParameterListParameter("Edit Region", regionList);
 		regionEditParam.addParameterChangeListener(this);
 		updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
-		params.addParameter(regionEditParam);
+		dataParams.addParameter(regionEditParam);
 		
 		fetchButton = new ButtonParameter("USGS Event Webservice", "Fetch Data");
 		fetchButton.addParameterChangeListener(this);
-		params.addParameter(fetchButton);
+		dataParams.addParameter(fetchButton);
 		
 		mcParam = new DoubleParameter("Mc", 0d, 9d);
 		mcParam.getConstraint().setNullAllowed(true);
 		mcParam.addParameterChangeListener(this);
-		params.addParameter(mcParam);
+		dataParams.addParameter(mcParam);
 		
 		magPrecisionParam = new DoubleParameter("Mag Precision", 0d, 1d, new Double(0.1));
 		magPrecisionParam.addParameterChangeListener(this);
-		params.addParameter(magPrecisionParam);
+		dataParams.addParameter(magPrecisionParam);
 		
-		computeBButton = new ButtonParameter("GR b-value", "Compute B");
+		computeBButton = new ButtonParameter("G-R b-value", "Compute B");
 		computeBButton.addParameterChangeListener(this);
-		params.addParameter(computeBButton);
+		dataParams.addParameter(computeBButton);
 		
 		bParam = new DoubleParameter("b-value", 1d);
 		bParam.setValue(null);
 		bParam.addParameterChangeListener(this);
-		params.addParameter(bParam);
+		dataParams.addParameter(bParam);
 		
-		disableParamsPostFetch();
+		/*
+		 * Fit params
+		 */
 		
-		ParameterListEditor editor = new ParameterListEditor(params);
-		editor.setTitle("Parameters");
+		ParameterList fitParams = new ParameterList();
+		
+		aValRangeParam = new RangeParameter("a-value range", new Range(-0.7695510786217261, -0.46852108295774486));
+		aValRangeParam.addParameterChangeListener(this);
+		fitParams.addParameter(aValRangeParam);
+		
+		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(69));
+		aValNumParam.addParameterChangeListener(this);
+		fitParams.addParameter(aValNumParam);
+		
+		pValRangeParam = new RangeParameter("p-value range", new Range(0.9, 1.15));
+		pValRangeParam.addParameterChangeListener(this);
+		fitParams.addParameter(pValRangeParam);
+		
+		pValNumParam = new IntegerParameter("p-value num", 1, 10000, new Integer(21));
+		pValNumParam.addParameterChangeListener(this);
+		fitParams.addParameter(pValNumParam);
+		
+		cValRangeParam = new RangeParameter("c-value range", new Range(0.05, 0.05));
+		cValRangeParam.addParameterChangeListener(this);
+		fitParams.addParameter(cValRangeParam);
+		
+		cValNumParam = new IntegerParameter("c-value num", 1, 10000, new Integer(1));
+		cValNumParam.addParameterChangeListener(this);
+		fitParams.addParameter(cValNumParam);
+		
+		computeAftershockParamsButton = new ButtonParameter("Aftershock Params", "Compute");
+		computeAftershockParamsButton.addParameterChangeListener(this);
+		fitParams.addParameter(computeAftershockParamsButton);
+		
+		aValParam = new DoubleParameter("a-value", new Double(0d));
+		aValParam.setValue(null);
+		aValParam.addParameterChangeListener(this);
+		fitParams.addParameter(aValParam);
+		
+		pValParam = new DoubleParameter("p-value", new Double(0d));
+		pValParam.setValue(null);
+		pValParam.addParameterChangeListener(this);
+		fitParams.addParameter(pValParam);
+		
+		cValParam = new DoubleParameter("c-value", new Double(0d));
+		cValParam.setValue(null);
+		cValParam.addParameterChangeListener(this);
+		fitParams.addParameter(cValParam);
+		
+		forecastStartTimeParam = new DoubleParameter("Forecast Start Time", 0d, 3650, new Double(0d));
+		forecastStartTimeParam.setUnits("Days");
+		forecastStartTimeParam.addParameterChangeListener(this);
+		fitParams.addParameter(forecastStartTimeParam);
+		
+		forecastEndTimeParam = new DoubleParameter("Forecast End Time", 0d, 3650, new Double(7d));
+		forecastEndTimeParam.setUnits("Days");
+		forecastEndTimeParam.addParameterChangeListener(this);
+		fitParams.addParameter(forecastEndTimeParam);
+		
+		computeAftershockForecastButton = new ButtonParameter("Aftershock Forecast", "Compute");
+		computeAftershockForecastButton.addParameterChangeListener(this);
+		fitParams.addParameter(computeAftershockForecastButton);
+		
+		setEnableParamsPostFetch(false);
+		
+		ParameterListEditor dataEditor = new ParameterListEditor(dataParams);
+		dataEditor.setTitle("Data Parameters");
+		
+		ParameterListEditor fitEditor = new ParameterListEditor(fitParams);
+		fitEditor.setTitle("Aftershock Parameters");
+		
 		ConsoleWindow console = new ConsoleWindow(true);
 		consoleScroll = console.getScrollPane();
 		consoleScroll.setSize(600, 600);
@@ -222,17 +333,21 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Console", null, consoleScroll, "View Console");
 		
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(editor, BorderLayout.WEST);
-		editor.setPreferredSize(new Dimension(200, 800));
-//		JPanel scrollPanel = new JPanel();
-//		scrollPanel.add(consoleScroll);
-//		panel.add(scrollPanel, BorderLayout.EAST);
-		panel.add(tabbedPane, BorderLayout.CENTER);
+		int paramWidth = 250;
+		int chartWidth = 800;
+		int height = 900;
 		
-		setContentPane(panel);
-		setSize(1000, 800);
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		JPanel paramsPanel = new JPanel(new BorderLayout());
+		dataEditor.setPreferredSize(new Dimension(paramWidth, height));
+		fitEditor.setPreferredSize(new Dimension(paramWidth, height));
+		paramsPanel.add(dataEditor, BorderLayout.WEST);
+		paramsPanel.add(fitEditor, BorderLayout.EAST);
+		mainPanel.add(paramsPanel, BorderLayout.WEST);
+		mainPanel.add(tabbedPane, BorderLayout.CENTER);
+		
+		setContentPane(mainPanel);
+		setSize(250*2+chartWidth, height);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Aftershock Statistics GUI");
 		setLocationRelativeTo(null);
@@ -321,8 +436,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		double minDepth = minDepthParam.getValue();
 		double maxDepth = maxDepthParam.getValue();
 		
-		double minDays = startTimeParam.getValue();
-		double maxDays = endTimeParam.getValue();
+		double minDays = dataStartTimeParam.getValue();
+		double maxDays = dataEndTimeParam.getValue();
 		
 		if (regionTypeParam.getValue().isCircular()
 				&& regionCenterTypeParam.getValue() == RegionCenterType.CENTROID) {
@@ -539,8 +654,14 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			
 			// add best fitting G-R
 			double b = bParam.getValue();
+			GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(b, 1d, mfd.getMinX(), mfd.getMaxX(), mfd.size());
+			// scale to rate at Mc
+			int index = mfd.getClosestXIndex(mc);
+			gr.scaleToCumRate(index, cmlMFD.getY(index));
 			
-			// TODO
+			gr.setName("G-R b="+(float)b);
+			funcs.add(gr);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.ORANGE));
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Mag Num Dist", "Magnitude", "Count");
@@ -597,7 +718,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			magTimeGraph = new GraphWidget(spec);
 		else
 			magTimeGraph.setPlotSpec(spec);
-		magTimeGraph.setX_AxisRange(-0.75, endTimeParam.getValue()+0.75);
+		magTimeGraph.setX_AxisRange(-0.75, dataEndTimeParam.getValue()+0.75);
 		magTimeGraph.setY_AxisRange(Math.max(0, magTrack.getMin()-1d), magTrack.getMax()+1d);
 		
 		if (tabbedPane.getTabCount() == mag_time_tab_index)
@@ -606,46 +727,85 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		else
 			Preconditions.checkState(tabbedPane.getTabCount() > mag_time_tab_index, "Plots added out of order");
 	}
+	
+	private void plotPDFs() {
+		if (pdfGraphsPane == null)
+			pdfGraphsPane = new JTabbedPane();
+		else
+			while (pdfGraphsPane.getTabCount() > 0)
+				pdfGraphsPane.removeTabAt(0);
+		
+		add1D_PDF(model.getPDF_a(), "a-value");
+		add1D_PDF(model.getPDF_p(), "p-value");
+		add1D_PDF(model.getPDF_c(), "c-value");
+		add2D_PDF(model.get2D_PDF_for_a_and_c(), "a-value", "c-value");
+		add2D_PDF(model.get2D_PDF_for_a_and_p(), "a-value", "p-value");
+		add2D_PDF(model.get2D_PDF_for_c_and_p(), "c-value", "p-value");
+		
+		if (tabbedPane.getTabCount() == pdf_tab_index)
+			tabbedPane.addTab("Model PDFs", null, pdfGraphsPane,
+					"Aftershock Model Prob Dist Funcs");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > pdf_tab_index, "Plots added out of order");
+	}
+	
+	private void add1D_PDF(HistogramFunction pdf, String name) {
+		if (pdf == null)
+			return;
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		funcs.add(pdf);
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
+				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, pdf.getName(), name, "log-liklihood");
+		
+		GraphWidget widget = new GraphWidget(spec);
+		pdfGraphsPane.addTab(name, null, widget);
+	}
+	
+	private void add2D_PDF(EvenlyDiscrXYZ_DataSet pdf, String name1, String name2) {
+		if (pdf == null)
+			return;
+	}
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
 		Parameter<?> param = event.getParameter();
-		if (param == eventIDParam || param == startTimeParam || param == endTimeParam
+		if (param == eventIDParam || param == dataStartTimeParam || param == dataEndTimeParam
 				|| param == regionEditParam) {
-			disableParamsPostFetch();
+			setEnableParamsPostFetch(false);
 		} else if (param == regionTypeParam || param == regionCenterTypeParam) {
 			updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
-			disableParamsPostFetch();
+			setEnableParamsPostFetch(false);
 		} else if (param == fetchButton) {
 			String title = "Error Fetching Events";
-			disableParamsPostFetch();
+			setEnableParamsPostFetch(false);
 			try {
 				fetchEvents();
 				title = "Error Calculating Mag Num Distrubution";
 				aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
 				mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
 				mcParam.setValue(mmaxc+0.5);
+				mcParam.getEditor().refreshParamEditor();
 				// plots
 				title = "Error Plotting Events";
 				plotAftershockHypocs();
 				plotMFDs(aftershockMND, mmaxc);
 				plotMagVsTime();
 
-				magPrecisionParam.getEditor().setEnabled(true);
-				mcParam.getEditor().setEnabled(true);
-				mcParam.getEditor().refreshParamEditor();
-				computeBButton.getEditor().setEnabled(true);
+				setEnableParamsPostFetch(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
 		} else if (param == mcParam || param == magPrecisionParam) {
-			disableParamsPostComputeB();
+			setEnableParamsPostComputeB(false);
 			bParam.setValue(null);
 		} else if (param == computeBButton) {
 			String title = "Error Computing b";
-			disableParamsPostComputeB();
+			setEnableParamsPostComputeB(false);
 			try {
 				Double mc = mcParam.getValue();
 				Preconditions.checkState(mc != null, "Must supply Mc");
@@ -657,7 +817,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				bParam.setValue(b);
 				bParam.getEditor().refreshParamEditor();
 				
-				bParam.getEditor().setEnabled(true);
+				setEnableParamsPostComputeB(true);
 				tabbedPane.setSelectedIndex(mag_num_tab_index);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -665,27 +825,117 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
 		} else  if (param == bParam) {
-			// TODO disable downstream params when added
+			setEnabledParamsPostAfershockParams(false);
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
 				plotMFDs(aftershockMND, mmaxc);
+		} else if (param == aValRangeParam || param == aValNumParam) {
+			updateRangeParams(aValRangeParam, aValNumParam, 69);
+			setEnabledParamsPostAfershockParams(false);
+		} else if (param == pValRangeParam || param == pValNumParam) {
+			updateRangeParams(pValRangeParam, pValNumParam, 21);
+			setEnabledParamsPostAfershockParams(false);
+		} else if (param == cValRangeParam || param == cValNumParam) {
+			updateRangeParams(cValRangeParam, cValNumParam, 21);
+			setEnabledParamsPostAfershockParams(false);
+		} else if (param == computeAftershockParamsButton) {
+			String title = "Error Computing Aftershock Params";
+			setEnabledParamsPostAfershockParams(false);
+			try {
+				Range aRange = aValRangeParam.getValue();
+				int aNum = aValNumParam.getValue();
+				validateRange(aRange, aNum, "a-value");
+				Range pRange = pValRangeParam.getValue();
+				int pNum = pValNumParam.getValue();
+				validateRange(pRange, pNum, "p-value");
+				Range cRange = cValRangeParam.getValue();
+				int cNum = cValNumParam.getValue();
+				validateRange(cRange, cNum, "c-value");
+				
+				Double mc = mcParam.getValue();
+				Preconditions.checkState(mc != null, "Must supply Mc");
+				
+				Double b = bParam.getValue();
+				Preconditions.checkState(b != null, "Must supply b-value");
+				
+				model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
+						aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+						pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+						cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+				
+				aValParam.setValue(model.getMaxLikelihood_a());
+				aValParam.getEditor().refreshParamEditor();
+				pValParam.setValue(model.getMaxLikelihood_p());
+				pValParam.getEditor().refreshParamEditor();
+				cValParam.setValue(model.getMaxLikelihood_c());
+				cValParam.getEditor().refreshParamEditor();
+				
+				setEnabledParamsPostAfershockParams(true);
+				plotPDFs();
+				tabbedPane.setSelectedIndex(pdf_tab_index);
+			} catch (Exception e) {
+				e.printStackTrace();
+				String message = e.getMessage();
+				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+			}
 		}
+	}
+	
+	private void updateRangeParams(RangeParameter rangeParam, IntegerParameter numParam, int defaultNum) {
+		Preconditions.checkState(defaultNum > 1);
+		Range range = rangeParam.getValue();
+		if (range == null)
+			return;
+		boolean same = range.getLowerBound() == range.getUpperBound();
+		if (same && numParam.getValue() > 1)
+			numParam.setValue(1);
+		else if (!same && numParam.getValue() == 1)
+			numParam.setValue(defaultNum);
+		numParam.getEditor().refreshParamEditor();
+	}
+	
+	private void validateRange(Range range, int num, String name) {
+		Preconditions.checkState(range != null, "Must supply "+name+" range");
+		boolean same = range.getLowerBound() == range.getUpperBound();
+		if (same)
+			Preconditions.checkState(num == 1, "Num must equal 1 for fixed "+name);
+		else
+			Preconditions.checkState(num > 1, "Num must be >1 for variable "+name);
 	}
 	
 	/**
 	 * disables all parameters that are dependent on the fetch step and beyond
 	 */
-	private void disableParamsPostFetch() {
-		mcParam.getEditor().setEnabled(false);
-		magPrecisionParam.getEditor().setEnabled(false);
-		computeBButton.getEditor().setEnabled(false);
-		disableParamsPostComputeB();
+	private void setEnableParamsPostFetch(boolean enabled) {
+		mcParam.getEditor().setEnabled(enabled);
+		magPrecisionParam.getEditor().setEnabled(enabled);
+		computeBButton.getEditor().setEnabled(enabled);
+		if (!enabled)
+			setEnableParamsPostComputeB(enabled);
 	}
 	
 	/**
 	 * disables all parameters that are dependent on the compute b step and beyond
 	 */
-	private void disableParamsPostComputeB() {
-		bParam.getEditor().setEnabled(false);
+	private void setEnableParamsPostComputeB(boolean enabled) {
+		bParam.getEditor().setEnabled(enabled);
+		aValRangeParam.getEditor().setEnabled(enabled);
+		aValNumParam.getEditor().setEnabled(enabled);
+		pValRangeParam.getEditor().setEnabled(enabled);
+		pValNumParam.getEditor().setEnabled(enabled);
+		cValRangeParam.getEditor().setEnabled(enabled);
+		cValNumParam.getEditor().setEnabled(enabled);
+		computeAftershockParamsButton.getEditor().setEnabled(enabled);
+		if (!enabled)
+			setEnabledParamsPostAfershockParams(enabled);
+	}
+	
+	private void setEnabledParamsPostAfershockParams(boolean enabled) {
+		aValParam.getEditor().setEnabled(enabled);
+		pValParam.getEditor().setEnabled(enabled);
+		cValParam.getEditor().setEnabled(enabled);
+		forecastStartTimeParam.getEditor().setEnabled(enabled);
+		forecastEndTimeParam.getEditor().setEnabled(enabled);
+		computeAftershockForecastButton.getEditor().setEnabled(enabled);
 	}
 	
 	public static void main(String[] args) {
