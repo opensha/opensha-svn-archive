@@ -32,6 +32,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -144,21 +145,25 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		eventIDParam = new StringParameter("USGS Event ID");
 		eventIDParam.setValue("us20002926");
+		eventIDParam.addParameterChangeListener(this);
 		params.addParameter(eventIDParam);
 		
 		startTimeParam = new DoubleParameter("Start Time", 0d, 3650, new Double(0d));
 		startTimeParam.setUnits("Days");
+		startTimeParam.addParameterChangeListener(this);
 		params.addParameter(startTimeParam);
 		
 		endTimeParam = new DoubleParameter("End Time", 0d, 3650, new Double(7d));
 		endTimeParam.setUnits("Days");
+		endTimeParam.addParameterChangeListener(this);
 		params.addParameter(endTimeParam);
 		
 		regionTypeParam = new EnumParameter<AftershockStatsGUI.RegionType>(
 				"Region Type", EnumSet.allOf(RegionType.class), RegionType.CIRCULAR_WC94, null);
-		params.addParameter(regionTypeParam);
 		regionTypeParam.addParameterChangeListener(this);
+		params.addParameter(regionTypeParam);
 		
+		// these are inside region editor
 		radiusParam = new DoubleParameter("Radius", 0d, 1000, new Double(20));
 		radiusParam.setUnits("km");
 		minLatParam = new DoubleParameter("Min Lat", -90d, 90d, new Double(32d));
@@ -169,7 +174,6 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		minDepthParam.setUnits("km");
 		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(20));
 		maxDepthParam.setUnits("km");
-		
 		regionCenterTypeParam = new EnumParameter<AftershockStatsGUI.RegionCenterType>(
 				"Region Center", EnumSet.allOf(RegionCenterType.class), RegionCenterType.EPICENTER, null);
 		regionCenterLocParam = new LocationParameter("Region Center Location");
@@ -177,6 +181,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		regionList = new ParameterList();
 		regionEditParam = new ParameterListParameter("Edit Region", regionList);
+		regionEditParam.addParameterChangeListener(this);
 		updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
 		params.addParameter(regionEditParam);
 		
@@ -202,9 +207,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		bParam.addParameterChangeListener(this);
 		params.addParameter(bParam);
 		
-		disableParamsForFetch();
+		disableParamsPostFetch();
 		
 		ParameterListEditor editor = new ParameterListEditor(params);
+		editor.setTitle("Parameters");
 		ConsoleWindow console = new ConsoleWindow(true);
 		consoleScroll = console.getScrollPane();
 		consoleScroll.setSize(600, 600);
@@ -505,9 +511,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		// add mainshock mag
 		DefaultXY_DataSet xy = new DefaultXY_DataSet();
 		xy.set(mainshock.getMag(), 0d);
+		xy.set(mainshock.getMag(), 1e-16);
 		xy.set(mainshock.getMag(), plotMinY);
 		xy.set(mainshock.getMag(), 1d);
 		xy.set(mainshock.getMag(), plotMaxY);
+		xy.set(mainshock.getMag(), 1e3);
 		xy.setName("Mainshock Mag ("+(float)mainshock.getMag()+")");
 		funcs.add(xy);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
@@ -585,11 +593,16 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
-		if (event.getParameter() == regionTypeParam || event.getParameter() == regionCenterTypeParam) {
+		Parameter<?> param = event.getParameter();
+		if (param == eventIDParam || param == startTimeParam || param == endTimeParam
+				|| param == regionEditParam) {
+			disableParamsPostFetch();
+		} else if (param == regionTypeParam || param == regionCenterTypeParam) {
 			updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
-		} else if (event.getParameter() == fetchButton) {
+			disableParamsPostFetch();
+		} else if (param == fetchButton) {
 			String title = "Error Fetching Events";
-			disableParamsForFetch();
+			disableParamsPostFetch();
 			try {
 				fetchEvents();
 				title = "Error Calculating Mag Num Distrubution";
@@ -613,11 +626,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
-		} else if (event.getParameter() == mcParam || event.getParameter() == magPrecisionParam) {
-			disableParamsForComputeB();
-		} else if (event.getParameter() == computeBButton) {
+		} else if (param == mcParam || param == magPrecisionParam) {
+			disableParamsPostComputeB();
+		} else if (param == computeBButton) {
 			String title = "Error Computing b";
-			disableParamsForComputeB();
+			disableParamsPostComputeB();
 			try {
 				Double mc = mcParam.getValue();
 				Preconditions.checkState(mc != null, "Must supply Mc");
@@ -635,7 +648,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
-		} else  if (event.getParameter() == bParam) {
+		} else  if (param == bParam) {
 			// TODO disable downstream params when added
 		}
 	}
@@ -643,17 +656,17 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	/**
 	 * disables all parameters that are dependent on the fetch step and beyond
 	 */
-	private void disableParamsForFetch() {
+	private void disableParamsPostFetch() {
 		mcParam.getEditor().setEnabled(false);
 		magPrecisionParam.getEditor().setEnabled(false);
 		computeBButton.getEditor().setEnabled(false);
-		disableParamsForComputeB();
+		disableParamsPostComputeB();
 	}
 	
 	/**
 	 * disables all parameters that are dependent on the compute b step and beyond
 	 */
-	private void disableParamsForComputeB() {
+	private void disableParamsPostComputeB() {
 		bParam.getEditor().setEnabled(false);
 	}
 	
