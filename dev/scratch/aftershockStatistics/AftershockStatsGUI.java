@@ -35,6 +35,8 @@ import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
+import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -62,6 +64,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class AftershockStatsGUI extends JFrame implements ParameterChangeListener {
 	
@@ -753,6 +756,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		if (pdf == null)
 			return;
 		
+		Preconditions.checkState(Doubles.isFinite(pdf.getMaxY()), "NaN found in "+pdf.getName());
+		
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(pdf);
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
@@ -767,6 +772,23 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private void add2D_PDF(EvenlyDiscrXYZ_DataSet pdf, String name1, String name2) {
 		if (pdf == null)
 			return;
+		
+		String title = "PDF for "+name1+" vs "+name2;
+		
+		Preconditions.checkState(Doubles.isFinite(pdf.getMaxZ()), "NaN found in "+title);
+		
+		CPT cpt;
+		try {
+			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(pdf.getMinZ(), pdf.getMaxZ());
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		
+		XYZPlotSpec spec = new XYZPlotSpec(pdf, cpt, title, name1, name2, "density");
+		
+		XYZGraphPanel xyzGP = new XYZGraphPanel();
+		pdfGraphsPane.addTab(name1+" vs "+name2, null, xyzGP);
+		xyzGP.drawPlot(spec, false, false, null, null);
 	}
 
 	@Override
