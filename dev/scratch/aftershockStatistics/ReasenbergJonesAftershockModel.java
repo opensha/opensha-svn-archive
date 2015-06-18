@@ -90,6 +90,13 @@ public class ReasenbergJonesAftershockModel {
 		magMain = mainShock.getMag();
 		relativeEventTimes = AftershockStatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
 		
+//		for(double val:relativeEventTimes)
+//		System.out.println("\t"+val);
+
+		if(D)
+			System.out.println("Num Aftershocks above magComplete: "+relativeEventTimes.length);
+
+		
 		if(num_a>1) // otherwise defaults to zero
 			delta_a = (max_a-min_a)/((double)num_a - 1.);
 		if(num_p>1)
@@ -104,7 +111,7 @@ public class ReasenbergJonesAftershockModel {
 		}
 		
 		array = new double[num_a][num_p][num_c];
-		double total = 0;
+//		double total = 0;
 		double maxVal= Double.NEGATIVE_INFINITY;
 		for(int aIndex=0;aIndex<num_a;aIndex++) {
 			double a = get_a(aIndex);
@@ -115,11 +122,16 @@ public class ReasenbergJonesAftershockModel {
 					double c = get_c(cIndex);
 					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, relativeEventTimes);
 					double like = Math.exp(logLike);
-// System.out.println(get_k(aIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
-					array[aIndex][pIndex][cIndex] = like;
-					total += like;
-					if(maxVal<like) {
-						maxVal=like;
+//					if(Double.isNaN(like)) {
+//						System.out.println("NaN Problem: "+k+"\t"+p+"\t"+c);
+//						throw new RuntimeException("NaN problem");
+//					}
+//System.out.println(get_a(aIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
+
+					array[aIndex][pIndex][cIndex] = logLike;
+//					total += like;
+					if(maxVal<logLike) {
+						maxVal=logLike;
 						max_a_index=aIndex;
 						max_p_index=pIndex;
 						max_c_index=cIndex;
@@ -128,7 +140,18 @@ public class ReasenbergJonesAftershockModel {
 			}
 		}
 		
-		// normalize
+		// subtract the maxValue from all values to avoid infinite in linear space (we saw that problem)
+		// the take the exponent
+		double total=0;
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			for(int pIndex=0;pIndex<num_p;pIndex++) {
+				for(int cIndex=0;cIndex<num_c;cIndex++) {
+					array[aIndex][pIndex][cIndex] = Math.exp(array[aIndex][pIndex][cIndex]-maxVal);;
+					total += array[aIndex][pIndex][cIndex];
+				}
+			}
+		}
+		
 		double testTotal=0;
 		for(int aIndex=0;aIndex<num_a;aIndex++) {
 			for(int pIndex=0;pIndex<num_p;pIndex++) {
@@ -138,6 +161,7 @@ public class ReasenbergJonesAftershockModel {
 				}
 			}
 		}
+
 
 		if (D) {
 			System.out.println("testTotal="+testTotal);
@@ -231,6 +255,7 @@ public class ReasenbergJonesAftershockModel {
 				name += " (marginal)";
 			hist.setName(name);
 			if(D) {
+//				System.out.println("PDF of a-value:  "+hist);
 				System.out.println("PDF of a-value: totalTest = "+hist.calcSumOfY_Vals());
 			}
 			return hist;
