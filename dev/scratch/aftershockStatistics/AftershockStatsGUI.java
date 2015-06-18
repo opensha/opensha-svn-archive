@@ -139,6 +139,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private ObsEqkRupList aftershocks;
 	
 	private IncrementalMagFreqDist aftershockMND;
+	private double mmaxc;
 	
 	public AftershockStatsGUI() {
 		ParameterList params = new ParameterList();
@@ -492,7 +493,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		}
 	}
 	
-	private void plotMFDs(IncrementalMagFreqDist mfd) {
+	private void plotMFDs(IncrementalMagFreqDist mfd, double mmaxc) {
 		List<XY_DataSet> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
@@ -508,19 +509,34 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		double plotMinY = 0.5;
 		double plotMaxY = cmlMFD.getMaxY()+2d;
 		
+		List<Double> yValsForVerticalLines = Lists.newArrayList(0d, 1e-16, plotMinY, 1d, plotMaxY, 1e3);
+		
 		// add mainshock mag
 		DefaultXY_DataSet xy = new DefaultXY_DataSet();
-		xy.set(mainshock.getMag(), 0d);
-		xy.set(mainshock.getMag(), 1e-16);
-		xy.set(mainshock.getMag(), plotMinY);
-		xy.set(mainshock.getMag(), 1d);
-		xy.set(mainshock.getMag(), plotMaxY);
-		xy.set(mainshock.getMag(), 1e3);
+		for (double y : yValsForVerticalLines)
+			xy.set(mainshock.getMag(), y);
 		xy.setName("Mainshock Mag ("+(float)mainshock.getMag()+")");
 		funcs.add(xy);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
+		// add Mmaxc mag
+		xy = new DefaultXY_DataSet();
+		for (double y : yValsForVerticalLines)
+			xy.set(mmaxc, y);
+		xy.setName("Mmaxc ("+(float)mmaxc+")");
+		funcs.add(xy);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN));
+		
 		if (bParam.getValue() != null) {
+			// add Mc used for b-value calculation
+			double mc = mcParam.getValue();
+			xy = new DefaultXY_DataSet();
+			for (double y : yValsForVerticalLines)
+				xy.set(mc, y);
+			xy.setName("Mc ("+(float)mc+")");
+			funcs.add(xy);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.CYAN));
+			
 			// add best fitting G-R
 			double b = bParam.getValue();
 			
@@ -607,15 +623,13 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				fetchEvents();
 				title = "Error Calculating Mag Num Distrubution";
 				aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
+				mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
+				mcParam.setValue(mmaxc+0.5);
 				// plots
 				title = "Error Plotting Events";
 				plotAftershockHypocs();
-				plotMFDs(aftershockMND);
+				plotMFDs(aftershockMND, mmaxc);
 				plotMagVsTime();
-				
-				title = "Error Calculating Mmaxc";
-				double mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
-				mcParam.setValue(mmaxc+0.5);
 
 				magPrecisionParam.getEditor().setEnabled(true);
 				mcParam.getEditor().setEnabled(true);
@@ -628,6 +642,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}
 		} else if (param == mcParam || param == magPrecisionParam) {
 			disableParamsPostComputeB();
+			bParam.setValue(null);
 		} else if (param == computeBButton) {
 			String title = "Error Computing b";
 			disableParamsPostComputeB();
@@ -643,6 +658,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				bParam.getEditor().refreshParamEditor();
 				
 				bParam.getEditor().setEnabled(true);
+				tabbedPane.setSelectedIndex(mag_num_tab_index);
 			} catch (Exception e) {
 				e.printStackTrace();
 				String message = e.getMessage();
@@ -650,6 +666,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}
 		} else  if (param == bParam) {
 			// TODO disable downstream params when added
+			if (tabbedPane.getTabCount() > mag_time_tab_index)
+				plotMFDs(aftershockMND, mmaxc);
 		}
 	}
 	
