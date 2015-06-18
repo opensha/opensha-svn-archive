@@ -168,10 +168,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private static final int mag_num_tab_index = 2;
 	private static final int mag_time_tab_index = 3;
 	private static final int pdf_tab_index = 4;
+	private static final int aftershock_expected_index = 5;
 	private GraphWidget hypocenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
 	private JTabbedPane pdfGraphsPane;
+	private GraphWidget aftershockExpectedGraph;
 	
 	private ComcatAccessor accessor;
 	private WC1994_MagLengthRelationship wcMagLen;
@@ -436,11 +438,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		mainshock = accessor.fetchEvent(eventID);
 		Preconditions.checkState(mainshock != null, "Event not found: %s", eventID);
 		
-		double minDepth = minDepthParam.getValue();
-		double maxDepth = maxDepthParam.getValue();
+		Double minDepth = minDepthParam.getValue();
+		validateParameter(minDepth, "min depth");
+		Double maxDepth = maxDepthParam.getValue();
+		validateParameter(maxDepth, "max depth");
 		
-		double minDays = dataStartTimeParam.getValue();
-		double maxDays = dataEndTimeParam.getValue();
+		Double minDays = dataStartTimeParam.getValue();
+		validateParameter(minDays, "start time");
+		Double maxDays = dataEndTimeParam.getValue();
+		validateParameter(maxDays, "end time");
 		
 		if (regionTypeParam.getValue().isCircular()
 				&& regionCenterTypeParam.getValue() == RegionCenterType.CENTROID) {
@@ -763,7 +769,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, pdf.getName(), name, "log-liklihood");
+		PlotSpec spec = new PlotSpec(funcs, chars, pdf.getName(), name, "Density");
 		
 		GraphWidget widget = new GraphWidget(spec);
 		pdfGraphsPane.addTab(name, null, widget);
@@ -784,11 +790,37 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			throw ExceptionUtils.asRuntimeException(e);
 		}
 		
-		XYZPlotSpec spec = new XYZPlotSpec(pdf, cpt, title, name1, name2, "density");
+		XYZPlotSpec spec = new XYZPlotSpec(pdf, cpt, title, name1, name2, "Density");
 		
 		XYZGraphPanel xyzGP = new XYZGraphPanel();
 		pdfGraphsPane.addTab(name1+" vs "+name2, null, xyzGP);
-		xyzGP.drawPlot(spec, false, false, null, null);
+		double xDelta = pdf.getGridSpacingX();
+		double yDelta = pdf.getGridSpacingY();
+		xyzGP.drawPlot(spec, false, false,
+				new Range(pdf.getMinX()-0.5*xDelta, pdf.getMaxX()+0.5*xDelta),
+				new Range(pdf.getMinY()-0.5*yDelta, pdf.getMaxY()+0.5*yDelta));
+	}
+	
+	private void plotExpectedAfershockMFD(EvenlyDiscretizedFunc mfd) {
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(mfd);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
+		
+		if (aftershockExpectedGraph == null)
+			aftershockExpectedGraph = new GraphWidget(spec);
+		else
+			aftershockExpectedGraph.setPlotSpec(spec);
+		aftershockExpectedGraph.setY_Log(true);
+		
+		if (tabbedPane.getTabCount() == aftershock_expected_index)
+			tabbedPane.addTab("Forecast", null, aftershockExpectedGraph,
+					"Aftershock Expected Frequency Plot");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > aftershock_expected_index, "Plots added out of order");
 	}
 
 	@Override
@@ -830,7 +862,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			setEnableParamsPostComputeB(false);
 			try {
 				Double mc = mcParam.getValue();
-				Preconditions.checkState(mc != null, "Must supply Mc");
+				validateParameter(mc, "Mc");
 				
 				double magPrecision = magPrecisionParam.getValue();
 				
@@ -874,10 +906,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				validateRange(cRange, cNum, "c-value");
 				
 				Double mc = mcParam.getValue();
-				Preconditions.checkState(mc != null, "Must supply Mc");
-				
+				validateParameter(mc, "Mc");
+								
 				Double b = bParam.getValue();
-				Preconditions.checkState(b != null, "Must supply b-value");
+				validateParameter(b, "b-value");
 				
 				model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
 						aRange.getLowerBound(), aRange.getUpperBound(), aNum,
@@ -891,15 +923,51 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				cValParam.setValue(model.getMaxLikelihood_c());
 				cValParam.getEditor().refreshParamEditor();
 				
-				setEnabledParamsPostAfershockParams(true);
 				plotPDFs();
+				setEnabledParamsPostAfershockParams(true);
 				tabbedPane.setSelectedIndex(pdf_tab_index);
 			} catch (Exception e) {
 				e.printStackTrace();
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
+		} else if (param == computeAftershockForecastButton) {
+			String title = "Error Computing Aftershock Forecast";
+			setEnabledParamsPostAfershockParams(false);
+			try {
+				// TODO make editbale?
+//				Double a = aValParam.getValue();
+//				validateParameter(a, "a-value");
+//				Double p = pValParam.getValue();
+//				validateParameter(p, "p-value");
+//				Double c = cValParam.getValue();
+//				validateParameter(c, "c-value");
+				
+				Double minDays = forecastStartTimeParam.getValue();
+				validateParameter(minDays, "start time");
+				Double maxDays = forecastEndTimeParam.getValue();
+				validateParameter(maxDays, "end time");
+				
+				double minMag = 3d;
+				double maxMag = 9d;
+				double deltaMag = 0.1;
+				int numMag = (int)((maxMag - minMag)/deltaMag + 1.5);
+				
+				EvenlyDiscretizedFunc mfd = model.getExpectedCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+				plotExpectedAfershockMFD(mfd);
+				
+				tabbedPane.setSelectedIndex(aftershock_expected_index);
+			} catch (Exception e) {
+				e.printStackTrace();
+				String message = e.getMessage();
+				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+			}
 		}
+	}
+	
+	private static void validateParameter(Double value, String name) {
+		Preconditions.checkState(value != null, "Must specify "+name);
+		Preconditions.checkState(Doubles.isFinite(value), name+" must be finite: %s", value);
 	}
 	
 	private void updateRangeParams(RangeParameter rangeParam, IntegerParameter numParam, int defaultNum) {
@@ -952,9 +1020,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	private void setEnabledParamsPostAfershockParams(boolean enabled) {
-		aValParam.getEditor().setEnabled(enabled);
-		pValParam.getEditor().setEnabled(enabled);
-		cValParam.getEditor().setEnabled(enabled);
+		aValParam.getEditor().setEnabled(false); // no capability to set in model yet
+		pValParam.getEditor().setEnabled(false); // no capability to set in model yet
+		cValParam.getEditor().setEnabled(false); // no capability to set in model yet
 		forecastStartTimeParam.getEditor().setEnabled(enabled);
 		forecastEndTimeParam.getEditor().setEnabled(enabled);
 		computeAftershockForecastButton.getEditor().setEnabled(enabled);
