@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -197,7 +198,8 @@ public class AftershockStatsCalc {
 	private static double[] readAndysFile() {
 		
 		try {
-			BufferedReader buffRead = new BufferedReader(new FileReader("/Users/field/workspace/OpenSHA/dev/scratch/aftershockStatistics/AndysSimulationData.txt"));
+			BufferedReader buffRead = new BufferedReader(new InputStreamReader(
+					AftershockStatsCalc.class.getResourceAsStream("AndysSimulationData.txt")));
 			ArrayList<Double> eventTimeList = new ArrayList<Double>();
 			String line = buffRead.readLine();
 			while (line != null) {
