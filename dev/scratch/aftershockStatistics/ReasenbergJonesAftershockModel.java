@@ -1,9 +1,11 @@
 package scratch.aftershockStatistics;
 
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
@@ -182,20 +184,26 @@ public class ReasenbergJonesAftershockModel {
 	
 	
 	/**
-	 * This returns the expected number of events as a function of magnitude (incremental distribution) assuming 
-	 * a GR with the b-value here and the given min and max magnitude and the given time span.
-	 * @param minMag
-	 * @param maxMag
-	 * @param numMag
+	 * This returns an MFD with the expected number of events greater than or equal to each magnitude 
+	 * for the current model and the given time span.
+	 * @param minMag - the minimum magnitude considered
+	 * @param maxMag - the maximum magnitude considered
+	 * @param numMag - number of mags in the MFD
 	 * @param tMinDays
 	 * @param tMaxDays
 	 * @return
 	 */
-	public GutenbergRichterMagFreqDist getExpectedNumMFD(double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
-		double totExpNum = getExpectedNumEvents(minMag, tMinDays, tMaxDays);
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(b, totExpNum, minMag, maxMag, numMag);
-		mfd.setName("Expected Num Incr. MFD");
-		mfd.setInfo("Total Expected Num = "+totExpNum);
+	public EvenlyDiscretizedFunc getExpectedCumNumMFD(double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		EvenlyDiscretizedFunc mfd = new EvenlyDiscretizedFunc(minMag, maxMag, numMag);
+		for(int i=0;i<mfd.size();i++) {
+			mfd.set(i, getExpectedNumEvents(mfd.getX(i), tMinDays, tMaxDays));
+		}
+		mfd.setName("Expected Num Events");
+		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
+//		double totExpNum = getExpectedNumEvents(minMag, tMinDays, tMaxDays);
+//		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(b, totExpNum, minMag, maxMag, numMag);
+//		mfd.setName("Expected Num Incr. MFD");
+//		mfd.setInfo("Total Expected Num = "+totExpNum);
 		return mfd;
 	}
 	

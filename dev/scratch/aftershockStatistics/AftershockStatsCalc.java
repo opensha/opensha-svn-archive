@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.jfree.data.Range;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
@@ -315,7 +316,7 @@ public class AftershockStatsCalc {
 		System.out.println("distArray.getPDF_p():\n"+distArray.getPDF_p());
 		System.out.println("distArray.getPDF_c():\n"+distArray.getPDF_c());
 		plot2D_PDF(distArray.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
-		GutenbergRichterMagFreqDist mfd = distArray.getExpectedNumMFD(3.0, 9.0, 61, 0.0, 7.0);
+		EvenlyDiscretizedFunc mfd = distArray.getExpectedCumNumMFD(3.0, 10.0, 71, 0.0, 7.0);
 		System.out.println("distArray.getExpectedNumMFD():\n"+mfd);
 
 		
