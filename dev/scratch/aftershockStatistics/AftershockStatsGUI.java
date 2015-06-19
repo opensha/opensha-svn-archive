@@ -811,13 +811,31 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	private void plotExpectedAfershockMFD(EvenlyDiscretizedFunc mfd) {
-		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
 		funcs.add(mfd);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
+		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
+		double mainshockMag = mainshock.getMag();
+		double bathsMag = mainshockMag - 1.2;
+		DefaultXY_DataSet mainshockFunc = new DefaultXY_DataSet();
+		mainshockFunc.setName("Mainshock M="+(float)mainshockMag);
+		DefaultXY_DataSet bathsFunc = new DefaultXY_DataSet();
+		bathsFunc.setName("Bath's Law M="+(float)bathsMag);
+		for (int i=0; i<mfd.size(); i++) {
+			double y = mfd.getY(i);
+			mainshockFunc.set(mainshockMag, y);
+			bathsFunc.set(bathsMag, y);
+		}
+		funcs.add(mainshockFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
+		funcs.add(bathsFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN.darker()));
+		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
+		spec.setLegendVisible(true);
 		
 		if (aftershockExpectedGraph == null)
 			aftershockExpectedGraph = new GraphWidget(spec);
@@ -894,13 +912,13 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
 				plotMFDs(aftershockMND, mmaxc);
 		} else if (param == aValRangeParam || param == aValNumParam) {
-			updateRangeParams(aValRangeParam, aValNumParam, 69);
+			updateRangeParams(aValRangeParam, aValNumParam, 51);
 			setEnabledParamsPostAfershockParams(false);
 		} else if (param == pValRangeParam || param == pValNumParam) {
-			updateRangeParams(pValRangeParam, pValNumParam, 21);
+			updateRangeParams(pValRangeParam, pValNumParam, 45);
 			setEnabledParamsPostAfershockParams(false);
 		} else if (param == cValRangeParam || param == cValNumParam) {
-			updateRangeParams(cValRangeParam, cValNumParam, 21);
+			updateRangeParams(cValRangeParam, cValNumParam, 45);
 			setEnabledParamsPostAfershockParams(false);
 		} else if (param == computeAftershockParamsButton) {
 			String title = "Error Computing Aftershock Params";
