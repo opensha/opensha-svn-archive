@@ -19,7 +19,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  */
 public class ReasenbergJonesAftershockModel {
 	
-	Boolean D=true;	// debug flag
+	Boolean D=false;	// debug flag
 	
 	double b, magMain, magComplete;
 	double min_a, max_a, delta_a=0, min_p, max_p, delta_p=0, min_c, max_c, delta_c=0;
@@ -49,7 +49,8 @@ public class ReasenbergJonesAftershockModel {
 	 * @param max_c  | - range of c-values for grid search (set min=max and num=1 to constraint to single value)
 	 * @param num_c /
 	 */
-	public ReasenbergJonesAftershockModel(	ObsEqkRupture mainShock, ObsEqkRupList aftershockList, double magComplete, double b, 
+	public ReasenbergJonesAftershockModel(	ObsEqkRupture mainShock, ObsEqkRupList aftershockList, double magComplete, 
+											double b, double dataStartTimeDays, double dataEndTimeDays,
 											double min_a, double max_a, int num_a, 
 											double min_p, double max_p, int num_p, 
 											double min_c, double max_c, int num_c) {
@@ -90,8 +91,16 @@ public class ReasenbergJonesAftershockModel {
 		magMain = mainShock.getMag();
 		relativeEventTimes = AftershockStatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
 		
-//		for(double val:relativeEventTimes)
-//		System.out.println("\t"+val);
+//		for(double val:relativeEventTimes) {
+//			System.out.println("\t"+val);
+		
+
+//double test_p = (min_p+max_p)/2;
+//double test_c = (min_c+max_c)/2;
+//double k_maxLike = AftershockStatsCalc.getMaxLikelihood_k(test_p, test_c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes.length);
+//double a_target = AftershockStatsCalc.convertProductivityTo_a(k_maxLike, b, magMain, magComplete);
+//System.out.println("HERE -----> \na_target="+a_target+"\nk_maxLike="+k_maxLike+"\nb="+b+"\ntest_p="+test_p+"\ntest_c="+test_c+
+//		"\nmagMain="+magMain+"\nmagComplete="+magComplete);			
 
 		if(D)
 			System.out.println("Num Aftershocks above magComplete: "+relativeEventTimes.length);
@@ -111,7 +120,7 @@ public class ReasenbergJonesAftershockModel {
 		}
 		
 		array = new double[num_a][num_p][num_c];
-//		double total = 0;
+		double total = 0;
 		double maxVal= Double.NEGATIVE_INFINITY;
 		for(int aIndex=0;aIndex<num_a;aIndex++) {
 			double a = get_a(aIndex);
@@ -120,7 +129,7 @@ public class ReasenbergJonesAftershockModel {
 				double p = get_p(pIndex);
 				for(int cIndex=0;cIndex<num_c;cIndex++) {
 					double c = get_c(cIndex);
-					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, relativeEventTimes);
+					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
 					double like = Math.exp(logLike);
 //					if(Double.isNaN(like)) {
 //						System.out.println("NaN Problem: "+k+"\t"+p+"\t"+c);
@@ -128,26 +137,14 @@ public class ReasenbergJonesAftershockModel {
 //					}
 //System.out.println(get_a(aIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
 
-					array[aIndex][pIndex][cIndex] = logLike;
-//					total += like;
-					if(maxVal<logLike) {
-						maxVal=logLike;
+					array[aIndex][pIndex][cIndex] = like;
+					total += like;
+					if(maxVal<like) {
+						maxVal=like;
 						max_a_index=aIndex;
 						max_p_index=pIndex;
 						max_c_index=cIndex;
 					}
-				}
-			}
-		}
-		
-		// subtract the maxValue from all values to avoid infinite in linear space (we saw that problem)
-		// the take the exponent
-		double total=0;
-		for(int aIndex=0;aIndex<num_a;aIndex++) {
-			for(int pIndex=0;pIndex<num_p;pIndex++) {
-				for(int cIndex=0;cIndex<num_c;cIndex++) {
-					array[aIndex][pIndex][cIndex] = Math.exp(array[aIndex][pIndex][cIndex]-maxVal);;
-					total += array[aIndex][pIndex][cIndex];
 				}
 			}
 		}

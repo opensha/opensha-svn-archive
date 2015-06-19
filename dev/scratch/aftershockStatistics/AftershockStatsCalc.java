@@ -44,21 +44,23 @@ public class AftershockStatsCalc {
 	 * @param k
 	 * @param p
 	 * @param c
+	 * @param tMinDays - the start time of of the catalog in days from main shock
+	 * @param tMaxDays - the end time of of the catalog in days from main shock
 	 * @param relativeEventTimes - in order of occurrence relative to main shock
 	 * @return
 	 */
-	public static double getLogLikelihoodForOmoriParams(double k, double p, double c, double[] relativeEventTimes) {
+	public static double getLogLikelihoodForOmoriParams(double k, double p, double c, double tMinDays, double tMaxDays, double[] relativeEventTimes) {
 		double funcA=Double.NaN;
 		int n=relativeEventTimes.length;
-		double t_beg = relativeEventTimes[0];
-		double t_end = relativeEventTimes[n-1];
 		if(p == 1)
-			funcA = Math.log(t_end+c) - Math.log(t_beg+c);
+			funcA = Math.log(tMaxDays+c) - Math.log(tMinDays+c);
 		else
-			funcA = (Math.pow(t_end+c,1-p) - Math.pow(t_beg+c,1-p)) / (1-p);
+			funcA = (Math.pow(tMaxDays+c,1-p) - Math.pow(tMinDays+c,1-p)) / (1-p);
 		double sumLn_t = 0;
 		for(double t : relativeEventTimes)
 			sumLn_t += Math.log(t+c);
+//double tempLL = n*Math.log(k) - p*sumLn_t - k*funcA;
+//System.out.println(n*Math.log(k)+"\t"+(-p*sumLn_t)+"\t"+(-k*funcA)+"\t"+tempLL);
 		return n*Math.log(k) - p*sumLn_t - k*funcA;
 	}
 	
@@ -69,20 +71,20 @@ public class AftershockStatsCalc {
 	 * values of p and c as given.
 	 * @param p
 	 * @param c
-	 * @param relativeEventTimes
+	 * @param tMinDays - the start time of of the catalog in days from main shock
+	 * @param tMaxDays - the end time of of the catalog in days from main shock
+	 * @param numEvents - the number of events in the catalog
 	 * @return
 	 */
-	public static double getMaxLikelihood_k(double p, double c, double[] relativeEventTimes) {
+	public static double getMaxLikelihood_k(double p, double c, double tMinDays, double tMaxDays, int numEvents) {
 		double funcA=Double.NaN;
-		int n=relativeEventTimes.length;
-		double t_beg = relativeEventTimes[0];
-		double t_end = relativeEventTimes[n-1];
 		if(p == 1)
-			funcA = Math.log(t_end+c) - Math.log(t_beg+c);
+			funcA = Math.log(tMaxDays+c) - Math.log(tMinDays+c);
 		else
-			funcA = (Math.pow(t_end+c,1-p) - Math.pow(t_beg+c,1-p)) / (1-p);
+			funcA = (Math.pow(tMaxDays+c,1-p) - Math.pow(tMinDays+c,1-p)) / (1-p);
 		
-		return (double)n/funcA;
+// System.out.println("getMaxLikelihood_k: \t"+p+"\t"+c+"\t"+tMinDays+"\t"+tMaxDays+"\t"+funcA+"\t"+numEvents+"\t"+(numEvents/funcA));
+		return (double)numEvents/funcA;
 	}
 	
 
@@ -133,7 +135,7 @@ public class AftershockStatsCalc {
 			return (k/oneMinusP)*(Math.pow(c+tMaxDays,oneMinusP) - Math.pow(c+tMinDays,oneMinusP));
 		}
 		else {
-			return k*(c*(tMaxDays-tMinDays) + 0.5*(tMaxDays*tMaxDays-tMinDays*tMinDays));
+			return k*(Math.log(c+tMaxDays) - Math.log(c+tMinDays));
 		}
 	}
 
@@ -252,6 +254,7 @@ public class AftershockStatsCalc {
 		int k_num = (int)Math.round((k_max-k_min)/k_delta) + 1;		
 		int p_num = (int)Math.round((p_max-p_min)/p_delta) + 1;
 		
+		
 		if(true) {
 			System.out.println("k1\t"+k_min+"\t"+k_max+"\t"+k_num+"\t"+k_delta);
 			System.out.println("p1\t"+p_min+"\t"+p_max+"\t"+p_num+"\t"+p_delta);
@@ -259,6 +262,8 @@ public class AftershockStatsCalc {
 
 		
 		double[] relativeEventTimes = readAndysFile();
+		double tStartDays = relativeEventTimes[0];
+		double tEndDays = relativeEventTimes[relativeEventTimes.length-1];
 
 		// x-axis is k and y-axis is p
 		EvenlyDiscrXYZ_DataSet xyzLogLikelihood = new EvenlyDiscrXYZ_DataSet(k_num, p_num, k_min, p_min, k_delta, p_delta);
@@ -268,7 +273,8 @@ public class AftershockStatsCalc {
 		double maxLike_p=Double.NaN;
 		for(int x=0;x<xyzLogLikelihood.getNumX();x++) {
 			for(int y=0;y<xyzLogLikelihood.getNumY();y++) {
-				double logLike = getLogLikelihoodForOmoriParams(xyzLogLikelihood.getX(x), xyzLogLikelihood.getY(y), c, relativeEventTimes);
+				double logLike = getLogLikelihoodForOmoriParams(xyzLogLikelihood.getX(x), xyzLogLikelihood.getY(y), c, 
+						tStartDays, tEndDays, relativeEventTimes);
 				xyzLogLikelihood.set(x, y, logLike);
 				if(logLike>maxLike) {
 					maxLike=logLike;
@@ -310,7 +316,7 @@ public class AftershockStatsCalc {
 		}
 		
 		ReasenbergJonesAftershockModel distArray = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b,
-				a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1);
+				tStartDays, tEndDays, a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1);
 		System.out.println("max likelihood gridded k =  "+distArray.getMaxLikelihood_k());
 		System.out.println("distArray.getPDF_a():\n"+distArray.getPDF_a());
 		System.out.println("distArray.getPDF_p():\n"+distArray.getPDF_p());
@@ -323,11 +329,12 @@ public class AftershockStatsCalc {
 		// test the maximum likelihood k value for constrained p and c
 		double p = distArray.getMaxLikelihood_p();
 		ReasenbergJonesAftershockModel distArray2 = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b, 
-				a_min, a_max, a_num, p, p, 1, c, c, 1);
+				tStartDays, tEndDays, a_min, a_max, a_num, p, p, 1, c, c, 1);
 		System.out.println("2nd max likelihood gridded k =  "+distArray2.getMaxLikelihood_k());
 		
 
-		System.out.println("2nd max likelihood analytic k =  "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, relativeEventTimes));
+		System.out.println("2nd max likelihood analytic k =  "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, 
+				tStartDays, tEndDays, relativeEventTimes.length));
 
 	}
 	
@@ -358,7 +365,8 @@ public class AftershockStatsCalc {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+//		System.out.println(getExpectedNumEvents(0d, 1d, 1d, 1d, 1.025, 0.05, 0d, 1e6));
+		
 		testAndyCalc();
 	}
 

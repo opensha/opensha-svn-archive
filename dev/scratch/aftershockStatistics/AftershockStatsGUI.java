@@ -195,21 +195,25 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		eventIDParam = new StringParameter("USGS Event ID");
 		eventIDParam.setValue("us20002926");
+		eventIDParam.setInfo("Get IDs from http://earthquake.usgs.gov/earthquakes/");
 		eventIDParam.addParameterChangeListener(this);
 		dataParams.addParameter(eventIDParam);
 		
 		dataStartTimeParam = new DoubleParameter("Data Start Time", 0d, 3650, new Double(0d));
 		dataStartTimeParam.setUnits("Days");
+		dataStartTimeParam.setInfo("Relative to main shock origin time");
 		dataStartTimeParam.addParameterChangeListener(this);
 		dataParams.addParameter(dataStartTimeParam);
 		
 		dataEndTimeParam = new DoubleParameter("Data End Time", 0d, 3650, new Double(7d));
 		dataEndTimeParam.setUnits("Days");
+		dataEndTimeParam.setInfo("Relative to main shock origin time");
 		dataEndTimeParam.addParameterChangeListener(this);
 		dataParams.addParameter(dataEndTimeParam);
 		
 		regionTypeParam = new EnumParameter<AftershockStatsGUI.RegionType>(
 				"Region Type", EnumSet.allOf(RegionType.class), RegionType.CIRCULAR_WC94, null);
+		regionTypeParam.setInfo("For collecting aftershocks");
 		regionTypeParam.addParameterChangeListener(this);
 		dataParams.addParameter(regionTypeParam);
 		
@@ -231,29 +235,34 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		regionList = new ParameterList();
 		regionEditParam = new ParameterListParameter("Edit Region", regionList);
+		regionEditParam.setInfo("To set more constraints");
 		regionEditParam.addParameterChangeListener(this);
 		updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
 		dataParams.addParameter(regionEditParam);
 		
 		fetchButton = new ButtonParameter("USGS Event Webservice", "Fetch Data");
+		fetchButton.setInfo("From USGS ComCat");
 		fetchButton.addParameterChangeListener(this);
 		dataParams.addParameter(fetchButton);
 		
 		mcParam = new DoubleParameter("Mc", 0d, 9d);
 		mcParam.getConstraint().setNullAllowed(true);
+		mcParam.setInfo("Default is Mmaxc+0.5, but user can specify other");
 		mcParam.addParameterChangeListener(this);
 		dataParams.addParameter(mcParam);
 		
 		magPrecisionParam = new DoubleParameter("Mag Precision", 0d, 1d, new Double(0.1));
+		magPrecisionParam.setInfo("Magnitude rounding applied by network");;
 		magPrecisionParam.addParameterChangeListener(this);
 		dataParams.addParameter(magPrecisionParam);
 		
-		computeBButton = new ButtonParameter("G-R b-value", "Compute B");
+		computeBButton = new ButtonParameter("GR b-value", "Compute b");
 		computeBButton.addParameterChangeListener(this);
 		dataParams.addParameter(computeBButton);
 		
 		bParam = new DoubleParameter("b-value", 1d);
 		bParam.setValue(null);
+		bParam.setInfo("Default is that computed, but user can specify other");
 		bParam.addParameterChangeListener(this);
 		dataParams.addParameter(bParam);
 		
@@ -263,19 +272,19 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		ParameterList fitParams = new ParameterList();
 		
-		aValRangeParam = new RangeParameter("a-value range", new Range(-0.7695510786217261, -0.46852108295774486));
+		aValRangeParam = new RangeParameter("a-value range", new Range(-3.0, -2.0));
 		aValRangeParam.addParameterChangeListener(this);
 		fitParams.addParameter(aValRangeParam);
 		
-		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(69));
+		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(51));
 		aValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(aValNumParam);
 		
-		pValRangeParam = new RangeParameter("p-value range", new Range(0.9, 1.15));
+		pValRangeParam = new RangeParameter("p-value range", new Range(0.9, 2.0));
 		pValRangeParam.addParameterChangeListener(this);
 		fitParams.addParameter(pValRangeParam);
 		
-		pValNumParam = new IntegerParameter("p-value num", 1, 10000, new Integer(21));
+		pValNumParam = new IntegerParameter("p-value num", 1, 10000, new Integer(45));
 		pValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(pValNumParam);
 		
@@ -866,7 +875,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				
 				double magPrecision = magPrecisionParam.getValue();
 				
-				double b = AftershockStatsCalc.getMaxLikelihood_b_value(aftershocks, mc, magPrecision);
+				ObsEqkRupList filteredRupList = aftershocks.getRupsAboveMag(mc);
+				double b = AftershockStatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
+				System.out.println("Num rups ≥ Mc = "+filteredRupList.size());
 				System.out.println("Computed b-value: "+b);
 				bParam.setValue(b);
 				bParam.getEditor().refreshParamEditor();
@@ -912,6 +923,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				validateParameter(b, "b-value");
 				
 				model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
+						dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
 						aRange.getLowerBound(), aRange.getUpperBound(), aNum,
 						pRange.getLowerBound(), pRange.getUpperBound(), pNum,
 						cRange.getLowerBound(), cRange.getUpperBound(), cNum);

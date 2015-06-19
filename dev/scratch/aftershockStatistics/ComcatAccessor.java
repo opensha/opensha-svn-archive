@@ -106,7 +106,7 @@ public class ComcatAccessor {
 		for (JsonEvent event : events) {
 			ObsEqkRupture rup = eventToObsRup(event);
 			if (rup.getEventId().equals(mainshock.getEventId())) {
-				if (D) System.out.println("Removing mainshock from aftershock list");
+				if (D) System.out.println("Removing mainshock (M="+rup.getMag()+") from aftershock list");
 				continue;
 			}
 			rups.add(rup);
