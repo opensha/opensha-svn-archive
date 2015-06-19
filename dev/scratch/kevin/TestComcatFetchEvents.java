@@ -25,14 +25,15 @@ public class TestComcatFetchEvents {
 	public static void main(String[] args) throws Exception {
 		EventWebService service = new EventWebService(new URL("http://earthquake.usgs.gov/fdsnws/event/1/"));
 		EventQuery query = new EventQuery();
-		query.setStartTime(new GregorianCalendar(2015, 0, 1).getTime());
+//		query.setStartTime(new GregorianCalendar(2015, 0, 1).getTime());
 //		query.setEndTime(new Date());
-		query.setMinMagnitude(new BigDecimal(2.5d));
+//		query.setMinMagnitude(new BigDecimal(2.5d));
 		Region reg = new CaliforniaRegions.RELM_TESTING();
-		query.setMinLatitude(new BigDecimal(reg.getMinLat()));
-		query.setMaxLatitude(new BigDecimal(reg.getMaxLat()));
-		query.setMinLongitude(new BigDecimal(reg.getMinLon()));
-		query.setMaxLongitude(new BigDecimal(reg.getMaxLon()));
+//		query.setMinLatitude(new BigDecimal(reg.getMinLat()));
+//		query.setMaxLatitude(new BigDecimal(reg.getMaxLat()));
+//		query.setMinLongitude(new BigDecimal(reg.getMinLon()));
+//		query.setMaxLongitude(new BigDecimal(reg.getMaxLon()));
+		query.setEventId("ci37166079");
 		System.out.println(service.getUrl(query, Format.GEOJSON));
 		List<JsonEvent> events = service.getEvents(query);
 		

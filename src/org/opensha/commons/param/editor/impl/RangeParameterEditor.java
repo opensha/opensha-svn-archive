@@ -79,7 +79,9 @@ public class RangeParameterEditor extends AbstractParameterEditor<Range> impleme
 			upperField.setText("");
 		} else {
 			lowerField.setText(val.getLowerBound()+"");
+			lowerField.setCaretPosition(0);
 			upperField.setText(val.getUpperBound()+"");
+			upperField.setCaretPosition(0);
 		}
 		return panel;
 	}

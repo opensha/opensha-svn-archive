@@ -258,7 +258,8 @@ public class ETAS_CatalogStats {
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_08_25-napa/results.zip");
 //		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/results.zip");
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_08-mojave_7/results.zip");
+//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_08-mojave_7/results.zip");
+		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_10-mojave_7/results.zip");
 		int triggerParentID = 0;
 		double targetMinMag = 6.0;
 //		String name = "Napa M6";

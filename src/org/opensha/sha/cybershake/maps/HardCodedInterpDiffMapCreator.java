@@ -326,19 +326,20 @@ public class HardCodedInterpDiffMapCreator {
 //			String imtLabel = "2sec SA";
 //			Double customMax = 1.0;
 			
-//			int imTypeID = 21; // 3 sec SA, GEOM
-//			String imtLabel = "3sec SA";
-//			Double customMax = 1.0;
+			int imTypeID = 21; // 3 sec SA, GEOM
+			String imtLabel = "3sec SA";
+			Double customMax = 1.0;
 			
-			int imTypeID = 11; // 5 sec SA, GEOM
-			String imtLabel = "5sec SA";
-			Double customMax = 0.8;
+//			int imTypeID = 11; // 5 sec SA, GEOM
+//			String imtLabel = "5sec SA";
+//			Double customMax = 0.8;
 			
 //			int imTypeID = 1; // 10 sec SA, GEOM
 //			String imtLabel = "10sec SA";
 //			Double customMax = 0.6;
 			
-			String prefix = "study_15_4";
+//			String prefix = "study_15_4";
+			String prefix = "study_14_2";
 			String compPrefix = prefix+"_vs_14_2";
 			File downloadDir = new File("/tmp/cs_maps");
 			
@@ -357,16 +358,16 @@ public class HardCodedInterpDiffMapCreator {
 			/* the main dataset(s) that we're plotting */
 			
 			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(57);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(57);
 			
 			// CVM-S4i26, AWP CPU
 //			int velModelID = 5;
 //			List<Integer> datasetIDs = Lists.newArrayList(37);
 			
 			// CVM-S4i26, AWP GPU
-//			int velModelID = 5;
-//			List<Integer> datasetIDs = Lists.newArrayList(35);
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(35);
 			
 			// BBP 1D, AWP GPU
 //			int velModelID = 8;

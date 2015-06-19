@@ -26,11 +26,13 @@ public class BatchAmpCacher {
 		File cacheDir = null;
 		int datasetID = -1;
 		int[] imTypeIDs = null;
+		int killTimerMins = -1;
 		if (args.length == 1 && args[0].equals("TEST_ECLIPSE")) {
 			cacheDir = new File("/home/kevin/CyberShake/MCER/.amps_cache/");
 			datasetID = 57;
 			imTypeIDs = new int[] { 151, 146, 142, 136 };
-		} else if (args.length == 3) {
+			killTimerMins = 1;
+		} else if (args.length == 3 || args.length == 4) {
 			cacheDir = new File(args[0]);
 			Preconditions.checkState(cacheDir.exists() || cacheDir.mkdir());
 			datasetID = Integer.parseInt(args[1]);
@@ -38,13 +40,19 @@ public class BatchAmpCacher {
 			imTypeIDs = new int[imTypesStr.length];
 			for (int i=0; i<imTypesStr.length; i++)
 				imTypeIDs[i] = Integer.parseInt(imTypesStr[i]);
+			if (args.length == 4)
+				killTimerMins = Integer.parseInt(args[3]);
 		} else {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(BatchAmpCacher.class)
-					+" <cache-dir> <dataset-id> <im-type-ids>");
+					+" <cache-dir> <dataset-id> <im-type-ids> [<kill-timer-mins>]");
 			System.exit(2);
 		}
 		System.out.println("Caching results for dataset "+datasetID+", IM Type IDs "
 				+Joiner.on(",").join(Ints.asList(imTypeIDs))+" to "+cacheDir.getAbsolutePath());
+		if (killTimerMins > 0) {
+			System.out.println("Auto kill after "+killTimerMins+" minutes");
+			new KillTimerThread(killTimerMins).start();
+		}
 		
 		DBAccess db = null;
 		int exitCode = 0;
@@ -100,6 +108,25 @@ public class BatchAmpCacher {
 			}
 		}
 		System.exit(exitCode);
+	}
+	
+	private static class KillTimerThread extends Thread {
+		
+		private long millis;
+		
+		public KillTimerThread(long mins) {
+			millis = mins * 60 * 1000;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				Thread.sleep(millis);
+			} catch (InterruptedException e) {}
+			System.out.println("Killed after "+millis+" ms");
+			System.out.flush();
+			System.exit(1);
+		}
 	}
 
 }

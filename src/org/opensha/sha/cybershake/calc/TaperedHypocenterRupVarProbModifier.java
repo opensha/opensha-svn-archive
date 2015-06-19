@@ -34,6 +34,7 @@ import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -751,6 +752,9 @@ public class TaperedHypocenterRupVarProbModifier implements
 		List<Integer> runIDs = Lists.newArrayList();
 		List<String> siteNames = Lists.newArrayList();
 		
+		int datasetID = 57;
+		int imTypeID = 21;
+		
 		runIDs.add(3870);
 		siteNames.add("LADT");
 		
@@ -766,8 +770,6 @@ public class TaperedHypocenterRupVarProbModifier implements
 		runIDs.add(3878);
 		siteNames.add("PAS");
 		
-		int imTypeID = 21;
-		
 		Runs2DB runs2db = new Runs2DB(db);
 		List<CybershakeRun> runs = Lists.newArrayList();
 		for (int runID : runIDs)
@@ -777,17 +779,19 @@ public class TaperedHypocenterRupVarProbModifier implements
 		plotRuptureHypos(mod, 90, 0, runs.get(0), outputDir, inputHyposDir);
 		plotRuptureHypos(mod, 90, 3, runs.get(0), outputDir, inputHyposDir);
 		plotRuptureHypos(mod, 90, 6, runs.get(0), outputDir, inputHyposDir);
-		plotRuptureHypos(mod, 242, 29, runs.get(0), outputDir, inputHyposDir);
+//		plotRuptureHypos(mod, 242, 29, runs.get(0), outputDir, inputHyposDir);
 		
 		System.out.println("Max discrepancy: "+maxLocDiscrepancyEncountered+" km");
+		
+		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(
+				db, new File("/home/kevin/CyberShake/MCER/.amps_cache"), erf);
 		
 		for (int i=0; i<runs.size(); i++) {
 			CybershakeRun run = runs.get(i);
 			String siteName = siteNames.get(i);
 			System.out.println("Now doing curve test for "+run.getRunID()+" ("+siteName+")");
 			HazardCurveComputation calc = new HazardCurveComputation(db);
-			calc.setPeakAmpsAccessor(new CachedPeakAmplitudesFromDB(
-					db, new File("/home/kevin/CyberShake/MCER/.amps_cache"), erf));
+			calc.setPeakAmpsAccessor(amps2db);
 			List<Double> xVals = Lists.newArrayList();
 			for (Point2D pt : new IMT_Info().getDefaultHazardCurve(SA_Param.NAME))
 				xVals.add(pt.getX());
@@ -825,6 +829,22 @@ public class TaperedHypocenterRupVarProbModifier implements
 			gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
 			
 			System.out.println("Max discrepancy: "+maxLocDiscrepancyEncountered+" km");
+		}
+		
+		System.out.println("Fetching original curves");
+		HazardCurveFetcher fetch = new HazardCurveFetcher(db, datasetID, imTypeID);
+		
+		// now maps
+		HazardCurveComputation calc = new HazardCurveComputation(db);
+		calc.setPeakAmpsAccessor(amps2db);
+		calc.setRupVarProbModifier(mod);
+		ModifiedMapCalc mapCalc = new ModifiedMapCalc(db, fetch, calc);
+		
+		try {
+			System.out.println("Calculating map");
+			mapCalc.generateMap(outputDir, "map", "Tapered Hypocenter Dist", false, 0d, 1d, false, 4e-4);
+		} catch (Exception e) {
+			ExceptionUtils.throwAsRuntimeException(e);
 		}
 	}
 

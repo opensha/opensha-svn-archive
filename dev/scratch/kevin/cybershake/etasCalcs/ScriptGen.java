@@ -51,9 +51,9 @@ public class ScriptGen {
 //				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
 //				ETAS_CyberShake_Scenarios.PARKFIELD,
 //				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
-		boolean timeIndep = true;
-		int numSims = 40000;
-		String nameAdd = "-round3";
+		boolean timeIndep = false;
+		int numSims = 50000;
+		String nameAdd = "-round2";
 //		String nameAdd = "-nospont-round6";
 //		String nameAdd = "-round5";
 		

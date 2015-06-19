@@ -51,9 +51,10 @@ public class BatchBaseMapPlot {
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga2-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga2-pga");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-1sec");
-		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-pga");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_05_27-cvm4i26-cs-nga-2sec");
+		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_06_12-cvm4i26-cs-nga-10sec");
 		
 //		String imtFileLabel = "1sec";
 //		String label = "1sec SA, 2% in 50 yrs";
@@ -71,9 +72,13 @@ public class BatchBaseMapPlot {
 //		String label = "3sec SA, 2% in 50 yrs";
 //		Double customMax = 1.4; // for 3 sec
 		
-		String imtFileLabel = "5sec";
-		String label = "5sec SA, 2% in 50 yrs";
-		Double customMax = 1d; // for 5 sec
+//		String imtFileLabel = "5sec";
+//		String label = "5sec SA, 2% in 50 yrs";
+//		Double customMax = 1d; // for 5 sec
+		
+		String imtFileLabel = "10sec";
+		String label = "10sec SA, 2% in 50 yrs";
+		Double customMax = 0.6d; // for 10 sec
 		
 		boolean isProbAt_IML = false;
 		double val = 0.0004;

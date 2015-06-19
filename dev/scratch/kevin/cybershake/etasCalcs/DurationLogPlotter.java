@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -19,6 +20,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
+import org.opensha.commons.util.DataUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -31,8 +33,10 @@ public class DurationLogPlotter {
 	public static void main(String[] args) throws IOException {
 		SimpleDateFormat df = MPJTaskCalculator.df;
 		
-		File logFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/"
-				+ "2015_05_13-mojave_7.pbs.o5290046");
+//		File logFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/"
+//				+ "2015_05_13-mojave_7.pbs.o5290046");
+		File logFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_10-mojave_7/"
+				+ "2015_06_10-mojave_7.pbs.o5388265");
 		
 		Map<Integer, Date> startDates = Maps.newHashMap();
 		Map<Integer, Date> endDates = Maps.newHashMap();
@@ -97,11 +101,18 @@ public class DurationLogPlotter {
 		
 		HistogramFunction hist = new HistogramFunction(0.5, 100, 1d);
 		
+		double[] vals = new double[deltaSecsMap.size()];
+		int cnt = 0;
+		
 		for (Integer index : deltaSecsMap.keySet()) {
 			double delta = deltaSecsMap.get(index)/60d; // convert to minutes
 			int histInd = hist.getClosestXIndex(delta);
 			hist.add(histInd, 1d);
+			
+			vals[cnt++] = delta;
 		}
+		
+		System.out.println("Mean: "+StatUtils.mean(vals)+" m, Median: "+DataUtils.median(vals)+" m");
 		
 		List<XY_DataSet> elems = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -111,7 +122,8 @@ public class DurationLogPlotter {
 		
 		PlotSpec histSpec = new PlotSpec(elems, chars, "Simulation Time Hist", "Duration (minutes)", "Number");
 		
-		new GraphWindow(histSpec);
+		GraphWindow gw = new GraphWindow(histSpec);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
 	}
 
 }
