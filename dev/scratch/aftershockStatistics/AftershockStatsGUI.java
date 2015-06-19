@@ -933,7 +933,6 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}
 		} else if (param == computeAftershockForecastButton) {
 			String title = "Error Computing Aftershock Forecast";
-			setEnabledParamsPostAfershockParams(false);
 			try {
 				// TODO make editbale?
 //				Double a = aValParam.getValue();

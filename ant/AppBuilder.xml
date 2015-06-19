@@ -76,6 +76,7 @@
 			<include name="edu/**" />
 			<include name="cern/**" />
 			<include name="net/**" />
+			<include name="gov/**" />
 			<include name="org/**" />
 			<include name="javax/**" />
 			<include name="scratch/**" />
