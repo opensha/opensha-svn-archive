@@ -4,11 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.TimeZone;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -130,6 +135,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private ButtonParameter fetchButton;
 	
+	private JFileChooser saveCatalogChooser;
+	private ButtonParameter saveCatalogButton;
+	
 	/*
 	 * B-value fit parameters
 	 */
@@ -167,11 +175,13 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private static final int hypo_tab_index = 1;
 	private static final int mag_num_tab_index = 2;
 	private static final int mag_time_tab_index = 3;
-	private static final int pdf_tab_index = 4;
-	private static final int aftershock_expected_index = 5;
+	private static final int catalog_tab_index = 4;
+	private static final int pdf_tab_index = 5;
+	private static final int aftershock_expected_index = 6;
 	private GraphWidget hypocenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
+	private JTextArea catalogText;
 	private JTabbedPane pdfGraphsPane;
 	private GraphWidget aftershockExpectedGraph;
 	
@@ -244,6 +254,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		fetchButton.setInfo("From USGS ComCat");
 		fetchButton.addParameterChangeListener(this);
 		dataParams.addParameter(fetchButton);
+		
+		saveCatalogButton = new ButtonParameter("Aftershock Catalog", "Save Catalog");
+		saveCatalogButton.setInfo("Save catalog in 10 column format");
+		saveCatalogButton.addParameterChangeListener(this);
+		dataParams.addParameter(saveCatalogButton);
 		
 		mcParam = new DoubleParameter("Mc", 0d, 9d);
 		mcParam.getConstraint().setNullAllowed(true);
@@ -746,6 +761,34 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > mag_time_tab_index, "Plots added out of order");
 	}
 	
+	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
+	private static final TimeZone utc = TimeZone.getTimeZone("UTC");
+	static {
+		catDateFormat.setTimeZone(utc);
+	}
+	
+	private void plotCatalogText() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("# Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\n");
+		for (ObsEqkRupture rup : aftershocks) {
+			Location hypoLoc = rup.getHypocenterLocation();
+			sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
+			sb.append(hypoLoc.getLatitude()).append("\t");
+			sb.append(hypoLoc.getLongitude()).append("\t");
+			sb.append(hypoLoc.getDepth()).append("\t");
+			sb.append(rup.getMag()).append("\n");
+		}
+		if (catalogText == null) {
+			Preconditions.checkState(tabbedPane.getTabCount() == catalog_tab_index,  "Plots added out of order");
+			catalogText = new JTextArea(sb.toString());
+			catalogText.setEditable(false);
+			JScrollPane pane = new JScrollPane(catalogText);
+			tabbedPane.addTab("Catalog", null, pane, "Aftershock Catalog");
+		} else {
+			catalogText.setText(sb.toString());
+		}
+	}
+	
 	private void plotPDFs() {
 		if (pdfGraphsPane == null)
 			pdfGraphsPane = new JTabbedPane();
@@ -874,12 +917,37 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				plotAftershockHypocs();
 				plotMFDs(aftershockMND, mmaxc);
 				plotMagVsTime();
+				plotCatalogText();
 
 				setEnableParamsPostFetch(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+			}
+		} else if (param == saveCatalogButton) {
+			if (saveCatalogChooser == null)
+				saveCatalogChooser = new JFileChooser();
+			int ret = saveCatalogChooser.showSaveDialog(this);
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				FileWriter fw = null;
+				try {
+					File file = saveCatalogChooser.getSelectedFile();
+					fw = new FileWriter(file);
+					fw.write(catalogText.getText());
+				} catch (IOException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(this, e.getMessage(),
+							"Error Saving Catalog", JOptionPane.ERROR_MESSAGE);
+				} finally {
+					if (fw != null) {
+						try {
+							fw.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 		} else if (param == mcParam || param == magPrecisionParam) {
 			setEnableParamsPostComputeB(false);
@@ -1025,6 +1093,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	 * disables all parameters that are dependent on the fetch step and beyond
 	 */
 	private void setEnableParamsPostFetch(boolean enabled) {
+		saveCatalogButton.getEditor().setEnabled(enabled);
 		mcParam.getEditor().setEnabled(enabled);
 		magPrecisionParam.getEditor().setEnabled(enabled);
 		computeBButton.getEditor().setEnabled(enabled);
