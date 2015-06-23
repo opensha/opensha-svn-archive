@@ -50,6 +50,7 @@ import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
@@ -693,7 +694,20 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 	@Override
 	public double getExceedProbability() throws ParameterException,
 			IMRException {
-		double iml = (Double) getIntensityMeasure().getValue();
+		// all IMLs should be the same
+		Double iml = null;
+		for (int i=0; i<imrs.size(); i++) {
+			if (canSkipIMR(i))
+				continue;
+			ScalarIMR imr = imrs.get(i);
+			Double myIML = (Double)imr.getIntensityMeasureLevel();
+			Preconditions.checkNotNull(myIML, "Sub IMR has null IML");
+			if (iml == null)
+				iml = myIML;
+			else
+				Preconditions.checkState(iml.equals(myIML), "IML mismatch: %s != %s", iml, myIML);
+		}
+//		double iml = (Double) getIntensityMeasure().getValue();
 		return getExceedProbability(iml);
 	}
 
