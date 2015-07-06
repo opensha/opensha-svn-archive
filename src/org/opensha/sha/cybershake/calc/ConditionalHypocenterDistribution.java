@@ -390,9 +390,13 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		
 		File outputDir = new File("/home/kevin/CyberShake/cond_hypo");
 		
-		DiscretizedFunc func = getCustomFunc();
-		RealDistribution dist = null;
-		outputDir = new File(outputDir, "results_customdist");
+//		DiscretizedFunc func = getCustomFunc();
+//		RealDistribution dist = null;
+//		outputDir = new File(outputDir, "results_customdist");
+		
+		DiscretizedFunc func = null;
+		RealDistribution dist = new BetaDistribution(10.03d, 10.03d);
+		outputDir = new File(outputDir, "results_betadist_a10.03_b10.03");
 		
 //		DiscretizedFunc func = null;
 //		RealDistribution dist = new BetaDistribution(2.5d, 2.5d);
@@ -448,13 +452,13 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 //		Double customMax = 1d;
 //		boolean logPlot = false;
 		
-//		boolean isProbAt_IML = true;
-//		double val = 0.3;
-//		String valStr = "1yr POE 0.3g";
-//		String valFileStr = "0.3g";
-//		Double customMin = -5d;
-//		Double customMax = -1d;
-//		boolean logPlot = true;
+		boolean isProbAt_IML = true;
+		double val = 0.3;
+		String valStr = "1yr POE 0.3g";
+		String valFileStr = "0.3g";
+		Double customMin = -5d;
+		Double customMax = -1d;
+		boolean logPlot = true;
 		
 //		boolean isProbAt_IML = true;
 //		double val = 0.2;
@@ -464,13 +468,13 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 //		Double customMax = -1d;
 //		boolean logPlot = true;
 		
-		boolean isProbAt_IML = true;
-		double val = 0.1;
-		String valStr = "1yr POE 0.1g";
-		String valFileStr = "0.1g";
-		Double customMin = -5d;
-		Double customMax = -1d;
-		boolean logPlot = true;
+//		boolean isProbAt_IML = true;
+//		double val = 0.1;
+//		String valStr = "1yr POE 0.1g";
+//		String valFileStr = "0.1g";
+//		Double customMin = -5d;
+//		Double customMax = -1d;
+//		boolean logPlot = true;
 		
 		// use this to find run IDs, will recalculate curves
 		HazardCurveFetcher fetch = new HazardCurveFetcher(db, datasetID, imTypeID);

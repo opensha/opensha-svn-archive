@@ -1330,11 +1330,12 @@ public class ETASCurveCalc {
 			if (indep)
 				indepStr = "_indep";
 			
-//			boolean combined = false;
-//			int[] rounds = { 1 };
-			boolean combined = true;
-			int[] rounds = null;
-			String dateStr = "2015_03_23";
+			boolean combined = false;
+			int[] rounds = { 1, 2 };
+//			boolean combined = true;
+//			int[] rounds = null;
+//			String dateStr = "2015_03_23";
+			String dateStr = "2015_06_15";
 			gmpe_cache_prefix = dateStr;
 			
 			int imTypeID = 21;

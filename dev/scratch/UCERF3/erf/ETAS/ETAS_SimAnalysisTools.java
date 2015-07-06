@@ -1267,7 +1267,7 @@ public class ETAS_SimAnalysisTools {
 //		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\tFSS_ID\tGridNodeIndex\n");
 		// NEW FORMAT: Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
 		// 				distToParent nthERF fssIndex gridNodeIndex
-		fileWriter.write("# Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\t"
+		fileWriter.write("% Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\t"
 				+ "ID\tparID\tGen\tOrigTime\tdistToParent\tnthERFIndex\tFSS_ID\tGridNodeIndex\n");
 	}
 
@@ -1417,7 +1417,7 @@ public class ETAS_SimAnalysisTools {
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
 			line = line.trim();
-			if (line.startsWith("#") || line.isEmpty())
+			if (line.startsWith("%") || line.startsWith("#") || line.isEmpty())
 				continue;
 			ETAS_EqkRupture rup = ETAS_SimAnalysisTools.loadRuptureFromFileLine(line);
 			if (rup.getMag() >= minMag)
@@ -1452,7 +1452,7 @@ public class ETAS_SimAnalysisTools {
 		
 		for (String line : CharStreams.readLines(reader)) {
 			line = line.trim();
-			if (line.startsWith("#") || line.isEmpty())
+			if (line.startsWith("%") || line.startsWith("#") || line.isEmpty())
 				continue;
 			ETAS_EqkRupture rup = ETAS_SimAnalysisTools.loadRuptureFromFileLine(line);
 			if (rup.getMag() >= minMag)
