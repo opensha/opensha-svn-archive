@@ -27,6 +27,7 @@ public class NGAWest_2014_Averaged_AttenRel extends MultiIMR_Averaged_AttenRel {
 		}
 		return imrs;
 	}
+	
 	private static ArrayList<Double> getWeights(boolean idriss) {
 		if (idriss)
 			return Lists.newArrayList(0.22, 0.22, 0.22, 0.22, 0.12);
@@ -39,6 +40,29 @@ public class NGAWest_2014_Averaged_AttenRel extends MultiIMR_Averaged_AttenRel {
 	
 	public NGAWest_2014_Averaged_AttenRel(ParameterChangeWarningListener listener, boolean idriss) {
 		super(buildIMRs(listener, idriss), getWeights(idriss));
+	}
+	
+	public static class NGAWest_2014_Averaged_AttenRel_NoIdriss extends NGAWest_2014_Averaged_AttenRel {
+		
+		public static final String NAME = "NGAWest2 2014 Averaged No Idriss (unverified!)";
+		public static final String SHORT_NAME = "NGAWest_2014_NoIdr";
+
+		public NGAWest_2014_Averaged_AttenRel_NoIdriss(
+				ParameterChangeWarningListener listener) {
+			super(listener, false);
+		}
+
+		@Override
+		public String getShortName() {
+			return SHORT_NAME;
+		}
+
+		@Override
+		public String getName() {
+			return NAME;
+		}
+		
+		
 	}
 
 	@Override

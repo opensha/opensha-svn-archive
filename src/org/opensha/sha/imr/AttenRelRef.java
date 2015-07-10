@@ -49,6 +49,7 @@ import org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.GouletEtAl_2006_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.McVerryetal_2000_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
+import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel.NGAWest_2014_Averaged_AttenRel_NoIdriss;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.NGA_2008_Averaged_AttenRel_NoAS;
 import org.opensha.sha.imr.attenRelImpl.NSHMP_2008_CA;
@@ -221,6 +222,8 @@ public enum AttenRelRef implements Named {
 	IDRISS_2014(Idriss_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.SHORT_NAME, EXPERIMENTAL),
 	
 	NGAWest_2014_AVG(NGAWest_2014_Averaged_AttenRel.class, NGAWest_2014_Averaged_AttenRel.NAME, NGAWest_2014_Averaged_AttenRel.SHORT_NAME, EXPERIMENTAL),
+	
+	NGAWest_2014_AVG_NOIDRISS(NGAWest_2014_Averaged_AttenRel_NoIdriss.class, NGAWest_2014_Averaged_AttenRel_NoIdriss.NAME, NGAWest_2014_Averaged_AttenRel_NoIdriss.SHORT_NAME, EXPERIMENTAL),
 	
 	MOD_ATTEN_REL(ModAttenuationRelationship.class, ModAttenuationRelationship.NAME, ModAttenuationRelationship.SHORT_NAME, EXPERIMENTAL),
 

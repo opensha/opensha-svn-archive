@@ -98,7 +98,7 @@ public class IMR_MultiGuiBean extends LabeledBoxPanel implements ActionListener,
 		for (ScalarIMR imr : imrs) {
 			String name = imr.getName();
 			Preconditions.checkState(!names.contains(name),
-					"IMR list cannot contain 2 IMRs with the same name! Duplicate: "+name);
+					"IMR list cannot contain 2 IMRs with the same name! Duplicate: "+name+", class: "+imr.getClass());
 			names.add(name);
 		}
 		

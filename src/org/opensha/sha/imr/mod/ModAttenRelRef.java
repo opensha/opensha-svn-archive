@@ -3,6 +3,7 @@ package org.opensha.sha.imr.mod;
 import java.lang.reflect.Constructor;
 
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.imr.mod.impl.BaylessSomerville2013DirectivityModifier;
 import org.opensha.sha.imr.mod.impl.DemoSiteSpecificMod;
 import org.opensha.sha.imr.mod.impl.SimpleScaleMod;
 
@@ -16,7 +17,9 @@ import org.opensha.sha.imr.mod.impl.SimpleScaleMod;
 public enum ModAttenRelRef {
 	
 	SIMPLE_SCALE(SimpleScaleMod.class, SimpleScaleMod.NAME, SimpleScaleMod.SHORT_NAME),
-	DEMO_SITE_SPECIFIC(DemoSiteSpecificMod.class, DemoSiteSpecificMod.NAME, DemoSiteSpecificMod.SHORT_NAME);
+	DEMO_SITE_SPECIFIC(DemoSiteSpecificMod.class, DemoSiteSpecificMod.NAME, DemoSiteSpecificMod.SHORT_NAME),
+	BAYLESS_SOMERVILLE_2013_DIRECTIVITY(BaylessSomerville2013DirectivityModifier.class,
+			BaylessSomerville2013DirectivityModifier.NAME, BaylessSomerville2013DirectivityModifier.SHORT_NAME);
 	
 	private Class<? extends AbstractAttenRelMod> clazz;
 	private String name, shortName;

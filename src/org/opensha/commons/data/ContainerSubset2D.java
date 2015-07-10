@@ -157,6 +157,7 @@ public class ContainerSubset2D<T> implements Container2D<T>, Serializable {
 		window.checkLowerBounds( S );
 		window.calcUpperBounds();
 		setContainer2D( data );
+		window.checkUpperBounds(S);
 
 	}
 
@@ -1020,7 +1021,7 @@ public class ContainerSubset2D<T> implements Container2D<T>, Serializable {
 				lastRet = cursor++;
 				return object;
 			} catch ( IndexOutOfBoundsException e ) {
-				throw new NoSuchElementException( "You have iterated past the last element." + e.toString() );
+				throw new NoSuchElementException( "You have iterated past the last element. " + e.toString() );
 			}
 
 		}

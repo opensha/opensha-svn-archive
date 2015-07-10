@@ -111,6 +111,14 @@ public class MultiIMR_Averaged_AttenRel extends AttenuationRelationship {
 			weightsParam.getEditor().refreshParamEditor();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder("MultiIMR\n");
+		for (int i=0; i<imrs.size(); i++)
+			s.append("\t").append(imrs.get(i).getShortName()).append(": ").append(weights.getWeight(i)).append("\n");
+		return s.toString();
+	}
 
 	@Override
 	protected void initEqkRuptureParams() {

@@ -57,7 +57,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	private ParameterListParameter imrParams;
 	private ParameterListParameter modParams;
 	
-	public static final String IMRS_PARAM_NAME = "IMR";
+	public static final String IMRS_PARAM_NAME = "IMR to Modify";
 	private EnumSet<AttenRelRef> supportedIMRs;
 	private EnumParameter<AttenRelRef> imrsParam;
 	public static final String MODS_PARAM_NAME = "Modifier";
@@ -211,8 +211,12 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	protected void initOtherParams() {
 		super.initOtherParams();
 		
+		AttenRelRef defaultIMR = AttenRelRef.CB_2008;
+		if (!supportedIMRs.contains(defaultIMR))
+			defaultIMR = supportedIMRs.iterator().next();
+		
 		imrsParam = new EnumParameter<AttenRelRef>(IMRS_PARAM_NAME,
-				supportedIMRs, AttenRelRef.CB_2008, null);
+				supportedIMRs, defaultIMR, null);
 		imrsParam.addParameterChangeListener(this);
 		otherParams.addParameter(0, imrsParam);
 
@@ -220,8 +224,12 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		imrParams.setDefaultValue(new ParameterList());
 		otherParams.addParameter(1, imrParams);
 		
+		ModAttenRelRef defaultMod = ModAttenRelRef.SIMPLE_SCALE;
+		if (!supportedMods.contains(defaultMod))
+			defaultMod = supportedMods.iterator().next();
+		
 		modsParam = new EnumParameter<ModAttenRelRef>(MODS_PARAM_NAME, supportedMods,
-				ModAttenRelRef.SIMPLE_SCALE, null);
+				defaultMod, null);
 		modsParam.addParameterChangeListener(this);
 		otherParams.addParameter(2, modsParam);
 		
