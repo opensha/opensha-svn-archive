@@ -48,6 +48,7 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.ButtonParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.EnumParameter;
@@ -158,6 +159,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private RangeParameter cValRangeParam;
 	private IntegerParameter cValNumParam;
 	
+	private BooleanParameter timeDepMcParam;
+	private DoubleParameter gParam;
+	private DoubleParameter hParam;
+	private DoubleParameter mCatParam;
+	
 	private ButtonParameter computeAftershockParamsButton;
 	
 	private DoubleParameter aValParam;
@@ -260,7 +266,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		saveCatalogButton.addParameterChangeListener(this);
 		dataParams.addParameter(saveCatalogButton);
 		
-		mcParam = new DoubleParameter("Mc", 0d, 9d);
+		mcParam = new DoubleParameter("Mc For Sequence", 0d, 9d);
 		mcParam.getConstraint().setNullAllowed(true);
 		mcParam.setInfo("Default is Mmaxc+0.5, but user can specify other");
 		mcParam.addParameterChangeListener(this);
@@ -310,6 +316,22 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		cValNumParam = new IntegerParameter("c-value num", 1, 10000, new Integer(1));
 		cValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(cValNumParam);
+		
+		timeDepMcParam = new BooleanParameter("Apply time dependent Mc", true);
+		timeDepMcParam.addParameterChangeListener(this);
+		fitParams.addParameter(timeDepMcParam);
+		
+		gParam = new DoubleParameter("G", 1d, 6d, new Double(2.5));
+		gParam.addParameterChangeListener(this);
+		fitParams.addParameter(gParam);
+		
+		hParam = new DoubleParameter("H", 0.25, 2d, new Double(1d));
+		hParam.addParameterChangeListener(this);
+		fitParams.addParameter(hParam);
+		
+		mCatParam = new DoubleParameter("Mcat", 1d, 7d, new Double(4.5));
+		mCatParam.addParameterChangeListener(this);
+		fitParams.addParameter(mCatParam);
 		
 		computeAftershockParamsButton = new ButtonParameter("Aftershock Params", "Compute");
 		computeAftershockParamsButton.addParameterChangeListener(this);
@@ -976,21 +998,26 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
 		} else  if (param == bParam) {
-			setEnabledParamsPostAfershockParams(false);
+			setEnableParamsPostAfershockParams(false);
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
 				plotMFDs(aftershockMND, mmaxc);
 		} else if (param == aValRangeParam || param == aValNumParam) {
 			updateRangeParams(aValRangeParam, aValNumParam, 51);
-			setEnabledParamsPostAfershockParams(false);
+			setEnableParamsPostAfershockParams(false);
 		} else if (param == pValRangeParam || param == pValNumParam) {
 			updateRangeParams(pValRangeParam, pValNumParam, 45);
-			setEnabledParamsPostAfershockParams(false);
+			setEnableParamsPostAfershockParams(false);
 		} else if (param == cValRangeParam || param == cValNumParam) {
 			updateRangeParams(cValRangeParam, cValNumParam, 45);
-			setEnabledParamsPostAfershockParams(false);
+			setEnableParamsPostAfershockParams(false);
+		} else if (param == timeDepMcParam) {
+			setEnableParamsPostAfershockParams(false);
+			setEnableParamsPostComputeB(true);
+		} else if (param == gParam || param == hParam || param == mCatParam) {
+			setEnableParamsPostAfershockParams(false);
 		} else if (param == computeAftershockParamsButton) {
 			String title = "Error Computing Aftershock Params";
-			setEnabledParamsPostAfershockParams(false);
+			setEnableParamsPostAfershockParams(false);
 			try {
 				Range aRange = aValRangeParam.getValue();
 				int aNum = aValNumParam.getValue();
@@ -1008,11 +1035,28 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				Double b = bParam.getValue();
 				validateParameter(b, "b-value");
 				
-				model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
-						dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
-						aRange.getLowerBound(), aRange.getUpperBound(), aNum,
-						pRange.getLowerBound(), pRange.getUpperBound(), pNum,
-						cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+				if (timeDepMcParam.getValue()) {
+					Double g = gParam.getValue();
+					validateParameter(g, "G");
+					
+					Double h = hParam.getValue();
+					validateParameter(h, "H");
+					
+					Double mCat = mCatParam.getValue();
+					validateParameter(mCat, "Mcat");
+					
+					model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mCat, g, h, b,
+							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+				} else {
+					model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
+							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+				}
 				
 				aValParam.setValue(model.getMaxLikelihood_a());
 				aValParam.getEditor().refreshParamEditor();
@@ -1022,7 +1066,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				cValParam.getEditor().refreshParamEditor();
 				
 				plotPDFs();
-				setEnabledParamsPostAfershockParams(true);
+				setEnableParamsPostAfershockParams(true);
 				tabbedPane.setSelectedIndex(pdf_tab_index);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1113,11 +1157,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		cValRangeParam.getEditor().setEnabled(enabled);
 		cValNumParam.getEditor().setEnabled(enabled);
 		computeAftershockParamsButton.getEditor().setEnabled(enabled);
+		timeDepMcParam.getEditor().setEnabled(enabled);
+		gParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+		hParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+		mCatParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
 		if (!enabled)
-			setEnabledParamsPostAfershockParams(enabled);
+			setEnableParamsPostAfershockParams(enabled);
 	}
 	
-	private void setEnabledParamsPostAfershockParams(boolean enabled) {
+	private void setEnableParamsPostAfershockParams(boolean enabled) {
 		aValParam.getEditor().setEnabled(false); // no capability to set in model yet
 		pValParam.getEditor().setEnabled(false); // no capability to set in model yet
 		cValParam.getEditor().setEnabled(false); // no capability to set in model yet
