@@ -34,9 +34,10 @@ public class ScriptGen {
 //		String solTypeStr = "u3inverted";
 //		String fssName = "ucerf2_u3inverted_sol.zip";
 		
-		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
+//		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
 //		String dateStr = "2015_03_23";
 //		String dateStr = "2015_04_09";
+		String dateStr = "2015_06_15";
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -44,13 +45,13 @@ public class ScriptGen {
 //		Scenarios[] scenarios = {Scenarios.BOMBAY_BEACH_M6};
 //		Scenarios[] scenarios = {Scenarios.PARKFIELD};
 		ETAS_CyberShake_Scenarios[] scenarios = {
-				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
+//				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
 //				ETAS_CyberShake_Scenarios.PARKFIELD,
 //				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
-				ETAS_CyberShake_Scenarios.PARKFIELD};
+//				ETAS_CyberShake_Scenarios.PARKFIELD};
 //				ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6,
 //				ETAS_CyberShake_Scenarios.PARKFIELD,
-//				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
+				ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6};
 		boolean timeIndep = false;
 		int numSims = 50000;
 		String nameAdd = "-round2";

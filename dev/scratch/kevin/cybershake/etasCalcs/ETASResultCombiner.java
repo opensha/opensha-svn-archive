@@ -27,41 +27,17 @@ public class ETASResultCombiner {
 		// used to combine multiple etas result zip files into a single zip file
 		
 		File simsDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
+//		String prefix = "2015_06_15-u2mapped-bombay_beach_brawley_fault_m6";
+		String prefix = "2015_06_15-u2mapped-parkfield";
+		int[] rounds = { 1, 2 };
+		
+		File[] zipFiles = new File[rounds.length];
+		
+		for (int i=0; i<rounds.length; i++)
+			zipFiles[i] = new File(new File(simsDir, prefix+"-round"+rounds[i]), "results.zip");
 		
 		
-		File[] zipFiles = {
-				
-				
-				// bombay fault
-				new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round1/results.zip"),
-				new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round2/results.zip"),
-				new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-round3/results.zip")
-		};
-		File outputFile = new File(simsDir, "2015_04_09-u2mapped-bombay_beach_brawley_fault_m6-indep-combined.zip");
-				
-				// bombay m6
-//				new File(simsDir, "2014_11_25-bombay_beach_m6-round1/results.zip"),
-//				new File(simsDir, "2014_12_01-bombay_beach_m6-round2/results.zip"),
-//				new File(simsDir, "2014_12_01-bombay_beach_m6-round3/results.zip"),
-//				new File(simsDir, "2014_12_01-bombay_beach_m6-round4/results.zip")
-//		};
-//		File outputFile = new File(simsDir, "2014_12_01-bombay_beach_m6-combined.zip");
-				
-				// mojave s
-//				new File(simsDir, "2014_11_25-mojave_s_point_m6-round1/results.zip"),
-//				new File(simsDir, "2014_12_01-mojave_s_point_m6-round2/results.zip"),
-//				new File(simsDir, "2014_12_01-mojave_s_point_m6-round3/results.zip"),
-//				new File(simsDir, "2014_12_01-mojave_s_point_m6-round4/results.zip")
-//		};
-//		File outputFile = new File(simsDir, "2014_12_01-mojave_s_point_m6-combined.zip");
-				
-				// parkfield
-//				new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-round1/results.zip"),
-//				new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-round2/results.zip"),
-//				new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-round3/results.zip")
-//		};
-////		File outputFile = new File(simsDir, "2015_03_23-u2mapped-parkfield-combined.zip");
-//		File outputFile = new File(simsDir, "2015_04_09-u2mapped-parkfield-indep-combined.zip");
+		File outputFile = new File(simsDir, prefix+"-combined.zip");
 		
 		boolean onlyWithFaultBased = false;
 		double minMag = 5d;

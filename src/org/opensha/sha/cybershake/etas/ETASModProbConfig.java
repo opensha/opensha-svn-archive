@@ -268,6 +268,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	
 	private Map<Integer, Map<Location, List<Integer>>> rvHypoLocations;
 	private Map<IDPairing, Map<Integer, Location>> hypoLocationsByRV;
+	private Map<IDPairing, List<Location>> gmpeHypoLocations;
 	
 	private Map<IDPairing, List<Double>> rvProbs;
 	private List<RVProbSortable> rvProbsSortable;
@@ -658,6 +659,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 	private void loadHyposForETASRups() {
 		rvHypoLocations = Maps.newHashMap();
 		hypoLocationsByRV = Maps.newHashMap();
+		gmpeHypoLocations = Maps.newHashMap();
 		
 		System.out.println("Loading hypos");
 		
@@ -665,12 +667,21 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			for (ETAS_EqkRupture rup : catalog) {
 				int fssIndex = rup.getFSSIndex();
 				
+				IDPairing pair = rupMappingTable.get(fssIndex);
+				Preconditions.checkNotNull(pair, "No mapping for rupture that occurred: "+fssIndex);
+				
+				// original hypocenter for GMPE calcs
+				Location origHypo = rup.getHypocenterLocation();
+				List<Location> gmpeHypos = gmpeHypoLocations.get(pair);
+				if (gmpeHypos == null) {
+					gmpeHypos = Lists.newArrayList();
+					gmpeHypoLocations.put(pair, gmpeHypos);
+				}
+				gmpeHypos.add(origHypo);
+				
 				if (rvHypoLocations.containsKey(fssIndex))
 					// we've already loaded hypos
 					continue;
-				
-				IDPairing pair = rupMappingTable.get(fssIndex);
-				Preconditions.checkNotNull(pair, "No mapping for rupture that occurred: "+fssIndex);
 				
 				String sql = "SELECT Rup_Var_ID,Hypocenter_Lat,Hypocenter_Lon,Hypocenter_Depth FROM Rupture_Variations " +
 						"WHERE ERF_ID=" + erfID + " AND Rup_Var_Scenario_ID=" + rupVarScenID + " " +
@@ -1438,7 +1449,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		return ucerf2;
 	}
 	
-	public ERF getModERFforGMPE() {
+	public ERF getModERFforGMPE(final boolean gmpeDirectivity) {
 		final double timeRateMultiplier = timeSpan.getTimeYears();
 		return new AbstractERF() {
 			
@@ -1454,6 +1465,14 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			
 			@Override
 			public ProbEqkSource getSource(int sourceID) {
+				double probPerOccur;
+				if (catalogs == null) {
+					Preconditions.checkState(!scenario.isETAS());
+					probPerOccur = 0;
+				} else {
+//					probPerOccur = 1d-Math.exp(-(1d/(double)catalogs.size()));
+					probPerOccur = 1d/(double)catalogs.size();
+				}
 				final ProbEqkSource orig = ucerf2.getSource(sourceID);
 				final List<ProbEqkRupture> modRups = Lists.newArrayList();
 				for (int rupID=0; rupID<orig.getNumRuptures(); rupID++) {
@@ -1462,14 +1481,35 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 						fractOccur = fractOccurances[sourceID][rupID];
 					else
 						fractOccur = 0d;
-					final ProbEqkRupture origRup = orig.getRupture(rupID);
+					ProbEqkRupture origRup = orig.getRupture(rupID);
 					double origProb = origRup.getProbability();
 					double origRate = -Math.log(1d-origProb); // 1 year, don't need to divide by years
-					// convert to the correct time span and modify for trigger rate
-					double modRate = origRate*timeRateMultiplier + fractOccur;
-					double modProb = 1-Math.exp(-modRate);
-					modRups.add(new ProbEqkRupture(origRup.getMag(), origRup.getAveRake(),
-							modProb, origRup.getRuptureSurface(), null));
+					double scaledOrigRate = origRate*timeRateMultiplier;
+					double scaledOrigProb = 1-Math.exp(-scaledOrigRate);
+					if (gmpeDirectivity && !triggerAllHyposEqually && fractOccur > 0d) {
+						// first add normal rupture at original rate
+						modRups.add(new ProbEqkRupture(origRup.getMag(), origRup.getAveRake(),
+								scaledOrigProb, origRup.getRuptureSurface(), null));
+						// now one for each hypocenter
+						List<Location> hypos = gmpeHypoLocations.get(new IDPairing(sourceID, rupID));
+						Preconditions.checkState(!hypos.isEmpty(), "Shouldn't be empty if fractOccur > 0");
+						Preconditions.checkState(probPerOccur > 0);
+						for (Location hypo : hypos)
+							modRups.add(new ProbEqkRupture(origRup.getMag(), origRup.getAveRake(),
+									probPerOccur, origRup.getRuptureSurface(), hypo));
+					} else {
+						// no directivity or never triggered
+						double modProb;
+						if (fractOccur > 0) {
+							// convert to the correct time span and modify for trigger rate
+							double modRate = scaledOrigRate + fractOccur;
+							modProb = 1-Math.exp(-modRate);
+						} else {
+							modProb = scaledOrigProb;
+						}
+						modRups.add(new ProbEqkRupture(origRup.getMag(), origRup.getAveRake(),
+								modProb, origRup.getRuptureSurface(), null));
+					}
 				}
 				ProbEqkSource mod = new ProbEqkSource() {
 					
@@ -1490,7 +1530,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 					
 					@Override
 					public int getNumRuptures() {
-						return orig.getNumRuptures();
+						return modRups.size();
 					}
 					
 					@Override
