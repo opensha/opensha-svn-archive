@@ -3,6 +3,7 @@
  */
 package scratch.aftershockStatistics;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,6 +16,11 @@ import java.util.StringTokenizer;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.geo.Location;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
@@ -225,6 +231,32 @@ public class AftershockStatsCalc {
 		}
 	}
 	
+	private static ObsEqkRupList readJeannesFile() {
+		
+		try {
+			BufferedReader buffRead = new BufferedReader(new InputStreamReader(
+					AftershockStatsCalc.class.getResourceAsStream("JeannesSimulationData.txt")));
+			ObsEqkRupList aftershockList = new ObsEqkRupList();
+			String line = buffRead.readLine();
+			int eventId = 0;
+			while (line != null) {
+				StringTokenizer tok = new StringTokenizer(line);
+				double mag = Double.parseDouble(tok.nextToken());
+				double timeMillis = Double.parseDouble(tok.nextToken())*(double)MILLISEC_PER_DAY;
+				if(eventId != 0) // skip main shock
+					aftershockList.add(new ObsEqkRupture(Integer.toString(eventId), (long)timeMillis, null, mag));
+				eventId+=1;
+				line = buffRead.readLine();
+			}
+			buffRead.close();
+			return aftershockList;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	
 	
 	public static void plot2D_PDF(EvenlyDiscrXYZ_DataSet pdf2D, String title,
 			String xAxisLabel, String yAxisLabel, String zAxisLabel) {
@@ -237,6 +269,75 @@ public class AftershockStatsCalc {
 		XYZPlotSpec logLikeSpec = new XYZPlotSpec(pdf2D, cpt, title, xAxisLabel, yAxisLabel, zAxisLabel);
 		XYZPlotWindow window_logLikeSpec = new XYZPlotWindow(logLikeSpec, new Range(pdf2D.getMinX(),pdf2D.getMaxX()), new Range(pdf2D.getMinY(),pdf2D.getMaxY()));
 	}
+	
+	
+	
+	public static void testJeanneCalc() {
+		
+//		Here's a synthetic dataset, with magnitude and time following a M7.5 mainshock.  
+//		The synthetics were created with the parameters:  a=-1.67, b_in=0.91, c_in=0.05 days, 
+//		and p_in=1.08.  The completeness is described by Mcat=2.5, G=4.5, and H=0.75.  
+//		I solved just for a and p, fixing everything else to the correct value, and found 
+//		a=-1.69, and p=1.05.  This will force you to search in the vicinity of p=1.
+
+
+		ObsEqkRupture mainShock = new ObsEqkRupture("0", 0l,null, 7.5);
+		ObsEqkRupList aftershockList = readJeannesFile();
+		System.out.println("Num aShocks = "+aftershockList.size());
+		double magCat = 2.5;
+		double capG=4.5;
+		double capH=0.75;
+		double b=0.91;
+		double dataStartTimeDays=0;
+		double dataEndTimeDays=30;
+		
+		double min_a = -2.0;
+		double max_a = -1.0;
+		int num_a = 101;
+
+		double min_p = 0.9; 
+		double max_p = 1.2; 
+		int num_p = 31;
+//		double min_p = 1.0; 
+//		double max_p = 1.0; 
+//		int num_p = 1;
+		
+		double min_c=0.05;
+		double max_c=0.05;
+		int num_c=1;
+
+		
+		ReasenbergJonesAftershockModel solution = new ReasenbergJonesAftershockModel(mainShock, aftershockList, magCat, capG, capH, b, dataStartTimeDays, dataEndTimeDays,
+				min_a, max_a, num_a, min_p, max_p, num_p, min_c, max_c, num_c);
+		
+		plot2D_PDF(solution.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
+		
+		GraphWindow graph = new GraphWindow(solution.getPDF_a(), "a-value PDF"); 
+		graph.setX_AxisLabel("a-axis");
+		graph.setY_AxisLabel("DensityF");
+//		graph.setX_AxisRange(-4, 3);
+//		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+		graph.setPlotChars(plotChars);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+
+		
+		GraphWindow graph2 = new GraphWindow(solution.getPDF_p(), "p-value PDF"); 
+		graph2.setX_AxisLabel("p-axis");
+		graph2.setY_AxisLabel("DensityF");
+		graph2.setPlotChars(plotChars);
+		graph2.setPlotLabelFontSize(18);
+		graph2.setAxisLabelFontSize(16);
+		graph2.setTickLabelFontSize(14);
+
+
+	}
+
+	
+	
 	
 	
 	public static void testAndyCalc() {
@@ -367,7 +468,12 @@ public class AftershockStatsCalc {
 	public static void main(String[] args) {
 //		System.out.println(getExpectedNumEvents(0d, 1d, 1d, 1d, 1.025, 0.05, 0d, 1e6));
 		
-		testAndyCalc();
+//		double val = Math.log(Double.MAX_VALUE);
+//		System.out.println(val);
+//		System.out.println(Math.exp(700.0));
+		
+		testJeanneCalc();
+//		testAndyCalc();
 	}
 
 }

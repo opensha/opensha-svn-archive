@@ -21,7 +21,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  */
 public class ReasenbergJonesAftershockModel {
 	
-	Boolean D=false;	// debug flag
+	Boolean D=true;	// debug flag
 	
 	double b, magMain, magComplete;
 	double min_a, max_a, delta_a=0, min_p, max_p, delta_p=0, min_c, max_c, delta_c=0;
@@ -247,13 +247,13 @@ public class ReasenbergJonesAftershockModel {
 			delta_c = (max_c-min_c)/((double)num_c - 1.);
 		
 		if(D) {
-			System.out.println("a-values range:\t"+min_a+"\t"+max_a+"\t"+num_a+"\t"+delta_a);
-			System.out.println("p-values range:\t"+min_p+"\t"+max_p+"\t"+num_p+"\t"+delta_p);
-			System.out.println("c-values range:\t"+min_c+"\t"+max_c+"\t"+num_c+"\t"+delta_c);
+			System.out.println("a-values range:\t"+min_a+"\t"+max_a+"\t"+num_a+"\t"+(float)delta_a);
+			System.out.println("p-values range:\t"+min_p+"\t"+max_p+"\t"+num_p+"\t"+(float)delta_p);
+			System.out.println("c-values range:\t"+min_c+"\t"+max_c+"\t"+num_c+"\t"+(float)delta_c);
 		}
 		
 		array = new double[num_a][num_p][num_c];
-		double total = 0;
+//		double total = 0;
 		double maxVal= Double.NEGATIVE_INFINITY;
 		for(int cIndex=0;cIndex<num_c;cIndex++) {
 			double c = get_c(cIndex);
@@ -270,6 +270,8 @@ public class ReasenbergJonesAftershockModel {
 				double magCompleteAtTime = magMain - capG - capH*Math.log10(timeSinceMainDays+c);
 				if(magCompleteAtTime<magCat)
 					magCompleteAtTime=magCat;
+//System.out.println("TESTEVENTS\t"+(float)timeSinceMainDays+"\t"+(float)rup.getMag()+"\t"+(float)magCompleteAtTime+"\t"+(rup.getMag()<magCompleteAtTime));
+
 				if(rup.getMag()>magCompleteAtTime) {
 					timesForFilteredEventsList.add(timeSinceMainDays);
 					magCompleteForFilteredEventsList.add(magCompleteAtTime);
@@ -279,6 +281,10 @@ public class ReasenbergJonesAftershockModel {
 			}
 
 			double crossOverTime = Math.pow(10.0, (magMain-magCat-capG)/capH) - c;
+			System.out.println("crossOverTime:"+"\t"+crossOverTime);
+			System.out.println("magMain:"+"\t"+magMain);
+
+
 			int n = timesForFilteredEventsList.size();
 			double ln10 = Math.log(10);
 
@@ -287,58 +293,56 @@ public class ReasenbergJonesAftershockModel {
 				double p = get_p(pIndex);
 				for(int aIndex=0;aIndex<num_a;aIndex++) {
 					double a = get_a(aIndex);
-					double logLike = n*a*ln10 + b*ln10*sum1 - p*sum2;
+					double logLike = 0;
+					double logLikeTest=0;
+					double term1 = n*a*ln10 + b*ln10*sum1 - p*sum2;
+					double term2 = 0;
+					double term3 = 0;
 					double k = AftershockStatsCalc.convertProductivityTo_k(a, b, magMain, magCat);
 					if(dataStartTimeDays>=crossOverTime) {	// no time-dep; use equation (8)
-						if(p != 1.0) {
-							logLike -= (k/(1-p))*(Math.pow(dataEndTimeDays+c, 1-p)-Math.pow(dataStartTimeDays+c, 1-p));
-						}
-						else {
-							logLike -= k*(Math.log(dataEndTimeDays+c)-Math.log(dataStartTimeDays+c));
-						}
+						term2 = -k*getFuncF(c, p, dataStartTimeDays, dataEndTimeDays);
 						// test (slower way of doing it): TODO
-						double logLike2 = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
+						double[] relativeEventTimes = new double[timesForFilteredEventsList.size()];
+						for(int i=0;i<timesForFilteredEventsList.size();i++)
+							relativeEventTimes[i] = timesForFilteredEventsList.get(i);
+						logLikeTest = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
+//System.exit(0);
 					}
 					else if (dataEndTimeDays<crossOverTime) {	// use equation (9)
 						double temp = Math.pow(10, a+b*capG);
-						if(p+b*capH != 1.0) {
-							logLike -= temp*(Math.pow(dataEndTimeDays+c, 1-p+b*capH)-Math.pow(dataStartTimeDays+c, 1-p+b*capH))/(1-p+b*capH);
-						}
-						else {
-							logLike -= temp*(Math.log(dataEndTimeDays+c)-Math.log(dataStartTimeDays+c));
-						}
+						term2 = -temp*getFuncF(c, p-b*capH, dataStartTimeDays, dataEndTimeDays);
+//System.exit(0);
 					}
 					else {	// use equation (7)
 						// do the start-to-cross time (p+b*capH) term first
-						double temp1 = Math.pow(10, a+b*capG);
-						if(p+b*capH != 1.0) {
-							logLike -= temp1*(Math.pow(crossOverTime+c, 1-p+b*capH)-Math.pow(dataStartTimeDays+c, 1-p+b*capH))/(1-p+b*capH);
-						}
-						else {
-							logLike -= temp1*(Math.log(crossOverTime+c)-Math.log(dataStartTimeDays+c));
-						}
+						term2 = -Math.pow(10, a+b*capG)*getFuncF(c, p-b*capH, dataStartTimeDays, crossOverTime);
 						// now do the cross-to-end time (p) term
-						double temp2 = Math.pow(10, a+b*(magMain-magCat));
-						if(p != 1.0) {
-							logLike -= temp2*(Math.pow(dataEndTimeDays+c, 1-p)-Math.pow(crossOverTime+c, 1-p))/(1-p);
-						}
-						else {
-							logLike -= temp2*(Math.log(dataEndTimeDays+c)-Math.log(crossOverTime+c));
-						}
+						term3 = -Math.pow(10, a+b*(magMain-magCat))*getFuncF(c, p, crossOverTime, dataEndTimeDays);
 					}
 
-
-					double like = Math.exp(logLike);
+					logLike = term1+term2+term3;
+//					if(Double.isNaN(logLike)) {
+//					System.out.println("NaN:\t"+(float)get_a(aIndex)+"\t"+(float)get_p(pIndex)+"\t"+logLike+"\t"+term1+"\t"+term2+"\t"+term3);
+//				}
+//					double like = Math.exp(logLike);
 					//					if(Double.isNaN(like)) {
 					//						System.out.println("NaN Problem: "+k+"\t"+p+"\t"+c);
 					//						throw new RuntimeException("NaN problem");
 					//					}
-					//System.out.println(get_a(aIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
+					
+if(logLikeTest != 0) {
+	float test = (float)(logLike/logLikeTest);
+//	System.out.println("LogLikeTest\t"+logLike+"\t"+logLikeTest+"\t"+test);
+	if(test != 1.0)
+		throw new RuntimeException("LogLikeTest failed");
+}
 
-					array[aIndex][pIndex][cIndex] = like;
-					total += like;
-					if(maxVal<like) {
-						maxVal=like;
+// System.out.println((float)get_a(aIndex)+"\t"+(float)get_p(pIndex)+"\t"+(float)get_c(cIndex)+"\t"+logLike+"\t"+like+"\t"+term1+"\t"+term2+"\t"+term3);
+
+					array[aIndex][pIndex][cIndex] = logLike;
+//					total += like;
+					if(maxVal<logLike) {
+						maxVal=logLike;
 						max_a_index=aIndex;
 						max_p_index=pIndex;
 						max_c_index=cIndex;
@@ -346,6 +350,25 @@ public class ReasenbergJonesAftershockModel {
 				}
 			}
 		}
+		
+//		if(D)
+//			System.out.println("total="+total);
+		
+		// now convert from log-likelihood to likelihood
+		double total=0;
+		double corr = 0;
+		if(maxVal>100.0)	// values above ~700 cause NaNs from Math.exp(), so we subtract some number from all values to avoid such numerical problems
+			corr = maxVal-100;
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			for(int pIndex=0;pIndex<num_p;pIndex++) {
+				for(int cIndex=0;cIndex<num_c;cIndex++) {
+					double like = Math.exp(array[aIndex][pIndex][cIndex]-corr);
+					array[aIndex][pIndex][cIndex] = like;
+					total += array[aIndex][pIndex][cIndex];
+				}
+			}
+		}
+
 		
 		double testTotal=0;
 		for(int aIndex=0;aIndex<num_a;aIndex++) {
@@ -368,7 +391,14 @@ public class ReasenbergJonesAftershockModel {
 	}
 
 	
-	
+	private static double getFuncF(double c, double x, double t1, double t2) {
+		if(x==1.0) {
+			return Math.log(t2+c) - Math.log(t1+c);
+		}
+		else {
+			return (Math.pow(t2+c,1-x) - Math.pow(t1+c,1-x))/(1-x);
+		}
+	}
 	
 	public double getMaxLikelihood_a() { return get_a(max_a_index);}
 	
