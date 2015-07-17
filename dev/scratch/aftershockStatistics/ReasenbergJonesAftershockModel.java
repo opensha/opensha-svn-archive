@@ -14,7 +14,11 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 /**
  * This represents a Reasenberg-Jones (1989, 1994) aftershock model.
  * 
- * TODO Make a constructor that takes generic values, perhaps with a PDF for a-values
+ * TODO:
+ * 
+ *  1) Make a constructor that takes generic values, perhaps with a PDF for a-values
+ *  2) Carefully define jUnit tests in order to cover all cases, including the p=1 type cases.
+ *  3) Merge the two constructors?
  *
  * @author field
  *
@@ -132,17 +136,15 @@ public class ReasenbergJonesAftershockModel {
 				for(int cIndex=0;cIndex<num_c;cIndex++) {
 					double c = get_c(cIndex);
 					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
-					double like = Math.exp(logLike);
 //					if(Double.isNaN(like)) {
 //						System.out.println("NaN Problem: "+k+"\t"+p+"\t"+c);
 //						throw new RuntimeException("NaN problem");
 //					}
 //System.out.println(get_a(aIndex)+"\t"+get_p(pIndex)+"\t"+get_c(cIndex)+"\t"+logLike+"\t"+like);
 
-					array[aIndex][pIndex][cIndex] = like;
-					total += like;
-					if(maxVal<like) {
-						maxVal=like;
+					array[aIndex][pIndex][cIndex] = logLike;
+					if(maxVal<logLike) {
+						maxVal=logLike;
 						max_a_index=aIndex;
 						max_p_index=pIndex;
 						max_c_index=cIndex;
@@ -151,16 +153,7 @@ public class ReasenbergJonesAftershockModel {
 			}
 		}
 		
-		double testTotal=0;
-		for(int aIndex=0;aIndex<num_a;aIndex++) {
-			for(int pIndex=0;pIndex<num_p;pIndex++) {
-				for(int cIndex=0;cIndex<num_c;cIndex++) {
-					array[aIndex][pIndex][cIndex] /= total;
-					testTotal += array[aIndex][pIndex][cIndex];
-				}
-			}
-		}
-
+		double testTotal = convertArrayToLikelihood(maxVal);
 
 		if (D) {
 			System.out.println("testTotal="+testTotal);
@@ -253,12 +246,11 @@ public class ReasenbergJonesAftershockModel {
 		}
 		
 		array = new double[num_a][num_p][num_c];
-//		double total = 0;
 		double maxVal= Double.NEGATIVE_INFINITY;
 		for(int cIndex=0;cIndex<num_c;cIndex++) {
 			double c = get_c(cIndex);
 
-			// made the list of event times and Mc at those times for the given c
+			// make the list of event times and Mc at those times for the given c
 			ArrayList<Double> timesForFilteredEventsList = new ArrayList<Double>();
 			ArrayList<Double> magCompleteForFilteredEventsList = new ArrayList<Double>();
 			double sum1=0;
@@ -281,9 +273,11 @@ public class ReasenbergJonesAftershockModel {
 			}
 
 			double crossOverTime = Math.pow(10.0, (magMain-magCat-capG)/capH) - c;
-			System.out.println("crossOverTime:"+"\t"+crossOverTime);
-			System.out.println("magMain:"+"\t"+magMain);
-
+			
+			if(D) {
+				System.out.println("crossOverTime:"+"\t"+crossOverTime);
+				System.out.println("magMain:"+"\t"+magMain);
+			}
 
 			int n = timesForFilteredEventsList.size();
 			double ln10 = Math.log(10);
@@ -306,12 +300,10 @@ public class ReasenbergJonesAftershockModel {
 						for(int i=0;i<timesForFilteredEventsList.size();i++)
 							relativeEventTimes[i] = timesForFilteredEventsList.get(i);
 						logLikeTest = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
-//System.exit(0);
 					}
 					else if (dataEndTimeDays<crossOverTime) {	// use equation (9)
 						double temp = Math.pow(10, a+b*capG);
 						term2 = -temp*getFuncF(c, p-b*capH, dataStartTimeDays, dataEndTimeDays);
-//System.exit(0);
 					}
 					else {	// use equation (7)
 						// do the start-to-cross time (p+b*capH) term first
@@ -324,23 +316,17 @@ public class ReasenbergJonesAftershockModel {
 //					if(Double.isNaN(logLike)) {
 //					System.out.println("NaN:\t"+(float)get_a(aIndex)+"\t"+(float)get_p(pIndex)+"\t"+logLike+"\t"+term1+"\t"+term2+"\t"+term3);
 //				}
-//					double like = Math.exp(logLike);
-					//					if(Double.isNaN(like)) {
-					//						System.out.println("NaN Problem: "+k+"\t"+p+"\t"+c);
-					//						throw new RuntimeException("NaN problem");
-					//					}
 					
-if(logLikeTest != 0) {
-	float test = (float)(logLike/logLikeTest);
-//	System.out.println("LogLikeTest\t"+logLike+"\t"+logLikeTest+"\t"+test);
-	if(test != 1.0)
-		throw new RuntimeException("LogLikeTest failed");
-}
+					// test implementation of equation (8) against other method
+					if(logLikeTest != 0) {
+						float test = (float)(logLike/logLikeTest);
+						if(test != 1.0)
+							throw new RuntimeException("LogLikeTest failed");
+					}
 
 // System.out.println((float)get_a(aIndex)+"\t"+(float)get_p(pIndex)+"\t"+(float)get_c(cIndex)+"\t"+logLike+"\t"+like+"\t"+term1+"\t"+term2+"\t"+term3);
 
 					array[aIndex][pIndex][cIndex] = logLike;
-//					total += like;
 					if(maxVal<logLike) {
 						maxVal=logLike;
 						max_a_index=aIndex;
@@ -351,36 +337,8 @@ if(logLikeTest != 0) {
 			}
 		}
 		
-//		if(D)
-//			System.out.println("total="+total);
+		double testTotal = convertArrayToLikelihood(maxVal);
 		
-		// now convert from log-likelihood to likelihood
-		double total=0;
-		double corr = 0;
-		if(maxVal>100.0)	// values above ~700 cause NaNs from Math.exp(), so we subtract some number from all values to avoid such numerical problems
-			corr = maxVal-100;
-		for(int aIndex=0;aIndex<num_a;aIndex++) {
-			for(int pIndex=0;pIndex<num_p;pIndex++) {
-				for(int cIndex=0;cIndex<num_c;cIndex++) {
-					double like = Math.exp(array[aIndex][pIndex][cIndex]-corr);
-					array[aIndex][pIndex][cIndex] = like;
-					total += array[aIndex][pIndex][cIndex];
-				}
-			}
-		}
-
-		
-		double testTotal=0;
-		for(int aIndex=0;aIndex<num_a;aIndex++) {
-			for(int pIndex=0;pIndex<num_p;pIndex++) {
-				for(int cIndex=0;cIndex<num_c;cIndex++) {
-					array[aIndex][pIndex][cIndex] /= total;
-					testTotal += array[aIndex][pIndex][cIndex];
-				}
-			}
-		}
-
-
 		if (D) {
 			System.out.println("testTotal="+testTotal);
 			System.out.println("getMaxLikelihood_a()="+getMaxLikelihood_a());
@@ -391,6 +349,14 @@ if(logLikeTest != 0) {
 	}
 
 	
+	/**
+	 * This is the function defined in Jeanne's document
+	 * @param c
+	 * @param x
+	 * @param t1
+	 * @param t2
+	 * @return
+	 */
 	private static double getFuncF(double c, double x, double t1, double t2) {
 		if(x==1.0) {
 			return Math.log(t2+c) - Math.log(t1+c);
@@ -398,6 +364,40 @@ if(logLikeTest != 0) {
 		else {
 			return (Math.pow(t2+c,1-x) - Math.pow(t1+c,1-x))/(1-x);
 		}
+	}
+	
+	/**
+	 * This converts the array to likelihood values, making sure NaNs do not occur due to high logLikelihoods,
+	 * and re-normalizes the array soas values sum to 1.0.
+	 * @param maxLogLikeVal - the maximum values in the input array
+	 * @return
+	 */
+	private double convertArrayToLikelihood(double maxLogLikeVal) {
+		double total=0;
+		double corr = 0;
+		if(maxLogLikeVal>100.0)	// values above ~700 cause NaNs from Math.exp(), so we subtract some number from all values to avoid such numerical problems
+			corr = maxLogLikeVal-100;
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			for(int pIndex=0;pIndex<num_p;pIndex++) {
+				for(int cIndex=0;cIndex<num_c;cIndex++) {
+					double like = Math.exp(array[aIndex][pIndex][cIndex]-corr);
+					array[aIndex][pIndex][cIndex] = like;
+					total += array[aIndex][pIndex][cIndex];
+				}
+			}
+		}
+
+		// now re-normalize all likelihood values so they sum to 1.0
+		double testTotal=0;
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			for(int pIndex=0;pIndex<num_p;pIndex++) {
+				for(int cIndex=0;cIndex<num_c;cIndex++) {
+					array[aIndex][pIndex][cIndex] /= total;
+					testTotal += array[aIndex][pIndex][cIndex];
+				}
+			}
+		}
+		return testTotal;
 	}
 	
 	public double getMaxLikelihood_a() { return get_a(max_a_index);}
