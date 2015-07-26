@@ -424,6 +424,7 @@ public class ETAS_PrimaryEventSampler {
 				if(Double.isNaN(normTS)) 
 					normTimeSinceOnSectArray[s] = 1.0;	// assume it's 1.0 if value unavailable
 				else
+//					normTimeSinceOnSectArray[s]=1.0;	// test
 					normTimeSinceOnSectArray[s]=normTS;
 				sum += normTimeSinceOnSectArray[s];	// this will be used to avoid dividing by zero later
 			}
@@ -1807,6 +1808,7 @@ System.exit(0);
 	
 	
 	/**
+	 * This gives the MFD PDF given a primary event.  
 	 * This takes relSrcProbs rather than a rupture in order to avoid repeating that calculation
 	 * @param sampler
 	 * @return ArrayList<SummedMagFreqDist>; index 0 has total MFD, and index 1 has supra-seis MFD,
@@ -1889,8 +1891,8 @@ System.exit(0);
 
 	
 	/**
-	 * This plots the probability that each subsection will trigger a
-	 * supra-seis primary aftershocks, given all expected primary aftershocks.  
+	 * This plots one minus the probability that no primary aftershocks trigger each subsection, 
+	 * given all expected primary aftershocks.  
 	 * 
 	 * This also returns a String with a list of the top numToList fault-based 
 	 * sources and top sections (see next method below).
@@ -1917,7 +1919,7 @@ System.exit(0);
 					int sectIndex = sectInCubeArray[s];
 					sum += totSectNuclRateArray[sectIndex]*fractInCubeArray[s];
 				}
-				sum += getGridSourcRateInCube(i);
+				sum += getGridSourcRateInCube(i);	// to make it the total nucleation rate in cube
 				if(sum > 0) {	// avoid division by zero if all rates are zero
 					for(int s=0;s<sectInCubeArray.length;s++) {
 						int sectIndex = sectInCubeArray[s];
@@ -1942,7 +1944,8 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 
 			double min=Double.MAX_VALUE, max=0.0;
 			for(int sect=0;sect<sectProbArray.length;sect++) {
-				sectProbArray[sect] *= expectedNumSupra/sum;
+				sectProbArray[sect] = 1-Math.pow(1-sectProbArray[sect]/sum,expectedNumSupra);
+//				sectProbArray[sect] *= expectedNumSupra/sum;
 				if(sectProbArray[sect]<1e-16) // to avoid log-space problems
 					sectProbArray[sect]=1e-16;
 			}

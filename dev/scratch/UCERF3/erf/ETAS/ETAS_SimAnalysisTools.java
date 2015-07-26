@@ -949,7 +949,16 @@ public class ETAS_SimAnalysisTools {
 	
 	
 	
-	
+	/**
+	 * Supra-seismogenic prob is computed as one minus the probability that none of the primary aftershocks
+	 * trigger an event.
+	 * @param rupInfo
+	 * @param pdf_FileNamePrefix
+	 * @param mfdList - containing MFD PDF given a primary event
+	 * @param rupture
+	 * @param expNum
+	 * @return
+	 */
 	public static List<EvenlyDiscretizedFunc> getExpectedPrimaryMFDs_ForRup(String rupInfo, String pdf_FileNamePrefix,  List<SummedMagFreqDist> mfdList, 
 			EqkRupture rupture, double expNum) {
 		

@@ -725,17 +725,46 @@ public class ETAS_Simulator {
 			boolean firstIsIt = rupSet.getFaultSectionData(sectListForSrc.get(0)).getSectionId() == firstSectID;
 			boolean lastIsIt = rupSet.getFaultSectionData(sectListForSrc.get(sectListForSrc.size()-1)).getSectionId() == secondSectID;
 			if(firstIsIt && lastIsIt) {
-				System.out.println("SourceIndex="+s+"\tfssIndex="+erf.getFltSysRupIndexForSource(s)+"\t"+erf.getSource(s).getName());
+				int fssIndex=erf.getFltSysRupIndexForSource(s);
+				System.out.println("SourceIndex="+s+"\tfssIndex="+fssIndex+"\t"+erf.getSource(s).getName()+"\tmag="+erf.getSolution().getRupSet().getMagForRup(fssIndex));
 				break; 
 			}
 			firstIsIt = rupSet.getFaultSectionData(sectListForSrc.get(0)).getSectionId() == secondSectID;
 			lastIsIt = rupSet.getFaultSectionData(sectListForSrc.get(sectListForSrc.size()-1)).getSectionId() == firstSectID;
 			if(firstIsIt && lastIsIt) {
-				System.out.println("SourceIndex="+s+"\tfssIndex="+erf.getFltSysRupIndexForSource(s)+"\t"+erf.getSource(s).getName());
+				int fssIndex=erf.getFltSysRupIndexForSource(s);
+				System.out.println("SourceIndex="+s+"\tfssIndex="+fssIndex+"\t"+erf.getSource(s).getName()+"\tmag="+erf.getSolution().getRupSet().getMagForRup(fssIndex));
 				break;
 			}
 		}
 	}
+	
+	
+	
+	/**
+	 * This utility writes info about sources that use the given index and that are between the specified minimum and maximum mag
+	 * @param erf
+	 * @param sectID
+	 * @param minMag
+	 * @param maxMag
+	 */
+	private static void writeInfoAboutSourcesThatUseSection(FaultSystemSolutionERF erf, int sectID, double minMag, double maxMag) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		System.out.println("srcIndex\tfssIndex\tprob\tmag\tname\t"+rupSet.getFaultSectionData(sectID).getName());
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			List<Integer> sectListForSrc = rupSet.getSectionsIndicesForRup(erf.getFltSysRupIndexForSource(s));
+			if(sectListForSrc.contains(sectID)) {
+				int fssIndex=erf.getFltSysRupIndexForSource(s);
+				double meanMag = erf.getSolution().getRupSet().getMagForRup(fssIndex);
+				if(meanMag<minMag || meanMag>maxMag)
+					continue;
+				double probAboveM7 = erf.getSource(s).computeTotalProbAbove(7.0);
+				if(probAboveM7 > 0.0)
+				System.out.println(+s+"\t"+fssIndex+"\t"+probAboveM7+"\t"+meanMag+"\t"+erf.getSource(s).getName());
+			}
+		}
+	}
+
 	
 	
 	/**
@@ -1023,7 +1052,10 @@ public class ETAS_Simulator {
 	 */
 	public enum TestScenario {
 		
-		MOJAVE("Mojave M7.05", 197792),		// provided by Kevin
+		N_PALM_SPRINGS_1986("N Palm Springs M6.0", new Location(34.02,-116.76,10.0), 6.0),		// original provided by Kevin
+		MOJAVE_OLD("Mojave M7.05", 197792),		// original provided by Kevin
+		MOJAVE("Mojave M7.03", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
+		KEVIN_MOJAVE("Kevin's Mojave", new Location(34.42295,-117.80177,5.8), 6.0),	// test for Kevin
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
@@ -1166,15 +1198,19 @@ public class ETAS_Simulator {
 //		for(Location loc:griddedRegion.getBorder()) {
 //			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude());
 //		}
-//			
+		
+//		BETTER MOJAVE SCENARIO:
+//		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(), 1850, 7.0, 7.2);
+//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946);
 //
 //		System.exit(-1);
 		
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
+//		params.setImposeGR(true);
 //		params.set_d_MinDist(2.0);
-		params.setImposeGR(true);
+
 //		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
@@ -1190,11 +1226,12 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.MOJAVE, params, new Long(14079652l), "MojaveEvent_2", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_New_5", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.MOJAVE, params, 1433367544567l, "MojaveEvent_newApproach", null);	// aveStrike=295.0367915096109; All Hell!
-//		runTest(TestScenario.MOJAVE, params, 1433962852173l, "MojaveEvent_1", null);	// aveStrike=295.0367915096109; All Hell!
-//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_noER", null);	// aveStrike=295.0367915096109; All Hell!
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
-		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_grCorr_01", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_1", null);	// aveStrike=295.0367915096109
+//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_1", null);	// aveStrike=295.0367915096109;
+//		runTest(TestScenario.N_PALM_SPRINGS_1986, params, null, "NorthPalmSprings1986", null);	// aveStrike=295.0367915096109;
+		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109
