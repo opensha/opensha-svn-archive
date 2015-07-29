@@ -28,7 +28,8 @@ public class ETASResultCombiner {
 		
 		File simsDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims");
 //		String prefix = "2015_06_15-u2mapped-bombay_beach_brawley_fault_m6";
-		String prefix = "2015_06_15-u2mapped-parkfield";
+//		String prefix = "2015_06_15-u2mapped-parkfield";
+		String prefix = "2015_06_15-u2mapped-mojave_s_point_m6";
 		int[] rounds = { 1, 2 };
 		
 		File[] zipFiles = new File[rounds.length];
@@ -63,14 +64,22 @@ public class ETASResultCombiner {
 			ZipFile zip = new ZipFile(zipFile);
 			
 			for (ZipEntry entry : Collections.list(zip.entries())) {
-				if (!entry.isDirectory())
-					continue;
+				String name = entry.getName();
+//				if (Math.random() < 0.0001)
+//					System.out.println(name);
+				if (!entry.isDirectory()) {
+					// fix for ones where the slash was left out accidentally on directory entires
+					if (name.startsWith("sim_") && Character.isDigit(name.charAt(name.length()-1)))
+						name = name+"/";
+					else
+						continue;
+				}
 //				if (Math.random() > 0.01)
 //					continue;
 //				System.out.println(entry.getName());
-				String subEntryName = entry.getName()+"simulatedEvents.txt";
+				String subEntryName = name+"simulatedEvents.txt";
 				ZipEntry catEntry = zip.getEntry(subEntryName);
-				String infoEntryName = entry.getName()+"infoString.txt";
+				String infoEntryName = name+"infoString.txt";
 				ZipEntry infoEntry = zip.getEntry(infoEntryName);
 				if (catEntry == null || infoEntry == null)
 					continue;
