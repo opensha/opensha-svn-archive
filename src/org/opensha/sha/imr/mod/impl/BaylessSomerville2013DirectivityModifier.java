@@ -1,36 +1,16 @@
 package org.opensha.sha.imr.mod.impl;
 
-import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.io.IOException;
 import java.util.List;
 
-import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.commons.data.function.DefaultXY_DataSet;
-import org.opensha.commons.data.function.XY_DataSet;
-import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
-import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
-import org.opensha.commons.gui.plot.PlotElement;
-import org.opensha.commons.gui.plot.PlotLineType;
-import org.opensha.commons.gui.plot.PlotSymbol;
-import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
-import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
-import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
-import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.impl.BooleanParameter;
-import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.commons.util.cpt.CPT;
-import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
-import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.faultSurface.FrankelGriddedSurface;
 import org.opensha.sha.faultSurface.GriddedSubsetSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.ScalarIMR;
@@ -38,9 +18,19 @@ import org.opensha.sha.imr.mod.AbstractAttenRelMod;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
+/**
+ * Bayless and Somerville 2013 Directivity Model
+ * 
+ * Implemented as described in http://peer.berkeley.edu/publications/peer_reports/reports_2013/webPEER-2013-09-Spudich.pdf
+ * 
+ * TODO/Issues:
+ * * formal JUnit test cases
+ * * deal with multi segment ruptures correctly
+ * @author kevin
+ *
+ */
 public class BaylessSomerville2013DirectivityModifier extends
 		AbstractAttenRelMod {
 	
@@ -117,7 +107,9 @@ public class BaylessSomerville2013DirectivityModifier extends
 		else
 			closestSurfLoc = calcClosestLoc(rup, siteLoc, true);
 		// compute the distance between the closest point on the trace and the hypocenter
+		Location hypoMappedToTraceLoc = calcClosestLoc(rup, hypo, false);
 		double s = LocationUtils.horzDistance(closestTraceLoc, hypo);
+//		double s = LocationUtils.horzDistance(closestTraceLoc, hypoMappedToTraceLoc);
 		s = Math.max(s, Math.exp(1));
 		// now for dipping
 //		double d = LocationUtils.linearDistanceFast(closestLoc, hypo);
@@ -129,7 +121,8 @@ public class BaylessSomerville2013DirectivityModifier extends
 //		Preconditions.checkState(azimuth >= 0 && azimuth <= 360, "bad azimuth: %s", azimuth);
 		double azimuthRad = Math.toRadians(azimuth);
 		// degrees, ignores Aki & Richards convention, must be 0 <= theta <= 90
-		double theta = calcTheta(siteLoc, hypo, closestTraceLoc);
+//		double theta = calcTheta(siteLoc, hypo, closestTraceLoc);
+		double theta = calcTheta(siteLoc, hypoMappedToTraceLoc, closestTraceLoc);
 		if (theta > 90d) {
 			if (theta < 180d)
 				theta = 180d - theta;
@@ -228,7 +221,7 @@ public class BaylessSomerville2013DirectivityModifier extends
 		double width = surf.getAveWidth();
 		
 		// eqn 2.7, geometric directivity predictor
-		double fGeom = Math.log(d)*Math.cos(Math.abs(rx)/width);
+		double fGeom = Math.log(d)*Math.cos(rx/width);
 		
 		double rRupOverW = rRup/width;
 		
@@ -255,6 +248,7 @@ public class BaylessSomerville2013DirectivityModifier extends
 //		double tAz = 1;
 		
 		return new DirectivityParams(fGeom, tCD, tMw, tAz);
+//		return new DirectivityParams(1d, 1d, 1d, 1d);
 	}
 	
 	private class DirectivityParams {
@@ -420,124 +414,14 @@ public class BaylessSomerville2013DirectivityModifier extends
 		return params;
 	}
 	
-	private static final double az_north = 0d;
-	private static final double az_east = Math.PI*0.5;
-	
-	private void calcTestCase(EqkRupture rup, double maxDistance, double period, String title) {
-		int numSitesPerDim = 200;
-		double gridSpacing = (2d*maxDistance)/(double)numSitesPerDim;
-		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(numSitesPerDim, numSitesPerDim,
-				-maxDistance, -maxDistance, gridSpacing);
-//		EvenlyDiscrXYZ_DataSet xyz = new EvenlyDiscrXYZ_DataSet(2, numSitesPerDim/4,
-//				-0.25*maxDistance, -0.25*maxDistance, gridSpacing);
-		
-		Location origin = rup.getRuptureSurface().getFirstLocOnUpperEdge();
-		
-		for (int i=0; i<xyz.size(); i++) {
-			Point2D pt = xyz.getPoint(i);
-			
-			Location loc = LocationUtils.location(origin, az_north, pt.getY());
-			loc = LocationUtils.location(loc, az_east, pt.getX());
-			
-			double fD = getFd(rup, loc, period);
-			
-			xyz.set(i, fD);
-		}
-		
-		double max = Math.max(Math.abs(xyz.getMinZ()), Math.abs(xyz.getMaxZ()));
-		
-		CPT cpt;
-		try {
-			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-max, max);
-		} catch (IOException e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
-		
-		XYZPlotSpec spec = new XYZPlotSpec(xyz, cpt, title, "E/W (km)", "N/S (km)", "fD");
-		// add XY elements
-		List<XY_DataSet> funcs = Lists.newArrayList();
-		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		// hypocenter
-		DefaultXY_DataSet hypoFunc = new DefaultXY_DataSet();
-		hypoFunc.set(calcPt(origin, rup.getHypocenterLocation()));
-		funcs.add(hypoFunc);
-		chars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_DIAMOND, 10f, Color.RED));
-		// trace
-		if (rup.getRuptureSurface().getAveDip() < 90) {
-			DefaultXY_DataSet traceFunc = new DefaultXY_DataSet();
-			for (Location loc : rup.getRuptureSurface().getEvenlyDiscritizedPerimeter())
-				traceFunc.set(calcPt(origin, loc));
-			funcs.add(traceFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GRAY));
-		}
-		DefaultXY_DataSet traceFunc = new DefaultXY_DataSet();
-		for (Location loc : rup.getRuptureSurface().getEvenlyDiscritizedUpperEdge())
-			traceFunc.set(calcPt(origin, loc));
-		funcs.add(traceFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		spec.setXYElems(funcs);
-		spec.setXYChars(chars);
-		XYZPlotWindow gw = new XYZPlotWindow(spec, new Range(xyz.getMinX(), xyz.getMaxX()),
-				new Range(xyz.getMinY(), xyz.getMaxY()));
-		gw.setDefaultCloseOperation(XYZPlotWindow.EXIT_ON_CLOSE);
-	}
-	
-	private static Point2D calcPt(Location origin, Location loc) {
-		LocationVector v = LocationUtils.vector(origin, loc);
-		double hDist = v.getHorzDistance();
-		double azRad = v.getAzimuthRad();
-		double y = Math.cos(azRad)*hDist;
-		double x = Math.sin(azRad)*hDist;
-//		System.out.println("Built point: x="+x+", y="+y+"\t"+loc+"\taz="+v.getAzimuth());
-		return new Point2D.Double(x, y);
-	}
-	
-	private static EqkRupture buildTestRup(double length, double width, double rake, double dip,
-			double mag, double fractHypAlong, double upDipHypDist, double bendDegrees) {
-		double dipRad = Math.toRadians(dip);
-		
-		double fractHypDown = (width-upDipHypDist)/width;
-		
-		FaultSectionPrefData fsd = new FaultSectionPrefData();
-		fsd.setAveDip(dip);
-		fsd.setAveRake(rake);
-		fsd.setAveUpperDepth(0d);
-		fsd.setAveLowerDepth(Math.sin(dipRad)*width);
-		System.out.println("Calc lower depth for dip="+dip+", ddw="+width+": "+fsd.getAveLowerDepth());
-		FaultTrace trace = new FaultTrace("");
-		Location origin = new Location(0d, 0d);
-		trace.add(origin);
-		if (bendDegrees > 0) {
-			// go halfway
-			Location halfway = LocationUtils.location(origin, az_north, length*0.5);
-			trace.add(halfway);
-			// now bend
-			trace.add(LocationUtils.location(halfway, Math.toRadians(bendDegrees), length*0.5));
-		} else {
-			trace.add(LocationUtils.location(origin, az_north, length));
-		}
-		fsd.setFaultTrace(trace);
-		fsd.setDipDirection((float)trace.getDipDirection());
-		
-		Location hypo = LocationUtils.location(origin, az_north, fractHypAlong*length);
-		hypo = LocationUtils.location(hypo, az_east, fractHypDown*width*Math.cos(dipRad));
-		hypo = new Location(hypo.getLatitude(), hypo.getLongitude(), fractHypDown*width*Math.sin(dipRad));
-//		RuptureSurface surf = fsd.getStirlingGriddedSurface(1d);
-		RuptureSurface surf = new FrankelGriddedSurface(fsd.getSimpleFaultData(false), 1d);
-		System.out.println("Hypo surface dist: "+surf.getDistanceRup(hypo));
-		
-		EqkRupture rup = new EqkRupture(mag, rake, surf, hypo);
-		return rup;
-	}
-	
 	public static void main(String[] args) {
-		BaylessSomerville2013DirectivityModifier mod = new BaylessSomerville2013DirectivityModifier();
+//		BaylessSomerville2013DirectivityModifier mod = new BaylessSomerville2013DirectivityModifier();
 		
 		//								len		width	rake	dip		mag		hypAl	hypD	bend	dist	period	name
 //		mod.calcTestCase(buildTestRup(	25d,	13d,	180,	90,		6.5,	0.1,	2,		0),		15d,	5d,		"ss2");
 //		mod.calcTestCase(buildTestRup(	80d,	15d,	180,	90,		7.2,	0.1,	5,		0),		150d,	5d,		"ss3");
 //		mod.calcTestCase(buildTestRup(	235d,	15d,	180,	90,		7.8,	0.1,	5,		0),		500d,	5d,		"ss4");
-		mod.calcTestCase(buildTestRup(	400d,	15d,	180,	90,		8.1,	0.1,	5,		0),		800d,	5d,		"ss7");
+//		mod.calcTestCase(buildTestRup(	400d,	15d,	180,	90,		8.1,	0.1,	5,		0),		800d,	5d,		"ss7");
 //		mod.calcTestCase(buildTestRup(	32d,	28d,	90,		30,		7,		0.1,	8,		0),		100d,	5d,		"rv4");
 //		mod.calcTestCase(buildTestRup(	80d,	30d,	90,		30,		7.5,	0.1,	8,		45),	100d,	5d,		"rv7");
 //		mod.calcTestCase(buildTestRup(	80d,	15d,	135,	70,		7.2,	0.1,	5,		0),		150d,	5d,		"so6");
