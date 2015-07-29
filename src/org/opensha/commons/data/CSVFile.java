@@ -18,6 +18,7 @@ import org.opensha.commons.util.FileUtils;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class CSVFile<E> implements Iterable<List<E>> {
 	
@@ -297,7 +298,8 @@ public class CSVFile<E> implements Iterable<List<E>> {
 		return readStream(is, strictRowSizes, -1);
 	}
 	
-	public static CSVFile<String> readStream(InputStream is, boolean strictRowSizes, int cols) throws IOException {
+	public static CSVFile<String> readStream(InputStream is, boolean strictRowSizes, int cols)
+			throws IOException {
 		if (!(is instanceof BufferedInputStream))
 			is = new BufferedInputStream(is);
 		List<List<String>> values = new ArrayList<List<String>>();
@@ -312,6 +314,52 @@ public class CSVFile<E> implements Iterable<List<E>> {
 		}
 		
 		return new CSVFile<String>(values, strictRowSizes);
+	}
+	
+	public static CSVFile<Double> readFileNumeric(File file, boolean strictRowSizes,
+			int headerLines) throws NumberFormatException, IOException {
+		return readURLNumeric(file.toURI().toURL(), strictRowSizes, headerLines);
+	}
+	
+	public static CSVFile<Double> readURLNumeric(URL url, boolean strictRowSizes,
+			int headerLines) throws NumberFormatException, IOException {
+		return readStreamNumeric((InputStream)url.getContent(), strictRowSizes, -1, headerLines);
+	}
+	
+	public static CSVFile<Double> readStreamNumeric(InputStream is, boolean strictRowSizes,
+			int cols, int headerLines) throws NumberFormatException, IOException {
+		if (!(is instanceof BufferedInputStream))
+			is = new BufferedInputStream(is);
+		List<List<Double>> values = new ArrayList<List<Double>>();
+		int lineCount = 0;
+		for (String line : FileUtils.loadStream(is)) {
+			if (headerLines > lineCount) {
+				lineCount++;
+				continue;
+			}
+			if (strictRowSizes && cols < 0) {
+				cols = loadLine(line, -1).size();
+			}
+			ArrayList<String> vals = loadLine(line, cols);
+			if (strictRowSizes && vals.size() > cols)
+				throw new IllegalStateException("Line lenghts inconsistant and strictRowSizes=true");
+			List<Double> doubles;
+			if (strictRowSizes) {
+				// use backing array for memory efficiency
+				double[] array = new double[vals.size()];
+				for (int i=0; i<array.length; i++)
+					array[i] = Double.parseDouble(vals.get(i));
+				doubles = Doubles.asList(array);
+			} else {
+				doubles = Lists.newArrayList();
+				for (String val : vals)
+					doubles.add(Double.parseDouble(val));
+			}
+			values.add(doubles);
+			lineCount++;
+		}
+		
+		return new CSVFile<Double>(values, strictRowSizes);
 	}
 
 	@Override
