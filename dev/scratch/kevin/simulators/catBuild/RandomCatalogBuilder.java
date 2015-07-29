@@ -53,12 +53,16 @@ public class RandomCatalogBuilder {
 			HashSet<EQSIM_Event> allEventsSet = new HashSet<EQSIM_Event>();
 			Map<RuptureIdentifier, Integer> idenIndexMap = Maps.newHashMap();
 			
+			// set of all events that are a match for nothing
+			HashSet<EQSIM_Event> excludedEventsSet = new HashSet<EQSIM_Event>(events);
+			
 			for (int i=0; i<rupIdens.size(); i++) {
 				RuptureIdentifier rupIden = rupIdens.get(i);
 				List<EQSIM_Event> matches = rupIden.getMatches(events);
 				matchesLists.add(matches);
 				matchesSets.add(new HashSet<EQSIM_Event>(matches));
 				allEventsSet.addAll(matches);
+				excludedEventsSet.removeAll(matches);
 				idenIndexMap.put(rupIden, i);
 			}
 			
@@ -213,7 +217,30 @@ public class RandomCatalogBuilder {
 				randomRPsList.add(RandomCatalogBuilder.getReturnPeriodProvider(null, distType, events, rps, totTime));
 			}
 			
-			List<EQSIM_Event> newList = distType.getBuilder().buildCatalog(events, randomRPsList, eventListsToResample, lengthMult <= 1);
+			List<EQSIM_Event> newList = distType.getBuilder().buildCatalog(
+					events, randomRPsList, eventListsToResample, lengthMult <= 1);
+			int maxEventID = 0;
+			for (EQSIM_Event e : newList)
+				if (e.getID() > maxEventID)
+					maxEventID = e.getID();
+			
+			if (!excludedEventsSet.isEmpty()) {
+				System.out.println("Adding back in "+excludedEventsSet.size()+" external events");
+				if (distType == RandomDistType.ACTUAL) {
+					for (EQSIM_Event e : excludedEventsSet)
+						newList.add(e.cloneNewTime(e.getTime(), maxEventID++));
+				} else {
+					// just do a straight randomization
+					double start = newList.get(0).getTime();
+					double end = newList.get(newList.size()-1).getTime();
+					
+					for (EQSIM_Event e : excludedEventsSet) {
+						double newTime = (end - start)*Math.random()+start;
+						newList.add(e.cloneNewTime(newTime, maxEventID++));
+					}
+				}
+				Collections.sort(newList);
+			}
 			
 			System.out.println("Orig start="+events.get(0).getTimeInYears()+", end="+events.get(events.size()-1).getTimeInYears());
 			System.out.println("Rand start="+newList.get(0).getTimeInYears()+", end="+newList.get(newList.size()-1).getTimeInYears());

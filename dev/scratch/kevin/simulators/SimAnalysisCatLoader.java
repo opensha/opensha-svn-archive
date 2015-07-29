@@ -173,5 +173,9 @@ public class SimAnalysisCatLoader {
 	public List<EQSIM_Event> getEvents() {
 		return events;
 	}
+	
+	public List<RectangularElement> getElements() {
+		return tools.getElementsList();
+	}
 
 }

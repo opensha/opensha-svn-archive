@@ -33,10 +33,13 @@ import com.google.common.collect.Maps;
  */
 public class SubSectionBiulder {
 	
+	private List<RectangularElement> elements;
 	private List<FaultSectionPrefData> subSectsList;
 	private Map<Integer, Integer> elemIDToSubSectsMap;
 	
 	public SubSectionBiulder(List<RectangularElement> elements) {
+		this.elements = elements;
+		
 		// first build mapping from fault section ID to faults
 		Map<Integer, List<RectangularElement>> sectsMap = Maps.newHashMap();
 		for (RectangularElement e : elements) {
@@ -118,6 +121,10 @@ public class SubSectionBiulder {
 				Preconditions.checkState(sectIndex == subSectsList.size());
 			}
 		}
+	}
+	
+	public List<RectangularElement> getElements() {
+		return elements;
 	}
 	
 	/**

@@ -43,7 +43,12 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 	public static SimulatorFaultSystemSolution build(List<RectangularElement> elements, List<EQSIM_Event> events,
 			double durationYears) {
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
-		FaultSystemRupSet rupSet = buildRupSet(elements, events, durationYears, subSectBuilder);
+		return build(subSectBuilder, events, durationYears);
+	}
+	
+	public static SimulatorFaultSystemSolution build(SubSectionBiulder subSectBuilder, List<EQSIM_Event> events,
+			double durationYears)  {
+		FaultSystemRupSet rupSet = buildRupSet(subSectBuilder.getElements(), events, durationYears, subSectBuilder);
 		return new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);
 	}
 	

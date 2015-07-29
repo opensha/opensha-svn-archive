@@ -271,6 +271,10 @@ public class EventRecord {
 		return moment;
 	}
 	
+	public void setMoment(double moment) {
+		this.moment = moment;
+	}
+	
 	/**
 	 * 
 	 * @return min DAS in meters
