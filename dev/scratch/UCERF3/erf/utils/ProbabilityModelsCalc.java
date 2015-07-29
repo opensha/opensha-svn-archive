@@ -3455,6 +3455,7 @@ public class ProbabilityModelsCalc {
 						// write event info out
 						try {
 							eventFileWriter.write(nthRup+"\t"+fltSystRupIndex+"\t"+currentYear+"\t"+currentTimeMillis+"\t"+normRI+"\t"+fltSysRupSet.getMagForRup(fltSystRupIndex)+"\t"+nthCatalog+"\t"+timeToNextInYrs+"\t"+utilizedPaleoSite+"\n");
+							eventFileWriter.flush();
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
