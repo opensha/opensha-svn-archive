@@ -884,6 +884,11 @@ public class ETAS_Simulator {
 
 		ETAS_EqkRupture scenarioRup = buildScenarioRup(scenario, erf);
 		
+		// TEST RIGHT HERE
+//		erf.setFltSectOccurranceTime(1848, scenarioRup.getOriginTime());
+//		erf.setFltSectOccurranceTime(1847, scenarioRup.getOriginTime());
+
+		
 //		System.out.println("aveStrike="+scenarioRup.getRuptureSurface().getAveStrike());
 //		for(Location loc:scenarioRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
 //			System.out.println(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth());
@@ -1280,8 +1285,15 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_1", null);	// aveStrike=295.0367915096109
+<<<<<<< .mine
+		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_5_subsectResetBoth", null);	// aveStrike=295.0367915096109;
+=======
 		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_1", null);	// aveStrike=295.0367915096109;
+>>>>>>> .r11056
 //		runTest(TestScenario.N_PALM_SPRINGS_1986, params, null, "NorthPalmSprings1986", null);	// aveStrike=295.0367915096109;
+<<<<<<< .mine
+//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
+=======
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
 		
 //		int distAway = 12;
@@ -1295,6 +1307,7 @@ public class ETAS_Simulator {
 //			ExceptionUtils.throwAsRuntimeException(e);
 //		}
 //		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_"+distAway+"km", null);	// aveStrike=295.0367915096109;
+>>>>>>> .r11056
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

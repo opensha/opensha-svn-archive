@@ -273,6 +273,29 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	}
 	
 	
+	
+	/**
+	 * This sets the date of last event on the given section. 
+	 * @param sectIndex
+	 * @param epoch
+	 */
+	public void setFltSectOccurranceTime(int sectIndex, Long epoch) {
+		faultSysSolution.getRupSet().getFaultSectionData(sectIndex).setDateOfLastEvent(epoch);
+		// set it in the ProbModelCalc objects
+		if(probModelsCalc != null) {
+			probModelsCalc.setFltSectRupOccurranceTime(sectIndex, epoch);
+		}
+		if(prefBlendProbModelsCalc != null) {
+			for(ProbabilityModelsCalc calc : prefBlendProbModelsCalc.keySet()) {
+				calc.setFltSectRupOccurranceTime(sectIndex, epoch);
+			}
+		}
+		// do this to make sure the probability will be updated even if nothing else changes
+		probModelChanged = true;
+	}
+
+	
+	
 	protected void initParams() {
 		fileParam = new FileParameter(FILE_PARAM_NAME);
 		faultGridSpacingParam = new FaultGridSpacingParam();

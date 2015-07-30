@@ -4033,6 +4033,10 @@ public class ProbabilityModelsCalc {
 	}
 
 	
+	public void setFltSectRupOccurranceTime(int sectIndex, Long epoch) {
+					dateOfLastForSect[sectIndex] = epoch;
+			}
+
 	
 	/**
 	 * @param args
