@@ -108,6 +108,8 @@ public class ETAS_Simulator {
 	public static boolean D=true; // debug flag
 	private static boolean live_map = false;
 	static boolean pause_for_events = false;
+	// if true and in debug mode, will exit after scenario diagnostics
+	static boolean exit_after_scenario_diagnostics = false;
 	
 	/**
 	 * This version takes the pre-computed data arrays as arguments
@@ -420,6 +422,8 @@ public class ETAS_Simulator {
 			if(D && generateDiagnostics) {
 				System.out.println("Computing Scenario Diagnostics");
 				expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
+				if (exit_after_scenario_diagnostics)
+					System.exit(0);
 			}
 		}
 		
@@ -1104,6 +1108,53 @@ public class ETAS_Simulator {
 		public Location getLocation() {return loc;}
 		
 		public double getMagnitude() {return mag;}
+		
+		public void relocatePtAwayFromFault(FaultSystemRupSet rupSet, double distAway) {
+			// find closest subsection
+			FaultSectionPrefData closest = null;
+			double closestDist = Double.MAX_VALUE;
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				// just use fault trace for efficiency
+				for (Location loc : sect.getFaultTrace()) {
+					double dist = LocationUtils.horzDistanceFast(loc, this.loc);
+					if (dist < closestDist) {
+						closestDist = dist;
+						closest = sect;
+						// don't break, other trace locs might be even closer
+					}
+				}
+			}
+			Preconditions.checkNotNull(closest);
+			System.out.println("Cloasest section: "+closest.getName()+". Trace dist: "+closestDist);
+			relocatePtAwayFromFault(closest, distAway);
+		}
+		
+		public void relocatePtAwayFromFault(FaultSectionPrefData closestSect, double distAway) {
+			double strike = closestSect.getFaultTrace().getAveStrike();
+			double strikeRad = Math.toRadians(strike);
+			
+			// add pi/2 to move perpendicular from the fault
+			double azimuth = strikeRad + Math.PI*0.5;
+			
+			Location newLoc = LocationUtils.location(loc, azimuth, distAway);
+			
+			StirlingGriddedSurface surf = closestSect.getStirlingGriddedSurface(0.1d);
+			double origDist = Double.POSITIVE_INFINITY;
+			double newDist = Double.POSITIVE_INFINITY;
+			for (Location surfLoc : surf.getEvenlyDiscritizedListOfLocsOnSurface()) {
+				origDist = Math.min(LocationUtils.linearDistanceFast(surfLoc, loc), origDist);
+				newDist = Math.min(LocationUtils.linearDistanceFast(surfLoc, newLoc), newDist);
+			}
+			double delta = newDist - origDist;
+			System.out.println("Attempted to move away by "+distAway+" from "+closestSect.getName()
+					+". Actual: "+origDist+" => "+newDist+" = "+delta);
+			System.out.println("\tOrig Loc: "+loc);
+			System.out.println("\tNew Loc: "+newLoc);
+			System.out.println("\tStrike: "+strike);
+			System.out.println("\tMoved in direction: "+LocationUtils.azimuth(loc, newLoc));
+			System.out.println("\tMoved distance: "+LocationUtils.linearDistanceFast(loc, newLoc));
+			loc = newLoc;
+		}
 	}
 
 	
@@ -1229,9 +1280,21 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NORTHRIDGE, params, null, "Northridge_1", null);
 //		runTest(TestScenario.LANDERS, params, null, "Landers_5", null);
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_1", null);	// aveStrike=295.0367915096109
-//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_1", null);	// aveStrike=295.0367915096109;
+		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_1", null);	// aveStrike=295.0367915096109;
 //		runTest(TestScenario.N_PALM_SPRINGS_1986, params, null, "NorthPalmSprings1986", null);	// aveStrike=295.0367915096109;
-		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
+		
+//		int distAway = 12;
+//		try {
+//			exit_after_scenario_diagnostics = true;
+//			TestScenario.KEVIN_MOJAVE.relocatePtAwayFromFault(
+//					FaultSystemIO.loadRupSet(new File("dev/scratch/UCERF3/data/scratch/InversionSolutions"
+//							+ "/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_"
+//							+ "MEAN_BRANCH_AVG_SOL.zip")), (double)distAway);
+//		} catch (Exception e) {
+//			ExceptionUtils.throwAsRuntimeException(e);
+//		}
+//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_"+distAway+"km", null);	// aveStrike=295.0367915096109;
 
 		
 //		runTest(TestScenario.PARKFIELD, params, new Long(14079652l), "ParkfieldTest_noSpnont_1", null);	// aveStrike=295.0367915096109

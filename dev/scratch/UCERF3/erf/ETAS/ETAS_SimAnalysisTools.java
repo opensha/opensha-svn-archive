@@ -1082,9 +1082,13 @@ public class ETAS_SimAnalysisTools {
 		if(pdf_FileNamePrefix != null) {
 			try {
 				magProbDistsGraph.saveAsPDF(pdf_FileNamePrefix+"_Incr.pdf");
+				magProbDistsGraph.saveAsTXT(pdf_FileNamePrefix+"_Incr.txt");
 				expSecGraph.saveAsPDF(pdf_FileNamePrefix+"_ExpRelSecAft.pdf");
-				if(!Double.isNaN(expNum))
+				expSecGraph.saveAsTXT(pdf_FileNamePrefix+"_ExpRelSecAft.txt");
+				if(!Double.isNaN(expNum)) {
 					cumDistsGraph.saveAsPDF(pdf_FileNamePrefix+"_Cum.pdf");
+					cumDistsGraph.saveAsTXT(pdf_FileNamePrefix+"_Cum.txt");
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
