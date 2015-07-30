@@ -1,7 +1,17 @@
 package scratch.UCERF3.erf.ETAS;
 
 import java.awt.geom.Point2D;
+import java.util.Collections;
+import java.util.List;
+
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.util.ComparablePairing;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 
 /**
  * This class stores integer values in the X axis and the relative probability associated with each integer
@@ -198,6 +208,55 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 	
 	public double[] getY_valuesArray() {
 		return points;
+	}
+	
+	/**
+	 * Sorts all data by it's contribution and retuns the sorted indexes of the data points
+	 * representing the given fraction of the total sum.
+	 * @param fract fraction between 0 and 1, e.g. 0.999
+	 * @return
+	 */
+	public List<Integer> getOrderedIndicesOfHighestXFract(double fract) {
+		Preconditions.checkArgument(fract > 0d && fract <= 1d, "Fract must be between 0 and 1: %s", fract);
+		
+		// need indexes and data in list form
+		List<Integer> indexes = Lists.newArrayList();
+		for (int i=0; i<size(); i++)
+			indexes.add(i);
+		List<Double> values = Doubles.asList(points);
+		// this will build sortable pairings of values to indexes, which can be sorted by value
+		List<ComparablePairing<Double, Integer>> pairings = ComparablePairing.build(values, indexes);
+		// sort by value low to high
+		Collections.sort(pairings);
+		// reverse to make it high to low
+		Collections.reverse(pairings);
+		
+		// list of indexes to return
+		List<Integer> ret = Lists.newArrayList();
+		
+		double sum = getSumOfY_vals();
+		double sumTarget = sum*fract; // we'll stop when the running total reaches this
+		double runningTotal = 0;
+		
+		for (ComparablePairing<Double, Integer> pairing : pairings) {
+			runningTotal += pairing.getComparable();
+			ret.add(pairing.getData());
+			if (runningTotal >= sumTarget)
+				break;
+		}
+		
+		return ret;
+	}
+	
+	public static void main(String[] args) {
+		double[] values = { 1d, 10d, 0.01d, 5d, 100d, 6d, 0.1d };
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(values);
+		System.out.println("Data: "+Joiner.on(",").join(Doubles.asList(values)));
+		System.out.println("0.5: "+Joiner.on(",").join(sampler.getOrderedIndicesOfHighestXFract(0.5)));
+		System.out.println("0.9: "+Joiner.on(",").join(sampler.getOrderedIndicesOfHighestXFract(0.9)));
+		System.out.println("0.99: "+Joiner.on(",").join(sampler.getOrderedIndicesOfHighestXFract(0.99)));
+		System.out.println("0.999: "+Joiner.on(",").join(sampler.getOrderedIndicesOfHighestXFract(0.999)));
+		System.out.println("1.0: "+Joiner.on(",").join(sampler.getOrderedIndicesOfHighestXFract(1d)));
 	}
 
 }
