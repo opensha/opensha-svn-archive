@@ -421,7 +421,10 @@ public class ETAS_Simulator {
 
 			if(D && generateDiagnostics) {
 				System.out.println("Computing Scenario Diagnostics");
+				long timeMillis =System.currentTimeMillis();
 				expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
+				float timeMin = ((float)(System.currentTimeMillis()-timeMillis))/(1000f*60f);
+				System.out.println("Computing Scenario Diagnostics took (min): "+timeMin);
 				if (exit_after_scenario_diagnostics)
 					System.exit(0);
 			}
@@ -1264,10 +1267,12 @@ public class ETAS_Simulator {
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
-//		params.setImposeGR(true);
+		params.setImposeGR(true);
 //		params.set_d_MinDist(2.0);
 
-//		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
+
+		
+		//		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
 		
 //		runTest(TestScenario.ON_N_MOJAVE, params, new Long(1407965202664l), "OnN_Mojave_2", null);
@@ -1287,10 +1292,10 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.NEAR_SURPRISE_VALLEY_5p0, params, null, "NearSurpriseValley5p0_1", null);	// aveStrike=295.0367915096109
 
 //		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_5_subsectResetBoth", null);	// aveStrike=295.0367915096109;
-//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_1", null);	// aveStrike=295.0367915096109;
+//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_4_grCorr", null);	// aveStrike=295.0367915096109;
 //		runTest(TestScenario.N_PALM_SPRINGS_1986, params, null, "NorthPalmSprings1986", null);	// aveStrike=295.0367915096109;
 //		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
-//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
+//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_7_fast_GRcorr", null);	// aveStrike=295.0367915096109; All Hell!
 		
 //		int distAway = 12;
 //		try {

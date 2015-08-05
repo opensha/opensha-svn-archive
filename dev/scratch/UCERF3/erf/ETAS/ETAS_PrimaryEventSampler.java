@@ -1458,13 +1458,19 @@ System.exit(0);
 		long st = System.currentTimeMillis();
 		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numCubes);
 		
+		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		
+		if(locList.size()==1) {	// point source
+			// System.out.println("HERE: POINT SOURCE");
+			return getCubeSampler(getParLocIndexForLocation(locList.get(0)));
+		}
+		
 		CalcProgressBar progressBar=null;
 		if(D) {
 			progressBar = new CalcProgressBar("getAveSamplerForRupture(*)", "junk");
 			progressBar.showProgress(true);
 		}
-		
-		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+			
 		int progress =0;
 		for(Location loc: locList) {
 			
@@ -1771,10 +1777,14 @@ System.exit(0);
 			progressBar.showProgress(true);
 		}
 		
+		List<Integer> list = sampler.getOrderedIndicesOfHighestXFract(0.99);
+		
 		// now loop over all cubes
-		for(int i=0;i <numCubes;i++) {
+//		for(int i=0;i <numCubes;i++) {
+		int numDone=0;
+		for(int i : list) {
 			if(D) 
-				progressBar.updateProgress(i, numCubes);
+				progressBar.updateProgress(numDone, list.size());
 
 			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i);
 			if(relSrcProbForCube != null) {
@@ -1787,6 +1797,7 @@ System.exit(0);
 //				Location loc = getCubeLocationForIndex(i);
 //				System.out.println("relSrcProbForCube is null for cube index "+i+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
 //			}
+			numDone+=1;
 		}
 		
 		if(D)
@@ -1796,7 +1807,8 @@ System.exit(0);
 		for(int s=0; s<trigProb.length; s++)
 			testSum += trigProb[s];
 		if(testSum<0.9999 || testSum>1.0001)
-			throw new RuntimeException("PROBLEM");
+			System.out.println("testSum="+testSum);
+//			throw new RuntimeException("PROBLEM");
 		
 		if(D) {
 			st = System.currentTimeMillis()-st;
@@ -4232,7 +4244,17 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		if(!subDirName.exists())
 			subDirName.mkdir();
 		
+		// the following adds fuzziness to rup surf locs, even if point sournce
 		IntegerPDF_FunctionSampler aveCubeSamplerForRup = getAveSamplerForRupture(rupture);
+		
+//		double[] fracArray = {0.99,0.999,0.9999,0.99999,1.0};
+//		for(double frac:fracArray) {
+//			long time=System.currentTimeMillis();
+//			System.out.println("Starting getOrderedIndicesOfHighestXFract; frac="+frac);
+//			List<Integer> list = aveCubeSamplerForRup.getOrderedIndicesOfHighestXFract(frac);
+//			System.out.println("Done with getOrderedIndicesOfHighestXFract; that took (ms): "+(System.currentTimeMillis()-time)+"\tnum="+list.size()+"\tof "+aveCubeSamplerForRup.size());			
+//		}
+		
 
 //int tempCubeIndex = 431146;
 //Location cubeLoc = getCubeLocationForIndex(tempCubeIndex);
