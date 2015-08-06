@@ -575,21 +575,27 @@ public class ETAS_Utils {
 		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 //		System.exit(0);	
+		
+		
 		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
 		GaussianMagFreqDist supraSeisDist = new GaussianMagFreqDist(6.35, 20, 0.1, 7.35, 0.5, 1.0, 2.0, 2);
 		supraSeisDist.scaleToCumRate(6.35, grDist.getCumRate(6.35)*20);	// this make it look pretty typical
 		
 		double grCorr = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
 
-		System.out.println("\nGR scale factor = "+grCorr);
+//		System.out.println("\nGR scale factor = "+grCorr);
 		
-		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr);
+		double charFactor=5.0;	// this has a criticality of about 1.0
+//		double charFactor=1.0;	// test perfect GR
+		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*charFactor);
 //		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate());
 				
 		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
 		totDist.addIncrementalMagFreqDist(subSeisDist);
 		totDist.addIncrementalMagFreqDist(supraSeisDist);
 		
+		double grCorrFinal = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
+		System.out.println("\nGR scale factor = "+grCorrFinal);
 		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		tempCriticality(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 		

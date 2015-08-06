@@ -243,7 +243,10 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	
 	
 	public double[] getNormTimeSinceLastForSections() {
-		return probModelsCalc.getNormTimeSinceLastForSections(timeSpan.getStartTimeInMillis());
+		if(probModelsCalc != null)	// e.g., Poisson model
+			return probModelsCalc.getNormTimeSinceLastForSections(timeSpan.getStartTimeInMillis());
+		else
+			return null;
 	}
 	
 	/**
@@ -382,6 +385,14 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	 */
 	public int getNumFaultSystemSources(){
 		return numNonZeroFaultSystemSources;
+	}
+	
+	/**
+	 * This tells whether the model is Poisson
+	 * @return
+	 */
+	public boolean isPoisson() {
+		return (probModel == ProbabilityModelOptions.POISSON);
 	}
 	
 	@Override

@@ -1056,18 +1056,46 @@ public class ETAS_SimAnalysisTools {
 		for(int i= 0;i<expSecondaryNum.size();i++)
 			expSecondaryNum.set(i,mfd.getY(i)*Math.pow(10,mfd.getX(i)));
 		
-		double aveNum = 0;
+		// TEST
+		IncrementalMagFreqDist subMFD = new IncrementalMagFreqDist(mfd.getMinX(), mfd.getMaxX(), mfd.size());
+		IncrementalMagFreqDist supraMFD = new IncrementalMagFreqDist(mfd.getMinX(), mfd.getMaxX(), mfd.size());
+	
+		
+		
+		
+		double sum = 0;
+		double sumSub = 0;
+		boolean subSeisMag=true;
 		int count=0;
 		int lowIndex=expSecondaryNum.getClosestXIndex(expSecondaryNum.getMinMagWithNonZeroRate());
 		int hiIndex=expSecondaryNum.getClosestXIndex(expSecondaryNum.getMaxMagWithNonZeroRate());
 		for(int i=lowIndex; i<=hiIndex; i++) {
-			aveNum += expSecondaryNum.getY(i);
+			sum += expSecondaryNum.getY(i);
+			if(subSeisMag) {
+				subMFD.set(i,mfd.getY(i));
+			}
+			else {
+				supraMFD.set(i,mfd.getY(i));
+			}
+			if(subSeisMag) {
+				sumSub+=expSecondaryNum.getY(i);
+				// test next
+				if(i+1<=hiIndex) {	// avoid going over highest mag in perfect GR
+					double fractDiff = Math.abs(1-expSecondaryNum.getY(i)/expSecondaryNum.getY(i+1));
+					if(fractDiff>0.01)
+						subSeisMag=false;					
+				}
+			}
 			count += 1;
 		}
-		aveNum /=count;
 		expSecondaryNum.setName("RelNumExpSecAftershocks");
 		String info = "This is the MFD of primary aftershocks multiplied by 10^mag\n";
-		info += "aveNum="+(float)aveNum+" (vs "+(float)expSecondaryNum.getY(lowIndex)+" at low mag; ratio="+(float)(aveNum/expSecondaryNum.getY(lowIndex))+")\n";
+		double sumPerfectGR = expSecondaryNum.getY(lowIndex)*count;
+		info += "sum="+(float)sum+" (vs "+(float)sumPerfectGR+" for perfect GR; ratio="+(float)(sum/sumPerfectGR)+")\n";
+		info  += "grCorr="+(float)((sumPerfectGR-sumSub)/(sum-sumSub))+"\n";
+		info  += "grCorr2="+(float)ETAS_Utils.getScalingFactorToImposeGR(supraMFD, subMFD, false)+"\n";
+//System.out.println(subMFD);
+//System.out.println(supraMFD);
 		info += "Data:\n"+expSecondaryNum.getMetadataString();
 		expSecondaryNum.setInfo(info);
 		GraphWindow expSecGraph = new GraphWindow(expSecondaryNum, "Relative Expected Num Secondary Aftershocks"); 

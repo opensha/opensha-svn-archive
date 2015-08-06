@@ -19,8 +19,10 @@ public class ETAS_ParameterList extends ParameterList {
 	ETAS_MinDistanceParam_d dParam = new ETAS_MinDistanceParam_d();
 	ETAS_ImposeGR_SamplingParam imposeGR = new ETAS_ImposeGR_SamplingParam();
 	ETAS_ApplyLongTermRatesInSamplingParam applyLongTermRatesParam = new ETAS_ApplyLongTermRatesInSamplingParam();
+	U3ETAS_ProbabilityModelParam probModelParam = new U3ETAS_ProbabilityModelParam();
 	
 	public ETAS_ParameterList() {
+		this.addParameter(probModelParam);
 		this.addParameter(kParam);
 		this.addParameter(fractSpontParam);
 		this.addParameter(pParam);
@@ -40,11 +42,13 @@ public class ETAS_ParameterList extends ParameterList {
 	public double get_d() {return dParam.getValue();}
 	public boolean getImposeGR() {return imposeGR.getValue();}
 	public boolean getApplyLongTermRates() {return applyLongTermRatesParam.getValue();}
+	public U3ETAS_ProbabilityModelOptions getU3ETAS_ProbModel() {return probModelParam.getValue();}
 	
 	
 	public void set_d_MinDist(double minDist) { dParam.setValue(minDist);}
 	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
 	public void setApplyLongTermRates(boolean value) { applyLongTermRatesParam.setValue(value);}
+	public void setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions value) { probModelParam.setValue(value); }
 
 	/**
 	 * @param args

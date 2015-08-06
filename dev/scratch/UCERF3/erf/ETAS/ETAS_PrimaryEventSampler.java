@@ -54,6 +54,7 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -75,6 +76,7 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
+	boolean APPLY_ERT = true;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean applyGR_Corr;	// don't set here (set by constructor)
 	
 	final static boolean D=ETAS_Simulator.D;
@@ -162,18 +164,19 @@ public class ETAS_PrimaryEventSampler {
 	 * @param etasDistDecay_q
 	 * @param etasMinDist_d
 	 * @param applyGR_Corr
+	 * @param probMode
 	 * @param inputFractSectInCubeList
 	 * @param inputSectInCubeList
 	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String outputFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
-			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, List<float[]> inputFractSectInCubeList, 
-			List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
+			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, U3ETAS_ProbabilityModelOptions probModel, 
+			List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, outputFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr, inputFractSectInCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
+				applyGR_Corr, probModel, inputFractSectInCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
@@ -181,6 +184,8 @@ public class ETAS_PrimaryEventSampler {
 	 * TODO
 	 * 
 	 * 		resolve potential ambiguities between attributes of griddedRegion and pointSrcDiscr
+	 * 
+	 * 		make this take an ETAS_ParamList to simplify the constructor
 	 * 
 	 * @param griddedRegion
 	 * @param numPtSrcSubPts - the
@@ -196,6 +201,7 @@ public class ETAS_PrimaryEventSampler {
 	 * @param includeSpatialDecay - tells whether to include spatial decay in sampling aftershocks (for testing)
 	 * @param etas_utils - this is for obtaining reproducible random numbers (seed set in this object)
 	 * @param applyGR_Corr - whether or not to apply the GR correction
+	 * @param probMode
 	 * @param inputFractSectInCubeList
 	 * @param inputSectInCubeList
 	 * @param inputIsCubeInsideFaultPolygon
@@ -203,7 +209,12 @@ public class ETAS_PrimaryEventSampler {
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
-			List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList, int[] inputIsCubeInsideFaultPolygon) {
+			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList, 
+			int[] inputIsCubeInsideFaultPolygon) {
+		
+		if(probModel == U3ETAS_ProbabilityModelOptions.NO_ERT) {
+			APPLY_ERT = false;
+		}
 		
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -406,11 +417,24 @@ public class ETAS_PrimaryEventSampler {
 		
 		long st= System.currentTimeMillis();
 		
+		Boolean isPoisson=null;
+		if(fssERF !=null) {
+			isPoisson = fssERF.isPoisson();
+		}
+		else
+			throw new RuntimeException("Not sure if erf is Poisson or not; is there a way to tell? (fix this)");
+		
+		if(D)
+			System.out.println("isPoisson="+isPoisson);
+		
 		for(int s=0;s<totSectNuclRateArray.length;s++) {	// intialized totals to zero
 			totSectNuclRateArray[s] = 0d;
 		}
 		//
 		double[] sectNormTimeSince = fssERF.getNormTimeSinceLastForSections();
+		if(sectNormTimeSince==null && !isPoisson)
+			throw new RuntimeException("Problem");
+			
 		for(int src=0; src<numFltSystSources; src++) {
 			int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
 			List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
@@ -419,13 +443,17 @@ public class ETAS_PrimaryEventSampler {
 			double sum=0;
 			for(int s=0;s<normTimeSinceOnSectArray.length;s++) {
 				int sectIndex = sectIndexList.get(s);
-				double normTS = sectNormTimeSince[sectIndex];
-				// TODO should check for poisson model here
+				double normTS=Double.NaN;
+				if(sectNormTimeSince!=null)
+					normTS = sectNormTimeSince[sectIndex];
 				if(Double.isNaN(normTS)) 
 					normTimeSinceOnSectArray[s] = 1.0;	// assume it's 1.0 if value unavailable
-				else
-//					normTimeSinceOnSectArray[s]=1.0;	// test
-					normTimeSinceOnSectArray[s]=normTS;
+				else {
+					if(APPLY_ERT && !isPoisson)	// isPoisson no longer neede given above?
+						normTimeSinceOnSectArray[s]=normTS;
+					else
+						normTimeSinceOnSectArray[s]=1.0;	// test
+				}
 				sum += normTimeSinceOnSectArray[s];	// this will be used to avoid dividing by zero later
 			}
 			for(int s=0;s<normTimeSinceOnSectArray.length;s++) {
@@ -1761,8 +1789,9 @@ System.exit(0);
 	/**
 	 * For the given sampler, this gives the relative trigger probability of each source in the ERF.
 	 * @param sampler
+	 * @param frac - only cubes that contribute to this fraction of the total rate will be considered (much faster and looks like same result)
 	 */
-	public double[] getRelativeTriggerProbOfEachSource(IntegerPDF_FunctionSampler sampler) {
+	public double[] getRelativeTriggerProbOfEachSource(IntegerPDF_FunctionSampler sampler, double frac) {
 		long st = System.currentTimeMillis();
 		double[] trigProb = new double[erf.getNumSources()];
 		
@@ -1777,7 +1806,7 @@ System.exit(0);
 			progressBar.showProgress(true);
 		}
 		
-		List<Integer> list = sampler.getOrderedIndicesOfHighestXFract(0.99);
+		List<Integer> list = sampler.getOrderedIndicesOfHighestXFract(frac);
 		
 		// now loop over all cubes
 //		for(int i=0;i <numCubes;i++) {
@@ -4069,7 +4098,7 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				applyGRcorr,null,null,null);
+				applyGRcorr, U3ETAS_ProbabilityModelOptions.FULL_TD,null,null,null);
 		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
 //		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
@@ -4296,7 +4325,7 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 //if (D) System.out.println("plotSubSectRelativeTriggerProbGivenSupraSeisRupture took (msec) "+(System.currentTimeMillis()-st2)+"\n"+info2);
 //System.exit(0);
 
-		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup);
+		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup, 0.99);
 		
 
 		long st = System.currentTimeMillis();

@@ -92,6 +92,7 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
@@ -188,7 +189,7 @@ public class ETAS_Simulator {
 		FaultSystemSolutionERF fssERF = null;
 		if(erf instanceof FaultSystemSolutionERF) {
 			fssERF = (FaultSystemSolutionERF)erf;
-			numFaultSysSources = ((FaultSystemSolutionERF)erf).getNumFaultSystemSources();
+			numFaultSysSources = fssERF.getNumFaultSystemSources();
 		}
 		
 		// TODO:
@@ -338,7 +339,8 @@ public class ETAS_Simulator {
 		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), fractionSrcInCubeList, srcInCubeList, inputIsCubeInsideFaultPolygon);  // latter three may be null
+				etasParams.getImposeGR(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
+				inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 		
@@ -503,7 +505,7 @@ public class ETAS_Simulator {
 				rup.setHypocenterLocation(hypoLoc);
 				int sourceIndex = erf.getSrcIndexForNthRup(nthRup);
 				if (sourceIndex < numFaultSysSources)
-					rup.setFSSIndex(((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup));
+					rup.setFSSIndex(fssERF.getFltSysRupIndexForNthRup(nthRup));
 				else
 					rup.setGridNodeIndex(sourceIndex - numFaultSysSources);
 			}
@@ -520,7 +522,7 @@ public class ETAS_Simulator {
 			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
 			int fltSysRupIndex = -1;
 			if(srcIndex<numFaultSysSources) {
-				fltSysRupIndex = ((FaultSystemSolutionERF)erf).getFltSysRupIndexForNthRup(nthRup);
+				fltSysRupIndex = fssERF.getFltSysRupIndexForNthRup(nthRup);
 				rup.setFSSIndex(fltSysRupIndex);
 			}
 				
@@ -590,7 +592,7 @@ public class ETAS_Simulator {
 				info_fr.write(rupString+"\n");
 
 				// set the date of last event for this rupture
-				((FaultSystemSolutionERF)erf).setFltSystemSourceOccurranceTime(srcIndex, rupOT);
+				fssERF.setFltSystemSourceOccurranceTime(srcIndex, rupOT);
 
 				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
 				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
@@ -847,7 +849,8 @@ public class ETAS_Simulator {
 	 * @param scenario
 	 * @param etasParams
 	 * @param randomSeed
-	 * @param simulationName
+	 * @param simulationName - if null this will be constructed from input information
+	 * @param histQkList
 	 */
 	public static void runTest(TestScenario scenario, ETAS_ParameterList etasParams, Long randomSeed, 
 			String simulationName, ObsEqkRupList histQkList) {
@@ -857,6 +860,18 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
+		
+		// Overide to Poisson if needed
+		if(etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
+			erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+			erf.updateForecast();
+		}
+		
+		if(simulationName == null) {
+			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel();
+			if(etasParams.getImposeGR() == true)
+				simulationName += "_grCorr";
+		}
 		
 //		testERF_ParamChanges(erf);
 //		System.exit(-1);
@@ -1064,10 +1079,11 @@ public class ETAS_Simulator {
 	 */
 	public enum TestScenario {
 		
+		MOJAVE_M7("MojaveM7", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
+		MOJAVE_M6("MojaveM6", new Location(34.42295,-117.80177,5.8), 6.0),	// original test for Kevin
+		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	// 
 		N_PALM_SPRINGS_1986("N Palm Springs M6.0", new Location(34.02,-116.76,10.0), 6.0),		// original provided by Kevin
 		MOJAVE_OLD("Mojave M7.05", 197792),		// original provided by Kevin
-		MOJAVE("Mojave M7.03", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
-		KEVIN_MOJAVE("Kevin's Mojave", new Location(34.42295,-117.80177,5.8), 6.0),	// test for Kevin
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
@@ -1244,6 +1260,15 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
+		TestScenario scenario = TestScenario.MOJAVE_M7;
+		ETAS_ParameterList params = new ETAS_ParameterList();
+		params.setImposeGR(true);		
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);;		
+
+		runTest(scenario, params, null, null, null);	// aveStrike=295.0367915096109
+		
+		
+		
 //		Location testLoc = new Location(32.57336, -118.25770, 9.05759);
 //		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 //		System.out.println(griddedRegion.indexForLocation(testLoc));
@@ -1265,12 +1290,31 @@ public class ETAS_Simulator {
 //		System.exit(-1);
 		
 		
-		ETAS_ParameterList params = new ETAS_ParameterList();
 //		params.setApplyLongTermRates(false);
-		params.setImposeGR(true);
 //		params.set_d_MinDist(2.0);
 
+//		params.setImposeGR(true);		
+//		runTest(TestScenario.MOJAVE, params, null, "Mojave_M7_grCorr", null);	// aveStrike=295.0367915096109
+		
+		// need to set APPLY_ERT = false in ETAS_PrimaryEventSampler
+//		runTest(TestScenario.MOJAVE, params, null, "Mojave_M7_noERT", null);	// aveStrike=295.0367915096109
 
+		// need to set APPLY_ERT = false in ETAS_PrimaryEventSampler
+//		params.setImposeGR(true);		
+//		runTest(TestScenario.MOJAVE, params, null, "Mojave_M7_noERT_grCorr", null);	// aveStrike=295.0367915096109
+
+		// be sure to make the erf Poisson in runTest (code commented out)
+//		runTest(TestScenario.MOJAVE, params, null, "Mojave_M7_Poisson", null);	// aveStrike=295.0367915096109
+
+//		runTest(TestScenario.MOJAVE, params, null, "Mojave_M7", null);	// aveStrike=295.0367915096109
+
+//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "Mojave_M6", null);	// aveStrike=295.0367915096109; All Hell!
+
+//		params.setImposeGR(true);			
+//		runTest(TestScenario.KEVIN_MOJAVE, params, null, "Mojave_M6_grCorr", null);	// aveStrike=295.0367915096109; All Hell!
+
+		
+		
 		
 		//		runTest(TestScenario.NEAR_MAACAMA, params, new Long(1407965202664l), "nearMaacama_1", null);
 //		runTest(TestScenario.ON_MAACAMA, params, new Long(1407965202664l), "onMaacama_1", null);
@@ -1294,8 +1338,6 @@ public class ETAS_Simulator {
 //		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_5_subsectResetBoth", null);	// aveStrike=295.0367915096109;
 //		runTest(TestScenario.KEVIN_MOJAVE, params, null, "KevinTestMojave_4_grCorr", null);	// aveStrike=295.0367915096109;
 //		runTest(TestScenario.N_PALM_SPRINGS_1986, params, null, "NorthPalmSprings1986", null);	// aveStrike=295.0367915096109;
-//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_3", null);	// aveStrike=295.0367915096109; All Hell!
-//		runTest(TestScenario.MOJAVE, params, null, "MojaveEvent_7_fast_GRcorr", null);	// aveStrike=295.0367915096109; All Hell!
 		
 //		int distAway = 12;
 //		try {
