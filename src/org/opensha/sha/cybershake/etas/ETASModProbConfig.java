@@ -62,6 +62,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
@@ -76,7 +77,6 @@ import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.ModUCERF2.ModMeanUCERF2_FM2pt1;
-import scratch.kevin.ucerf3.etas.ETAS_CatalogStats;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 import com.google.common.base.Joiner;
@@ -1566,7 +1566,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		
 		conf.writeTriggerMFD(new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/mfds"),
 				conf.scenario.name().toLowerCase()+"_trigger_mfd");
-		ETAS_CatalogStats.calcNumWithMagAbove(conf.catalogs, 0d);
+		ETAS_MultiSimAnalysisTools.calcNumWithMagAbove(conf.catalogs, 0d);
 		
 		System.exit(0);
 	}

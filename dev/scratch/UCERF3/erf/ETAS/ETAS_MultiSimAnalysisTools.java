@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.etas;
+package scratch.UCERF3.erf.ETAS;
 
 import java.awt.Color;
 import java.io.File;
@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
@@ -30,12 +31,10 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
-import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
-import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 
-public class ETAS_CatalogStats {
+public class ETAS_MultiSimAnalysisTools {
 	
 	public static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag) {
 		return calcNumWithMagAbove(catalogs, targetMinMag, -1, -1);
@@ -346,6 +345,45 @@ public class ETAS_CatalogStats {
 			csv.writeToFile(new File(outputDir,  myPrefix+".csv"));
 		}
 	}
+	
+	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile) throws ZipException, IOException {
+		return loadCatalogsZip(zipFile, -10);
+	}
+	
+	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile, double minMag) throws ZipException, IOException {
+		ZipFile zip = new ZipFile(zipFile);
+		
+		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+		
+		for (ZipEntry entry : Collections.list(zip.entries())) {
+			if (!entry.isDirectory())
+				continue;
+//			System.out.println(entry.getName());
+			String subEntryName = entry.getName()+"simulatedEvents.txt";
+			ZipEntry catEntry = zip.getEntry(subEntryName);
+			if (catEntry == null)
+				continue;
+//			System.out.println("Loading "+catEntry.getName());
+			
+			try {
+				List<ETAS_EqkRupture> cat = ETAS_SimAnalysisTools.loadCatalog(
+						zip.getInputStream(catEntry), minMag);
+				
+				catalogs.add(cat);
+			} catch (Exception e) {
+//				ExceptionUtils.throwAsRuntimeException(e);
+				System.out.println("Skipping catalog "+entry.getName()+": "+e.getMessage());
+			}
+			if (catalogs.size() % 1000 == 0)
+				System.out.println("Loaded "+catalogs.size()+" catalogs (and counting)...");
+		}
+		
+		zip.close();
+		
+		System.out.println("Loaded "+catalogs.size()+" catalogs");
+		
+		return catalogs;
+	}
 
 	public static void main(String[] args) throws IOException {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
@@ -391,36 +429,7 @@ public class ETAS_CatalogStats {
 			outputDir.mkdir();
 		
 		// load the catalogs
-		ZipFile zip = new ZipFile(resultsZipFile);
-		
-		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
-		
-		for (ZipEntry entry : Collections.list(zip.entries())) {
-			if (!entry.isDirectory())
-				continue;
-//			System.out.println(entry.getName());
-			String subEntryName = entry.getName()+"simulatedEvents.txt";
-			ZipEntry catEntry = zip.getEntry(subEntryName);
-			if (catEntry == null)
-				continue;
-//			System.out.println("Loading "+catEntry.getName());
-			
-			try {
-				List<ETAS_EqkRupture> cat = ETAS_SimAnalysisTools.loadCatalog(
-						zip.getInputStream(catEntry), minLoadMag);
-				
-				catalogs.add(cat);
-			} catch (Exception e) {
-//				ExceptionUtils.throwAsRuntimeException(e);
-				System.out.println("Skipping catalog "+entry.getName()+": "+e.getMessage());
-			}
-			if (catalogs.size() % 1000 == 0)
-				System.out.println("Loaded "+catalogs.size()+" catalogs (and counting)...");
-		}
-		
-		zip.close();
-		
-		System.out.println("Loaded "+catalogs.size()+" catalogs");
+		List<List<ETAS_EqkRupture>> catalogs = loadCatalogsZip(resultsZipFile, minLoadMag);
 		
 		// print out catalogs with most triggered moment
 		List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
