@@ -116,6 +116,100 @@ public class ETAS_CatalogStats {
 		return new FractileCurveCalculator(funcsList, relativeWeights);
 	}
 	
+	private static double mfdMinMag = 2.55;
+	private static double mfdDelta = 0.1;
+	private static int mfdNumMag = 66;
+	private static double mfdMinY = 1e-4;
+	private static double mfdMaxY = 1e4;
+	
+	private static int calcNumMagToTrim(List<List<ETAS_EqkRupture>> catalogs) {
+		double minMag = mfdMinMag;
+		double catMinMag = Double.POSITIVE_INFINITY;
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			for (ETAS_EqkRupture rup : catalog) {
+				catMinMag = Math.min(catMinMag, minMag);
+			}
+			if (catMinMag < minMag + 0.5*mfdDelta)
+				// it's a full catalog
+				return 0;
+		}
+		int numToTrim = 0;
+		while (catMinMag > (minMag + 0.5*mfdDelta)) {
+			minMag += mfdDelta;
+			numToTrim++;
+		}
+		return numToTrim;
+	}
+	
+	/**
+	 * Plots an MFD to compare with the expected MFD:
+	 * 
+	 * for each magnitude bin
+	 * 		find fract sims with NO supra seis PRIMARY in that bin
+	 * 		plot 1 - fract
+	 * @param catalogs
+	 * @param outputDir
+	 * @param name
+	 * @param prefix
+	 * @throws IOException
+	 */
+	private static void plotExpectedSupraComparisonMFD(List<List<ETAS_EqkRupture>> catalogs,
+			File outputDir, String name, String prefix) throws IOException {
+		double minMag = mfdMinMag;
+		int numMag = mfdNumMag;
+		
+		// see if we need to adjust
+		int numToTrim = calcNumMagToTrim(catalogs);
+		for (int i=0; i<numToTrim; i++) {
+			minMag += mfdDelta;
+			numMag--;
+		}
+		
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
+		
+		double rate = 1d/catalogs.size();
+		
+		for (int i=0; i<catalogs.size(); i++) {
+			List<ETAS_EqkRupture> catalog = catalogs.get(i);
+			ArbIncrementalMagFreqDist subMFD = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
+			for (ETAS_EqkRupture rup : catalog) {
+				if (rup.getFSSIndex() >= 0)
+					subMFD.addResampledMagRate(rup.getMag(), rate, true);
+			}
+			for (int n=0; n<subMFD.size(); n++)
+				if (subMFD.getY(n) == 0d)
+					mfd.add(n, rate);
+		}
+		// now take 1 minus
+		for (int n=0; n<mfd.size(); n++)
+			mfd.set(n, 1d-mfd.getY(n));
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		mfd.setName("Mean");
+		funcs.add(mfd);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, name+" Supra MFD Compare To Expected",
+				"Magnitude", "Incremental Rate (1/yr)");
+//		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setUserBounds(mfdMinMag, mfd.getMaxX(), Math.pow(10d, Math.log10(mfdMinY)-2), Math.pow(10d, Math.log10(mfdMaxY)-2));
+		
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		
+		gp.drawGraphPanel(spec, false, true);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
 	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name, String prefix)
 			throws IOException {
 //		double minMag = 5.05;
@@ -124,18 +218,22 @@ public class ETAS_CatalogStats {
 //		double minY = 1e-4;
 //		double maxY = 1e2;
 		
-		double minMag = 2.55;
-		int numMag = 66;
-		double delta = 0.1;
-		double minY = 1e-4;
-		double maxY = 1e4;
+		double minMag = mfdMinMag;
+		int numMag = mfdNumMag;
 		
-		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, numMag, delta);
+		// see if we need to adjust
+		int numToTrim = calcNumMagToTrim(catalogs);
+		for (int i=0; i<numToTrim; i++) {
+			minMag += mfdDelta;
+			numMag--;
+		}
+		
+		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
 		mfd.setName("Total");
 		ArbIncrementalMagFreqDist[] subMFDs = new ArbIncrementalMagFreqDist[catalogs.size()];
 		EvenlyDiscretizedFunc[] cmlSubMFDs = new EvenlyDiscretizedFunc[catalogs.size()];
 		for (int i=0; i<catalogs.size(); i++)
-			subMFDs[i] = new ArbIncrementalMagFreqDist(minMag, numMag, delta);
+			subMFDs[i] = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
 		
 		double rate = 1d/catalogs.size();
 		
@@ -224,7 +322,7 @@ public class ETAS_CatalogStats {
 			spec.setLegendVisible(true);
 			
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
-			gp.setUserBounds(myMFD.getMinX(), myMFD.getMaxX(), minY, maxY);
+			gp.setUserBounds(mfdMinMag, myMFD.getMaxX(), mfdMinY, mfdMaxY);
 			
 			gp.setBackgroundColor(Color.WHITE);
 			gp.setTickLabelFontSize(18);
@@ -253,8 +351,8 @@ public class ETAS_CatalogStats {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-//		String name = "Mojave M5 Full TD";
-//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m5-full_td/results.zip");
+		String name = "Mojave M5 Full TD";
+		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m5-full_td/results.zip");
 		
 //		String name = "Mojave M5 Full TD, GR Corr.";
 //		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m5-full_td-grCorr/results.zip");
@@ -275,8 +373,8 @@ public class ETAS_CatalogStats {
 //		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-no_ert/results.zip");
 //		minLoadMag = 4; // otherwise uses too much memory, 14GB wasn't enough
 		
-		String name = "Mojave M7 No ERT, GR Corr.";
-		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.zip");
+//		String name = "Mojave M7 No ERT, GR Corr.";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.zip");
 		
 //		String name = "Mojave M7 Poisson";				// BAD, none completed
 //		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-poisson/results.zip");
@@ -360,6 +458,16 @@ public class ETAS_CatalogStats {
 		
 		plotMFD(primaryCatalogs, outputDir, "Primary "+name, "primary_aftershocks");
 		
+		plotExpectedSupraComparisonMFD(primaryCatalogs, outputDir, "Primary "+name, "primary_supra_compare_to_expected");
+		
+		// now do first/last half
+		int numCatalogs = primaryCatalogs.size();
+		List<List<ETAS_EqkRupture>> firstHalfPrimary = primaryCatalogs.subList(0, numCatalogs/2);
+		List<List<ETAS_EqkRupture>> secondHalfPrimary = primaryCatalogs.subList(firstHalfPrimary.size(), primaryCatalogs.size());
+		plotExpectedSupraComparisonMFD(firstHalfPrimary, outputDir, "Primary "+name,
+				"primary_supra_compare_to_expected_first"+firstHalfPrimary.size());
+		plotExpectedSupraComparisonMFD(secondHalfPrimary, outputDir, "Primary "+name,
+				"primary_supra_compare_to_expected_last"+secondHalfPrimary.size());
 	}
 
 }

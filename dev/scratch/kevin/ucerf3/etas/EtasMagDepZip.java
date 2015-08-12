@@ -1,4 +1,4 @@
-package scratch.kevin.cybershake.etasCalcs;
+package scratch.kevin.ucerf3.etas;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,12 +18,13 @@ import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class EtasSmartZip {
+public class EtasMagDepZip {
 	
 	private static byte[] buffer = new byte[18024];
 
 	public static void main(String[] args) throws IOException {
-		Preconditions.checkArgument(args.length == 2, "Usage: <results-dir> <output-file>");
+		Preconditions.checkArgument(args.length == 3 || args.length == 3,
+					"Usage: <results-dir> <output-file> [<min-mag>]");
 		
 		File resultsDir = new File(args[0]);
 		Preconditions.checkArgument(resultsDir.exists() && resultsDir.isDirectory(),
@@ -32,6 +33,12 @@ public class EtasSmartZip {
 		File outputFile = new File(args[1]).getAbsoluteFile();
 		Preconditions.checkArgument(outputFile.getParentFile().exists(),
 				"Cannot create output: "+outputFile.getAbsolutePath());
+		
+		double minMag;
+		if (args.length == 3)
+			minMag = Double.parseDouble(args[2]);
+		else
+			minMag = 5;
 
 		ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)));
 		
@@ -58,8 +65,13 @@ public class EtasSmartZip {
 			addToZip(out, new File(dir, "infoString.txt"), prefix+"infoString.txt");
 			
 			// now sub catalog
-			List<ETAS_EqkRupture> catalog =
-					ETAS_SimAnalysisTools.loadCatalog(new File(dir, "simulatedEvents.txt"), 5d);
+			List<ETAS_EqkRupture> catalog;
+			try {
+				catalog = ETAS_SimAnalysisTools.loadCatalog(new File(dir, "simulatedEvents.txt"), minMag);
+			} catch (RuntimeException e) {
+				System.out.println("Skipping "+name+": "+e.getMessage());
+				continue;
+			}
 			File smallCat = new File(dir, "simulatedEvents_m5.txt");
 			ETAS_SimAnalysisTools.writeEventDataToFile(smallCat.getAbsolutePath(), catalog);
 			
