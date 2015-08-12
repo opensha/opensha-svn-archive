@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
@@ -193,9 +194,17 @@ public class EventRecord {
 	
 	public int getID() { return event_id;}
 	
+	public void setID(int id) {
+		this.event_id = id;
+	}
+	
 	public int getSectionID() {return sectionID;}
 	
 	public double getMagnitude() { return magnitude;}
+	
+	public void setMagnitude(double mag) {
+		this.magnitude = mag;
+	}
 	
 	public double getDuration() { return duration;}
 	
@@ -228,6 +237,19 @@ public class EventRecord {
 			elementIDs = Arrays.copyOf(elementIDs, numElements);
 		}
 		return elementIDs;
+	}
+	
+	public void setElementIDsAndSlips(int[] elementIDs, double[] elementSlips) {
+		if (elementIDs != null && elementSlips != null)
+			Preconditions.checkState(elementIDs.length == elementSlips.length);
+		if (elementIDs != null) {
+			this.elementIDs = elementIDs;
+			numElements = elementIDs.length;
+		}
+		if (elementSlips != null) {
+			this.elementIDs = elementIDs;
+			numElements = elementIDs.length;
+		}
 	}
 	
 	/**

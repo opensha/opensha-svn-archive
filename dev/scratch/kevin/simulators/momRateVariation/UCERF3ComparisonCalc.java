@@ -35,12 +35,12 @@ import scratch.UCERF3.utils.FaultSystemIO;
 
 public class UCERF3ComparisonCalc {
 	
-	private static void runUCERF3Sim(FaultSystemSolution sol, int duration, File outputDir)
-			throws IOException, DocumentException {
+	private static void runUCERF3Sim(FaultSystemSolution sol, int duration, File outputDir,
+			MagDependentAperiodicityOptions cov) throws IOException, DocumentException {
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 		
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
+		erf.setParameter(MagDependentAperiodicityParam.NAME, cov);
 		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
 		
 		erf.getTimeSpan().setStartTime(2014);
@@ -59,17 +59,20 @@ public class UCERF3ComparisonCalc {
 		private FaultSystemSolution sol;
 		private int duration;
 		private File outputDir;
+		private MagDependentAperiodicityOptions cov;
 		
-		public CalcThread(FaultSystemSolution sol, int duration, File outputDir) {
+		public CalcThread(FaultSystemSolution sol, int duration, File outputDir,
+				MagDependentAperiodicityOptions cov) {
 			this.sol = sol;
 			this.duration = duration;
 			this.outputDir = outputDir;
+			this.cov = cov;
 		}
 
 		@Override
 		public void run() {
 			try {
-				runUCERF3Sim(sol, duration, outputDir);
+				runUCERF3Sim(sol, duration, outputDir, cov);
 			} catch (Exception e) {
 				e.printStackTrace();
 				ExceptionUtils.throwAsRuntimeException(e);
@@ -77,8 +80,8 @@ public class UCERF3ComparisonCalc {
 		}
 	}
 	
-	private static void runUCERF3SimThreaded(File fssFile, int numThreads, final int duration, File outputDir)
-			throws IOException, DocumentException {
+	private static void runUCERF3SimThreaded(File fssFile, int numThreads, final int duration, File outputDir,
+			MagDependentAperiodicityOptions cov) throws IOException, DocumentException {
 		List<Thread> threads = Lists.newArrayList();
 		
 		for (int i=0; i<numThreads; i++) {
@@ -88,7 +91,7 @@ public class UCERF3ComparisonCalc {
 			File subDir = new File(outputDir, duration+"yr_run"+i);
 			Preconditions.checkState(subDir.exists() || subDir.mkdir());;
 			
-			threads.add(new CalcThread(sol, duration, subDir));
+			threads.add(new CalcThread(sol, duration, subDir, cov));
 		}
 		
 		for (Thread thread : threads)
@@ -106,6 +109,7 @@ public class UCERF3ComparisonCalc {
 	public static void main(String[] args) throws IOException, DocumentException {
 		File outputDir, fssFile;
 		int numThreads, duration;
+		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.MID_VALUES;
 		if (args.length == 0) {
 			outputDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare");
 			fssFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
@@ -114,21 +118,23 @@ public class UCERF3ComparisonCalc {
 			numThreads = 8;
 			duration = 10000;
 		} else {
-			if (args.length != 4) {
+			if (args.length < 4 || args.length > 5) {
 				System.err.println("Usage: "+ClassUtils.getClassNameWithoutPackage(UCERF3ComparisonCalc.class)
-						+" <outputDir> <fssFile> <numThreads> <duration>");
+						+" <outputDir> <fssFile> <numThreads> <duration> [<cov>]");
 				System.exit(2);
 			}
 			outputDir = new File(args[0]);
 			fssFile = new File(args[1]);
 			numThreads = Integer.parseInt(args[2]);
 			duration = Integer.parseInt(args[3]);
+			if (args.length == 5)
+				cov = MagDependentAperiodicityOptions.valueOf(args[4]);
 		}
 		
 //		int numThreads = 1;
 //		int duration = 100;
 		
-		runUCERF3SimThreaded(fssFile, numThreads, duration, outputDir);
+		runUCERF3SimThreaded(fssFile, numThreads, duration, outputDir, cov);
 	}
 
 }

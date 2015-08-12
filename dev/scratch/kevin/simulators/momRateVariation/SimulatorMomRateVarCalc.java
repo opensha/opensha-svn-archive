@@ -490,7 +490,7 @@ public class SimulatorMomRateVarCalc {
 		for (int i=0; i<windowLen; i++)
 			ret[i] /= sum;
 		
-		System.out.println("Window has sum="+StatUtils.sum(ret));
+//		System.out.println("Window has sum="+StatUtils.sum(ret));
 		
 		return ret;
 	}

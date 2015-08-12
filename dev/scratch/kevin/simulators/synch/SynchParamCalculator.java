@@ -1978,7 +1978,7 @@ public class SynchParamCalculator {
 		return ret;
 	}
 	
-	private static void plotMarkovNumTransHist(EmpiricalMarkovChain chain, List<RuptureIdentifier> rupIdens, File outputDir)
+	public static void plotMarkovNumTransHist(EmpiricalMarkovChain chain, List<RuptureIdentifier> rupIdens, File outputDir)
 			throws IOException {
 		Preconditions.checkArgument(rupIdens.size() == chain.getNDims());
 		
@@ -2019,7 +2019,10 @@ public class SynchParamCalculator {
 			SparseNDimensionalHashDataset<PossibleStates> transData = myChain.getStateTransitionDataset();
 			for (int ind[] : transData.getPopulatedIndices()) {
 				PossibleStates s = transData.get(ind);
-				destHist.add(s.getNumStates(), 1d);
+				int numStates = s.getNumStates();
+				if (numStates >= destHist.size())
+					numStates = destHist.size()-1;
+				destHist.add(numStates, 1d);
 				Preconditions.checkState(s.getTot() > 0);
 				occHist.add(occHist.getClosestXIndex(s.getTot()), 1d);
 			}
