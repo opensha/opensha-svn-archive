@@ -250,42 +250,50 @@ public class ETAS_CatalogStats {
 	}
 
 	public static void main(String[] args) throws IOException {
-////		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/results");
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_06_23-mojave_7-indep/results");
-//		int triggerParentID = 0;
-//		double targetMinMag = 7.050480408896166;
-//		String name = "Mojave 7.05";
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/results");
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_08_25-napa/results.zip");
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/results.zip");
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_08-mojave_7/results.zip");
-		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_10-mojave_7/results.zip");
+		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
+		double minLoadMag = -1;
+		
+//		String name = "Mojave M5 Full TD";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m5-full_td/results.zip");
+		
+//		String name = "Mojave M5 Full TD, GR Corr.";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m5-full_td-grCorr/results.zip");
+		
+//		String name = "Mojave M6 Full TD";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m6-full_td/results.zip");
+		
+//		String name = "Mojave M6 Full TD, GR Corr.";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m6-full_td-grCorr/results.zip");
+		
+//		String name = "Mojave M7 Full TD";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-full_td/results.zip");
+		
+//		String name = "Mojave M7 Full TD, GR Corr.";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.zip");
+		
+//		String name = "Mojave M7 No ERT";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-no_ert/results.zip");
+//		minLoadMag = 4; // otherwise uses too much memory, 14GB wasn't enough
+		
+		String name = "Mojave M7 No ERT, GR Corr.";
+		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.zip");
+		
+//		String name = "Mojave M7 Poisson";				// BAD, none completed
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-poisson/results.zip");
+		
+//		String name = "Mojave M7 Poisson, GR Corr.";
+//		File resultsZipFile = new File(mainDir, "2015_08_07-mojave_m7-poisson-grCorr/results.zip");
+		
+		// parent ID for the trigger rupture
 		int triggerParentID = 0;
-		double targetMinMag = 6.0;
-//		String name = "Napa M6";
-		String name = "Mojave M7";
-		File[] etasCatalogDirs = {etasCatalogDir};
-		File outputDir = new File(etasCatalogDir.getParentFile(), "outputs_stats");
 		
-		int maxDaysAfter = 7;
-		
-//		File etasCatalogDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-spontaneous/");
-//		int triggerParentID = -1;
-//		String name = "Spontaneous";
-//		File[] etasCatalogDirs = { new File(etasCatalogDir, "results_1"), new File(etasCatalogDir, "results_2"),
-//				new File(etasCatalogDir, "results_3"), new File(etasCatalogDir, "results_4"),
-//				new File(etasCatalogDir, "results_5")};
-////		double targetMinMag = 6.2;
-//		double targetMinMag = 7.050480408896166;
-//		File outputDir = new File(etasCatalogDir, "outputs_stats");
+		File outputDir = new File(resultsZipFile.getParentFile(), "outputs_stats");
 		
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
-//		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogEALCalculator.loadCatalogs(
-//				etasCatalogDirs, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05);
-		
-		ZipFile zip = new ZipFile(etasCatalogDir);
+		// load the catalogs
+		ZipFile zip = new ZipFile(resultsZipFile);
 		
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
 		
@@ -300,21 +308,21 @@ public class ETAS_CatalogStats {
 //			System.out.println("Loading "+catEntry.getName());
 			
 			try {
-				List<ETAS_EqkRupture> cat = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry));
+				List<ETAS_EqkRupture> cat = ETAS_SimAnalysisTools.loadCatalog(
+						zip.getInputStream(catEntry), minLoadMag);
 				
 				catalogs.add(cat);
 			} catch (Exception e) {
 //				ExceptionUtils.throwAsRuntimeException(e);
 				System.out.println("Skipping catalog "+entry.getName()+": "+e.getMessage());
 			}
+			if (catalogs.size() % 1000 == 0)
+				System.out.println("Loaded "+catalogs.size()+" catalogs (and counting)...");
 		}
 		
-		System.out.println("Loaded "+catalogs.size()+" catalogs");
+		zip.close();
 		
-//		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 1);
-//		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, maxDaysAfter);
-//		calcNumWithMagAbove(catalogs, targetMinMag, triggerParentID, 365);
-//		plotMFD(catalogs, outputDir, name);
+		System.out.println("Loaded "+catalogs.size()+" catalogs");
 		
 		// print out catalogs with most triggered moment
 		List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();

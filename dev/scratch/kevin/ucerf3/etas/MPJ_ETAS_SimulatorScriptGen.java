@@ -7,21 +7,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
+import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
+
 import com.google.common.collect.Lists;
 
 public class MPJ_ETAS_SimulatorScriptGen {
-	
-	private static enum Scenarios {
-		SPONTANEOUS,
-		MOJAVE_7,
-		LA_HABRA,
-		NAPA
-	}
 
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
@@ -31,11 +28,17 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
-		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
+//		Scenarios[] scenarios = {Scenarios.MOJAVE_7};
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
+		
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5};
+//		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		boolean[] grCorrs = { false, true };
+		
 		boolean timeIndep = false;
-		int numSims = 5000;
+		int numSims = 10000;
 		
 		int memGigs;
 		int mins = 18*60;
@@ -77,49 +80,66 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		
-		for (Scenarios scenario : scenarios) {
-			String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenario.name().toLowerCase();
-			if (timeIndep)
-				jobName += "-indep";
-			
-			File localJobDir = new File(localDir, jobName);
-			if (!localJobDir.exists())
-				localJobDir.mkdir();
-			File remoteJobDir = new File(remoteDir, jobName);
-			
-			List<File> subClasspath = Lists.newArrayList(classpath);
-			subClasspath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));
-			mpjWrite.setClasspath(subClasspath);
-			
-			File pbsFile = new File(localJobDir, jobName+".pbs");
-			
-			String argz = "--min-dispatch 1 --max-dispatch "+threads+" --threads "+threads
-					+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
-			switch (scenario) {
-			case LA_HABRA:
-				argz += " --trigger-loc 33.932,-117.917,4.8 --trigger-mag 6.2";
-				break;
-			case MOJAVE_7:
-				argz += " --trigger-rupture-id 197792";
-				break;
-			case NAPA:
-				argz += " --trigger-rupture-id 93902 --trigger-mag 6.0";
-				break;
-			case SPONTANEOUS:
-				// do nothing
-				break;
-
-			default:
-				throw new IllegalStateException("unknown scenario: "+scenario);
+		for (TestScenario scenario : scenarios) {
+			String scenarioName;
+			if (scenario == null)
+				scenarioName = "spontaneous";
+			else
+				scenarioName = scenario.name().toLowerCase();
+			for (U3ETAS_ProbabilityModelOptions probModel : probModels) {
+				for (boolean grCorr : grCorrs) {
+					String grStr;
+					if (grCorr)
+						grStr = "-grCorr";
+					else
+						grStr = "";
+					
+					String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenarioName;
+					jobName += "-"+probModel.name().toLowerCase()+grStr;
+					if (timeIndep)
+						jobName += "-indep";
+					
+					File localJobDir = new File(localDir, jobName);
+					if (!localJobDir.exists())
+						localJobDir.mkdir();
+					File remoteJobDir = new File(remoteDir, jobName);
+					
+					List<File> subClasspath = Lists.newArrayList(classpath);
+					subClasspath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));
+					mpjWrite.setClasspath(subClasspath);
+					
+					File pbsFile = new File(localJobDir, jobName+".pbs");
+					
+					String argz = "--min-dispatch 1 --max-dispatch "+threads+" --threads "+threads
+							+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
+					
+					argz += " --prob-model "+probModel.name();
+					
+					if (grCorr)
+						argz += " --impose-gr";
+					
+					if (timeIndep)
+						argz += " --indep";
+					
+					if (scenario != null) {
+						if (scenario.getFSS_Index() >= 0)
+							argz += " --trigger-rupture-id "+scenario.getFSS_Index();
+						Location loc = scenario.getLocation();
+						if (loc != null)
+							argz += " --trigger-loc "+(float)loc.getLatitude()
+								+","+(float)loc.getLongitude()+","+(float)loc.getDepth();
+						if (scenario.getMagnitude() > 0)
+							argz += " --trigger-mag "+(float)scenario.getMagnitude();
+					}
+					
+					argz += " "+cacheDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
+					
+					List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
+					
+					script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
+					pbsWrite.writeScript(pbsFile, script);
+				}
 			}
-			if (timeIndep)
-				argz += " --indep";
-			argz += " "+cacheDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
-			
-			List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
-			
-			script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
-			pbsWrite.writeScript(pbsFile, script);
 		}
 	}
 

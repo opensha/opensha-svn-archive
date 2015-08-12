@@ -182,6 +182,12 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
+		// Overide to Poisson if needed
+		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
+			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+			erf.updateForecast();
+		}
+		
 		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
@@ -860,12 +866,6 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
-		
-		// Overide to Poisson if needed
-		if(etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
-			erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
-			erf.updateForecast();
-		}
 		
 		if(simulationName == null) {
 			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel();

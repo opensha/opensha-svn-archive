@@ -162,12 +162,12 @@ public class ETASCurveCalc {
 	
 	private static boolean isProbAt_IML = true;
 	private static boolean logPlot = true;
-//	private static double val = 0.2;
-//	private static Double customMin = -7d;
-//	private static Double customMax = -2d;
-	private static double val = 0.1;
+	private static double val = 0.2;
 	private static Double customMin = -7d;
 	private static Double customMax = -2d;
+//	private static double val = 0.1;
+//	private static Double customMin = -7d;
+//	private static Double customMax = -2d;
 	private static Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 	private static GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
 	private static InterpDiffMapType[] mapTypes = {InterpDiffMapType.INTERP_MARKS};

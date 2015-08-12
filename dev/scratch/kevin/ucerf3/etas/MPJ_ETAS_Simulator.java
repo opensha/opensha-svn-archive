@@ -41,6 +41,8 @@ import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelParam;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -48,6 +50,7 @@ import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -84,6 +87,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private List<ETAS_EqkRupture> histQkList;
 	private ETAS_EqkRupture triggerRup;
+	
+	private U3ETAS_ProbabilityModelOptions probModel = U3ETAS_ProbabilityModelParam.DEFAULT;
+	private boolean imposeGR = false;
 
 	public MPJ_ETAS_Simulator(CommandLine cmd, File inputDir, File outputDir) throws IOException, DocumentException {
 		super(cmd);
@@ -104,11 +110,14 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		else
 			this.duration = 1d;
 		
-		if (cmd.hasOption("--no-spontaneous"))
-			includeSpontEvents = false;
+		includeSpontEvents = !cmd.hasOption("no-spontaneous");
 		
-		if (cmd.hasOption("indep"))
-			timeIndep = true;
+		timeIndep = cmd.hasOption("indep");
+		
+		imposeGR = cmd.hasOption("impose-gr");
+		
+		if (cmd.hasOption("prob-model"))
+			probModel = U3ETAS_ProbabilityModelOptions.valueOf(cmd.getOptionValue("prob-model"));
 		
 		File solFile = new File(cmd.getOptionValue("sol-file"));
 		Preconditions.checkArgument(solFile.exists(), "Solution file doesn't exist: "+solFile.getAbsolutePath());
@@ -339,7 +348,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		private Deque<Integer> queue;
 		private Map<Integer, Integer> restartsMap;
 		
-		public CalcThread(File outputDir, FaultSystemSolution sol,
+		private CalcThread(File outputDir, FaultSystemSolution sol,
 				Deque<Integer> queue, Map<Integer, Integer> restartsMap) {
 			this.outputDir = outputDir;
 			this.sol = sol;
@@ -412,12 +421,15 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				else
 					randSeed = System.currentTimeMillis();
 
+				ETAS_ParameterList params = new ETAS_ParameterList();
+				params.setImposeGR(imposeGR);
+				params.setU3ETAS_ProbModel(probModel);
 
 				//				List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 				try {
 					ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
 							includeIndirectTriggering, gridSeisDiscr, simulationName, randSeed,
-							fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, new ETAS_ParameterList());
+							fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, params);
 					debug("completed "+index);
 				} catch (Throwable t) {
 					debug("Calc failed with seed "+randSeed+". Exception: "+t);
@@ -544,6 +556,16 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				+ "still be applied for fault initiating event and any triggered events.");
 		indep.setRequired(false);
 		ops.addOption(indep);
+		
+		Option probModel = new Option("p", "prob-model", true, "U3-ETAS probabilidy model. Options: "
+				+Joiner.on(",").join(Lists.newArrayList(U3ETAS_ProbabilityModelOptions.values()))
+				+". Default: "+U3ETAS_ProbabilityModelParam.DEFAULT.name());
+		probModel.setRequired(false);
+		ops.addOption(probModel);
+		
+		Option imposeGROption = new Option("gr", "impose-gr", false, "Impose G-R.");
+		imposeGROption.setRequired(false);
+		ops.addOption(imposeGROption);
 		
 		return ops;
 	}
