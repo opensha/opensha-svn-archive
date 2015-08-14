@@ -677,9 +677,14 @@ public class ETAS_Simulator {
 
 		if(D && scenarioRup !=null) {	// scenario rupture included
 			int inputRupID = scenarioRup.getID();	// TODO already defined above?
+			ETAS_SimAnalysisTools.plotRateVsLogTimeForPrimaryAshocksOfRup(simulationName, new File(resultsDir,"logRateDecayForScenarioPrimaryAftershocks.pdf").getAbsolutePath(), simulatedRupsQueue, scenarioRup,
+					etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
+			ETAS_SimAnalysisTools.plotRateVsLogTimeForAllAshocksOfRup(simulationName, new File(resultsDir,"logRateDecayForScenarioAllAftershocks.pdf").getAbsolutePath(), simulatedRupsQueue, scenarioRup,
+					etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
+
 			ETAS_SimAnalysisTools.plotEpicenterMap(simulationName, new File(resultsDir,"hypoMap.pdf").getAbsolutePath(), obsEqkRuptureList.get(0), simulatedRupsQueue, griddedRegion.getBorder());
-			ETAS_SimAnalysisTools.plotDistDecayHistOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayForScenario.pdf").getAbsolutePath(), 
-					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), inputRupID);
+			ETAS_SimAnalysisTools.plotDistDecayDensityOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayDensityForScenario.pdf").getAbsolutePath(), 
+					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), scenarioRup);
 			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForScenario = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
 			if(generateDiagnostics == true)
 				obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
@@ -711,11 +716,9 @@ public class ETAS_Simulator {
 		}
 		
 		if(D) {
-			ETAS_SimAnalysisTools.plotDistDecayHistForAshocks(simulationName, new File(resultsDir,"distDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue, etasParams.get_q(), etasParams.get_d());
-			ETAS_SimAnalysisTools.plotNumVsLogTimeSinceParent(simulationName, new File(resultsDir,"logTimeDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
+			ETAS_SimAnalysisTools.plotRateVsLogTimeForPrimaryAshocks(simulationName, new File(resultsDir,"logRateDecayPDF_ForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
 					etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
-			ETAS_SimAnalysisTools.plotNumVsTimeSinceParent(simulationName, new File(resultsDir,"timeDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
-					etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
+			ETAS_SimAnalysisTools.plotDistDecayDensityFromParentTriggerLocHist(simulationName, new File(resultsDir,"distDecayForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue, etasParams.get_q(), etasParams.get_d());
 			ETAS_SimAnalysisTools.plotMagFreqDists(simulationName, resultsDir, simulatedRupsQueue);
 		}
 		
@@ -1262,10 +1265,19 @@ public class ETAS_Simulator {
 		
 		TestScenario scenario = TestScenario.MOJAVE_M7;
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(true);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);;		
+		params.setImposeGR(false);		
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		
+		String simulationName = scenario+"_"+params.getU3ETAS_ProbModel();
+		if(params.getImposeGR() == true)
+			simulationName += "_grCorr";
+		
+		simulationName += "_4";	// to increment runs
 
-		runTest(scenario, params, null, null, null);	// aveStrike=295.0367915096109
+//		Long seed = null;
+		Long seed = 1439486175712l;
+
+		runTest(scenario, params, seed, simulationName, null);	// aveStrike=295.0367915096109
 		
 		
 		

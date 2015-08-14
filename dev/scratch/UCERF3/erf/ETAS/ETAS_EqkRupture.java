@@ -85,6 +85,7 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	 */
 	public ETAS_EqkRupture(ETAS_EqkRupture parentRup, int id, long originTimeInMillis) {
 		this.parentRup=parentRup;
+		this.parentID = parentRup.getID();
 		this.id=id;
 		this.originTimeInMillis=originTimeInMillis;
 		
@@ -106,6 +107,8 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 	
 	
 	public void setParentID(int parID) {
+		if(parentRup != null && parentRup.getID() != parID)
+			throw new RuntimeException("Parent ID conflict");
 		parentID=parID;
 	}
 	

@@ -257,6 +257,37 @@ public class ETAS_Utils {
 		return logTargetDecay; 
 	}
 
+	/**
+	 * This returns a distance decay density function, where x-axis is log10-distance values, and the averaging over
+	 * each x-axis bin is done accurately.  "Density" means the bin values are divided by the bin width in linear space.
+	 * @param minLogDist - minimum  x-axis log10-distance (km) value
+	 * @param maxLogDist - maximum x-axis log10-distance (km) value
+	 * @param num - number of points
+	 * @param minDist - minimum distance in km
+	 * @param distDecay	- positive value (negative sign is added within this method)
+	 * @return
+	 */
+	public static EvenlyDiscretizedFunc getTargetDistDecayDensityFunc(double minLogDist, double maxLogDist, int num, double distDecay, double minDist) {
+		// make target distances decay histogram (this is what we will match_
+		EvenlyDiscretizedFunc logTargetDecay = new EvenlyDiscretizedFunc(minLogDist,maxLogDist,num);
+		logTargetDecay.setTolerance(logTargetDecay.getDelta());
+		double logBinHalfWidth = logTargetDecay.getDelta()/2;
+		double upperBinEdge = Math.pow(10,logTargetDecay.getX(0)+logBinHalfWidth);
+		double lowerBinEdge;
+		double binWt = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);	// everything within the upper edge of first bin
+		logTargetDecay.set(0,binWt);
+		for(int i=1;i<logTargetDecay.size();i++) {
+			double logLowerEdge = logTargetDecay.getX(i)-logBinHalfWidth;
+			lowerBinEdge = Math.pow(10,logLowerEdge);
+			double logUpperEdge = logTargetDecay.getX(i)+logBinHalfWidth;
+			upperBinEdge = Math.pow(10,logUpperEdge);
+			double wtLower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, lowerBinEdge);
+			double wtUpper = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);
+			binWt = wtUpper-wtLower;
+			logTargetDecay.set(i,binWt/(upperBinEdge-lowerBinEdge));
+		}
+		return logTargetDecay; 
+	}
 
 
 
@@ -486,6 +517,21 @@ public class ETAS_Utils {
 			func.set(i,yVal);
 		}
 		func.setName("Expected Number of Primary Aftershocks for log-day intervals of "+log_tDelta);
+		func.setInfo("for k="+k+", p="+p+", c="+c+", magMain="+magMain+", magMin="+magMin);
+		return func;
+	}
+
+	
+	public static HistogramFunction getRateWithLogTimeFunc(double k, double p, double magMain, double magMin, double c, double log_tMin, 
+			double log_tMax, double log_tDelta) {
+		HistogramFunction func = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
+		for(int i=0;i<func.size();i++) {
+			double binTmin = Math.pow(10, func.getX(i) - log_tDelta/2);
+			double binTmax = Math.pow(10, func.getX(i) + log_tDelta/2);
+			double expNum = getExpectedNumEvents(k, p, magMain, magMin, c, binTmin, binTmax);
+			func.set(i,expNum/(binTmax-binTmin));
+		}
+		func.setName("Expected Rate of Primary Aftershocks for log-day intervals of "+log_tDelta);
 		func.setInfo("for k="+k+", p="+p+", c="+c+", magMain="+magMain+", magMin="+magMin);
 		return func;
 	}

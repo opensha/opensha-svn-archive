@@ -48,6 +48,7 @@ import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
@@ -664,6 +665,9 @@ public class ETAS_SimAnalysisTools {
 			}
 		}
 	}
+	
+	
+	
 
 	
 	/**
@@ -675,37 +679,43 @@ public class ETAS_SimAnalysisTools {
 	 * @param distDecay - ETAS distance decay for expected curve
 	 * @param minDist - ETAS min distance for expected curve
 	 */
-	public static void plotDistDecayHistForAshocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+	public static void plotDistDecayDensityFromParentTriggerLocHist(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			double distDecay, double minDist) {
 		
 		double histLogMin=-2.0;;
 		double histLogMax = 4.0;
 		int histNum = 31;
-		EvenlyDiscretizedFunc expectedLogDistDecay = ETAS_Utils.getTargetDistDecayFunc(histLogMin, histLogMax, histNum, distDecay, minDist);
-		expectedLogDistDecay.setName("Expected Primary Dist Decay");
+		EvenlyDiscretizedFunc expectedLogDistDecay = ETAS_Utils.getTargetDistDecayDensityFunc(histLogMin, histLogMax, histNum, distDecay, minDist);
+		expectedLogDistDecay.setName("Expected Primary Dist Decay Density");
 		expectedLogDistDecay.setInfo("(distDecay="+distDecay+" and minDist="+minDist+")");
 
-		EvenlyDiscretizedFunc obsLogDistDecayHist = new EvenlyDiscretizedFunc(histLogMin, histLogMax, histNum);
-		obsLogDistDecayHist.setTolerance(obsLogDistDecayHist.getDelta());
-		obsLogDistDecayHist.setName("Observed Primary Dist Decay (relative to parent) for all aftershocks in "+info);
+		HistogramFunction obsLogDistDecayHist = new HistogramFunction(histLogMin, histLogMax, histNum);
+		obsLogDistDecayHist.setName("Observed Primary Dist Decay Density (relative to parent) for all aftershocks in "+info);
 		
 		double numFromPrimary = 0;
 		for (ETAS_EqkRupture event : simulatedRupsQueue) {
 			if(event.getGeneration()>0) {	// skip spontaneous events
 				double logDist = Math.log10(event.getDistanceToParent());
-				if(logDist<histLogMin) {
-					obsLogDistDecayHist.add(0, 1.0);
-				}
-				else if(logDist<histLogMax) {
+				if(logDist>=histLogMin && logDist<histLogMax) {
 					obsLogDistDecayHist.add(logDist, 1.0);
 				}
 				numFromPrimary += 1;	
 			}
 		}
+		
+		obsLogDistDecayHist.scale(1.0/numFromPrimary);
+		
+		// now convert to rate in each bin by dividing by the widths in linear space
+		for(int i=0;i<obsLogDistDecayHist.size();i++) {
+			double xLogVal = obsLogDistDecayHist.getX(i);
+			double binWidthLinear = Math.pow(10, xLogVal+obsLogDistDecayHist.getDelta()/2.0) - Math.pow(10, xLogVal-obsLogDistDecayHist.getDelta()/2.0);
+			obsLogDistDecayHist.set(i,obsLogDistDecayHist.getY(i)/binWidthLinear);
+		}
+
 				
 		
 		// normalize to PDF
-		obsLogDistDecayHist.scale(1.0/(double)numFromPrimary);
+//		obsLogDistDecayHist.scale(1.0/(double)numFromPrimary);
 		
 		// Set num in info fields
 		obsLogDistDecayHist.setInfo("(based on "+numFromPrimary+" aftershocks)");
@@ -714,14 +724,22 @@ public class ETAS_SimAnalysisTools {
 		distDecayFuncs.add(expectedLogDistDecay);
 		distDecayFuncs.add(obsLogDistDecayHist);
 
-		GraphWindow graph = new GraphWindow(distDecayFuncs, "Primary Distance Decay for all Aftershocks "+info); 
+		GraphWindow graph = new GraphWindow(distDecayFuncs, "Distance Decay Density for all Primary Aftershocks "+info); 
 		graph.setX_AxisLabel("Log10-Distance (km)");
-		graph.setY_AxisLabel("Fraction of Aftershocks");
+		graph.setY_AxisLabel("Log10 Aftershock Density (per km)");
 		graph.setX_AxisRange(histLogMin, histLogMax);
-		graph.setY_AxisRange(1e-6, 1);
-
 		graph.setX_AxisRange(-1.5, 3);
-		graph.setY_AxisRange(1e-4, 0.3);
+		
+//		graph.setY_AxisRange(1e-4, 0.3);
+		double minYaxisVal=0;
+		for(int i=obsLogDistDecayHist.size()-1;i>=0;i--) {
+			if(obsLogDistDecayHist.getY(i)>0) {
+				minYaxisVal=obsLogDistDecayHist.getY(i);
+				break;
+			}
+		}
+		graph.setY_AxisRange(minYaxisVal, graph.getY_AxisRange().getUpperBound());
+
 		
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
@@ -750,7 +768,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param distDecay - ETAS distance decay for expected curve
 	 * @param minDist - ETAS min distance for expected curve
 	 */
-	public static void plotDistDecayHistOfAshocksForRup(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+	public static void OLDplotDistDecayHistOfAshocksForRup(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			double distDecay, double minDist, int rupID) {
 		
 		double histLogMin=-2.0;;
@@ -814,15 +832,31 @@ public class ETAS_SimAnalysisTools {
 		graph.setX_AxisLabel("Log10-Distance (km)");
 		graph.setY_AxisLabel("Fraction of Aftershocks");
 		graph.setX_AxisRange(histLogMin, histLogMax);
-		graph.setY_AxisRange(1e-6, 1);
 
 		graph.setX_AxisRange(-1.5, 3);
-		graph.setY_AxisRange(1e-4, 0.3);
+//		graph.setY_AxisRange(1e-4, 0.3);
+		double minYaxisVal1=0;
+		for(int i=obsLogDistDecayHist.size()-1;i>=0;i--) {
+			if(obsLogDistDecayHist.getY(i)>0) {
+				minYaxisVal1=obsLogDistDecayHist.getY(i);
+				break;
+			}
+		}
+		double minYaxisVal2=0;
+		for(int i=obsLogDistDecayFromOldestAncestor.size()-1;i>=0;i--) {
+			if(obsLogDistDecayFromOldestAncestor.getY(i)>0) {
+				minYaxisVal2=obsLogDistDecayFromOldestAncestor.getY(i);
+				break;
+			}
+		}
+		double minYaxisVal = Math.min(minYaxisVal1, minYaxisVal2);
+		graph.setY_AxisRange(minYaxisVal, graph.getY_AxisRange().getUpperBound());
+
 		
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 3f, Color.RED));
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.GREEN));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
 		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
 		graph.setPlotLabelFontSize(18);
@@ -837,7 +871,214 @@ public class ETAS_SimAnalysisTools {
 	}
 
 	
+
+	/**
+	 * This computes a histogram of trigger distances (distance from the point on the main 
+	 * shock that did the triggering) in log10 space on the x-axis.  Histogram values are
+	 * normalized by the bin width in linear space, which is why this is called a density
+	 * (values will sum to 1.0 if they are multiplied by the linear bin widths).
+	 * 
+	 * This assumes that aftershockList is already filtered to the desired events (all are used)
+	 * 
+	 * @param aftershockList
+	 * @param firstLogDist - the left edge of the first bin
+	 * @param lastLogDist - the right edge of the last bin
+	 * @param deltaLogDist - x-axis discretization in log10 space
+	 * @return
+	 */
+	public static HistogramFunction getLogTriggerDistDecayDensityHist(List<ETAS_EqkRupture> aftershockList, double firstLogDist,
+			double lastLogDist, double deltaLogDist) {
+				
+		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
+		HistogramFunction lgoDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
+		
+		int numDist=0;
+		for (ETAS_EqkRupture event : aftershockList) {
+			double logDist = Math.log10(event.getDistanceToParent());
+			if(logDist>=firstLogDist && logDist<lastLogDist)
+				lgoDistDensityHist.add(logDist, 1.0);
+			numDist += 1;
+		}
+		lgoDistDensityHist.scale(1.0/numDist);
+
+		// now convert to rate in each bin by dividing by the widths in linear space
+		for(int i=0;i<lgoDistDensityHist.size();i++) {
+			double xLogVal = lgoDistDensityHist.getX(i);
+			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - Math.pow(10, xLogVal-deltaLogDist/2.0);
+			lgoDistDensityHist.set(i,lgoDistDensityHist.getY(i)/binWidthLinear);
+		}
+		return lgoDistDensityHist;
+	}
 	
+	
+	/**
+	 * This computes a histogram of distances from the surface of the given rupture (closest 
+	 * point on that surface rather than the point from which and aftershock was triggered)
+	 * in log10 space on the x-axis.  Histogram values are normalized by the bin width in 
+	 * linear space, which is why this is called a density (values will sum to 1.0 if they 
+	 * are multiplied by the linear bin widths).
+	 * 
+	 * This assumes that aftershockList is already filtered to the desired events (e.g., primary 
+	 * or all aftershocks of the given rupture).
+	 * 
+	 * @param aftershockList
+	 * @param rupture
+	 * @param firstLogDist
+	 * @param lastLogDist
+	 * @param deltaLogDist
+	 * @return
+	 */
+	public static HistogramFunction getLogDistDecayDensityFromRupSurfaceHist(List<ETAS_EqkRupture> aftershockList, ETAS_EqkRupture rupture, double firstLogDist,
+			double lastLogDist, double deltaLogDist) {
+				
+		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
+		HistogramFunction lgoDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
+		
+		int numDist=0;
+		for (ETAS_EqkRupture event : aftershockList) {
+			double logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), rupture.getRuptureSurface()));
+			if(logDist>=firstLogDist && logDist<lastLogDist)
+				lgoDistDensityHist.add(logDist, 1.0);
+			numDist += 1;
+		}
+		lgoDistDensityHist.scale(1.0/numDist);
+
+		// now convert to rate in each bin by dividing by the widths in linear space
+		for(int i=0;i<lgoDistDensityHist.size();i++) {
+			double xLogVal = lgoDistDensityHist.getX(i);
+			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - Math.pow(10, xLogVal-deltaLogDist/2.0);
+			lgoDistDensityHist.set(i,lgoDistDensityHist.getY(i)/binWidthLinear);
+		}
+		return lgoDistDensityHist;
+	}
+
+
+	
+	/**
+	 * This plots a PDF of the number of aftershocks versus log10-distance for descendants of the specified rupture.  Also plotted 
+	 * is the expected distance decay.
+	 * @param info - string describing data
+	 * @param pdf_FileName - full path name of PDF files to save to (leave null if not wanted)
+	 * @param simulatedRupsQueue - list of sampled events
+	 * @param distDecay - ETAS distance decay for expected curve
+	 * @param minDist - ETAS min distance for expected curve
+	 */
+	public static void plotDistDecayDensityOfAshocksForRup(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
+			double distDecay, double minDist, ETAS_EqkRupture rupture) {
+		
+		double histLogMin=-2.0;;
+		double histLogMax = 4.0;
+		int histNum = 30;
+		double histLogDelta = 0.2;
+		int rupID = rupture.getID();
+		
+		EvenlyDiscretizedFunc expectedLogDistDecay = ETAS_Utils.getTargetDistDecayDensityFunc(histLogMin, histLogMax, histNum, distDecay, minDist);
+		expectedLogDistDecay.setName("Expected Log-Dist Decay Density");
+		expectedLogDistDecay.setInfo("(distDecay="+distDecay+" and minDist="+minDist+")");
+		
+		List<ETAS_EqkRupture> primaryAshocksList = getPrimaryAftershocks(new ArrayList<ETAS_EqkRupture>(simulatedRupsQueue), rupture.getID());
+		HistogramFunction obsLogTriggerDistDecayForPrimayOnly = getLogTriggerDistDecayDensityHist(primaryAshocksList, histLogMin, histLogMax, histLogDelta);
+		obsLogTriggerDistDecayForPrimayOnly.setName("Observed Trigger Dist Decay Density for Primary Aftershocks of "+info);
+		
+		List<ETAS_EqkRupture> allAshocksList = getChildrenFromCatalog(new ArrayList<ETAS_EqkRupture>(simulatedRupsQueue), rupture.getID());
+		HistogramFunction obsLogDistDecayFromRupSurfaceAllAshocks = getLogDistDecayDensityFromRupSurfaceHist(allAshocksList, rupture, histLogMin, histLogMax, histLogDelta);
+		obsLogDistDecayFromRupSurfaceAllAshocks.setName("Observed Dist Decay Density from Surface for All Aftershocks of "+info);
+	
+		
+
+//		HistogramFunction obsLogTriggerDistDecayForPrimayOnly = new HistogramFunction(histLogMin, histLogMax, histNum);
+//		obsLogTriggerDistDecayForPrimayOnly.setName("Observed Trigger Dist Decay Density for Primary Aftershocks of "+info);
+//		
+//		// this is for distances from the specified main shock
+//		HistogramFunction obsLogDistDecayFromRupSurfaceAllAshocks = new HistogramFunction(histLogMin, histLogMax, histNum);
+//		obsLogDistDecayFromRupSurfaceAllAshocks.setName("Observed Dist Decay Density from Surface for All Aftershocks of "+info);
+//
+//		double numFromOrigSurface = 0;
+//		double numFromParent = 0;
+//		for (ETAS_EqkRupture event : simulatedRupsQueue) {
+//			if(event.getParentID() == rupID) {
+//				double logDist = Math.log10(event.getDistanceToParent());
+//				if(logDist>=histLogMin && logDist<histLogMax) {
+//					obsLogTriggerDistDecayForPrimayOnly.add(logDist, 1.0);
+//				}
+//				numFromParent +=1;
+//			}
+//			ETAS_EqkRupture oldestAncestor = event.getOldestAncestor();
+//			if(oldestAncestor != null && oldestAncestor.getID() == rupID) {
+//				// fill in distance from surface of rup
+//				double logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), oldestAncestor.getRuptureSurface()));
+//				if(logDist>=histLogMin && logDist<histLogMax) {
+//					obsLogDistDecayFromRupSurfaceAllAshocks.add(logDist, 1.0);
+//				}
+//				numFromOrigSurface +=1;
+//			}
+//		}
+//				
+//		
+//		// normalize to PDF
+//		obsLogTriggerDistDecayForPrimayOnly.scale(1.0/(double)numFromParent);
+//		obsLogDistDecayFromRupSurfaceAllAshocks.scale(1.0/(double)numFromOrigSurface);
+//		
+//		// now convert to rate in each bin by dividing by the widths in linear space
+//		for(int i=0;i<obsLogTriggerDistDecayForPrimayOnly.size();i++) {
+//			double xLogVal = obsLogTriggerDistDecayForPrimayOnly.getX(i);
+//			double binWidthLinear = Math.pow(10, xLogVal+obsLogTriggerDistDecayForPrimayOnly.getDelta()/2.0) - Math.pow(10, xLogVal-obsLogTriggerDistDecayForPrimayOnly.getDelta()/2.0);
+//			obsLogTriggerDistDecayForPrimayOnly.set(i,obsLogTriggerDistDecayForPrimayOnly.getY(i)/binWidthLinear);
+//			obsLogDistDecayFromRupSurfaceAllAshocks.set(i,obsLogDistDecayFromRupSurfaceAllAshocks.getY(i)/binWidthLinear);
+//		}
+//
+//		
+//		// Set num in info fields
+//		obsLogTriggerDistDecayForPrimayOnly.setInfo("(based on "+numFromParent+" aftershocks)");
+//		obsLogDistDecayFromRupSurfaceAllAshocks.setInfo("(based on "+numFromOrigSurface+" aftershocks)");
+
+		ArrayList<EvenlyDiscretizedFunc> distDecayFuncs = new ArrayList<EvenlyDiscretizedFunc>();
+		distDecayFuncs.add(expectedLogDistDecay);
+		distDecayFuncs.add(obsLogTriggerDistDecayForPrimayOnly);
+		distDecayFuncs.add(obsLogDistDecayFromRupSurfaceAllAshocks);			
+
+		GraphWindow graph = new GraphWindow(distDecayFuncs, "Aftershock Dist Decay Density for Scenario: "+info); 
+		graph.setX_AxisLabel("Log10-Distance (km)");
+		graph.setY_AxisLabel("Log10 Aftershock Density (per km)");
+		graph.setX_AxisRange(histLogMin, histLogMax);
+
+		graph.setX_AxisRange(-1.5, 3);
+//		graph.setY_AxisRange(1e-4, 0.3);
+		double minYaxisVal1=0;
+		for(int i=obsLogTriggerDistDecayForPrimayOnly.size()-1;i>=0;i--) {
+			if(obsLogTriggerDistDecayForPrimayOnly.getY(i)>0) {
+				minYaxisVal1=obsLogTriggerDistDecayForPrimayOnly.getY(i);
+				break;
+			}
+		}
+		double minYaxisVal2=0;
+		for(int i=obsLogDistDecayFromRupSurfaceAllAshocks.size()-1;i>=0;i--) {
+			if(obsLogDistDecayFromRupSurfaceAllAshocks.getY(i)>0) {
+				minYaxisVal2=obsLogDistDecayFromRupSurfaceAllAshocks.getY(i);
+				break;
+			}
+		}
+		double minYaxisVal = Math.min(minYaxisVal1, minYaxisVal2);
+		graph.setY_AxisRange(minYaxisVal, graph.getY_AxisRange().getUpperBound());
+
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
+		graph.setPlotChars(plotChars);
+		graph.setYLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	}
+
 	
 	/**
 	 * This plots the number of aftershocks versus log10-distance from the parent, 
@@ -1126,67 +1367,6 @@ public class ETAS_SimAnalysisTools {
 	}
 
 
-	/**
-	 * This plots a histogram of the number of ruptures versus time since parent for the simulated catalog,
-	 * and compares to the target function.
-	 * @param info
-	 * @param pdf_FileName
-	 * @param simulatedRupsQueue
-	 * @param etasProductivity_k
-	 * @param etasTemporalDecay_p
-	 * @param etasMinTime_c
-	 */
-	public static void plotNumVsTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
-			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
-		
-		double delta = 1.0; // days
-		double tMin=0;		//days
-		double tMax=500;	//days
-		
-		ETAS_Utils etasUtils = new ETAS_Utils();
-
-		// make the target function & change it to a PDF
-//		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithTimeFunc(7, tMin, tMax, delta);
-		EvenlyDiscretizedFunc targetFunc = etasUtils.getNumWithTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, tMin, tMax, delta);
-		targetFunc.setName("Expected Temporal Decay");
-		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
-		
-		int numPts = (int) Math.round(tMax-tMin);
-		HistogramFunction firstGenEventTimes= new HistogramFunction(tMin+delta/2d,numPts,delta);
-		for (ETAS_EqkRupture event : simulatedRupsQueue) {
-			if(event.getParentRup() != null) {
-				double timeDays = (event.getOriginTime()-event.getParentRup().getOriginTime())/ProbabilityModelsCalc.MILLISEC_PER_DAY;
-				if(timeDays<tMax+delta/2.0)
-					firstGenEventTimes.add(timeDays, 1.0);
-			}
-		}
-		firstGenEventTimes.setName("Observed Temporal Decay (relative to parent) for all events in "+info);
-		firstGenEventTimes.setInfo(" ");
-		firstGenEventTimes.normalizeBySumOfY_Vals();
-		
-		ArrayList funcs = new ArrayList();
-		funcs.add(firstGenEventTimes);
-		funcs.add(targetFunc);
-		
-		GraphWindow graph = new GraphWindow(funcs, "Temporal Decay (relative to parent)"); 
-		graph.setX_AxisLabel("Days (since main shock)");
-		graph.setY_AxisLabel("Num Events");
-		graph.setX_AxisRange(0.4, 360);
-		graph.setY_AxisRange(1e-5, graph.getY_AxisRange().getUpperBound());
-		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		graph.setPlotChars(plotChars);
-		graph.setYLog(true);
-		graph.setXLog(true);
-		if(pdf_FileName != null)
-			try {
-				graph.saveAsPDF(pdf_FileName);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	}
 
 
 	/**
@@ -1206,10 +1386,71 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 
+	public static HistogramFunction getPrimaryRateVsLogTimePDF_ForAllEvents(PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, double firstLogDay, double lastLogDay, double deltaLogDay) {
+				
+		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
+		HistogramFunction rateVsLogTimeHist = new HistogramFunction(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
+		
+		int numMissedBeforeFirstBin=0;
+		for (ETAS_EqkRupture event : simulatedRupsQueue) {
+			if(event.getParentRup()==null || event.getGeneration() != 1)
+				continue;
+			double timeMillis = event.getOriginTime()-event.getParentRup().getOriginTime();
+			double logTimeDays = Math.log10(timeMillis/ProbabilityModelsCalc.MILLISEC_PER_DAY);
+			if(logTimeDays<=firstLogDay) {	// avoid spike in first bin
+				numMissedBeforeFirstBin+=1;
+				continue;
+			}
+			if(logTimeDays<lastLogDay)
+				rateVsLogTimeHist.add(logTimeDays, 1.0);
+		}
+
+		// now convert to rate in each bin by dividing by the widths in linear space
+		for(int i=0;i<rateVsLogTimeHist.size();i++) {
+			double xLogVal = rateVsLogTimeHist.getX(i);
+			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDay/2.0) - Math.pow(10, xLogVal-deltaLogDay/2.0);
+			rateVsLogTimeHist.set(i,rateVsLogTimeHist.getY(i)/binWidthLinear);
+		}
+		// normalize to PDF
+		rateVsLogTimeHist.normalizeBySumOfY_Vals();
+		
+		rateVsLogTimeHist.setInfo("numMissedBeforeFirstBin="+numMissedBeforeFirstBin);
+		return rateVsLogTimeHist;
+	}
+
+	
+	
+	public static HistogramFunction getAftershockRateVsLogTimeHistForRup(List<ETAS_EqkRupture> aftershockList, int rupID, long rupOT_millis, double firstLogDay,
+			double lastLogDay, double deltaLogDay) {
+				
+		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
+		HistogramFunction rateVsLogTimeHist = new HistogramFunction(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
+		
+		int numMissedBeforeFirstBin=0;
+		for (ETAS_EqkRupture event : aftershockList) {
+			double timeMillis = event.getOriginTime()-rupOT_millis;
+			double logTimeDays = Math.log10(timeMillis/ProbabilityModelsCalc.MILLISEC_PER_DAY);
+			if(logTimeDays<=firstLogDay) {	// avoid spike in first bin
+				numMissedBeforeFirstBin+=1;
+				continue;
+			}
+			if(logTimeDays<lastLogDay)
+				rateVsLogTimeHist.add(logTimeDays, 1.0);
+		}
+
+		// now convert to rate in each bin by dividing by the widths in linear space
+		for(int i=0;i<rateVsLogTimeHist.size();i++) {
+			double xLogVal = rateVsLogTimeHist.getX(i);
+			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDay/2.0) - Math.pow(10, xLogVal-deltaLogDay/2.0);
+			rateVsLogTimeHist.set(i,rateVsLogTimeHist.getY(i)/binWidthLinear);
+		}
+		rateVsLogTimeHist.setInfo("numMissedBeforeFirstBin="+numMissedBeforeFirstBin);
+		return rateVsLogTimeHist;
+	}
+
 	
 	/**
-	 * This plots a histogram of number of events versus log10 time since parent for simulated ruptures, 
-	 * and compares with the target function.
+	 * This plots the primary aftershock rate decay for all primary events in the simulation (no matter who the parent is)
 	 * @param info
 	 * @param pdf_FileName
 	 * @param simulatedRupsQueue
@@ -1217,57 +1458,43 @@ public class ETAS_SimAnalysisTools {
 	 * @param etasTemporalDecay_p
 	 * @param etasMinTime_c
 	 */
-	public static void plotNumVsLogTimeSinceParent(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
+	public static void plotRateVsLogTimeForPrimaryAshocks(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, 
 			double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
 		
-		double firstLogDay = -4;
+		double firstLogDay = -5;
 		double lastLogDay = 5;
 		double deltaLogDay =0.2;
-		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
+//		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
 		
-		ETAS_Utils etasUtils = new ETAS_Utils();
-		
-		HistogramFunction firstGenEventTimes= new HistogramFunction(firstLogDay+deltaLogDay/2d,numPts,deltaLogDay);
-
-		double maxLogTimeDays = Double.NEGATIVE_INFINITY;
-		for (ETAS_EqkRupture event : simulatedRupsQueue) {
-			if(event.getParentRup() != null) {
-				double timeMillis = event.getOriginTime()-event.getParentRup().getOriginTime();
-				double logTimeDays = Math.log10(timeMillis/ProbabilityModelsCalc.MILLISEC_PER_DAY);
-				if(logTimeDays<=firstLogDay)	// avoid spike in first point
-					continue;
-				if(logTimeDays<lastLogDay)
-					firstGenEventTimes.add(logTimeDays, 1.0);
-				if(logTimeDays>maxLogTimeDays)
-					maxLogTimeDays = logTimeDays;
-			}
-		}
-		firstGenEventTimes.setName("Observed Temporal Decay PDF (relative to parent) for all events in "+info);
-		firstGenEventTimes.setInfo(" ");
-		firstGenEventTimes.normalizeBySumOfY_Vals();
-		
-
+		// get rate histogram
+		HistogramFunction rateVsLogTimePrimaryOnly = getPrimaryRateVsLogTimePDF_ForAllEvents(simulatedRupsQueue, firstLogDay, lastLogDay, deltaLogDay);
+		rateVsLogTimePrimaryOnly.setName("Aftershock Rate PDF for all primary events in the "+info+" simulation");
+//		rateVsLogTimePrimaryOnly.setInfo(" ");	// don't do this because there is info in here
+	
 		// make the target function & change it to a PDF
-//		EvenlyDiscretizedFunc targetFunc = etasUtils.getDefaultNumWithLogTimeFunc(7, firstLogDay, lastLocDay, deltaLogDay);	// any mangitude will do
-		maxLogTimeDays = Math.round(maxLogTimeDays*10.0)/10.0;	// round to the nearest 10th; assumes deltaLogDay =0.1
-		HistogramFunction targetFunc = etasUtils.getNumWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, maxLogTimeDays, deltaLogDay);
+		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
 		targetFunc.normalizeBySumOfY_Vals();
-		
-		targetFunc.scale(1.0/targetFunc.calcSumOfY_Vals());
-		targetFunc.setName("Expected Temporal Decay PDF");
+		targetFunc.setName("Expected Rate Decay PDF for all Primary Aftershocks");
 
 		
-		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs.add(firstGenEventTimes);
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(rateVsLogTimePrimaryOnly);
 		funcs.add(targetFunc);
 		
-		GraphWindow graph = new GraphWindow(funcs, "Temporal Decay (relative to parent)"); 
-		graph.setX_AxisLabel("Log-day");
-		graph.setY_AxisLabel("PDF");
+		GraphWindow graph = new GraphWindow(funcs, "Primary Aftershock Rate for all events"); 
+		graph.setX_AxisLabel("Log10 Days");
+		graph.setY_AxisLabel("Rate (per day)");
 		graph.setX_AxisRange(-4, 3);
-		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+		double minYaxisVal=0;
+		for(int i=rateVsLogTimePrimaryOnly.size()-1;i>=0;i--) {
+			if(rateVsLogTimePrimaryOnly.getY(i)>0) {
+				minYaxisVal=rateVsLogTimePrimaryOnly.getY(i);
+				break;
+			}
+		}
+		graph.setY_AxisRange(minYaxisVal, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		graph.setPlotChars(plotChars);
 		graph.setYLog(true);
@@ -1283,6 +1510,147 @@ public class ETAS_SimAnalysisTools {
 				e.printStackTrace();
 			}
 	}
+	
+	public static void plotRateVsLogTimeForPrimaryAshocksOfRup(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
+			ETAS_EqkRupture rup, double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
+		
+		double firstLogDay = -5;
+		double lastLogDay = 5;
+		double deltaLogDay =0.2;
+//		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
+		
+		List<ETAS_EqkRupture> aftershocksList = getPrimaryAftershocks(new ArrayList<ETAS_EqkRupture>(simulatedRupsQueue), rup.getID());
+		
+		// get rate histogram
+		HistogramFunction rateVsLogTimePrimaryOnly = getAftershockRateVsLogTimeHistForRup(aftershocksList, rup.getID(), 
+				rup.getOriginTime(), firstLogDay, lastLogDay, deltaLogDay);
+		rateVsLogTimePrimaryOnly.setName("Primary Aftershock Rate Histogram for "+info);
+//		rateVsLogTimePrimaryOnly.setInfo(" ");	// don't do this because there is info in here
+
+		// get inter-event rates data
+		double[] relativeEventTimesDays = new double[aftershocksList.size()];
+		for(int i=0;i<aftershocksList.size();i++) {
+			double days = ((double)(aftershocksList.get(i).getOriginTime()-rup.getOriginTime()))/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+			relativeEventTimesDays[i]=days;
+		}
+//		XY_DataSet interEventRatesXY_DataSet = DataUtils.nearestNeighborHist(relativeEventTimesDays, 0.0, 2);	// this does not provide x-values in log space
+		DefaultXY_DataSet interEventRatesXY_DataSet = new DefaultXY_DataSet();
+		for(int i=0;i<relativeEventTimesDays.length-1;i++) {
+			double xVal = Math.log10((relativeEventTimesDays[i]+relativeEventTimesDays[i+1])/2);
+			double yVal = 1.0/(relativeEventTimesDays[i+1]-relativeEventTimesDays[i]);
+			interEventRatesXY_DataSet.set(xVal,yVal);
+		}
+		
+		interEventRatesXY_DataSet.setName("Inter-event Rates for "+info);
+		interEventRatesXY_DataSet.setInfo(" ");
+
+	
+		// make the target function & change it to a PDF
+		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
+		targetFunc.setName("Expected Rate Decay for Primary Aftershocks");
+
+		
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(interEventRatesXY_DataSet);
+		funcs.add(rateVsLogTimePrimaryOnly);
+		funcs.add(targetFunc);
+		
+		GraphWindow graph = new GraphWindow(funcs, "Primary Aftershock Rate for"+info); 
+		graph.setX_AxisLabel("Log10 Days");
+		graph.setY_AxisLabel("Rate (per day)");
+		graph.setX_AxisRange(-4, 3);
+		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		graph.setPlotChars(plotChars);
+		graph.setYLog(true);
+//		graph.setXLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+
+	
+	public static void plotRateVsLogTimeForAllAshocksOfRup(String info, String pdf_FileName, PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue,
+			ETAS_EqkRupture rup, double etasProductivity_k, double etasTemporalDecay_p, double etasMinTime_c) {
+		
+		double firstLogDay = -5;
+		double lastLogDay = 5;
+		double deltaLogDay =0.2;
+//		int numPts = (int)Math.round((lastLogDay-firstLogDay)/deltaLogDay);
+		
+		List<ETAS_EqkRupture> aftershocksList = getChildrenFromCatalog(new ArrayList<ETAS_EqkRupture>(simulatedRupsQueue), rup.getID());
+		
+		// get rate histogram
+		HistogramFunction rateVsLogTimePrimaryOnly = getAftershockRateVsLogTimeHistForRup(aftershocksList, rup.getID(), 
+				rup.getOriginTime(), firstLogDay, lastLogDay, deltaLogDay);
+		rateVsLogTimePrimaryOnly.setName("All Aftershocks Rate Histogram for "+info);
+//		rateVsLogTimePrimaryOnly.setInfo(" ");	// don't do this because there is info in here
+
+		// get inter-event rates data
+		double[] relativeEventTimesDays = new double[aftershocksList.size()];
+		for(int i=0;i<aftershocksList.size();i++) {
+			double days = ((double)(aftershocksList.get(i).getOriginTime()-rup.getOriginTime()))/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+			relativeEventTimesDays[i]=days;
+		}
+//		XY_DataSet interEventRatesXY_DataSet = DataUtils.nearestNeighborHist(relativeEventTimesDays, 0.0, 2);	// this does not provide x-values in log space
+		DefaultXY_DataSet interEventRatesXY_DataSet = new DefaultXY_DataSet();
+		for(int i=0;i<relativeEventTimesDays.length-1;i++) {
+			double xVal = Math.log10((relativeEventTimesDays[i]+relativeEventTimesDays[i+1])/2);
+			double yVal = 1.0/(relativeEventTimesDays[i+1]-relativeEventTimesDays[i]);
+			interEventRatesXY_DataSet.set(xVal,yVal);
+		}
+		
+		interEventRatesXY_DataSet.setName("Inter-event Rates for "+info);
+		interEventRatesXY_DataSet.setInfo(" ");
+
+	
+		// make the target function & change it to a PDF
+		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
+		targetFunc.setName("Expected Rate Decay for All Aftershocks");
+
+		
+		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
+		funcs.add(interEventRatesXY_DataSet);
+		funcs.add(rateVsLogTimePrimaryOnly);
+		funcs.add(targetFunc);
+		
+		GraphWindow graph = new GraphWindow(funcs, "All Aftershocks Rate for "+info); 
+		graph.setX_AxisLabel("Log10 Days");
+		graph.setY_AxisLabel("Rate (per day)");
+		graph.setX_AxisRange(-4, 3);
+		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		graph.setPlotChars(plotChars);
+		graph.setYLog(true);
+//		graph.setXLog(true);
+		graph.setPlotLabelFontSize(18);
+		graph.setAxisLabelFontSize(16);
+		graph.setTickLabelFontSize(14);
+		if(pdf_FileName != null)
+			try {
+				graph.saveAsPDF(pdf_FileName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+	
+	
 
 	
 	/**
@@ -1671,6 +2039,23 @@ public class ETAS_SimAnalysisTools {
 		return ret;
 	}
 	
+	
+	/**
+	 * This will return a catalog that contains only ruptures that are primary aftershocks (first generation)
+	 * 
+	 * @param catalog
+	 * @return
+	 */
+	public static List<ETAS_EqkRupture> getPrimaryAftershocks(List<ETAS_EqkRupture> catalog) {
+		List<ETAS_EqkRupture> ret = Lists.newArrayList();
+		
+		for (ETAS_EqkRupture rup : catalog)
+			if (rup.getGeneration() == 1)
+				ret.add(rup);
+		
+		return ret;
+	}
+
 	/**
 	 * Generates a scatter plot of the number of aftershocks vs the maximum aftershock magnitude for a given
 	 * suite of ETAS simulated catalogs. If parentID is supplied, the catalogs will first be filtered to only
