@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -47,6 +48,8 @@ public class EtasMagDepZip {
 		
 		int count = 0;
 		
+		DecimalFormat df = new DecimalFormat("0.#");
+		
 		for (File dir : resultsDir.listFiles()) {
 			if (!dir.isDirectory())
 				continue;
@@ -72,7 +75,7 @@ public class EtasMagDepZip {
 				System.out.println("Skipping "+name+": "+e.getMessage());
 				continue;
 			}
-			File smallCat = new File(dir, "simulatedEvents_m5.txt");
+			File smallCat = new File(dir, "simulatedEvents_m"+df.format(minMag)+".txt");
 			ETAS_SimAnalysisTools.writeEventDataToFile(smallCat.getAbsolutePath(), catalog);
 			
 			addToZip(out, smallCat, prefix+"simulatedEvents.txt");

@@ -55,6 +55,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -928,7 +929,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param deltaLogDist
 	 * @return
 	 */
-	public static HistogramFunction getLogDistDecayDensityFromRupSurfaceHist(List<ETAS_EqkRupture> aftershockList, ETAS_EqkRupture rupture, double firstLogDist,
+	public static HistogramFunction getLogDistDecayDensityFromRupSurfaceHist(List<ETAS_EqkRupture> aftershockList, RuptureSurface surf, double firstLogDist,
 			double lastLogDist, double deltaLogDist) {
 				
 		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
@@ -936,7 +937,7 @@ public class ETAS_SimAnalysisTools {
 		
 		int numDist=0;
 		for (ETAS_EqkRupture event : aftershockList) {
-			double logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), rupture.getRuptureSurface()));
+			double logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), surf));
 			if(logDist>=firstLogDist && logDist<lastLogDist)
 				lgoDistDensityHist.add(logDist, 1.0);
 			numDist += 1;
@@ -981,7 +982,7 @@ public class ETAS_SimAnalysisTools {
 		obsLogTriggerDistDecayForPrimayOnly.setName("Observed Trigger Dist Decay Density for Primary Aftershocks of "+info);
 		
 		List<ETAS_EqkRupture> allAshocksList = getChildrenFromCatalog(new ArrayList<ETAS_EqkRupture>(simulatedRupsQueue), rupture.getID());
-		HistogramFunction obsLogDistDecayFromRupSurfaceAllAshocks = getLogDistDecayDensityFromRupSurfaceHist(allAshocksList, rupture, histLogMin, histLogMax, histLogDelta);
+		HistogramFunction obsLogDistDecayFromRupSurfaceAllAshocks = getLogDistDecayDensityFromRupSurfaceHist(allAshocksList, rupture.getRuptureSurface(), histLogMin, histLogMax, histLogDelta);
 		obsLogDistDecayFromRupSurfaceAllAshocks.setName("Observed Dist Decay Density from Surface for All Aftershocks of "+info);
 	
 		
@@ -1680,8 +1681,8 @@ public class ETAS_SimAnalysisTools {
 				+ "ID\tparID\tGen\tOrigTime\tdistToParent\tnthERFIndex\tFSS_ID\tGridNodeIndex\n");
 	}
 
-	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
-	private static final TimeZone utc = TimeZone.getTimeZone("UTC");
+	public static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
+	public static final TimeZone utc = TimeZone.getTimeZone("UTC");
 	static {
 		catDateFormat.setTimeZone(utc);
 	}

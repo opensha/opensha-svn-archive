@@ -87,7 +87,8 @@ public class DemoSiteSpecificMod extends AbstractAttenRelMod {
 			// convert to km
 			z1000 /= 1000d;
 		
-		if (D) System.out.println("Site params intercepted: vs30="+vs30+", vs30_Type="+vs30Type+", z2.5="+z2500+" z1.0="+z1000);
+		if (D) System.out.println("Site params intercepted: vs30="+vs30
+					+", vs30_Type="+vs30Type+", z2.5="+z2500+" z1.0="+z1000);
 	}
 
 	@Override
