@@ -219,7 +219,7 @@ public class ETAS_Simulator {
 		// set file for writing simulation info & write some preliminary stuff to it
 		FileWriter info_fr = new FileWriter(new File(resultsDir, "infoString.txt"));	// TODO this is closed below; why the warning?
 		FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents.txt"));
-		ETAS_SimAnalysisTools.writeEventHeaderToFile(simulatedEventsFileWriter);
+		ETAS_CatalogIO.writeEventHeaderToFile(simulatedEventsFileWriter);
 
 		info_fr.write(simulationName+"\n");
 		info_fr.write("\nrandomSeed="+etas_utils.getRandomSeed()+"\n");
@@ -537,7 +537,7 @@ public class ETAS_Simulator {
 			simulatedRupsQueue.add(rup);	// this storage does not take much memory during the simulations
 			numSimulatedEvents += 1;
 			
-			ETAS_SimAnalysisTools.writeEventToFile(simulatedEventsFileWriter, rup);
+			ETAS_CatalogIO.writeEventToFile(simulatedEventsFileWriter, rup);
 			
 			long rupOT = rup.getOriginTime();
 			

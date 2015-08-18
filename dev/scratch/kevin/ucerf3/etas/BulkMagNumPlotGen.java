@@ -17,6 +17,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -70,7 +71,7 @@ public class BulkMagNumPlotGen {
 				if (!MPJ_ETAS_Simulator.isAlreadyDone(subdir))
 					continue;
 				File catalogFile = new File(subdir, "simulatedEvents.txt");
-				catalogs.add(ETAS_SimAnalysisTools.loadCatalog(catalogFile));
+				catalogs.add(ETAS_CatalogIO.loadCatalog(catalogFile));
 			}
 			System.out.println("Loaded "+catalogs.size()+" catalogs");
 			

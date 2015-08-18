@@ -2,32 +2,276 @@ package scratch.UCERF3.erf.ETAS;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.FileNameComparator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 
 public class ETAS_CatalogIO {
+	
+	/*
+	 * ASCII I/O
+	 */
+	
+	public static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
+	public static final TimeZone utc = TimeZone.getTimeZone("UTC");
+	static {
+		catDateFormat.setTimeZone(utc);
+	}
+
+	/**
+	 * This writes simulated event data to a file.
+	 */
+	public static void writeEventDataToFile(String fileName, Collection<ETAS_EqkRupture> simulatedRupsQueue)
+			throws IOException {
+		FileWriter fw1 = new FileWriter(fileName);
+		ETAS_CatalogIO.writeEventHeaderToFile(fw1);
+		for(ETAS_EqkRupture rup:simulatedRupsQueue) {
+			ETAS_CatalogIO.writeEventToFile(fw1, rup);
+		}
+		fw1.close();
+	}
+
+	/**
+		 * This writes the header associated with the writeEventDataToFile(*) method
+		 * @param fileWriter
+		 * @throws IOException
+		 */
+		public static void writeEventHeaderToFile(FileWriter fileWriter) throws IOException {
+			// OLD FORMAT
+	//		fileWriter.write("# nthERFIndex\tID\tparID\tGen\tOrigTime\tdistToParent\tMag\tLat\tLon\tDep\tFSS_ID\tGridNodeIndex\n");
+			// NEW FORMAT: Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
+			// 				distToParent nthERF fssIndex gridNodeIndex
+			fileWriter.write("% Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\t"
+					+ "ID\tparID\tGen\tOrigTime\tdistToParent\tnthERFIndex\tFSS_ID\tGridNodeIndex\n");
+		}
+
+	/**
+		 * This writes the given rupture to the given fileWriter
+		 * @param fileWriter
+		 * @param rup
+		 * @throws IOException
+		 */
+		public static void writeEventToFile(FileWriter fileWriter, ETAS_EqkRupture rup) throws IOException {
+			Location hypoLoc = rup.getHypocenterLocation();
+			
+			// OLD FORMAT: nthERF id parentID gen origTime distToParent mag lat lon depth [fssIndex gridNodeIndex]
+	//		fileWriter.write(rup.getNthERF_Index()+"\t"+rup.getID()+"\t"+rup.getParentID()+"\t"+rup.getGeneration()+"\t"+
+	//					rup.getOriginTime()+"\t"+rup.getDistanceToParent()
+	//					+"\t"+rup.getMag()+"\t"+hypoLoc.getLatitude()+"\t"+hypoLoc.getLongitude()+"\t"+hypoLoc.getDepth()
+	//					+"\t"+rup.getFSSIndex()+"\t"+rup.getGridNodeIndex()+"\n");
+			
+			// NEW FORMAT: Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
+			// 				distToParent nthERF fssIndex gridNodeIndex
+			StringBuilder sb = new StringBuilder();
+			sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
+			sb.append(hypoLoc.getLatitude()).append("\t");
+			sb.append(hypoLoc.getLongitude()).append("\t");
+			sb.append(hypoLoc.getDepth()).append("\t");
+			sb.append(rup.getMag()).append("\t");
+			sb.append(rup.getID()).append("\t");
+			sb.append(rup.getParentID()).append("\t");
+			sb.append(rup.getGeneration()).append("\t");
+			sb.append(rup.getOriginTime()).append("\t");
+			sb.append(rup.getDistanceToParent()).append("\t");
+			sb.append(rup.getNthERF_Index()).append("\t");
+			sb.append(rup.getFSSIndex()).append("\t");
+			sb.append(rup.getGridNodeIndex()).append("\n");
+			fileWriter.write(sb.toString());
+		}
+
+	/**
+	 * This loads an ETAS rupture from a line of an ETAS catalog text file.
+	 * 
+	 * @param line
+	 * @return
+	 */
+	public static ETAS_EqkRupture loadRuptureFromFileLine(String line) {
+		line = line.trim();
+		
+		String[] split = line.split("\t");
+		Preconditions.checkState(split.length == 10 || split.length == 12 || split.length == 18,
+				"Line has unexpected number of items. Expected 10/12/18, got %s. Line: %s", split.length, line);
+		
+		int nthERFIndex, fssIndex, gridNodeIndex, id, parentID, gen;
+		long origTime;
+		double distToParent, mag, lat, lon, depth;
+		
+		if (split.length == 10 || split.length == 12) {
+			// old format
+			
+			// nthERF id parentID gen origTime distToParent mag lat lon depth [fssIndex gridNodeIndex]
+			
+			nthERFIndex = Integer.parseInt(split[0]);
+			id = Integer.parseInt(split[1]);
+			parentID = Integer.parseInt(split[2]);
+			gen = Integer.parseInt(split[3]);
+			origTime = Long.parseLong(split[4]);
+			distToParent = Double.parseDouble(split[5]);
+			mag = Double.parseDouble(split[6]);
+			lat = Double.parseDouble(split[7]);
+			lon = Double.parseDouble(split[8]);
+			depth = Double.parseDouble(split[9]);
+			
+			if (split.length == 12) {
+				// has FSS and grid node indexes
+				fssIndex = Integer.parseInt(split[10]);
+				gridNodeIndex = Integer.parseInt(split[11]);
+			} else {
+				fssIndex = -1;
+				gridNodeIndex = -1;
+			}
+		} else {
+			// new format
+			
+			// Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
+			// 			distToParent nthERF fssIndex gridNodeIndex
+			
+			// skip year/month/day/hour/min/sec, use epoch seconds
+			lat = Double.parseDouble(split[6]);
+			lon = Double.parseDouble(split[7]);
+			depth = Double.parseDouble(split[8]);
+			mag = Double.parseDouble(split[9]);
+			id = Integer.parseInt(split[10]);
+			parentID = Integer.parseInt(split[11]);
+			gen = Integer.parseInt(split[12]);
+			origTime = Long.parseLong(split[13]);
+			distToParent = Double.parseDouble(split[14]);
+			nthERFIndex = Integer.parseInt(split[15]);
+			fssIndex = Integer.parseInt(split[16]);
+			gridNodeIndex = Integer.parseInt(split[17]);
+		}
+		
+		
+		
+		Location loc = new Location(lat, lon, depth);
+		
+		ETAS_EqkRupture rup = new ETAS_EqkRupture();
+		
+		rup.setNthERF_Index(nthERFIndex);
+		rup.setID(id);
+		rup.setParentID(parentID);
+		rup.setGeneration(gen);
+		rup.setOriginTime(origTime);
+		rup.setDistanceToParent(distToParent);
+		rup.setMag(mag);
+		rup.setHypocenterLocation(loc);
+		rup.setFSSIndex(fssIndex);
+		rup.setGridNodeIndex(gridNodeIndex);
+		
+		return rup;
+	}
+
+	/**
+	 * Loads an ETAS catalog from the given text catalog file
+	 * 
+	 * @param catalogFile
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile) throws IOException {
+		return ETAS_CatalogIO.loadCatalog(catalogFile, -10d);
+	}
+
+	/**
+	 * Loads an ETAS catalog from the given text catalog file. Only ruptures with magnitudes greater than or equal
+	 * to minMag will be returned.
+	 * 
+	 * @param catalogFile
+	 * @param minMag
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile, double minMag) throws IOException {
+		String name = catalogFile.getName().toLowerCase();
+		if (name.endsWith(".bin") || name.endsWith(".gz"))
+			return loadCatalogBinary(catalogFile, minMag);
+		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
+		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
+			line = line.trim();
+			if (line.startsWith("%") || line.startsWith("#") || line.isEmpty())
+				continue;
+			ETAS_EqkRupture rup = loadRuptureFromFileLine(line);
+			if (rup.getMag() >= minMag)
+				catalog.add(rup);
+		}
+		return catalog;
+	}
+
+	/**
+	 * Loads an ETAS catalog from the given text catalog file input stream.
+	 * 
+	 * @param catalogStream
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream) throws IOException {
+		return ETAS_CatalogIO.loadCatalog(catalogStream, -10d);
+	}
+
+	/**
+	 * Loads an ETAS catalog from the given text catalog file input stream. Only ruptures with magnitudes greater
+	 * than or equal to minMag will be returned.
+	 * 
+	 * @param catalogStream
+	 * @param minMag
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream, double minMag) throws IOException {
+		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(catalogStream));
+		
+		for (String line : CharStreams.readLines(reader)) {
+			line = line.trim();
+			if (line.startsWith("%") || line.startsWith("#") || line.isEmpty())
+				continue;
+			ETAS_EqkRupture rup = loadRuptureFromFileLine(line);
+			if (rup.getMag() >= minMag)
+				catalog.add(rup);
+		}
+		return catalog;
+	}
+	
+	/*
+	 * Binary I/O
+	 */
 	
 	public static void writeCatalogBinary(File file, List<ETAS_EqkRupture> catalog) throws IOException {
 		Preconditions.checkNotNull(file, "File cannot be null!");
 		Preconditions.checkNotNull(catalog, "Catalog cannot be null!");
 
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file), buffer_len));
 
 		writeCatalogBinary(out, catalog);
 
@@ -39,7 +283,7 @@ public class ETAS_CatalogIO {
 		Preconditions.checkNotNull(catalogs, "Catalog cannot be null!");
 		Preconditions.checkArgument(!catalogs.isEmpty(), "Must supply at least one catalog");
 
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file), buffer_len));
 
 		// write number of catalogs as int
 		out.writeInt(catalogs.size());
@@ -50,7 +294,7 @@ public class ETAS_CatalogIO {
 		out.close();
 	}
 	
-	private static void writeCatalogBinary(DataOutputStream out, List<ETAS_EqkRupture> catalog) throws IOException {
+	public static void writeCatalogBinary(DataOutputStream out, List<ETAS_EqkRupture> catalog) throws IOException {
 		// write file version as short
 		out.writeShort(1);
 		
@@ -202,6 +446,45 @@ public class ETAS_CatalogIO {
 		return catalog;
 	}
 	
+	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile) throws ZipException, IOException {
+		return loadCatalogsZip(zipFile, -10);
+	}
+
+	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile, double minMag) throws ZipException, IOException {
+		ZipFile zip = new ZipFile(zipFile);
+		
+		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+		
+		for (ZipEntry entry : Collections.list(zip.entries())) {
+			if (!entry.isDirectory())
+				continue;
+//			System.out.println(entry.getName());
+			String subEntryName = entry.getName()+"simulatedEvents.txt";
+			ZipEntry catEntry = zip.getEntry(subEntryName);
+			if (catEntry == null)
+				continue;
+//			System.out.println("Loading "+catEntry.getName());
+			
+			try {
+				List<ETAS_EqkRupture> cat = loadCatalog(
+						zip.getInputStream(catEntry), minMag);
+				
+				catalogs.add(cat);
+			} catch (Exception e) {
+//				ExceptionUtils.throwAsRuntimeException(e);
+				System.out.println("Skipping catalog "+entry.getName()+": "+e.getMessage());
+			}
+			if (catalogs.size() % 1000 == 0)
+				System.out.println("Loaded "+catalogs.size()+" catalogs (and counting)...");
+		}
+		
+		zip.close();
+		
+		System.out.println("Loaded "+catalogs.size()+" catalogs");
+		
+		return catalogs;
+	}
+	
 	private static void assertEquals(ETAS_EqkRupture expected, ETAS_EqkRupture actual) {
 		Preconditions.checkState(expected.getID() == actual.getID());
 		Preconditions.checkState(expected.getParentID() == actual.getParentID());
@@ -217,8 +500,129 @@ public class ETAS_CatalogIO {
 		Preconditions.checkState(expected.getFSSIndex() == actual.getFSSIndex());
 		Preconditions.checkState(expected.getGridNodeIndex() == actual.getGridNodeIndex());
 	}
+	
+	public static void consolidateResultsDirBinary(File resultsDir, File outputFile, double minMag)
+			throws IOException {
+		File[] subDirs = resultsDir.listFiles();
+		Arrays.sort(subDirs, new FileNameComparator());
+		
+		List<File> eventsFiles = Lists.newArrayList();
+		
+		for (File subDir : subDirs) {
+			if (!subDir.isDirectory() || !subDir.getName().startsWith("sim_"))
+				continue;
+			
+			// first try to just copy over binary data
+			File binaryFile = new File(subDir, "simulatedEvents.bin");
+			if (binaryFile.exists()) {
+				eventsFiles.add(binaryFile);
+				continue;
+			}
+			File binaryGZipFile = new File(subDir, "simulatedEvents.bin.gz");
+			if (binaryGZipFile.exists()) {
+				eventsFiles.add(binaryGZipFile);
+				continue;
+			}
+			File asciiFile = new File(subDir, "simulatedEvents.txt");
+			if (asciiFile.exists()) {
+				eventsFiles.add(asciiFile);
+				continue;
+			}
+		}
+		
+		System.out.println("Detected "+eventsFiles.size()+" catalogs");
+		
+		Preconditions.checkState(!eventsFiles.isEmpty(), "No catalogs detected!");
+		
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile), buffer_len));
+
+		// write number of catalogs as int
+		out.writeInt(eventsFiles.size());
+		
+		for (File eventsFile : eventsFiles) {
+			String name = eventsFile.getName();
+			if (minMag < 0 && name.endsWith(".bin")) {
+				ByteStreams.copy(new BufferedInputStream(new FileInputStream(eventsFile), buffer_len), out);
+			} else if (minMag < 0 && name.endsWith(".bin.gz")) {
+				ByteStreams.copy(new GZIPInputStream(new FileInputStream(eventsFile), buffer_len), out);
+			} else {
+				writeCatalogBinary(out, loadCatalog(eventsFile, minMag));
+			}
+		}
+		
+		out.close();
+	}
+
+	public static void zipToBin(File zipFile, File binFile, double minMag)
+			throws ZipException, IOException {
+		ZipFile zip = new ZipFile(zipFile);
+		
+		List<ZipEntry> entries = Lists.newArrayList();
+		
+		for (ZipEntry entry : Collections.list(zip.entries())) {
+			if (!entry.isDirectory())
+				continue;
+//			System.out.println(entry.getName());
+			String subEntryName = entry.getName()+"simulatedEvents.txt";
+			ZipEntry catEntry = zip.getEntry(subEntryName);
+			if (catEntry == null)
+				continue;
+//			System.out.println("Loading "+catEntry.getName());
+			
+			entries.add(catEntry);
+		}
+		
+		Collections.sort(entries, new Comparator<ZipEntry>() {
+
+			@Override
+			public int compare(ZipEntry o1, ZipEntry o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		
+		System.out.println("Detected "+entries.size()+" catalogs");
+		
+		Preconditions.checkState(!entries.isEmpty(), "No catalogs detected!");
+		
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
+				new FileOutputStream(binFile), buffer_len));
+
+		// write number of catalogs as int
+		out.writeInt(entries.size());
+		
+		for (int i=0; i<entries.size(); i++) {
+			ZipEntry catEntry = entries.get(i);
+			List<ETAS_EqkRupture> cat = loadCatalog(
+					zip.getInputStream(catEntry), minMag);
+			writeCatalogBinary(out, cat);
+			
+			if ((i+1) % 1000 == 0)
+			System.out.println("Converted "+(i+1)+" catalogs (and counting)...");
+		}
+		
+		zip.close();
+		out.close();
+		
+		System.out.println("Converted "+entries.size()+" catalogs");
+	}
 
 	public static void main(String[] args) throws ZipException, IOException {
+		if (args.length == 2 || args.length == 3) {
+			// we're consolidating a results dir
+			File resultsDir = new File(args[0]);
+			File outputFile = new File(args[1]);
+			double minMag = -10;
+			if (args.length == 3)
+				minMag = Double.parseDouble(args[2]);
+			if (resultsDir.getName().endsWith(".zip"))
+				zipToBin(resultsDir, outputFile, minMag);
+			else
+				consolidateResultsDirBinary(resultsDir, outputFile, minMag);
+		}
+		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+				+ "2015_08_07-mojave_m7-full_td/results.zip");
+		File resultsBinFile = new File(resultsZipFile.getAbsolutePath().replaceAll("zip", "bin"));
+		zipToBin(resultsZipFile, resultsBinFile, -10);
 //		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2015_08_07-mojave_m7-poisson-grCorr/results_m4.zip");
 //		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"

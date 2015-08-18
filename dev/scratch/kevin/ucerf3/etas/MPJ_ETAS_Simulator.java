@@ -37,6 +37,7 @@ import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
@@ -65,6 +66,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private Map<Integer, List<LastEventData>> lastEventData;
 	private File inputDir;
 	private File outputDir;
+	private boolean binaryOutput = true;
 	
 	private double duration;
 	private Long ot;
@@ -341,6 +343,19 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			thread.join();
 	}
 	
+	private File getResultsDir(int index) {
+		File outputDir = new File(this.outputDir, "results");
+		if (!outputDir.exists())
+			outputDir.mkdir();
+		
+		String runName = ""+index;
+		int desiredLen = ((getNumTasks()-1)+"").length();
+		while (runName.length() < desiredLen)
+			runName = "0"+runName;
+		runName = "sim_"+runName;
+		return new File(outputDir, runName);
+	}
+	
 	private class CalcThread extends Thread {
 		
 		private File outputDir;
@@ -368,16 +383,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 					break;
 				System.gc();
 
-				File outputDir = new File(this.outputDir, "results");
-				if (!outputDir.exists())
-					outputDir.mkdir();
-
-				String runName = ""+index;
-				int desiredLen = ((getNumTasks()-1)+"").length();
-				while (runName.length() < desiredLen)
-					runName = "0"+runName;
-				runName = "sim_"+runName;
-				File resultsDir = new File(outputDir, runName);
+				File resultsDir = getResultsDir(index);
 
 				try {
 					if (isAlreadyDone(resultsDir)) {
@@ -417,7 +423,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 					throw ExceptionUtils.asRuntimeException(e);
 				}
 				if (randSeed > 0 && restartsMap.get(index) == null)
-					debug("Resuming old rand seed of "+randSeed+" for "+runName);
+					debug("Resuming old rand seed of "+randSeed+" for "+resultsDir.getName());
 				else
 					randSeed = System.currentTimeMillis();
 
@@ -431,6 +437,15 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 							includeIndirectTriggering, gridSeisDiscr, simulationName, randSeed,
 							fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, params);
 					debug("completed "+index);
+					if (binaryOutput) {
+						// convert to binary
+						File asciiFile = new File(resultsDir, "simulatedEvents.txt");
+						List<ETAS_EqkRupture> catalog = ETAS_CatalogIO.loadCatalog(asciiFile);
+						File binaryFile = new File(resultsDir, "simulatedEvents.bin");
+						ETAS_CatalogIO.writeCatalogBinary(binaryFile, catalog);
+						asciiFile.delete();
+						debug("completed binary output "+index);
+					}
 				} catch (Throwable t) {
 					debug("Calc failed with seed "+randSeed+". Exception: "+t);
 					t.printStackTrace();
@@ -454,7 +469,14 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				}
 			}
 		}
+	}
+	
+	private void consolidateBinary() throws IOException {
+		// write out single binary catalog
+		File outputFile = new File(this.outputDir, "results.bin");
+		File resultsDir = new File(this.outputDir, "results");
 		
+		ETAS_CatalogIO.consolidateResultsDirBinary(resultsDir, outputFile, -10d);
 	}
 	
 	/**
@@ -485,6 +507,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	public static boolean isAlreadyDone(File resultsDir) throws IOException {
 		File infoFile = new File(resultsDir, "infoString.txt");
 		File eventsFile = new File(resultsDir, "simulatedEvents.txt");
+		if (!eventsFile.exists())
+			eventsFile = new File(resultsDir, "simulatedEvents.bin");
+		if (!eventsFile.exists())
+			eventsFile = new File(resultsDir, "simulatedEvents.bin.gz");
 		if (!infoFile.exists() || !eventsFile.exists())
 			return false;
 		for (String line : Files.readLines(infoFile, Charset.defaultCharset())) {
@@ -595,6 +621,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			
 			MPJ_ETAS_Simulator driver = new MPJ_ETAS_Simulator(cmd, inputDir, outputDir);
 			driver.run();
+			
+			if (driver.rank == 0 && driver.binaryOutput)
+				driver.consolidateBinary();
 			
 			finalizeMPJ();
 			

@@ -61,6 +61,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
@@ -355,7 +356,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 				File catalogFile = new File(subDir, "simulatedEvents.txt");
 				Preconditions.checkState(catalogFile.exists());
 				
-				List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(catalogFile, 5d);
+				List<ETAS_EqkRupture> catalog = ETAS_CatalogIO.loadCatalog(catalogFile, 5d);
 				catalog = filterCatalog(catalog);
 				
 				catalogs.add(catalog);
@@ -416,7 +417,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 			
 			List<ETAS_EqkRupture> catalog;
 			try {
-				catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), 5d);
+				catalog = ETAS_CatalogIO.loadCatalog(zip.getInputStream(catEntry), 5d);
 			} catch (Exception e) {
 				continue;
 			}

@@ -49,6 +49,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -149,7 +150,7 @@ public class ETAS_CatalogEALCalculator {
 					continue;
 				File catalogFile = new File(dir, "simulatedEvents.txt");
 //				System.out.println("Loading from: "+catalogFile.getAbsolutePath());
-				List<ETAS_EqkRupture> catalog = ETAS_SimAnalysisTools.loadCatalog(catalogFile, minGriddedMag);
+				List<ETAS_EqkRupture> catalog = ETAS_CatalogIO.loadCatalog(catalogFile, minGriddedMag);
 				// actually catalogs can be empty, this just means no rups above the source min mag cutoff
 				if (catalog.isEmpty())
 					numEmpty++;
@@ -207,7 +208,7 @@ public class ETAS_CatalogEALCalculator {
 			
 			List<ETAS_EqkRupture> catalog;
 			try {
-				catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), minGriddedMag);
+				catalog = ETAS_CatalogIO.loadCatalog(zip.getInputStream(catEntry), minGriddedMag);
 			} catch (Exception e) {
 				continue;
 			}

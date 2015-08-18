@@ -13,8 +13,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.opensha.commons.util.FileUtils;
 
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
-import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -70,13 +70,13 @@ public class EtasMagDepZip {
 			// now sub catalog
 			List<ETAS_EqkRupture> catalog;
 			try {
-				catalog = ETAS_SimAnalysisTools.loadCatalog(new File(dir, "simulatedEvents.txt"), minMag);
+				catalog = ETAS_CatalogIO.loadCatalog(new File(dir, "simulatedEvents.txt"), minMag);
 			} catch (RuntimeException e) {
 				System.out.println("Skipping "+name+": "+e.getMessage());
 				continue;
 			}
 			File smallCat = new File(dir, "simulatedEvents_m"+df.format(minMag)+".txt");
-			ETAS_SimAnalysisTools.writeEventDataToFile(smallCat.getAbsolutePath(), catalog);
+			ETAS_CatalogIO.writeEventDataToFile(smallCat.getAbsolutePath(), catalog);
 			
 			addToZip(out, smallCat, prefix+"simulatedEvents.txt");
 			

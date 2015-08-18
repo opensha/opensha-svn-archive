@@ -3,13 +3,9 @@ package scratch.UCERF3.erf.ETAS;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
@@ -559,47 +555,6 @@ public class ETAS_MultiSimAnalysisTools {
 				false, false, title+" Trigger Rate");
 	}
 	
-	
-	
-	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile) throws ZipException, IOException {
-		return loadCatalogsZip(zipFile, -10);
-	}
-	
-	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile, double minMag) throws ZipException, IOException {
-		ZipFile zip = new ZipFile(zipFile);
-		
-		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
-		
-		for (ZipEntry entry : Collections.list(zip.entries())) {
-			if (!entry.isDirectory())
-				continue;
-//			System.out.println(entry.getName());
-			String subEntryName = entry.getName()+"simulatedEvents.txt";
-			ZipEntry catEntry = zip.getEntry(subEntryName);
-			if (catEntry == null)
-				continue;
-//			System.out.println("Loading "+catEntry.getName());
-			
-			try {
-				List<ETAS_EqkRupture> cat = ETAS_SimAnalysisTools.loadCatalog(
-						zip.getInputStream(catEntry), minMag);
-				
-				catalogs.add(cat);
-			} catch (Exception e) {
-//				ExceptionUtils.throwAsRuntimeException(e);
-				System.out.println("Skipping catalog "+entry.getName()+": "+e.getMessage());
-			}
-			if (catalogs.size() % 1000 == 0)
-				System.out.println("Loaded "+catalogs.size()+" catalogs (and counting)...");
-		}
-		
-		zip.close();
-		
-		System.out.println("Loaded "+catalogs.size()+" catalogs");
-		
-		return catalogs;
-	}
-
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
@@ -678,7 +633,7 @@ public class ETAS_MultiSimAnalysisTools {
 				outputDir.mkdir();
 			
 			// load the catalogs
-			List<List<ETAS_EqkRupture>> catalogs = loadCatalogsZip(resultsZipFile, minLoadMag);
+			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsZip(resultsZipFile, minLoadMag);
 			
 			List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
 			for (List<ETAS_EqkRupture> catalog : catalogs)

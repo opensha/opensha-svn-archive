@@ -12,6 +12,7 @@ import java.util.zip.ZipFile;
 
 import org.opensha.commons.util.FileUtils;
 
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 
@@ -103,7 +104,7 @@ public class ETASResultCombiner {
 				
 				List<ETAS_EqkRupture> catalog;
 				try {
-					catalog = ETAS_SimAnalysisTools.loadCatalog(zip.getInputStream(catEntry), minMag);
+					catalog = ETAS_CatalogIO.loadCatalog(zip.getInputStream(catEntry), minMag);
 				} catch (Exception e) {
 					continue;
 				}
@@ -146,7 +147,7 @@ public class ETASResultCombiner {
 			resultsDir.mkdir();
 			File catFile = new File(resultsDir, "simulatedEvents.txt");
 			File infoFile = new File(resultsDir, "infoString.txt");
-			ETAS_SimAnalysisTools.writeEventDataToFile(catFile.getAbsolutePath(), catalogs.get(i));
+			ETAS_CatalogIO.writeEventDataToFile(catFile.getAbsolutePath(), catalogs.get(i));
 			Files.write(infoStrings.get(i), infoFile, Charset.defaultCharset());
 			zipNames.add("/"+name+"/");
 			zipNames.add("/"+name+"/simulatedEvents.txt");

@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import org.opensha.commons.util.FileNameComparator;
 
-import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 
 import com.google.common.base.Preconditions;
 
@@ -40,7 +40,7 @@ public class FindIncomplete {
 				// try loading
 				String loadStr;
 				try {
-					ETAS_SimAnalysisTools.loadCatalog(new File(subDir, "simulatedEvents.txt"));
+					ETAS_CatalogIO.loadCatalog(new File(subDir, "simulatedEvents.txt"));
 					loadStr = "true";
 					failedButLoads++;
 				} catch (Exception e) {
