@@ -1,4 +1,4 @@
-package scratch.kevin.stewartSiteSpecific;
+package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import org.dom4j.Element;
 import org.opensha.commons.param.AbstractParameter;

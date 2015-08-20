@@ -43,7 +43,7 @@ public class ETAS_CatalogIO {
 	 * ASCII I/O
 	 */
 	
-	public static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
+	public static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss.SSS");
 	public static final TimeZone utc = TimeZone.getTimeZone("UTC");
 	static {
 		catDateFormat.setTimeZone(utc);
@@ -631,10 +631,15 @@ public class ETAS_CatalogIO {
 			else
 				consolidateResultsDirBinary(resultsDir, outputFile, minMag);
 		}
-		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2015_08_07-mojave_m7-full_td/results.zip");
-		File resultsBinFile = new File(resultsZipFile.getAbsolutePath().replaceAll("zip", "bin"));
-		zipToBin(resultsZipFile, resultsBinFile, -10);
+//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2015_08_07-mojave_m7-full_td/results.zip");
+//		File resultsBinFile = new File(resultsZipFile.getAbsolutePath().replaceAll("zip", "bin"));
+//		zipToBin(resultsZipFile, resultsBinFile, -10);
+		
+		File resultFile = new File("/tmp/asdf/results/sim_1/simulatedEvents.txt");
+		writeEventDataToFile(resultFile.getAbsolutePath(), loadCatalog(resultFile));
+		
+		
 //		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2015_08_07-mojave_m7-poisson-grCorr/results_m4.zip");
 //		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"

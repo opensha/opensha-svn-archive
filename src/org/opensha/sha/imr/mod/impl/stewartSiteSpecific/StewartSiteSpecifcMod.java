@@ -1,4 +1,6 @@
-package scratch.kevin.stewartSiteSpecific;
+package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
+
+import java.io.IOException;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
@@ -33,6 +35,7 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 		F3("f3"),
 		PHI_lnY("ϕ lnY"),
 		PHI_S2S("ϕ S2S"),
+		F("F"),
 		Ymax("Ymax");
 		
 		private String name;
@@ -57,7 +60,14 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 	private Parameter<Double> imt;
 	
 	public StewartSiteSpecifcMod() {
-		periodParams = new PeriodDependentParamSet<StewartSiteSpecifcMod.Params>(Params.values());
+		try {
+			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("./params.csv"));
+			System.out.println("Loaded default params:\n"+periodParams);
+		} catch (IOException e) {
+			System.err.println("Error loading default params:");
+			e.printStackTrace();
+			periodParams = new PeriodDependentParamSet<StewartSiteSpecifcMod.Params>(Params.values());
+		}
 		periodParamsParam = new PeriodDependentParamSetParam<Params>("Period Dependent Params", periodParams);
 		periodParamsParam.addParameterChangeListener(this);
 		
@@ -207,6 +217,10 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 	public void parameterChange(ParameterChangeEvent event) {
 		if (D) System.out.println("Period params change, clearing");
 		curParamValues = null;
+	}
+	
+	public static void main(String[] args) {
+		new StewartSiteSpecifcMod();
 	}
 
 }

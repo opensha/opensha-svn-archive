@@ -1,18 +1,22 @@
-package scratch.kevin.stewartSiteSpecific;
+package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.Interpolate;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 public class PeriodDependentParamSet<E extends Enum<E>> {
 	
@@ -212,35 +216,62 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 	public static <E extends Enum<E>> PeriodDependentParamSet<E> loadCSV(E[] params, File csvFile) throws IOException {
 		PeriodDependentParamSet<E> data = new PeriodDependentParamSet<E>(params);
 		
-		return loadCSV(data, csvFile);
+		data.loadCSV(csvFile);
+		
+		return data;
 	}
 	
-	public static <E extends Enum<E>> PeriodDependentParamSet<E> loadCSV(
-			PeriodDependentParamSet<E> data, File csvFile) throws IOException {
-		data.clear();
+	public static <E extends Enum<E>> PeriodDependentParamSet<E> loadCSV(E[] params, InputStream csvStream) throws IOException {
+		PeriodDependentParamSet<E> data = new PeriodDependentParamSet<E>(params);
 		
-		E[] params = data.params;
+		data.loadCSV(csvStream);
 		
-		CSVFile<String> csv = CSVFile.readFile(csvFile, true);
+		return data;
+	}
+	
+	/**
+	 * For verifying params
+	 * @param name
+	 * @return
+	 */
+	private static String nameStrip(String name) {
+		return name.trim().replaceAll(" ", "").replaceAll("_", "").toLowerCase();
+	}
+	
+	private static double csvValParse(String str) {
+		if (str.trim().toLowerCase().startsWith("na"))
+			return Double.NaN;
+		return Double.parseDouble(str);
+	}
+	
+	public void loadCSV(File csvFile) throws IOException {
+		loadCSV(CSVFile.readFile(csvFile, true));
+	}
+	
+	public void loadCSV(InputStream csvStream) throws IOException {
+		loadCSV(CSVFile.readStream(csvStream, true));
+	}
+	
+	public void loadCSV(CSVFile<String> csv) throws IOException {
 		Preconditions.checkState(csv.getNumCols() == params.length+1, "Param count mismatch");
 		
 		for (int i=0; i<params.length; i++) {
 			String paramName = params[i].name().trim();
 			String inputName = csv.get(0, i+1).trim();
-			Preconditions.checkState(paramName.equals(inputName),
+			Preconditions.checkState(nameStrip(paramName).equals(nameStrip(inputName)),
 					"Parameter mismatch at column %s. Expected: %s, Actual: %s", i, paramName, inputName);
 		}
+		
+		clear();
 		
 		for (int row=1; row<csv.getNumRows(); row++) {
 			List<String> line = csv.getLine(row);
 			double period = Double.parseDouble(line.get(0));
 			double[] values = new double[params.length];
 			for (int i=0; i<params.length; i++)
-				values[i] = Double.parseDouble(line.get(i+1));
-			data.set(period, values);
+				values[i] = csvValParse(line.get(i+1));
+			set(period, values);
 		}
-		
-		return data;
 	}
 	
 	public void writeCSV(File csvFile) throws IOException {
@@ -259,5 +290,16 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		}
 		
 		csv.writeToFile(csvFile);
+	}
+	
+	private static final Joiner j = Joiner.on("\t");
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(ClassUtils.getClassNameWithoutPackage(this.getClass())).append(":\n");
+		sb.append("\tPeriod\t").append(j.join(params)).append("\n");
+		for (int i=0; i<size(); i++)
+			sb.append("\t").append(getPeriod(i)).append("\t").append(j.join(Doubles.asList(getValues(i)))).append("\n");
+		return sb.toString();
 	}
 }

@@ -1,4 +1,4 @@
-package scratch.kevin.stewartSiteSpecific;
+package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -338,7 +338,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 			if (ret == JFileChooser.APPROVE_OPTION) {
 				File csvFile = chooser.getSelectedFile();
 				try {
-					PeriodDependentParamSet.loadCSV(getValue(), csvFile);
+					getValue().loadCSV(csvFile);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(widgetPanel, "Error reading CSV",
@@ -372,13 +372,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	public void tableChanged(TableModelEvent e) {
 		if (D) System.out.println("Table event...");
 //		setValue(tableModel.getFunction().deepClone());
-		if (D) {
-			Joiner j = Joiner.on(",");
-			PeriodDependentParamSet<E> val = getValue();
-			System.out.println("Data:\t"+j.join(val.getParams()));
-			for (int i=0; i<val.size(); i++)
-				System.out.println("\t"+val.getPeriod(i)+": "+j.join(Doubles.asList(val.getValues(i))));
-		}
+		if (D) System.out.println(getValue().toString());
 		Parameter<PeriodDependentParamSet<E>> param = getParameter();
 		PeriodDependentParamSet<E> val = getValue();
 		param.firePropertyChange(new ParameterChangeEvent(param, param.getName(), val, val));
