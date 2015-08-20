@@ -202,6 +202,13 @@ public class ETAS_CatalogIO {
 	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile) throws IOException {
 		return ETAS_CatalogIO.loadCatalog(catalogFile, -10d);
 	}
+	
+	private static boolean isBinary(File file) {
+		String name = file.getName().toLowerCase();
+		if (name.endsWith(".bin") || name.endsWith(".gz"))
+			return true;
+		return false;
+	}
 
 	/**
 	 * Loads an ETAS catalog from the given text catalog file. Only ruptures with magnitudes greater than or equal
@@ -213,9 +220,8 @@ public class ETAS_CatalogIO {
 	 * @throws IOException
 	 */
 	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile, double minMag) throws IOException {
-		String name = catalogFile.getName().toLowerCase();
-		if (name.endsWith(".bin") || name.endsWith(".gz"))
-			return loadCatalogBinary(catalogFile, minMag);
+		if (isBinary(catalogFile))
+			loadCatalogBinary(catalogFile, minMag);
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
 			line = line.trim();
@@ -364,7 +370,7 @@ public class ETAS_CatalogIO {
 		return loadCatalogsBinary(getIS(file), minMag);
 	}
 	
-	private static final int buffer_len = 65536;
+	private static final int buffer_len = 655360;
 	
 	private static InputStream getIS(File file) throws IOException {
 		Preconditions.checkNotNull(file, "File cannot be null!");
@@ -389,8 +395,12 @@ public class ETAS_CatalogIO {
 		
 		Preconditions.checkState(numCatalogs > 0, "Bad num catalogs: %s", numCatalogs);
 		
-		for (int i=0; i<numCatalogs; i++)
+		for (int i=0; i<numCatalogs; i++) {
 			catalogs.add(loadCatalogBinary(in, minMag));
+			if ((i+1) % 1000 == 0)
+				System.out.println("Loaded "+(i+1)+"/"+numCatalogs+" catalogs (and counting)...");
+		}
+		System.out.println("Loaded "+catalogs.size()+" catalogs");
 		
 		in.close();
 		
@@ -446,11 +456,13 @@ public class ETAS_CatalogIO {
 		return catalog;
 	}
 	
-	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile) throws ZipException, IOException {
-		return loadCatalogsZip(zipFile, -10);
+	public static List<List<ETAS_EqkRupture>> loadCatalogs(File zipFile) throws ZipException, IOException {
+		return loadCatalogs(zipFile, -10);
 	}
 
-	public static List<List<ETAS_EqkRupture>> loadCatalogsZip(File zipFile, double minMag) throws ZipException, IOException {
+	public static List<List<ETAS_EqkRupture>> loadCatalogs(File zipFile, double minMag) throws ZipException, IOException {
+		if (isBinary(zipFile))
+			return loadCatalogsBinary(zipFile, minMag);
 		ZipFile zip = new ZipFile(zipFile);
 		
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
@@ -597,7 +609,7 @@ public class ETAS_CatalogIO {
 			writeCatalogBinary(out, cat);
 			
 			if ((i+1) % 1000 == 0)
-			System.out.println("Converted "+(i+1)+" catalogs (and counting)...");
+				System.out.println("Converted "+(i+1)+" catalogs (and counting)...");
 		}
 		
 		zip.close();

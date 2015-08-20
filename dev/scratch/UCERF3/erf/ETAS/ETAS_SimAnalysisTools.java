@@ -49,6 +49,8 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.faultSurface.CompoundSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -927,10 +929,14 @@ public class ETAS_SimAnalysisTools {
 				
 		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
 		HistogramFunction lgoDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
+		double firstBinEndLog10 = lgoDistDensityHist.getX(0)+0.5*lgoDistDensityHist.getDelta();
+		// distance calculation will stop when it reaches a distance below this because
+		// we're already in the first histogram bin and further searching is unnecessary
+		double minDistCutoff = Math.pow(10, firstBinEndLog10);
 		
 		int numDist=0;
 		for (ETAS_EqkRupture event : aftershockList) {
-			double logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), surf));
+			double logDist = Math.log10(quickSurfDistUseCutoff(event.getHypocenterLocation(), surf, minDistCutoff));
 			if(logDist>=firstLogDist && logDist<lastLogDist)
 				lgoDistDensityHist.add(logDist, 1.0);
 			numDist += 1;
@@ -945,8 +951,108 @@ public class ETAS_SimAnalysisTools {
 		}
 		return lgoDistDensityHist;
 	}
+	
+	/**
+	 * Calculates surface distance to the given fault. If any distance is encountered below the
+	 * given cutoff, that distance is returned (in the first histogram bin so exact value doesn't
+	 * magger). If it's vertical, horizontal distance is calculated quickly for just the first
+	 * row of the surface then combined with actual minimum vertical distance for efficiency.
+	 * 
+	 * @param hypo
+	 * @param gridSurf
+	 * @param minDistCutoff
+	 * @return
+	 */
+	private static double quickSurfDistUseCutoff(Location hypo, RuptureSurface surf,
+			double minDistCutoff) {
+		if (surf instanceof CompoundSurface) {
+			double min = Double.POSITIVE_INFINITY;
+			for (RuptureSurface subSurf : ((CompoundSurface)surf).getSurfaceList()) {
+				min = Math.min(min, quickSurfDistUseCutoff(hypo, subSurf, minDistCutoff));
+				if (min < minDistCutoff)
+					return min;
+			}
+			return min;
+		}
+		Preconditions.checkState(surf instanceof EvenlyGriddedSurface,
+				"Surface must be either an EvenlyGriddedSurface or CompoundSurface comprised "
+				+ "of only EvenlyGriddedSurface's");
+		EvenlyGriddedSurface gridSurf = (EvenlyGriddedSurface)surf;
+		
+		double minDistance = Double.MAX_VALUE;
+		double horzDist, vertDist, totalDist;
+		
+		if (gridSurf.getAveDip() == 90d) {
+			// vertical strike slip, use horizontal trace dist
+			int closestCol = -1;
+			double minHorizDist = Double.POSITIVE_INFINITY;
+			for (int col=0; col<gridSurf.getNumCols(); col++) {
+				horzDist = LocationUtils.horzDistanceFast(hypo, gridSurf.get(0, col));
+				if (horzDist < minHorizDist) {
+					minHorizDist = horzDist;
+					closestCol = col;
+				}
+			}
+			double minVertDist = Double.POSITIVE_INFINITY;
+			for (int row=0; row<gridSurf.getNumRows(); row++)
+				minVertDist = Math.min(minVertDist,
+						Math.abs(LocationUtils.vertDistance(hypo, gridSurf.get(row, closestCol))));
+			return Math.sqrt(minHorizDist * minHorizDist + minVertDist * minVertDist);
+			
+//			int closestRow = -1;
+//			int actualClosest = -1;
+//			for (int row=0; row<gridSurf.getNumRows(); row++) {
+//				vertDist = LocationUtils.vertDistance(hypo, gridSurf.get(row, closestCol));
+//				if (vertDist < minVertDist) {
+//					minVertDist = vertDist;
+//					closestRow = row;
+//				}
+//				totalDist = LocationUtils.linearDistanceFast(hypo, gridSurf.get(row, closestCol));
+//				if (totalDist < minDistance) {
+//					actualClosest = row;
+//					minDistance = totalDist;
+//				}
+//			}
+//			if (actualClosest != closestRow) {
+//				Location actualLoc = gridSurf.get(actualClosest, closestCol);
+//				Location detectedLoc = gridSurf.get(closestRow, closestCol);
+//				System.out.println("Actual: "+actualClosest+", detected: "+closestRow);
+//				double actualHDist = LocationUtils.horzDistanceFast(hypo, actualLoc);
+//				System.out.println("Actual hDist: "+actualHDist+", detected: "+minHorizDist);
+//				double actualVdist = LocationUtils.vertDistance(hypo, actualLoc);
+//				double detectedCalcVdist = LocationUtils.vertDistance(hypo, detectedLoc);
+//				System.out.println("Actual vDist: "+actualVdist+", detected: "+minVertDist+", detected calc: "+detectedCalcVdist);
+//				System.out.println("Actual true dist: "+minDistance+", detected: "
+//						+LocationUtils.linearDistanceFast(hypo, detectedLoc));
+//				System.exit(0);
+//				
+//			}
+//			Preconditions.checkState(actualClosest == closestRow);
+//			return LocationUtils.linearDistanceFast(hypo, gridSurf.get(closestRow, closestCol));
+			
+//			for (int row=0; row<gridSurf.getNumRows(); row++)
+//				minDistance = Math.min(minDistance,
+//						LocationUtils.linearDistanceFast(hypo, gridSurf.get(row, closestCol)));
+//			return minDistance;
+		}
+		
+		// not vertical, must check entire surface within cutoff
+		
+		double minDistCutoffSq = minDistCutoff*minDistCutoff;
 
-
+		for (int col=0; col<gridSurf.getNumCols(); col++) {
+			for (int row=0; row<gridSurf.getNumRows(); row++) {
+				Location loc = gridSurf.get(row, col);
+				horzDist = LocationUtils.horzDistanceFast(hypo, loc);
+				vertDist = LocationUtils.vertDistance(hypo, loc);
+				totalDist = horzDist * horzDist + vertDist * vertDist;
+				if (totalDist < minDistance) minDistance = totalDist;
+				if (totalDist < minDistCutoffSq)
+					return Math.sqrt(totalDist);
+			}
+		}
+		return Math.sqrt(minDistance);
+	}
 	
 	/**
 	 * This plots a PDF of the number of aftershocks versus log10-distance for descendants of the specified rupture.  Also plotted 

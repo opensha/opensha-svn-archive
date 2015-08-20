@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
@@ -38,6 +39,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -584,7 +586,7 @@ public class ETAS_MultiSimAnalysisTools {
 //		scenarios.add(TestScenario.MOJAVE_M6);
 //		
 		names.add("Mojave M7 Full TD");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.zip"));
+		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
 		scenarios.add(TestScenario.MOJAVE_M7);
 		
 //		names.add("Mojave M7 Full TD, GR Corr.");
@@ -633,7 +635,14 @@ public class ETAS_MultiSimAnalysisTools {
 				outputDir.mkdir();
 			
 			// load the catalogs
-			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsZip(resultsZipFile, minLoadMag);
+			Stopwatch timer = Stopwatch.createStarted();
+			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogs(resultsZipFile, minLoadMag);
+			timer.stop();
+			long secs = timer.elapsed(TimeUnit.SECONDS);
+			if (secs > 60)
+				System.out.println("Catalog loading took "+(float)((double)secs/60d)+" minutes");
+			else
+				System.out.println("Catalog loading took "+secs+" seconds");
 			
 			List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
 			for (List<ETAS_EqkRupture> catalog : catalogs)
@@ -703,8 +712,16 @@ public class ETAS_MultiSimAnalysisTools {
 			// dist decay rup surf
 			if (scenario.getFSS_Index() >= 0) {
 				System.out.println("Plotting Surface Dist Decay");
+				Stopwatch watch = Stopwatch.createStarted();
 				plotDistDecay(primaryCatalogs, surf, outputDir, name+" Primary", "primary_dist_decay_surf");
+				double mins = (watch.elapsed(TimeUnit.SECONDS))/60d;
+				System.out.println("Primary surf dist decay took "+(float)mins+" mins");
+				watch.reset();
+				watch.start();
 				plotDistDecay(childrenCatalogs, surf, outputDir, name, "full_children_dist_decay_surf");
+				watch.stop();
+				mins = (watch.elapsed(TimeUnit.SECONDS))/60d;
+				System.out.println("Full surf dist decay took "+(float)mins+" mins");
 			}
 		}
 	}
