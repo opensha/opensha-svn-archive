@@ -80,6 +80,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
@@ -292,6 +293,8 @@ public class ETAS_Simulator {
 		double simDuration = erf.getTimeSpan().getDuration();
 		
 		if(D) System.out.println("Updating forecast in testETAS_Simulation");
+		// set to yearly probabilities for simulation forecast (in case input was not a 1-year forecast)
+		erf.getTimeSpan().setDuration(1.0);	// TODO make duration expected time to next supra seis event?
 		erf.updateForecast();	// do this to get annual rate over the entire forecast (used to sample spontaneous events)
 		if(D) System.out.println("Done updating forecast in testETAS_Simulation");
 		
@@ -301,17 +304,20 @@ public class ETAS_Simulator {
 		if(D) System.out.println("Computing origTotRate");
 		long st = System.currentTimeMillis();
 		double origTotRate=0;
-		for(ProbEqkSource src:erf) {
-			for(ProbEqkRupture rup:src) {
-				origTotRate += rup.getMeanAnnualRate(erf.getTimeSpan().getDuration());
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource src = erf.getSource(sourceID);
+			for (int rupID=0; rupID<src.getNumRuptures(); rupID++) {
+				ProbEqkRupture rup = src.getRupture(rupID);
+				double rupRate = rup.getMeanAnnualRate(erf.getTimeSpan().getDuration());
+				Preconditions.checkState(Doubles.isFinite(rupRate),
+						"Non fininte rup rate: %s, prob=%s, src=%s, rup=%s, mag=%s, ptSource=%s",
+						rupRate, rup.getProbability(), sourceID, rupID, rup.getMag(), rup.getRuptureSurface().isPointSurface());
+				origTotRate += rupRate;
 			}
 		}
 		if (D) System.out.println("\torigTotRate="+(float)origTotRate+"; that took (sec): "+(float)(System.currentTimeMillis()-st)/1000f);
 		info_fr.write("\nExpected mean annual rate over timeSpan (per year) = "+(float)origTotRate+"\n");
-		
-		// set to yearly probabilities for simulation forecast (in case input was not a 1-year forecast)
-		erf.getTimeSpan().setDuration(1.0);	// TODO make duration expected time to next supra seis event?
-		erf.updateForecast();
+		info_fr.flush();
 		
 		
 		if(D) System.out.println("Computing original spontaneousRupSampler & sourceRates[s]");
@@ -349,6 +355,7 @@ public class ETAS_Simulator {
 				inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
+		info_fr.flush();
 		
 		
 		// Make list of primary aftershocks for given list of obs quakes 
@@ -389,6 +396,7 @@ public class ETAS_Simulator {
 		}
 		if (D) System.out.println("The "+obsEqkRuptureList.size()+" input events produced "+eventsToProcess.size()+" primary aftershocks");
 		info_fr.write("\nThe "+obsEqkRuptureList.size()+" input observed events produced "+eventsToProcess.size()+" primary aftershocks\n");
+		info_fr.flush();
 
 		
 		// make the list of spontaneous events, filling in only event IDs and origin times for now
@@ -410,6 +418,7 @@ public class ETAS_Simulator {
 					"\n\texpectedNum="+expectedNum+"\n\tnumSampled="+numSpontEvents+"\n";
 			if(D) System.out.println(spEvStringInfo);
 			info_fr.write("\n"+spEvStringInfo);
+			info_fr.flush();
 		}
 
 		// If scenarioRup != null, generate  diagnostics if in debug mode!
@@ -436,6 +445,7 @@ public class ETAS_Simulator {
 				if (exit_after_scenario_diagnostics)
 					System.exit(0);
 			}
+			info_fr.flush();
 		}
 		
 		if(D) {
@@ -456,6 +466,7 @@ public class ETAS_Simulator {
 		if (D) System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")...\n");
 		if (D) System.out.println("\tFault system ruptures triggered (date\tmag\tname\tnthRup,src,rupInSrc,fltSysRup):");
 		info_fr.write("\nFault system ruptures triggered (date\tmag\tname\tnthRup,src,rupInSrc,fltSysRup):\n");
+		info_fr.flush();
 
 		st = System.currentTimeMillis();
 		
