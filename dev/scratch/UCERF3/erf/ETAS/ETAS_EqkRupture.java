@@ -75,6 +75,7 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 		this.setAveRake(probRup.getAveRake());
 		this.setOriginTime(probRup.getOriginTime());
 		this.setEventId(probRup.getEventId());
+		this.setHypocenterLocation(probRup.getHypocenterLocation());
 	}
 	
 	/**
