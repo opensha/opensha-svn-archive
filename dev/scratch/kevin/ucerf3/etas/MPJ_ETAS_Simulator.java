@@ -66,7 +66,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private Map<Integer, List<LastEventData>> lastEventData;
 	private File inputDir;
 	private File outputDir;
-	private boolean binaryOutput = true;
+	private boolean binaryOutput = false;
 	
 	private double duration;
 	private Long ot;
@@ -92,6 +92,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private U3ETAS_ProbabilityModelOptions probModel = U3ETAS_ProbabilityModelParam.DEFAULT;
 	private boolean imposeGR = false;
+	
+	private static final int START_YEAR_DEFAULT = 2014;
+	private int startYear;
 
 	public MPJ_ETAS_Simulator(CommandLine cmd, File inputDir, File outputDir) throws IOException, DocumentException {
 		super(cmd);
@@ -121,6 +124,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		if (cmd.hasOption("prob-model"))
 			probModel = U3ETAS_ProbabilityModelOptions.valueOf(cmd.getOptionValue("prob-model"));
 		
+		binaryOutput = cmd.hasOption("binary");
+		
 		File solFile = new File(cmd.getOptionValue("sol-file"));
 		Preconditions.checkArgument(solFile.exists(), "Solution file doesn't exist: "+solFile.getAbsolutePath());
 		sols = new FaultSystemSolution[getNumThreads()];
@@ -129,7 +134,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			sols[i] = FaultSystemIO.loadSol(solFile);
 		
 		// if we have a triggered event
-		ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		if (cmd.hasOption("start-year"))
+			startYear = Integer.parseInt(cmd.getOptionValue("start-year"));
+		if (rank == 0)
+			debug("Start year: "+startYear);
+		ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		
 		fssScenarioRupID = -1;
 		
@@ -139,12 +148,18 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			File catFile = new File(cmd.getOptionValue("trigger-catalog"));
 			Preconditions.checkArgument(catFile.exists(), "Catalog file doesn't exist: "+catFile.getAbsolutePath());
 			ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(catFile);
-			System.out.println("Loaded "+loadedRups.size()+" rups from catalog");
+			if (rank == 0)
+				debug("Loaded "+loadedRups.size()+" rups from catalog");
 			for (ObsEqkRupture rup : loadedRups) {
+				if (rup.getOriginTime() > ot)
+					// skip all ruptures that occur after simulation start
+					continue;
 				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
 				etasRup.setID(Integer.parseInt(rup.getEventId()));
 				histQkList.add(etasRup);
 			}
+			if (rank == 0)
+				debug("Seeding sim with "+histQkList.size()+" catalog ruptures");
 		}
 		
 		if (cmd.hasOption("trigger-rupture-id")) {
@@ -404,7 +419,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				}
 
 				debug("Instantiationg ERF");
-				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration);
+				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration, startYear);
 
 				if (fssScenarioRupID >= 0) {
 					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
@@ -487,6 +502,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	 * @return
 	 */
 	public static FaultSystemSolutionERF_ETAS buildERF(FaultSystemSolution sol, boolean timeIndep, double duration) {
+		return buildERF(sol, timeIndep, duration, START_YEAR_DEFAULT);
+	}
+	
+	public static FaultSystemSolutionERF_ETAS buildERF(FaultSystemSolution sol, boolean timeIndep, double duration,
+			int startYear) {
 		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(sol);
 		// set parameters
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
@@ -498,8 +518,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
 		if (!timeIndep)
-			erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
+			erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(startYear-1875d);
+		erf.getTimeSpan().setStartTimeInMillis(Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
 		erf.getTimeSpan().setDuration(duration);
 		return erf;
 	}
@@ -562,6 +582,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		triggerCat.setRequired(false);
 		ops.addOption(triggerCat);
 		
+		Option startYear = new Option("y", "start-year", true, "Start year for simulation (Default: "+START_YEAR_DEFAULT+")");
+		startYear.setRequired(false);
+		ops.addOption(startYear);
+		
 		Option numSims = new Option("n", "num", true, "Number of simulations");
 		numSims.setRequired(true);
 		ops.addOption(numSims);
@@ -592,6 +616,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option imposeGROption = new Option("gr", "impose-gr", false, "Impose G-R.");
 		imposeGROption.setRequired(false);
 		ops.addOption(imposeGROption);
+		
+		Option binaryOption = new Option("b", "binary", false, "Enables binary output. Default is ASCII.");
+		binaryOption.setRequired(false);
+		ops.addOption(binaryOption);
 		
 		return ops;
 	}

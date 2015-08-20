@@ -32,17 +32,30 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5};
+		TestScenario[] scenarios = { null };
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-		boolean[] grCorrs = { false, true };
+//		boolean[] grCorrs = { false, true };
+		boolean[] grCorrs = { false };
+		
+//		double duration = 1;
+//		int startYear = 2014;
+//		boolean histCatalog = false;
+		
+		double duration = 30;
+		int startYear = 2012;
+		boolean histCatalog = true;
 		
 		boolean timeIndep = false;
-		int numSims = 10000;
+		int numSims = 100;
+		
+		boolean binary = numSims > 1000;
 		
 		int memGigs;
 		int mins = 18*60;
-		int nodes = 40;
+//		int nodes = 40;
+		int nodes = 10;
 		int ppn;
 		if (stampede)
 			ppn = 16;
@@ -74,6 +87,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			pbsWrite = new USC_HPCC_ScriptWriter();
 			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
 		}
+		
+		File histCatalogFile = null;
+		if (histCatalog)
+			histCatalogFile = new File(remoteDir, "ofr2013-1165_EarthquakeCat.txt");
 		
 		mpjWrite.setAutoMemDetect(false);
 		
@@ -113,6 +130,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					String argz = "--min-dispatch 1 --max-dispatch "+threads+" --threads "+threads
 							+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
 					
+					argz += " --duration "+(float)duration+" --start-year "+startYear;
+					
 					argz += " --prob-model "+probModel.name();
 					
 					if (grCorr)
@@ -120,6 +139,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					
 					if (timeIndep)
 						argz += " --indep";
+					
+					if (binary)
+						argz += " --binary";
 					
 					if (scenario != null) {
 						if (scenario.getFSS_Index() >= 0)
@@ -131,6 +153,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						if (scenario.getMagnitude() > 0)
 							argz += " --trigger-mag "+(float)scenario.getMagnitude();
 					}
+					if (histCatalogFile != null)
+						argz += " --trigger-catalog "+histCatalogFile.getAbsolutePath();
 					
 					argz += " "+cacheDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
 					
