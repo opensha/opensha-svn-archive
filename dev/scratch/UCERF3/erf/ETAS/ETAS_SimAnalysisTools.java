@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -1085,54 +1086,25 @@ public class ETAS_SimAnalysisTools {
 		obsLogDistDecayFromRupSurfaceAllAshocks.setName("Observed Dist Decay Density from Surface for All Aftershocks of "+info);
 	
 		
+		// make nearest-neighbor data
+		double[] distArrayPrimary = new double[primaryAshocksList.size()];
+		for(int i=0;i<distArrayPrimary.length;i++)
+			distArrayPrimary[i] = primaryAshocksList.get(i).getDistanceToParent();
+		Arrays.sort(distArrayPrimary);
+		DefaultXY_DataSet nearestNeighborPrimaryData = new DefaultXY_DataSet();
+		for(int i=0;i<distArrayPrimary.length-1;i++) {
+			double xVal=Math.log10((distArrayPrimary[i+1]+distArrayPrimary[i])/2.0);
+			double yVal=1.0/(distArrayPrimary[i+1]-distArrayPrimary[i]);
+			nearestNeighborPrimaryData.set(xVal,yVal/distArrayPrimary.length);
+		}
+		nearestNeighborPrimaryData.setName("Nearest neighbor distance data for primary events");
+		nearestNeighborPrimaryData.setInfo("");
 
-//		HistogramFunction obsLogTriggerDistDecayForPrimayOnly = new HistogramFunction(histLogMin, histLogMax, histNum);
-//		obsLogTriggerDistDecayForPrimayOnly.setName("Observed Trigger Dist Decay Density for Primary Aftershocks of "+info);
-//		
-//		// this is for distances from the specified main shock
-//		HistogramFunction obsLogDistDecayFromRupSurfaceAllAshocks = new HistogramFunction(histLogMin, histLogMax, histNum);
-//		obsLogDistDecayFromRupSurfaceAllAshocks.setName("Observed Dist Decay Density from Surface for All Aftershocks of "+info);
-//
-//		double numFromOrigSurface = 0;
-//		double numFromParent = 0;
-//		for (ETAS_EqkRupture event : simulatedRupsQueue) {
-//			if(event.getParentID() == rupID) {
-//				double logDist = Math.log10(event.getDistanceToParent());
-//				if(logDist>=histLogMin && logDist<histLogMax) {
-//					obsLogTriggerDistDecayForPrimayOnly.add(logDist, 1.0);
-//				}
-//				numFromParent +=1;
-//			}
-//			ETAS_EqkRupture oldestAncestor = event.getOldestAncestor();
-//			if(oldestAncestor != null && oldestAncestor.getID() == rupID) {
-//				// fill in distance from surface of rup
-//				double logDist = Math.log10(LocationUtils.distanceToSurfFast(event.getHypocenterLocation(), oldestAncestor.getRuptureSurface()));
-//				if(logDist>=histLogMin && logDist<histLogMax) {
-//					obsLogDistDecayFromRupSurfaceAllAshocks.add(logDist, 1.0);
-//				}
-//				numFromOrigSurface +=1;
-//			}
-//		}
-//				
-//		
-//		// normalize to PDF
-//		obsLogTriggerDistDecayForPrimayOnly.scale(1.0/(double)numFromParent);
-//		obsLogDistDecayFromRupSurfaceAllAshocks.scale(1.0/(double)numFromOrigSurface);
-//		
-//		// now convert to rate in each bin by dividing by the widths in linear space
-//		for(int i=0;i<obsLogTriggerDistDecayForPrimayOnly.size();i++) {
-//			double xLogVal = obsLogTriggerDistDecayForPrimayOnly.getX(i);
-//			double binWidthLinear = Math.pow(10, xLogVal+obsLogTriggerDistDecayForPrimayOnly.getDelta()/2.0) - Math.pow(10, xLogVal-obsLogTriggerDistDecayForPrimayOnly.getDelta()/2.0);
-//			obsLogTriggerDistDecayForPrimayOnly.set(i,obsLogTriggerDistDecayForPrimayOnly.getY(i)/binWidthLinear);
-//			obsLogDistDecayFromRupSurfaceAllAshocks.set(i,obsLogDistDecayFromRupSurfaceAllAshocks.getY(i)/binWidthLinear);
-//		}
-//
-//		
-//		// Set num in info fields
-//		obsLogTriggerDistDecayForPrimayOnly.setInfo("(based on "+numFromParent+" aftershocks)");
-//		obsLogDistDecayFromRupSurfaceAllAshocks.setInfo("(based on "+numFromOrigSurface+" aftershocks)");
+//		DataUtils.nearestNeighborHist(data, origin, size);
 
-		ArrayList<EvenlyDiscretizedFunc> distDecayFuncs = new ArrayList<EvenlyDiscretizedFunc>();
+
+		ArrayList<XY_DataSet> distDecayFuncs = new ArrayList<XY_DataSet>();
+		distDecayFuncs.add(nearestNeighborPrimaryData);
 		distDecayFuncs.add(expectedLogDistDecay);
 		distDecayFuncs.add(obsLogTriggerDistDecayForPrimayOnly);
 		distDecayFuncs.add(obsLogDistDecayFromRupSurfaceAllAshocks);			
@@ -1163,6 +1135,7 @@ public class ETAS_SimAnalysisTools {
 
 		
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.GREEN));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));

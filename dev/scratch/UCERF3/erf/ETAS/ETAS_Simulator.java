@@ -873,13 +873,13 @@ public class ETAS_Simulator {
 	 * @param histQkList
 	 */
 	public static void runTest(TestScenario scenario, ETAS_ParameterList etasParams, Long randomSeed, 
-			String simulationName, ObsEqkRupList histQkList) {
+			String simulationName, ObsEqkRupList histQkList, double startTimeYear, double durationYears) {
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory at beginning of run");
 
 		Long st = System.currentTimeMillis();
 
-		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF();
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
 		
 		if(simulationName == null) {
 			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel();
@@ -949,7 +949,7 @@ public class ETAS_Simulator {
 	
 	
 	
-	public static ObsEqkRupList getHistCatalog() {
+	public static ObsEqkRupList getHistCatalog(double startTimeYear) {
 		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt");
 		ObsEqkRupList histQkList=null;
 		try {
@@ -963,9 +963,10 @@ public class ETAS_Simulator {
 //			func.add(qk.getHypocenterLocation().getDepth(), 1);
 //		}
 //		GraphWindow graph = new GraphWindow(func, "Hypocenter Depth Histogram");
+		double timeInMillis = (startTimeYear-1970)*ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+		return histQkList.getRupsBefore((long)timeInMillis);
 		
-		
-		return histQkList;
+//		return histQkList;
 	}
 	
 
@@ -981,7 +982,7 @@ public class ETAS_Simulator {
 
 
 	
-	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF() {
+	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF(double startTimeYear, double durationYears) {
 		
 		// means solution ERF
 		System.out.println("Starting ERF instantiation");
@@ -1002,10 +1003,10 @@ public class ETAS_Simulator {
 			if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
 				numSectsWithDateLast++;
 		System.out.println(numSectsWithDateLast+"/"+fss.getRupSet().getFaultSectionDataList().size()+" sects have date of last");
-		return getU3_ETAS_ERF(fss);
+		return getU3_ETAS_ERF(fss, startTimeYear, durationYears);
 	}
 	
-	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF(FaultSystemSolution fss) {
+	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF(FaultSystemSolution fss, double startTimeYear, double durationYears) {
 		Long st = System.currentTimeMillis();
 		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fss);
 		
@@ -1039,9 +1040,9 @@ public class ETAS_Simulator {
 		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1875d);	
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
-		erf.getTimeSpan().setDuration(1);
+		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(startTimeYear-1875d);	
+		erf.getTimeSpan().setStartTimeInMillis(Math.round((startTimeYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
+		erf.getTimeSpan().setDuration(durationYears);
 		
 		erf.updateForecast();
 		
@@ -1274,21 +1275,33 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+//		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);		
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
-		String simulationName = scenario+"_"+params.getU3ETAS_ProbModel();
+		String simulationName;
+		if(scenario == null)
+			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel();
+		else
+			simulationName = scenario+"_"+params.getU3ETAS_ProbModel();
+
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_4";	// to increment runs
+		simulationName += "_1";	// to increment runs
 
 //		Long seed = null;
 		Long seed = 1439486175712l;
+		
+		double startTimeYear=2012;
+		double durationYears=10;
+		
+//		ObsEqkRupList histCat = null;
+		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
 
-		runTest(scenario, params, seed, simulationName, null);	// aveStrike=295.0367915096109
+		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);	// aveStrike=295.0367915096109
 		
 		
 		

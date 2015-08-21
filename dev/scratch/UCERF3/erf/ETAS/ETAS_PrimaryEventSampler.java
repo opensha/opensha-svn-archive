@@ -4076,7 +4076,7 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
-		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
 
 		// this tests whether total subseismo MFD from grid source provider is the same as from the fault-sys solution
 //		FaultSysSolutionERF_Calc.testTotSubSeisMFD(erf);

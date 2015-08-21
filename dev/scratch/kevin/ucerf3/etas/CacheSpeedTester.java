@@ -47,7 +47,7 @@ public class CacheSpeedTester {
 //		FaultSystemSolution fss = FaultSystemIO.loadSol(solFile);
 //		FaultSystemSolutionERF_ETAS erf = MPJ_ETAS_Simulator.buildERF(fss, false, 1d);
 //		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(fss);
-		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF();
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
 		erf.updateForecast();
 		
 		int numRuns = 5;
