@@ -52,9 +52,9 @@ public class ETAS_CatalogIO {
 	/**
 	 * This writes simulated event data to a file.
 	 */
-	public static void writeEventDataToFile(String fileName, Collection<ETAS_EqkRupture> simulatedRupsQueue)
+	public static void writeEventDataToFile(File file, Collection<ETAS_EqkRupture> simulatedRupsQueue)
 			throws IOException {
-		FileWriter fw1 = new FileWriter(fileName);
+		FileWriter fw1 = new FileWriter(file);
 		ETAS_CatalogIO.writeEventHeaderToFile(fw1);
 		for(ETAS_EqkRupture rup:simulatedRupsQueue) {
 			ETAS_CatalogIO.writeEventToFile(fw1, rup);
@@ -94,7 +94,10 @@ public class ETAS_CatalogIO {
 			// NEW FORMAT: Year Month Day Hour Minute Sec Lat Long Depth Magnitude id parentID gen origTime
 			// 				distToParent nthERF fssIndex gridNodeIndex
 			StringBuilder sb = new StringBuilder();
-			sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
+			synchronized (ETAS_CatalogIO.class) {
+				// SimpleDateFormat is NOT synchronized and maintains an internal calendar
+				sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
+			}
 			sb.append(hypoLoc.getLatitude()).append("\t");
 			sb.append(hypoLoc.getLongitude()).append("\t");
 			sb.append(hypoLoc.getDepth()).append("\t");
@@ -637,7 +640,7 @@ public class ETAS_CatalogIO {
 //		zipToBin(resultsZipFile, resultsBinFile, -10);
 		
 		File resultFile = new File("/tmp/asdf/results/sim_1/simulatedEvents.txt");
-		writeEventDataToFile(resultFile.getAbsolutePath(), loadCatalog(resultFile));
+		writeEventDataToFile(resultFile, loadCatalog(resultFile));
 		
 		
 //		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"

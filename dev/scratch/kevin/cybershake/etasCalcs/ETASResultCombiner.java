@@ -147,7 +147,7 @@ public class ETASResultCombiner {
 			resultsDir.mkdir();
 			File catFile = new File(resultsDir, "simulatedEvents.txt");
 			File infoFile = new File(resultsDir, "infoString.txt");
-			ETAS_CatalogIO.writeEventDataToFile(catFile.getAbsolutePath(), catalogs.get(i));
+			ETAS_CatalogIO.writeEventDataToFile(catFile, catalogs.get(i));
 			Files.write(infoStrings.get(i), infoFile, Charset.defaultCharset());
 			zipNames.add("/"+name+"/");
 			zipNames.add("/"+name+"/simulatedEvents.txt");

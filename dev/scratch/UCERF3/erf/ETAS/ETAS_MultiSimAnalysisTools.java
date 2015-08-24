@@ -15,6 +15,7 @@ import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DataSetList;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -31,6 +32,7 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.DataUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.PointSurface;
@@ -481,6 +483,82 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
+	private static void plotNumEventsHistogram(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String prefix)
+			throws IOException {
+		MinMaxAveTracker track = new MinMaxAveTracker();
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			track.addValue(catalog.size());
+		
+		
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(track.getMin(), track.getMax(), 5000d);
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			hist.add((double)catalog.size(), 1d);
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(hist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "# Events Distribution", "# Events", "# Catalogs");
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		
+		gp.drawGraphPanel(spec, false, false);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
+	private static void plotTotalMomentHistogram(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String prefix)
+			throws IOException {
+		
+		double[] moments = new double[catalogs.size()];
+		
+		for (int i=0; i<catalogs.size(); i++)
+			for (ETAS_EqkRupture rup : catalogs.get(i))
+				moments[i] += MagUtils.magToMoment(rup.getMag());
+		
+		double[] log10Moments = new double[moments.length];
+		for (int i=0; i<moments.length; i++)
+			log10Moments[i] = Math.log10(moments[i]);
+		
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(
+				StatUtils.min(log10Moments), StatUtils.max(log10Moments), 0.05);
+		
+		for (double val : log10Moments)
+			hist.add(val, 1d);
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(hist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Moment Distribution", "Log10(Total Moment) (N-m)", "# Catalogs");
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		
+		gp.drawGraphPanel(spec, false, false);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
 	/**
 	 * Plot section participation and trigger (nucleation) rates for each fault subsection. All supraseismic events
 	 * will be included, so if only children or primary events are wanted then it should be filtered externally. 
@@ -561,6 +639,21 @@ public class ETAS_MultiSimAnalysisTools {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
+//		File resultDir = new File(mainDir, "2015_08_20-spontaneous-full_td");
+//		File myOutput = new File(resultDir, "output_stats");
+//		Preconditions.checkState(myOutput.exists() || myOutput.mkdir());
+//		List<List<ETAS_EqkRupture>> myCatalogs = ETAS_CatalogIO.loadCatalogs(new File(resultDir, "results.zip"));
+//		for (int i=0; i<myCatalogs.size(); i++) {
+//			long prevTime = Long.MIN_VALUE;
+//			for (ETAS_EqkRupture rup : myCatalogs.get(i)) {
+//				Preconditions.checkState(prevTime <= rup.getOriginTime());
+//				prevTime = rup.getOriginTime();
+//			}
+//		}
+//		plotNumEventsHistogram(myCatalogs, myOutput, "num_events_hist");
+//		plotTotalMomentHistogram(myCatalogs, myOutput, "moment_hist");
+//		System.exit(0);
+		
 		File fssFile = new File("dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 		FaultSystemSolution fss = FaultSystemIO.loadSol(fssFile);
@@ -572,22 +665,30 @@ public class ETAS_MultiSimAnalysisTools {
 //		names.add("Mojave M5 Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m5-full_td/results.zip"));
 //		scenarios.add(TestScenario.MOJAVE_M5);
-//		
+		
 //		names.add("Mojave M5 Full TD, GR Corr.");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m5-full_td-grCorr/results.zip"));
 //		scenarios.add(TestScenario.MOJAVE_M5);
-//		
+		
+		names.add("Mojave M5.5 Full TD");
+		resultsZipFiles.add(new File(mainDir, "2015_08_21-mojave_m5p5-full_td/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+		names.add("Mojave M5.5 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_08_21-mojave_m5p5-full_td-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
 //		names.add("Mojave M6 Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m6-full_td/results.zip"));
 //		scenarios.add(TestScenario.MOJAVE_M6);
-//		
+		
 //		names.add("Mojave M6 Full TD, GR Corr.");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m6-full_td-grCorr/results.zip"));
 //		scenarios.add(TestScenario.MOJAVE_M6);
-//		
-		names.add("Mojave M7 Full TD");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
+		
+//		names.add("Mojave M7 Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
 		
 //		names.add("Mojave M7 Full TD, GR Corr.");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.zip"));
@@ -629,7 +730,7 @@ public class ETAS_MultiSimAnalysisTools {
 			else
 				surf = fss.getRupSet().getSurfaceForRupupture(scenario.getFSS_Index(), 1d, false);
 			
-			File outputDir = new File(resultsZipFile.getParentFile(), "outputs_stats");
+			File outputDir = new File(resultsZipFile.getParentFile(), "output_stats");
 			
 			if (!outputDir.exists())
 				outputDir.mkdir();

@@ -32,30 +32,31 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5};
-		TestScenario[] scenarios = { null };
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5};
+//		TestScenario[] scenarios = { null };
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-//		boolean[] grCorrs = { false, true };
-		boolean[] grCorrs = { false };
+		boolean[] grCorrs = { false, true };
+//		boolean[] grCorrs = { true };
 		
-//		double duration = 1;
-//		int startYear = 2014;
-//		boolean histCatalog = false;
+		double duration = 1;
+		int startYear = 2014;
+		boolean histCatalog = false;
+		int numSims = 10000;
+		int nodes = 40;
 		
-		double duration = 30;
-		int startYear = 2012;
-		boolean histCatalog = true;
+//		double duration = 30;
+//		int startYear = 2012;
+//		boolean histCatalog = true;
+//		int numSims = 100;
+//		int nodes = 10;
 		
 		boolean timeIndep = false;
-		int numSims = 100;
 		
 		boolean binary = numSims > 1000;
 		
 		int memGigs;
 		int mins = 18*60;
-//		int nodes = 40;
-		int nodes = 10;
 		int ppn;
 		if (stampede)
 			ppn = 16;
@@ -103,6 +104,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 				scenarioName = "spontaneous";
 			else
 				scenarioName = scenario.name().toLowerCase();
+			if (duration > 1d) {
+				if (duration == Math.floor(duration))
+					scenarioName += "-"+(int)duration+"yr";
+				else
+					scenarioName += "-"+(float)duration+"yr";
+			}
 			for (U3ETAS_ProbabilityModelOptions probModel : probModels) {
 				for (boolean grCorr : grCorrs) {
 					String grStr;

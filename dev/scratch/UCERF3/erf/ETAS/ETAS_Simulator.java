@@ -1096,7 +1096,8 @@ public class ETAS_Simulator {
 		
 		MOJAVE_M7("MojaveM7", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
 		MOJAVE_M6("MojaveM6", new Location(34.42295,-117.80177,5.8), 6.0),	// original test for Kevin
-		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	// 
+		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	//
+		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	//
 		N_PALM_SPRINGS_1986("N Palm Springs M6.0", new Location(34.02,-116.76,10.0), 6.0),		// original provided by Kevin
 		MOJAVE_OLD("Mojave M7.05", 197792),		// original provided by Kevin
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);

@@ -76,7 +76,7 @@ public class EtasMagDepZip {
 				continue;
 			}
 			File smallCat = new File(dir, "simulatedEvents_m"+df.format(minMag)+".txt");
-			ETAS_CatalogIO.writeEventDataToFile(smallCat.getAbsolutePath(), catalog);
+			ETAS_CatalogIO.writeEventDataToFile(smallCat, catalog);
 			
 			addToZip(out, smallCat, prefix+"simulatedEvents.txt");
 			
