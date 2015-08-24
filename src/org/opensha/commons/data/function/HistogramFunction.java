@@ -197,6 +197,37 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		return stacked;
 	}
 	
+	/**
+	 * Creates a histogram that encompasses the given range with the given delta, with well placed
+	 * bin edges.
+	 * @param minValue
+	 * @param maxValue
+	 * @param delta
+	 * @return
+	 */
+	public static HistogramFunction getEncompassingHistogram(double minValue, double maxValue, double delta) {
+		Preconditions.checkState(minValue < maxValue);
+		double halfDelta = 0.5*delta;
+		double numBinsAwayFromZero = Math.floor(minValue / delta);
+		double minX = numBinsAwayFromZero * delta + halfDelta;
+		// handle edge cases
+		if (minValue < minX-halfDelta)
+			minValue -= delta;
+		else if (minValue > minX+halfDelta)
+			minValue += delta;
+		Preconditions.checkState(minValue <= minX + halfDelta && minValue >= minX - halfDelta);
+		
+		double maxDelta = maxValue - minX;
+		int numBins = (int)(maxDelta / delta + 0.5)+1;
+		double maxX = minX + (numBins-1)*delta;
+		Preconditions.checkState(maxValue <= maxX + halfDelta);
+		Preconditions.checkState(maxValue >= maxX - halfDelta);
+		
+		System.out.println("minX: "+minX+", maxX: "+maxX+", num: "+numBins);
+		
+		return new HistogramFunction(minX, numBins, delta);
+	}
+	
 //	// test of compute methods
 //	public static void main(String[] args) {
 //		// should not reference sha classes like the below code does
