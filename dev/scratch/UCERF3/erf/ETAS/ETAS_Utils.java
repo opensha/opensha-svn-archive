@@ -272,18 +272,14 @@ public class ETAS_Utils {
 		EvenlyDiscretizedFunc logTargetDecay = new EvenlyDiscretizedFunc(minLogDist,maxLogDist,num);
 		logTargetDecay.setTolerance(logTargetDecay.getDelta());
 		double logBinHalfWidth = logTargetDecay.getDelta()/2;
-		double upperBinEdge = Math.pow(10,logTargetDecay.getX(0)+logBinHalfWidth);
-		double lowerBinEdge;
-		double binWt = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);	// everything within the upper edge of first bin
-		logTargetDecay.set(0,binWt);
-		for(int i=1;i<logTargetDecay.size();i++) {
+		for(int i=0;i<logTargetDecay.size();i++) {
 			double logLowerEdge = logTargetDecay.getX(i)-logBinHalfWidth;
-			lowerBinEdge = Math.pow(10,logLowerEdge);
+			double lowerBinEdge = Math.pow(10,logLowerEdge);
 			double logUpperEdge = logTargetDecay.getX(i)+logBinHalfWidth;
-			upperBinEdge = Math.pow(10,logUpperEdge);
+			double upperBinEdge = Math.pow(10,logUpperEdge);
 			double wtLower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, lowerBinEdge);
 			double wtUpper = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);
-			binWt = wtUpper-wtLower;
+			double binWt = wtUpper-wtLower;
 			logTargetDecay.set(i,binWt/(upperBinEdge-lowerBinEdge));
 		}
 		return logTargetDecay; 
@@ -611,54 +607,58 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		
-		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
-		double mainMag = 6;
-		double numDays = 7;
-		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
-//		System.out.println(grDist);
-		System.out.println("Perfect GR:");
-		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
-		tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
-//		System.exit(0);	
-		
-		
-		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
-		GaussianMagFreqDist supraSeisDist = new GaussianMagFreqDist(6.35, 20, 0.1, 7.35, 0.5, 1.0, 2.0, 2);
-		supraSeisDist.scaleToCumRate(6.35, grDist.getCumRate(6.35)*20);	// this make it look pretty typical
-		
-		double grCorr = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
+		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
+		System.out.println(func);
+		GraphWindow magProbDistsGraph2 = new GraphWindow(func, "MFDs"); 
+		magProbDistsGraph2.setYLog(true);
 
-//		System.out.println("\nGR scale factor = "+grCorr);
-		
-		double charFactor=5.0;	// this has a criticality of about 1.0
-//		double charFactor=1.0;	// test perfect GR
-		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*charFactor);
-//		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate());
-				
-		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
-		totDist.addIncrementalMagFreqDist(subSeisDist);
-		totDist.addIncrementalMagFreqDist(supraSeisDist);
-		
-		double grCorrFinal = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
-		System.out.println("\nGR scale factor = "+grCorrFinal);
-		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
-		tempCriticality(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
-		
-		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
-		mfdList.add(subSeisDist);
-		mfdList.add(supraSeisDist);
-		mfdList.add(totDist);
-			// Plot these MFDs
-			GraphWindow magProbDistsGraph = new GraphWindow(mfdList, "MFDs"); 
-			magProbDistsGraph.setX_AxisLabel("Mag");
-			magProbDistsGraph.setY_AxisLabel("Number");
-//			magProbDistsGraph.setY_AxisRange(1e-5, 1e3);
-//			magProbDistsGraph.setX_AxisRange(2d, 9d);
-			magProbDistsGraph.setYLog(true);
-			magProbDistsGraph.setPlotLabelFontSize(18);
-			magProbDistsGraph.setAxisLabelFontSize(16);
-			magProbDistsGraph.setTickLabelFontSize(14);
+//		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
+//		double mainMag = 6;
+//		double numDays = 7;
+//		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+////		System.out.println(grDist);
+//		System.out.println("Perfect GR:");
+//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+//		tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+////		System.exit(0);	
+//		
+//		
+//		GutenbergRichterMagFreqDist subSeisDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 6.25, 38);
+//		GaussianMagFreqDist supraSeisDist = new GaussianMagFreqDist(6.35, 20, 0.1, 7.35, 0.5, 1.0, 2.0, 2);
+//		supraSeisDist.scaleToCumRate(6.35, grDist.getCumRate(6.35)*20);	// this make it look pretty typical
+//		
+//		double grCorr = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
+//
+////		System.out.println("\nGR scale factor = "+grCorr);
+//		
+//		double charFactor=5.0;	// this has a criticality of about 1.0
+////		double charFactor=1.0;	// test perfect GR
+//		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate()*grCorr*charFactor);
+////		supraSeisDist.scaleToCumRate(0, supraSeisDist.getTotalIncrRate());
+//				
+//		SummedMagFreqDist totDist = new SummedMagFreqDist(2.55, 8.25, 58);
+//		totDist.addIncrementalMagFreqDist(subSeisDist);
+//		totDist.addIncrementalMagFreqDist(supraSeisDist);
+//		
+//		double grCorrFinal = ETAS_Utils.getScalingFactorToImposeGR(supraSeisDist, subSeisDist, false);
+//		System.out.println("\nGR scale factor = "+grCorrFinal);
+//		listExpNumForEachGeneration(mainMag, totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+//		tempCriticality(totDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+//		
+//		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
+//		mfdList.add(subSeisDist);
+//		mfdList.add(supraSeisDist);
+//		mfdList.add(totDist);
+//			// Plot these MFDs
+//			GraphWindow magProbDistsGraph = new GraphWindow(mfdList, "MFDs"); 
+//			magProbDistsGraph.setX_AxisLabel("Mag");
+//			magProbDistsGraph.setY_AxisLabel("Number");
+////			magProbDistsGraph.setY_AxisRange(1e-5, 1e3);
+////			magProbDistsGraph.setX_AxisRange(2d, 9d);
+//			magProbDistsGraph.setYLog(true);
+//			magProbDistsGraph.setPlotLabelFontSize(18);
+//			magProbDistsGraph.setAxisLabelFontSize(16);
+//			magProbDistsGraph.setTickLabelFontSize(14);
 		
 
 		
