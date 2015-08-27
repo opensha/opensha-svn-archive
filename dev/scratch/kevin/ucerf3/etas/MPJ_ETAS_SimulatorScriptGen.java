@@ -32,31 +32,32 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5};
-//		TestScenario[] scenarios = { null };
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5};
+		TestScenario[] scenarios = { null };
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
 		boolean[] grCorrs = { false, true };
 //		boolean[] grCorrs = { true };
 		
-		double duration = 1;
-		int startYear = 2014;
-		boolean histCatalog = false;
-		int numSims = 10000;
-		int nodes = 40;
+//		double duration = 1;
+//		int startYear = 2014;
+//		boolean histCatalog = false;
+//		int numSims = 10000;
+//		int nodes = 40;
+//		int mins = 18*60;
 		
-//		double duration = 30;
-//		int startYear = 2012;
-//		boolean histCatalog = true;
-//		int numSims = 100;
-//		int nodes = 10;
+		double duration = 1000;
+		int startYear = 2012;
+		boolean histCatalog = true;
+		int numSims = 100;
+		int nodes = 50;
+		int mins = 24*60;
 		
 		boolean timeIndep = false;
 		
 		boolean binary = numSims > 1000;
 		
 		int memGigs;
-		int mins = 18*60;
 		int ppn;
 		if (stampede)
 			ppn = 16;
@@ -98,6 +99,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		List<File> classpath = new ArrayList<File>();
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		
+		boolean exactDispatch = numSims / nodes == threads;
+		
 		for (TestScenario scenario : scenarios) {
 			String scenarioName;
 			if (scenario == null)
@@ -134,7 +137,15 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					
 					File pbsFile = new File(localJobDir, jobName+".pbs");
 					
-					String argz = "--min-dispatch 1 --max-dispatch "+threads+" --threads "+threads
+					String argz;
+					
+					if (exactDispatch) {
+						argz = "--min-dispatch "+threads+" --max-dispatch "+threads+" --exact-dispatch "+threads;
+					} else {
+						argz = "--min-dispatch 1 --max-dispatch "+threads;
+					}
+					
+					argz += " --threads "+threads
 							+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
 					
 					argz += " --duration "+(float)duration+" --start-year "+startYear;

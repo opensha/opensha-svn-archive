@@ -930,10 +930,11 @@ public class ETAS_SimAnalysisTools {
 				
 		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
 		HistogramFunction lgoDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
-		double firstBinEndLog10 = lgoDistDensityHist.getX(0)+0.5*lgoDistDensityHist.getDelta();
-		// distance calculation will stop when it reaches a distance below this because
-		// we're already in the first histogram bin and further searching is unnecessary
-		double minDistCutoff = Math.pow(10, firstBinEndLog10);
+//		double firstBinEndLog10 = lgoDistDensityHist.getX(0)+0.5*lgoDistDensityHist.getDelta();
+//		// distance calculation will stop when it reaches a distance below this because
+//		// we're already in the first histogram bin and further searching is unnecessary
+//		double minDistCutoff = Math.pow(10, firstBinEndLog10);
+		double minDistCutoff = Double.NEGATIVE_INFINITY; //disable since things can be before first bin
 		
 		int numDist=0;
 		for (ETAS_EqkRupture event : aftershockList) {
@@ -1449,7 +1450,7 @@ public class ETAS_SimAnalysisTools {
 	 * @param maxGeneration
 	 * @return
 	 */
-	public static int[] getNumAftershocksForEachGeneration(PriorityQueue<ETAS_EqkRupture> simulatedRupsQueue, int maxGeneration) {
+	public static int[] getNumAftershocksForEachGeneration(Collection<ETAS_EqkRupture> simulatedRupsQueue, int maxGeneration) {
 		int[] numForGen = new int[maxGeneration+1];	// add 1 to include 0
 		for(ETAS_EqkRupture rup:simulatedRupsQueue) {
 			if(rup.getGeneration() < numForGen.length)
@@ -1905,6 +1906,13 @@ public class ETAS_SimAnalysisTools {
 				ret.add(rup);
 		
 		return ret;
+	}
+	
+	public static double getMaxMag(List<ETAS_EqkRupture> catalog) {
+		double maxMag = 0d;
+		for (ETAS_EqkRupture rup : catalog)
+			maxMag = Math.max(maxMag, rup.getMag());
+		return maxMag;
 	}
 
 	/**

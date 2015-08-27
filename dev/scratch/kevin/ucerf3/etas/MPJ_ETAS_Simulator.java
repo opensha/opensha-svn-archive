@@ -11,12 +11,15 @@ import java.util.Map;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -95,6 +98,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	private static final int START_YEAR_DEFAULT = 2014;
 	private int startYear;
+	
+	private boolean metadataOnly = false;
 
 	public MPJ_ETAS_Simulator(CommandLine cmd, File inputDir, File outputDir) throws IOException, DocumentException {
 		super(cmd);
@@ -226,6 +231,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			
 			simulationName = "Spontaneous events";
 		}
+		
+		metadataOnly = cmd.hasOption("metadata-only");
 	}
 
 	@Override
@@ -388,6 +395,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 		@Override
 		public void run() {
+			if (metadataOnly && rank > 0) {
+				queue.clear();
+				return;
+			}
 			while (!queue.isEmpty()) {
 				Integer index;
 				synchronized (queue) {
@@ -401,7 +412,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				File resultsDir = getResultsDir(index);
 
 				try {
-					if (isAlreadyDone(resultsDir)) {
+					if (!metadataOnly && isAlreadyDone(resultsDir)) {
 						debug(index+" is already done: "+resultsDir.getName());
 						continue;
 					}
@@ -445,6 +456,24 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				ETAS_ParameterList params = new ETAS_ParameterList();
 				params.setImposeGR(imposeGR);
 				params.setU3ETAS_ProbModel(probModel);
+				
+				if (rank == 0) {
+					synchronized (MPJ_ETAS_Simulator.class) {
+						File metadataFile = new File(outputDir, "metadata.xml");
+						if (!metadataFile.exists()) {
+							try {
+								writeMetadata(metadataFile, erf, params);
+							} catch (IOException e) {
+								System.err.println("WARNING: Failed to write metadata to "+metadataFile.getAbsolutePath());
+								e.printStackTrace();
+							}
+						}
+					}
+					if (metadataOnly) {
+						queue.clear();
+						return;
+					}
+				}
 
 				//				List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 				try {
@@ -492,6 +521,55 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		File resultsDir = new File(this.outputDir, "results");
 		
 		ETAS_CatalogIO.consolidateResultsDirBinary(resultsDir, outputFile, -10d);
+	}
+	
+	public static final String TRIGGER_RUP_EL_NAME = "TriggerRup";
+	public static final String HIST_CAT_EL_NAME = "HistCatalog";
+	public static final String OTHER_PARAMS_EL_NAME = "MiscParams";
+	
+	private void writeMetadata(File metadataFile, FaultSystemSolutionERF_ETAS erf, ETAS_ParameterList params)
+			throws IOException {
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Element root = doc.getRootElement();
+		
+//		ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
+//		includeIndirectTriggering, gridSeisDiscr, simulationName, randSeed,
+//		fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, params);
+
+		Element otherParamsEl = root.addElement(OTHER_PARAMS_EL_NAME);
+		otherParamsEl.addAttribute("includeSpontEvents", includeSpontEvents+"");
+		otherParamsEl.addAttribute("includeIndirectTriggering", includeIndirectTriggering+"");
+		otherParamsEl.addAttribute("gridSeisDiscr", gridSeisDiscr+"");
+		otherParamsEl.addAttribute("numSimulations", numSims+"");
+		otherParamsEl.addAttribute("duration", duration+"");
+		otherParamsEl.addAttribute("ot", ot+"");
+		otherParamsEl.addAttribute("binaryOutput", binaryOutput+"");
+		
+		// write out ERF
+		erf.toXMLMetadata(root);
+		
+		// write out ETAS params
+		params.toXMLMetadata(root);
+		
+		// write region
+		griddedRegion.toXMLMetadata(root);
+		
+		// write trigger rupture
+		if (triggerRup != null) {
+			Element triggerEl = root.addElement(TRIGGER_RUP_EL_NAME);
+			triggerEl.addCDATA(ETAS_CatalogIO.getEventFileLine(triggerRup));
+		}
+		
+		if (histQkList != null) {
+			StringBuilder sb = new StringBuilder();
+			for (ETAS_EqkRupture rup : histQkList)
+				sb.append(ETAS_CatalogIO.getEventFileLine(rup)).append("\n");
+			Element catEl = root.addElement(HIST_CAT_EL_NAME);
+			catEl.addCDATA(sb.toString());
+		}
+		
+		debug("Writing metadata to "+metadataFile.getAbsolutePath());
+		XMLUtils.writeDocumentToFile(metadataFile, doc);
 	}
 	
 	/**
@@ -620,6 +698,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option binaryOption = new Option("b", "binary", false, "Enables binary output. Default is ASCII.");
 		binaryOption.setRequired(false);
 		ops.addOption(binaryOption);
+		
+		Option metadataOnly = new Option("md", "metadata-only", false, "Write XML metadata file and exit.");
+		metadataOnly.setRequired(false);
+		ops.addOption(metadataOnly);
 		
 		return ops;
 	}

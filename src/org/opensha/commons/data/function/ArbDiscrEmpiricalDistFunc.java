@@ -27,6 +27,8 @@ import java.util.Iterator;
 import org.opensha.commons.data.Point2DToleranceComparator;
 import org.opensha.commons.exceptions.InvalidRangeException;
 
+import com.google.common.base.Preconditions;
+
 
 
 /**
@@ -245,12 +247,14 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     public double getMostCentralMode() {
      	double maxY = getMaxY();
     	// now create list of X-axis values where Y=Ymax
-    	ArrayList xVals = new ArrayList();
+    	ArrayList<Double> xVals = new ArrayList<Double>();
     	for(int i=0; i<size(); ++i)  {
-    		if(getY(i)==maxY) xVals.add(new Double(getX(i)));
+    		if (getY(i) == maxY)
+    			xVals.add(getX(i));
     	}
+    	Preconditions.checkState(!xVals.isEmpty());
     	int index = xVals.size()/2;
-    	return getX(index);
+    	return xVals.get(index);
     }
     
     

@@ -1,15 +1,24 @@
 package scratch.UCERF3.erf.ETAS.ETAS_Params;
 
+import java.util.Iterator;
+
+import org.dom4j.Element;
+import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+
+import com.google.common.base.Preconditions;
 
 /**
  * This holds a complete list of ETAS parameters
  * @author field
  *
  */
-public class ETAS_ParameterList extends ParameterList {
+public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	
 	private static final long serialVersionUID = 1L;
+	
+	public static final String XML_METADATA_NAME = "ETAS_ParameterList";
 
 	ETAS_ProductivityParam_k kParam = new ETAS_ProductivityParam_k();
 	ETAS_FractionSpontaneousParam fractSpontParam = new ETAS_FractionSpontaneousParam();
@@ -55,6 +64,31 @@ public class ETAS_ParameterList extends ParameterList {
 	 */
 	public static void main(String[] args) {
 
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		for (Parameter<?> param : this)
+			param.toXMLMetadata(el);
+		return root;
+	}
+	
+	public static ETAS_ParameterList fromXMLMetadata(Element paramsEl) {
+		ETAS_ParameterList params = new ETAS_ParameterList();
+		
+		Iterator<Element> it = paramsEl.elementIterator();
+		while (it.hasNext()) {
+			Element el = it.next();
+			String name = el.attributeValue("name");
+			Parameter<?> param = params.getParameter(name);
+			Preconditions.checkNotNull(param);
+			boolean success = param.setValueFromXMLMetadata(el);
+			if (!success)
+				System.err.println("WARNING: Couldn't set "+name+" from metadata file");
+		}
+		
+		return params;
 	}
 
 }

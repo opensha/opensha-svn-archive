@@ -1149,6 +1149,10 @@ public class ETAS_Simulator {
 		
 		public double getMagnitude() {return mag;}
 		
+		public void updateMag(double mag) {
+			this.mag = mag;
+		}
+		
 		public void relocatePtAwayFromFault(FaultSystemRupSet rupSet, double distAway) {
 			// find closest subsection
 			FaultSectionPrefData closest = null;

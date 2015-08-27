@@ -14,6 +14,8 @@ import scratch.UCERF3.erf.FaultSystemSolutionERF;
  *
  */
 public class FaultSystemSolutionERF_ETAS extends FaultSystemSolutionERF {
+	
+	protected final static int START_TIME_MAX = FaultSystemSolutionERF.START_TIME_MAX+(int)DURATION_MAX;
 
 	public FaultSystemSolutionERF_ETAS(FaultSystemSolution faultSysSolution) {
 		super(faultSysSolution);
