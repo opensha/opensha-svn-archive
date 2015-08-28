@@ -947,7 +947,6 @@ public class ETAS_SimAnalysisTools {
 			else if(logDist<lastLogDist)
 				lgoDistDensityHist.add(logDist, 1.0/numDist);
 		}
-		lgoDistDensityHist.scale(1.0/numDist);
 
 		// now convert to rate in each bin by dividing by the widths in linear space
 		for(int i=0;i<lgoDistDensityHist.size();i++) {
