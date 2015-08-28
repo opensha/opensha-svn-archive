@@ -904,7 +904,7 @@ public class ETAS_SimAnalysisTools {
 		for(int i=0;i<logDistDensityHist.size();i++) {
 			double xLogVal = logDistDensityHist.getX(i);
 			double lowerValueLinear=0;
-			if(i != 1)
+			if(i != 0)
 				lowerValueLinear = Math.pow(10, xLogVal-deltaLogDist/2.0);
 			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - lowerValueLinear;
 			logDistDensityHist.set(i,logDistDensityHist.getY(i)/binWidthLinear);
@@ -953,7 +953,7 @@ public class ETAS_SimAnalysisTools {
 		for(int i=0;i<lgoDistDensityHist.size();i++) {
 			double xLogVal = lgoDistDensityHist.getX(i);
 			double lowerValueLinear=0;
-			if(i != 1)
+			if(i != 0)
 				lowerValueLinear = Math.pow(10, xLogVal-deltaLogDist/2.0);
 			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - lowerValueLinear;
 			lgoDistDensityHist.set(i,lgoDistDensityHist.getY(i)/binWidthLinear);
