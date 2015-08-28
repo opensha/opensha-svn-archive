@@ -3,10 +3,13 @@ package scratch.UCERF3.erf.ETAS;
 import java.awt.Color;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.GraphWindow;
@@ -517,35 +520,33 @@ public class ETAS_LocationWeightCalculator {
 			}
 		}
 		
+		double histLogMinDistKm = -1.3;	// this avoids showing numerical issues at distances closer than ~50 km
+		double histLogMaxDistKm = this.histLogMaxDistKm;
+		int histNum = Math.round((float)((histLogMaxDistKm-histLogMinDistKm)/histLogDeltaDistKm)) +1;
+		
 		// create histograms
 		HistogramFunction testLogHistogram = new HistogramFunction(histLogMinDistKm,histLogMaxDistKm,histNum);
-		HistogramFunction testHistogram = new HistogramFunction(0.5 , 1009.5, 1010);
+//		HistogramFunction testHistogram = new HistogramFunction(0.5 , 1009.5, 1010);
 		HistogramFunction depthDistHistogram = new HistogramFunction(1d, 12, 2d);
 		
-		// make target histogram
-		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(0.5 , 999.5, 1000);
-		double halfDelta=targetHist.getDelta()/2;
-		for(int i=0;i<targetHist.size();i++) {
-			double upper = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)+halfDelta);
-			double lower = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)-halfDelta);
-			targetHist.set(i,upper-lower);
-		}
 		
 		DefaultXY_DataSet epicenterLocs = new DefaultXY_DataSet();
+		double[] distArray = new double[numSamples];
+
 
 		for(int i=0;i<numSamples;i++) {
 			int sampIndex = sampler.getRandomInt(etas_utils.getRandomDouble());
 			double relLat = getLat(iLatArray[sampIndex]);
 			double relLon = getLon(iLonArray[sampIndex]);
 			double depth = getDepth(iDepArray[sampIndex]);
-			double relDep = Math.abs(depth-parDepth);
 			Location deltaLoc=getRandomDeltaLoc(relLat, relLon, depth, parDepth);
 //			deltaLoc = new Location(0d,0d,0d);
 			double dist = getDistance(relLat+deltaLoc.getLatitude(), relLon+deltaLoc.getLongitude(), depth+deltaLoc.getDepth()-parDepth);
+			distArray[i]=dist;
 			epicenterLocs.set((relLat+deltaLoc.getLatitude())*111., (relLon+deltaLoc.getLongitude())*111.*cosMidLat);
 			depthDistHistogram.add(depth+deltaLoc.getDepth(),1.0/numSamples);
 			if(dist<this.maxDistKm) {
-				testHistogram.add(dist, 1.0/numSamples);
+//				testHistogram.add(dist, 1.0/numSamples);
 				double logDist = Math.log10(dist);
 				if(logDist<testLogHistogram.getX(0))
 					testLogHistogram.add(0, 1.0/numSamples);
@@ -554,26 +555,70 @@ public class ETAS_LocationWeightCalculator {
 			}
 		}
 		
-		ArrayList funcs1 = new ArrayList();
-		funcs1.add(testLogHistogram);
-		funcs1.add(targetLogDistDecay);
+		// convert to density function
+		double logBinHalfWidth = testLogHistogram.getDelta()/2;
+		for(int i=0;i<testLogHistogram.size();i++) {
+			double lowerBinEdge=0;
+			if(i!=0)
+				lowerBinEdge = Math.pow(10,testLogHistogram.getX(i)-logBinHalfWidth);
+			double upperBinEdge = Math.pow(10,testLogHistogram.getX(i)+logBinHalfWidth);
+			testLogHistogram.set(i,testLogHistogram.getY(i)/(upperBinEdge-lowerBinEdge));
+		}
+		
+		// make nearest-neighbor data
+		Arrays.sort(distArray);
+		DefaultXY_DataSet nearestNeighborPrimaryData = new DefaultXY_DataSet();
+		for(int i=0;i<numSamples-1;i++) {
+			double xVal=Math.log10((distArray[i+1]+distArray[i])/2.0);
+			double yVal=1.0/(distArray[i+1]-distArray[i]);
+			nearestNeighborPrimaryData.set(xVal,yVal/distArray.length);
+		}
+		nearestNeighborPrimaryData.setName("Nearest neighbor distance data");
+		nearestNeighborPrimaryData.setInfo("");
 
-		GraphWindow graph = new GraphWindow(funcs1, "testLogHistogram for ParDepth="+(float)parDepth); 
-		graph.setAxisRange(-2, 3, 1e-6, 1);
-		graph.setYLog(true);
-		graph.setX_AxisLabel("Log10 Distance");
-		graph.setY_AxisLabel("Density");
 
 		
-		ArrayList funcs2 = new ArrayList();
-		funcs2.add(testHistogram);
-		funcs2.add(targetHist);
-		GraphWindow graph2 = new GraphWindow(funcs2, "testHistogram for ParDepth="+(float)parDepth); 
-		graph2.setAxisRange(0.1, 1000, 1e-6, 1);
-		graph2.setYLog(true);
-		graph2.setXLog(true);
-		graph2.setX_AxisLabel("Distance");
-		graph2.setY_AxisLabel("Density");
+		EvenlyDiscretizedFunc targetLogDistDecayFunc = ETAS_Utils.getTargetDistDecayDensityFunc(histLogMinDistKm, histLogMaxDistKm, histNum, etasDistDecay, etasMinDist);
+
+		ArrayList<XY_DataSet> funcs1 = new ArrayList<XY_DataSet>();
+		funcs1.add(nearestNeighborPrimaryData);
+		funcs1.add(targetLogDistDecayFunc);
+		funcs1.add(testLogHistogram);
+
+		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 2, Color.GREEN));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.RED));
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 6, Color.BLUE));
+
+		GraphWindow graph = new GraphWindow(funcs1, "Distance Decay Test for Parent Depth of "+(float)parDepth+" km",chars); 
+		graph.setAxisRange(-1.3, 3, 1e-6, 1e4);
+		graph.setYLog(true);
+		graph.setX_AxisLabel("Log10 Distance (km)");
+		graph.setY_AxisLabel("Density");
+		graph.setTickLabelFontSize(18);
+		graph.setAxisLabelFontSize(20);
+		graph.setTickLabelFontSize(22);
+
+		
+//		// make target histogram
+//		EvenlyDiscretizedFunc targetHist = new EvenlyDiscretizedFunc(0.5 , 999.5, 1000);
+//		double halfDelta=targetHist.getDelta()/2;
+//		for(int i=0;i<targetHist.size();i++) {
+//			double upper = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)+halfDelta);
+//			double lower = ETAS_Utils.getDecayFractionInsideDistance(etasDistDecay, etasMinDist, targetHist.getX(i)-halfDelta);
+//			targetHist.set(i,upper-lower);
+//		}
+
+		
+//		ArrayList funcs2 = new ArrayList();
+//		funcs2.add(testHistogram);
+//		funcs2.add(targetHist);
+//		GraphWindow graph2 = new GraphWindow(funcs2, "testHistogram for ParDepth="+(float)parDepth); 
+//		graph2.setAxisRange(0.1, 1000, 1e-6, 1);
+//		graph2.setYLog(true);
+//		graph2.setXLog(true);
+//		graph2.setX_AxisLabel("Distance");
+//		graph2.setY_AxisLabel("Density");
 
 		
 		PlotCurveCharacterstics plotSym = new PlotCurveCharacterstics(PlotSymbol.CROSS, 1f, Color.BLACK);
@@ -659,10 +704,10 @@ public class ETAS_LocationWeightCalculator {
 					latLonDiscrDeg, depthDiscrKm, midLat, etasDistDecay, etasMinDist, new ETAS_Utils());
 		ETAS_SimAnalysisTools.writeMemoryUse("after");
 
-		for(int i=0; i<=12;i++)
-			calc.testRandomSamples(100000, i*2);
+//		for(int i=0; i<=12;i++)
+//			calc.testRandomSamples(100000, i*2);
 		
-//		calc.testRandomSamples(100000, 16d);
+		calc.testRandomSamples(100000, 16d);
 
 	}
 

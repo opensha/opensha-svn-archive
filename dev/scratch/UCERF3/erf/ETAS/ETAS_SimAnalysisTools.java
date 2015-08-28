@@ -875,6 +875,8 @@ public class ETAS_SimAnalysisTools {
 	 * normalized by the bin width in linear space, which is why this is called a density
 	 * (values will sum to 1.0 if they are multiplied by the linear bin widths).
 	 * 
+	 * The first bin includes all distances down to 0.0.
+	 * 
 	 * This assumes that aftershockList is already filtered to the desired events (all are used)
 	 * 
 	 * @param aftershockList
@@ -887,24 +889,27 @@ public class ETAS_SimAnalysisTools {
 			double lastLogDist, double deltaLogDist) {
 				
 		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
-		HistogramFunction lgoDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
+		HistogramFunction logDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
 		
-		int numDist=0;
+		int numDist=aftershockList.size();
 		for (ETAS_EqkRupture event : aftershockList) {
 			double logDist = Math.log10(event.getDistanceToParent());
-			if(logDist>=firstLogDist && logDist<lastLogDist)
-				lgoDistDensityHist.add(logDist, 1.0);
-			numDist += 1;
+			if(logDist<=firstLogDist)
+				logDistDensityHist.add(0, 1.0/numDist);	// put these in the first bin
+			else if(logDist<lastLogDist)
+				logDistDensityHist.add(logDist, 1.0/numDist);
 		}
-		lgoDistDensityHist.scale(1.0/numDist);
 
 		// now convert to rate in each bin by dividing by the widths in linear space
-		for(int i=0;i<lgoDistDensityHist.size();i++) {
-			double xLogVal = lgoDistDensityHist.getX(i);
-			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - Math.pow(10, xLogVal-deltaLogDist/2.0);
-			lgoDistDensityHist.set(i,lgoDistDensityHist.getY(i)/binWidthLinear);
+		for(int i=0;i<logDistDensityHist.size();i++) {
+			double xLogVal = logDistDensityHist.getX(i);
+			double lowerValueLinear=0;
+			if(i != 1)
+				lowerValueLinear = Math.pow(10, xLogVal-deltaLogDist/2.0);
+			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - lowerValueLinear;
+			logDistDensityHist.set(i,logDistDensityHist.getY(i)/binWidthLinear);
 		}
-		return lgoDistDensityHist;
+		return logDistDensityHist;
 	}
 	
 	
@@ -914,6 +919,8 @@ public class ETAS_SimAnalysisTools {
 	 * in log10 space on the x-axis.  Histogram values are normalized by the bin width in 
 	 * linear space, which is why this is called a density (values will sum to 1.0 if they 
 	 * are multiplied by the linear bin widths).
+	 * 
+	 * 	 * The first bin includes all distances down to 0.0.
 	 * 
 	 * This assumes that aftershockList is already filtered to the desired events (e.g., primary 
 	 * or all aftershocks of the given rupture).
@@ -930,25 +937,25 @@ public class ETAS_SimAnalysisTools {
 				
 		int numPts = (int)Math.round((lastLogDist-firstLogDist)/deltaLogDist);
 		HistogramFunction lgoDistDensityHist = new HistogramFunction(firstLogDist+deltaLogDist/2d,numPts,deltaLogDist);
-//		double firstBinEndLog10 = lgoDistDensityHist.getX(0)+0.5*lgoDistDensityHist.getDelta();
-//		// distance calculation will stop when it reaches a distance below this because
-//		// we're already in the first histogram bin and further searching is unnecessary
-//		double minDistCutoff = Math.pow(10, firstBinEndLog10);
 		double minDistCutoff = Double.NEGATIVE_INFINITY; //disable since things can be before first bin
 		
-		int numDist=0;
+		int numDist=aftershockList.size();
 		for (ETAS_EqkRupture event : aftershockList) {
 			double logDist = Math.log10(quickSurfDistUseCutoff(event.getHypocenterLocation(), surf, minDistCutoff));
-			if(logDist>=firstLogDist && logDist<lastLogDist)
-				lgoDistDensityHist.add(logDist, 1.0);
-			numDist += 1;
+			if(logDist<=firstLogDist)
+				lgoDistDensityHist.add(0, 1.0/numDist);
+			else if(logDist<lastLogDist)
+				lgoDistDensityHist.add(logDist, 1.0/numDist);
 		}
 		lgoDistDensityHist.scale(1.0/numDist);
 
 		// now convert to rate in each bin by dividing by the widths in linear space
 		for(int i=0;i<lgoDistDensityHist.size();i++) {
 			double xLogVal = lgoDistDensityHist.getX(i);
-			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - Math.pow(10, xLogVal-deltaLogDist/2.0);
+			double lowerValueLinear=0;
+			if(i != 1)
+				lowerValueLinear = Math.pow(10, xLogVal-deltaLogDist/2.0);
+			double binWidthLinear = Math.pow(10, xLogVal+deltaLogDist/2.0) - lowerValueLinear;
 			lgoDistDensityHist.set(i,lgoDistDensityHist.getY(i)/binWidthLinear);
 		}
 		return lgoDistDensityHist;

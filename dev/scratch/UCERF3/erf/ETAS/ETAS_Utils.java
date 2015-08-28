@@ -260,6 +260,7 @@ public class ETAS_Utils {
 	/**
 	 * This returns a distance decay density function, where x-axis is log10-distance values, and the averaging over
 	 * each x-axis bin is done accurately.  "Density" means the bin values are divided by the bin width in linear space.
+	 * The first bin goes all the way to zero distance, which does not cause a spike because of the density normalization.
 	 * @param minLogDist - minimum  x-axis log10-distance (km) value
 	 * @param maxLogDist - maximum x-axis log10-distance (km) value
 	 * @param num - number of points
@@ -274,10 +275,14 @@ public class ETAS_Utils {
 		double logBinHalfWidth = logTargetDecay.getDelta()/2;
 		for(int i=0;i<logTargetDecay.size();i++) {
 			double logLowerEdge = logTargetDecay.getX(i)-logBinHalfWidth;
-			double lowerBinEdge = Math.pow(10,logLowerEdge);
+			double lowerBinEdge=0;	// go all the way to zero for the first bin
+			if(i != 0)
+				lowerBinEdge = Math.pow(10,logLowerEdge);
 			double logUpperEdge = logTargetDecay.getX(i)+logBinHalfWidth;
 			double upperBinEdge = Math.pow(10,logUpperEdge);
-			double wtLower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, lowerBinEdge);
+			double wtLower=0;
+			if(i != 0)
+				wtLower = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, lowerBinEdge);
 			double wtUpper = ETAS_Utils.getDecayFractionInsideDistance(distDecay, minDist, upperBinEdge);
 			double binWt = wtUpper-wtLower;
 			logTargetDecay.set(i,binWt/(upperBinEdge-lowerBinEdge));

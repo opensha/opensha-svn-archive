@@ -2510,13 +2510,19 @@ System.out.println("SUM TEST HERE (prob of flt rup given primary event): "+sum);
 	public void plotImpliedBulgeForSubSections(File resultsDir, String nameSuffix, boolean display) 
 			throws GMT_MapException, RuntimeException, IOException {
 
+		if(!resultsDir.exists())
+			resultsDir.mkdir();
+		
 		List<FaultSectionPrefData> faults = fssERF.getSolution().getRupSet().getFaultSectionDataList();
 		double[] values = new double[faults.size()];
 		
 		// Make sure long-term MFDs are created
 		makeLongTermSectMFDs();
+		
+		FileWriter fileWriterGMT = new FileWriter(new File(resultsDir, "FaultSubsectionBulgeData.csv"));
+		fileWriterGMT.write("sectID,1.0/GRcorr,tsectName\n");
 
-System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
+		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 
 		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
 			double val;
@@ -2537,15 +2543,16 @@ System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 			values[sectIndex] = Math.log10(val);
 
 
-System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			//System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			fileWriterGMT.write(sectIndex+","+(float)val+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
+
 		}
+		
+		fileWriterGMT.close();
 
 		String name = "ImpliedBulgeForSubSections_"+nameSuffix;
-		String title = "Log10(Bulge From 1st Gen Aft)";
+		String title = "Log10(1.0/GRcorr)";
 		CPT cpt= FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
-		
-		if(!resultsDir.exists())
-			resultsDir.mkdir();
 		
 		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, display, false, title);
 		
@@ -4117,11 +4124,11 @@ System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
 
 		// Sections bulge plot
-//		try {
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedBulgeForSubSections"), "Test", true);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedBulgeForSubSections"), "Test", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		
 //		etas_PrimEventSampler.testNucleationRatesOfSourcesInCubes();
