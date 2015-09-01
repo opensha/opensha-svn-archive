@@ -244,8 +244,8 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
-	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name, String prefix)
-			throws IOException {
+	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, double duration,
+			File outputDir, String name, String prefix) throws IOException {
 //		double minMag = 5.05;
 //		int numMag = 41;
 //		double delta = 0.1;
@@ -271,12 +271,12 @@ public class ETAS_MultiSimAnalysisTools {
 		for (int i=0; i<catalogs.size(); i++)
 			subMFDs[i] = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
 		
-		double rate = 1d/catalogs.size();
+		double rateEach = 1d/duration;
 		
 		for (int i=0; i<catalogs.size(); i++) {
 			List<ETAS_EqkRupture> catalog = catalogs.get(i);
 			for (ETAS_EqkRupture rup : catalog) {
-				subMFDs[i].addResampledMagRate(rup.getMag(), 1d, true);
+				subMFDs[i].addResampledMagRate(rup.getMag(), rateEach, true);
 			}
 //			for (int n=0; n<mfd.size(); n++)
 //				mfd.add(n, subMFDs[i].getY(n)*rate);
@@ -525,7 +525,7 @@ public class ETAS_MultiSimAnalysisTools {
 			RuptureSurface surf, File outputDir, String name, String prefix) throws IOException {
 		EvenlyDiscretizedFunc[] funcsArray = new EvenlyDiscretizedFunc[catalogs.size()];
 		
-		double histLogMin = -2.0;
+		double histLogMin = -1.5;
 		double histLogMax = 4.0;
 		double histLogDelta = 0.2;
 		
@@ -687,7 +687,7 @@ public class ETAS_MultiSimAnalysisTools {
 	 * @throws RuntimeException 
 	 * @throws GMT_MapException 
 	 */
-	public static void plotSectRates(List<List<ETAS_EqkRupture>> catalogs, FaultSystemRupSet rupSet,
+	public static void plotSectRates(List<List<ETAS_EqkRupture>> catalogs, double duration, FaultSystemRupSet rupSet,
 			double[] minMags, File outputDir, String title, String prefix)
 					throws IOException, GMT_MapException, RuntimeException {
 		List<double[]> particRatesList = Lists.newArrayList();
@@ -697,7 +697,7 @@ public class ETAS_MultiSimAnalysisTools {
 		for (int i=0; i<minMags.length; i++)
 			triggerRatesList.add(new double[rupSet.getNumSections()]);
 		
-		double fractionalRate = 1d/(double)catalogs.size();
+		double fractionalRate = 1d/(catalogs.size()*duration);
 		
 		Map<Integer, List<Location>> locsForSectsMap = Maps.newHashMap();
 		
@@ -916,7 +916,7 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	private static final double MILLIS_PER_YEAR = 365.25*24*60*60*1000;
 	
-	private static void plotCubeNucleationRates(List<List<ETAS_EqkRupture>> catalogs,
+	private static void plotCubeNucleationRates(List<List<ETAS_EqkRupture>> catalogs, double duration,
 			File outputDir, String name, String prefix, double[] mags) throws IOException, GMT_MapException {
 		double discr = 0.02;
 		GriddedRegion reg = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(),
@@ -926,14 +926,9 @@ public class ETAS_MultiSimAnalysisTools {
 		for (int i=0; i<xyzs.length; i++)
 			xyzs[i] = new GriddedGeoDataSet(reg, false);
 		
-		// max duration from any catalog. we don't have the actual duration so we can
-		// detect it as the max difference between first/last event
-		double duration = 0;
 		int numSkipped = 0;
 		
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
-			long myDuration = catalog.get(catalog.size()-1).getOriginTime() - catalog.get(0).getOriginTime();
-			duration = Math.max(duration, (double)myDuration/MILLIS_PER_YEAR);
 			
 			for (ETAS_EqkRupture rup : catalog) {
 				double mag = rup.getMag();
@@ -950,9 +945,6 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 		}
 		
-		duration = Math.round(duration*100d)/100d;
-		
-		System.out.println("Determined duration: "+duration);
 		System.out.println("Skipped "+numSkipped+" events outside of region");
 		
 		double scalar = 1d/(catalogs.size()*duration);
@@ -1070,16 +1062,18 @@ public class ETAS_MultiSimAnalysisTools {
 //		boolean plotTemporalDecay = true;
 //		boolean plotDistanceDecay = true;
 //		boolean plotMaxMagHist = true;
+//		boolean plotGenerations = true;
+//		boolean plotGriddedNucleation = true;
 //		boolean writeCatsForViz = false;
 		
-		boolean plotMFDs = true;
-		boolean plotExpectedComparison = true;
-		boolean plotSectRates = true;
-		boolean plotTemporalDecay = true;
+		boolean plotMFDs = false;
+		boolean plotExpectedComparison = false;
+		boolean plotSectRates = false;
+		boolean plotTemporalDecay = false;
 		boolean plotDistanceDecay = true;
-		boolean plotMaxMagHist = true;
-		boolean plotGenerations = true;
-		boolean plotGriddedNucleation = true;
+		boolean plotMaxMagHist = false;
+		boolean plotGenerations = false;
+		boolean plotGriddedNucleation = false;
 		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
@@ -1134,26 +1128,26 @@ public class ETAS_MultiSimAnalysisTools {
 		names.add("Mojave M7 Full TD");
 		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
 		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 Full TD, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.bin"));
+		
+		names.add("Mojave M7 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7);
+		
+		names.add("Mojave M7 No ERT");
+		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7);
+		
+		names.add("Mojave M7 No ERT, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7);
+		
+//		names.add("Mojave M7 Poisson");				// BAD, none completed
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson/results_m4.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 No ERT");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 No ERT, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-////		names.add("Mojave M7 Poisson");				// BAD, none completed
-////		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson/results.zip"));
-////		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 Poisson, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson-grCorr/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
+		
+		names.add("Mojave M7 Poisson, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson-grCorr/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7);
 		
 		// parent ID for the trigger rupture
 		int triggerParentID = 0;
@@ -1196,10 +1190,15 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			
 			Long ot;
+			double duration;
 			if (metadataRootEl != null) {
-				ot = Long.parseLong(metadataRootEl.element(MPJ_ETAS_Simulator.OTHER_PARAMS_EL_NAME).attributeValue("ot"));
+				Element paramsEl = metadataRootEl.element(MPJ_ETAS_Simulator.OTHER_PARAMS_EL_NAME);
+				ot = Long.parseLong(paramsEl.attributeValue("ot"));
+				duration = Double.parseDouble(paramsEl.attributeValue("duration"));
 			} else {
+				System.out.println("WARNING: Assuming 1 year 2014");
 				ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+				duration = 1d;
 			}
 			
 			if (!outputDir.exists()) {
@@ -1225,9 +1224,25 @@ public class ETAS_MultiSimAnalysisTools {
 			else
 				System.out.println("Catalog loading took "+secs+" seconds");
 			
+			// now check actual duration
+			MinMaxAveTracker durationTrack = new MinMaxAveTracker();
+			for (List<ETAS_EqkRupture> catalog : catalogs) {
+				long durationMillis = catalog.get(catalog.size()-1).getOriginTime() - catalog.get(0).getOriginTime();
+				double myDuration = (double)durationMillis/MILLIS_PER_YEAR;
+				durationTrack.addValue(myDuration);
+			}
+			System.out.println("Actual duration: "+durationTrack);
+			if (DataUtils.getPercentDiff(duration, durationTrack.getMin()) > 2d)
+				System.out.println("WARNING: at least 1 simulation doesn't match expected duration");
+			
 			List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
 			for (List<ETAS_EqkRupture> catalog : catalogs)
 				childrenCatalogs.add(ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, triggerParentID));
+			
+			MinMaxAveTracker childrenTrack = new MinMaxAveTracker();
+			for (List<ETAS_EqkRupture> catalog : childrenCatalogs)
+				childrenTrack.addValue(catalog.size());
+			System.out.println("Children counts: "+childrenTrack);
 			
 //			// print out catalogs with most triggered moment
 //			List<Integer> indexes = Lists.newArrayList();
@@ -1260,9 +1275,9 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			if (plotMFDs) {
 				System.out.println("Plotting MFDs");
-				plotMFD(childrenCatalogs, outputDir, name, "full_children");
+				plotMFD(childrenCatalogs, duration, outputDir, name, "full_children");
 				
-				plotMFD(primaryCatalogs, outputDir, "Primary "+name, "primary_aftershocks");
+				plotMFD(primaryCatalogs, duration, outputDir, "Primary "+name, "primary_aftershocks");
 			}
 			
 			if (plotExpectedComparison) {
@@ -1283,8 +1298,10 @@ public class ETAS_MultiSimAnalysisTools {
 				// sub section partic/trigger rates
 				System.out.println("Plotting Sub Sect Rates");
 				double[] minMags = { 0, 6.7, 7.8 };
-				plotSectRates(childrenCatalogs, fss.getRupSet(), minMags, outputDir, name+" Children", "full_children_sect");
-				plotSectRates(primaryCatalogs, fss.getRupSet(), minMags, outputDir, name+" Primary", "primary_sect");
+				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
+						name+" Children", "full_children_sect");
+				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
+						name+" Primary", "primary_sect");
 			}
 			
 			if (plotTemporalDecay) {
@@ -1324,21 +1341,21 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			if (plotGriddedNucleation) {
 				double[] mags = { 2.5, 6.7, 7.8 };
-				plotCubeNucleationRates(childrenCatalogs, outputDir, name, "full_children_gridded_nucl", mags);
-				plotCubeNucleationRates(primaryCatalogs, outputDir, name, "primary_gridded_nucl", mags);
+				plotCubeNucleationRates(childrenCatalogs, duration, outputDir, name, "full_children_gridded_nucl", mags);
+				plotCubeNucleationRates(primaryCatalogs, duration, outputDir, name, "primary_gridded_nucl", mags);
 			}
 			
 			if (writeCatsForViz)
 				writeCatalogsForViz(childrenCatalogs, scenario, new File(parentDir, catsDirName), 5);
 			
-			writeHTML(parentDir, scenario, name, catalogs);
+			writeHTML(parentDir, scenario, name, catalogs, duration);
 		}
 	}
 	
 	private static final int html_w_px = 800;
 	
-	private static void writeHTML(File outputDir, TestScenario scenario, String scenName, List<List<ETAS_EqkRupture>> catalogs)
-			throws IOException {
+	private static void writeHTML(File outputDir, TestScenario scenario, String scenName,
+			List<List<ETAS_EqkRupture>> catalogs, double duration) throws IOException {
 		System.out.println("Writing HTML");
 		
 		FileWriter fw = new FileWriter(new File(outputDir, "HEADER.html"));
@@ -1353,23 +1370,6 @@ public class ETAS_MultiSimAnalysisTools {
 			fw.write("<b>Supra-seismogenic? </b> "+(scenario.getFSS_Index()>=0)+"<br>\n");
 			fw.write("<br>\n");
 		}
-		
-		// determine duration
-		long maxDur = 0l;
-		for (List<ETAS_EqkRupture> catalog : catalogs) {
-			long startTime = catalog.get(0).getOriginTime();
-			long endTime = catalog.get(catalog.size()-1).getOriginTime();
-			long delta = endTime - startTime;
-			if (delta > maxDur)
-				maxDur = delta;
-		}
-		double deltaSecs = (double)maxDur/1000d;
-		double deltaMins = deltaSecs/60d;
-		double deltaHours = deltaMins/60d;
-		double deltaDays = deltaHours/24d;
-		double deltaYears = deltaDays/365.25d;
-		// round
-		double duration = Math.round(deltaYears);
 		
 		fw.write("<h2>Simulation Information</h2>\n");
 		fw.write("<b>Num Catalogs:</b> "+catalogs.size()+"<br>\n");

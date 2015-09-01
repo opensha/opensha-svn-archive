@@ -105,6 +105,26 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	}
 
 	@Override
+	public ParameterList getMeanIndependentParams() {
+		return imr.getMeanIndependentParams();
+	}
+
+	@Override
+	public ParameterList getStdDevIndependentParams() {
+		return imr.getStdDevIndependentParams();
+	}
+
+	@Override
+	public ParameterList getExceedProbIndependentParams() {
+		return imr.getExceedProbIndependentParams();
+	}
+
+	@Override
+	public ParameterList getIML_AtExceedProbIndependentParams() {
+		return imr.getIML_AtExceedProbIndependentParams();
+	}
+
+	@Override
 	public double getMean() {
 		Preconditions.checkNotNull(imr, "IMR is null!");
 		Preconditions.checkNotNull(mod, "Mod is null!");
@@ -361,11 +381,11 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		}
 	}
 	
-	ScalarIMR getCurrentIMR() {
+	protected ScalarIMR getCurrentIMR() {
 		return imr;
 	}
 	
-	AbstractAttenRelMod getCurrentMod() {
+	protected AbstractAttenRelMod getCurrentMod() {
 		return mod;
 	}
 

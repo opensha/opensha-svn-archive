@@ -322,13 +322,13 @@ public class HardCodedInterpDiffMapCreator {
 			// 167: RotD50 2sec
 			// 162: RotD50 3sec
 			
-//			int imTypeID = 26; // 2 sec SA, GEOM
-//			String imtLabel = "2sec SA";
-//			Double customMax = 1.0;
-			
-			int imTypeID = 21; // 3 sec SA, GEOM
-			String imtLabel = "3sec SA";
+			int imTypeID = 26; // 2 sec SA, GEOM
+			String imtLabel = "2sec SA";
 			Double customMax = 1.0;
+			
+//			int imTypeID = 21; // 3 sec SA, GEOM
+//			String imtLabel = "3sec SA";
+//			Double customMax = 1.0;
 			
 //			int imTypeID = 11; // 5 sec SA, GEOM
 //			String imtLabel = "5sec SA";
@@ -358,16 +358,16 @@ public class HardCodedInterpDiffMapCreator {
 			/* the main dataset(s) that we're plotting */
 			
 			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
-//			int velModelID = 5;
-//			List<Integer> datasetIDs = Lists.newArrayList(57);
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(57);
 			
 			// CVM-S4i26, AWP CPU
 //			int velModelID = 5;
 //			List<Integer> datasetIDs = Lists.newArrayList(37);
 			
 			// CVM-S4i26, AWP GPU
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(35);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(35);
 			
 			// BBP 1D, AWP GPU
 //			int velModelID = 8;

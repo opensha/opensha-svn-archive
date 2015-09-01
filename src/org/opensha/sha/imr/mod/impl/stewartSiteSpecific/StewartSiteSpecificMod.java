@@ -22,7 +22,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 
-public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements ParameterChangeListener {
+public class StewartSiteSpecificMod extends AbstractAttenRelMod implements ParameterChangeListener {
 	
 	private static final boolean D = true;
 	
@@ -59,14 +59,14 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 	
 	private Parameter<Double> imt;
 	
-	public StewartSiteSpecifcMod() {
+	public StewartSiteSpecificMod() {
 		try {
 			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("./params.csv"));
 			System.out.println("Loaded default params:\n"+periodParams);
 		} catch (IOException e) {
 			System.err.println("Error loading default params:");
 			e.printStackTrace();
-			periodParams = new PeriodDependentParamSet<StewartSiteSpecifcMod.Params>(Params.values());
+			periodParams = new PeriodDependentParamSet<StewartSiteSpecificMod.Params>(Params.values());
 		}
 		periodParamsParam = new PeriodDependentParamSetParam<Params>("Period Dependent Params", periodParams);
 		periodParamsParam.addParameterChangeListener(this);
@@ -164,6 +164,9 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 		double f3 = params[periodParams.getParamIndex(Params.F3)];
 		
 		double ln_y = f1 + f2*Math.log((x_ref + f3)/f3);
+		double yMax = Math.log(params[periodParams.getParamIndex(Params.Ymax)]);
+		if (!Double.isNaN(yMax))
+			ln_y = Math.min(ln_y, yMax);
 		
 		Preconditions.checkState(Doubles.isFinite(ln_y));
 		
@@ -172,7 +175,6 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 
 	@Override
 	public double getModStdDev(ScalarIMR imr) {
-		// TODO
 		StringParameter imrTypeParam = (StringParameter) imr.getParameter(StdDevTypeParam.NAME);
 		String origIMRType = imrTypeParam.getValue();
 		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
@@ -181,30 +183,25 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 		double intraStdDev = imr.getStdDev();
 		imrTypeParam.setValue(origIMRType);
 		
-//		double phi_lnZ = Math.sqrt(a)
+		double[] params = getCurParams();
+		double f2 = params[periodParams.getParamIndex(Params.F2)];
+		double f3 = params[periodParams.getParamIndex(Params.F3)];
+		double F = params[periodParams.getParamIndex(Params.F)];
+		double phiS2S = params[periodParams.getParamIndex(Params.PHI_S2S)];
+		double phiLnY = params[periodParams.getParamIndex(Params.PHI_lnY)];
 		
-//		imr.set
-//		
-//		double u_lnX = imr.getMean();
-//		
-//		// now set to to PGA
-//		imr.setIntensityMeasure(PGA_Param.NAME);
-//		double x_ref_ln = imr.getMean();
-//		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-//		// set back to orig IMT
-//		imr.setIntensityMeasure(imt);
-//		
-//		double[] params = getCurParams();
-//		double f1 = params[periodParams.getParamIndex(Params.F1)];
-//		double f2 = params[periodParams.getParamIndex(Params.F2)];
-//		double f3 = params[periodParams.getParamIndex(Params.F3)];
-//		
-//		double ln_y = f1 + f2*Math.log((x_ref + f3)/f3);
-//		
-//		Preconditions.checkState(Doubles.isFinite(ln_y));
-//		
-//		return u_lnX + ln_y;
-		return imr.getStdDev();
+		// now set to to PGA
+		imr.setIntensityMeasure(PGA_Param.NAME);
+		double x_ref_ln = imr.getMean();
+		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+		// set back to orig IMT
+		imr.setIntensityMeasure(imt);
+		
+		double term1 = Math.pow((f2*x_ref)/(x_ref+f3) + 1, 2);
+		
+		double phi_lnZ = Math.sqrt(term1 * (interStdDev*interStdDev - F*phiS2S*phiS2S) + phiLnY*phiLnY);
+		
+		return phi_lnZ + intraStdDev;
 	}
 
 	@Override
@@ -220,7 +217,7 @@ public class StewartSiteSpecifcMod extends AbstractAttenRelMod implements Parame
 	}
 	
 	public static void main(String[] args) {
-		new StewartSiteSpecifcMod();
+		new StewartSiteSpecificMod();
 	}
 
 }

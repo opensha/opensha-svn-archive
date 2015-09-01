@@ -704,7 +704,7 @@ extends AbstractIMR implements ScalarIMR {
 	 * @return    The Independent Params Iterator
 	 */
 	public ListIterator<Parameter<?>> getMeanIndependentParamsIterator() {
-		return meanIndependentParams.getParametersIterator();
+		return getMeanIndependentParams().getParametersIterator();
 	}
 	
 	public ParameterList getMeanIndependentParams() {
@@ -720,7 +720,7 @@ extends AbstractIMR implements ScalarIMR {
 	 * @return    The Independent Parameters Iterator
 	 */
 	public ListIterator<Parameter<?>> getStdDevIndependentParamsIterator() {
-		return stdDevIndependentParams.getParametersIterator();
+		return getStdDevIndependentParams().getParametersIterator();
 	}
 	
 	public ParameterList getStdDevIndependentParams() {
@@ -736,7 +736,7 @@ extends AbstractIMR implements ScalarIMR {
 	 * @return    The Independent Params Iterator
 	 */
 	public ListIterator<Parameter<?>> getExceedProbIndependentParamsIterator() {
-		return exceedProbIndependentParams.getParametersIterator();
+		return getExceedProbIndependentParams().getParametersIterator();
 	}
 	
 	public ParameterList getExceedProbIndependentParams() {
@@ -752,7 +752,7 @@ extends AbstractIMR implements ScalarIMR {
 	 * @return    The Independent Params Iterator
 	 */
 	public ListIterator<Parameter<?>> getIML_AtExceedProbIndependentParamsIterator() {
-		return imlAtExceedProbIndependentParams.getParametersIterator();
+		return getIML_AtExceedProbIndependentParams().getParametersIterator();
 	}
 	
 	public ParameterList getIML_AtExceedProbIndependentParams() {

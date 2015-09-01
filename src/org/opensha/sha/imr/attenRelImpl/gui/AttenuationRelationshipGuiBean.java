@@ -1107,9 +1107,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		independentParams = new ParameterList();
 
 		// Add mean parameters
-		ListIterator it = attenRel.getMeanIndependentParamsIterator();
-		while ( it.hasNext() ) {
-			Parameter param = ( Parameter ) it.next();
+		for (Parameter<?> param : attenRel.getMeanIndependentParams()) {
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1118,9 +1116,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		}
 
 		// Add std parameters
-		it = attenRel.getStdDevIndependentParamsIterator();
-		while ( it.hasNext() ) {
-			Parameter param = ( Parameter ) it.next();
+		for (Parameter<?> param : attenRel.getStdDevIndependentParams()) {
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1129,9 +1125,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		}
 
 		// Add additional exceedence probability parameters
-		it = attenRel.getExceedProbIndependentParamsIterator();
-		while ( it.hasNext() ) {
-			Parameter param = ( Parameter ) it.next();
+		for (Parameter<?> param : attenRel.getExceedProbIndependentParams()) {
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1140,9 +1134,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		}
 
 		// Add IML at exceedence probability parameters
-		it = attenRel.getIML_AtExceedProbIndependentParamsIterator();
-		while ( it.hasNext() ) {
-			Parameter param = ( Parameter ) it.next();
+		for (Parameter<?> param : attenRel.getIML_AtExceedProbIndependentParams()) {
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			if ( !( independentParams.containsParameter( param.getName() ) ) )
@@ -1151,9 +1143,7 @@ ParameterChangeListener, ParameterChangeFailListener
 		}
 
 		// Add im parameters and their independent parameters
-		it = attenRel.getSupportedIntensityMeasuresIterator();
-		while ( it.hasNext() ) {
-			Parameter param = ( Parameter ) it.next();
+		for (Parameter<?> param : attenRel.getSupportedIntensityMeasures()) {
 			param.addParameterChangeListener(this);
 			param.addParameterChangeFailListener(applet);
 			// System.out.println(param.getName());

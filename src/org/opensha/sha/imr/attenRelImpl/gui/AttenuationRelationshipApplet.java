@@ -124,6 +124,7 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.BSSA_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CB_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CY_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2014_Wrapper;
+import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.StewartSiteSpecificGMPE;
 
 import com.google.common.collect.Lists;
 
@@ -325,6 +326,8 @@ implements ParameterChangeFailListener, ParameterChangeWarningListener, ItemList
 		attenRelClasses.add(KS_2006_AttenRel.class.getName());
 		imNames.add(BommerEtAl_2009_AttenRel.NAME);
 		attenRelClasses.add(BommerEtAl_2009_AttenRel.class.getName());
+		imNames.add(StewartSiteSpecificGMPE.NAME);
+		attenRelClasses.add(StewartSiteSpecificGMPE.class.getName());
 
 		//imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 

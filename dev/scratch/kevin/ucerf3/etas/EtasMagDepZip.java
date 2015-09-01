@@ -24,7 +24,7 @@ public class EtasMagDepZip {
 	private static byte[] buffer = new byte[18024];
 
 	public static void main(String[] args) throws IOException {
-		Preconditions.checkArgument(args.length == 3 || args.length == 3,
+		Preconditions.checkArgument(args.length == 2 || args.length == 3,
 					"Usage: <results-dir> <output-file> [<min-mag>]");
 		
 		File resultsDir = new File(args[0]);

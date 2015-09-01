@@ -91,14 +91,14 @@ public class XYZGraphPanel extends JPanel {
 	
 	private ChartPanel chartPanel;
 	
-	private static PlotPreferences getDefault() {
+	public static PlotPreferences getDefaultPrefs() {
 		PlotPreferences prefs = PlotPreferences.getDefault();
 		prefs.setBackgroundColor(Color.WHITE);
 		return prefs;
 	}
 	
 	public XYZGraphPanel() {
-		this(getDefault());
+		this(getDefaultPrefs());
 	}
 	
 	public XYZGraphPanel(PlotPreferences plotPrefs) {
@@ -272,6 +272,23 @@ public class XYZGraphPanel extends JPanel {
 		
 		GraphPanel.setupPlot(plot, tickFontSize);
 		
+		boolean sameLegends = true;
+		CPT cpt0 = specs.get(0).getCPT();
+		String label0 = specs.get(0).getZAxisLabel();
+		for (int p=1; p<specs.size(); p++) {
+			if (!sameLegends)
+				break;
+			CPT cpt = specs.get(p).getCPT();
+			boolean cptSame = cpt.equals(cpt0);
+			String label = specs.get(p).getZAxisLabel();
+			boolean labelSame;
+			if (label0 == null)
+				labelSame = label == null;
+			else
+				labelSame = label0.equals(label);
+			sameLegends = sameLegends && cptSame && labelSame;
+		}
+		
 		List<PaintScaleLegend> legends = Lists.newArrayList();
 		
 		for (int p=0; p<specs.size(); p++) {
@@ -433,8 +450,11 @@ public class XYZGraphPanel extends JPanel {
 		//giving off all the data that needs to be plotted to JFreechart, which return backs
 		//a panel of curves,
 		JFreeChart chart = new JFreeChart(specs.get(0).getTitle(), newPlotLabelFont, plot, false );
-		for (int i=0; i<legends.size(); i++)
-			chart.addSubtitle(i, legends.get(i));
+		if (sameLegends)
+			chart.addSubtitle(0, legends.get(0));
+		else
+			for (int i=0; i<legends.size(); i++)
+				chart.addSubtitle(i, legends.get(i));
 
 		chart.setBackgroundPaint( plotPrefs.getBackgroundColor() );
 

@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ComparablePairing;
+import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
@@ -57,7 +59,7 @@ import com.google.common.collect.Maps;
 
 public class UCERF3ComparisonAnalysis {
 	
-	private static Map<Integer, RectangularElement> loadElements(FaultSystemRupSet rupSet) {
+	public static Map<Integer, RectangularElement> loadElements(FaultSystemRupSet rupSet) {
 		Map<Integer, RectangularElement> elems = Maps.newHashMap();
 		
 		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
@@ -112,7 +114,7 @@ public class UCERF3ComparisonAnalysis {
 		
 	}
 	
-	private static List<RuptureIdentifier> buildUCERF3_EquivIdens(List<RuptureIdentifier> idens,
+	public static List<RuptureIdentifier> buildUCERF3_EquivIdens(List<RuptureIdentifier> idens,
 			List<RectangularElement> origElems, Map<Integer, RectangularElement> ucerf3ElemsMap,
 			FaultSystemRupSet rupSet) {
 		List<RuptureIdentifier> ucerf3Idens = Lists.newArrayList();
@@ -226,7 +228,7 @@ public class UCERF3ComparisonAnalysis {
 		return events;
 	}
 	
-	private static List<EQSIM_Event> calcPoissonCatalog(FaultSystemSolution sol,
+	public static List<EQSIM_Event> calcPoissonCatalog(FaultSystemSolution sol,
 			Map<Integer, RectangularElement> elems, double duration) {
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
@@ -314,7 +316,7 @@ public class UCERF3ComparisonAnalysis {
 	 * @param elems
 	 * @return
 	 */
-	private static List<EQSIM_Event> getFakePreEvents(FaultSystemRupSet rupSet, List<RuptureIdentifier> u3Idens,
+	public static List<EQSIM_Event> getFakePreEvents(FaultSystemRupSet rupSet, List<RuptureIdentifier> u3Idens,
 			Map<Integer, RectangularElement> elems, int startYear) {
 		List<EQSIM_Event> events = Lists.newArrayList();
 		
@@ -355,6 +357,56 @@ public class UCERF3ComparisonAnalysis {
 		return events;
 	}
 	
+	public static List<List<EQSIM_Event>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
+			Region region, Map<Integer, RectangularElement> elems, int startYear) throws IOException {
+		return loadUCERF3Catalogs(mainDir, sol, region, elems, startYear, null);
+	}
+	
+	static List<List<EQSIM_Event>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
+			Region region, Map<Integer, RectangularElement> elems, int startYear, int[] windowLens)
+					throws IOException {
+		File[] batchDirs = mainDir.listFiles();
+		Arrays.sort(batchDirs, new FileNameComparator());
+		
+		List<List<EQSIM_Event>> eventsList = Lists.newArrayList();
+		
+		for (File batchDir : batchDirs) {
+			if (!batchDir.getName().startsWith("batch") || !batchDir.isDirectory())
+				continue;
+			File[] threadDirs = batchDir.listFiles();
+			Arrays.sort(threadDirs, new FileNameComparator());
+			
+			for (File threadDir : threadDirs) {
+				if (!threadDir.getName().contains("_run") || !threadDir.isDirectory())
+					continue;
+				List<EQSIM_Event> events = loadCatalogAsFakeSimEvents(
+						sol, region, new File(threadDir, "sampledEventsData.txt"), elems, startYear);
+				double calcDuration = getDurationYears(events);
+				System.out.println("Loaded "+events.size()+" fake UCERF3 events, duration: "
+						+calcDuration+" years");
+				
+				if (windowLens != null && windowLens.length > 0) {
+					File tsPlot = new File(threadDir, "ts_plot.png");
+					SimulatorMomRateVarCalc.plotMomRateVar(events, windowLens, "Fake UCERF3", 0,
+							(int)calcDuration, true, false, tsPlot);
+					
+					for (int windowLen : windowLens) {
+						File outputFile = new File(threadDir, "ucerf3_"+threadDir.getName()+"_"+windowLen+"yr.bin");
+						SimulatorMomRateVarCalc.writeMomRateTimeSeries(windowLen, events, outputFile);
+					}
+				}
+				
+				eventsList.add(events);
+			}
+		}
+		
+		return eventsList;
+	}
+	
+	public static double getDurationYears(List<EQSIM_Event> events) {
+		return events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
+	}
+	
 	public static void main(String[] args) throws IOException, DocumentException {
 		File fssFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
@@ -369,12 +421,10 @@ public class UCERF3ComparisonAnalysis {
 		
 		File mainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_08_05-LOW_VALUES");
 		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.LOW_VALUES;
-		int[] batches = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		
 		int startYear = 2014;
 		
 		String dirPrefix = "10000yr";
-		int threads = 8;
 		File outputDir = new File(mainDir, dirPrefix+"_runs_combined");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
@@ -382,7 +432,6 @@ public class UCERF3ComparisonAnalysis {
 		
 		FaultSystemSolution sol = FaultSystemIO.loadSol(fssFile);
 		
-		List<List<EQSIM_Event>> eventsList = Lists.newArrayList();
 		List<Double> catalogLengths = Lists.newArrayList();
 		
 		int[] windowLens = { 10, 25, 50, 75, 100, 150, 200 };
@@ -393,33 +442,10 @@ public class UCERF3ComparisonAnalysis {
 		boolean doRecurrencePoisson = true;
 		
 		Map<Integer, RectangularElement> elems = loadElements(sol.getRupSet());
+		List<List<EQSIM_Event>> eventsList = loadUCERF3Catalogs(mainDir, sol, region, elems, startYear);
 		
-		for (int batch : batches) {
-			File batchDir;
-			if (batch < 0)
-				batchDir = mainDir;
-			else
-				batchDir = new File(mainDir, "batch"+batch);
-			for (int i=0; i<threads; i++) {
-				File runDir = new File(batchDir, dirPrefix+"_run"+i);
-				List<EQSIM_Event> events = loadCatalogAsFakeSimEvents(
-						sol, region, new File(runDir, "sampledEventsData.txt"), elems, startYear);
-				double calcDuration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
-				System.out.println("Loaded "+events.size()+" fake UCERF3 events, duration: "+calcDuration+" years");
-				
-				File tsPlot = new File(runDir, "ts_plot.png");
-				SimulatorMomRateVarCalc.plotMomRateVar(events, windowLens, "Fake UCERF3", 0,
-						(int)calcDuration, true, false, tsPlot);
-				
-				for (int windowLen : windowLens) {
-					File outputFile = new File(runDir, "ucerf3_"+runDir.getName()+"_"+windowLen+"yr.bin");
-					SimulatorMomRateVarCalc.writeMomRateTimeSeries(windowLen, events, outputFile);
-				}
-				
-				eventsList.add(events);
-				catalogLengths.add(calcDuration);
-			}
-		}
+		for (List<EQSIM_Event> events : eventsList)
+			catalogLengths.add(getDurationYears(events));
 		
 		// now stitch
 		List<EQSIM_Event> stitched = stitch(eventsList);
@@ -438,6 +464,7 @@ public class UCERF3ComparisonAnalysis {
 		
 		// now synch analysis
 		List<SynchFaults[]> faultSets = Lists.newArrayList();
+		int maxStates = 500;
 		
 		faultSets.add(new SynchFaults[] {SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CARRIZO});
 		faultSets.add(new SynchFaults[] {SynchFaults.SAF_MOJAVE, SynchFaults.SAF_CARRIZO, SynchFaults.SAF_COACHELLA,
@@ -468,6 +495,7 @@ public class UCERF3ComparisonAnalysis {
 					Preconditions.checkState(poissonDir.exists() || poissonDir.mkdir());
 					
 					List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, poissonEvents, rupIdens, 0);
+					fullPath = fullPath.subList(0, maxStates);
 					
 					RecurrencePlotGen.plotRecurrence(poissonDir, fullPath, distSpacing, normalize);
 				}
@@ -510,6 +538,8 @@ public class UCERF3ComparisonAnalysis {
 					if (mySubDir.exists())
 						FileUtils.deleteRecursive(mySubDir);
 					Preconditions.checkState(mySubDir.mkdir());
+					
+					fullPath = fullPath.subList(0, maxStates);
 					
 					RecurrencePlotGen.plotRecurrence(mySubDir, fullPath, distSpacing, normalize);
 				}

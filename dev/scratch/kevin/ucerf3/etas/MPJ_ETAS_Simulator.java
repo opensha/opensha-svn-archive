@@ -97,7 +97,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private boolean imposeGR = false;
 	
 	private static final int START_YEAR_DEFAULT = 2014;
-	private int startYear;
+	private int startYear = START_YEAR_DEFAULT;
 	
 	private boolean metadataOnly = false;
 
@@ -167,6 +167,15 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				debug("Seeding sim with "+histQkList.size()+" catalog ruptures");
 		}
 		
+		Location triggerHypo = null;
+		if (cmd.hasOption("trigger-loc")) {
+			String locStr = cmd.getOptionValue("trigger-loc");
+			String[] locSplit = locStr.split(",");
+			Preconditions.checkState(locSplit.length == 3, "Location must be in format lat,lon,depth");
+			triggerHypo = new Location(Double.parseDouble(locSplit[0]),
+					Double.parseDouble(locSplit[1]), Double.parseDouble(locSplit[2]));
+		}
+		
 		if (cmd.hasOption("trigger-rupture-id")) {
 			// FSS rupture
 			ETAS_EqkRupture mainshockRup = new ETAS_EqkRupture();
@@ -192,6 +201,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			if (cmd.hasOption("trigger-mag"))
 				mainshockRup.setMag(Double.parseDouble(cmd.getOptionValue("trigger-mag")));
 			
+			if (triggerHypo != null)
+				mainshockRup.setHypocenterLocation(triggerHypo);
+			
 			// date of last event will be updated for this rupture in the calculateBatch method below
 			
 			simulationName = "FSS simulation. M="+mainshockRup.getMag()+", fss ID="+fssScenarioRupID;
@@ -204,11 +216,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			// 3-29-14 M 5.1 La Habra Earthquake
 //			Location ptSurf = new Location(33.932,-117.917,4.8);	//
 //			double mag = 6.2;	// test bigger magnitude
-			String locStr = cmd.getOptionValue("trigger-loc");
-			String[] locSplit = locStr.split(",");
-			Preconditions.checkState(locSplit.length == 3, "Location must be in format lat,lon,depth");
-			Location ptSurf = new Location(Double.parseDouble(locSplit[0]),
-					Double.parseDouble(locSplit[1]), Double.parseDouble(locSplit[2]));
+			
 			Preconditions.checkArgument(cmd.hasOption("trigger-mag"), "trigger magnitude not supplied");
 			double mag = Double.parseDouble(cmd.getOptionValue("trigger-mag"));
 			
@@ -217,10 +225,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			else
 				mainshockRup.setAveRake(0.0);
 			mainshockRup.setMag(mag);
-			mainshockRup.setPointSurface(ptSurf);
+			mainshockRup.setPointSurface(triggerHypo);
 			mainshockRup.setID(0);
+			mainshockRup.setHypocenterLocation(triggerHypo);
 			
-			simulationName = "Pt Source. M="+mag+", "+ptSurf;
+			simulationName = "Pt Source. M="+mag+", "+triggerHypo;
 			
 			triggerRup = mainshockRup;
 		} else {
@@ -557,10 +566,12 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		// write trigger rupture
 		if (triggerRup != null) {
 			Element triggerEl = root.addElement(TRIGGER_RUP_EL_NAME);
+			if (triggerRup.getHypocenterLocation() == null)
+				triggerRup.setHypocenterLocation(triggerRup.getRuptureSurface().getFirstLocOnUpperEdge());
 			triggerEl.addCDATA(ETAS_CatalogIO.getEventFileLine(triggerRup));
 		}
 		
-		if (histQkList != null) {
+		if (histQkList != null && !histQkList.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			for (ETAS_EqkRupture rup : histQkList)
 				sb.append(ETAS_CatalogIO.getEventFileLine(rup)).append("\n");
