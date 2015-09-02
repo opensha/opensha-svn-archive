@@ -20,6 +20,7 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.TickUnits;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
@@ -396,16 +397,20 @@ public class XYZGraphPanel extends JPanel {
 				subPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 			}
 			
-			ValueAxis fakeZAxis = new NumberAxis();
+			NumberAxis fakeZAxis = new NumberAxis();
 			fakeZAxis.setLowerBound(scale.getLowerBound());
 			fakeZAxis.setUpperBound(scale.getUpperBound());
 			fakeZAxis.setLabel(spec.getZAxisLabel());
 			Font axisLabelFont = fakeZAxis.getLabelFont();
 			fakeZAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
+			Font axisTickFont = fakeZAxis.getTickLabelFont();
+			fakeZAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
+			if (spec.getCPTTickUnit() > 0)
+				fakeZAxis.setTickUnit(new NumberTickUnit(spec.getCPTTickUnit()));
 			PaintScaleLegend legend = new PaintScaleLegend(scale, fakeZAxis);
 			if (spec.getLegendPosition() != null)
 				legend.setPosition(spec.getLegendPosition());
-			legend.setPadding(5d, 15d, 5d, 15d);
+			legend.setPadding(5d, 50d, 5d, 50d);
 			legends.add(legend);
 			
 			// now add any annotations

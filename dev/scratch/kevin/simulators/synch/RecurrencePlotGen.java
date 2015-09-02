@@ -334,6 +334,14 @@ public class RecurrencePlotGen {
 		Preconditions.checkState(widthEach % 2 == 1);
 		Preconditions.checkState(widthEach >= 3);
 		
+		double cptTickUnit;
+		if (cpt.getMaxValue() <= 1f)
+			cptTickUnit = 0.1;
+		else if (cpt.getMaxValue() <= 3f)
+			cptTickUnit = 0.25;
+		else
+			cptTickUnit = (float)(Math.round(100d*cpt.getMaxValue()/100d)/10d);
+		
 		List<Range> yRanges = Lists.newArrayList();
 		Range xRange = null;
 		int plotWidth = 0;
@@ -426,11 +434,13 @@ public class RecurrencePlotGen {
 				xRange = new Range(Math.min(xRange.getLowerBound(), myXRange.getLowerBound()),
 						Math.max(xRange.getUpperBound(), myXRange.getUpperBound()));
 			
+			spec.setCPTTickUnit(cptTickUnit);
+			
 			specs.add(spec);
 		}
 		
 		if (labels != null) {
-			Color transWhite = new Color(255, 255, 255, 100);
+			Color transWhite = new Color(255, 255, 255, 170);
 			Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
 			for (int i=0; i<specs.size(); i++) {
 				String label = labels.get(i);
@@ -519,7 +529,7 @@ public class RecurrencePlotGen {
 		FaultSystemSolution ucerf3Sol = null;
 		Map<Integer, RectangularElement> ucerf3Elems = null;
 		int ucerf3StartYear = 2014;
-		int numUCERF3Catalogs = 3;
+		int numUCERF3Catalogs = 5;
 		if (ucerf3Comparisons != null && ucerf3Comparisons.length > 0) {
 			ucerf3Catalogs = Lists.newArrayList();
 			ucerf3Sol = FaultSystemIO.loadSol(new File("/home/kevin/workspace/OpenSHA/dev/scratch/"
@@ -638,6 +648,9 @@ public class RecurrencePlotGen {
 								+" years, skipping "+skipStates+" states");
 					}
 					
+					List<List<int[]>> catalogPaths = Lists.newArrayList();
+					List<String> catalogNames = Lists.newArrayList();
+					
 					for (int j=0; j<catalogs.size(); j++) {
 						List<EQSIM_Event> catalog = catalogs.get(j);
 						double origCatLen = UCERF3ComparisonAnalysis.getDurationYears(catalog);
@@ -655,13 +668,18 @@ public class RecurrencePlotGen {
 								distSpacing, catalog, ucerf3Idens, 0);
 						fullPath = fullPath.subList(skipStates, fullPath.size());
 						
+						catalogPaths.add(fullPath);
+						String name;
+						if (cov == null)
+							name = "UCERF3 Poisson";
+						else
+							name = "UCERF3 "+cov.name().replaceAll("_", " ")
+								.replaceAll("VALUES", "COV");
+						catalogNames.add(name+" Catalog "+j);
+						
 						if (j == 0) {
 							comboPlotPaths.add(fullPath);
-							if (cov == null)
-								comboPlotNames.add("UCERF3 Poisson");
-							else
-								comboPlotNames.add("UCERF3 "+cov.name().replaceAll("_", " ")
-										.replaceAll("VALUES", "COV"));
+							comboPlotNames.add(name);
 						}
 						
 						File mySubDir;
@@ -677,6 +695,13 @@ public class RecurrencePlotGen {
 						RecurrencePlotGen.plotRecurrence(mySubDir, fullPath, distSpacing, normalize,
 								metrics, thresholds);
 					}
+					// now all catalogs combined
+					if (catalogPaths.size() > 1) {
+						for (int m=0; m<metrics.size(); m++) {
+							plotMultiRecurrence(distSpacing, normalize, metrics.get(m),
+									thresholds.get(m), catalogPaths, catalogNames, subDir);
+						}
+					}
 				}
 			}
 			
@@ -686,45 +711,49 @@ public class RecurrencePlotGen {
 			comboDir = new File(comboDir, faultNames);
 			Preconditions.checkState(comboDir.exists() || comboDir.mkdir());
 			
-			int startIndex = 0;
-			int rotatedEndIndex = 500;
-			for (List<int[]> fullPath : comboPlotPaths)
-				if (fullPath.size() < rotatedEndIndex)
-					rotatedEndIndex = fullPath.size();
-			int rotatedWidth = 151;
-			int rotatedPixelWidth = 9;
-			
 			for (int i=0; i<metrics.size(); i++) {
-				DistanceMetric metric = metrics.get(i);
-				double threshold = thresholds.get(i);
-				if (normalize)
-					threshold /= 10d;
-				String threshStr = "thresh";
-				if (normalize)
-					threshStr += "Norm";
-				double maxZ = threshold*5d;
-				threshStr += (float)threshold;
-				
-				CPT cpt = getHybridCPT(threshold, maxZ);
-				
-				List<double[][]> datas = Lists.newArrayList();
-				
-				for (int j=0; j<comboPlotPaths.size(); j++) {
-					List<int[]> fullPath = comboPlotPaths.get(j);
-					
-					List<double[]> rotatedSubPath = calcNormalizedPath(
-							fullPath.subList(startIndex, rotatedEndIndex), calcMeanRIs(fullPath));
-					
-					// now rotated
-					double[][] rotatedData = calcRotated(rotatedSubPath, metric, rotatedWidth);
-					datas.add(rotatedData);
-				}
-				
-				String name = "rp_"+metric.name()+"_hybrid_"+threshStr+"_rotated.png";
-				plotRotated(datas, comboPlotNames, metric, -1, cpt, rotatedPixelWidth, distSpacing,
-						new File(comboDir, name));
+				plotMultiRecurrence(distSpacing, normalize, metrics.get(i),
+						thresholds.get(i), comboPlotPaths, comboPlotNames, comboDir);
 			}
 		}
+	}
+
+	private static void plotMultiRecurrence(double distSpacing, boolean normalize, DistanceMetric metric,
+			double threshold, List<List<int[]>> comboPlotPaths, List<String> comboPlotNames, File comboDir)
+					throws IOException {
+		int startIndex = 0;
+		int rotatedEndIndex = 500;
+		for (List<int[]> fullPath : comboPlotPaths)
+			if (fullPath.size() < rotatedEndIndex)
+				rotatedEndIndex = fullPath.size();
+		int rotatedWidth = 151;
+		int rotatedPixelWidth = 9;
+		if (normalize)
+			threshold /= 10d;
+		String threshStr = "thresh";
+		if (normalize)
+			threshStr += "Norm";
+		double maxZ = threshold*5d;
+		threshStr += (float)threshold;
+		
+		CPT cpt = getHybridCPT(threshold, maxZ);
+		
+		List<double[][]> datas = Lists.newArrayList();
+		
+		for (int j=0; j<comboPlotPaths.size(); j++) {
+			List<int[]> fullPath = comboPlotPaths.get(j);
+			
+			List<double[]> rotatedSubPath = calcNormalizedPath(
+					fullPath.subList(startIndex, rotatedEndIndex), calcMeanRIs(fullPath));
+			
+			// now rotated
+			double[][] rotatedData = calcRotated(rotatedSubPath, metric, rotatedWidth);
+			datas.add(rotatedData);
+		}
+		
+		String name = "rp_"+metric.name()+"_hybrid_"+threshStr+"_rotated.png";
+		plotRotated(datas, comboPlotNames, metric, -1, cpt, rotatedPixelWidth, distSpacing,
+				new File(comboDir, name));
 	}
 	
 	public static List<double[]> toDoublePath(List<int[]> fullPath) {

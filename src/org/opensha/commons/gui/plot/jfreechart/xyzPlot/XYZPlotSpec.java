@@ -28,6 +28,7 @@ public class XYZPlotSpec {
 	private RectangleEdge legendPosition = RectangleEdge.TOP;
 	private List<? extends XY_DataSet> xyElems;
 	private List<PlotCurveCharacterstics> xyChars;
+	private double cptTickUnit = -1;
 	
 	/**
 	 * 
@@ -145,6 +146,18 @@ public class XYZPlotSpec {
 
 	public void setXYChars(List<PlotCurveCharacterstics> xyChars) {
 		this.xyChars = xyChars;
+	}
+	
+	/**
+	 * Sets tick unit for the CPT or -1 for auto tick units.
+	 * @param cptTickUnit
+	 */
+	public void setCPTTickUnit(double cptTickUnit) {
+		this.cptTickUnit = cptTickUnit;
+	}
+	
+	public double getCPTTickUnit() {
+		return cptTickUnit;
 	}
 
 }

@@ -37,7 +37,7 @@ public class FiniteFaultMapper {
 	private double maxLengthDiff = 75d;
 	private double maxCenterDist = 75d;
 	private double maxAnyDist = 50d;
-	private int numSurfLocsToCheck = 1000;
+	private int numSurfLocsToCheck = 500;
 	
 	private double surfSpacing = 5d;
 	
@@ -157,7 +157,7 @@ public class FiniteFaultMapper {
 		List<ComparablePairing<Double, Integer>> pairings = ComparablePairing.build(means, sortIndexes);
 		Collections.sort(pairings);
 		
-		for (int i=0; i<10 && i<pairings.size(); i++) {
+		for (int i=0; i<50 && i<pairings.size() && D; i++) {
 			ComparablePairing<Double, Integer> pairing = pairings.get(i);
 			if (Double.isInfinite(pairing.getComparable()))
 				 break;
@@ -168,9 +168,21 @@ public class FiniteFaultMapper {
 			double min = StatUtils.min(dists);
 			double max = StatUtils.max(dists);
 			int rupIndex = candidates.get(index);
+			
+			
+			List<String> parents = Lists.newArrayList();
+			
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(rupIndex)) {
+				String parentName = sect.getParentSectionName();
+				if (parents.isEmpty() || !parents.get(parents.size()-1).equals(parentName))
+					parents.add(parentName);
+			}
+			
+			String parStr = Joiner.on("; ").join(parents);
+			
 			System.out.println("Match "+i+". Mean="+(float)mean+". Median="+(float)median
 					+". Range=["+(float)min+" "+(float)max+"]. Mag="+rupSet.getMagForRup(rupIndex)
-					+". Len="+lengths[rupIndex]+". Center: "+centers[rupIndex]);
+					+". Len="+lengths[rupIndex]+". Center: "+centers[rupIndex]+". Parents: "+parStr);
 		}
 		
 		if (D) {
@@ -187,18 +199,6 @@ public class FiniteFaultMapper {
 			return -1;
 		
 		int rupIndex = candidates.get(pairing.getData());
-		
-		if (D) {
-			List<String> parents = Lists.newArrayList();
-			
-			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(rupIndex)) {
-				String parentName = sect.getParentSectionName();
-				if (parents.isEmpty() || !parents.get(parents.size()-1).equals(parentName))
-					parents.add(parentName);
-			}
-			
-			System.out.println("Match parent sections: "+Joiner.on("; ").join(parents));
-		}
 		
 		return rupIndex;
 	}
