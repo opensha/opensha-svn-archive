@@ -1097,6 +1097,8 @@ public class ETAS_Simulator {
 		MOJAVE_M7("MojaveM7", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
 		MOJAVE_M6("MojaveM6", new Location(34.42295,-117.80177,5.8), 6.0),	// original test for Kevin
 		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	//
+		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
+		MOJAVE_M5p5_5kmAway("MojaveM5.5_5kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 5.0, 0.0)), 5.5),	//
 		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	//
 		N_PALM_SPRINGS_1986("N Palm Springs M6.0", new Location(34.02,-116.76,10.0), 6.0),		// original provided by Kevin
 		MOJAVE_OLD("Mojave M7.05", 197792),		// original provided by Kevin
@@ -1280,8 +1282,8 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-//		TestScenario scenario = TestScenario.MOJAVE_M7;
-		TestScenario scenario = null;
+		TestScenario scenario = TestScenario.MOJAVE_M5p5_5kmAway;
+//		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);		
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
@@ -1300,11 +1302,13 @@ public class ETAS_Simulator {
 //		Long seed = null;
 		Long seed = 1439486175712l;
 		
-		double startTimeYear=2012;
-		double durationYears=10;
+//		double startTimeYear=2012;
+//		double durationYears=10;
+		double startTimeYear=2014;
+		double durationYears=1;
 		
-//		ObsEqkRupList histCat = null;
-		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
+		ObsEqkRupList histCat = null;
+//		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);	// aveStrike=295.0367915096109
 		

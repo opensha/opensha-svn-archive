@@ -53,6 +53,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -982,9 +983,12 @@ public class ETAS_SimAnalysisTools {
 			}
 			return min;
 		}
+		else if(surf instanceof PointSurface) {
+			return LocationUtils.linearDistanceFast(hypo, ((PointSurface) surf).getLocation());
+		}
 		Preconditions.checkState(surf instanceof EvenlyGriddedSurface,
 				"Surface must be either an EvenlyGriddedSurface or CompoundSurface comprised "
-				+ "of only EvenlyGriddedSurface's");
+				+ "of only EvenlyGriddedSurface's; this is "+surf.getClass());
 		EvenlyGriddedSurface gridSurf = (EvenlyGriddedSurface)surf;
 		
 		double minDistance = Double.MAX_VALUE;
@@ -1281,12 +1285,21 @@ public class ETAS_SimAnalysisTools {
 	 * @return
 	 */
 	public static List<EvenlyDiscretizedFunc> getExpectedPrimaryMFDs_ForRup(String rupInfo, String pdf_FileNamePrefix,  List<SummedMagFreqDist> mfdList, 
-			EqkRupture rupture, double expNum) {
+			EqkRupture rupture, double expNum, boolean isPoisson) {
 		
 		IncrementalMagFreqDist mfdSupra = mfdList.get(1).deepClone();
-		double probFirstSupra = mfdSupra.calcSumOfY_Vals();
-		double probSupra = 1 - Math.pow(1.0-probFirstSupra, expNum);
-		mfdSupra.scale(probSupra/probFirstSupra);
+		if(isPoisson) {
+			mfdSupra.scale(expNum);	
+			mfdSupra.setName("Expected MFD for supra seis primary aftershocks of "+rupInfo);
+		}
+		else {
+			double probFirstSupra = mfdSupra.calcSumOfY_Vals();
+			double probSupra = 1 - Math.pow(1.0-probFirstSupra, expNum);
+			mfdSupra.scale(probSupra/probFirstSupra);
+			mfdSupra.setName("Prob of one or more supra seis primary aftershocks of "+rupInfo);
+		}
+		mfdSupra.setInfo("Data:\n"+mfdSupra.getMetadataString());
+
 		
 		IncrementalMagFreqDist mfdSubSeis = mfdList.get(2).deepClone();
 		mfdSubSeis.scale(expNum);
@@ -1298,8 +1311,6 @@ public class ETAS_SimAnalysisTools {
 		mfd.setName("Expected MFD for primary aftershocks of "+rupInfo);
 		mfd.setInfo("expNum="+expNum+"Data:\n"+mfd.getMetadataString());
 		
-		mfdSupra.setName("Expected MFD for supra seis primary aftershocks of "+rupInfo);
-		mfdSupra.setInfo("Data:\n"+mfdSupra.getMetadataString());
 
 		EvenlyDiscretizedFunc cumMFD=mfd.getCumRateDistWithOffset();
 		cumMFD.setName("Cum MFD for primary aftershocks of "+rupInfo);

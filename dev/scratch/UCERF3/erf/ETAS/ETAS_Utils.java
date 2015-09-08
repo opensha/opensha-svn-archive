@@ -792,6 +792,10 @@ public class ETAS_Utils {
 		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
 //		double minMag = subSeisMFD.getMinX();
 		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
+		if(Double.isNaN(maxMagWithNonZeroRate)) {
+			System.out.println("ISSUE: maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+			return 1d;
+		}
 		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/supraSeisMFD.getDelta()) + 1;
 		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
 				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
