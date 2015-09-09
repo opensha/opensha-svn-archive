@@ -1282,11 +1282,11 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		TestScenario scenario = TestScenario.MOJAVE_M5p5_5kmAway;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		
 		String simulationName;
 		if(scenario == null)

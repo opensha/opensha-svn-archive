@@ -1637,7 +1637,7 @@ public class ETAS_SimAnalysisTools {
 
 	
 		// make the target function & change it to a PDF
-		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
+		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
 		targetFunc.setName("Expected Rate Decay for Primary Aftershocks");
 
 		
@@ -1707,7 +1707,7 @@ public class ETAS_SimAnalysisTools {
 
 	
 		// make the target function & change it to a PDF
-		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, 7d, ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
+		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
 		targetFunc.setName("Expected Rate Decay for All Aftershocks");
 
 		

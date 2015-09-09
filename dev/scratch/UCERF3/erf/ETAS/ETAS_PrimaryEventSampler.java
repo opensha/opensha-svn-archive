@@ -44,6 +44,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -76,7 +77,7 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	boolean APPLY_ERT = true;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
+	boolean APPLY_ERT;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean applyGR_Corr;	// don't set here (set by constructor)
 	
 	final static boolean D=ETAS_Simulator.D;
@@ -212,9 +213,13 @@ public class ETAS_PrimaryEventSampler {
 			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList, 
 			int[] inputIsCubeInsideFaultPolygon) {
 		
-		if(probModel == U3ETAS_ProbabilityModelOptions.NO_ERT) {
+		if(probModel == U3ETAS_ProbabilityModelOptions.FULL_TD) {
+			APPLY_ERT = true;
+		}
+		else { // NO_ERT or POISSON
 			APPLY_ERT = false;
 		}
+			
 		
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -417,23 +422,11 @@ public class ETAS_PrimaryEventSampler {
 		
 		long st= System.currentTimeMillis();
 		
-		Boolean isPoisson=null;
-		if(fssERF !=null) {
-			isPoisson = fssERF.isPoisson();
-		}
-		else
-			throw new RuntimeException("Not sure if erf is Poisson or not; is there a way to tell? (fix this)");
-		
-		if(D)
-			System.out.println("isPoisson="+isPoisson);
-		
 		for(int s=0;s<totSectNuclRateArray.length;s++) {	// intialized totals to zero
 			totSectNuclRateArray[s] = 0d;
 		}
 		//
 		double[] sectNormTimeSince = fssERF.getNormTimeSinceLastForSections();
-		if(sectNormTimeSince==null && !isPoisson)
-			throw new RuntimeException("Problem");
 			
 		for(int src=0; src<numFltSystSources; src++) {
 			int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
@@ -449,7 +442,7 @@ public class ETAS_PrimaryEventSampler {
 				if(Double.isNaN(normTS)) 
 					normTimeSinceOnSectArray[s] = 1.0;	// assume it's 1.0 if value unavailable
 				else {
-					if(APPLY_ERT && !isPoisson)	// isPoisson no longer neede given above?
+					if(APPLY_ERT)
 						normTimeSinceOnSectArray[s]=normTS;
 					else
 						normTimeSinceOnSectArray[s]=1.0;	// test
@@ -1591,8 +1584,8 @@ System.exit(0);
 	 * @param cubeIndex
 	 * @return Hashtable where key is src index and value is relative probability
 	 */
-	public Hashtable<Integer,Double> getRelativeTriggerProbOfSourcesInCube(int cubeIndex) {
-		Hashtable<Integer,Double> probForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+	public Hashtable<Integer,Double> getRelativeTriggerProbOfSourcesInCube(int cubeIndex, boolean includeSupra) {
+		Hashtable<Integer,Double> probForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, includeSupra);
 		
 		if(probForSrcHashtable == null) {
 			return null;
@@ -1629,7 +1622,7 @@ System.exit(0);
 	 * @param cubeIndex
 	 * @return Hashtable where key is src index and value is rate
 	 */
-	public Hashtable<Integer,Double> getNucleationRatesOfSourcesInCube(int cubeIndex) {
+	public Hashtable<Integer,Double> getNucleationRatesOfSourcesInCube(int cubeIndex, boolean includeSupra) {
 		Hashtable<Integer,Double> rateForSrcHashtable = new Hashtable<Integer,Double>();
 		
 		// compute nucleation rate of gridded-seis source in this cube
@@ -1647,7 +1640,7 @@ System.exit(0);
 			return null;
 		}
 		
-		if(gridSrcIndex != -1 && sectInCubeArray.length==0) {
+		if(gridSrcIndex != -1 && (sectInCubeArray.length==0 || !includeSupra)) {
 			rateForSrcHashtable.put(gridSrcIndex, gridSrcRate);	// only gridded source in this cube
 			return rateForSrcHashtable;
 		}
@@ -1694,7 +1687,7 @@ System.exit(0);
 			int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(c));
 			if(griddeSeisRegionIndex == -1)
 				continue;
-			Hashtable<Integer,Double> srcProbInCube = getRelativeTriggerProbOfSourcesInCube(c);
+			Hashtable<Integer,Double> srcProbInCube = getRelativeTriggerProbOfSourcesInCube(c,true);
 			if(srcProbInCube == null || srcProbInCube.size() == 1)
 				continue;
 			double minVal = 1;
@@ -1714,7 +1707,7 @@ System.exit(0);
 			samplesProgressBar.showProgress(true);
 			for(long i=0;i<numSamples;i++) {
 				progressBar.updateProgress(i, numSamples);
-				int srcIndex = getRandomSourceIndexInCube(c);
+				int srcIndex = getRandomSourceIndexInCube(c,true);
 				if(testSrcProbInCube.containsKey(srcIndex)) {
 					double newVal = testSrcProbInCube.get(srcIndex) + 1.0/(double)numSamples;
 					testSrcProbInCube.put(srcIndex, newVal);
@@ -1753,7 +1746,7 @@ System.exit(0);
 		progressBar.showProgress(true);
 		for(int c=0;c<numCubes;c++) {
 			progressBar.updateProgress(c, numCubes);
-			Hashtable<Integer,Double> srcRatesInCube = this.getNucleationRatesOfSourcesInCube(c);
+			Hashtable<Integer,Double> srcRatesInCube = this.getNucleationRatesOfSourcesInCube(c,true);
 			if(srcRatesInCube != null) {
 				for(int srcIndex:srcRatesInCube.keySet()) {
 					double rate = srcRatesInCube.get(srcIndex);
@@ -1791,7 +1784,8 @@ System.exit(0);
 	 * @param sampler
 	 * @param frac - only cubes that contribute to this fraction of the total rate will be considered (much faster and looks like same result)
 	 */
-	public double[] getRelativeTriggerProbOfEachSource(IntegerPDF_FunctionSampler sampler, double frac) {
+	public double[] getRelativeTriggerProbOfEachSource(IntegerPDF_FunctionSampler sampler, double frac,
+			ETAS_EqkRupture rupture) {
 		long st = System.currentTimeMillis();
 		double[] trigProb = new double[erf.getNumSources()];
 		
@@ -1807,6 +1801,7 @@ System.exit(0);
 		}
 		
 		List<Integer> list = sampler.getOrderedIndicesOfHighestXFract(frac);
+		boolean includSupra = true;
 		
 		// now loop over all cubes
 //		for(int i=0;i <numCubes;i++) {
@@ -1814,8 +1809,9 @@ System.exit(0);
 		for(int i : list) {
 			if(D) 
 				progressBar.updateProgress(numDone, list.size());
-
-			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i);
+			if(APPLY_ERT)
+				includSupra = canSupraBeTriggered(rupture, getCubeLocationForIndex(i));
+			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i,includSupra);
 			if(relSrcProbForCube != null) {
 				for(int srcKey:relSrcProbForCube.keySet()) {
 					trigProb[srcKey] += sampler.getY(i)*relSrcProbForCube.get(srcKey);
@@ -1899,7 +1895,7 @@ System.exit(0);
 	
 	
 	/**
-	 * 
+	 * THIS DOES NOT INCLUDE ELASTIC REBOUND TRIGGERING FOR SMALL FAULTS
 	 * @param mainshock
 	 * @return ArrayList<SummedMagFreqDist>; index 0 has total MFD, and index 1 has supra-seis MFD
 	 */
@@ -1930,6 +1926,38 @@ System.exit(0);
 		return mfdList;
 	}
 	
+	/**
+	 * This tells whether a parent rupture can trigger supra-seismogenic events at the given location.
+	 * The answer is true if the parent is itself supras-eismogenic (this case is handled using elastic
+	 * rebound) or if APPLY_ERT is false (POISSON or NO_ERT case).
+	 * It is also true if the parent mag is less than 4.0.  Otherwise the answer is false if the
+	 * distance between the parent and the trigger loc is less than sqrt(A/PI), where A is the area
+	 * defined as 10^(Mag-4.0).
+	 * @param parentRup
+	 * @param triggeredLoc
+	 * @return
+	 */
+	private boolean canSupraBeTriggered(ETAS_EqkRupture parentRup, Location triggeredLoc) {
+		if(parentRup.getFSSIndex()>=0 || !APPLY_ERT)
+			return true;
+		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
+		if(!pointSurface)
+			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
+		double parMag = parentRup.getMag();
+		if(parMag<4.0)
+			return true;
+		double area = Math.pow(10d, parMag-4.0);
+		double distCutoff = Math.sqrt(area/Math.PI);
+		double dist = LocationUtils.linearDistanceFast(parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), triggeredLoc);
+		if(dist<=distCutoff)
+			return false;
+		else
+			return true;
+		
+	}
+
+	
+
 	
 	/**
 	 * This plots one minus the probability that no primary aftershocks trigger each subsection, 
@@ -1941,7 +1969,7 @@ System.exit(0);
 	 * TODO move this to ETAS_SimAnalysisTools
 	 */
 	public String plotSubSectTriggerProbGivenAllPrimayEvents(IntegerPDF_FunctionSampler sampler, File resultsDir, int numToList, 
-			String nameSuffix, double expNum, boolean isPoisson) {
+			String nameSuffix, double expNum, boolean isPoisson, ETAS_EqkRupture parentRup) {
 		String info = "";
 		if(erf instanceof FaultSystemSolutionERF) {
 			FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
@@ -1955,6 +1983,10 @@ System.exit(0);
 
 			// now loop over all cubes
 			for(int i=0;i <numCubes;i++) {
+				// skip if this cube cannot trigger supra-seis ruptures
+				if(APPLY_ERT && !canSupraBeTriggered(parentRup, getCubeLocationForIndex(i))) {
+					continue;
+				}
 				int[] sectInCubeArray = sectInCubeList.get(i);
 				float[] fractInCubeArray = fractionSectInCubeList.get(i);
 				double sum = 0;
@@ -2889,8 +2921,9 @@ System.exit(0);
 				return false;	// triggered location outside of the region
 		}
 
+		boolean includSupra = canSupraBeTriggered(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
 				
-		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex);
+		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex, includSupra);
 		
 //		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
 //		if(randSrcIndex<0) {
@@ -3293,7 +3326,7 @@ System.exit(0);
 	 * @param srcIndex
 	 * @return
 	 */
-	public int getRandomSourceIndexInCube(int cubeIndex) {
+	public int getRandomSourceIndexInCube(int cubeIndex, boolean includSupra) {
 		
 		// get gridded region index for the cube
 		int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(cubeIndex));
@@ -3303,7 +3336,7 @@ System.exit(0);
 		// get gridded source index
 		int gridSrcIndex = numFltSystSources + griddeSeisRegionIndex;
 		
-		if(totalSectRateInCubeArray[cubeIndex] < 1e-15)
+		if(totalSectRateInCubeArray[cubeIndex] < 1e-15 || !includSupra)
 			return gridSrcIndex;
 		else {
 			double gridSrcRate = sourceRates[gridSrcIndex]/(numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);	// divide rate among all the cubes in grid cell
@@ -3660,7 +3693,7 @@ System.exit(0);
 //			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
-		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, true);
 		
 		if(rateForSrcHashtable == null)
 			return null;
@@ -3725,7 +3758,7 @@ System.exit(0);
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
-		Hashtable<Integer,Double> rateForSrcInCubeHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		Hashtable<Integer,Double> rateForSrcInCubeHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, true);
 		
 		if(rateForSrcInCubeHashtable == null)
 			return null;
@@ -3814,7 +3847,7 @@ System.exit(0);
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
-		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex);
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex,true);
 		
 		if(rateForSrcHashtable == null)
 			return null;
@@ -4463,49 +4496,8 @@ System.exit(0);
 //			List<Integer> list = aveCubeSamplerForRup.getOrderedIndicesOfHighestXFract(frac);
 //			System.out.println("Done with getOrderedIndicesOfHighestXFract; that took (ms): "+(System.currentTimeMillis()-time)+"\tnum="+list.size()+"\tof "+aveCubeSamplerForRup.size());			
 //		}
-		
 
-//int tempCubeIndex = 431146;
-//Location cubeLoc = getCubeLocationForIndex(tempCubeIndex);
-//double minDist = Double.MAX_VALUE;
-//double totDecayWt=0;
-//for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
-//	Location parLoc = getParLocationForIndex(getParLocIndexForLocation(loc));
-//	double dist = LocationUtils.linearDistance(cubeLoc, parLoc);
-//	if(dist<minDist) minDist=dist;
-//	double relLat = Math.abs(parLoc.getLatitude()-latForCubeCenter[tempCubeIndex]);
-//	double relLon = Math.abs(parLoc.getLongitude()-lonForCubeCenter[tempCubeIndex]);
-//	double wt = etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[tempCubeIndex], parLoc.getDepth());
-//	totDecayWt += wt;
-//	System.out.println(tempCubeIndex+"\t"+dist+"\t"+wt);
-//}
-//System.out.println("Distance for cube "+tempCubeIndex+" is "+minDist+"; totDecayWt = "+totDecayWt);
-//
-//tempCubeIndex = 426462;
-//cubeLoc = getCubeLocationForIndex(tempCubeIndex);
-//minDist = Double.MAX_VALUE;
-//totDecayWt=0;
-//for(Location loc:rupture.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface()) {
-//	Location parLoc = getParLocationForIndex(getParLocIndexForLocation(loc));
-//	double dist = LocationUtils.linearDistance(cubeLoc, parLoc);
-//	if(dist<minDist) minDist=dist;
-//	double relLat = Math.abs(parLoc.getLatitude()-latForCubeCenter[tempCubeIndex]);
-//	double relLon = Math.abs(parLoc.getLongitude()-lonForCubeCenter[tempCubeIndex]);
-//	double wt = etas_LocWeightCalc.getProbAtPoint(relLat, relLon, depthForCubeCenter[tempCubeIndex], parLoc.getDepth());
-//	totDecayWt += wt;
-//	System.out.println(tempCubeIndex+"\t"+dist+"\t"+wt);
-//}
-//System.out.println("Distance for cube "+tempCubeIndex+" is "+minDist+"; totDecayWt = "+totDecayWt);
-//
-//System.exit(0);
-
-//long st2 = System.currentTimeMillis();
-//if (D) System.out.println("starting plotSubSectRelativeTriggerProbGivenSupraSeisRupture");
-//String info2 = "\n\n"+ plotSubSectRelativeTriggerProbGivenSupraSeisRupture(aveCubeSamplerForRup, subDirName, 30, rupInfo, expNum);
-//if (D) System.out.println("plotSubSectRelativeTriggerProbGivenSupraSeisRupture took (msec) "+(System.currentTimeMillis()-st2)+"\n"+info2);
-//System.exit(0);
-
-		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup, 0.99);
+		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup, 0.99, rupture);
 		
 		// this is for the Poisson cases
 //		plotPrimayEventOverlap(rupture, relSrcProbs, subDirName, 10000, rupInfo);
@@ -4548,7 +4540,7 @@ System.exit(0);
 		// for subsection trigger probabilities (different than participation).
 		st = System.currentTimeMillis();
 //		if (D) System.out.println("expectedNumSupra="+expectedNumSupra);
-		info += "\n\n"+ plotSubSectTriggerProbGivenAllPrimayEvents(aveCubeSamplerForRup, subDirName, 30, rupInfo, expNum, fssERF.isPoisson());
+		info += "\n\n"+ plotSubSectTriggerProbGivenAllPrimayEvents(aveCubeSamplerForRup, subDirName, 30, rupInfo, expNum, fssERF.isPoisson(), rupture);
 		if (D) System.out.println("plotSubSectRelativeTriggerProbGivenSupraSeisRupture took (msec) "+(System.currentTimeMillis()-st));
 
 		
