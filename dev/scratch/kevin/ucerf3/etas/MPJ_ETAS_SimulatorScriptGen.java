@@ -32,26 +32,26 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5};
-		TestScenario[] scenarios = { null };
-//		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5};
+//		TestScenario[] scenarios = { null };
+		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
 		boolean[] grCorrs = { false, true };
 //		boolean[] grCorrs = { true };
 		
-//		double duration = 1;
-//		int startYear = 2014;
-//		boolean histCatalog = false;
-//		int numSims = 10000;
-//		int nodes = 40;
-//		int mins = 18*60;
+		double duration = 1;
+		int startYear = 2014;
+		boolean histCatalog = false;
+		int numSims = 10000;
+		int nodes = 40;
+		int mins = 18*60;
 		
-		double duration = 1000;
-		int startYear = 2012;
-		boolean histCatalog = true;
-		int numSims = 100;
-		int nodes = 50;
-		int mins = 24*60;
+//		double duration = 1000;
+//		int startYear = 2012;
+//		boolean histCatalog = true;
+//		int numSims = 100;
+//		int nodes = 50;
+//		int mins = 24*60;
 		
 		boolean timeIndep = false;
 		

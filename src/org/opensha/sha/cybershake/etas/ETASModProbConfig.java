@@ -1337,7 +1337,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		IntegerPDF_FunctionSampler aveAveCubeSamplerForRup =
 				sampler.getAveSamplerForRupture(rupture);
 
-		double[] relSrcProbs = sampler.getRelativeTriggerProbOfEachSource(aveAveCubeSamplerForRup, 1.0);
+		double[] relSrcProbs = sampler.getRelativeTriggerProbOfEachSource(aveAveCubeSamplerForRup, 1.0, rupture);
 		
 		// list contains total, and supra seismogenic
 		List<SummedMagFreqDist> expectedPrimaryMFD_PDF = sampler.getExpectedPrimaryMFD_PDF(relSrcProbs);

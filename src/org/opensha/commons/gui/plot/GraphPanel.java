@@ -50,6 +50,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYAnnotation;
@@ -612,6 +613,16 @@ public class GraphPanel extends JSplitPane {
 				LegendItemCollection subLegend = plotSpec.getCustomLegendCollection();
 				if (subLegend == null)
 					subLegend = subPlot.getLegendItems();
+				if (plotSpec.isLegendSkipBlank()) {
+					LegendItemCollection newLegend = new LegendItemCollection();
+					for (int i=0; i<subLegend.getItemCount(); i++) {
+						LegendItem item = subLegend.get(i);
+						String label = item.getLabel();
+						if (label != null && !label.isEmpty())
+							newLegend.add(item);
+					}
+					subLegend = newLegend;
+				}
 				
 				if (legendItems == null) {
 					legendItems = new LegendItemCollection();

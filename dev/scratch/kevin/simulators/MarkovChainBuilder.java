@@ -1,5 +1,6 @@
 package scratch.kevin.simulators;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.stat.StatUtils;
@@ -33,8 +34,8 @@ public class MarkovChainBuilder {
 		return new EmpiricalMarkovChain(getStatesPath(distSpacing, matchesLists, startTimeOffset), distSpacing);
 	}
 	
-	public static List<int[]> getStatesPath(double distSpacing, List<EQSIM_Event> events,
-			List<RuptureIdentifier> rupIdens, double startTimeOffset) {
+	public static List<List<EQSIM_Event>> getMatchesLists(List<EQSIM_Event> events,
+			List<RuptureIdentifier> rupIdens) {
 		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
 		for (int i=0; i<rupIdens.size(); i++) {
 			List<EQSIM_Event> matches = rupIdens.get(i).getMatches(events);
@@ -44,11 +45,21 @@ public class MarkovChainBuilder {
 				matchRIs[j-1] = matches.get(j).getTimeInYears()-matches.get(j-1).getTimeInYears();
 			System.out.println(rupIdens.get(i).getName()+" mean RI: "+StatUtils.mean(matchRIs));
 		}
-		return getStatesPath(distSpacing, matchesLists, startTimeOffset);
+		return matchesLists;
+	}
+	
+	public static List<int[]> getStatesPath(double distSpacing, List<EQSIM_Event> events,
+			List<RuptureIdentifier> rupIdens, double startTimeOffset) {
+		return getStatesPath(distSpacing, getMatchesLists(events, rupIdens), startTimeOffset);
 	}
 	
 	public static List<int[]> getStatesPath(double distSpacing, List<List<EQSIM_Event>> matchesLists,
 			double startTimeOffset) {
+		return getStatesPath(distSpacing, matchesLists, startTimeOffset, null);
+	}
+	
+	public static List<int[]> getStatesPath(double distSpacing, List<List<EQSIM_Event>> matchesLists,
+			double startTimeOffset, List<List<EQSIM_Event>> eventsForStatesList) {
 		int nDims = matchesLists.size();
 		
 		// only used for utility methods in binning
@@ -56,6 +67,9 @@ public class MarkovChainBuilder {
 				distSpacing*0.5, distSpacing);
 		
 		Preconditions.checkState(nDims > 0);
+		
+		Preconditions.checkState(eventsForStatesList == null || eventsForStatesList.isEmpty(),
+				"eventsForStatesList, if supplied, must be empty. will be filled in for each returned state");
 		
 		double maxTime = 0d;
 		double startTime = Double.POSITIVE_INFINITY;
@@ -114,13 +128,20 @@ public class MarkovChainBuilder {
 			double windowStart = startTime + distSpacing*step;
 			double windowEnd = windowStart + distSpacing;
 			
+			List<EQSIM_Event> eventsOccurringInWindow = null;
+			if (eventsForStatesList != null)
+				eventsOccurringInWindow = Lists.newArrayList();
+			
 			for (int n=0; n<nDims; n++) {
 				List<EQSIM_Event> myMatches = matchesLists.get(n);
 				for (int i=lastMatchIndexBeforeWindowEnd[n]+1; i<myMatches.size(); i++) {
-					double time = myMatches.get(i).getTimeInYears();
+					EQSIM_Event event = myMatches.get(i);
+					double time = event.getTimeInYears();
 					Preconditions.checkState(time >= windowStart);
 					if (time > windowEnd)
 						break;
+					if (eventsOccurringInWindow != null && time >= windowStart)
+						eventsOccurringInWindow.add(event);
 					lastMatchIndexBeforeWindowEnd[n] = i;
 				}
 			}
@@ -145,6 +166,10 @@ public class MarkovChainBuilder {
 			}
 			
 			fullPath.add(curState);
+			if (eventsOccurringInWindow != null) {
+				Collections.sort(eventsOccurringInWindow);
+				eventsForStatesList.add(eventsOccurringInWindow);
+			}
 			
 			prevState = curState;
 		}

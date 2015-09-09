@@ -1,8 +1,14 @@
 package scratch.kevin.simulators.momRateVariation;
 
 import java.awt.Color;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -262,6 +268,44 @@ public class UCERF3ComparisonAnalysis {
 		System.out.println("\tActual rate: "+actualRate);
 		
 		Collections.sort(events);
+		
+		return events;
+	}
+	
+	public static void writeUCERF3CatalogBinary(List<EQSIM_Event> events, File file) throws IOException {
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		
+		// num events
+		out.writeInt(events.size());
+		
+		for (EQSIM_Event event : events) {
+			EventRecord rec = event.get(0);
+			Preconditions.checkState(rec instanceof UCERF3EventRecord);
+			out.writeInt(rec.getID());
+			out.writeDouble(rec.getTime());
+		}
+		
+		out.close();
+	}
+	
+	public static List<EQSIM_Event> loadUCERF3CatalogBinary(FaultSystemSolution sol,
+			Map<Integer, RectangularElement> elems, File file) throws IOException {
+		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+		
+		List<EQSIM_Event> events = Lists.newArrayList();
+		
+		int numEvents = in.readInt();
+		
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		for (int i=0; i<numEvents; i++) {
+			int fssIndex = in.readInt();
+			double timeSecs = in.readDouble();
+			
+			events.add(new EQSIM_Event(new UCERF3EventRecord(elems, rupSet, fssIndex, timeSecs)));
+		}
+		
+		in.close();
 		
 		return events;
 	}

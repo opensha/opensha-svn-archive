@@ -29,6 +29,7 @@ public class PlotSpec implements Serializable {
 	private List<? extends XYAnnotation> annotations;
 	
 	private boolean legend = false;
+	private boolean legendSkipBlank = true;
 	private RectangleEdge legendLocation = RectangleEdge.BOTTOM;
 	private LegendItemCollection customLegendCollection = null;
 	
@@ -134,6 +135,14 @@ public class PlotSpec implements Serializable {
 	 */
 	public void setLegendVisible(boolean legend) {
 		this.legend = legend;
+	}
+	
+	public boolean isLegendSkipBlank() {
+		return legendSkipBlank;
+	}
+	
+	public void setLegendSkipBlank(boolean legendSkipBlank) {
+		this.legendSkipBlank = legendSkipBlank;
 	}
 
 	public RectangleEdge getLegendLocation() {
