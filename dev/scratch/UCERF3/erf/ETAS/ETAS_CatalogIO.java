@@ -232,7 +232,7 @@ public class ETAS_CatalogIO {
 	public static List<ETAS_EqkRupture> loadCatalog(File catalogFile, double minMag, boolean ignoreFailure)
 			throws IOException {
 		if (isBinary(catalogFile))
-			loadCatalogBinary(catalogFile, minMag);
+			return loadCatalogBinary(catalogFile, minMag);
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		for (String line : Files.readLines(catalogFile, Charset.defaultCharset())) {
 			line = line.trim();
@@ -243,7 +243,7 @@ public class ETAS_CatalogIO {
 				rup = loadRuptureFromFileLine(line);
 			} catch (RuntimeException e) {
 				if (ignoreFailure) {
-					System.err.println("Warning, skipping line: "+e.getMessage());
+					System.err.println("Warning, skipping line: "+e.getMessage()+"\n\tFile: "+catalogFile.getAbsolutePath());
 					continue;
 				}
 				else throw e;
@@ -440,17 +440,26 @@ public class ETAS_CatalogIO {
 
 		for (int i=0; i<numRups; i++) {
 			int id = in.readInt();
+			Preconditions.checkState(id >= 0);
 			int parentID = in.readInt();
+			Preconditions.checkState(id >= -1);
 			int gen = in.readShort();
+			Preconditions.checkState(id >= 0);
 			long origTime = in.readLong();
+			// loc will be validated on instantiation
 			double lat = in.readDouble();
 			double lon = in.readDouble();
 			double depth = in.readDouble();
 			double mag = in.readDouble();
+			Preconditions.checkState(mag >= 0 && mag < 10);
 			double distToParent = in.readDouble();
+			Preconditions.checkState(Double.isNaN(distToParent) || distToParent >= 0, "bad dist to parent: %s", distToParent);
 			int nthERFIndex = in.readInt();
+			Preconditions.checkState(nthERFIndex >= -1);
 			int fssIndex = in.readInt();
+			Preconditions.checkState(fssIndex >= -1);
 			int gridNodeIndex = in.readInt();
+			Preconditions.checkState(gridNodeIndex >= -1);
 
 			if (mag < minMag)
 				continue;
@@ -546,12 +555,12 @@ public class ETAS_CatalogIO {
 
 			// first try to just copy over binary data
 			File binaryFile = new File(subDir, "simulatedEvents.bin");
-			if (binaryFile.exists()) {
+			if (binaryFile.exists() && binaryFile.length() > 0l) {
 				eventsFiles.add(binaryFile);
 				continue;
 			}
 			File binaryGZipFile = new File(subDir, "simulatedEvents.bin.gz");
-			if (binaryGZipFile.exists()) {
+			if (binaryGZipFile.exists() && binaryGZipFile.length() > 0l) {
 				eventsFiles.add(binaryGZipFile);
 				continue;
 			}
@@ -573,13 +582,24 @@ public class ETAS_CatalogIO {
 
 		for (File eventsFile : eventsFiles) {
 			String name = eventsFile.getName();
-			if (minMag < 0 && name.endsWith(".bin")) {
-				ByteStreams.copy(new BufferedInputStream(new FileInputStream(eventsFile), buffer_len), out);
-			} else if (minMag < 0 && name.endsWith(".bin.gz")) {
-				ByteStreams.copy(new GZIPInputStream(new FileInputStream(eventsFile), buffer_len), out);
-			} else {
-				writeCatalogBinary(out, loadCatalog(eventsFile, minMag, true));
+			// make sure that we actually write something
+			int prevCounter = out.size();
+			try {
+				if (minMag < 0 && name.endsWith(".bin")) {
+					ByteStreams.copy(new BufferedInputStream(new FileInputStream(eventsFile), buffer_len), out);
+				} else if (minMag < 0 && name.endsWith(".bin.gz")) {
+					ByteStreams.copy(new GZIPInputStream(new FileInputStream(eventsFile), buffer_len), out);
+				} else {
+					writeCatalogBinary(out, loadCatalog(eventsFile, minMag, true));
+				}
+			} catch (RuntimeException e) {
+				System.err.println("FAILED on "+eventsFile.getAbsolutePath());
+				throw e;
 			}
+			int newCounter = out.size();
+			Preconditions.checkState(newCounter == Integer.MAX_VALUE || newCounter > prevCounter,
+					"Didn't write anything for catalog in %s. before: %s, after %s bytes",
+					eventsFile.getAbsolutePath(), prevCounter, newCounter);
 		}
 
 		out.close();

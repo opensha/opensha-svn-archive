@@ -40,7 +40,12 @@ public class FindIncomplete {
 				// try loading
 				String loadStr;
 				try {
-					ETAS_CatalogIO.loadCatalog(new File(subDir, "simulatedEvents.txt"));
+					File asciiFile = new File(subDir, "simulatedEvents.txt");
+					File binaryFile = new File(subDir, "simulatedEvents.bin");
+					if (binaryFile.exists())
+						ETAS_CatalogIO.loadCatalog(binaryFile);
+					else
+						ETAS_CatalogIO.loadCatalog(asciiFile);
 					loadStr = "true";
 					failedButLoads++;
 				} catch (Exception e) {

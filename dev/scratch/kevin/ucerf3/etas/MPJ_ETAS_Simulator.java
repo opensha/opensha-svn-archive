@@ -496,7 +496,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 						List<ETAS_EqkRupture> catalog = ETAS_CatalogIO.loadCatalog(asciiFile);
 						File binaryFile = new File(resultsDir, "simulatedEvents.bin");
 						ETAS_CatalogIO.writeCatalogBinary(binaryFile, catalog);
-						asciiFile.delete();
+						// make sure that the binary file really succeeded before deleting ascii
+						if (binaryFile.length() > 0l)
+							asciiFile.delete();
+						else
+							binaryFile.delete();
 						debug("completed binary output "+index);
 					}
 				} catch (Throwable t) {
@@ -620,7 +624,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			eventsFile = new File(resultsDir, "simulatedEvents.bin");
 		if (!eventsFile.exists())
 			eventsFile = new File(resultsDir, "simulatedEvents.bin.gz");
-		if (!infoFile.exists() || !eventsFile.exists())
+		if (!infoFile.exists() || !eventsFile.exists() || eventsFile.length() == 0l)
 			return false;
 		for (String line : Files.readLines(infoFile, Charset.defaultCharset())) {
 			if (line.contains("Total num ruptures: "))

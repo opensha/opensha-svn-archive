@@ -1,6 +1,7 @@
 package scratch.UCERF3.erf.ETAS;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
@@ -16,7 +17,9 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
+import org.jfree.ui.TextAnchor;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
@@ -58,6 +61,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -772,7 +776,7 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(particRates), region, outputDir,
-					prefix+"_partic"+prefixAdd,false, false, title+titleAdd+" Participation Rate");
+					prefix+"_partic"+prefixAdd,false, false, title+titleAdd+" Partic. Rate");
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(triggerRates), region, outputDir,
 					prefix+"_trigger"+prefixAdd, false, false, title+titleAdd+" Trigger Rate");
@@ -787,16 +791,27 @@ public class ETAS_MultiSimAnalysisTools {
 		if (primaryCatalogs != null)
 			primaryHist = new HistogramFunction(fullHist.getMinX(), fullHist.size(), fullHist.getDelta());
 		
-		double[] fullData = new double[catalogs.size()];
-		for (int i=0; i<catalogs.size(); i++)
-			fullData[i] = ETAS_SimAnalysisTools.getMaxMag(catalogs.get(i));
-		populateHistWithInfo(fullHist, fullData);
+		int numEmpty = 0;
 		
+		List<Double> maxMags = Lists.newArrayList();
+		for (int i=0; i<catalogs.size(); i++) {
+			if (catalogs.get(i).isEmpty())
+				numEmpty++;
+			else
+				maxMags.add(ETAS_SimAnalysisTools.getMaxMag(catalogs.get(i)));
+		}
+		populateHistWithInfo(fullHist, Doubles.toArray(maxMags));
+		
+		int numPrimaryEmpty = 0;
 		if (primaryCatalogs != null) {
-			double[] primaryData = new double[primaryCatalogs.size()];
-			for (int i=0; i<primaryCatalogs.size(); i++)
-				primaryData[i] = ETAS_SimAnalysisTools.getMaxMag(primaryCatalogs.get(i));
-			populateHistWithInfo(primaryHist, primaryData);
+			maxMags = Lists.newArrayList();
+			for (int i=0; i<primaryCatalogs.size(); i++) {
+				if (primaryCatalogs.get(i).isEmpty())
+					numPrimaryEmpty++;
+				else
+					maxMags.add(ETAS_SimAnalysisTools.getMaxMag(primaryCatalogs.get(i)));
+			}
+			populateHistWithInfo(primaryHist, Doubles.toArray(maxMags));
 		}
 		
 		double maxY = fullHist.getMaxY()*1.1;
@@ -828,16 +843,36 @@ public class ETAS_MultiSimAnalysisTools {
 		PlotSpec spec = new PlotSpec(funcs, chars, name+" Max Mag Hist", "Magnitude", "Num Simulations");
 		spec.setLegendVisible(true);
 		
+		double histDelta = fullHist.getDelta();
+		double minX = fullHist.getMinX()-0.5*histDelta;
+		double maxX = fullHist.getMaxX()-0.5*histDelta;
+		
+		if (numEmpty > 0 || numPrimaryEmpty > 0) {
+			String primaryStr = "";
+			if (numPrimaryEmpty > 0) {
+				primaryStr = numPrimaryEmpty+"/"+primaryCatalogs.size()+" primary";
+				if (numEmpty > 0)
+					primaryStr = " ("+primaryStr+")";
+			}
+			String text;
+			if (numEmpty > 0)
+				text = numEmpty+"/"+catalogs.size()+primaryStr;
+			else
+				text = primaryStr;
+			text += " catalogs empty and excluded";
+			XYTextAnnotation ann = new XYTextAnnotation(text, minX+(maxX-minX)*0.05, maxY*0.95);
+			ann.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+			ann.setTextAnchor(TextAnchor.TOP_LEFT);
+			List<XYTextAnnotation> anns = Lists.newArrayList(ann);
+			spec.setPlotAnnotations(anns);
+		}
+		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setTickLabelFontSize(18);
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
-		
-		double histDelta = fullHist.getDelta();
-		double minX = fullHist.getMinX()-0.5*histDelta;
-		double maxX = fullHist.getMaxX()-0.5*histDelta;
 		
 		gp.drawGraphPanel(spec, false, false);
 		gp.drawGraphPanel(spec, false, false, new Range(minX, maxX), new Range(0, maxY));
@@ -962,8 +997,15 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		for (int i=0; i<mags.length; i++) {
 			GriddedGeoDataSet xyz = xyzs[i];
+			
 			double minZ = Math.floor(Math.log10(scalar));
 			double maxZ = Math.ceil(xyz.getMaxZ());
+			if (xyz.getMaxZ() == Double.NEGATIVE_INFINITY)
+				maxZ = minZ+4;
+			if (maxZ == minZ)
+				maxZ++;
+			
+			Preconditions.checkState(minZ < maxZ, "minZ=%s >= maxZ=%s", minZ, maxZ);
 			
 			double mag = mags[i];
 			String label = "Log10("+name+" M>="+(float)mag+" Nucleation Rate)";
@@ -1066,14 +1108,14 @@ public class ETAS_MultiSimAnalysisTools {
 //		boolean plotGriddedNucleation = true;
 //		boolean writeCatsForViz = false;
 		
-		boolean plotMFDs = false;
-		boolean plotExpectedComparison = false;
-		boolean plotSectRates = false;
-		boolean plotTemporalDecay = false;
+		boolean plotMFDs = true;
+		boolean plotExpectedComparison = true;
+		boolean plotSectRates = true;
+		boolean plotTemporalDecay = true;
 		boolean plotDistanceDecay = true;
-		boolean plotMaxMagHist = false;
-		boolean plotGenerations = false;
-		boolean plotGriddedNucleation = false;
+		boolean plotMaxMagHist = true;
+		boolean plotGenerations = true;
+		boolean plotGriddedNucleation = true;
 		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
@@ -1101,6 +1143,22 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
+//		names.add("Mojave M5.5 Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-full_td/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+//		names.add("Mojave M5.5 Full TD, GR Corr.");
+//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-full_td-grCorr/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+		names.add("Mojave M5.5 Full TD, No ERT");
+		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+//		names.add("Mojave M5.5 Full TD, No ERT, GR Corr.");
+//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert-grCorr/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
 //		names.add("Mojave M5 Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m5-full_td/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M5);
@@ -1125,29 +1183,29 @@ public class ETAS_MultiSimAnalysisTools {
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m6-full_td-grCorr/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M6);
 //		
-		names.add("Mojave M7 Full TD");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
-		
-		names.add("Mojave M7 Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
-		
-		names.add("Mojave M7 No ERT");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
-		
-		names.add("Mojave M7 No ERT, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
-		
-//		names.add("Mojave M7 Poisson");				// BAD, none completed
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson/results_m4.bin"));
+//		names.add("Mojave M7 Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M7);
-		
-		names.add("Mojave M7 Poisson, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson-grCorr/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
+//		
+//		names.add("Mojave M7 Full TD, GR Corr.");
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
+//		
+//		names.add("Mojave M7 No ERT");
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert/results_m4.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
+//		
+//		names.add("Mojave M7 No ERT, GR Corr.");
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
+//		
+////		names.add("Mojave M7 Poisson");				// BAD, none completed
+////		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson/results_m4.bin"));
+////		scenarios.add(TestScenario.MOJAVE_M7);
+//		
+//		names.add("Mojave M7 Poisson, GR Corr.");
+//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson-grCorr/results_m4.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
 		
 		// parent ID for the trigger rupture
 		int triggerParentID = 0;
@@ -1333,20 +1391,27 @@ public class ETAS_MultiSimAnalysisTools {
 				}
 			}
 			
-			if (plotMaxMagHist)
+			if (plotMaxMagHist) {
+				System.out.println("Plotting max mag hist");
 				plotMaxTriggeredMagHist(childrenCatalogs, primaryCatalogs, scenario, outputDir, name, "max_mag_hist");
+			}
 			
-			if (plotGenerations)
+			if (plotGenerations) {
+				System.out.println("Plotting generations");
 				plotNumEventsPerGeneration(childrenCatalogs, outputDir, name, "full_children_generations");
+			}
 			
 			if (plotGriddedNucleation) {
+				System.out.println("Plotting gridded nucleation");
 				double[] mags = { 2.5, 6.7, 7.8 };
 				plotCubeNucleationRates(childrenCatalogs, duration, outputDir, name, "full_children_gridded_nucl", mags);
 				plotCubeNucleationRates(primaryCatalogs, duration, outputDir, name, "primary_gridded_nucl", mags);
 			}
 			
-			if (writeCatsForViz)
+			if (writeCatsForViz) {
+				System.out.println("Writing catalogs for vizualisation in SCEC-VDO");
 				writeCatalogsForViz(childrenCatalogs, scenario, new File(parentDir, catsDirName), 5);
+			}
 			
 			writeHTML(parentDir, scenario, name, catalogs, duration);
 		}

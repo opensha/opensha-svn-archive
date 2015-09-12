@@ -833,6 +833,7 @@ public class RecurrencePlotGen {
 		boolean plotRecurrence = false;
 		boolean doMomRateComparison = false;
 		boolean doCalcMetrics = true;
+		boolean plotSpecialPosterFigs = false;
 		EvenlyDiscretizedFunc threshFuncXVals = new EvenlyDiscretizedFunc(0.1, 10, 0.1);
 		
 		boolean[] poissons = { false, true };
@@ -994,7 +995,7 @@ public class RecurrencePlotGen {
 				if (plotRecurrence)
 					plotRecurrence(mySubDir, fullPath, distSpacing, normalize, metrics, thresholds);
 				
-				if (!poisson && plotRecurrence) {
+				if (!poisson && plotSpecialPosterFigs) {
 					// plot standard for poster
 					File outputFile = new File(mySubDir, "orig_style.png");
 					List<int[]> myPath = fullPath.subList(0, 500);
@@ -1009,6 +1010,14 @@ public class RecurrencePlotGen {
 					plotDiscreteRotated(rotated, metric, rotated_pixel_width,
 							threshold, distSpacing, outputFile);
 					outputFile = new File(mySubDir, "orig_style_rotated_hybrid.png");
+					plotHybridRotated(rotated, metric, rotated_pixel_width,
+							threshold, 5d*threshold, distSpacing, outputFile);
+					
+					// now a huuuuuge one for the poster
+					myPath = fullPath.subList(0, 10000);
+					normPath = calcNormalizedPath(myPath, calcMeanRIs(myPath));
+					rotated = calcRotated(normPath, metric, 3*(rotated_width-1)+1);
+					outputFile = new File(mySubDir, "huge_for_poster.png");
 					plotHybridRotated(rotated, metric, rotated_pixel_width,
 							threshold, 5d*threshold, distSpacing, outputFile);
 				}
@@ -1565,12 +1574,12 @@ public class RecurrencePlotGen {
 //		Preconditions.checkState(rotatedDir.exists() || rotatedDir.mkdir());
 		
 		int startIndex = 0;
-		int squareEndIndex = 1000;
-		int squareZoomLevel = 300;
+//		int squareEndIndex = 1000;
+//		int squareZoomLevel = 300;
 		int rotatedEndIndex = 3000;
 		
-		if (squareEndIndex >= fullPath.size())
-			squareEndIndex = fullPath.size()-1;
+//		if (squareEndIndex >= fullPath.size())
+//			squareEndIndex = fullPath.size()-1;
 		if (rotatedEndIndex >= fullPath.size())
 			rotatedEndIndex = fullPath.size()-1;
 		
@@ -1579,15 +1588,15 @@ public class RecurrencePlotGen {
 //		List<int[]> squareSubPath = fullPath.subList(startIndex, squareEndIndex);
 //		List<int[]> rotatedSubPath = fullPath.subList(startIndex, rotatedEndIndex);
 		
-		List<double[]> squareSubPath;
+//		List<double[]> squareSubPath;
 		List<double[]> rotatedSubPath;
 		
 		if (normalize) {
 			double[] ris = calcMeanRIs(fullPath);
-			squareSubPath = calcNormalizedPath(fullPath.subList(startIndex, squareEndIndex), ris);
+//			squareSubPath = calcNormalizedPath(fullPath.subList(startIndex, squareEndIndex), ris);
 			rotatedSubPath = calcNormalizedPath(fullPath.subList(startIndex, rotatedEndIndex), ris);
 		} else {
-			squareSubPath = toDoublePath(fullPath.subList(startIndex, squareEndIndex));
+//			squareSubPath = toDoublePath(fullPath.subList(startIndex, squareEndIndex));
 			rotatedSubPath = toDoublePath(fullPath.subList(startIndex, rotatedEndIndex));
 		}
 		

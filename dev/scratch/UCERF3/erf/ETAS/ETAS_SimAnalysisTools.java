@@ -1926,7 +1926,7 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	public static double getMaxMag(List<ETAS_EqkRupture> catalog) {
-		double maxMag = 0d;
+		double maxMag = Double.NEGATIVE_INFINITY;
 		for (ETAS_EqkRupture rup : catalog)
 			maxMag = Math.max(maxMag, rup.getMag());
 		return maxMag;
