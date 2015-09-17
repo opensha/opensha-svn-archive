@@ -839,4 +839,53 @@ public class ETAS_Utils {
 		
 		return result;
 	}
+
+
+
+	/**
+	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total MFD (sub+supra) to
+	 * have the same expected number of primary aftershocks as a perfect GR (extrapolated from the sub MFD to the max-non-zero-mag
+	 * of the supra MFD).
+	 * 
+	 * @param supraSeisMFD
+	 * @param subSeisMFD
+	 * @return
+	 */
+	public static double getScalingFactorToImposeGR_supraRates(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
+		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
+			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
+			return 1d;
+
+		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
+		double minMagSupra = supraSeisMFD.getMinMagWithNonZeroRate();
+		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
+		if(Double.isNaN(maxMagWithNonZeroRate)) {
+			System.out.println("ISSUE: maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+			return 1d;
+		}
+		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/supraSeisMFD.getDelta()) + 1;
+		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
+				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
+		gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
+
+		double result =  gr.getCumRate(minMagSupra)/supraSeisMFD.getCumRate(minMagSupra);
+
+
+		if(debug) {
+			ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+			funcs.add(supraSeisMFD);
+			funcs.add(subSeisMFD);
+			funcs.add(gr);
+			funcs.add(gr.getCumRateDistWithOffset());
+			funcs.add(supraSeisMFD.getCumRateDistWithOffset());
+			GraphWindow graph = new GraphWindow(funcs, "getScalingFactorToImposeGR_supraRates "+result);
+			graph.setX_AxisLabel("Mag");
+			graph.setY_AxisLabel("Incr Rate");
+			System.out.println("result="+result);
+		}
+
+		return result;
+	}
 }
+

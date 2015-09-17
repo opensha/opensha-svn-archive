@@ -1046,8 +1046,15 @@ public class ETAS_Simulator {
 		
 		erf.updateForecast();
 		
+		// for number of gridded source ruptures
+//		int numGridRups=0;
+//		for(int s=erf.getNumFaultSystemSources();s<erf.getNumSources();s++)
+//			numGridRups+=erf.getSource(s).getNumRuptures();
+//		System.out.println("numGridRups="+numGridRups);
+		
 		float timeSec = (float)(System.currentTimeMillis()-st)/1000f;
 		System.out.println("ERF instantiation took "+timeSec+" sec");
+		
 		
 		
 //		FaultSystemSolutionERF tempERF = (FaultSystemSolutionERF)erf;
@@ -1095,6 +1102,8 @@ public class ETAS_Simulator {
 	public enum TestScenario {
 		
 		MOJAVE_M7("MojaveM7", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
+		MOJAVE_M7_ALT("MojaveM7_Alt", 195766),		// to test whether end has spike in expected MFD
+		MOJAVE_M6pt3_test("MojaveM6.3", 195759),	// unzipper case		
 		MOJAVE_M6("MojaveM6", new Location(34.42295,-117.80177,5.8), 6.0),	// original test for Kevin
 		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	//
 		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
@@ -1106,6 +1115,7 @@ public class ETAS_Simulator {
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
 		NEAR_SURPRISE_VALLEY_5p0("Near Surprise Valley 5.0", new Location(41.83975, -120.12356, 4.67500), 5.0),
+		NEAR_SURPRISE_VALLEY_5p5("Near Surprise Valley 5.5", new Location(41.83975, -120.12356, 4.67500), 5.5),
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 6.0),	// on N edge of the Mojave scenario
@@ -1282,11 +1292,15 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
+//		System.exit(0);
+		
+
+		TestScenario scenario = TestScenario.MOJAVE_M7_ALT;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		if(scenario == null)
@@ -1297,10 +1311,10 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_1";	// to increment runs
+		simulationName += "_2";	// to increment runs
 
-//		Long seed = null;
-		Long seed = 1439486175712l;
+		Long seed = null;
+//		Long seed = 1439486175712l;
 		
 //		double startTimeYear=2012;
 //		double durationYears=10;
