@@ -606,12 +606,12 @@ public class GMT_CA_Maps {
 			if(subMFD_Array[i] != null) {
 				
 				if(applyCorr) {
-					double corr = ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i], false);
+					double corr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraMFD_Array[i], subMFD_Array[i], false);
 					if(corr<1.0)
 						supraMFD_Array[i].scale(corr);					
 				}
 				
-				double val = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraMFD_Array[i], subMFD_Array[i], false);
+				double val = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraMFD_Array[i], subMFD_Array[i], false);
 				bulgeDataSet.set(i, val);
 			}
 			else

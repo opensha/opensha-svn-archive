@@ -1103,8 +1103,8 @@ public class ETAS_Simulator {
 		
 		MOJAVE_M7("MojaveM7", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
 		MOJAVE_M7_ALT("MojaveM7_Alt", 195766),		// to test whether end has spike in expected MFD
-		MOJAVE_M6pt3_test("MojaveM6.3", 195759),	// unzipper case		
-		MOJAVE_M6("MojaveM6", new Location(34.42295,-117.80177,5.8), 6.0),	// original test for Kevin
+		MOJAVE_M6pt3_FSS("MojaveM6.3_FSS", 195759),	// unzipper case		
+		MOJAVE_M6pt3_ptSrc("MojaveM6.3_PtSrc", new Location(34.42295,-117.80177,5.8), 6.3),	// original test for Kevin
 		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	//
 		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
 		MOJAVE_M5p5_5kmAway("MojaveM5.5_5kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 5.0, 0.0)), 5.5),	//
@@ -1296,11 +1296,11 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M7_ALT;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(false);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setImposeGR(true);		
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		String simulationName;
 		if(scenario == null)
@@ -1311,7 +1311,7 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_2";	// to increment runs
+		simulationName += "_Uniform2";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;

@@ -784,7 +784,7 @@ public class ETAS_Utils {
 	 * @param subSeisMFD
 	 * @return
 	 */
-	public static double getScalingFactorToImposeGR(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
+	public static double getScalingFactorToImposeGR_numPrimary(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
 		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
 			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
 			return 1d;
@@ -882,6 +882,7 @@ public class ETAS_Utils {
 			GraphWindow graph = new GraphWindow(funcs, "getScalingFactorToImposeGR_supraRates "+result);
 			graph.setX_AxisLabel("Mag");
 			graph.setY_AxisLabel("Incr Rate");
+			System.out.println("minMag="+minMag+" ;minMagSupra="+minMagSupra+"; maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
 			System.out.println("result="+result);
 		}
 

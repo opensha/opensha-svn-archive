@@ -1353,10 +1353,30 @@ public class ETAS_SimAnalysisTools {
 	 */
 	public static void plotExpectedPrimaryMFD_ForRup(String rupInfo, String pdf_FileNamePrefix,  List<EvenlyDiscretizedFunc> mfdList, EqkRupture rupture, double expNum) {
 
+		// make GR comparison
+		SummedMagFreqDist incrMFD = (SummedMagFreqDist)mfdList.get(0);
+		double minMag = incrMFD.getMinMagWithNonZeroRate();
+		double maxMagWithNonZeroRate = incrMFD.getMaxMagWithNonZeroRate();
+		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/incrMFD.getDelta()) + 1;
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
+		gr.scaleToIncrRate(3.05, incrMFD.getY(3.05));
+		gr.setName("Perfect GR");
+		gr.setInfo("Data:\n"+gr.getMetadataString());
+		EvenlyDiscretizedFunc grCum=gr.getCumRateDistWithOffset();
+		grCum.setInfo("Data:\n"+grCum.getMetadataString());
+
+		
 		ArrayList<EvenlyDiscretizedFunc> incrMFD_List = new ArrayList<EvenlyDiscretizedFunc>();
+		incrMFD_List.add(gr);
 		incrMFD_List.add(mfdList.get(0));
 		incrMFD_List.add(mfdList.get(2));
-		GraphWindow magProbDistsGraph = new GraphWindow(incrMFD_List, "Expected Primary Aftershock MFD"); 
+		
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+
+		GraphWindow magProbDistsGraph = new GraphWindow(incrMFD_List, "Expected Primary Aftershock MFD", plotChars); 
 		magProbDistsGraph.setX_AxisLabel("Mag");
 		magProbDistsGraph.setY_AxisLabel("Expected Num");
 //		magProbDistsGraph.setY_AxisRange(10e-9, 10e-1);
@@ -1367,11 +1387,12 @@ public class ETAS_SimAnalysisTools {
 		magProbDistsGraph.setTickLabelFontSize(18);			
 		
 		ArrayList<EvenlyDiscretizedFunc> cumMFD_List = new ArrayList<EvenlyDiscretizedFunc>();
+		cumMFD_List.add(grCum);
 		cumMFD_List.add(mfdList.get(1));
 		cumMFD_List.add(mfdList.get(3));
 		
 		// cumulative distribution of expected num primary
-		GraphWindow cumDistsGraph = new GraphWindow(cumMFD_List, "Expected Cumulative Primary Aftershock MFD"); 
+		GraphWindow cumDistsGraph = new GraphWindow(cumMFD_List, "Expected Cumulative Primary Aftershock MFD", plotChars); 
 		cumDistsGraph.setX_AxisLabel("Mag");
 		cumDistsGraph.setY_AxisLabel("Expected Number");
 		cumDistsGraph.setY_AxisRange(10e-8, 10e4);
@@ -1424,8 +1445,9 @@ public class ETAS_SimAnalysisTools {
 		String info = "This is the MFD of primary aftershocks multiplied by 10^mag\n";
 		double sumPerfectGR = expSecondaryNum.getY(lowIndex)*count;
 		info += "sum="+(float)sum+" (vs "+(float)sumPerfectGR+" for perfect GR; ratio="+(float)(sum/sumPerfectGR)+")\n";
-		info  += "grCorr="+(float)((sumPerfectGR-sumSub)/(sum-sumSub))+"\n";
-		info  += "grCorr2="+(float)ETAS_Utils.getScalingFactorToImposeGR(supraMFD, subMFD, false)+"\n";
+		info  += "grCorr_numPrimary="+(float)((sumPerfectGR-sumSub)/(sum-sumSub))+"\n";
+		info  += "grCorr_numPrimary2="+(float)ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraMFD, subMFD, false)+"\n";
+		info  += "grCorr_supraRates="+(float)ETAS_Utils.getScalingFactorToImposeGR_supraRates(supraMFD, subMFD, false)+"\n";
 //System.out.println(subMFD);
 //System.out.println(supraMFD);
 		info += "Data:\n"+expSecondaryNum.getMetadataString();

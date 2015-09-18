@@ -81,13 +81,17 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	boolean APPLY_ERT;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
+	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
+	boolean APPLY_ERT_GRIDDED=false;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr;	// don't set here (set by constructor)
 	
 	final static boolean D=ETAS_Simulator.D;
 	
-	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCache";
-	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
+//	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCache";
+//	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
+	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCacheUniform";
+	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCacheUniform";
+	
 	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
 	
 	
@@ -218,10 +222,10 @@ public class ETAS_PrimaryEventSampler {
 			int[] inputIsCubeInsideFaultPolygon) {
 		
 		if(probModel == U3ETAS_ProbabilityModelOptions.FULL_TD) {
-			APPLY_ERT = true;
+			APPLY_ERT_FAULTS = true;
 		}
 		else { // NO_ERT or POISSON
-			APPLY_ERT = false;
+			APPLY_ERT_FAULTS = false;
 		}
 			
 		
@@ -446,7 +450,7 @@ public class ETAS_PrimaryEventSampler {
 				if(Double.isNaN(normTS)) 
 					normTimeSinceOnSectArray[s] = 1.0;	// assume it's 1.0 if value unavailable
 				else {
-					if(APPLY_ERT)
+					if(APPLY_ERT_FAULTS)
 						normTimeSinceOnSectArray[s]=normTS;
 					else
 						normTimeSinceOnSectArray[s]=1.0;	// test
@@ -927,7 +931,7 @@ public class ETAS_PrimaryEventSampler {
 			return null;
 		}
 		
-		double targetRateAtTargetDist = totSupraSeisRate*ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD, subSeisMFD, false);
+		double targetRateAtTargetDist = totSupraSeisRate*ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraSeisMFD, subSeisMFD, false);
 
 		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
 		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
@@ -1813,7 +1817,7 @@ System.exit(0);
 		for(int i : list) {
 			if(D) 
 				progressBar.updateProgress(numDone, list.size());
-			if(APPLY_ERT)
+			if(APPLY_ERT_GRIDDED)
 				includSupra = canSupraBeTriggered(rupture, getCubeLocationForIndex(i));
 			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i,includSupra);
 			if(relSrcProbForCube != null) {
@@ -1909,6 +1913,7 @@ System.exit(0);
 
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		SummedMagFreqDist supraMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
+		SummedMagFreqDist subSeisMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		for(int i=0;i<sampler.size(); i++) {
 			SummedMagFreqDist mfd = getCubeMFD(i);
 			if(mfd != null) {
@@ -1920,12 +1925,19 @@ System.exit(0);
 					mfdSupra.scale(sampler.getY(i)/total);
 					supraMagDist.addIncrementalMagFreqDist(mfdSupra);
 				}
+				SummedMagFreqDist mfdSub = getCubeMFD_GriddedSeisOnly(i);
+				if(mfdSub != null) {
+					mfdSub.scale(sampler.getY(i)/total);
+					subSeisMagDist.addIncrementalMagFreqDist(mfdSub);
+				}
+				
 			}
 		}
 		
 		ArrayList<SummedMagFreqDist> mfdList = new ArrayList<SummedMagFreqDist>();
 		mfdList.add(magDist);
 		mfdList.add(supraMagDist);
+		mfdList.add(subSeisMagDist);
 
 		return mfdList;
 	}
@@ -1942,7 +1954,7 @@ System.exit(0);
 	 * @return
 	 */
 	private boolean canSupraBeTriggered(ETAS_EqkRupture parentRup, Location triggeredLoc) {
-		if(parentRup.getFSSIndex()>=0 || !APPLY_ERT)
+		if(parentRup.getFSSIndex()>=0 || !APPLY_ERT_GRIDDED)
 			return true;
 		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
 		if(!pointSurface)
@@ -1990,7 +2002,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			// now loop over all cubes
 			for(int i=0;i <numCubes;i++) {
 				// skip if this cube cannot trigger supra-seis ruptures
-				if(APPLY_ERT && !canSupraBeTriggered(parentRup, getCubeLocationForIndex(i))) {
+				if(APPLY_ERT_GRIDDED && !canSupraBeTriggered(parentRup, getCubeLocationForIndex(i))) {
 					continue;
 				}
 				int[] sectInCubeArray = sectInCubeList.get(i);
@@ -2524,7 +2536,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 					SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(cubeIndex);
 					double bulge = 1.0;
 					if(mfdSupra != null &&  mfdGridded != null) {
-						bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(mfdSupra, mfdGridded, false);
+						bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(mfdSupra, mfdGridded, false);
 						if(Double.isInfinite(bulge))
 							bulge = 1e3;				
 					}
@@ -2586,7 +2598,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 					throw new RuntimeException("Problem");
 				}
 				
-				val = 1.0/ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				val = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 				valSupraRates = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 			}
 			else {	// no supra-seismogenic ruptures
@@ -2647,7 +2659,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //		fileWriterGMT.write("sectID,1.0/GRcor1.0/GRcorrSupraRates,tsectName\n");
 
 		for(int sectIndex=0;sectIndex<grCorr.length;sectIndex++) {
-			grCorr[sectIndex] = Math.log10(ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
+			grCorr[sectIndex] = Math.log10(ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
 			grCorrSupraRates[sectIndex] = Math.log10(ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
 			momentRates[sectIndex] = faults.get(sectIndex).calcMomentRate(true);
 			logGRcorrVsLogMomentRate.set(Math.log10(momentRates[sectIndex]),grCorr[sectIndex]);
@@ -2746,7 +2758,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			else
 				tempSupraMFD.set(i,totSupraMFD.getY(i));
 		}
-		double totGRcorr = ETAS_Utils.getScalingFactorToImposeGR(tempSupraMFD, tempSubMFD, false);
+		double totGRcorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(tempSupraMFD, tempSubMFD, false);
 		double totGRcorrSupraRates = ETAS_Utils.getScalingFactorToImposeGR_supraRates(tempSupraMFD, tempSubMFD, false);
 		info = "GRcorr="+totGRcorr+"; GRcorrSupraRates="+totGRcorrSupraRates;
 		totSubMFD.setInfo(info);
@@ -2755,7 +2767,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		totMFD_Graph.setYLog(true);
 		
 		for(String name : parentSectSupraSeisMFD_Map.keySet()) {
-			double parGRcorr = ETAS_Utils.getScalingFactorToImposeGR(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
+			double parGRcorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
 			double parGRcorrSupraRates = ETAS_Utils.getScalingFactorToImposeGR_supraRates(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
 			System.out.println(name+"\t"+parGRcorr+"\t"+parGRcorrSupraRates);
 		}
@@ -3537,7 +3549,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			makeLongTermSectMFDs();
 
 			System.out.println("Test GR Correction Factor");
-			double val = ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), true);
+			double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), true);
 		}
 
 	}
@@ -3635,8 +3647,8 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 						throw new RuntimeException("Problem");
 					}
 					
-					double val = ETAS_Utils.getScalingFactorToImposeGR(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
-//					double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+//					double val = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+					double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 					if(val<1.0)
 						grCorrFactorForSectArray[sectIndex]=val;
 					else
@@ -4454,6 +4466,14 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		// this tests whether total subseismo MFD from grid source provider is the same as from the fault-sys solution
 //		FaultSysSolutionERF_Calc.testTotSubSeisMFD(erf);
 		
+		// Overide to Poisson if needed
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		boolean includeEqkRates = true;
+		double gridSeisDiscr = 0.1;
+		boolean applyGRcorr = true;
+
+		
 		
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		// first make array of rates for each source
@@ -4465,18 +4485,16 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //				System.out.println("HERE "+erf.getSource(s).getName());
 		}
 		
-		boolean includeEqkRates = true;
-		double gridSeisDiscr = 0.1;
-		boolean applyGRcorr = false;
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				applyGRcorr, U3ETAS_ProbabilityModelOptions.FULL_TD,null,null,null);
+				applyGRcorr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 		
-		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
+//		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
-//		etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km");
+   	etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_Poiss_GRcorr");
+//		etas_PrimEventSampler.tempTestBulgeInCube();
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,3.05,"RatesAboveM3pt0_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.15,"RatesAboveM7pt1_AtDepth7km");
@@ -4665,9 +4683,12 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //		plotPrimayEventOverlap(rupture, relSrcProbs, subDirName, 10000, rupInfo);
 
 		long st = System.currentTimeMillis();
+//		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
+//				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
+//				getExpectedPrimaryMFD_PDF(relSrcProbs), rupture, expNum, fssERF.isPoisson());
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
 				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
-				getExpectedPrimaryMFD_PDF(relSrcProbs), rupture, expNum, fssERF.isPoisson());
+				getExpectedPrimaryMFD_PDF_Alt(aveCubeSamplerForRup), rupture, expNum, fssERF.isPoisson());
 		
 		ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup(rupInfo, 
 				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
@@ -4889,6 +4910,23 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 	}
 
 	
+	public void tempTestBulgeInCube() {
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(2.05, 8.95, 70);
+		}
+		int cubeIndex = getCubeIndexForLocation(new Location(34.42,-117.8,7.0));
+		SummedMagFreqDist mfdSupra = getCubeMFD_SupraSeisOnly(cubeIndex);
+		SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(cubeIndex);
+		double bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(mfdSupra, mfdGridded, true);
+		int index=0;
+		for(int sectID: sectInCubeList.get(cubeIndex)) {
+			double frac = 1.0/(double)getCubesAndFractForFaultSectionExponential(sectID).size();
+			System.out.println(sectID+"\t"+fractionSectInCubeList.get(cubeIndex)[index]+"\t"+this.rupSet.getFaultSectionData(sectID).getName()+"\t"+frac);
+			testGR_CorrFactors(sectID);
+			index+=1;
+		}
+	}
+	
 	/**
 	 * TODO Move to utility class
 	 * @param depth
@@ -4934,7 +4972,8 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			if((mfdSupra==null || mfdSupra.getMaxY()<10e-15) && isCubeInsideFaultPolygon[regAndDepIndex[0]] == 1)
 				bulge = 10e-16; // set as zero if inside polygon and no mfd supra
 			else if(mfdSupra != null &&  mfdGridded != null) {
-				bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR(mfdSupra, mfdGridded, false);
+//				bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(mfdSupra, mfdGridded, false);
+				bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(mfdSupra, mfdGridded, false);
 				if(Double.isInfinite(bulge))
 					bulge = 1e3;				
 			}

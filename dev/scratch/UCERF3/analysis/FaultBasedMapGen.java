@@ -249,7 +249,7 @@ public class FaultBasedMapGen {
 //		ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD_List.get(1), subSeisMFD_List.get(1));
 
 		for(int i=0;i<subSeisMFD_List.size();i++) {
-			values[i] = 1.0/ETAS_Utils.getScalingFactorToImposeGR(supraSeisMFD_List.get(i), subSeisMFD_List.get(i), false);
+			values[i] = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraSeisMFD_List.get(i), subSeisMFD_List.get(i), false);
 		}
 		
 		CPT cpt;
