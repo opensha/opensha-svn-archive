@@ -880,7 +880,6 @@ public class FaultBasedMapGen {
 		
 		String url = gmt.makeMapUsingServlet(map, "metadata", null);
 		System.out.println(url);
-		String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
 		if (saveDir != null) {
 			String baseURL = url.substring(0, url.lastIndexOf('/')+1);
 			
@@ -897,6 +896,7 @@ public class FaultBasedMapGen {
 //		FileUtils.unzipFile(zipFile, downloadDir);
 		
 		if (display) {
+			String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
 			new ImageViewerWindow(url,metadata, true);
 		}
 	}

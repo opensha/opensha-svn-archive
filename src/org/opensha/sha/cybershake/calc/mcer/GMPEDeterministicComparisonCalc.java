@@ -25,6 +25,8 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.UCERF2_AleatoryMagVarRemovalMod;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeRun;
@@ -39,6 +41,7 @@ import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
@@ -65,6 +68,7 @@ public class GMPEDeterministicComparisonCalc {
 	private double percentile;
 	
 	private ERF erf;
+	private RuptureProbabilityModifier probMod;
 	private List<AttenuationRelationship> attenRels;
 	
 	private File outputDir;
@@ -142,6 +146,9 @@ public class GMPEDeterministicComparisonCalc {
 		this.erf = erf;
 		this.attenRels = attenRels;
 		this.outputDir = outputDir;
+		
+		if (CyberShakeDeterministicCalc.stripUCERF2Aleatory && erf instanceof MeanUCERF2)
+			probMod = new UCERF2_AleatoryMagVarRemovalMod(erf);
 	}
 	
 	public void setSiteData(List<SiteDataValue<?>> siteDatas) {
@@ -212,7 +219,8 @@ public class GMPEDeterministicComparisonCalc {
 					ProbEqkSource source = erf.getSource(sourceID);
 					if (source.getMinDistance(gmpeSite) > 200d)
 						continue;
-					for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+					List<Integer> rupIDs = CyberShakeDeterministicCalc.getRupIDsForDeterm(erf, sourceID, probMod);
+					for (int rupID : rupIDs) {
 						ProbEqkRupture rup = source.getRupture(rupID);
 						attenRel.setEqkRupture(rup);
 						double logMean = attenRel.getMean();

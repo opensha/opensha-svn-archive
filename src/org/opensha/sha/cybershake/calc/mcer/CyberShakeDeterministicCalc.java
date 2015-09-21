@@ -8,6 +8,8 @@ import java.util.List;
 import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.UCERF2_AleatoryMagVarRemovalMod;
 import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -18,6 +20,7 @@ import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -27,15 +30,40 @@ public class CyberShakeDeterministicCalc {
 	
 	private CachedPeakAmplitudesFromDB amps2db;
 	private ERF erf;
-	private double percentile;
-	private double magRange;
 	
-	public CyberShakeDeterministicCalc(CachedPeakAmplitudesFromDB amps2db, ERF erf,
-			double percentile, double magRange) {
+	public static final double percentile = 84;
+//	static final double mag_range = 0.11; // to grab highest two mags
+	static final double mag_range = 0.01; // don't grab neighbor magnitudes
+	
+	static final boolean stripUCERF2Aleatory = true;
+	
+	private RuptureProbabilityModifier probMod;
+	
+	public CyberShakeDeterministicCalc(CachedPeakAmplitudesFromDB amps2db, ERF erf) {
 		this.amps2db = amps2db;
 		this.erf = erf;
-		this.percentile = percentile;
-		this.magRange = magRange;
+		
+		if (stripUCERF2Aleatory && erf instanceof MeanUCERF2) {
+			System.out.println("Stripping UCERF2 aleatory variability");
+			probMod = new UCERF2_AleatoryMagVarRemovalMod(erf);
+		}
+	}
+	
+	static List<Integer> getRupIDsForDeterm(ERF erf, int sourceID, RuptureProbabilityModifier probMod) {
+		ProbEqkSource source = erf.getSource(sourceID);
+		
+		List<Integer> rupIDs = Lists.newArrayList();
+		// weed out zero prob ruptures, including any modifier if needed
+		for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+			ProbEqkRupture rup = source.getRupture(rupID);
+			double prob = rup.getProbability();
+			if (probMod != null)
+				prob = probMod.getModifiedProb(sourceID, rupID, prob);
+			if (prob > 0)
+				rupIDs.add(rupID);
+		}
+		
+		return rupIDs;
 	}
 	
 	public DeterministicResult calculate(int runID, CybershakeIM im) throws SQLException {
@@ -61,10 +89,12 @@ public class CyberShakeDeterministicCalc {
 			Preconditions.checkState(rupVals.length == source.getNumRuptures(),
 					"Rupture count inconsistant for source "+sourceID+": "+rupVals.length+" != "+source.getNumRuptures());
 			
+			List<Integer> rupIDs = getRupIDsForDeterm(erf, sourceID, probMod);
+			
 			// find the maximum magnitude of this source
 			double maxMag = 0d;
 			int maxRupID = -10;
-			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+			for (int rupID : rupIDs) {
 				if (rupVals[rupID] == null)
 					// this rup is more than cutoff dist away
 					continue;
@@ -76,13 +106,13 @@ public class CyberShakeDeterministicCalc {
 			}
 			Preconditions.checkState(maxMag > 0);
 			// we will consider all ruptures with M>=(maxMag - magRange)
-			double minMag = maxMag - magRange;
+			double minMag = maxMag - mag_range;
 			
 			// find all peak amplitudes that match this criteria
 			// units are cm/sec^2
 			List<Double> ampsToInclude = Lists.newArrayList();
 			int rupsIncluded = 0;
-			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+			for (int rupID : rupIDs) {
 				if (rupVals[rupID] == null)
 					// this rup is more than cutoff dist away
 					continue;
@@ -119,7 +149,7 @@ public class CyberShakeDeterministicCalc {
 		double maxValCM = maxVal.getVal();
 		maxVal.setVal(maxVal.getVal() / HazardCurveComputation.CONVERSION_TO_G);
 		
-		System.out.println("RunID="+runID+", IM: "+im+", percentile="+percentile+", magRange="+magRange);
+		System.out.println("RunID="+runID+", IM: "+im+", percentile="+percentile+", magRange="+mag_range);
 		System.out.println("CS Det Max: "+maxVal.getVal()+" g = "+maxValCM+" cm/s^2");
 		System.out.println("Source("+maxVal.getSourceID()+","+maxVal.getRupID()+"): "+maxVal.getSourceName()
 				+" (Mmax="+(float)+maxVal.getMag()+")");
@@ -151,16 +181,13 @@ public class CyberShakeDeterministicCalc {
 		if (!cacheDir.exists())
 			cacheDir.mkdir();
 		
-		double percentile = 84;
-		double magRange = 0.11;
-		
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, cacheDir, erf);
 		
-		CyberShakeDeterministicCalc calc = new CyberShakeDeterministicCalc(amps2db, erf, percentile, magRange);
+		CyberShakeDeterministicCalc calc = new CyberShakeDeterministicCalc(amps2db, erf);
 		
 		int runID = 2657;
 		CybershakeIM im = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);

@@ -25,6 +25,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
+import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
 import org.opensha.sha.cybershake.calc.mcer.CyberShakeDeterministicCalc;
 import org.opensha.sha.cybershake.calc.mcer.DeterministicResult;
@@ -78,9 +79,7 @@ public class MCERMapGenerator {
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, MCERDataProductsCalc.cacheDir, erf);
 		Runs2DB runs2db = new Runs2DB(db);
 		
-		double percentile = 84;
-		double magRange = 0.11;
-		CyberShakeDeterministicCalc detCalc = new CyberShakeDeterministicCalc(amps2db, erf, percentile, magRange);
+		CyberShakeDeterministicCalc detCalc = new CyberShakeDeterministicCalc(amps2db, erf);
 		
 		List<CybershakeSite> sites = fetcher.getCurveSites();
 		CybershakeIM im = fetcher.getIM();
@@ -151,7 +150,7 @@ public class MCERMapGenerator {
 				if (!gmpeDetData.contains(loc)) {
 					// calculate deterministic
 					GMPEDeterministicComparisonCalc gmpeDetCalc = new GMPEDeterministicComparisonCalc(runs2db.getRun(runID),
-							site, comp, Lists.newArrayList(im.getVal()), percentile, erf, gmpes, null);
+							site, comp, Lists.newArrayList(im.getVal()), CyberShakeDeterministicCalc.percentile, erf, gmpes, null);
 					gmpeDetCalc.calc();
 					double maxGMPEDet = 0;
 					for (DeterministicResult result : gmpeDetCalc.getResults().rowMap().get(im.getVal()).values())
@@ -288,9 +287,15 @@ public class MCERMapGenerator {
 //				generateMaps(fractDiffData, outputDir, period, false, "gmpe_combined_ratio",
 //						"(CyberShake-GMPE)/GMPE MCER", ratioCPT, false);
 			}
+			
+			// now governing scatter
+			GMT_Map govMap = buildGoverningScatterMap(probData, detData, detLowerLimit, "Governing Scatter");
+			FaultBasedMapGen.plotMap(outputDir, "governing_scatter"+prefixAdd, false, govMap);
+			if (gmpeProbData != null && gmpeDetData != null) {
+				govMap = buildGoverningScatterMap(gmpeProbData, gmpeDetData, detLowerLimit, "GMPE Governing Scatter");
+				FaultBasedMapGen.plotMap(outputDir, "gmpe_governing_scatter"+prefixAdd, false, govMap);
+			}
 		}
-		
-		// TODO governing scatter
 	}
 	
 	public static void generateGMPEOnlyMaps(List<ERF> erfs, List<String> erfNames, List<AttenuationRelationship> gmpes,
@@ -447,17 +452,7 @@ public class MCERMapGenerator {
 		FaultBasedMapGen.plotMap(outputDir, prefix+"_contours_only", false, map);
 	}
 	
-	private static GMT_Map buildScatterMap(GeoDataSet data, boolean psv, double period, String label, CPT cpt, boolean log) {
-		data = data.copy();
-		if (psv)
-			for (int index=0; index<data.size(); index++)
-				data.set(index, RTGMCalc.saToPsuedoVel(data.get(index), period));
-		if (log) {
-			data.log10();
-			label = "Log@-10@-("+label+")";
-		}
-		
-		GMT_Map map = new GMT_Map(region, data, interpSettings.getInterpSpacing(), cpt);
+	private static void applyGMTSettings(GMT_Map map, CPT cpt, String label) {
 		map.setInterpSettings(interpSettings);
 		map.setLogPlot(false); // already did manually
 		map.setMaskIfNotRectangular(true);
@@ -469,6 +464,20 @@ public class MCERMapGenerator {
 		map.setCustomLabel(label);
 		map.setRescaleCPT(false);
 //		map.setDpi(150);
+	}
+	
+	private static GMT_Map buildScatterMap(GeoDataSet data, boolean psv, double period, String label, CPT cpt, boolean log) {
+		data = data.copy();
+		if (psv)
+			for (int index=0; index<data.size(); index++)
+				data.set(index, RTGMCalc.saToPsuedoVel(data.get(index), period));
+		if (log) {
+			data.log10();
+			label = "Log@-10@-("+label+")";
+		}
+		
+		GMT_Map map = new GMT_Map(region, data, interpSettings.getInterpSpacing(), cpt);
+		applyGMTSettings(map, cpt, label);
 		
 		// now add scatter
 		PSXYSymbolSet xySet = new PSXYSymbolSet();
@@ -478,6 +487,57 @@ public class MCERMapGenerator {
 			PSXYSymbol sym = new PSXYSymbol(new Point2D.Double(loc.getLongitude(), loc.getLatitude()),
 					Symbol.INVERTED_TRIANGLE, 0.08f, 0f, null, Color.WHITE);
 			xySet.addSymbol(sym, 0d);
+//			symbols.add(sym);
+		}
+//		map.setSymbols(symbols);
+		map.setSymbolSet(xySet);
+		
+		return map;
+	}
+	
+	private static GMT_Map buildGoverningScatterMap(GeoDataSet probData, GeoDataSet detData,
+			GeoDataSet detLowerLimit, String label) {
+		GeoDataSet data = new ArbDiscrGeoDataSet(probData.isLatitudeX());
+		
+		// 0: prob, BLUE
+		// 1: det, RED
+		// 2: det lower, GRAY
+		CPT xyCPT = new CPT();
+		xyCPT.setBelowMinColor(Color.BLUE);
+		xyCPT.add(new CPTVal(0f, Color.BLUE, 0.5f, Color.BLUE));
+		xyCPT.add(new CPTVal(0.5f, Color.RED, 1.5f, Color.RED));
+		xyCPT.add(new CPTVal(1.5f, Color.GRAY, 2f, Color.GRAY));
+		xyCPT.setAboveMaxColor(Color.GRAY);
+		
+		for (Location loc : probData.getLocationList()) {
+			double pVal = probData.get(loc);
+			double dVal = detData.get(loc);
+			double dLowVal = detLowerLimit.get(loc);
+			
+			double combinedVal = MCERDataProductsCalc.calcMCER(dVal, pVal, dLowVal);
+			if (combinedVal == pVal)
+				data.set(loc, 0d);
+			else if (combinedVal == dVal)
+				data.set(loc, 1d);
+			else if (combinedVal == dLowVal)
+				data.set(loc, 2d);
+			else
+				throw new IllegalStateException("Combined val not any of the inputs??");
+		}
+		
+		// dummy CPT for plotting
+		CPT cpt = new CPT(0, 1, Color.WHITE, Color.WHITE);
+		
+		GMT_Map map = new GMT_Map(region, null, interpSettings.getInterpSpacing(), cpt);
+		applyGMTSettings(map, cpt, label);
+		
+		// now add scatter
+		PSXYSymbolSet xySet = new PSXYSymbolSet();
+		xySet.setCpt(xyCPT);
+		for (Location loc : data.getLocationList()) {
+			PSXYSymbol sym = new PSXYSymbol(new Point2D.Double(loc.getLongitude(), loc.getLatitude()),
+					Symbol.INVERTED_TRIANGLE, 0.08f, 0f, null, Color.WHITE);
+			xySet.addSymbol(sym, data.get(loc));
 //			symbols.add(sym);
 		}
 //		map.setSymbols(symbols);
@@ -532,43 +592,12 @@ public class MCERMapGenerator {
 //		int imTypeID = 136;
 //		double period = 10d;
 		
-//		String outputName = "study_15_4_rotd100";
-//		
-//		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/"+outputName+"/"+(int)period+"s");
-//		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
-//		
-//		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
-//		List<AttenuationRelationship> gmpes = Lists.newArrayList();
-//		gmpes.add(AttenRelRef.ASK_2014.instance(null));
-//		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
-//		gmpes.add(AttenRelRef.CB_2014.instance(null));
-//		gmpes.add(AttenRelRef.CY_2014.instance(null));
-//		for (AttenuationRelationship gmpe : gmpes)
-//			gmpe.setParamDefaults();
-//		
-//		calculateMaps(datasetID, imTypeID, period, erf, gmpes, new WillsMap2006(), outputDir);
+		String outputName = "study_15_4_rotd100_old_det";
 		
-		// UCERF3/UCERF2 comparisons
-		twoPercentIn50 = true;
-		
-		String twoP_add = "";
-		if (twoPercentIn50 == true)
-			twoP_add = "_2pin50";
-		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/ucerf3_ucerf2_gmpe_rotd100/"+(int)period+"s"+twoP_add);
+		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/"+outputName+"/"+(int)period+"s");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
 		
-		ERF ucerf2 = MeanUCERF2_ToDB.createUCERF2ERF();
-		ERF ucerf3 = new FaultSystemSolutionERF(FaultSystemIO.loadSol(new File(
-				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip")));
-		ucerf3.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		ucerf3.getTimeSpan().setDuration(1d);
-		ucerf3.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-		ucerf3.updateForecast();
-		
-		List<ERF> erfs = Lists.newArrayList(ucerf3, ucerf2);
-		List<String> names = Lists.newArrayList("UCERF3", "UCERF2");
-		
+		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		List<AttenuationRelationship> gmpes = Lists.newArrayList();
 		gmpes.add(AttenRelRef.ASK_2014.instance(null));
 		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
@@ -577,7 +606,38 @@ public class MCERMapGenerator {
 		for (AttenuationRelationship gmpe : gmpes)
 			gmpe.setParamDefaults();
 		
-		generateGMPEOnlyMaps(erfs, names, gmpes, datasetID, imTypeID, period, new WillsMap2006(), outputDir);
+		calculateMaps(datasetID, imTypeID, period, erf, gmpes, new WillsMap2006(), outputDir);
+		
+//		// UCERF3/UCERF2 comparisons
+//		twoPercentIn50 = true;
+//		
+//		String twoP_add = "";
+//		if (twoPercentIn50 == true)
+//			twoP_add = "_2pin50";
+//		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/ucerf3_ucerf2_gmpe_rotd100/"+(int)period+"s"+twoP_add);
+//		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
+//		
+//		ERF ucerf2 = MeanUCERF2_ToDB.createUCERF2ERF();
+//		ERF ucerf3 = new FaultSystemSolutionERF(FaultSystemIO.loadSol(new File(
+//				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+//				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip")));
+//		ucerf3.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		ucerf3.getTimeSpan().setDuration(1d);
+//		ucerf3.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+//		ucerf3.updateForecast();
+//		
+//		List<ERF> erfs = Lists.newArrayList(ucerf3, ucerf2);
+//		List<String> names = Lists.newArrayList("UCERF3", "UCERF2");
+//		
+//		List<AttenuationRelationship> gmpes = Lists.newArrayList();
+//		gmpes.add(AttenRelRef.ASK_2014.instance(null));
+//		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
+//		gmpes.add(AttenRelRef.CB_2014.instance(null));
+//		gmpes.add(AttenRelRef.CY_2014.instance(null));
+//		for (AttenuationRelationship gmpe : gmpes)
+//			gmpe.setParamDefaults();
+//		
+//		generateGMPEOnlyMaps(erfs, names, gmpes, datasetID, imTypeID, period, new WillsMap2006(), outputDir);
 		
 		System.exit(0);
 	}

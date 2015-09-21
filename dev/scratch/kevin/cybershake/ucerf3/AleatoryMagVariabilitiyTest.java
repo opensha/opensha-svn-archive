@@ -5,7 +5,6 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.dom4j.DocumentException;
@@ -21,7 +20,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
-import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.calc.UCERF2_AleatoryMagVarRemovalMod;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -40,7 +39,6 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
-import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -60,96 +58,10 @@ import com.google.common.collect.Lists;
  *
  */
 public class AleatoryMagVariabilitiyTest {
-	
-	public static class AleatoryModProb implements RuptureProbabilityModifier {
-		
-		private ERF erf;
-		// for counting/debugging
-		private HashSet<Integer> aleatorySources = new HashSet<Integer>();
-		
-		public AleatoryModProb(ERF erf) {
-			this.erf = erf;
-		}
-
-		@Override
-		public double getModifiedProb(int sourceID, int rupID, double origProb) {
-			ProbEqkSource source = erf.getSource(sourceID);
-//			if (rupID == 0)
-//				System.out.println(source.getName()+"\t"+isAleatory(source)+"\t"+source.getClass());
-//			if (sourceID == 247) {
-//				System.out.println("Raymond type: "+source.getClass());
-//				System.exit(0);
-//			}
-			if (!aleatorySources.contains(sourceID) && !isAleatory(source))
-				return origProb;
-			aleatorySources.add(sourceID);
-			int startRupID;
-			if (source instanceof UnsegmentedSource) {
-				startRupID = ((UnsegmentedSource)source).getTotNumGR_Rups();
-				// sanity check
-				double mag = source.getRupture(startRupID).getMag();
-				for (int i=startRupID+1; i<source.getNumRuptures(); i++) {
-					double newMag = source.getRupture(i).getMag();
-					Preconditions.checkState(newMag > mag);
-					mag = newMag;
-				}
-			} else {
-				startRupID = 0;
-			}
-			if (rupID < startRupID)
-				return origProb;
-			// find the mode of the distribution
-			int maxProbID = -1;
-			double maxProb = 0d;
-			for (int testRupID=0; testRupID<source.getNumRuptures(); testRupID++) {
-				double prob = source.getRupture(testRupID).getProbability();
-				if (prob > maxProb) {
-					maxProb = prob;
-					maxProbID = testRupID;
-				}
-			}
-			// make probability zero if not the most probabable rupture
-			if (maxProbID != rupID)
-				return 0;
-			// return the total source probability if it is
-			double totProb = 0;
-			for(int i=startRupID; i<source.getNumRuptures(); i++) {
-				double prob = source.getRupture(i).getProbability();
-				if (source.isSourcePoissonian())
-					totProb += Math.log(1-prob);
-				else
-					totProb += prob;
-			}
-			double totProbBefore = totProb;
-			if (source.isSourcePoissonian())
-				totProb = 1 - Math.exp(totProb);
-			Preconditions.checkState(totProb > origProb, "Didn't increase...? "+totProb+" <= "+origProb+". Before="+totProbBefore);
-			return totProb;
-		}
-		
-		private boolean isAleatory(ProbEqkSource source) {
-			// special case for B Faults
-			if (source instanceof UnsegmentedSource)
-				return ((UnsegmentedSource)source).getTotNumChar_Rups() > 1;
-			// check to make sure the area of each rupture is the same
-			// otherwise it's a floating source and we don't want to modify it
-			double area = -1d;
-			for (ProbEqkRupture rup : source) {
-				double newArea = rup.getRuptureSurface().getArea();
-				if (area < 0)
-					area = newArea;
-				else if ((float)area != (float)newArea)
-					return false;
-			}
-			
-			return true;
-		}
-		
-	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
-		AleatoryModProb mod = new AleatoryModProb(erf);
+		UCERF2_AleatoryMagVarRemovalMod mod = new UCERF2_AleatoryMagVarRemovalMod(erf);
 		
 		File plotDir = new File("/home/kevin/CyberShake/ucerf3/aleatory_test_ucerf2");
 		
@@ -194,8 +106,8 @@ public class AleatoryMagVariabilitiyTest {
 		for (int i=0; i<curveSites.size(); i++)
 			noAleatoryCurves.add(calc.computeHazardCurve(xVals, runs.get(i), imType));
 		db.destroy();
-		System.out.println("Stripped aleatory variability from "+mod.aleatorySources.size()+" sources");
-		System.out.println("Raymond? "+mod.aleatorySources.contains(247));
+//		System.out.println("Stripped aleatory variability from "+mod.aleatorySources.size()+" sources");
+//		System.out.println("Raymond? "+mod.aleatorySources.contains(247));
 		
 		// now do some sanity checks
 		int[] testIDs = { 90, 247, 246, 245 };

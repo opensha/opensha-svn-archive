@@ -657,8 +657,15 @@ public class ETASCurveCalc {
 		
 		if (directivityData != null && noDirectivityData != null) {
 			// individual gain maps
-			String name = prefix+"_directivity_gain.png";
+			
+			// gain map without directivity
+			String name = prefix+"_gain_nodirectivity.png";
 			File outputFile = new File(outputDir, name);
+			createRatioMap(noDirectivityData, baseMap,
+					conf.getScenario().toString()+" Directivity Gain", outputFile);
+			
+			name = prefix+"_directivity_additional_gain.png";
+			outputFile = new File(outputDir, name);
 			createRatioMap(directivityData, noDirectivityData,
 					conf.getScenario().toString()+" Directivity Gain", outputFile);
 		}

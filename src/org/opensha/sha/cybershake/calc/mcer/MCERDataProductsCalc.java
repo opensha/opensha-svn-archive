@@ -97,9 +97,6 @@ public class MCERDataProductsCalc {
 	
 	private CyberShakeDeterministicCalc csDetCalc;
 	
-	private static final double det_percentile = 84;
-	private static final double cs_det_mag_range = 0.11;
-	
 	private static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
@@ -147,7 +144,7 @@ public class MCERDataProductsCalc {
 		sites2db = new CybershakeSiteInfo2DB(db);
 		amps2db = new CachedPeakAmplitudesFromDB(db, cacheDir, erf);
 		
-		csDetCalc = new CyberShakeDeterministicCalc(amps2db, erf, det_percentile, cs_det_mag_range);
+		csDetCalc = new CyberShakeDeterministicCalc(amps2db, erf);
 		
 		// load IMs
 		ims = amps2db.getIMs(periods, IMType.SA, comp);
@@ -216,7 +213,7 @@ public class MCERDataProductsCalc {
 		// this will also write deterministic table
 		System.out.println("Calculating GMPE Deterministic");
 		GMPEDeterministicComparisonCalc gmpeDetermCalc = new GMPEDeterministicComparisonCalc(
-				run, site, comp, periods, det_percentile, erf, gmpes, runOutputDir);
+				run, site, comp, periods, CyberShakeDeterministicCalc.percentile, erf, gmpes, runOutputDir);
 		gmpeDetermCalc.setCyberShakeData(csDeterms);
 		gmpeDetermCalc.calc();
 		Table<Double, AttenuationRelationship, DeterministicResult> gmpeDeterms =
@@ -695,8 +692,10 @@ public class MCERDataProductsCalc {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 //			String argStr = "--run-id 2657,3037,2722,3022,3030,3027,2636,2638,2660,2703,3504,2988,2965,3007";
 //			String argStr = "--run-id 2657";
-			String argStr = "--run-id 3030"; // STNI orig
+//			String argStr = "--run-id 3030"; // STNI orig
 //			String argStr = "--run-id 3873"; // STNI 1 hz
+//			String argStr = "--run-id 3873,3880"; // STNI,SBSM 1 hz
+			String argStr = "--run-id 3883"; // s603 1 hz
 			argStr += " --component RotD100";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
 			argStr += " --output-dir /tmp/mcer_data_products";
