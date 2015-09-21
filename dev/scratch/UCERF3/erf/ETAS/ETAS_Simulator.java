@@ -614,7 +614,7 @@ public class ETAS_Simulator {
 				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
 				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
 				Long st2 = System.currentTimeMillis();
-//				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
+				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
 					erf.updateForecast();
 					for(int s=0;s<numFaultSysSources;s++) {
 						ProbEqkSource src = erf.getSource(s);
@@ -637,7 +637,7 @@ public class ETAS_Simulator {
 					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();
 
-//				}
+				}
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
 					System.out.println("Running generateRuptureDiagnostics(*)");
@@ -1298,11 +1298,11 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M7pt8;
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		if(scenario == null)
@@ -1313,7 +1313,7 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_UniformWithERT1";	// to increment runs
+		simulationName += "_Uniform_ERTGRIDDED_1";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;

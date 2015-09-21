@@ -225,7 +225,7 @@ public class ETAS_PrimaryEventSampler {
 			APPLY_ERT_FAULTS = true;
 		}
 		else { // NO_ERT or POISSON
-			APPLY_ERT_FAULTS = true;
+			APPLY_ERT_FAULTS = false;
 		}
 			
 		
@@ -1827,17 +1827,17 @@ System.exit(0);
 			
 			
 			
-			// TEST for just ERT effect with no time dep probabilities
-			includSupra=true;
-			List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(rupture.getFSSIndex());
-			int[] sectInCubeArray = sectInCubeList.get(i);
-			for(FaultSectionPrefData fltData : fltDataList) {
-				for(int sectID:sectInCubeArray)
-					if(sectID == fltData.getSectionId()) {
-						includSupra=false;
-						break;
-					}
-			}
+//			// TEST for just ERT effect with no time dep probabilities
+//			includSupra=true;
+//			List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(rupture.getFSSIndex());
+//			int[] sectInCubeArray = sectInCubeList.get(i);
+//			for(FaultSectionPrefData fltData : fltDataList) {
+//				for(int sectID:sectInCubeArray)
+//					if(sectID == fltData.getSectionId()) {
+//						includSupra=false;
+//						break;
+//					}
+//			}
 
 			
 
@@ -2051,18 +2051,18 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 				int[] sectInCubeArray = sectInCubeList.get(i);
 				
 				
-				// TEST for just ERT effect with no time dep probabilities
-				boolean includeSupra=true;
-				List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(parentRup.getFSSIndex());
-				for(FaultSectionPrefData fltData : fltDataList) {
-					for(int sectID:sectInCubeArray)
-						if(sectID == fltData.getSectionId()) {
-							includeSupra = false;
-							break;
-						}
-				}
-				if(!includeSupra)
-					continue;
+//				// TEST for just ERT effect with no time dep probabilities
+//				boolean includeSupra=true;
+//				List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(parentRup.getFSSIndex());
+//				for(FaultSectionPrefData fltData : fltDataList) {
+//					for(int sectID:sectInCubeArray)
+//						if(sectID == fltData.getSectionId()) {
+//							includeSupra = false;
+//							break;
+//						}
+//				}
+//				if(!includeSupra)
+//					continue;
 				
 				
 
