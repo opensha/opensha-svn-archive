@@ -225,7 +225,7 @@ public class ETAS_PrimaryEventSampler {
 			APPLY_ERT_FAULTS = true;
 		}
 		else { // NO_ERT or POISSON
-			APPLY_ERT_FAULTS = false;
+			APPLY_ERT_FAULTS = true;
 		}
 			
 		
@@ -930,8 +930,11 @@ public class ETAS_PrimaryEventSampler {
 					+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
 			return null;
 		}
-		
-		double targetRateAtTargetDist = totSupraSeisRate*ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraSeisMFD, subSeisMFD, false);
+		double grCorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(supraSeisMFD, subSeisMFD, false);
+		if(grCorr<0.5)
+			grCorr=0.5;
+		double targetRateAtTargetDist = totSupraSeisRate*grCorr;
+		System.out.println("getCubesAndFractForFaultSectionExponential grCorr="+grCorr);
 
 		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
 		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
@@ -1819,6 +1822,29 @@ System.exit(0);
 				progressBar.updateProgress(numDone, list.size());
 			if(APPLY_ERT_GRIDDED)
 				includSupra = canSupraBeTriggered(rupture, getCubeLocationForIndex(i));
+			
+			
+			
+			
+			
+			// TEST for just ERT effect with no time dep probabilities
+			includSupra=true;
+			List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(rupture.getFSSIndex());
+			int[] sectInCubeArray = sectInCubeList.get(i);
+			for(FaultSectionPrefData fltData : fltDataList) {
+				for(int sectID:sectInCubeArray)
+					if(sectID == fltData.getSectionId()) {
+						includSupra=false;
+						break;
+					}
+			}
+
+			
+
+			
+			
+			
+			
 			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i,includSupra);
 			if(relSrcProbForCube != null) {
 				for(int srcKey:relSrcProbForCube.keySet()) {
@@ -1907,14 +1933,27 @@ System.exit(0);
 	 * @param mainshock
 	 * @return ArrayList<SummedMagFreqDist>; index 0 has total MFD, and index 1 has supra-seis MFD
 	 */
-	public List<SummedMagFreqDist> getExpectedPrimaryMFD_PDF_Alt(IntegerPDF_FunctionSampler sampler) {
+	public List<SummedMagFreqDist> getExpectedPrimaryMFD_PDF_Alt(IntegerPDF_FunctionSampler sampler, double frac) {
 		// normalize so values sum to 1.0
 		sampler.scale(1.0/sampler.getSumOfY_vals());
+		
+		List<Integer> list = sampler.getOrderedIndicesOfHighestXFract(frac);
+		
+		CalcProgressBar progressBar = null;
+		if(D) {
+			progressBar = new CalcProgressBar("getExpectedPrimaryMFD_PDF_Alt", "junk");
+			progressBar.showProgress(true);
+		}
 
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		SummedMagFreqDist supraMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		SummedMagFreqDist subSeisMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
-		for(int i=0;i<sampler.size(); i++) {
+		int count=0;
+		for(int i:list) {
+			if(D) {
+				progressBar.updateProgress(count, list.size());
+				count+=1;				
+			}
 			SummedMagFreqDist mfd = getCubeMFD(i);
 			if(mfd != null) {
 				double total = mfd.getTotalIncrRate();
@@ -1934,6 +1973,9 @@ System.exit(0);
 			}
 		}
 		
+		if(D)
+			progressBar.showProgress(false);
+
 		ArrayList<SummedMagFreqDist> mfdList = new ArrayList<SummedMagFreqDist>();
 		mfdList.add(magDist);
 		mfdList.add(supraMagDist);
@@ -2005,7 +2047,25 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 				if(APPLY_ERT_GRIDDED && !canSupraBeTriggered(parentRup, getCubeLocationForIndex(i))) {
 					continue;
 				}
+				
 				int[] sectInCubeArray = sectInCubeList.get(i);
+				
+				
+				// TEST for just ERT effect with no time dep probabilities
+				boolean includeSupra=true;
+				List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(parentRup.getFSSIndex());
+				for(FaultSectionPrefData fltData : fltDataList) {
+					for(int sectID:sectInCubeArray)
+						if(sectID == fltData.getSectionId()) {
+							includeSupra = false;
+							break;
+						}
+				}
+				if(!includeSupra)
+					continue;
+				
+				
+
 				float[] fractInCubeArray = fractionSectInCubeList.get(i);
 				double sum = 0;
 				for(int s=0;s<sectInCubeArray.length;s++) {
@@ -3093,7 +3153,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		}
 
 		boolean includSupra = canSupraBeTriggered(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
-				
+		
 		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex, includSupra);
 		
 //		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
@@ -3652,7 +3712,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 					if(val<1.0)
 						grCorrFactorForSectArray[sectIndex]=val;
 					else
-						grCorrFactorForSectArray[sectIndex]=1.0;
+						grCorrFactorForSectArray[sectIndex]=val; //1.0;
 					if(val<minCorr) {
 						minCorr=val;
 						minCorrIndex=sectIndex;
@@ -4492,8 +4552,19 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		
 //		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 		
+		HashMap<Integer,Float> testMap = etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(1841);	// Mojave S subsection 4
+		double maxRate=0;
+		for(int cubeID:testMap.keySet())
+			if(maxRate<testMap.get(cubeID))
+				maxRate=testMap.get(cubeID);
+		for(int cubeID:testMap.keySet()) {
+			double depth = etas_PrimEventSampler.getCubeLocationForIndex(cubeID).getDepth();
+			System.out.println(cubeID+"\t"+depth+"\t"+testMap.get(cubeID)+"\t"+(testMap.get(cubeID)/maxRate));
+		}
+
+		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
-   	etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_Poiss_GRcorr");
+//   	etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_Poiss_GRcorr");
 //		etas_PrimEventSampler.tempTestBulgeInCube();
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,3.05,"RatesAboveM3pt0_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km");
@@ -4520,7 +4591,6 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //		etas_PrimEventSampler.testNucleationRatesOfSourcesInCubes();
 //		etas_PrimEventSampler.testRandomSourcesFromCubes();
 		
-//		etas_PrimEventSampler.getCubesAndFractForFaultSectionLinear(1846);	// Mojave S section
 //		etas_PrimEventSampler.getCubesAndFractForFaultSectionLinear(256);
 		
 //		etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(1267); 	// Mendocino sub-section 20
@@ -4683,12 +4753,12 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //		plotPrimayEventOverlap(rupture, relSrcProbs, subDirName, 10000, rupInfo);
 
 		long st = System.currentTimeMillis();
-//		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
-//				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
-//				getExpectedPrimaryMFD_PDF(relSrcProbs), rupture, expNum, fssERF.isPoisson());
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
 				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
-				getExpectedPrimaryMFD_PDF_Alt(aveCubeSamplerForRup), rupture, expNum, fssERF.isPoisson());
+				getExpectedPrimaryMFD_PDF(relSrcProbs), rupture, expNum, fssERF.isPoisson());
+//		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
+//				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 
+//				getExpectedPrimaryMFD_PDF_Alt(aveCubeSamplerForRup,0.99), rupture, expNum, fssERF.isPoisson());
 		
 		ETAS_SimAnalysisTools.plotExpectedPrimaryMFD_ForRup(rupInfo, 
 				new File(subDirName,rupInfo+"_ExpPrimMFD").getAbsolutePath(), 

@@ -614,7 +614,7 @@ public class ETAS_Simulator {
 				// now update source rates for etas_PrimEventSampler & spontaneousRupSampler
 				if(D) System.out.print("\tUpdating src rates for etas_PrimEventSampler & spontaneousRupSampler; ");
 				Long st2 = System.currentTimeMillis();
-				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
+//				if(erf.getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
 					erf.updateForecast();
 					for(int s=0;s<numFaultSysSources;s++) {
 						ProbEqkSource src = erf.getSource(s);
@@ -637,7 +637,7 @@ public class ETAS_Simulator {
 					// now update the ETAS sampler
 					etas_PrimEventSampler.declareRateChange();
 
-				}
+//				}
 				if(D) {
 					System.out.println("Sampler update took "+(System.currentTimeMillis()-st2)/1000+" secs");					
 					System.out.println("Running generateRuptureDiagnostics(*)");
@@ -1101,11 +1101,13 @@ public class ETAS_Simulator {
 	 */
 	public enum TestScenario {
 		
-		MOJAVE_M7("MojaveM7", 193821),		// better in terms of most probable src on Mojave S. subsect 13 between M 7 and 7.2, and more equal nucleation rate off ends; found with: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
+		MOJAVE_M7pt4("MojaveM7.4", 193830),		// SourceIndex=193816	fssIndex=193830	Inversion Src #193830; 18 SECTIONS BETWEEN San Andreas (San Bernardino N), Subsection 2 AND San Andreas (Mojave S), Subsection 0	mag=7.391156552897243
+		MOJAVE_M7pt8("MojaveM7.8", 18366),
+		MOJAVE_M7("MojaveM7", 193821),		// 193807	Inversion Src #193821; 9 SECTIONS BETWEEN San Andreas (San Bernardino N), Subsection 2 AND San Andreas (Mojave S), Subsection 9: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
 		MOJAVE_M7_ALT("MojaveM7_Alt", 195766),		// to test whether end has spike in expected MFD
 		MOJAVE_M6pt3_FSS("MojaveM6.3_FSS", 195759),	// unzipper case		
 		MOJAVE_M6pt3_ptSrc("MojaveM6.3_PtSrc", new Location(34.42295,-117.80177,5.8), 6.3),	// original test for Kevin
-		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	//
+		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
 		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
 		MOJAVE_M5p5_5kmAway("MojaveM5.5_5kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 5.0, 0.0)), 5.5),	//
 		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	//
@@ -1296,7 +1298,7 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = TestScenario.MOJAVE_M7pt8;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
@@ -1311,7 +1313,7 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_Uniform2";	// to increment runs
+		simulationName += "_UniformWithERT1";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;
@@ -1344,7 +1346,12 @@ public class ETAS_Simulator {
 		
 //		BETTER MOJAVE SCENARIO:
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(), 1850, 7.0, 7.2);
-//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946);
+		// M7:
+//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(startTimeYear, durationYears), 1846, 1946);
+		// M7.4
+//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(startTimeYear, durationYears), 1837, 1946);
+		// SourceIndex=18366	fssIndex=18366	Inversion Src #18366; 38 SECTIONS BETWEEN San Andreas (Carrizo) rev, Subsection 0 AND San Andreas (San Bernardino N), Subsection 2	mag=7.796:7
+//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(startTimeYear, durationYears), 1779, 1946);
 //
 //		System.exit(-1);
 		
