@@ -364,6 +364,10 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 		cache.invalidateAll();
 	}
 	
+	public DBAccess getDBAccess() {
+		return dbaccess;
+	}
+	
 	public static void main(String[] args) {
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(Cybershake_OpenSHA_DBApplication.db,
 				new File("/tmp/amp_cache"), MeanUCERF2_ToDB.createUCERF2ERF());

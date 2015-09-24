@@ -3,6 +3,7 @@ package scratch.kevin.cybershake;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
 import org.opensha.sha.cybershake.calc.mcer.MCERDataProductsCalc;
 
 public class DetLowerLimitTest {
@@ -16,7 +17,7 @@ public class DetLowerLimitTest {
 		for (double x=0; x<12d; x+=0.05)
 			xValsFunc.set(x, 0d);
 		
-		DiscretizedFunc lowerLimit = MCERDataProductsCalc.calcASCE_DetLowerLimit(xValsFunc, fv, fa, tl);
+		DiscretizedFunc lowerLimit = ASCEDetLowerLimitCalc.calc(xValsFunc, fv, fa, tl);
 		
 		GraphWindow gw = new GraphWindow(lowerLimit, "Deterministic Lower Limit");
 		gw.setX_AxisLabel("T (sec)");

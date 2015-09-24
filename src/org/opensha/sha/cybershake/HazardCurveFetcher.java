@@ -33,8 +33,8 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
-import org.opensha.sha.cybershake.calc.mcer.CyberShakeDeterministicCalc;
-import org.opensha.sha.cybershake.calc.mcer.RTGMCalc;
+import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
+import org.opensha.sha.cybershake.calc.mcer.CyberShakeMCErDeterministicCalc;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
@@ -112,7 +112,7 @@ public class HazardCurveFetcher {
 		for (DiscretizedFunc func : funcs) {
 			if (val < 0)
 				// RTGM
-				vals.add(RTGMCalc.calcRTGM(func));
+				vals.add(AbstractMCErProbabilisticCalc.calcRTGM(func));
 			else
 				vals.add(HazardDataSetLoader.getCurveVal(func, isProbAt_IML, val));
 		}
@@ -122,15 +122,15 @@ public class HazardCurveFetcher {
 	public List<Double> calcRTGM() {
 		List<Double> vals = new ArrayList<Double>();
 		for (DiscretizedFunc func : funcs)
-			vals.add(RTGMCalc.calcRTGM(func));
+			vals.add(AbstractMCErProbabilisticCalc.calcRTGM(func));
 		return vals;
 	}
 	
-	public List<Double> calcDeterministic(CyberShakeDeterministicCalc detCalc) {
+	public List<Double> calcDeterministic(CyberShakeMCErDeterministicCalc detCalc) {
 		List<Double> vals = new ArrayList<Double>();
 		for (int runID : runIDs) {
 			try {
-				vals.add(detCalc.calculate(runID, im).getVal());
+				vals.add(detCalc.calc(runID, im).getVal());
 				System.out.println("Finished Det Calc "+vals.size()+"/"+runIDs.size());
 			} catch (SQLException e) {
 				ExceptionUtils.throwAsRuntimeException(e);

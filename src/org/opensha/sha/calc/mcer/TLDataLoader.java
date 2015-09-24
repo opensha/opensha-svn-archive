@@ -1,7 +1,5 @@
-package org.opensha.sha.cybershake.calc.mcer;
+package org.opensha.sha.calc.mcer;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +8,6 @@ import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
-import org.opensha.sha.cybershake.db.CybershakeSite;
-import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
-import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -83,26 +78,26 @@ public class TLDataLoader {
 		return Double.NaN;
 	}
 
-	public static void main(String[] args) throws IOException {
+//	public static void main(String[] args) throws IOException {
+////		TLDataLoader tl = new TLDataLoader(
+////				CSVFile.readFile(new File("/tmp/temp-nodes.csv"), true),
+////				CSVFile.readFile(new File("/tmp/temp-attributes.csv"), true));
 //		TLDataLoader tl = new TLDataLoader(
-//				CSVFile.readFile(new File("/tmp/temp-nodes.csv"), true),
-//				CSVFile.readFile(new File("/tmp/temp-attributes.csv"), true));
-		TLDataLoader tl = new TLDataLoader(
-				CSVFile.readStream(TLDataLoader.class.getResourceAsStream("/resources/data/site/USGS_TL/tl-nodes.csv"), true),
-				CSVFile.readStream(TLDataLoader.class.getResourceAsStream("/resources/data/site/USGS_TL/tl-attributes.csv"), true));
-		
-		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
-		int numWith = 0;
-		int total = 0;
-		for (CybershakeSite site : sites2db.getAllSitesFromDB()) {
-			if (!Double.isNaN(tl.getValue(site.createLocation())))
-				numWith++;
-			else
-				System.out.println(site.name+" doesn't: "+site.createLocation());
-			total++;
-		}
-		System.out.println(numWith+"/"+total+" have TsubL data!");
-		System.exit(0);
-	}
+//				CSVFile.readStream(TLDataLoader.class.getResourceAsStream("/resources/data/site/USGS_TL/tl-nodes.csv"), true),
+//				CSVFile.readStream(TLDataLoader.class.getResourceAsStream("/resources/data/site/USGS_TL/tl-attributes.csv"), true));
+//		
+//		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+//		int numWith = 0;
+//		int total = 0;
+//		for (CybershakeSite site : sites2db.getAllSitesFromDB()) {
+//			if (!Double.isNaN(tl.getValue(site.createLocation())))
+//				numWith++;
+//			else
+//				System.out.println(site.name+" doesn't: "+site.createLocation());
+//			total++;
+//		}
+//		System.out.println(numWith+"/"+total+" have TsubL data!");
+//		System.exit(0);
+//	}
 
 }

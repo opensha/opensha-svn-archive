@@ -3,12 +3,11 @@ package org.opensha.sha.cybershake.calc.mcer;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,55 +20,56 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.dom4j.DocumentException;
-import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.data.Range;
-import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.commons.data.siteData.SiteData;
+import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.param.Parameter;
+import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
+import org.opensha.sha.calc.mcer.AbstractMCErDeterministicCalc;
+import org.opensha.sha.calc.mcer.DeterministicResult;
+import org.opensha.sha.calc.mcer.GMPE_MCErDeterministicCalc;
+import org.opensha.sha.calc.mcer.GMPE_MCErProbabilisticCalc;
+import org.opensha.sha.calc.mcer.MCErCalcUtils;
 import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
+import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.Runs2DB;
-import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
-import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.cybershake.plot.PlotType;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
-import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
+import org.opensha.sha.imr.param.OtherParams.Component;
+import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
+import org.opensha.sha.util.SiteTranslator;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
 
 public class MCERDataProductsCalc {
 	
-	private static final String ASCE_REL_PATH = "data/ASCE7-10_Sms_Sm1_TL_det LL for 14 sites.xls";
 	public static File cacheDir;
 	static {
 		File dir = new File("/home/kevin/CyberShake/MCER/.amps_cache");
@@ -85,8 +85,6 @@ public class MCERDataProductsCalc {
 	
 	private File outputDir;
 	
-	private List<CybershakeIM> ims;
-	
 	private DBAccess db;
 	private Runs2DB runs2db;
 	private CybershakeSiteInfo2DB sites2db;
@@ -95,9 +93,15 @@ public class MCERDataProductsCalc {
 //	private HSSFSheet asceSheet;
 //	private FormulaEvaluator evaluator;
 	
-	private CyberShakeDeterministicCalc csDetCalc;
+	private CyberShakeMCErDeterministicCalc csDetCalc;
+	private CyberShakeMCErProbabilisticCalc csProbCalc;
+	
+	private List<GMPE_MCErDeterministicCalc> gmpeDetCalcs;
+	private List<GMPE_MCErProbabilisticCalc> gmpeProbCalcs;
 	
 	private static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
+	
+	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
 			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
@@ -144,23 +148,23 @@ public class MCERDataProductsCalc {
 		sites2db = new CybershakeSiteInfo2DB(db);
 		amps2db = new CachedPeakAmplitudesFromDB(db, cacheDir, erf);
 		
-		csDetCalc = new CyberShakeDeterministicCalc(amps2db, erf);
+		csDetCalc = new CyberShakeMCErDeterministicCalc(amps2db, erf, comp);
+		csProbCalc = new CyberShakeMCErProbabilisticCalc(db, comp);
 		
-		// load IMs
-		ims = amps2db.getIMs(periods, IMType.SA, comp);
-		
-//		// load ASCE table
-//		HSSFWorkbook wb;
-//		try {
-//			POIFSFileSystem fs = new POIFSFileSystem(
-//					MCERDataProductsCalc.class.getResourceAsStream(ASCE_REL_PATH));
-//			wb = new HSSFWorkbook(fs);
-//		} catch (Exception e1) {
-//			System.err.println("Couldn't load input file. Make sure it's an xls file and NOT an xlsx file.");
-//			throw ExceptionUtils.asRuntimeException(e1);
-//		}
-//		asceSheet = wb.getSheetAt(0);
-//		evaluator = wb.getCreationHelper().createFormulaEvaluator();
+		if (gmpes != null && !gmpes.isEmpty()) {
+			gmpeDetCalcs = Lists.newArrayList();
+			gmpeProbCalcs = Lists.newArrayList();
+			
+			Component gmpeComp = MCErCalcUtils.getSupportedTranslationComponent(
+					gmpes.get(0), comp.getGMPESupportedComponents());;
+			
+			DiscretizedFunc xVals = IMT_Info.getUSGS_SA_Function();
+			
+			for (AttenuationRelationship gmpe : gmpes) {
+				gmpeDetCalcs.add(new GMPE_MCErDeterministicCalc(erf, gmpe, gmpeComp));
+				gmpeProbCalcs.add(new GMPE_MCErProbabilisticCalc(erf, gmpe, gmpeComp, xVals));
+			}
+		}
 	}
 	
 	public void calc(int runID) throws IOException {
@@ -176,97 +180,147 @@ public class MCERDataProductsCalc {
 		}
 	}
 	
-	private void doCalc(CybershakeRun run, CybershakeSite site) throws IOException {
-		System.out.println("Calculating for "+site.short_name+", runID="+run.getRunID());
-		File runOutputDir = new File(outputDir, site.short_name+"_run"+run.getRunID());
+	private void doCalc(CybershakeRun run, CybershakeSite csSite) throws IOException {
+		System.out.println("Calculating for "+csSite.short_name+", runID="+run.getRunID());
+		File runOutputDir = new File(outputDir, csSite.short_name+"_run"+run.getRunID());
 		Preconditions.checkState(runOutputDir.exists() && runOutputDir.isDirectory() || runOutputDir.mkdir());
 		
+		CyberShakeSiteRun site = new CyberShakeSiteRun(csSite, run);
+		
+		// load in site data
+		OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(run.getVelModelID());
+		ParameterList siteParams = new ParameterList();
+		if (gmpes == null || gmpes.isEmpty()) {
+			// just do Vs30 for lower limit calc
+			siteParams.addParameter(new Vs30_Param());
+		} else {
+			for (AttenuationRelationship gmpe : gmpes) {
+				for (Parameter<?> param : gmpe.getSiteParams()) {
+					if (!siteParams.containsParameter(param))
+						// one at a time so we don't need to clone
+						siteParams.addParameter(param);
+				}
+			}
+		}
+		SiteTranslator siteTrans = new SiteTranslator();
+		List<SiteDataValue<?>> datas = provs.getBestAvailableData(site.getLocation());
+		for (Parameter<?> param : siteParams) {
+			siteTrans.setParameterValue(param, datas);
+			site.addParameter(param);
+		}
+		
 		// calc CyberShake deterministic
-		System.out.println("Calculating CyberShake Deterministic");
+		System.out.println("Calculating CyberShake Values");
 		List<DeterministicResult> csDeterms = Lists.newArrayList();
-		List<CybershakeIM> forceAddIMs = Lists.newArrayList();
 		DiscretizedFunc csDetSpectrum = new ArbitrarilyDiscretizedFunc();
 		csDetSpectrum.setName("CyberShake Deterministic");
+		DiscretizedFunc csProbSpectrum = new ArbitrarilyDiscretizedFunc();
+		csProbSpectrum.setName("CyberShake Probabilistic");
 		
-		List<Double> csRoundedPeriods = Lists.newArrayList();
-		for (int i=0; i<ims.size(); i++) {
-			CybershakeIM im = ims.get(i);
-			if (im == null)
-				im = new CybershakeIM(-1, IMType.SA, periods.get(i), null, comp);
-			csRoundedPeriods.add(im.getVal());
-			if (im.getID() < 0 || amps2db.countAmps(run.getRunID(), im) <= 0) {
-				// IM not applicable for CyberShake
-				csDeterms.add(null);
-				forceAddIMs.add(im);
-				continue;
-			}
+		// calc CyberShake
+		for (double period : periods) {
 			try {
-				DeterministicResult csDet = csDetCalc.calculate(run.getRunID(), im);
+				DeterministicResult csDet = csDetCalc.calc(site, period);
 				csDeterms.add(csDet);
-				csDetSpectrum.set(im.getVal(), csDet.getVal());
-			} catch (SQLException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
+				double csProb = csProbCalc.calc(site, period);
+				csProbSpectrum.set(period, csProb);
+			} catch (IllegalStateException e) {
+				if (e.getMessage() != null && e.getMessage().startsWith("No CyberShake IM match")) {
+					System.out.println("Skipping period "+period+", no matching CyberShake IM");
+					csDeterms.add(null);
+					continue;
+				}
+				throw e;
 			}
+		}
+		Preconditions.checkState(csDeterms.size() == periods.size());
+		for (int i=0; i<periods.size(); i++)
+			if (csDeterms.get(i) != null)
+				csDetSpectrum.set(periods.get(i), csDeterms.get(i).getVal());
+		
+		System.out.println("Calculating GMPE Values");
+		List<DiscretizedFunc> gmpeDetSpectrums = null;
+		List<DiscretizedFunc> gmpeProbSpectrums = null;
+		DiscretizedFunc gmpeCombinedDetSpectrum = null;
+		DiscretizedFunc gmpeCombinedProbSpectrum = null;
+		List<List<DeterministicResult>> gmpeDeterms = null;
+		if (gmpeDetCalcs != null) {
+			gmpeDetSpectrums = Lists.newArrayList();
+			gmpeProbSpectrums = Lists.newArrayList();
+			gmpeDeterms = Lists.newArrayList();
+			for (int i=0; i<gmpes.size(); i++) {
+//				ArbitrarilyDiscretizedFunc detSpectrum = new ArbitrarilyDiscretizedFunc(
+//						gmpes.get(i).getShortName()+" Deterministic");
+//				ArbitrarilyDiscretizedFunc probSpectrum = new ArbitrarilyDiscretizedFunc(
+//						gmpes.get(i).getShortName()+" Probabilistic");
+				Map<Double, DeterministicResult> detResults = gmpeDetCalcs.get(i).calc(site, periods);
+				List<DeterministicResult> gmpeDeterm = Lists.newArrayList();
+				for (double period : periods)
+					gmpeDeterm.add(detResults.get(period));
+				gmpeDeterms.add(gmpeDeterm);
+				DiscretizedFunc detSpectrum = AbstractMCErDeterministicCalc.toSpectrumFunc(detResults);
+				detSpectrum.setName(gmpes.get(i).getShortName()+" Deterministic");
+				DiscretizedFunc probSpectrum = gmpeProbCalcs.get(i).calc(site, periods);
+				probSpectrum.setName(gmpes.get(i).getShortName()+" Probabilistic");
+				
+				gmpeDetSpectrums.add(detSpectrum);
+				gmpeProbSpectrums.add(probSpectrum);
+			}
+			gmpeCombinedDetSpectrum = maximum(gmpeDetSpectrums);
+			gmpeCombinedProbSpectrum = average(gmpeProbSpectrums);
 		}
 		
-		// calc GMPE deterministic
-		// this will also write deterministic table
-		System.out.println("Calculating GMPE Deterministic");
-		GMPEDeterministicComparisonCalc gmpeDetermCalc = new GMPEDeterministicComparisonCalc(
-				run, site, comp, periods, CyberShakeDeterministicCalc.percentile, erf, gmpes, runOutputDir);
-		gmpeDetermCalc.setCyberShakeData(csDeterms);
-		gmpeDetermCalc.calc();
-		Table<Double, AttenuationRelationship, DeterministicResult> gmpeDeterms =
-				gmpeDetermCalc.getResults();
-		Preconditions.checkNotNull(gmpeDeterms);
-		// get GMPE combined deterministic
-		DiscretizedFunc gmpeDetSpectrum = new ArbitrarilyDiscretizedFunc("GMPE Deterministic");
-		List<DiscretizedFunc> gmpeDetSpectrums = Lists.newArrayList();
-		for (AttenuationRelationship gmpe : gmpes)
-			gmpeDetSpectrums.add(new ArbitrarilyDiscretizedFunc(gmpe.getShortName()+" Deterministic"));
-		for (Double period : gmpeDeterms.rowKeySet()) {
-			double maxVal = 0d;
-			for (int i=0; i<gmpes.size(); i++) {
-				AttenuationRelationship gmpe = gmpes.get(i);
-				DeterministicResult res = gmpeDeterms.get(period, gmpe);
-				gmpeDetSpectrums.get(i).set(period, res.getVal());
-				maxVal = Math.max(maxVal, res.getVal());
-			}
-			gmpeDetSpectrum.set(period, maxVal);
-		}
 		// plot deterministic
 		for (boolean velPlot : new boolean[] {true, false})
-			DeterministicResultPlotter.plot(buildDetermMapForSite(site.short_name, comp, csDetSpectrum),
-					buildDetermMapForSite(site.short_name, comp, gmpeDetSpectrums),
+			DeterministicResultPlotter.plot(comp, buildDetermMapForSite(csSite.short_name, csDetSpectrum),
+					buildDetermMapForSite(csSite.short_name, gmpeDetSpectrums),
 					Lists.newArrayList(PlotType.PNG, PlotType.PDF), velPlot, runOutputDir);
 		
+		// write deterministic CSV
+		String perStr;
+		double percentile = AbstractMCErDeterministicCalc.percentile;
+		if ((float)percentile == (float)((int)percentile))
+			perStr = (int)percentile+"";
+		else
+			perStr = (float)percentile+"";
 		
-		// calc probabalistic
-		System.out.println("Calculating Probabilistic");
-		RTGMCalc probCalc = new RTGMCalc(run.getRunID(), comp, runOutputDir, db);
-		probCalc.setForceAddIMs(forceAddIMs);
-		probCalc.setGMPEs(erf, gmpes);
-		probCalc.setVelPlot(true);
-		probCalc.setPlotTypes(Lists.newArrayList(PlotType.CSV, PlotType.PNG, PlotType.PDF));
-		Preconditions.checkState(probCalc.calc());
-		// now do again for regular plot
-		probCalc.setVelPlot(false);
-		probCalc.setPlotTypes(Lists.newArrayList(PlotType.PNG, PlotType.PDF));
-		Preconditions.checkState(probCalc.calc());
-		DiscretizedFunc csProb = probCalc.getCSSpectrumMap().get(comp);
+		String name = site.getCS_Site().short_name+"_run"+run.getRunID()+"_Deterministic_";
+		name += comp.getShortName()+"_"+perStr+"per_"+dateFormat.format(new Date())+".csv";
 		
-		// get mean GMPE RTGM
-		Map<Double, List<DiscretizedFunc>> gmpeHazCurvesMap = probCalc.getGMPEHazardCurves().rowMap().get(comp);
-		ArbitrarilyDiscretizedFunc gmpeProb = new ArbitrarilyDiscretizedFunc("GMPE Probabilistic");
-		for (int i=0; i<periods.size(); i++) {
-			Double period = periods.get(i);
-			List<DiscretizedFunc> gmpeHazCurves = gmpeHazCurvesMap.get(csRoundedPeriods.get(i));
-			Preconditions.checkNotNull(gmpeHazCurves, "No GMPE haz curves for period="+period
-					+". Avail: "+Joiner.on(",").join(gmpeHazCurvesMap.keySet()));
-			DiscretizedFunc meanCurve = average(gmpeHazCurves);
-			double rtgm = RTGMCalc.calcRTGM(meanCurve);
-			gmpeProb.set(period, rtgm);
-		}
+		File outputFile = new File(runOutputDir, name);
+		DeterministicResultPlotter.writeCSV(periods, csDeterms, gmpes, gmpeDeterms, outputFile);
+		
+		// plot probabilistic
+		for (boolean velPlot : new boolean[] {true, false})
+			ProbabilisticResultPlotter.plotProbMCEr(site, comp, csProbSpectrum, gmpes, gmpeProbSpectrums, periods,
+					Lists.newArrayList(PlotType.PNG, PlotType.PDF, PlotType.CSV), velPlot, runOutputDir);
+		
+//		// calc probabalistic
+//		System.out.println("Calculating Probabilistic");
+//		RTGMCalc probCalc = new RTGMCalc(run.getRunID(), comp, runOutputDir, db);
+//		probCalc.setForceAddIMs(forceAddIMs);
+//		probCalc.setGMPEs(erf, gmpes);
+//		probCalc.setVelPlot(true);
+//		probCalc.setPlotTypes(Lists.newArrayList(PlotType.CSV, PlotType.PNG, PlotType.PDF));
+//		Preconditions.checkState(probCalc.calc());
+//		// now do again for regular plot
+//		probCalc.setVelPlot(false);
+//		probCalc.setPlotTypes(Lists.newArrayList(PlotType.PNG, PlotType.PDF));
+//		Preconditions.checkState(probCalc.calc());
+//		DiscretizedFunc csProb = probCalc.getCSSpectrumMap().get(comp);
+//		
+//		// get mean GMPE RTGM
+//		Map<Double, List<DiscretizedFunc>> gmpeHazCurvesMap = probCalc.getGMPEHazardCurves().rowMap().get(comp);
+//		ArbitrarilyDiscretizedFunc gmpeProb = new ArbitrarilyDiscretizedFunc("GMPE Probabilistic");
+//		for (int i=0; i<periods.size(); i++) {
+//			Double period = periods.get(i);
+//			List<DiscretizedFunc> gmpeHazCurves = gmpeHazCurvesMap.get(csRoundedPeriods.get(i));
+//			Preconditions.checkNotNull(gmpeHazCurves, "No GMPE haz curves for period="+period
+//					+". Avail: "+Joiner.on(",").join(gmpeHazCurvesMap.keySet()));
+//			DiscretizedFunc meanCurve = average(gmpeHazCurves);
+//			double rtgm = RTGMCalc.calcRTGM(meanCurve);
+//			gmpeProb.set(period, rtgm);
+//		}
 		
 //		// load in ASCE values if available
 //		HSSFRow row = null;
@@ -293,21 +347,17 @@ public class MCERDataProductsCalc {
 //			asceProb = null;
 //		}
 		// get vs30 from GMPE calc
-		double vs30 = Double.NaN;
-		for (SiteDataValue<?> val : gmpeDetermCalc.getSiteData()) {
-			if (val.getDataType().equals(SiteData.TYPE_VS30))
-				vs30 = (Double)val.getValue();
-		}
-		Preconditions.checkState(!Double.isNaN(vs30), "Vs30 not loaded in GMPE calc");
+		Preconditions.checkState(site.containsParameter(Vs30_Param.NAME));
+		double vs30 = site.getParameter(Double.class, Vs30_Param.NAME).getValue();
 		// gmpeProb just used for x values here
-		DiscretizedFunc asceDeterm = calcASCE_DetLowerLimit(gmpeProb, vs30, site.createLocation());
+		DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(gmpeCombinedProbSpectrum, vs30, csSite.createLocation());
 		DiscretizedFunc asceProb = null; // not used
 		
 		// now generate combined plots
 		System.out.println("Generating plots");
-		makePlots(runOutputDir, site, run, RTGMCalc.saToPsuedoVel(csDetSpectrum),
-				RTGMCalc.saToPsuedoVel(gmpeDetSpectrum), RTGMCalc.saToPsuedoVel(asceDeterm), RTGMCalc.saToPsuedoVel(csProb),
-				RTGMCalc.saToPsuedoVel(gmpeProb), asceProb);
+		makePlots(runOutputDir, csSite, run, MCErCalcUtils.saToPsuedoVel(csDetSpectrum),
+				MCErCalcUtils.saToPsuedoVel(gmpeCombinedDetSpectrum), MCErCalcUtils.saToPsuedoVel(asceDeterm),
+				MCErCalcUtils.saToPsuedoVel(csProbSpectrum), MCErCalcUtils.saToPsuedoVel(gmpeCombinedProbSpectrum), asceProb);
 	}
 	
 	private static DiscretizedFunc average(List<DiscretizedFunc> funcs) {
@@ -329,22 +379,18 @@ public class MCERDataProductsCalc {
 		return mean;
 	}
 	
-	private static Map<String, Map<CyberShakeComponent, DiscretizedFunc>> buildDetermMapForSite(
-			String siteName, CyberShakeComponent comp, DiscretizedFunc spectrum) {
-		Map<String, Map<CyberShakeComponent, DiscretizedFunc>> maps = Maps.newHashMap();
-		Map<CyberShakeComponent, DiscretizedFunc> map = Maps.newHashMap();
-		maps.put(siteName, map);
-		map.put(comp, spectrum);
-		return maps;
+	private static Map<String, DiscretizedFunc> buildDetermMapForSite(
+			String siteName, DiscretizedFunc spectrum) {
+		Map<String, DiscretizedFunc> map = Maps.newHashMap();
+		map.put(siteName, spectrum);
+		return map;
 	}
 	
-	private static Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> buildDetermMapForSite(
-			String siteName, CyberShakeComponent comp, List<DiscretizedFunc> spectrums) {
-		Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> maps = Maps.newHashMap();
-		Map<CyberShakeComponent, List<DiscretizedFunc>> map = Maps.newHashMap();
-		maps.put(siteName, map);
-		map.put(comp, spectrums);
-		return maps;
+	private static Map<String, List<DiscretizedFunc>> buildDetermMapForSite(
+			String siteName, List<DiscretizedFunc> spectrums) {
+		Map<String, List<DiscretizedFunc>> map = Maps.newHashMap();
+		map.put(siteName, spectrums);
+		return map;
 	}
 	
 	public static double loadASCEValue(HSSFCell cell, FormulaEvaluator evaluator) {
@@ -379,92 +425,6 @@ public class MCERDataProductsCalc {
 //		return ret;
 //	}
 	
-	private static TLDataLoader tlData;
-	
-	public static DiscretizedFunc calcASCE_DetLowerLimit(DiscretizedFunc xValsFunc, double vs30, Location loc) {
-		// convert vs30 from m/s to ft/s
-		vs30 *= 3.2808399;
-		double fa, fv;
-		if (vs30 > 5000) {
-			// site class A
-			fa = 0.8;
-			fv = 0.8;
-		} else if (vs30 > 2500) {
-			// site class B
-			fa = 1.0;
-			fv = 1.0;
-		} else if (vs30 > 1200) {
-			// site class C
-			fa = 1.0;
-			fv = 1.3;
-		} else if (vs30 > 600) {
-			// site class D
-			fa = 1.0;
-			fv = 1.5;
-		} else {
-			// site class E
-			fa = 0.9;
-			fv = 2.4;
-		}
-		
-		synchronized (MCERDataProductsCalc.class) {
-			if (tlData == null) {
-				try {
-					tlData = new TLDataLoader(
-							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
-									"/resources/data/site/USGS_TL/tl-nodes.csv"), true),
-							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
-									"/resources/data/site/USGS_TL/tl-attributes.csv"), true));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			}
-		}
-		
-		double tl = tlData.getValue(loc);
-		Preconditions.checkState(!Double.isNaN(tl), "No TL data found for site at "+loc);
-		
-		return calcASCE_DetLowerLimit(xValsFunc, fv, fa, tl);
-	}
-	
-	public static DiscretizedFunc calcASCE_DetLowerLimit(DiscretizedFunc xValsFunc, double fv, double fa, double tl) {
-		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
-		
-		double firstRatioXVal = 0.08*fv/fa;
-		double secondRatioXVal = 0.4*fv/fa;
-		
-		List<Double> xVals = Lists.newArrayList();
-		for (Point2D pt : xValsFunc)
-			xVals.add(pt.getX());
-		// make sure that the discontinuities in the function are included for plotting purposes
-		if (isWithinDomain(xValsFunc, tl) && !xValsFunc.hasX(tl))
-			xVals.add(tl);
-		if (isWithinDomain(xValsFunc, firstRatioXVal) && !xValsFunc.hasX(firstRatioXVal))
-			xVals.add(firstRatioXVal);
-		if (isWithinDomain(xValsFunc, secondRatioXVal) && !xValsFunc.hasX(secondRatioXVal))
-			xVals.add(secondRatioXVal);
-		
-		for (double t : xVals) {
-			double sa;
-			if (t >= tl)
-				sa = 0.6*fv*tl/(t*t);
-			else if (t >= secondRatioXVal)
-				sa = 0.6*fv/t;
-			else if (t >= firstRatioXVal)
-				sa = 1.5*fa;
-			else
-				// linear interpolation from (0, 0.6*fa) to (0.08*fv/fa, 1.5*fa)
-				sa = (1.5*fa - 0.6*fa)*t/firstRatioXVal + 0.6*fa;
-			ret.set(t, sa);
-		}
-		
-		return ret;
-	}
-	
-	private static boolean isWithinDomain(DiscretizedFunc func, double x) {
-		return x >= func.getMinX() && x <= func.getMaxX();
-	}
-	
 	private static DiscretizedFunc maximum(List<DiscretizedFunc> funcs) {
 		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
 		
@@ -475,7 +435,7 @@ public class MCERDataProductsCalc {
 			
 			double y = 0;
 			for (DiscretizedFunc func : funcs) {
-				Preconditions.checkState((float)x == (float)func.getX(i));;
+				Preconditions.checkState((float)x == (float)func.getX(i));
 				y = Math.max(y, func.getY(i));
 			}
 			
@@ -623,18 +583,12 @@ public class MCERDataProductsCalc {
 			else
 				dLowVal = 0d;
 			
-			double val = calcMCER(dVal, pVal, dLowVal);
+			double val = MCErCalcUtils.calcMCER(dVal, pVal, dLowVal);
 			
 			ret.set(x, val);
 		}
 		
 		return ret;
-	}
-	
-	public static double calcMCER(double dVal, double pVal, double dLowVal) {
-		double val = Math.min(pVal, Math.max(dVal, dLowVal));
-		Preconditions.checkState(val > 0d, "It's zero???? pVal="+pVal+", dVal="+dVal+", dLowVal="+dLowVal);
-		return val;
 	}
 	
 	private static Options createOptions() {
@@ -712,7 +666,7 @@ public class MCERDataProductsCalc {
 		try {
 			Options options = createOptions();
 			
-			String appName = ClassUtils.getClassNameWithoutPackage(RTGMCalc.class);
+			String appName = ClassUtils.getClassNameWithoutPackage(MCERDataProductsCalc.class);
 			
 			CommandLineParser parser = new GnuParser();
 			

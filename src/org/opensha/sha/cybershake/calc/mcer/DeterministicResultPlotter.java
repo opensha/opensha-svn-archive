@@ -18,23 +18,33 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.calc.mcer.DeterministicResult;
+import org.opensha.sha.calc.mcer.MCErCalcUtils;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.cybershake.plot.PlotType;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIMR;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class DeterministicResultPlotter {
@@ -44,8 +54,8 @@ public class DeterministicResultPlotter {
 	
 	private CyberShakeComponent comp;
 	
-	private Map<String, Map<CyberShakeComponent, DiscretizedFunc>> csSpectrumMaps;
-	private Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> gmpeSpectrumMaps;
+	private Map<CyberShakeComponent, Map<String, DiscretizedFunc>> csSpectrumMaps;
+	private Map<CyberShakeComponent, Map<String, List<DiscretizedFunc>>> gmpeSpectrumMaps;
 	
 	private boolean velPlot = false;
 	
@@ -77,8 +87,8 @@ public class DeterministicResultPlotter {
 	}
 	
 	static void loadData(File inputFile, CyberShakeComponent comp,
-			Map<String, Map<CyberShakeComponent, DiscretizedFunc>> csSpectrumMaps,
-			Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> gmpeSpectrumMaps)
+			Map<CyberShakeComponent, Map<String, DiscretizedFunc>> csSpectrumMaps,
+			Map<CyberShakeComponent, Map<String, List<DiscretizedFunc>>> gmpeSpectrumMaps)
 					throws FileNotFoundException, IOException {
 		HSSFWorkbook wb;
 		try {
@@ -101,9 +111,9 @@ public class DeterministicResultPlotter {
 			
 			System.out.println("Loading values for "+siteName);
 			
-			Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap = Maps.newHashMap();
-			csSpectrumMaps.put(siteName, csSpectrumMap);
-			Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap = null;
+			Map<String, DiscretizedFunc> csSpectrumMap = Maps.newHashMap();
+			csSpectrumMaps.put(comp, csSpectrumMap);
+			Map<String, List<DiscretizedFunc>> gmpeSpectrumMap = null;
 			
 			int col = csValCol;
 			
@@ -152,12 +162,12 @@ public class DeterministicResultPlotter {
 						+", lastRowNum: "+sheet.getLastRowNum());
 				
 				if (col == csValCol) {
-					csSpectrumMap.put(comp, func);
+					csSpectrumMap.put(siteName, func);
 				} else {
 					if (gmpeSpectrumMap == null) {
 						gmpeSpectrumMap = Maps.newHashMap();
-						gmpeSpectrumMaps.put(siteName, gmpeSpectrumMap);
-						gmpeSpectrumMap.put(comp, new ArrayList<DiscretizedFunc>());
+						gmpeSpectrumMaps.put(comp, gmpeSpectrumMap);
+						gmpeSpectrumMap.put(siteName, new ArrayList<DiscretizedFunc>());
 					}
 					List<DiscretizedFunc> gmpeFuncs = gmpeSpectrumMap.get(comp);
 					gmpeFuncs.add(func);
@@ -172,48 +182,54 @@ public class DeterministicResultPlotter {
 	}
 	
 	private void plot() throws IOException {
-		plot(csSpectrumMaps, gmpeSpectrumMaps, plotTypes, velPlot, outputDir);
+		for (CyberShakeComponent comp : csSpectrumMaps.keySet())
+			plot(comp, csSpectrumMaps.get(comp), gmpeSpectrumMaps.get(comp), plotTypes, velPlot, outputDir);
 	}
 	
-	static void plot(Map<String, Map<CyberShakeComponent, DiscretizedFunc>> csSpectrumMaps,
-			Map<String, Map<CyberShakeComponent, List<DiscretizedFunc>>> gmpeSpectrumMaps,
+	static void plot(CyberShakeComponent comp, Map<String, DiscretizedFunc> csSpectrumMap,
+			Map<String, List<DiscretizedFunc>> gmpeSpectrumMap,
 			List<PlotType> plotTypes, boolean velPlot, File outputDir) throws IOException {
-		for (String siteName : csSpectrumMaps.keySet()) {
-			Map<CyberShakeComponent, DiscretizedFunc> csSpectrumMap = csSpectrumMaps.get(siteName);
-			Map<CyberShakeComponent, List<DiscretizedFunc>> gmpeSpectrumMap = gmpeSpectrumMaps.get(siteName);
+		for (String siteName : csSpectrumMap.keySet()) {
+			DiscretizedFunc csSpectrum = csSpectrumMap.get(siteName);
+			List<DiscretizedFunc> gmpeSpectrums = gmpeSpectrumMap.get(siteName);
 			
 			String namePrefix = siteName+"_deterministic";
-			String dateStr = RTGMCalc.dateFormat.format(new Date());
-			Map<CyberShakeComponent, PlotSpec> specs = null;
-			Map<CyberShakeComponent, PlotSpec> velSpecs = null;
+			String dateStr = ProbabilisticResultPlotter.dateFormat.format(new Date());
+			PlotSpec spec = null;
+			PlotSpec velSpec = null;
 			
 			for (PlotType type : plotTypes) {
+				String name = namePrefix+"_"+comp.getShortName()+"_";
+				if (velPlot)
+					name += "vel_";
+				name += dateStr+"."+type.getExtension();
+				File outputFile = new File(outputDir, name);
 				switch (type) {
 				case PDF:
-					if (specs == null) {
-						specs = RTGMCalc.getSpectrumPlot(siteName, csSpectrumMap, gmpeSpectrumMap, "Determinisic", "(g)");
+					if (spec == null) {
+						spec = ProbabilisticResultPlotter.getSpectrumPlot(siteName, comp, csSpectrum, gmpeSpectrums, "Determinisic", "(g)");
 						if (velPlot)
-							velSpecs = RTGMCalc.getSpectrumPlot(siteName, RTGMCalc.saToPsuedoVel(csSpectrumMap),
-									RTGMCalc.sasToPsuedoVel(gmpeSpectrumMap), "Determinisic PSV", "(cm/sec)");
+							velSpec = ProbabilisticResultPlotter.getSpectrumPlot(siteName, comp, MCErCalcUtils.saToPsuedoVel(csSpectrum),
+									ProbabilisticResultPlotter.sasToPsuedoVel(gmpeSpectrums), "Determinisic PSV", "(cm/sec)");
 					}
-					RTGMCalc.writeSpecs(namePrefix, dateStr, specs, outputDir, type,
-							RTGMCalc.xLog, RTGMCalc.yLog, RTGMCalc.xRangeSA, RTGMCalc.yRangeSA);
+					ProbabilisticResultPlotter.writeSpec(spec, outputFile, type,
+							ProbabilisticResultPlotter.xLog, ProbabilisticResultPlotter.yLog, ProbabilisticResultPlotter.xRangeSA, ProbabilisticResultPlotter.yRangeSA);
 					if (velPlot)
-						RTGMCalc.writeSpecs(namePrefix, "vel_"+dateStr, velSpecs, outputDir, type,
-								RTGMCalc.xLog, RTGMCalc.yLog, RTGMCalc.xRangeVel, RTGMCalc.yRangeVel);
+						ProbabilisticResultPlotter.writeSpec(velSpec, outputFile, type,
+								ProbabilisticResultPlotter.xLog, ProbabilisticResultPlotter.yLog, ProbabilisticResultPlotter.xRangeVel, ProbabilisticResultPlotter.yRangeVel);
 					break;
 				case PNG:
-					if (specs == null) {
-						specs = RTGMCalc.getSpectrumPlot(siteName, csSpectrumMap, gmpeSpectrumMap, "Determinisic", "(g)");
+					if (spec == null) {
+						spec = ProbabilisticResultPlotter.getSpectrumPlot(siteName, comp, csSpectrum, gmpeSpectrums, "Determinisic", "(g)");
 						if (velPlot)
-							velSpecs = RTGMCalc.getSpectrumPlot(siteName, RTGMCalc.saToPsuedoVel(csSpectrumMap),
-									RTGMCalc.sasToPsuedoVel(gmpeSpectrumMap), "Determinisic PSV", "(cm/sec)");
+							velSpec = ProbabilisticResultPlotter.getSpectrumPlot(siteName, comp, MCErCalcUtils.saToPsuedoVel(csSpectrum),
+									ProbabilisticResultPlotter.sasToPsuedoVel(gmpeSpectrums), "Determinisic PSV", "(cm/sec)");
 					}
-					RTGMCalc.writeSpecs(namePrefix, dateStr, specs, outputDir, type,
-							RTGMCalc.xLog, RTGMCalc.yLog, RTGMCalc.xRangeSA, RTGMCalc.yRangeSA);
+					ProbabilisticResultPlotter.writeSpec(spec, outputFile, type,
+							ProbabilisticResultPlotter.xLog, ProbabilisticResultPlotter.yLog, ProbabilisticResultPlotter.xRangeSA, ProbabilisticResultPlotter.yRangeSA);
 					if (velPlot)
-						RTGMCalc.writeSpecs(namePrefix, "vel_"+dateStr, velSpecs, outputDir, type,
-								RTGMCalc.xLog, RTGMCalc.yLog, RTGMCalc.xRangeVel, RTGMCalc.yRangeVel);
+						ProbabilisticResultPlotter.writeSpec(velSpec, outputFile, type,
+								ProbabilisticResultPlotter.xLog, ProbabilisticResultPlotter.yLog, ProbabilisticResultPlotter.xRangeVel, ProbabilisticResultPlotter.yRangeVel);
 					break;
 
 				default:
@@ -221,6 +237,64 @@ public class DeterministicResultPlotter {
 				}
 			}
 		}
+	}
+	
+	static void writeCSV(List<Double> periods, List<DeterministicResult> csDeterms,
+			List<? extends ScalarIMR> gmpes, List<List<DeterministicResult>> gmpeDeterms,
+			File outputFile) throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		List<String> header = Lists.newArrayList();
+		header.add("Period");
+		if (csDeterms != null) {
+			header.add("CyberShake Source ID");
+			header.add("CyberShake Rup ID");
+			header.add("CyberShake Name");
+			header.add("CyberShake Value (g)");
+		}
+		if (gmpes == null)
+			gmpes = Lists.newArrayList();
+		for (int i=0; i<gmpes.size(); i++) {
+			List<DeterministicResult> determs = gmpeDeterms.get(i);
+			Preconditions.checkNotNull(determs);
+			Preconditions.checkState(determs.size() == periods.size());
+			ScalarIMR gmpe = gmpes.get(i);
+			header.add(gmpe.getShortName()+" Source ID");
+			header.add(gmpe.getShortName()+" Rup ID");
+			header.add(gmpe.getShortName()+" Name");
+			header.add(gmpe.getShortName()+" Value (g)");
+		}
+		csv.addLine(header);
+		
+		Preconditions.checkState(csDeterms.size() == periods.size());
+		
+		for (int i=0; i<periods.size(); i++) {
+			double period = periods.get(i);
+			List<String> line = Lists.newArrayList();
+			line.add(period+"");
+			if (csDeterms != null) {
+				DeterministicResult csDeterm = csDeterms.get(i);
+				if (csDeterm == null) {
+					line.add("");
+					line.add("");
+					line.add("");
+					line.add("");
+				} else {
+					line.add(csDeterm.getSourceID()+"");
+					line.add(csDeterm.getRupID()+"");
+					line.add(csDeterm.getSourceName()+" (M="+(float)csDeterm.getMag()+")");
+					line.add(csDeterm.getVal()+"");
+				}
+			}
+			for (int j=0; j<gmpes.size(); j++) {
+				DeterministicResult detVal = gmpeDeterms.get(j).get(i);
+				line.add(detVal.getSourceID()+"");
+				line.add(detVal.getRupID()+"");
+				line.add(detVal.getSourceName()+" (M="+(float)detVal.getMag()+")");
+				line.add(detVal.getVal()+"");
+			}
+			csv.addLine(line);
+		}
+		csv.writeToFile(outputFile);
 	}
 	
 	private static Options createOptions() {
@@ -272,7 +346,7 @@ public class DeterministicResultPlotter {
 		try {
 			Options options = createOptions();
 			
-			String appName = ClassUtils.getClassNameWithoutPackage(GMPEDeterministicComparisonCalc.class);
+			String appName = ClassUtils.getClassNameWithoutPackage(DeterministicResultPlotter.class);
 			
 			CommandLineParser parser = new GnuParser();
 			

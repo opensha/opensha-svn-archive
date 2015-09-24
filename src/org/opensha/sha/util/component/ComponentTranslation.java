@@ -75,7 +75,7 @@ public abstract class ComponentTranslation implements Named {
 	 * @return value scaled by the period specific conversion factor
 	 */
 	public double getScaledValue(double origVal, double period) {
-		double ratio = getScaledValue(origVal, period);
+		double ratio = getScalingFactor(period);
 		return origVal*ratio;
 	}
 

@@ -178,10 +178,26 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 		return this.measure+" ("+component+"): "+this.val+" ("+this.units+")";
 	}
 	
-	public boolean equals(Object im) {
-		if (im instanceof CybershakeIM)
-			return id == ((CybershakeIM)im).id;
-		return false;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CybershakeIM other = (CybershakeIM) obj;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 
 	public int compareTo(CybershakeIM im) {

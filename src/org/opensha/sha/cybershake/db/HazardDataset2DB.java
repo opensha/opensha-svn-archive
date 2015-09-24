@@ -61,7 +61,7 @@ public class HazardDataset2DB {
 			lowFreqStr = " IS NULL";
 		}
 		
-		System.out.println("DATE: " + timeSpanStart + " DATE_STR: " + dateStr);
+//		System.out.println("DATE: " + timeSpanStart + " DATE_STR: " + dateStr);
 		
 		String sql = "SELECT Hazard_Dataset_ID";
 		sql += " FROM Hazard_Datasets";

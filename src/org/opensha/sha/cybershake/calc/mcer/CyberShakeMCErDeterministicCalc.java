@@ -2,11 +2,17 @@ package org.opensha.sha.cybershake.calc.mcer;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.calc.mcer.AbstractMCErDeterministicCalc;
+import org.opensha.sha.calc.mcer.DeterministicResult;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.calc.UCERF2_AleatoryMagVarRemovalMod;
@@ -14,6 +20,7 @@ import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
@@ -24,14 +31,16 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
-public class CyberShakeDeterministicCalc {
+public class CyberShakeMCErDeterministicCalc extends AbstractMCErDeterministicCalc {
 	
 	private CachedPeakAmplitudesFromDB amps2db;
+	private HazardCurve2DB curves2db;
 	private ERF erf;
+	private CyberShakeComponent component;
 	
-	public static final double percentile = 84;
 //	static final double mag_range = 0.11; // to grab highest two mags
 	static final double mag_range = 0.01; // don't grab neighbor magnitudes
 	
@@ -39,14 +48,25 @@ public class CyberShakeDeterministicCalc {
 	
 	private RuptureProbabilityModifier probMod;
 	
-	public CyberShakeDeterministicCalc(CachedPeakAmplitudesFromDB amps2db, ERF erf) {
+	public CyberShakeMCErDeterministicCalc(CachedPeakAmplitudesFromDB amps2db, ERF erf,
+			CyberShakeComponent component) {
 		this.amps2db = amps2db;
+		this.curves2db = new HazardCurve2DB(amps2db.getDBAccess());
 		this.erf = erf;
+		this.component = component;
 		
 		if (stripUCERF2Aleatory && erf instanceof MeanUCERF2) {
 			System.out.println("Stripping UCERF2 aleatory variability");
 			probMod = new UCERF2_AleatoryMagVarRemovalMod(erf);
 		}
+	}
+	
+	public void setRupProbMod(RuptureProbabilityModifier probMod) {
+		this.probMod = probMod;
+	}
+	
+	public RuptureProbabilityModifier getRupProbMod() {
+		return probMod;
 	}
 	
 	static List<Integer> getRupIDsForDeterm(ERF erf, int sourceID, RuptureProbabilityModifier probMod) {
@@ -65,8 +85,41 @@ public class CyberShakeDeterministicCalc {
 		
 		return rupIDs;
 	}
+
+	@Override
+	public Map<Double, DeterministicResult> calc(Site site, Collection<Double> periods) {
+		Preconditions.checkArgument(site instanceof CyberShakeSiteRun,
+				"CS MCEr calcs can only be called with CyberShakeSiteRun instances");
+		CyberShakeSiteRun siteRun = (CyberShakeSiteRun)site;
+		int runID = siteRun.getCS_Run().getRunID();
+		
+
+		List<CybershakeIM> ims = CyberShakeMCErProbabilisticCalc.getIMsForPeriods(
+				amps2db.getDBAccess(), component, periods);
+		CyberShakeMCErProbabilisticCalc.validateIMs(ims);
+		
+		Map<Double, DeterministicResult> result = Maps.newHashMap();
+		
+		for (CybershakeIM im : ims) {
+			double period = CyberShakeMCErProbabilisticCalc.getCleanedCS_Period(im.getVal());
+			// make sure that we have amplitudes by checking for a hazard curve
+			int curveID = curves2db.getHazardCurveID(runID, im.getID());
+			if (curveID < 0) {
+				System.out.println("Skipping period "+period+" for site "+site.getName()+", no amplitudes exist");
+				continue;
+			}
+			
+			try {
+				result.put(period, calc(runID, im));
+			} catch (SQLException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+		
+		return result;
+	}
 	
-	public DeterministicResult calculate(int runID, CybershakeIM im) throws SQLException {
+	public DeterministicResult calc(int runID, CybershakeIM im) throws SQLException {
 		double[][][] vals = amps2db.getAllIM_Values(runID, im);
 		
 		Preconditions.checkState(vals.length == erf.getNumSources(), "num sources inconsistant!");
@@ -147,14 +200,14 @@ public class CyberShakeDeterministicCalc {
 		
 		// convert to G
 		double maxValCM = maxVal.getVal();
-		maxVal.setVal(maxVal.getVal() / HazardCurveComputation.CONVERSION_TO_G);
+		maxVal.setVal(maxValCM / HazardCurveComputation.CONVERSION_TO_G);
 		
-		System.out.println("RunID="+runID+", IM: "+im+", percentile="+percentile+", magRange="+mag_range);
-		System.out.println("CS Det Max: "+maxVal.getVal()+" g = "+maxValCM+" cm/s^2");
-		System.out.println("Source("+maxVal.getSourceID()+","+maxVal.getRupID()+"): "+maxVal.getSourceName()
-				+" (Mmax="+(float)+maxVal.getMag()+")");
-		System.out.println(maxRupsIncluded+" rups and "+maxNumAmps+" amps used. "
-				+ "Bounding amps: ["+boundingAmps[0]+","+boundingAmps[1]+"]. "+numBelow+" below, "+numAbove+" above.");
+//		System.out.println("RunID="+runID+", IM: "+im+", percentile="+percentile+", magRange="+mag_range);
+//		System.out.println("CS Det Max: "+maxVal.getVal()+" g = "+maxValCM+" cm/s^2");
+//		System.out.println("Source("+maxVal.getSourceID()+","+maxVal.getRupID()+"): "+maxVal.getSourceName()
+//				+" (Mmax="+(float)+maxVal.getMag()+")");
+//		System.out.println(maxRupsIncluded+" rups and "+maxNumAmps+" amps used. "
+//				+ "Bounding amps: ["+boundingAmps[0]+","+boundingAmps[1]+"]. "+numBelow+" below, "+numAbove+" above.");
 		
 		return maxVal;
 	}
@@ -187,15 +240,15 @@ public class CyberShakeDeterministicCalc {
 		
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, cacheDir, erf);
 		
-		CyberShakeDeterministicCalc calc = new CyberShakeDeterministicCalc(amps2db, erf);
-		
 		int runID = 2657;
 		CybershakeIM im = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);
 //		CybershakeIM im = new CybershakeIM(142, IMType.SA, 5d, null, CyberShakeComponent.RotD100);
 //		CybershakeIM im = new CybershakeIM(138, IMType.SA, 7.5d, null, CyberShakeComponent.RotD100);
 		
+		CyberShakeMCErDeterministicCalc calc = new CyberShakeMCErDeterministicCalc(amps2db, erf, im.getComponent());
+		
 		try {
-			calc.calculate(runID, im);
+			calc.calc(runID, im);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
