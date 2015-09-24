@@ -760,18 +760,58 @@ public class ETAS_Utils {
 	}
 	
 	/**
-	 * This returns a random location from the given surface (uniformly distributed)
+	 * This returns a random location from the given surface.  For point surfaces,
+	 * this returns the hypocenter if mag<=4.0, otherwise it returns a randome
+	 * location uniformly distributed between plus and minus one source radius
+	 * in lat, lon, and depth.  For finite surface is gets a random location
+	 * from the evenly discretized surface (uniformly distributed).
+	 * 
+	 * TODO remove hard coding of depthBottom and point-source magnitude
 	 * @param rupSurf
 	 * @return
 	 */
-	public Location getRandomLocationOnRupSurface(RuptureSurface rupSurf) {
-		if(rupSurf.isPointSurface()) {
-			return rupSurf.getFirstLocOnUpperEdge();
+	public Location getRandomLocationOnRupSurface(ETAS_EqkRupture parRup) {
+		if(parRup.getRuptureSurface().isPointSurface()) {
+			Location hypoLoc = parRup.getRuptureSurface().getFirstLocOnUpperEdge();
+			if(parRup.getMag()<=4.0)
+				return hypoLoc;
+			double radius = getRuptureRadiusFromMag(parRup.getMag());
+			double lat = hypoLoc.getLatitude()+(2.0*Math.random()-1.0)*(radius/111.0);
+			double lon = hypoLoc.getLongitude()+(2.0*Math.random()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
+			double depthBottom = hypoLoc.getDepth()+radius;
+			if(depthBottom>24.0)
+				depthBottom=24.0;
+			double depthTop = hypoLoc.getDepth()-radius;
+			if(depthTop<0.0)
+				depthTop=0.0;
+			double depth = depthTop + Math.random()/(depthBottom-depthTop);
+			return new Location(lat,lon,depth);
 		}
 		else {
-			LocationList locList = rupSurf.getEvenlyDiscritizedListOfLocsOnSurface();
+			LocationList locList = parRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			return locList.get(getRandomInt(locList.size()-1));
 		}
+	}
+	
+	/**
+	 * This returns the rupture area given by mag=Log10(area)+4 
+	 * (consistent with Ellsworth A and Hanks and Bakun at low mags)
+	 * @param mag
+	 * @return
+	 */
+	public static double getRuptureAreaFromMag(double mag) {
+		return Math.pow(10.0, mag-4.0);
+	}
+	
+	
+	/**
+	 * This returns the rupture radius assuming a circle with area given by 
+	 * getRuptureAreaFromMag(mag)
+	 * @param mag
+	 * @return
+	 */
+	public static double getRuptureRadiusFromMag(double mag) {
+		return Math.sqrt(getRuptureAreaFromMag(mag)/Math.PI);
 	}
 	
 	

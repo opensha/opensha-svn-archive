@@ -382,9 +382,9 @@ public class ETAS_Simulator {
 					newRup.setParentID(parID);	// TODO don't need this if it's set from parent rup in above constructor
 					newRup.setGeneration(1);	// TODO shouldn't need this either since it's 1 plus that of parent (also set in costructor)
 					if(parRup.getFSSIndex()==-1)
-						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface()));
+						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup));
 					else {
-						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup.getRuptureSurface());
+						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup);
 						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// this is to increase numerical stability
 					}
 					etas_PrimEventSampler.addRuptureToProcess(newRup); // for efficiency
@@ -568,9 +568,9 @@ public class ETAS_Simulator {
 						newRup.setGeneration(gen);	// TODO have set in above constructor?
 						newRup.setParentID(parID);	// TODO have set in above constructor?
 						if(rup.getFSSIndex()==-1)
-							newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface()));
+							newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup));
 						else {
-							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup.getRuptureSurface());
+							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup);
 							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// add fuzziness to parent location
 						}
 						etas_PrimEventSampler.addRuptureToProcess(newRup);
@@ -855,6 +855,7 @@ public class ETAS_Simulator {
 				} else {
 					scenarioRup.setMag(scenario.mag);
 					scenarioRup.setPointSurface(scenario.loc);
+					scenarioRup.setHypocenterLocation(scenario.loc);
 				}
 			}	
 		}
@@ -1298,7 +1299,7 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
@@ -1311,9 +1312,9 @@ public class ETAS_Simulator {
 			simulationName = scenario+"_"+params.getU3ETAS_ProbModel();
 
 		if(params.getImposeGR() == true)
-			simulationName += "_grCorr";
+			simulationName += "_grCorr0p2";
 		
-		simulationName += "_Uniform_ERTGRIDDED_1";	// to increment runs
+		simulationName += "_Uniform_1";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;

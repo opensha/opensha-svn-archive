@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
@@ -460,8 +462,10 @@ public class ETAS_PrimaryEventSampler {
 			for(int s=0;s<normTimeSinceOnSectArray.length;s++) {
 				int sectIndex = sectIndexList.get(s);
 				double sectNuclRate;
-				if(sum>0)
+				if(sum>0) {
 					sectNuclRate = grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
+//System.out.println("RIGHTHERE: "+grCorrFactorForSectArray[sectIndex]);
+				}
 				else
 					sectNuclRate = 0d;
 				srcNuclRateOnSectList.get(sectIndex).put(src, (float)sectNuclRate);
@@ -1475,6 +1479,48 @@ System.exit(0);
 		return aveSampler;
 	}
 	
+	
+	/**
+	 * 
+	 * TODO Change this to just keep cubes withing radius; also remove hard coded math threshold
+	 * @param hypoLoc
+	 * @param mag
+	 * @return
+	 */
+	public LocationList getParentTriggerCubeLocationsForLargePointSource(Location hypoLoc, double mag) {
+		LocationList locList = new LocationList();
+		
+		if(mag<=4.0) {
+			locList.add(hypoLoc);
+		}
+		else {
+			double radius = ETAS_Utils.getRuptureRadiusFromMag(mag);
+			double firstLat = hypoLoc.getLatitude()-radius/111.0;
+			double lastLat = hypoLoc.getLatitude()+radius/111.0;
+			double firstLon = hypoLoc.getLongitude()-radius/(111*Math.cos(hypoLoc.getLatRad()));
+			double lastLon = hypoLoc.getLongitude()+radius/(111*Math.cos(hypoLoc.getLatRad()));
+			double firstDepth = hypoLoc.getDepth()-radius;
+			if(firstDepth<0.0)
+				firstDepth=0.0;
+			double lastDepth = hypoLoc.getDepth()+radius;
+			if(lastDepth>maxDepth)
+				lastDepth=maxDepth;
+
+			for(int c=0;c<numParLocs;c++) {
+				Location parLoc = getParLocationForIndex(c);
+				double lat=parLoc.getLatitude();
+				double lon=parLoc.getLongitude();
+				double depth=parLoc.getDepth();
+				if(lat>firstLat && lat<lastLat && lon>firstLon && lon<lastLon && depth>firstDepth && depth<lastDepth) {
+ System.out.println(parLoc.getLongitude()+"\t"+parLoc.getLatitude()+"\t"+parLoc.getDepth());
+					locList.add(parLoc);
+				}
+			}
+		}
+		return locList;
+	}
+	
+	
 	/**
 	 * This loops over all points on the rupture surface and creates a net (average) point sampler.
 	 * Note that this moves each point on the rupture surface horizontally to four different equally-
@@ -1490,7 +1536,13 @@ System.exit(0);
 		long st = System.currentTimeMillis();
 		IntegerPDF_FunctionSampler aveSampler = new IntegerPDF_FunctionSampler(numCubes);
 		
-		LocationList locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		LocationList locList;
+		
+		if(mainshock.getRuptureSurface().isPointSurface())
+			locList = getParentTriggerCubeLocationsForLargePointSource(mainshock.getHypocenterLocation(), mainshock.getMag());
+		else
+			locList = mainshock.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+
 		
 		if(locList.size()==1) {	// point source
 			// System.out.println("HERE: POINT SOURCE");
@@ -1595,8 +1647,8 @@ System.exit(0);
 	 * @param cubeIndex
 	 * @return Hashtable where key is src index and value is relative probability
 	 */
-	public Hashtable<Integer,Double> getRelativeTriggerProbOfSourcesInCube(int cubeIndex, boolean includeSupra) {
-		Hashtable<Integer,Double> probForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, includeSupra);
+	public Hashtable<Integer,Double> getRelativeTriggerProbOfSourcesInCube(int cubeIndex, double fracSupra) {
+		Hashtable<Integer,Double> probForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, fracSupra);
 		
 		if(probForSrcHashtable == null) {
 			return null;
@@ -1633,7 +1685,7 @@ System.exit(0);
 	 * @param cubeIndex
 	 * @return Hashtable where key is src index and value is rate
 	 */
-	public Hashtable<Integer,Double> getNucleationRatesOfSourcesInCube(int cubeIndex, boolean includeSupra) {
+	public Hashtable<Integer,Double> getNucleationRatesOfSourcesInCube(int cubeIndex, double fracSupra) {
 		Hashtable<Integer,Double> rateForSrcHashtable = new Hashtable<Integer,Double>();
 		
 		// compute nucleation rate of gridded-seis source in this cube
@@ -1651,7 +1703,7 @@ System.exit(0);
 			return null;
 		}
 		
-		if(gridSrcIndex != -1 && (sectInCubeArray.length==0 || !includeSupra)) {
+		if(gridSrcIndex != -1 && (sectInCubeArray.length==0 || fracSupra==0.0)) {
 			rateForSrcHashtable.put(gridSrcIndex, gridSrcRate);	// only gridded source in this cube
 			return rateForSrcHashtable;
 		}
@@ -1666,7 +1718,7 @@ System.exit(0);
 			double fracSectInCube = fracts[s];
 			HashMap<Integer,Float> srcRateOnSectMap = srcNuclRateOnSectList.get(sectIndex);
 			for(int srcIndex:srcRateOnSectMap.keySet()) {
-				double srcNuclRateInCube = srcRateOnSectMap.get(srcIndex)*fracSectInCube;
+				double srcNuclRateInCube = srcRateOnSectMap.get(srcIndex)*fracSectInCube*fracSupra;
 				if(rateForSrcHashtable.containsKey(srcIndex)) {
 					double newRate = rateForSrcHashtable.get(srcIndex) + srcNuclRateInCube;
 					rateForSrcHashtable.put(srcIndex, newRate);
@@ -1698,7 +1750,7 @@ System.exit(0);
 			int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(c));
 			if(griddeSeisRegionIndex == -1)
 				continue;
-			Hashtable<Integer,Double> srcProbInCube = getRelativeTriggerProbOfSourcesInCube(c,true);
+			Hashtable<Integer,Double> srcProbInCube = getRelativeTriggerProbOfSourcesInCube(c,1.0);
 			if(srcProbInCube == null || srcProbInCube.size() == 1)
 				continue;
 			double minVal = 1;
@@ -1718,7 +1770,7 @@ System.exit(0);
 			samplesProgressBar.showProgress(true);
 			for(long i=0;i<numSamples;i++) {
 				progressBar.updateProgress(i, numSamples);
-				int srcIndex = getRandomSourceIndexInCube(c,true);
+				int srcIndex = getRandomSourceIndexInCube(c,1.0);
 				if(testSrcProbInCube.containsKey(srcIndex)) {
 					double newVal = testSrcProbInCube.get(srcIndex) + 1.0/(double)numSamples;
 					testSrcProbInCube.put(srcIndex, newVal);
@@ -1757,7 +1809,7 @@ System.exit(0);
 		progressBar.showProgress(true);
 		for(int c=0;c<numCubes;c++) {
 			progressBar.updateProgress(c, numCubes);
-			Hashtable<Integer,Double> srcRatesInCube = this.getNucleationRatesOfSourcesInCube(c,true);
+			Hashtable<Integer,Double> srcRatesInCube = this.getNucleationRatesOfSourcesInCube(c,1.0);
 			if(srcRatesInCube != null) {
 				for(int srcIndex:srcRatesInCube.keySet()) {
 					double rate = srcRatesInCube.get(srcIndex);
@@ -1812,7 +1864,7 @@ System.exit(0);
 		}
 		
 		List<Integer> list = sampler.getOrderedIndicesOfHighestXFract(frac);
-		boolean includSupra = true;
+		double fracSupra = 1.0;
 		
 		// now loop over all cubes
 //		for(int i=0;i <numCubes;i++) {
@@ -1821,7 +1873,7 @@ System.exit(0);
 			if(D) 
 				progressBar.updateProgress(numDone, list.size());
 			if(APPLY_ERT_GRIDDED)
-				includSupra = canSupraBeTriggered(rupture, getCubeLocationForIndex(i));
+				fracSupra = getERT_FracSupra(rupture, getCubeLocationForIndex(i));
 			
 			
 			
@@ -1845,7 +1897,7 @@ System.exit(0);
 			
 			
 			
-			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i,includSupra);
+			Hashtable<Integer,Double>  relSrcProbForCube = getRelativeTriggerProbOfSourcesInCube(i,fracSupra);
 			if(relSrcProbForCube != null) {
 				for(int srcKey:relSrcProbForCube.keySet()) {
 					trigProb[srcKey] += sampler.getY(i)*relSrcProbForCube.get(srcKey);
@@ -1907,8 +1959,11 @@ System.exit(0);
 			if(!Double.isNaN(totMFD_Prob)) {// not sure why this is needed
 				testTotProb += totMFD_Prob;
 				magDist.addIncrementalMagFreqDist(srcMFD);
-				if(s<numFltSystSources)
+				if(s<numFltSystSources) {
 					supraMagDist.addIncrementalMagFreqDist(srcMFD);
+//					if(srcMFD.getMinMagWithNonZeroRate()<6)
+//						System.out.println(srcMFD.getMinMagWithNonZeroRate()+"\t"+erf.getSource(s).getName());
+				}
 				else
 					subSeisMagDist.addIncrementalMagFreqDist(srcMFD);
 			}
@@ -1984,39 +2039,80 @@ System.exit(0);
 		return mfdList;
 	}
 	
+//	/**
+//	 * This tells whether a parent rupture can trigger supra-seismogenic events at the given location.
+//	 * The answer is true if the parent is itself supras-eismogenic (this case is handled using elastic
+//	 * rebound) or if APPLY_ERT is false (POISSON or NO_ERT case).
+//	 * It is also true if the parent mag is less than 4.0.  Otherwise the answer is false if the
+//	 * distance between the parent and the trigger loc is less than sqrt(A/PI), where A is the area
+//	 * defined as 10^(Mag-4.0).
+//	 * @param parentRup
+//	 * @param triggeredLoc
+//	 * @return
+//	 */
+//	private boolean canSupraBeTriggered(ETAS_EqkRupture parentRup, Location triggeredLoc) {
+//		if(parentRup.getFSSIndex()>=0 || !APPLY_ERT_GRIDDED)
+//			return true;
+//		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
+//		if(!pointSurface)
+//			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
+//		double parMag = parentRup.getMag();
+//		if(parMag<4.0)
+//			return true;
+//		double area = Math.pow(10d, parMag-4.0);
+//		double distCutoff = Math.sqrt(area/Math.PI);
+//		double dist = LocationUtils.linearDistanceFast(parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), triggeredLoc);
+//		if(dist<=distCutoff) {
+//System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="+parentRup.getMag());
+//			return false;
+//		}
+//		else {
+//			return true;
+//		}
+//	}
+//
+	
+
+	
 	/**
-	 * This tells whether a parent rupture can trigger supra-seismogenic events at the given location.
-	 * The answer is true if the parent is itself supras-eismogenic (this case is handled using elastic
+	 * This tells the degree to which a parent rupture can trigger supra-seismogenic events at the given location.
+	 * The answer is 1.0 if the parent is itself supras-eismogenic (this case is handled using elastic
 	 * rebound) or if APPLY_ERT is false (POISSON or NO_ERT case).
-	 * It is also true if the parent mag is less than 4.0.  Otherwise the answer is false if the
+	 * It is also 1.0 if the parent mag is less than 4.0.  Otherwise the answer is ??????????????
 	 * distance between the parent and the trigger loc is less than sqrt(A/PI), where A is the area
 	 * defined as 10^(Mag-4.0).
+	 * TODO remove hard coded mag threshold and halfCubeWidth
 	 * @param parentRup
 	 * @param triggeredLoc
 	 * @return
 	 */
-	private boolean canSupraBeTriggered(ETAS_EqkRupture parentRup, Location triggeredLoc) {
+	private double getERT_FracSupra(ETAS_EqkRupture parentRup, Location triggeredLoc) {
 		if(parentRup.getFSSIndex()>=0 || !APPLY_ERT_GRIDDED)
-			return true;
+			return 1.0;
+		double halfCubeWidth = 1.24;
+		double frac;
 		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
 		if(!pointSurface)
 			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
 		double parMag = parentRup.getMag();
 		if(parMag<4.0)
-			return true;
-		double area = Math.pow(10d, parMag-4.0);
-		double distCutoff = Math.sqrt(area/Math.PI);
-		double dist = LocationUtils.linearDistanceFast(parentRup.getRuptureSurface().getFirstLocOnUpperEdge(), triggeredLoc);
-		if(dist<=distCutoff) {
-System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="+parentRup.getMag());
-			return false;
+			return 1.0;
+		double srcRadius = ETAS_Utils.getRuptureRadiusFromMag(parMag);
+		Location parLoc = ((PointSurface)parentRup.getRuptureSurface()).getLocation();
+		double dist = LocationUtils.linearDistanceFast(parLoc, triggeredLoc); // hypocenter location; not parent trigger location
+		if(dist<=srcRadius-halfCubeWidth) {
+			frac=0.0;
+			System.out.println("HERE getGriddedERT_Fraction="+frac+" for "+triggeredLoc+"\tfor M="+parentRup.getMag()+"\tdist="+dist+"\tsrcRadius="+srcRadius);
+		}
+		else if(dist>srcRadius+halfCubeWidth) {
+			frac = 1.0;
 		}
 		else {
-			return true;
+			frac = (dist-srcRadius+halfCubeWidth)/(2*halfCubeWidth);
+			System.out.println("HERE getGriddedERT_Fraction="+frac+" for "+triggeredLoc+"\tfor M="+parentRup.getMag()+"\tdist="+dist+"\tsrcRadius="+srcRadius);
 		}
+		return frac;
 	}
-
-	
 
 	
 	/**
@@ -2044,7 +2140,8 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			// now loop over all cubes
 			for(int i=0;i <numCubes;i++) {
 				// skip if this cube cannot trigger supra-seis ruptures
-				if(APPLY_ERT_GRIDDED && !canSupraBeTriggered(parentRup, getCubeLocationForIndex(i))) {
+				double fracSupra = getERT_FracSupra(parentRup, getCubeLocationForIndex(i));
+				if(APPLY_ERT_GRIDDED && fracSupra==0.0) {
 					continue;
 				}
 				
@@ -2070,7 +2167,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 				double sum = 0;
 				for(int s=0;s<sectInCubeArray.length;s++) {
 					int sectIndex = sectInCubeArray[s];
-					sum += totSectNuclRateArray[sectIndex]*fractInCubeArray[s];
+					sum += totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*fracSupra;
 				}
 				double gridCubeRate=getGridSourcRateInCube(i);
 				sum += gridCubeRate;	// to make it the total nucleation rate in cube
@@ -2078,7 +2175,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 					totGridProb += sampler.getY(i)*gridCubeRate/sum;
 					for(int s=0;s<sectInCubeArray.length;s++) {
 						int sectIndex = sectInCubeArray[s];
-						double val = totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*sampler.getY(i)/sum;
+						double val = totSectNuclRateArray[sectIndex]*fractInCubeArray[s]*fracSupra*sampler.getY(i)/sum;
 						sectProbArray[sectIndex] += val;
 
 // cubes for sections off ends of Mojave scenario						
@@ -2826,11 +2923,29 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		GraphWindow totMFD_Graph = new GraphWindow(totalFuncs, "Total MFDs"); 
 		totMFD_Graph.setYLog(true);
 		
+		ArbDiscrEmpiricalDistFunc parSectDistGRcorr = new ArbDiscrEmpiricalDistFunc();
+		ArbDiscrEmpiricalDistFunc parSectDistGRcorrSupraRates = new ArbDiscrEmpiricalDistFunc();
+		System.out.println("name\tparGRcorr\tparGRcorrSupraRates\tmoRate");
 		for(String name : parentSectSupraSeisMFD_Map.keySet()) {
 			double parGRcorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
 			double parGRcorrSupraRates = ETAS_Utils.getScalingFactorToImposeGR_supraRates(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
-			System.out.println(name+"\t"+parGRcorr+"\t"+parGRcorrSupraRates);
+			double moRate= parentSectSupraSeisMFD_Map.get(name).getTotalMomentRate() + parentSectSubSeisMFD_Map.get(name).getTotalMomentRate();
+			parSectDistGRcorr.set(parGRcorr,moRate);
+			parSectDistGRcorrSupraRates.set(parGRcorrSupraRates,moRate);
+			System.out.println(name+"\t"+parGRcorr+"\t"+parGRcorrSupraRates+"\t"+moRate);
 		}
+		ArbitrarilyDiscretizedFunc parSectDistGRcorrCumDist = parSectDistGRcorr.getCumDist();
+		parSectDistGRcorrCumDist.scale(1.0/parSectDistGRcorr.calcSumOfY_Vals());
+		parSectDistGRcorrCumDist.setName("parSectDistGRcorrCumDist;  moRate weighted");
+		parSectDistGRcorrCumDist.setInfo("mean="+parSectDistGRcorr.getMean()+"; median="+parSectDistGRcorr.getMedian()+"; mode="+parSectDistGRcorr.getMode());
+		ArbitrarilyDiscretizedFunc parSectDistGRcorrSupraRatesCumDist = parSectDistGRcorrSupraRates.getCumDist();
+		parSectDistGRcorrSupraRatesCumDist.scale(1.0/parSectDistGRcorrSupraRates.calcSumOfY_Vals());
+		parSectDistGRcorrSupraRatesCumDist.setName("parSectDistGRcorrSupraRates;  moRate weighted");
+		parSectDistGRcorrSupraRatesCumDist.setInfo("mean="+parSectDistGRcorrSupraRates.getMean()+"; median="+parSectDistGRcorrSupraRates.getMedian()+"; mode="+parSectDistGRcorrSupraRates.getMode());
+		ArrayList<ArbitrarilyDiscretizedFunc> parSectFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		parSectFuncs.add(parSectDistGRcorrCumDist);
+		parSectFuncs.add(parSectDistGRcorrSupraRatesCumDist);
+		GraphWindow parSectGraph = new GraphWindow(parSectFuncs, "Parent Sect Stats (MoRate Wted)"); 
 
 	}
 
@@ -3152,9 +3267,9 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 				return false;	// triggered location outside of the region
 		}
 
-		boolean includSupra = canSupraBeTriggered(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
+		double fractionSupra = getERT_FracSupra(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
 		
-		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex, includSupra);
+		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex, fractionSupra);
 		
 //		// following is needed for case where includeERF_Rates = false (point can be chosen that has no sources)
 //		if(randSrcIndex<0) {
@@ -3557,7 +3672,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 	 * @param srcIndex
 	 * @return
 	 */
-	public int getRandomSourceIndexInCube(int cubeIndex, boolean includSupra) {
+	public int getRandomSourceIndexInCube(int cubeIndex, double fractionSupra) {
 		
 		// get gridded region index for the cube
 		int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(cubeIndex));
@@ -3567,11 +3682,11 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		// get gridded source index
 		int gridSrcIndex = numFltSystSources + griddeSeisRegionIndex;
 		
-		if(totalSectRateInCubeArray[cubeIndex] < 1e-15 || !includSupra)
+		if(totalSectRateInCubeArray[cubeIndex] < 1e-15 || fractionSupra==0.0)
 			return gridSrcIndex;
 		else {
 			double gridSrcRate = sourceRates[gridSrcIndex]/(numPtSrcSubPts*numPtSrcSubPts*numCubeDepths);	// divide rate among all the cubes in grid cell
-			double fractTest = gridSrcRate/(gridSrcRate+totalSectRateInCubeArray[cubeIndex]);
+			double fractTest = gridSrcRate/(gridSrcRate+fractionSupra*totalSectRateInCubeArray[cubeIndex]);
 			if(etas_utils.getRandomDouble() < fractTest) {
 				return gridSrcIndex;
 			}
@@ -3709,10 +3824,14 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 					
 //					double val = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 					double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
-					if(val<1.0)
-						grCorrFactorForSectArray[sectIndex]=val;
-					else
-						grCorrFactorForSectArray[sectIndex]=val; //1.0;
+					if(val<1.0) {
+						grCorrFactorForSectArray[sectIndex]=1.0*val;
+//System.out.println("RIGHTHERE1: "+grCorrFactorForSectArray[sectIndex]+"\t"+val);
+					}
+					else {
+						grCorrFactorForSectArray[sectIndex]=1.0*val; //1.0;
+//System.out.println("RIGHTHERE2: "+grCorrFactorForSectArray[sectIndex]+"\t"+val);
+					}
 					if(val<minCorr) {
 						minCorr=val;
 						minCorrIndex=sectIndex;
@@ -3885,7 +4004,6 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		for(int s=0; s<erf.getNumSources();s++) {
 			mfdForSrcArray[s] = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, minMag, maxMag, numMag, true);
 			if(erf instanceof FaultSystemSolutionERF) {
-				FaultSystemSolutionERF fssERF = (FaultSystemSolutionERF)erf;
 				if(s >= numFltSystSources) {	// gridded seismicity source
 					int gridRegionIndex = s-numFltSystSources;
 					if(origGridSeisTrulyOffVsSubSeisStatus[gridRegionIndex] == 2) {	// it has both truly off and sub-seismo components
@@ -3899,13 +4017,26 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 						mfdForSrcSubSeisOnlyArray[s] = null;
 						mfdForTrulyOffOnlyArray[s] = mfdForSrcArray[s];						
 					}
+//					// test
+//					double subSeisRate=0;
+//					double trulyOffRate=0;
+//					if(mfdForSrcSubSeisOnlyArray[s] != null)
+//						subSeisRate=mfdForSrcSubSeisOnlyArray[s].getTotalIncrRate();
+//					if(mfdForTrulyOffOnlyArray[s] != null)
+//						trulyOffRate=mfdForTrulyOffOnlyArray[s].getTotalIncrRate();
+//					double test = (subSeisRate+trulyOffRate)/mfdForSrcArray[s].getTotalIncrRate();
+//					if(Math.abs(test-1.0)>0.00001)
+//						System.out.println("test="+test+"\t for source "+fssERF.getSource(s).getName());
 				}
+				
 			}
 			else {
 				mfdForSrcSubSeisOnlyArray[s] = null;
 				mfdForTrulyOffOnlyArray[s] = null;
 			}
 		}
+		
+		
 //		ETAS_SimAnalysisTools.writeMemoryUse("Memory after mfdForSrcArray, which took (msec): "+(System.currentTimeMillis()-st));
 	}
 	
@@ -3925,7 +4056,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
-		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, true);
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, 1.0);
 		
 		if(rateForSrcHashtable == null)
 			return null;
@@ -3990,7 +4121,8 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
-		Hashtable<Integer,Double> rateForSrcInCubeHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, true);
+		Hashtable<Integer,Double> rateForSrcInCubeHashtable = getNucleationRatesOfSourcesInCube(cubeIndex, 1.0);
+		
 		
 		if(rateForSrcInCubeHashtable == null)
 			return null;
@@ -4001,20 +4133,25 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 				continue;	// skip fault based sources
 			SummedMagFreqDist mfd=null;
 			double srcNuclRate = rateForSrcInCubeHashtable.get(srcIndex);
+//System.out.println("getCubeMFD_GriddedSeisOnly(int cubeIndex):  srcNuclRate="+srcNuclRate+"\nsrcIndex="+srcIndex);
 			int gridIndex = srcIndex-numFltSystSources;
 			int cubeRegIndex = getCubeRegAndDepIndicesForIndex(cubeIndex)[0];
+//System.out.println("getCubeMFD_GriddedSeisOnly(int cubeIndex):  cubeIndex="+cubeIndex+"\ngridIndex="+gridIndex
+//		+"\ncubeRegIndex="+cubeRegIndex+"\norigGridSeisTrulyOffVsSubSeisStatus[gridSrcIndex]="+origGridSeisTrulyOffVsSubSeisStatus[gridIndex]);
+
 			if(origGridSeisTrulyOffVsSubSeisStatus[gridIndex] == 2) { // gridded seismicity and cell has both types
 				if(isCubeInsideFaultPolygon[cubeRegIndex] == 1) {
 					mfd = mfdForSrcSubSeisOnlyArray[srcIndex];
-//					System.out.println("Got inside fault poly "+cubeIndex);
+// System.out.println("Got inside fault poly "+cubeIndex);
 				}
 				else {
 					mfd = mfdForTrulyOffOnlyArray[srcIndex];
-//					System.out.println("Got truly off "+cubeIndex);
+// System.out.println("Got truly off "+cubeIndex);
 				}
 			}
 			else {
 				mfd = mfdForSrcArray[srcIndex];
+// System.out.println("cell has only one type of src (truly off or within fault poly)"+cubeIndex);
 			}
 			double totRate = mfd.getTotalIncrRate();
 			if(totRate>0) {
@@ -4079,7 +4216,7 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			throw new RuntimeException("must run computeMFD_ForSrcArrays(*) first");
 		}
 		
-		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex,true);
+		Hashtable<Integer,Double> rateForSrcHashtable = getNucleationRatesOfSourcesInCube(cubeIndex,1.0);
 		
 		if(rateForSrcHashtable == null)
 			return null;
@@ -4419,6 +4556,82 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 	
 	
 	
+	public void testFaultPolyMgr() {
+		
+		computeMFD_ForSrcArrays(2.05, 8.95, 70);
+
+		for(int i=0;i<faultPolyMgr.getRegion().getNumLocations();i++) {
+			double fracOnFaults = faultPolyMgr.getNodeFraction(i);
+			if(fracOnFaults>0) {
+				double testFrac = mfdForSrcSubSeisOnlyArray[i+numFltSystSources].getCumRate(2.55)/mfdForSrcArray[i+numFltSystSources].getCumRate(2.55);
+				double diff = Math.abs(fracOnFaults/testFrac-1.0);
+				if(diff>0.00001) {
+					Location loc = faultPolyMgr.getRegion().getLocation(i);
+					System.out.println("TEST1 diff=\t"+diff+"\t"+loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth()+"\t"+fracOnFaults+"\t"+testFrac);
+				}
+			}
+		}
+
+//		System.out.println("Starting testFaultPolyMgr()");
+//		double[] testCellFraction = new double[origGriddedRegion.getNumLocations()];
+//		double[] testSectFraction = new double[rupSet.getNumSections()];
+//		for(int s=0;s<rupSet.getNumSections();s++) {
+//			Map<Integer, Double> cellsAndFracsForSectMap = faultPolyMgr.getScaledNodeFractions(s);
+//			for(int cellID:cellsAndFracsForSectMap.keySet()) {
+//				testCellFraction[cellID]+=cellsAndFracsForSectMap.get(cellID);
+//			}
+//		}
+//		
+//		for(int i=0;i<testCellFraction.length;i++) {
+//			double expVal = faultPolyMgr.getNodeFraction(i);
+//			double test=100;
+//			if(expVal>0)
+//				test = Math.abs(testCellFraction[i]/expVal-1.0);
+//			else
+//				test = Math.abs(testCellFraction[i]-expVal);
+//			if(test > 0.000001)
+//					System.out.println("Problem at cell "+i+"\ttest="+test);
+//		}
+//		
+//		
+//		
+//		SummedMagFreqDist[] testsectSubSeisMFDs = new SummedMagFreqDist[rupSet.getNumSections()];
+//		for(int s=0;s<rupSet.getNumSections();s++) {
+//			testsectSubSeisMFDs[s] = new SummedMagFreqDist(2.05,8.95,70);
+//			Map<Integer, Double> scaledNodeFracMap = faultPolyMgr.getScaledNodeFractions(s);
+//			for(int regID:scaledNodeFracMap.keySet()) {
+//				IncrementalMagFreqDist mfd = mfdForSrcSubSeisOnlyArray[regID+numFltSystSources].deepClone();
+//				mfd.scale(scaledNodeFracMap.get(regID)/faultPolyMgr.getNodeFraction(regID));
+//				testsectSubSeisMFDs[s].addIncrementalMagFreqDist(mfd);
+//			}
+//		}
+//		
+//		makeLongTermSectMFDs();
+//		int num=0;
+//		double totVal1=0;
+//		double totVal2=0;
+//		for(int s=0;s<rupSet.getNumSections();s++) {
+//			double val1 = testsectSubSeisMFDs[s].getCumRate(2.55);
+//			totVal1+=val1;
+//			double val2 = longTermSubSeisMFD_OnSectList.get(s).getCumRate(2.55);
+//			totVal2+=val2;
+//			double diff = Math.abs(val1/val2-1.0);
+//			if(diff>0.00001) {
+//				System.out.println("TEST2 diff="+diff+"\t"+this.rupSet.getFaultSectionData(s).getName()+"\t"+val1+"\t"+val2);
+//				num+=1;
+//			}
+//		}
+//
+//		System.out.println(num+"out of "+rupSet.getNumSections()+" had diffs");
+//		System.out.println("totVal1="+totVal1+"\ttotVal2="+totVal2+"\t"+(totVal1/totVal2));
+//		
+//		
+//		
+//		
+//		System.out.println("Done with testFaultPolyMgr()");
+
+	}
+	
 	
 	/**
 	 * This method was written to test constructing subseismo MFDs for a fault section in
@@ -4433,13 +4646,13 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		IncrementalMagFreqDist mfd2 = ((FaultSystemSolutionERF)erf).getSolution().getSubSeismoOnFaultMFD_List().get(sectIndex);
 		mfd2.setName("Subseis MFD from erf.getSolution().getSubSeismoOnFaultMFD_List().get(sectIndex)");
 
-		// Now we sill make this from the source MFDs
+		// Now we will make this from the source MFDs
 		if(mfdForSrcArray == null) {
 			computeMFD_ForSrcArrays(2.05, 8.95, 70);
 		}
 
 
-		HashMap<Integer,Double> srcFractMap = new HashMap<Integer,Double>();
+		HashMap<Integer,Double> srcFractMap = new HashMap<Integer,Double>(); // this is the fraction of cubes inside the subsect polygon for each grid src
 		Region faultPolygon = faultPolyMgr.getPoly(sectIndex);
 		System.out.println("Section Polygon:\n"+faultPolygon.getBorder().toString());
 		double cubeFrac = 1.0/(DEFAULT_NUM_PT_SRC_SUB_PTS*DEFAULT_NUM_PT_SRC_SUB_PTS);
@@ -4464,10 +4677,12 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		
 		SummedMagFreqDist mfd3 = new SummedMagFreqDist(2.05,8.95,70);
 		for(int s : srcFractMap.keySet()) {
-			double scaleFactor = srcFractMap.get(s)/faultPolyMgr.getNodeFraction(s-numFltSystSources); // the fraction of subseimo MFD of node that goes to this section
+			double fractNodeCoveredBySections = faultPolyMgr.getNodeFraction(s-numFltSystSources); // fraction of node covered by one or more subsections
+			double scaleFactor = srcFractMap.get(s)/fractNodeCoveredBySections; // the fraction of subseimo MFD of node that goes to this section
 			IncrementalMagFreqDist gridSubSeisSrcMFD = mfdForSrcSubSeisOnlyArray[s];
 			System.out.println(s+"\tnull="+(gridSubSeisSrcMFD == null)+"\t+"+origGriddedRegion.getLocation(s-numFltSystSources)+
-					"\t"+origGridSeisTrulyOffVsSubSeisStatus[s-numFltSystSources]);
+					"\t"+origGridSeisTrulyOffVsSubSeisStatus[s-numFltSystSources]+"\t"+(float)fractNodeCoveredBySections+"\t"+
+					(float)scaleFactor+"\t"+(float)gridSubSeisSrcMFD.getMaxMagWithNonZeroRate());
 			IncrementalMagFreqDist scaledMFD = gridSubSeisSrcMFD.deepClone();
 			scaledMFD.scale(scaleFactor);
 			mfd3.addIncrementalMagFreqDist(scaledMFD);
@@ -4477,17 +4692,19 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		
 		
 		System.out.println("altMap");
-		Map<Integer, Double> altMap = faultPolyMgr.getScaledNodeFractions(sectIndex);
+		Map<Integer, Double> altMap = faultPolyMgr.getScaledNodeFractions(sectIndex); //nodes and the faction of that node assigned to the fault polygon (reduced by extent to which node is also covered by other fault polygons)
 		for(int gridIndex:altMap.keySet()) {
 			Location gridLoc = origGriddedRegion.getLocation(gridIndex);
 			System.out.println(gridIndex+numFltSystSources+"\t"+altMap.get(gridIndex).floatValue()+"\t"+gridLoc);
 		}
 		SummedMagFreqDist mfd1 = new SummedMagFreqDist(2.05,8.95,70);
 		for(int s : altMap.keySet()) {
-			double scaleFactor = altMap.get(s)/faultPolyMgr.getNodeFraction(s); // the fraction of subseimo MFD of node that goes to this section
+			double fractNodeCoveredBySections = faultPolyMgr.getNodeFraction(s); // fraction of node covered by one or more subsections
+			double scaleFactor = altMap.get(s)/fractNodeCoveredBySections; // the fraction of subseimo MFD of node that goes to this section
 			IncrementalMagFreqDist gridSubSeisSrcMFD = mfdForSrcSubSeisOnlyArray[s+numFltSystSources];
 			System.out.println(s+"\tnull="+(gridSubSeisSrcMFD == null)+"\t+"+origGriddedRegion.getLocation(s)+
-					"\t"+origGridSeisTrulyOffVsSubSeisStatus[s]);
+					"\t"+origGridSeisTrulyOffVsSubSeisStatus[s]+"\t"+(float)fractNodeCoveredBySections+"\t"+
+					(float)scaleFactor+"\t"+(float)gridSubSeisSrcMFD.getMaxMagWithNonZeroRate());
 			IncrementalMagFreqDist scaledMFD = gridSubSeisSrcMFD.deepClone();
 			scaledMFD.scale(scaleFactor);
 			mfd1.addIncrementalMagFreqDist(scaledMFD);
@@ -4550,22 +4767,28 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				applyGRcorr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 		
+//		System.out.println("testGriddedSeisRatesInCubes()");
+//		etas_PrimEventSampler.testGriddedSeisRatesInCubes();
+		
 //		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 		
-		HashMap<Integer,Float> testMap = etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(1841);	// Mojave S subsection 4
-		double maxRate=0;
-		for(int cubeID:testMap.keySet())
-			if(maxRate<testMap.get(cubeID))
-				maxRate=testMap.get(cubeID);
-		for(int cubeID:testMap.keySet()) {
-			double depth = etas_PrimEventSampler.getCubeLocationForIndex(cubeID).getDepth();
-			System.out.println(cubeID+"\t"+depth+"\t"+testMap.get(cubeID)+"\t"+(testMap.get(cubeID)/maxRate));
-		}
+//		HashMap<Integer,Float> testMap = etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(1841);	// Mojave S subsection 4
+//		double maxRate=0;
+//		for(int cubeID:testMap.keySet())
+//			if(maxRate<testMap.get(cubeID))
+//				maxRate=testMap.get(cubeID);
+//		for(int cubeID:testMap.keySet()) {
+//			double depth = etas_PrimEventSampler.getCubeLocationForIndex(cubeID).getDepth();
+//			System.out.println(cubeID+"\t"+depth+"\t"+testMap.get(cubeID)+"\t"+(testMap.get(cubeID)/maxRate));
+//		}
 
 		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km");
 //   	etas_PrimEventSampler.plotBulgeDepthMap(7d, "BulgeAtDepth7km_Poiss_GRcorr");
 //		etas_PrimEventSampler.tempTestBulgeInCube();
+//		etas_PrimEventSampler.tempTestBulgeforCubesInSectPolygon(336);
+//		etas_PrimEventSampler.testTotalSubSeisOnFaultMFD();
+		etas_PrimEventSampler.testFaultPolyMgr();
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,3.05,"RatesAboveM3pt0_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,7.15,"RatesAboveM7pt1_AtDepth7km");
@@ -4651,8 +4874,6 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 //		etas_PrimEventSampler.testRates();
 //		etas_PrimEventSampler.testMagFreqDist();
 
-//		System.out.println("testGriddedSeisRatesInCubes()");
-//		etas_PrimEventSampler.testGriddedSeisRatesInCubes();
 
 		
 
@@ -4978,13 +5199,47 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 		}
 		return "For Max Mag at depth Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
+	
+	
+	/**
+	 * this test whether the total sub-seismo MFD from grid cells equals that from the fault sections
+	 */
+	public void testTotalSubSeisOnFaultMFD() {
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(2.05, 8.95, 70);
+		}
+		SummedMagFreqDist mfd1 = new SummedMagFreqDist(2.05, 8.95, 70);
+		for(int s=numFltSystSources; s<erf.getNumSources();s++) {
+			if(mfdForSrcSubSeisOnlyArray[s] != null)
+				mfd1.addIncrementalMagFreqDist(mfdForSrcSubSeisOnlyArray[s]);
+		}
+		
+		// Make sure long-term MFDs are created
+		makeLongTermSectMFDs();
+		SummedMagFreqDist mfd2 = new SummedMagFreqDist(2.05, 8.95, 70);
+		for(IncrementalMagFreqDist mfd:longTermSubSeisMFD_OnSectList) {
+			if(mfd != null)
+				mfd2.addIncrementalMagFreqDist(mfd);
+		}
+		
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs.add(mfd1);
+		funcs.add(mfd2);
+		GraphWindow graph = new GraphWindow(funcs, "testTotalSubSeisOnFaultMFD()");
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Incr Rate");
+		graph.setYLog(true);
+	}
 
 	
 	public void tempTestBulgeInCube() {
 		if(mfdForSrcArray == null) {
 			computeMFD_ForSrcArrays(2.05, 8.95, 70);
 		}
-		int cubeIndex = getCubeIndexForLocation(new Location(34.42,-117.8,7.0));
+//		int cubeIndex = getCubeIndexForLocation(new Location(34.42,-117.8,7.0));
+		int cubeIndex = getCubeIndexForLocation(new Location(38.96, -122.64,7.0));
+		
+
 		SummedMagFreqDist mfdSupra = getCubeMFD_SupraSeisOnly(cubeIndex);
 		SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(cubeIndex);
 		double bulge = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(mfdSupra, mfdGridded, true);
@@ -4993,7 +5248,35 @@ System.out.println("HERE canSupraBeTriggered=false for "+triggeredLoc+"\tfor M="
 			double frac = 1.0/(double)getCubesAndFractForFaultSectionExponential(sectID).size();
 			System.out.println(sectID+"\t"+fractionSectInCubeList.get(cubeIndex)[index]+"\t"+this.rupSet.getFaultSectionData(sectID).getName()+"\t"+frac);
 			testGR_CorrFactors(sectID);
+			testSubSeisMFD_ForSect(sectID);
 			index+=1;
+		}
+	}
+	
+	
+	public void tempTestBulgeforCubesInSectPolygon(int sectID) {
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(2.05, 8.95, 70);
+		}
+		
+		makeLongTermSectMFDs();
+
+
+		Region faultPolygon = faultPolyMgr.getPoly(sectID);
+		System.out.println("Section Polygon for "+rupSet.getFaultSectionData(sectID).getName()+"\n"+faultPolygon.getBorder().toString());
+		
+		double sectCorr = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectID], longTermSubSeisMFD_OnSectList.get(sectID), false);
+		System.out.println("sect grCorr = "+sectCorr);
+	
+		for(int i=0;i<numCubes;i++) {
+			Location cubeLoc = getCubeLocationForIndex(i);
+			if(faultPolygon.contains(cubeLoc)) {
+				SummedMagFreqDist mfdSupra = getCubeMFD_SupraSeisOnly(i);
+				SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(i);
+				double grCorr = ETAS_Utils.getScalingFactorToImposeGR_supraRates(mfdSupra, mfdGridded, false);
+				int gridRegionIndex = this.origGriddedRegion.indexForLocation(cubeLoc);
+				System.out.println(grCorr+"\t"+gridRegionIndex+"\t"+cubeLoc);
+			}
 		}
 	}
 	
