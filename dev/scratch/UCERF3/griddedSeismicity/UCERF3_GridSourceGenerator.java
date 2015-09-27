@@ -46,7 +46,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 	private double[] srcSpatialPDF;
 	private double[] revisedSpatialPDF;
 	
-	private double totalMgt5_Rate;
+//	private double totalMgt5_Rate;
 
 	// total off-fault MFD (sub-seismo + background)
 	private IncrementalMagFreqDist realOffFaultMFD;
@@ -80,7 +80,7 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		this.ifss = ifss;
 		branch = ifss.getLogicTreeBranch();
 		srcSpatialPDF = branch.getValue(SpatialSeisPDF.class).getPDF();
-		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
+//		totalMgt5_Rate = branch.getValue(TotalMag5Rate.class).getRateMag5();
 		realOffFaultMFD = ifss.getFinalTrulyOffFaultMFD();
 
 		mfdMin = realOffFaultMFD.getMinX();
@@ -220,24 +220,24 @@ public class UCERF3_GridSourceGenerator extends AbstractGridSourceProvider {
 		return sum;
 	}
 
-	/**
-	 * Returns the MFD associated with a grid node, implied by the
-	 * {@code spatialPDF} of seismicity and the {@code totalMgt5_Rate} supplied
-	 * at initialization.
-	 * @param inPoly {@code true} for MFD associated with fault polygons,
-	 *        {@code false} if unassociated part requested
-	 * @param idx node index
-	 * @return the MFD
-	 */
-	public IncrementalMagFreqDist getSpatialMFD(boolean inPoly, int idx) {
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(
-			mfdMin, mfdMax, mfdNum);
-		mfd.setAllButTotMoRate(mfdMin, mfdMax, totalMgt5_Rate, 0.8);
-		double frac = polyMgr.getNodeFraction(idx);
-		if (!inPoly) frac = 1 - frac;
-		mfd.scale(frac);
-		return mfd;
-	}
+//	/**
+//	 * Returns the MFD associated with a grid node, implied by the
+//	 * {@code spatialPDF} of seismicity and the {@code totalMgt5_Rate} supplied
+//	 * at initialization.
+//	 * @param inPoly {@code true} for MFD associated with fault polygons,
+//	 *        {@code false} if unassociated part requested
+//	 * @param idx node index
+//	 * @return the MFD
+//	 */
+//	public IncrementalMagFreqDist getSpatialMFD(boolean inPoly, int idx) {
+//		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(
+//			mfdMin, mfdMax, mfdNum);
+//		mfd.setAllButTotMoRate(mfdMin, mfdMax, totalMgt5_Rate, 0.8);
+//		double frac = polyMgr.getNodeFraction(idx);
+//		if (!inPoly) frac = 1 - frac;
+//		mfd.scale(frac);
+//		return mfd;
+//	}
 
 
 

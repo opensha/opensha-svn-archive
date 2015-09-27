@@ -3,6 +3,7 @@ package scratch.UCERF3.griddedSeismicity;
 import java.awt.geom.Area;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class FaultPolyMgr implements Iterable<Area> {
 	 * {@code sectIdx} where the values are the (weighted) fraction of the area of
 	 * the node occupied by the fault-section.
 	 * 
-	 * In other words, this returns a list of nodes and the faction of that node assigned 
+	 * In other words, this returns a list of nodes and the faction of each node assigned 
 	 * to the fault polygon (where each fraction is reduced by extent to which each node
 	 * is also covered by other fault polygons).
 	 * 
@@ -130,6 +131,12 @@ public class FaultPolyMgr implements Iterable<Area> {
 	public Map<Integer, Double> getNodeFractions(int sectIdx) {
 		return nodeInSectPartic.row(sectIdx);
 	}
+	
+	
+	public Map<Integer, Double> getSectionFracsOnNode(int nodeIdx) {
+		return nodeInSectPartic.column(nodeIdx);
+	}
+	
 	
 	/**
 	 * Returns the polygon{@code Region} for the fault section at {@code sectIdx}.

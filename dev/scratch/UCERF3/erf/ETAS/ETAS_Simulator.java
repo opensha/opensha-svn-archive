@@ -999,6 +999,28 @@ public class ETAS_Simulator {
 		} catch (Exception e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
+		
+		
+////		// Or for Reference branch ERF:
+////		// U3.3 compuond file, assumed to be in data/scratch/InversionSolutions
+////		// download it from here: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip
+//		String fileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
+//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
+//		File compoundFile = new File(invDir, fileName);
+//		CompoundFaultSystemSolution fetcher;
+//		InversionFaultSystemSolution fss=null;
+//		try {
+//			fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
+//			LogicTreeBranch ref = LogicTreeBranch.DEFAULT;
+//			fss = fetcher.getSolution(ref);
+//		} catch (ZipException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+
+		
+		
 		int numSectsWithDateLast = 0;
 		for (FaultSectionPrefData sect : fss.getRupSet().getFaultSectionDataList())
 			if (sect.getDateOfLastEvent() > Long.MIN_VALUE)
@@ -1007,30 +1029,10 @@ public class ETAS_Simulator {
 		return getU3_ETAS_ERF(fss, startTimeYear, durationYears);
 	}
 	
+	
 	public static FaultSystemSolutionERF_ETAS getU3_ETAS_ERF(FaultSystemSolution fss, double startTimeYear, double durationYears) {
 		Long st = System.currentTimeMillis();
 		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(fss);
-		
-//		// Or for Reference branch ERF:
-//		// U3.3 compuond file, assumed to be in data/scratch/InversionSolutions
-//		// download it from here: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip
-//		String fileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip";
-//		File invDir = new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions");
-//		File compoundFile = new File(invDir, fileName);
-//		CompoundFaultSystemSolution fetcher;
-//		FaultSystemSolutionERF_ETAS erf = null;
-//		try {
-//			fetcher = CompoundFaultSystemSolution.fromZipFile(compoundFile);
-//			LogicTreeBranch ref = LogicTreeBranch.DEFAULT;
-//			InversionFaultSystemSolution sol = fetcher.getSolution(ref);
-//			erf = new FaultSystemSolutionERF_ETAS(sol);
-//		} catch (ZipException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
-		
 		
 		// set parameters
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
@@ -1294,6 +1296,11 @@ public class ETAS_Simulator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);
+//		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
+//		System.out.println(erf.getSolution().getClass());
+//		System.exit(0);
 		
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
