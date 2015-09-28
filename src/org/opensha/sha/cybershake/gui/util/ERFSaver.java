@@ -54,7 +54,7 @@ public class ERFSaver extends XMLSaver {
 	
 	private ERF_GuiBean createERF_GUI_Bean() {
 		try{
-			return new ERF_GuiBean(ERF_Ref.get(false, DevStatus.PRODUCTION, DevStatus.DEVELOPMENT, DevStatus.DEPRECATED));
+			return new ERF_GuiBean(ERF_Ref.get(false, DevStatus.PRODUCTION, DevStatus.DEVELOPMENT, DevStatus.EXPERIMENTAL, DevStatus.DEPRECATED));
 		}catch(InvocationTargetException e){
 			throw new RuntimeException("Connection to ERF servlets failed");
 		}

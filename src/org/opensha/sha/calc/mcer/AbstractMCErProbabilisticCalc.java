@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 public abstract class AbstractMCErProbabilisticCalc {
 	
 	// if positive, uniform hazard spectrum value used instead of RTGM
-	private double uhsVal = Double.NaN;
+	protected double uhsVal = Double.NaN;
 	
 	static HazardCurveCalculator curveCalc = new HazardCurveCalculator();
 	
@@ -64,33 +64,6 @@ public abstract class AbstractMCErProbabilisticCalc {
 		Preconditions.checkState(func.size() == 1);
 		Preconditions.checkState(func.getX(0) == period);
 		return func.getY(0);
-	}
-	
-	/**
-	 * Calculates probabilistic MCEr spectrum for the given hazard curves. Curves should be in probability
-	 * space and for a single year.
-	 * @param curves
-	 * @return
-	 */
-	protected DiscretizedFunc calc(Map<Double, DiscretizedFunc> curves) {
-		Preconditions.checkArgument(!curves.isEmpty(), "curves map empty!");
-		ArbitrarilyDiscretizedFunc spectrum = new ArbitrarilyDiscretizedFunc();
-		
-		for (Double period : curves.keySet()) {
-			DiscretizedFunc curve = curves.get(period);
-			
-			double rtgm;
-			if (uhsVal > 0) {
-				rtgm = HazardDataSetLoader.getCurveVal(curve, false, uhsVal);
-			} else {
-				rtgm = calcRTGM(curve);
-			}
-			Preconditions.checkState(rtgm > 0, "RTGM is not positive");
-			
-			spectrum.set(period, rtgm);
-		}
-		
-		return spectrum;
 	}
 	
 	private static void validateCurveForRTGM(DiscretizedFunc curve) {

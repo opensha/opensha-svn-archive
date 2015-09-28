@@ -1,10 +1,12 @@
 package org.opensha.sha.calc.mcer;
 
+import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.earthquake.ERF;
@@ -16,7 +18,7 @@ import org.opensha.sha.util.component.ComponentTranslation;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-public class GMPE_MCErProbabilisticCalc extends AbstractMCErProbabilisticCalc {
+public class GMPE_MCErProbabilisticCalc extends CurveBasedMCErProbabilisitCalc {
 	
 	private ERF erf;
 	private ScalarIMR gmpe;
@@ -41,9 +43,13 @@ public class GMPE_MCErProbabilisticCalc extends AbstractMCErProbabilisticCalc {
 		if (convertToComponent != null)
 			converter = getComponentTranslator(gmpe, convertToComponent);
 	}
+	
+	public void setXVals(DiscretizedFunc xVals) {
+		this.xVals = xVals;
+	}
 
 	@Override
-	public DiscretizedFunc calc(Site site, Collection<Double> periods) {
+	public Map<Double, DiscretizedFunc> calcHazardCurves(Site site, Collection<Double> periods) {
 		Map<Double, DiscretizedFunc> curves = Maps.newHashMap();
 		
 		gmpe.setIntensityMeasure(SA_Param.NAME);
@@ -53,9 +59,19 @@ public class GMPE_MCErProbabilisticCalc extends AbstractMCErProbabilisticCalc {
 		
 		for (double period : periods) {
 			SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), period);
-			DiscretizedFunc hazFunction = HazardCurveSetCalculator.getLogFunction(xVals.deepClone());
+			DiscretizedFunc myXVals;
+			if (converter == null) {
+				myXVals = xVals.deepClone();
+			} else {
+				// converter scales X Values, if we want to keep original x values, must adjust before
+				myXVals = new ArbitrarilyDiscretizedFunc();
+				double ratio = converter.getScalingFactor(period);
+				for (Point2D pt : xVals)
+					myXVals.set(pt.getX()/ratio, 0d);
+			}
+			DiscretizedFunc hazFunction = HazardCurveSetCalculator.getLogFunction(myXVals);
 			curveCalc.getHazardCurve(hazFunction, site, gmpe, erf);
-			hazFunction = HazardCurveSetCalculator.unLogFunction(xVals, hazFunction);
+			hazFunction = HazardCurveSetCalculator.unLogFunction(myXVals, hazFunction);
 			
 			if (converter != null) {
 				hazFunction = converter.convertCurve(hazFunction, period);
@@ -64,7 +80,7 @@ public class GMPE_MCErProbabilisticCalc extends AbstractMCErProbabilisticCalc {
 			curves.put(period, hazFunction);
 		}
 		
-		return calc(curves);
+		return curves;
 	}
 
 }

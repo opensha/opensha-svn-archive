@@ -75,4 +75,9 @@ public class DeterministicResult implements XMLSaveable {
 		return new DeterministicResult(sourceID, rupID, mag, sourceName, val);
 	}
 
+	@Override
+	protected Object clone() {
+		return new DeterministicResult(sourceID, rupID, mag, sourceName, val);
+	}
+
 }

@@ -46,6 +46,7 @@ import com.google.common.collect.Lists;
 
 public class HazardCurveFetcher {
 	
+	DBAccess db;
 	HazardCurve2DB curve2db;
 	CybershakeSiteInfo2DB site2db;
 	
@@ -56,7 +57,6 @@ public class HazardCurveFetcher {
 	
 	List<CybershakeSite> allSites = null;
 	
-	private int imTypeID;
 	private CybershakeIM im;
 	
 	public HazardCurveFetcher(DBAccess db, int datasetID, int imTypeID) {
@@ -72,7 +72,6 @@ public class HazardCurveFetcher {
 	
 	private void init(ArrayList<Integer> ids, int imTypeID) {
 		this.curveIDs = ids;
-		this.imTypeID = imTypeID;
 		this.im = curve2db.getIMFromID(imTypeID);
 		sites = new ArrayList<CybershakeSite>();
 		funcs = new ArrayList<DiscretizedFunc>();
@@ -103,8 +102,13 @@ public class HazardCurveFetcher {
 	}
 	
 	private void initDBConnections(DBAccess db) {
+		this.db = db;
 		curve2db = new HazardCurve2DB(db);
 		site2db = new CybershakeSiteInfo2DB(db);
+	}
+	
+	public DBAccess getDBAccess() {
+		return db;
 	}
 	
 	public ArrayList<Double> getSiteValues(boolean isProbAt_IML, double val) {
