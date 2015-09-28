@@ -38,10 +38,18 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
 import org.opensha.sha.calc.mcer.AbstractMCErDeterministicCalc;
+import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
+import org.opensha.sha.calc.mcer.CombinedMultiMCErDeterministicCalc;
+import org.opensha.sha.calc.mcer.CurveBasedMCErProbabilisitCalc;
 import org.opensha.sha.calc.mcer.DeterministicResult;
 import org.opensha.sha.calc.mcer.GMPE_MCErDeterministicCalc;
 import org.opensha.sha.calc.mcer.GMPE_MCErProbabilisticCalc;
 import org.opensha.sha.calc.mcer.MCErCalcUtils;
+import org.opensha.sha.calc.mcer.WeightProvider;
+import org.opensha.sha.calc.mcer.WeightedAverageMCErDeterministicCalc;
+import org.opensha.sha.calc.mcer.WeightedAverageMCErProbabilisticCalc;
+import org.opensha.sha.cybershake.calc.RupProbModERF;
+import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
@@ -56,11 +64,15 @@ import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.cybershake.plot.PlotType;
 import org.opensha.sha.earthquake.ERF;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
+
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.peter.ucerf3.NSHMP13_DeterminisiticERF;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -80,7 +92,6 @@ public class MCERDataProductsCalc {
 	private CyberShakeComponent comp;
 	private List<Double> periods;
 	
-	private ERF erf;
 	private List<AttenuationRelationship> gmpes;
 	
 	private File outputDir;
@@ -99,13 +110,16 @@ public class MCERDataProductsCalc {
 	private List<GMPE_MCErDeterministicCalc> gmpeDetCalcs;
 	private List<GMPE_MCErProbabilisticCalc> gmpeProbCalcs;
 	
+	private WeightedAverageMCErDeterministicCalc avgDetCalc;
+	private WeightedAverageMCErProbabilisticCalc avgProbCalc;
+	
 	private static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
 	
 	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
 			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
-		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, comp, periods, outputDir);
+		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, null, comp, periods, outputDir, false);
 	}
 	
 	public MCERDataProductsCalc(CommandLine cmd) throws IOException, DocumentException, InvocationTargetException {
@@ -118,6 +132,12 @@ public class MCERDataProductsCalc {
 		}
 		
 		erf.updateForecast();
+		
+		ERF gmpeERF = null;
+		if (cmd.hasOption("gmpe-erf-file")) {
+			gmpeERF = ERFSaver.LOAD_ERF_FROM_FILE(cmd.getOptionValue("gmpe-erf-file"));
+			gmpeERF.updateForecast();
+		}
 		
 		CyberShakeComponent comp = CybershakeIM.fromShortName(cmd.getOptionValue("component"), CyberShakeComponent.class);
 		
@@ -132,15 +152,15 @@ public class MCERDataProductsCalc {
 		Preconditions.checkArgument((outputDir.exists() && outputDir.isDirectory()) || outputDir.mkdir(),
 				"Output dir does not exist and could not be created");
 		
-		init(Cybershake_OpenSHA_DBApplication.db, erf, attenRels, comp, periods, outputDir);
+		init(Cybershake_OpenSHA_DBApplication.db, erf, attenRels, gmpeERF, comp, periods, outputDir,
+				cmd.hasOption("weight-average"));
 	}
 	
-	private void init(DBAccess db, ERF erf, List<AttenuationRelationship> gmpes,
-			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
+	private void init(DBAccess db, ERF erf, List<AttenuationRelationship> gmpes, ERF gmpeERF,
+			CyberShakeComponent comp, List<Double> periods, File outputDir, boolean weightAverage) throws IOException {
 		this.db = db;
 		this.comp = comp;
 		this.periods = periods;
-		this.erf = erf;
 		this.gmpes = gmpes;
 		this.outputDir = outputDir;
 		
@@ -155,16 +175,47 @@ public class MCERDataProductsCalc {
 			gmpeDetCalcs = Lists.newArrayList();
 			gmpeProbCalcs = Lists.newArrayList();
 			
+			if (gmpeERF == null)
+				gmpeERF = erf;
+			ERF gmpeDetERF = getGMPEDetERF(gmpeERF, csDetCalc.getRupProbMod());
+			
 			Component gmpeComp = MCErCalcUtils.getSupportedTranslationComponent(
-					gmpes.get(0), comp.getGMPESupportedComponents());;
+					gmpes.get(0), comp.getGMPESupportedComponents());
 			
 			DiscretizedFunc xVals = IMT_Info.getUSGS_SA_Function();
 			
 			for (AttenuationRelationship gmpe : gmpes) {
-				gmpeDetCalcs.add(new GMPE_MCErDeterministicCalc(erf, gmpe, gmpeComp));
-				gmpeProbCalcs.add(new GMPE_MCErProbabilisticCalc(erf, gmpe, gmpeComp, xVals));
+				gmpeDetCalcs.add(new GMPE_MCErDeterministicCalc(gmpeDetERF, gmpe, gmpeComp));
+				gmpeProbCalcs.add(new GMPE_MCErProbabilisticCalc(gmpeERF, gmpe, gmpeComp, xVals));
 			}
+			
+			if (weightAverage) {
+				CombinedMultiMCErDeterministicCalc gmpeDetCalc = new CombinedMultiMCErDeterministicCalc(gmpeDetCalcs);
+				WeightProvider weightProv = new CyberShakeWeightProvider(csProbCalc, gmpeProbCalcs, csDetCalc, gmpeDetCalc);
+				
+				avgDetCalc = new WeightedAverageMCErDeterministicCalc(weightProv, csDetCalc, gmpeDetCalc);
+				List<CurveBasedMCErProbabilisitCalc> allProbCalcs = Lists.newArrayList();
+				allProbCalcs.add(csProbCalc);
+				allProbCalcs.addAll(gmpeProbCalcs);
+				avgProbCalc = new WeightedAverageMCErProbabilisticCalc(weightProv, allProbCalcs);
+			}
+		} else {
+			Preconditions.checkState(!weightAverage, "Can't weight average without GMPEs!");
 		}
+	}
+	
+	static ERF getGMPEDetERF(ERF erf, RuptureProbabilityModifier detProbMod) {
+		if (erf instanceof FaultSystemSolutionERF) {
+			System.out.println("Assuming UCERF3 and using UCERF3 Deterministic ERF for det calcs");
+			NSHMP13_DeterminisiticERF detERF = NSHMP13_DeterminisiticERF.create(false);
+			detERF.updateForecast();
+			return detERF;
+		} else if (detProbMod != null && erf instanceof MeanUCERF2) {
+			System.out.println("Creating UCERF2 deterministic ERF");
+			RupProbModERF detERF = new RupProbModERF(erf, detProbMod);
+			detERF.updateForecast();
+		}
+		return erf;
 	}
 	
 	public void calc(int runID) throws IOException {
@@ -217,12 +268,18 @@ public class MCERDataProductsCalc {
 		DiscretizedFunc csProbSpectrum = new ArbitrarilyDiscretizedFunc();
 		csProbSpectrum.setName("CyberShake Probabilistic");
 		
+		// to use consistent x values between CyberShake and GMPEs for prob calcs
+		Map<Double, DiscretizedFunc> xValsMap = Maps.newHashMap();
+		
 		// calc CyberShake
 		for (double period : periods) {
 			try {
 				DeterministicResult csDet = csDetCalc.calc(site, period);
 				csDeterms.add(csDet);
-				double csProb = csProbCalc.calc(site, period);
+				DiscretizedFunc curve = csProbCalc.calcHazardCurves(site, Lists.newArrayList(period)).get(period);
+				xValsMap.put(period, curve);
+				double csProb = CurveBasedMCErProbabilisitCalc.calcRTGM(curve);
+//				double csProb = csProbCalc.calc(site, period);
 				csProbSpectrum.set(period, csProb);
 			} catch (IllegalStateException e) {
 				if (e.getMessage() != null && e.getMessage().startsWith("No CyberShake IM match")) {
@@ -253,6 +310,7 @@ public class MCERDataProductsCalc {
 //						gmpes.get(i).getShortName()+" Deterministic");
 //				ArbitrarilyDiscretizedFunc probSpectrum = new ArbitrarilyDiscretizedFunc(
 //						gmpes.get(i).getShortName()+" Probabilistic");
+				System.out.println("Calculating GMPE Det "+gmpes.get(i).getShortName());
 				Map<Double, DeterministicResult> detResults = gmpeDetCalcs.get(i).calc(site, periods);
 				List<DeterministicResult> gmpeDeterm = Lists.newArrayList();
 				for (double period : periods)
@@ -260,7 +318,14 @@ public class MCERDataProductsCalc {
 				gmpeDeterms.add(gmpeDeterm);
 				DiscretizedFunc detSpectrum = AbstractMCErDeterministicCalc.toSpectrumFunc(detResults);
 				detSpectrum.setName(gmpes.get(i).getShortName()+" Deterministic");
-				DiscretizedFunc probSpectrum = gmpeProbCalcs.get(i).calc(site, periods);
+//				DiscretizedFunc probSpectrum = gmpeProbCalcs.get(i).calc(site, periods);
+				DiscretizedFunc probSpectrum = new ArbitrarilyDiscretizedFunc();
+				for (double period : periods) {
+					System.out.println("Calculating GMPE Prob "+gmpes.get(i).getShortName()+" "+period+"s");
+					if (xValsMap.containsKey(period))
+						gmpeProbCalcs.get(i).setXVals(xValsMap.get(period));
+					probSpectrum.set(period, gmpeProbCalcs.get(i).calc(site, period));
+				}
 				probSpectrum.setName(gmpes.get(i).getShortName()+" Probabilistic");
 				
 				gmpeDetSpectrums.add(detSpectrum);
@@ -353,11 +418,21 @@ public class MCERDataProductsCalc {
 		DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(gmpeCombinedProbSpectrum, vs30, csSite.createLocation());
 		DiscretizedFunc asceProb = null; // not used
 		
+		DiscretizedFunc weightAverageProb = null;
+		DiscretizedFunc weightAverageDet = null;
+		
+		if (avgProbCalc != null)
+			weightAverageProb = MCErCalcUtils.saToPsuedoVel(avgProbCalc.calc(site, periods));
+		if (avgDetCalc != null)
+			weightAverageDet = MCErCalcUtils.saToPsuedoVel(
+					AbstractMCErDeterministicCalc.toSpectrumFunc(avgDetCalc.calc(site, periods)));
+		
 		// now generate combined plots
 		System.out.println("Generating plots");
 		makePlots(runOutputDir, csSite, run, MCErCalcUtils.saToPsuedoVel(csDetSpectrum),
 				MCErCalcUtils.saToPsuedoVel(gmpeCombinedDetSpectrum), MCErCalcUtils.saToPsuedoVel(asceDeterm),
-				MCErCalcUtils.saToPsuedoVel(csProbSpectrum), MCErCalcUtils.saToPsuedoVel(gmpeCombinedProbSpectrum), asceProb);
+				MCErCalcUtils.saToPsuedoVel(csProbSpectrum), MCErCalcUtils.saToPsuedoVel(gmpeCombinedProbSpectrum),
+				asceProb, weightAverageDet, weightAverageProb);
 	}
 	
 	private static DiscretizedFunc average(List<DiscretizedFunc> funcs) {
@@ -447,7 +522,8 @@ public class MCERDataProductsCalc {
 	
 	public void makePlots(File outputDir, CybershakeSite site, CybershakeRun run,
 			DiscretizedFunc csDeterm, DiscretizedFunc gmpeDeterm, DiscretizedFunc asceDeterm,
-			DiscretizedFunc csProb, DiscretizedFunc gmpeProb, DiscretizedFunc asceProb) throws IOException {
+			DiscretizedFunc csProb, DiscretizedFunc gmpeProb, DiscretizedFunc asceProb,
+			DiscretizedFunc weightAverageDet, DiscretizedFunc weightAverageProb) throws IOException {
 		boolean xLog = true;
 		boolean yLog = true;
 		Range xRange = new Range(1d, 10d);
@@ -487,6 +563,19 @@ public class MCERDataProductsCalc {
 
 		funcs.add(csDeterm);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, PlotSymbol.CIRCLE, 4f, Color.BLUE));
+		
+		Color avgColor = Color.GREEN.darker().darker();
+		if (weightAverageProb != null) {
+			weightAverageProb.setName("Avg. Prob");
+			funcs.add(weightAverageProb);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.CIRCLE, 4f, avgColor));
+		}
+		
+		if (weightAverageDet != null) {
+			weightAverageDet.setName("Avg. Det");
+			funcs.add(weightAverageDet);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, PlotSymbol.CIRCLE, 4f, avgColor));
+		}
 
 		PlotSpec spec = new PlotSpec(funcs, chars, siteName, "Period (s)", "PSV (cm/s)");
 		spec.setLegendVisible(true);
@@ -514,6 +603,11 @@ public class MCERDataProductsCalc {
 		csMCER.setName("CyberShake MCER");
 		DiscretizedFunc gmpeMCER = calcMCER(gmpeDeterm, gmpeProb, asceDeterm);
 		gmpeMCER.setName("GMPE MCER");
+		DiscretizedFunc avgMCER = null;
+		if (weightAverageDet != null && weightAverageProb != null) {
+			avgMCER = calcMCER(weightAverageDet, weightAverageProb, asceDeterm);
+			avgMCER.setName("Avg. MCER");
+		}
 
 		funcs = Lists.newArrayList();
 		chars = Lists.newArrayList();
@@ -533,6 +627,11 @@ public class MCERDataProductsCalc {
 
 		funcs.add(csMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
+		
+		if (avgMCER != null) {
+			funcs.add(avgMCER);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, avgColor));
+		}
 
 		spec = new PlotSpec(funcs, chars, siteName+" MCER", "Period (s)", "PSV (cm/s)");
 		spec.setLegendVisible(true);
@@ -615,6 +714,16 @@ public class MCERDataProductsCalc {
 		erfFile.setRequired(true);
 		ops.addOption(erfFile);
 		
+		Option gmpeERFFile = new Option("gmpeef", "gmpe-erf-file", true, "XML ERF description file for comparison if different"
+				+ "than CyberShake ERF");
+		gmpeERFFile.setRequired(false);
+		ops.addOption(gmpeERFFile);
+		
+		Option weightingOption = new Option("weight", "weight-average", false,
+				"Apply weighting scheme betweeen GMPE and CyberShake results and add curve to plots.");
+		weightingOption.setRequired(false);
+		ops.addOption(weightingOption);
+		
 		Option attenRelFiles = new Option("af", "atten-rel-file", true,
 				"XML Attenuation Relationship description file(s) for " + 
 				"comparison. Multiple files should be comma separated");
@@ -648,8 +757,8 @@ public class MCERDataProductsCalc {
 //			String argStr = "--run-id 2657";
 //			String argStr = "--run-id 3030"; // STNI orig
 //			String argStr = "--run-id 3873"; // STNI 1 hz
-//			String argStr = "--run-id 3873,3880"; // STNI,SBSM 1 hz
-			String argStr = "--run-id 3883"; // s603 1 hz
+			String argStr = "--run-id 3873,3880"; // STNI,SBSM 1 hz
+//			String argStr = "--run-id 3883"; // s603 1 hz
 			argStr += " --component RotD100";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
 			argStr += " --output-dir /tmp/mcer_data_products";
@@ -658,6 +767,8 @@ public class MCERDataProductsCalc {
 					+ "src/org/opensha/sha/cybershake/conf/bssa2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cb2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cy2014.xml";
+			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
+			argStr += " --weight-average";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
 		

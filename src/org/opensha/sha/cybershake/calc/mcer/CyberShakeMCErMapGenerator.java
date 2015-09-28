@@ -69,59 +69,13 @@ public class CyberShakeMCErMapGenerator {
 		
 		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, im.getID());
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, MCERDataProductsCalc.cacheDir, erf);
-		Runs2DB runs2db = new Runs2DB(db);
-		
-		List<CybershakeSite> csSites = fetcher.getCurveSites();
-		List<Integer> runIDs = fetcher.getRunIDs();
 		
 		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 		
 		/*
 		 * Create site list
 		 */
-		List<Site> sites = Lists.newArrayList();
-		
-		// to filter out duplicates
-		HashSet<Location> locs = new HashSet<Location>();
-		
-		OrderedSiteDataProviderList provs = null; // will be created when we have a velocity model ID from a CybershakeRun
-		SiteTranslator siteTrans = new SiteTranslator();
-		ParameterList siteParams = new ParameterList();
-		if (gmpes == null || gmpes.isEmpty()) {
-			// need Vs30 for det lower limit even if no GMPEs
-			siteParams.addParameter(new Vs30_Param());
-		} else {
-			for (AttenuationRelationship gmpe : gmpes)
-				for (Parameter<?> param : gmpe.getSiteParams())
-					if (!siteParams.containsParameter(param.getName()))
-						siteParams.addParameter(param);
-		}
-		
-		for (int i=0; i<csSites.size(); i++) {
-			CybershakeSite csSite = csSites.get(i);
-			if (csSite.type_id == CybershakeSite.TYPE_TEST_SITE)
-				continue;
-			Location loc = csSite.createLocation();
-			if (locs.contains(loc))
-				continue;
-
-			int runID = runIDs.get(i);
-			CybershakeRun run = runs2db.getRun(runID);
-			
-			if (provs == null)
-				provs = HazardCurvePlotter.createProviders(run.getVelModelID());
-			
-			CyberShakeSiteRun site = new CyberShakeSiteRun(csSite, run);
-			ArrayList<SiteDataValue<?>> datas = provs.getBestAvailableData(site.getLocation());
-			for (Parameter<?> param : siteParams) {
-				param = (Parameter<?>)param.clone();
-				siteTrans.setParameterValue(param, datas);
-				site.addParameter(param);
-			}
-			sites.add(site);
-			
-			locs.add(loc);
-		}
+		List<Site> sites = getSitesList(fetcher, gmpes);
 		
 		/*
 		 * Create calculators
@@ -162,9 +116,7 @@ public class CyberShakeMCErMapGenerator {
 			
 			List<String> gmpeNames = Lists.newArrayList();
 			
-			ERF gmpeDetERF = erf;
-			if (detProbMod != null)
-				gmpeDetERF = new RupProbModERF(erf, detProbMod);
+			ERF gmpeDetERF = MCERDataProductsCalc.getGMPEDetERF(erf, detProbMod);
 			
 			for (AttenuationRelationship gmpe : gmpes) {
 				detCalcs.add(new GMPE_MCErDeterministicCalc(gmpeDetERF, gmpe, gmpeComponent));
@@ -211,6 +163,58 @@ public class CyberShakeMCErMapGenerator {
 		
 		MCErMapGenerator.calculateMaps("CyberShake", csProbCalc, csDetCalc, "GMPE", gmpeProbCalc, gmpeDetCalc,
 				region, sites, period, outputDir);
+	}
+
+	private static List<Site> getSitesList(HazardCurveFetcher fetcher, List<AttenuationRelationship> gmpes) {
+		List<CybershakeSite> csSites = fetcher.getCurveSites();
+		List<Integer> runIDs = fetcher.getRunIDs();
+		
+		List<Site> sites = Lists.newArrayList();
+		
+		// to filter out duplicates
+		HashSet<Location> locs = new HashSet<Location>();
+		
+		OrderedSiteDataProviderList provs = null; // will be created when we have a velocity model ID from a CybershakeRun
+		SiteTranslator siteTrans = new SiteTranslator();
+		ParameterList siteParams = new ParameterList();
+		if (gmpes == null || gmpes.isEmpty()) {
+			// need Vs30 for det lower limit even if no GMPEs
+			siteParams.addParameter(new Vs30_Param());
+		} else {
+			for (AttenuationRelationship gmpe : gmpes)
+				for (Parameter<?> param : gmpe.getSiteParams())
+					if (!siteParams.containsParameter(param.getName()))
+						siteParams.addParameter(param);
+		}
+		
+		Runs2DB runs2db = new Runs2DB(fetcher.getDBAccess());
+		
+		for (int i=0; i<csSites.size(); i++) {
+			CybershakeSite csSite = csSites.get(i);
+			if (csSite.type_id == CybershakeSite.TYPE_TEST_SITE)
+				continue;
+			Location loc = csSite.createLocation();
+			if (locs.contains(loc))
+				continue;
+
+			int runID = runIDs.get(i);
+			CybershakeRun run = runs2db.getRun(runID);
+			
+			if (provs == null)
+				provs = HazardCurvePlotter.createProviders(run.getVelModelID());
+			
+			CyberShakeSiteRun site = new CyberShakeSiteRun(csSite, run);
+			ArrayList<SiteDataValue<?>> datas = provs.getBestAvailableData(site.getLocation());
+			for (Parameter<?> param : siteParams) {
+				param = (Parameter<?>)param.clone();
+				siteTrans.setParameterValue(param, datas);
+				site.addParameter(param);
+			}
+			sites.add(site);
+			
+			locs.add(loc);
+		}
+		return sites;
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException {

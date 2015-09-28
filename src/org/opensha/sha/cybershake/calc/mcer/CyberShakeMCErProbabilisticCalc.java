@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
-import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
+import org.opensha.sha.calc.mcer.CurveBasedMCErProbabilisitCalc;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class CyberShakeMCErProbabilisticCalc extends
-		AbstractMCErProbabilisticCalc {
+	CurveBasedMCErProbabilisitCalc {
 	
 	private DBAccess db;
 	private CyberShakeComponent component;
@@ -117,7 +117,7 @@ public class CyberShakeMCErProbabilisticCalc extends
 	}
 
 	@Override
-	public DiscretizedFunc calc(Site site, Collection<Double> periods) {
+	public Map<Double, DiscretizedFunc> calcHazardCurves(Site site, Collection<Double> periods) {
 		Preconditions.checkArgument(site instanceof CyberShakeSiteRun,
 				"CS MCEr calcs can only be called with CyberShakeSiteRun instances");
 		CyberShakeSiteRun siteRun = (CyberShakeSiteRun)site;
@@ -159,7 +159,7 @@ public class CyberShakeMCErProbabilisticCalc extends
 			curves.put(period, curve);
 		}
 		
-		return calc(curves);
+		return curves;
 	}
 
 }
