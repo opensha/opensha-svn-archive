@@ -1387,6 +1387,9 @@ public class ETAS_SimAnalysisTools {
 		magProbDistsGraph.setTickLabelFontSize(18);			
 		
 		ArrayList<EvenlyDiscretizedFunc> cumMFD_List = new ArrayList<EvenlyDiscretizedFunc>();
+		double ratioAtM6pt3 = mfdList.get(1).getY(mfdList.get(1).getClosestXIndex(6.3))/grCum.getY(grCum.getClosestXIndex(6.3));
+		String newInfo = "blue/gray Ratio at M 6.3="+(float)ratioAtM6pt3+"\n"+grCum.getInfo();
+		grCum.setInfo(newInfo);
 		cumMFD_List.add(grCum);
 		cumMFD_List.add(mfdList.get(1));
 		cumMFD_List.add(mfdList.get(3));

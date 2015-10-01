@@ -1314,11 +1314,11 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		
 		String simulationName;
 		if(scenario == null)
@@ -1327,7 +1327,7 @@ public class ETAS_Simulator {
 			simulationName = scenario+"_"+params.getU3ETAS_ProbModel();
 
 		if(params.getImposeGR() == true)
-			simulationName += "_grCorr0p2";
+			simulationName += "_grCorr";
 		
 		simulationName += "_Uniform_1";	// to increment runs
 

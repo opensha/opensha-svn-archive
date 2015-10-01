@@ -1938,14 +1938,14 @@ System.exit(0);
 		SummedMagFreqDist magDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		SummedMagFreqDist supraMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
 		SummedMagFreqDist subSeisMagDist = new SummedMagFreqDist(2.05, 8.95, 70);
-		SummedMagFreqDist srcMFD;
+		IncrementalMagFreqDist srcMFD;
 		
 		double testTotProb = 0;
 		for(int s=0; s<relSrcProbs.length;s++) {
 			if(mfdForSrcArray == null)
 				srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), 1.0, 2.05, 8.95, 70, true);
 			else
-				srcMFD = (SummedMagFreqDist)mfdForSrcArray[s].deepClone();
+				srcMFD = mfdForSrcArray[s].deepClone();
 			srcMFD.normalizeByTotalRate();	// change to PDF
 			srcMFD.scale(relSrcProbs[s]);
 			double totMFD_Prob = srcMFD.getTotalIncrRate();
