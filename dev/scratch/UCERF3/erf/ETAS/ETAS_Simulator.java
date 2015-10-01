@@ -384,8 +384,16 @@ public class ETAS_Simulator {
 					if(parRup.getFSSIndex()==-1)
 						newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(parRup));
 					else {
-						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup);
-						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// this is to increase numerical stability
+						// this produces too few aftershocks on highly creeping faults:
+//						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup);
+						
+						// for no creep/aseis reduction:
+						RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(parRup.getFSSIndex(), fssERF, 0.05);
+						LocationList locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();
+						Location tempLoc = locList.get(etas_utils.getRandomInt(locList.size()-1));
+
+						// now add some randomness for numerical stability:
+						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));
 					}
 					etas_PrimEventSampler.addRuptureToProcess(newRup); // for efficiency
 					eventsToProcess.add(newRup);

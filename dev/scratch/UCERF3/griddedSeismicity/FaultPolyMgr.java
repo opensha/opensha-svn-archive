@@ -133,6 +133,11 @@ public class FaultPolyMgr implements Iterable<Area> {
 	}
 	
 	
+	/**
+	 * This provides the sections and fraction of each section that contributes to the node.
+	 * @param nodeIdx
+	 * @return
+	 */
 	public Map<Integer, Double> getSectionFracsOnNode(int nodeIdx) {
 		return nodeInSectPartic.column(nodeIdx);
 	}

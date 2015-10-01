@@ -20,6 +20,8 @@ import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
@@ -29,7 +31,9 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinTimeParam_c;
@@ -760,6 +764,28 @@ public class ETAS_Utils {
 	}
 	
 	/**
+	 * This provides a rupture surface where there is no creep/aseismicity reduction
+	 * @param fssRupIndex
+	 * @param erf
+	 * @param gridSpacing
+	 * @return
+	 */
+	public RuptureSurface getRuptureSurfaceWithNoCreepReduction(int fssRupIndex, FaultSystemSolutionERF erf, double gridSpacing) {
+		List<RuptureSurface> rupSurfs = Lists.newArrayList();
+		if ((Boolean)erf.getParameter(FaultSystemSolutionERF.QUAD_SURFACES_PARAM_NAME).getValue()) {
+			for(FaultSectionPrefData fltData: erf.getSolution().getRupSet().getFaultSectionDataForRupture(fssRupIndex))
+				rupSurfs.add(fltData.getQuadSurface(false, gridSpacing));
+		} else {
+			for(FaultSectionPrefData fltData: erf.getSolution().getRupSet().getFaultSectionDataForRupture(fssRupIndex))
+				rupSurfs.add(fltData.getStirlingGriddedSurface(gridSpacing, false, false));
+		}
+		if (rupSurfs.size() == 1)
+			return rupSurfs.get(0);
+		else
+			return new CompoundSurface(rupSurfs);
+	}
+	
+	/**
 	 * This returns a random location from the given surface.  For point surfaces,
 	 * this returns the hypocenter if mag<=4.0, otherwise it returns a randome
 	 * location uniformly distributed between plus and minus one source radius
@@ -840,7 +866,7 @@ public class ETAS_Utils {
 		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
 				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
-		gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
+		gr.scaleToIncrRate(minMag, subSeisMFD.getY(minMag));
 		
 		// Since b=1 (and a=1, as implicit in Felzer, and explicit in equation (3) of http://pubs.usgs.gov/of/2013/1165/pdf/ofr2013-1165_appendixS.pdf),
 		// each magnitude has an equal number of expected
@@ -897,7 +923,55 @@ public class ETAS_Utils {
 			return 1d;
 
 		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
-		double minMagSupra = supraSeisMFD.getMinMagWithNonZeroRate();
+		
+		double minMagSupra;
+		double minMagSupraAlt1 = supraSeisMFD.getMinMagWithNonZeroRate();	// can't use this because there are some very low mags with low rates on some branches
+//		double minMagSupra = subSeisMFD.getMaxMagWithNonZeroRate()+subSeisMFD.getDelta();	// this not good either
+
+		if(minMagSupraAlt1>subSeisMFD.getMaxMagWithNonZeroRate()) {
+			minMagSupra=minMagSupraAlt1;
+		}
+		else {
+			// Define the minSupraMag as the bin above the last perfect GR value on the subseismo MFD (non-perfect for branch averaged solutions)
+			// as long as it remains above minMagSupraAlt1
+			// mags below this point should really be filtered from the forecast
+			double thresh = 0.9;
+			minMagSupra=subSeisMFD.getMaxMagWithNonZeroRate();
+			int indexForMinMagSupra = subSeisMFD.getXIndex(minMagSupra);
+			double testVal = subSeisMFD.getY(indexForMinMagSupra)/(subSeisMFD.getY(minMag)*Math.pow(10, minMag-minMagSupra));
+			while(testVal<thresh && indexForMinMagSupra>0) {
+				indexForMinMagSupra-=1;
+				minMagSupra=subSeisMFD.getX(indexForMinMagSupra);
+				testVal = subSeisMFD.getY(indexForMinMagSupra)/(subSeisMFD.getY(minMag)*Math.pow(10, minMag-minMagSupra));
+			}
+			if(indexForMinMagSupra==0) {
+				throw new RuntimeException("Problem");
+//				System.out.println("indexForMinMagSupra="+indexForMinMagSupra+"\tfor\t"+supraSeisMFD.getName());
+//				GraphWindow graph = new GraphWindow(subSeisMFD, supraSeisMFD.getName());
+//				System.out.println(subSeisMFD);
+//				minMagSupra=subSeisMFD.getMaxMagWithNonZeroRate();
+//				indexForMinMagSupra = subSeisMFD.getXIndex(minMagSupra);
+//				testVal = subSeisMFD.getY(indexForMinMagSupra)/Math.pow(10, minMag-minMagSupra);
+//				System.out.println(testVal+"t"+minMagSupra+"\t"+indexForMinMagSupra);
+//				while(testVal<thresh && indexForMinMagSupra>0) {
+//					indexForMinMagSupra-=1;
+//					minMagSupra=subSeisMFD.getX(indexForMinMagSupra);
+//					testVal = subSeisMFD.getY(indexForMinMagSupra)/Math.pow(10, minMag-minMagSupra);
+//					System.out.println(testVal+"\t"+minMagSupra+"\t"+indexForMinMagSupra);
+//				}
+			}
+			indexForMinMagSupra+=1;
+			minMagSupra=subSeisMFD.getX(indexForMinMagSupra);
+		}
+		
+		// don't let it go below minMagSupraAlt1
+		if(minMagSupra<minMagSupraAlt1)
+			minMagSupra=minMagSupraAlt1;
+
+		if(minMagSupra>supraSeisMFD.getMaxMagWithNonZeroRate()) {
+			minMagSupra=supraSeisMFD.getMaxMagWithNonZeroRate();
+		}
+		
 		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
 		if(Double.isNaN(maxMagWithNonZeroRate)) {
 			System.out.println("ISSUE: maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
@@ -907,21 +981,45 @@ public class ETAS_Utils {
 		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
 				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
-		gr.scaleToIncrRate(5.05, subSeisMFD.getY(5.05));
+		gr.scaleToIncrRate(minMag, subSeisMFD.getY(minMag));
 
-		double result =  gr.getCumRate(minMagSupra)/supraSeisMFD.getCumRate(minMagSupra);
+		double result=Double.NaN;
+		try {
+			result = gr.getCumRate(minMagSupra)/supraSeisMFD.getCumRate(minMagSupra);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error: "+minMagSupra+"\t"+supraSeisMFD.getName());
+			System.out.println(supraSeisMFD);
+			System.exit(0);
+		}
 
+// this shows that values using minMagSupraOld are always greater
+//double test =  (gr.getCumRate(minMagSupraOld)/supraSeisMFD.getCumRate(minMagSupraOld))/result;	// want this to be greater than 1.0 (need to push lower mags up more in this case)
+//if(test<1)
+//	System.out.println(test+"\t"+supraSeisMFD.getName());
 
 		if(debug) {
+			supraSeisMFD.setName("supraSeisMFD");
+			supraSeisMFD.setInfo("minMagSupra="+minMagSupra+"\nminMag="+minMag);
+			subSeisMFD.setName("subSeisMFD");
 			ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
 			funcs.add(supraSeisMFD);
 			funcs.add(subSeisMFD);
 			funcs.add(gr);
-			funcs.add(gr.getCumRateDistWithOffset());
-			funcs.add(supraSeisMFD.getCumRateDistWithOffset());
+			EvenlyDiscretizedFunc cumGR = gr.getCumRateDistWithOffset();
+			cumGR.setName("cumGR");
+			funcs.add(cumGR);
+			EvenlyDiscretizedFunc cumSupraSeisMFD = supraSeisMFD.getCumRateDistWithOffset();
+			cumSupraSeisMFD.setName("cumSupraSeisMFD");
+			funcs.add(cumSupraSeisMFD);
+			EvenlyDiscretizedFunc cumSupraSeisMFD_scaled = cumSupraSeisMFD.deepClone();
+			cumSupraSeisMFD_scaled.scale(result);
+			cumSupraSeisMFD_scaled.setName("cumSupraSeisMFD_scaled");
+			funcs.add(cumSupraSeisMFD_scaled);
 			GraphWindow graph = new GraphWindow(funcs, "getScalingFactorToImposeGR_supraRates "+result);
 			graph.setX_AxisLabel("Mag");
 			graph.setY_AxisLabel("Incr Rate");
+			graph.setYLog(true);
 			System.out.println("minMag="+minMag+" ;minMagSupra="+minMagSupra+"; maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
 			System.out.println("result="+result);
 		}
