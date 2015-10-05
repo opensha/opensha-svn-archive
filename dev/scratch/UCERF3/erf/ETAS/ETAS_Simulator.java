@@ -1314,7 +1314,7 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M7pt8;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
