@@ -124,7 +124,7 @@ public class ComcatAccessor {
 		return rups;
 	}
 	
-	private static ObsEqkRupture eventToObsRup(JsonEvent event) {
+	public static ObsEqkRupture eventToObsRup(JsonEvent event) {
 		double lat = event.getLatitude().doubleValue();
 		double lon = event.getLongitude().doubleValue();
 		double dep = event.getDepth().doubleValue();

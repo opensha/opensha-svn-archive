@@ -323,7 +323,7 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		}
 	}
 	
-	private boolean isTrueMean() {
+	public boolean isTrueMean() {
 		return upperDepthTol == 0 && magTol == 0 && rakeBasisStr.equals(RAKE_BASIS_NONE);
 	}
 	
@@ -480,7 +480,7 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		// try to show progress bar
 		try {
 			progress = new CalcProgressBar("Downloading MeanUCERF3 Files", "downloading "+fName);
-		} catch (Exception e) {}
+		} catch (Throwable t) {}
 		String url = DOWNLOAD_URL+fName;
 //		if (!ignoreErrors)
 			System.out.print("Downloading "+url+" to "+file.getAbsolutePath());

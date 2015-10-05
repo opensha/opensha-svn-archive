@@ -162,4 +162,9 @@ public class CyberShakeMCErProbabilisticCalc extends
 		return curves;
 	}
 
+	@Override
+	public void setXVals(DiscretizedFunc xVals) {
+		throw new UnsupportedOperationException("Cannot set X values for CyberShake calculation");
+	}
+
 }

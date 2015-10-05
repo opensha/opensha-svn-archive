@@ -1288,7 +1288,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 	
-	static EvenlyDiscretizedFunc calcProbsFromSummedMFD(EvenlyDiscretizedFunc cmlMFD, double duration) {
+	public static EvenlyDiscretizedFunc calcProbsFromSummedMFD(EvenlyDiscretizedFunc cmlMFD, double duration) {
 		int numMag = cmlMFD.size();
 		EvenlyDiscretizedFunc result = new EvenlyDiscretizedFunc(cmlMFD.getMinX(), numMag, cmlMFD.getDelta());
 		

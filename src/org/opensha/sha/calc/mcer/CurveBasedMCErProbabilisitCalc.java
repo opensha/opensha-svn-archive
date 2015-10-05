@@ -38,5 +38,7 @@ public abstract class CurveBasedMCErProbabilisitCalc extends
 	}
 	
 	protected abstract Map<Double, DiscretizedFunc> calcHazardCurves(Site site, Collection<Double> periods);
+	
+	public abstract void setXVals(DiscretizedFunc xVals);
 
 }

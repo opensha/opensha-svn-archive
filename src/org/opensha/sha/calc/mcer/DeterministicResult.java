@@ -1,9 +1,11 @@
 package org.opensha.sha.calc.mcer;
 
+import java.io.Serializable;
+
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 
-public class DeterministicResult implements XMLSaveable {
+public class DeterministicResult implements XMLSaveable, Serializable {
 	
 	public static final String XML_METADATA_NAME = "DeterministicResult";
 	
@@ -68,9 +70,9 @@ public class DeterministicResult implements XMLSaveable {
 	public static DeterministicResult fromXMLMetadata(Element determEl) {
 		int sourceID = Integer.parseInt(determEl.attributeValue("sourceID"));
 		int rupID = Integer.parseInt(determEl.attributeValue("rupID"));
-		double mag = Integer.parseInt(determEl.attributeValue("mag"));
+		double mag = Double.parseDouble(determEl.attributeValue("mag"));
 		String sourceName = determEl.attributeValue("sourceName");
-		double val = Integer.parseInt(determEl.attributeValue("val"));
+		double val = Double.parseDouble(determEl.attributeValue("val"));
 		
 		return new DeterministicResult(sourceID, rupID, mag, sourceName, val);
 	}

@@ -165,10 +165,10 @@ public class MCErMapGenerator {
 	
 	public static void calculateMaps(AbstractMCErProbabilisticCalc probCalc, AbstractMCErDeterministicCalc detCalc,
 			Region region, Collection<Site> sites, double period, File outputDir) throws IOException, GMT_MapException {
-		calculateMaps(null, probCalc, detCalc, null, null, null, region, sites, period, outputDir);
+		calculateMaps(null, null, probCalc, detCalc, null, null, null, region, sites, period, outputDir);
 	}
 	
-	public static void calculateMaps(String name, AbstractMCErProbabilisticCalc probCalc, AbstractMCErDeterministicCalc detCalc,
+	public static void calculateMaps(String name, String prefix, AbstractMCErProbabilisticCalc probCalc, AbstractMCErDeterministicCalc detCalc,
 			String compareName, AbstractMCErProbabilisticCalc compareProbCalc, AbstractMCErDeterministicCalc compareDetCalc,
 			Region region, Collection<Site> sites, double period, File outputDir) throws IOException, GMT_MapException {
 		Preconditions.checkNotNull(region);
@@ -261,11 +261,11 @@ public class MCErMapGenerator {
 		
 		File psvDir = new File(outputDir, "psv");
 		Preconditions.checkState(psvDir.exists() || psvDir.mkdir());
-		generateMaps(region, name, probData, detData, detLowerLimit,
+		generateMaps(region, name, prefix, probData, detData, detLowerLimit,
 				compareName, compareProbData, compareDetData, psvDir, period, true);
 		File saDir = new File(outputDir, "sa");
 		Preconditions.checkState(saDir.exists() || saDir.mkdir());
-		generateMaps(region, name, probData, detData, detLowerLimit,
+		generateMaps(region, name, prefix, probData, detData, detLowerLimit,
 				compareName, compareProbData, compareDetData, saDir, period, false);
 	}
 	
@@ -281,10 +281,10 @@ public class MCErMapGenerator {
 	public static void generateMaps(Region region, GeoDataSet probData, GeoDataSet detData,
 			GeoDataSet detLowerLimit, File outputDir, double period, boolean psv)
 					throws IOException, GMT_MapException {
-		generateMaps(region, null, probData, detData, detLowerLimit, null, null, null, outputDir, period, psv);
+		generateMaps(region, null, null, probData, detData, detLowerLimit, null, null, null, outputDir, period, psv);
 	}
 	
-	public static void generateMaps(Region region, String name, GeoDataSet probData, GeoDataSet detData,
+	public static void generateMaps(Region region, String name, String prefix, GeoDataSet probData, GeoDataSet detData,
 			GeoDataSet detLowerLimit, String compareName, GeoDataSet compareProbData, GeoDataSet compareDetData,
 			File outputDir, double period, boolean psv) throws IOException, GMT_MapException {
 		Preconditions.checkArgument(probData != null || detData != null || detLowerLimit != null);
@@ -303,6 +303,9 @@ public class MCErMapGenerator {
 			units += " Sa (g)";
 			prefixAdd = "_sa";
 		}
+		
+		if (prefix != null && !prefix.isEmpty())
+			prefixAdd = "_"+prefix+prefixAdd;
 		
 		if (name == null)
 			name = "";

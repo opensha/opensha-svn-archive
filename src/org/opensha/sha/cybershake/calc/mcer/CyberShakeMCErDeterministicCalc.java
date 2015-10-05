@@ -55,10 +55,15 @@ public class CyberShakeMCErDeterministicCalc extends AbstractMCErDeterministicCa
 		this.erf = erf;
 		this.component = component;
 		
+		probMod = getProbMod(erf);
+	}
+	
+	static RuptureProbabilityModifier getProbMod(ERF erf) {
 		if (stripUCERF2Aleatory && erf instanceof MeanUCERF2) {
 			System.out.println("Stripping UCERF2 aleatory variability");
-			probMod = new UCERF2_AleatoryMagVarRemovalMod(erf);
+			return new UCERF2_AleatoryMagVarRemovalMod(erf);
 		}
+		return null;
 	}
 	
 	public void setRupProbMod(RuptureProbabilityModifier probMod) {

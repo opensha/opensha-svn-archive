@@ -2,6 +2,7 @@ package org.opensha.sha.calc.mcer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -16,10 +17,11 @@ import org.opensha.commons.util.XMLUtils;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 
-public class CachedMCErDeterministicCalc extends AbstractMCErDeterministicCalc {
+public class CachedMCErDeterministicCalc extends AbstractMCErDeterministicCalc implements Serializable {
 	
-	private AbstractMCErDeterministicCalc calc;
+	private transient AbstractMCErDeterministicCalc calc;
 	private File cacheFile;
 	
 	private Table<Double, Location, DeterministicResult> cache;
@@ -34,17 +36,7 @@ public class CachedMCErDeterministicCalc extends AbstractMCErDeterministicCalc {
 	public synchronized Map<Double, DeterministicResult> calc(Site site,
 			Collection<Double> periods) {
 		
-		if (cache == null) {
-			if (cacheFile != null && cacheFile.exists()) {
-				try {
-					cache = loadCache(cacheFile);
-				} catch (Exception e) {
-					throw ExceptionUtils.asRuntimeException(e);
-				}
-			} else {
-				cache = HashBasedTable.create();
-			}
-		}
+		checkInitCache();
 		
 		Location loc = site.getLocation();
 		
@@ -116,6 +108,31 @@ public class CachedMCErDeterministicCalc extends AbstractMCErDeterministicCalc {
 		}
 		
 		XMLUtils.writeDocumentToFile(cacheFile, doc);
+	}
+	
+	private void checkInitCache() {
+		if (cache == null) {
+			if (cacheFile != null && cacheFile.exists()) {
+				try {
+					cache = loadCache(cacheFile);
+				} catch (Exception e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+			} else {
+				cache = HashBasedTable.create();
+			}
+		}
+	}
+	
+	public synchronized void addToCache(Table<Double, Location, DeterministicResult> cache) {
+		checkInitCache();
+		this.cache.putAll(cache);
+		cacheChanged = true;
+	}
+	
+	public synchronized void addToCache(CachedMCErDeterministicCalc o) {
+		o.checkInitCache();
+		addToCache(o.cache);
 	}
 
 }

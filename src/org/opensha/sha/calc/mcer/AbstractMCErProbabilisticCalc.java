@@ -61,9 +61,9 @@ public abstract class AbstractMCErProbabilisticCalc {
 	 */
 	public double calc(Site site, double period) {
 		DiscretizedFunc func = calc(site, Lists.newArrayList(period));
-		Preconditions.checkState(func.size() == 1);
-		Preconditions.checkState(func.getX(0) == period);
-		return func.getY(0);
+		int index = func.getXIndex(period);
+		Preconditions.checkState(index >= 0);
+		return func.getY(index);
 	}
 	
 	private static void validateCurveForRTGM(DiscretizedFunc curve) {

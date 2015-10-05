@@ -1151,13 +1151,17 @@ public class ETAS_MultiSimAnalysisTools {
 //		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-full_td-grCorr/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M5p5);
 		
-		names.add("Mojave M5.5 Full TD, No ERT");
-		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M5p5);
+//		names.add("Mojave M5.5 Full TD, No ERT");
+//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert/results_m4.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5p5);
 		
 //		names.add("Mojave M5.5 Full TD, No ERT, GR Corr.");
 //		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert-grCorr/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+		names.add("Mojave M5.5 Full TD, Poisson, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-poisson-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M5p5);
 		
 //		names.add("Mojave M5 Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m5-full_td/results.bin"));

@@ -85,4 +85,10 @@ public class WeightedAverageMCErProbabilisticCalc extends
 		return avgCurves;
 	}
 
+	@Override
+	public void setXVals(DiscretizedFunc xVals) {
+		for (CurveBasedMCErProbabilisitCalc calc : calcs)
+			calc.setXVals(xVals);
+	}
+
 }

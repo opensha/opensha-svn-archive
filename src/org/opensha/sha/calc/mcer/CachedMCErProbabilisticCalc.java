@@ -129,4 +129,12 @@ public class CachedMCErProbabilisticCalc extends AbstractMCErProbabilisticCalc {
 		XMLUtils.writeDocumentToFile(cacheFile, doc);
 	}
 
+	@Override
+	public void setUseUHS(double uhsVal) {
+		if (uhsVal != this.uhsVal)
+			cache.clear();
+		calc.setUseUHS(uhsVal);
+		super.setUseUHS(uhsVal);
+	}
+
 }

@@ -39,6 +39,8 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
 import org.opensha.sha.calc.mcer.AbstractMCErDeterministicCalc;
 import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
+import org.opensha.sha.calc.mcer.CachedCurveBasedMCErProbabilisticCalc;
+import org.opensha.sha.calc.mcer.CachedMCErDeterministicCalc;
 import org.opensha.sha.calc.mcer.CombinedMultiMCErDeterministicCalc;
 import org.opensha.sha.calc.mcer.CurveBasedMCErProbabilisitCalc;
 import org.opensha.sha.calc.mcer.DeterministicResult;
@@ -67,6 +69,7 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
+import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
@@ -107,19 +110,19 @@ public class MCERDataProductsCalc {
 	private CyberShakeMCErDeterministicCalc csDetCalc;
 	private CyberShakeMCErProbabilisticCalc csProbCalc;
 	
-	private List<GMPE_MCErDeterministicCalc> gmpeDetCalcs;
-	private List<GMPE_MCErProbabilisticCalc> gmpeProbCalcs;
+	private List<AbstractMCErDeterministicCalc> gmpeDetCalcs;
+	private List<CurveBasedMCErProbabilisitCalc> gmpeProbCalcs;
 	
 	private WeightedAverageMCErDeterministicCalc avgDetCalc;
 	private WeightedAverageMCErProbabilisticCalc avgProbCalc;
 	
-	private static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
+	static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
 	
 	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
 			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
-		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, null, comp, periods, outputDir, false);
+		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, null, comp, periods, outputDir, false, null);
 	}
 	
 	public MCERDataProductsCalc(CommandLine cmd) throws IOException, DocumentException, InvocationTargetException {
@@ -152,12 +155,20 @@ public class MCERDataProductsCalc {
 		Preconditions.checkArgument((outputDir.exists() && outputDir.isDirectory()) || outputDir.mkdir(),
 				"Output dir does not exist and could not be created");
 		
+		File gmpeCacheDir = null;
+		if (cmd.hasOption("gmpe-cache-dir")) {
+			gmpeCacheDir = new File(cmd.getOptionValue("gmpe-cache-dir"));
+			Preconditions.checkArgument(gmpeCacheDir.exists() && gmpeCacheDir.isDirectory() || gmpeCacheDir.mkdir(),
+					"GMPE cache dir does not exist and could not be created");
+		}
+		
 		init(Cybershake_OpenSHA_DBApplication.db, erf, attenRels, gmpeERF, comp, periods, outputDir,
-				cmd.hasOption("weight-average"));
+				cmd.hasOption("weight-average"), gmpeCacheDir);
 	}
 	
 	private void init(DBAccess db, ERF erf, List<AttenuationRelationship> gmpes, ERF gmpeERF,
-			CyberShakeComponent comp, List<Double> periods, File outputDir, boolean weightAverage) throws IOException {
+			CyberShakeComponent comp, List<Double> periods, File outputDir, boolean weightAverage,
+			File gmpeCacheDir) throws IOException {
 		this.db = db;
 		this.comp = comp;
 		this.periods = periods;
@@ -187,6 +198,19 @@ public class MCERDataProductsCalc {
 			for (AttenuationRelationship gmpe : gmpes) {
 				gmpeDetCalcs.add(new GMPE_MCErDeterministicCalc(gmpeDetERF, gmpe, gmpeComp));
 				gmpeProbCalcs.add(new GMPE_MCErProbabilisticCalc(gmpeERF, gmpe, gmpeComp, xVals));
+			}
+			
+			if (gmpeCacheDir != null) {
+				for (int i=0; i<gmpes.size(); i++) {
+					AttenuationRelationship gmpe = gmpes.get(i);
+					String cachePrefix = CyberShakeMCErMapGenerator.getCachePrefix(
+							-1, gmpeERF, gmpeComp, Lists.newArrayList(gmpe));
+					
+					gmpeDetCalcs.set(i, new CachedMCErDeterministicCalc(gmpeDetCalcs.get(i),
+							new File(gmpeCacheDir, cachePrefix+"_deterministic.xml")));
+					gmpeProbCalcs.set(i, new CachedCurveBasedMCErProbabilisticCalc(gmpeProbCalcs.get(i),
+							new File(gmpeCacheDir, cachePrefix+"_probabilistic_curve.xml")));
+				}
 			}
 			
 			if (weightAverage) {
@@ -231,6 +255,20 @@ public class MCERDataProductsCalc {
 		}
 	}
 	
+	static ParameterList getSiteParams(List<? extends ScalarIMR> gmpes) {
+		ParameterList siteParams = new ParameterList();
+		if (gmpes == null || gmpes.isEmpty()) {
+			// need Vs30 for det lower limit even if no GMPEs
+			siteParams.addParameter(new Vs30_Param());
+		} else {
+			for (ScalarIMR gmpe : gmpes)
+				for (Parameter<?> param : gmpe.getSiteParams())
+					if (!siteParams.containsParameter(param.getName()))
+						siteParams.addParameter(param);
+		}
+		return siteParams;
+	}
+	
 	private void doCalc(CybershakeRun run, CybershakeSite csSite) throws IOException {
 		System.out.println("Calculating for "+csSite.short_name+", runID="+run.getRunID());
 		File runOutputDir = new File(outputDir, csSite.short_name+"_run"+run.getRunID());
@@ -240,19 +278,7 @@ public class MCERDataProductsCalc {
 		
 		// load in site data
 		OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(run.getVelModelID());
-		ParameterList siteParams = new ParameterList();
-		if (gmpes == null || gmpes.isEmpty()) {
-			// just do Vs30 for lower limit calc
-			siteParams.addParameter(new Vs30_Param());
-		} else {
-			for (AttenuationRelationship gmpe : gmpes) {
-				for (Parameter<?> param : gmpe.getSiteParams()) {
-					if (!siteParams.containsParameter(param))
-						// one at a time so we don't need to clone
-						siteParams.addParameter(param);
-				}
-			}
-		}
+		ParameterList siteParams = getSiteParams(gmpes);
 		SiteTranslator siteTrans = new SiteTranslator();
 		List<SiteDataValue<?>> datas = provs.getBestAvailableData(site.getLocation());
 		for (Parameter<?> param : siteParams) {
@@ -730,6 +756,10 @@ public class MCERDataProductsCalc {
 		attenRelFiles.setRequired(true);
 		ops.addOption(attenRelFiles);
 		
+		Option gmpeCacheDir = new Option("gcache", "gmpe-cache-dir", true, "GMPE cache directory");
+		gmpeCacheDir.setRequired(true);
+		ops.addOption(gmpeCacheDir);
+		
 		Option help = new Option("?", "help", false, "Display this message");
 		help.setRequired(false);
 		ops.addOption(help);
@@ -767,7 +797,9 @@ public class MCERDataProductsCalc {
 					+ "src/org/opensha/sha/cybershake/conf/bssa2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cb2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cy2014.xml";
-			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
+//			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
+			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_full.xml";
+			argStr += " --gmpe-cache-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2/";
 			argStr += " --weight-average";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
