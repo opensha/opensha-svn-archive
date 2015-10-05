@@ -54,6 +54,7 @@ import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
@@ -101,15 +102,18 @@ import com.google.common.collect.Maps;
 public class ETAS_PrimaryEventSampler {
 	
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
-	boolean APPLY_ERT_GRIDDED=false;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
+	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr;	// don't set here (set by constructor)
+	double MAX_CHAR_FACTOR_DEFAULT = 10.0;
 	
 	final static boolean D=ETAS_Simulator.D;
 	
 //	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCache";
 //	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
-	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCacheUniform";
-	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCacheUniform";
+	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCacheBoatRamp10";
+	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCacheBoatRamp10";
+//	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCacheUniform";
+//	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCacheUniform";
 	
 	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
 	
@@ -168,6 +172,7 @@ public class ETAS_PrimaryEventSampler {
 //	int nextNumCachedSamplers=incrForReportingNumCachedSamplers;
 	
 	double[] grCorrFactorForSectArray;
+	double[] charScaleFactorForSectArray;
 
 	// ETAS distance decay params
 	double etasDistDecay, etasMinDist;
@@ -247,9 +252,11 @@ public class ETAS_PrimaryEventSampler {
 		
 		if(probModel == U3ETAS_ProbabilityModelOptions.FULL_TD) {
 			APPLY_ERT_FAULTS = true;
+			APPLY_ERT_GRIDDED = true;
 		}
 		else { // NO_ERT or POISSON
 			APPLY_ERT_FAULTS = false;
+			APPLY_ERT_GRIDDED = false;
 		}
 			
 		
@@ -330,27 +337,6 @@ public class ETAS_PrimaryEventSampler {
 		
 		if(D)  ETAS_SimAnalysisTools.writeMemoryUse("Memory before making data");
 		
-		if(erf instanceof FaultSystemSolutionERF) {
-			// create the arrays that will store section nucleation info
-			totSectNuclRateArray = new double[rupSet.getNumSections()];
-			// this is a hashmap for each section, which contains the source index (key) and nucleation rate (value)
-			srcNuclRateOnSectList = new ArrayList<HashMap<Integer,Float>>();
-			for(int sect=0;sect<rupSet.getNumSections();sect++) {
-				srcNuclRateOnSectList.add(new HashMap<Integer,Float>());
-			}
-			for(int src=0; src<numFltSystSources; src++) {
-				int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
-				List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
-				for(int sect:sectIndexList) {
-					srcNuclRateOnSectList.get(sect).put(src,0f);
-				}
-			}	
-			// now compute initial values for these arrays (nucleation rates of sections given norm time since last and any GR corr)
-			computeSectNucleationRates();
-			System.gc();	// garbage collect
-			if (D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after making data");
-		}
-		
 		this.etasDistDecay=distDecay;
 		this.etasMinDist=minDist;
 		
@@ -419,11 +405,8 @@ public class ETAS_PrimaryEventSampler {
 			}
 		}
 		
-		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before computeTotSectRateInCubesArray()");
-		computeTotSectRateInCubesArray();
-		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after computeTotSectRateInCubesArray()");
 		
-		// this could be cached 
+		// Compute numCubesInsideFaultPolygonArray; this could be cached 
 		if(D) System.out.println("Starting to build numCubesInsideFaultPolygonArray");
 		long startTime= System.currentTimeMillis();
 		numCubesInsideFaultPolygonArray = new int[rupSet.getNumSections()];
@@ -433,6 +416,46 @@ public class ETAS_PrimaryEventSampler {
 		if(D) System.out.println("numCubesInsideFaultPolygonArray took (sec): "+runtime);
 		
 		
+		makeLongTermSectMFDs();
+		startTime= System.currentTimeMillis();
+		if(D) System.out.println("Starting computeCharScaleFactorForSection()");
+		computeCharScaleFactorForSection();
+		runtime = ((double)(System.currentTimeMillis()-startTime))/1000;
+		if (D) System.out.println("computeCharScaleFactorForSection() took (sec): "+runtime);
+
+		
+		if(erf instanceof FaultSystemSolutionERF) {
+			// create the arrays that will store section nucleation info
+			totSectNuclRateArray = new double[rupSet.getNumSections()];
+			// this is a hashmap for each section, which contains the source index (key) and nucleation rate (value)
+			srcNuclRateOnSectList = new ArrayList<HashMap<Integer,Float>>();
+			for(int sect=0;sect<rupSet.getNumSections();sect++) {
+				srcNuclRateOnSectList.add(new HashMap<Integer,Float>());
+			}
+			for(int src=0; src<numFltSystSources; src++) {
+				int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
+				List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
+				for(int sect:sectIndexList) {
+					srcNuclRateOnSectList.get(sect).put(src,0f);
+				}
+			}	
+			// now compute initial values for these arrays (nucleation rates of sections given norm time since last and any GR corr)
+			computeSectNucleationRates();
+			System.gc();	// garbage collect
+			if (D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after making data");
+		}
+		
+		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before computeTotSectRateInCubesArray()");
+		computeTotSectRateInCubesArray();
+		if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory after computeTotSectRateInCubesArray()");
+		
+		startTime= System.currentTimeMillis();
+		if(D) System.out.println("Starting getCubeSamplerWithERF_RatesOnly()");
+		computeMFD_ForSrcArrays(2.05, 8.95, 70);
+		getCubeSamplerWithERF_GriddedRatesOnly();
+		runtime = ((double)(System.currentTimeMillis()-startTime))/1000;
+		if (D) System.out.println("getCubeSamplerWithERF_RatesOnly() took (sec): "+runtime);
+				
 		if(D) System.out.println("Creating ETAS_LocationWeightCalculator");
 		startTime= System.currentTimeMillis();
 		double maxDistKm=1000;
@@ -443,15 +466,7 @@ public class ETAS_PrimaryEventSampler {
 		if(D) System.out.println("Done creating ETAS_LocationWeightCalculator; it took (sec): "+runtime);
 
 		
-		startTime= System.currentTimeMillis();
-		if(D) System.out.println("Starting getCubeSamplerWithERF_RatesOnly()");
-		computeMFD_ForSrcArrays(2.05, 8.95, 70);
-		makeLongTermSectMFDs();
-		getCubeSamplerWithERF_GriddedRatesOnly();
-		runtime = ((double)(System.currentTimeMillis()-startTime))/1000;
-		if (D) System.out.println("getCubeSamplerWithERF_RatesOnly() took (sec): "+runtime);
 
-		
 		
 	}
 	
@@ -498,7 +513,7 @@ public class ETAS_PrimaryEventSampler {
 				int sectIndex = sectIndexList.get(s);
 				double sectNuclRate;
 				if(sum>0) {
-					sectNuclRate = grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
+					sectNuclRate = charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
 //System.out.println("RIGHTHERE: "+grCorrFactorForSectArray[sectIndex]);
 				}
 				else
@@ -529,7 +544,7 @@ public class ETAS_PrimaryEventSampler {
 		for(int sectIndex=0;sectIndex<rupSet.getNumSections();sectIndex++) {
 			HashMap<Integer,Float> map = srcNuclRateOnSectList.get(sectIndex);
 			for(int srcIndex:map.keySet())
-				testSrcRates[srcIndex] += map.get(srcIndex)/grCorrFactorForSectArray[sectIndex];
+				testSrcRates[srcIndex] += map.get(srcIndex)/(charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
 		}
 		for(int srcIndex=0;srcIndex<this.numFltSystSources;srcIndex++) {
 			double testRatio = testSrcRates[srcIndex]/sourceRates[srcIndex];
@@ -942,14 +957,87 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-//	/**
-//	 * This shows that trace numbers are one more than sectiction numbers because the former starts at 1 for subsections
-//	 */
-//	public void tempSectTest() {
-//		for(int s=0;s<this.rupSet.getNumSections();s++)
-//			System.out.println(rupSet.getFaultSectionData(s).getName()+"\t"+rupSet.getFaultSectionData(s).getFaultTrace().getName());
-//	}
+	/**
+	 * This shows that trace numbers are one more than sectiction numbers because the former starts at 1 for subsections
+	 */
+	public void tempSectTest() {
+		for(int s=0;s<this.rupSet.getNumSections();s++)
+			System.out.println(rupSet.getFaultSectionData(s).getName()+"\t"+rupSet.getFaultSectionData(s).getFaultTrace().getName());
+	}
 	
+	
+	
+	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRamp(int sectionIndex, double maxBulge) {
+		
+		HashMap<Integer,Double> distMap = new HashMap<Integer,Double>();
+		
+		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
+		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(0.25, false, true);
+		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
+		double upperSeisDepth = surface.getUpperSeismogenicDepth();
+		double distThresh = 0f; // where it goes from ramp to water level
+		for(int i=0; i<numCubes;i++) {
+			Location cubeLoc = getCubeLocationForIndex(i);
+			if(faultPolygon.contains(cubeLoc)) {
+				double dist = LocationUtils.distanceToSurf(cubeLoc, surface);
+				distMap.put(i, dist);
+				if(cubeLoc.getDepth()<=lowerSeisDepth && cubeLoc.getDepth()>=upperSeisDepth && dist>distThresh) {
+					distThresh = dist;
+				}				
+			}
+		}
+		
+		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
+		double slope = (1.0-maxBulge)/distThresh;
+		float totWt=0;
+		for(int c:distMap.keySet()) {
+			double dist = distMap.get(c);
+			double wt = 1.0; // the value beyond
+			if(dist<distThresh) {
+				wt = (slope*dist+maxBulge);
+			}
+			wtMap.put(c, (float)wt);
+			totWt+=wt;
+		}
+		
+		// normalize values so they sum to 1.0
+		for(int c:wtMap.keySet()) {
+			float wt = wtMap.get(c);
+			wtMap.put(c, wt/totWt);
+		}
+
+		float totWtTest=0;
+		for(int c:wtMap.keySet()) {
+			totWtTest+=wtMap.get(c);
+// System.out.println(wtMap.get(c)+"\t"+distMap.get(c)+"\t"+getCubeLocationForIndex(c));
+		}
+		
+		if(totWtTest<0.9999 || totWtTest>1.0001) {
+//			throw new RuntimeException("Problem)");
+			System.out.println("getCubesAndFractForFaultSection_BoatRamp returned null for "+rupSet.getFaultSectionData(sectionIndex).getName()+"\ttotWtTest="+totWtTest);
+			return null;
+		}
+		
+//System.out.println(this.rupSet.getFaultSectionData(sectionIndex).getName()+"\tdistMap.size()="+distMap.size()+"\twtMap.size()="+wtMap.size());
+//System.out.println("totWtTest="+totWtTest);
+
+		return wtMap;
+	}
+
+	
+	public void tempTestSectLoop() {
+		CalcProgressBar progressBar = new CalcProgressBar("tempTestSectLoop()", "junk");
+		progressBar.showProgress(true);
+		Long time = System.currentTimeMillis();
+		int tot=rupSet.getNumSections();
+		for(int s=0;s<this.rupSet.getNumSections();s++) {
+			progressBar.updateProgress(s, tot);
+			getCubesAndFractForFaultSection_BoatRamp(s, 5.0);
+		}
+		float runTime = ((float)(System.currentTimeMillis()-time))/1000f;
+		System.out.println("tempTestSectLoop() took (sec): "+runTime);
+		progressBar.showProgress(false);
+	}
 	
 	
 	/**
@@ -1313,7 +1401,8 @@ System.out.println(cubeIndex+"\t"+cubeDistMap.get(cubeIndex)+"\t"+wtMap.get(cube
 			
 			if(distributeOverPolygon) {
 //				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSectionLinear(s);
-				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSectionExponential(s);
+//				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSectionExponential(s);
+				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSection_BoatRamp(s, MAX_CHAR_FACTOR_DEFAULT);
 				if(cubeFractMap != null) {	// null for some Mendocino sections because they are outside the RELM region
 					for(int cubeIndex:cubeFractMap.keySet()) {
 						sectAtPointList.get(cubeIndex).add(s);
@@ -1879,13 +1968,13 @@ System.exit(0);
 				fracSupra = getERT_FracSupra(rupture, getCubeLocationForIndex(i));
 			
 //			// TEST for just ERT effect with no time dep probabilities
-//			includSupra=true;
+//			fracSupra=1.0;
 //			List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(rupture.getFSSIndex());
 //			int[] sectInCubeArray = sectInCubeList.get(i);
 //			for(FaultSectionPrefData fltData : fltDataList) {
 //				for(int sectID:sectInCubeArray)
 //					if(sectID == fltData.getSectionId()) {
-//						includSupra=false;
+//						fracSupra=0.0;
 //						break;
 //					}
 //			}
@@ -2142,16 +2231,16 @@ System.exit(0);
 				
 				
 //				// TEST for just ERT effect with no time dep probabilities
-//				boolean includeSupra=true;
+//				fracSupra=1.0;
 //				List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(parentRup.getFSSIndex());
 //				for(FaultSectionPrefData fltData : fltDataList) {
 //					for(int sectID:sectInCubeArray)
 //						if(sectID == fltData.getSectionId()) {
-//							includeSupra = false;
+//							fracSupra = 0.0;
 //							break;
 //						}
 //				}
-//				if(!includeSupra)
+//				if(fracSupra == 0.0)
 //					continue;
 				
 				
@@ -3867,6 +3956,49 @@ System.exit(0);
 		}
 	}
 	
+	/**
+	 * This is the factor by which gr-corrected long-term section rates need to be multiplied by in order to
+	 * have MAX_CHAR_FACTOR_DEFAULT right on the fault and a perfect GR at distant cubes within the polygon. 
+	 * First make sure the farthest cubes have a perfect GR
+	 */
+	private void computeCharScaleFactorForSection() {
+		charScaleFactorForSectArray = new double[rupSet.getNumSections()];
+		
+		double[] minWtForSectArray = new double[rupSet.getNumSections()];
+		double[] longTermSectRateArray = new double[rupSet.getNumSections()];
+
+		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
+			minWtForSectArray[sectIndex] = Double.MAX_VALUE;
+			longTermSectRateArray[sectIndex] = longTermSupraSeisMFD_OnSectArray[sectIndex].getTotalIncrRate();	// TODO the best way to get this?
+		}
+		
+		for(int c=0;c<numCubes;c++) {
+			float[] wtInCubeArray = fractionSectInCubeList.get(c);
+			int[] sectInCubeArray = sectInCubeList.get(c);
+			for(int i=0;i<sectInCubeArray.length;i++) {
+				if(wtInCubeArray[i]<minWtForSectArray[sectInCubeArray[i]]) {
+					minWtForSectArray[sectInCubeArray[i]]=wtInCubeArray[i];
+				}
+			}
+		}
+		
+		double[] totRateForSectArray = new double[rupSet.getNumSections()];
+		for(int c=0;c<numCubes;c++) {
+			float[] wtInCubeArray = fractionSectInCubeList.get(c);
+			int[] sectInCubeArray = sectInCubeList.get(c);
+			for(int i=0;i<sectInCubeArray.length;i++) {
+				int sectIndex = sectInCubeArray[i];
+				double sectWtInCube = wtInCubeArray[i];
+				totRateForSectArray[sectIndex] += (sectWtInCube/minWtForSectArray[sectIndex])*(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]/numCubesInsideFaultPolygonArray[sectIndex]);
+			}
+		}
+
+		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
+			charScaleFactorForSectArray[sectIndex] = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
+		}
+
+	}
+	
 	
 	/**
 	 * Region index is first element, and depth index is second
@@ -4813,6 +4945,39 @@ System.exit(0);
 			}
 		}
 	}
+	
+	
+	
+	public double getTrulyOffFaultGR_Corr(boolean debug) {
+		double grCorr = Double.NaN;
+		for(int i=0;i<origGriddedRegion.getNumLocations();i++) {
+			if(origGridSeisTrulyOffVsSubSeisStatus[i] == 0) {
+				SummedMagFreqDist mfd = mfdForTrulyOffOnlyArray[numFltSystSources+i];
+				double maxMag=mfd.getMaxMagWithNonZeroRate();
+				double minMag=mfd.getMinMagWithNonZeroRate();
+				int numMag = (int)((maxMag-minMag)/mfd.getDelta()) + 1;
+				GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMag, numMag);
+				gr.scaleToIncrRate(minMag, mfd.getY(minMag));
+//				grCorr = gr.getCumRate(gr.getXIndex(6.55))/mfd.getCumRate(mfd.getXIndex(6.55));
+				grCorr = gr.getCumRate(6.55)/mfd.getCumRate(6.55);
+				if(debug) {
+					ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+					mfd.setInfo("grCorr = "+(float)grCorr);
+					funcs.add(mfd);
+					funcs.add(gr);
+					funcs.add(mfd.getCumRateDistWithOffset());
+					funcs.add(gr.getCumRateDistWithOffset());
+					GraphWindow graph = new GraphWindow(funcs, "From getTrulyOffFaultGR_Corr"); 
+					graph.setX_AxisLabel("Mag");
+					graph.setY_AxisLabel("Rate");
+					graph.setYLog(true);
+				}
+				break;
+			}
+		}
+		
+		return grCorr;
+	}
 
 	
 
@@ -4824,6 +4989,7 @@ System.exit(0);
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
+		
 		
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -4856,11 +5022,30 @@ System.exit(0);
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				applyGRcorr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 		
-		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_uniform_Poiss_grCorr");
-		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_uniform_Poiss_grCorr");
-		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_uniform_Poiss_grCorr");
-		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_uniform_Poiss_grCorr");
-		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_uniform_Poiss_grCorr");
+		
+//		System.out.println("Starting computeCharScaleFactorForSection()");
+//		long startTime = System.currentTimeMillis();
+//		etas_PrimEventSampler.computeCharScaleFactorForSection();
+//		float runTime = ((float)(System.currentTimeMillis()-startTime))/1000f;
+//		System.out.println("computeCharScaleFactorForSection() took (sec): "+runTime);
+
+		
+//		etas_PrimEventSampler.tempTestSectLoop();
+		
+
+		
+//		// San Andreas (Mojave S), Subsection 4
+//		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1841, 5.0);
+//		// for section with minimum dip: 1593 "Pitas Point (Lower West), Subsection 0"
+//		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1593, 5.0);
+		
+//		etas_PrimEventSampler.getTrulyOffFaultGR_Corr(true);
+		
+//		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_uniform_Poiss_grCorr");
+		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp_Poiss_grCorr");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_uniform_Poiss_grCorr");
+//		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_uniform_Poiss_grCorr");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_uniform_Poiss_grCorr");
 
 //		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 
@@ -4909,30 +5094,8 @@ System.exit(0);
 //		}
 
 		
-//		etas_PrimEventSampler.testRandomSourcesFromCubes();
-		
-//		etas_PrimEventSampler.getCubesAndFractForFaultSectionLinear(256);
-		
-//		etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(1267); 	// Mendocino sub-section 20
-//		etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(330); 	// Cleghorn Pass, Subsection 0
-//		etas_PrimEventSampler.tempSectTest();
-//		etas_PrimEventSampler.getCubesAndFractForFaultSectionExponential(1846); 	// Mojave S section
-//		etas_PrimEventSampler.getCubesAndFractForFaultSectionPower(1846); 	// Mojave S section
 		
 		
-		
-		
-		// to test my understanding of the mapping of subSeis gridded seismicity back on to fault sections 
-		// (where more than one fault polygon may cover the grid node)
-//		etas_PrimEventSampler.testSubSeisMFD_ForSect(1846);
-		
-		// to plot an example result in Igor
-//		HashMap<Integer,Double> map = etas_PrimEventSampler.getCubesAndDistancesInsideSectionPolygon(1846);
-//		for(int cubeIndex : map.keySet()) {
-//			Location loc = etas_PrimEventSampler.getCubeLocationForIndex(cubeIndex);
-//			System.out.println(cubeIndex+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth()+"\t"+map.get(cubeIndex));
-//			
-//		}
 		
 		
 		// THIS PLOTS THE MFDS IN CUBES MOVING AWAY FROM THE MOJAVE SECTION
@@ -4962,18 +5125,6 @@ System.exit(0);
 //		cumMFD_Graph.setPlotLabelFontSize(22);
 //		cumMFD_Graph.setAxisLabelFontSize(20);
 //		cumMFD_Graph.setTickLabelFontSize(18);			
-		
-//		etas_PrimEventSampler.getCubeMFD(1378679);	// ??????????? not sure what this was for
-		
-		
-
-
-		
-
-
-		// the following could be compared with an xy scatter plot (did it in Igor; looks good)
-//		etas_PrimEventSampler.plotOrigERF_RatesMap("OrigERF_RatesMap");
-//		etas_PrimEventSampler.plotRandomSampleRatesMap("RandomSampleRatesMap", 100000);
 		
 		
 	}
@@ -5405,7 +5556,7 @@ System.exit(0);
 			if(supraMFD == null ||  subMFD == null)
 				continue;
 			
-			supraMFD.scale(grCorrFactorForSectArray[sectID]*fracArray[i]);
+			supraMFD.scale(charScaleFactorForSectArray[sectID]*grCorrFactorForSectArray[sectID]*fracArray[i]);
 			subMFD.scale(1.0/numCubesInsideFaultPolygonArray[sectID]);
 			
 			// weight by total supra rate

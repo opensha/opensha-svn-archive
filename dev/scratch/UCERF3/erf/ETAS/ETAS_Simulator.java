@@ -1127,8 +1127,8 @@ public class ETAS_Simulator {
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
-		NEAR_SURPRISE_VALLEY_5p0("Near Surprise Valley 5.0", new Location(41.83975, -120.12356, 4.67500), 5.0),
-		NEAR_SURPRISE_VALLEY_5p5("Near Surprise Valley 5.5", new Location(41.83975, -120.12356, 4.67500), 5.5),
+		NEAR_SURPRISE_VALLEY_5p0("NearSurpriseValley5pt0", new Location(41.83975, -120.12356, 4.67500), 5.0),
+		NEAR_SURPRISE_VALLEY_5p5("NearSurpriseValley5pt5", new Location(41.83975, -120.12356, 4.67500), 5.5),
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 6.0),	// on N edge of the Mojave scenario
@@ -1314,11 +1314,11 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = TestScenario.MOJAVE_M7pt8;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		if(scenario == null)
@@ -1329,7 +1329,7 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_Uniform_1";	// to increment runs
+		simulationName += "_BoatRamp10";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;
