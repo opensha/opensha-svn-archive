@@ -1314,7 +1314,7 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);		
@@ -1329,7 +1329,7 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_BoatRamp10";	// to increment runs
+		simulationName += "_BoatRamp10_test";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;

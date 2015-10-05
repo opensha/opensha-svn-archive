@@ -1965,7 +1965,7 @@ System.exit(0);
 			if(D) 
 				progressBar.updateProgress(numDone, list.size());
 			if(APPLY_ERT_GRIDDED)
-				fracSupra = getERT_FracSupra(rupture, getCubeLocationForIndex(i));
+				fracSupra = getERT_MinFracSupra(rupture, getCubeLocationForIndex(i));
 			
 //			// TEST for just ERT effect with no time dep probabilities
 //			fracSupra=1.0;
@@ -2154,6 +2154,21 @@ System.exit(0);
 //	}
 //
 	
+	
+	private double getERT_MinFracSupra(ETAS_EqkRupture parentRup, Location cubeLoc) {
+		double minFrac = getERT_FracSupra(parentRup, cubeLoc);
+		ETAS_EqkRupture previousParent = parentRup;
+		while(previousParent.getParentRup() !=null) {
+			ETAS_EqkRupture nextParent = previousParent.getParentRup();
+			double newFrac = getERT_FracSupra(nextParent, cubeLoc);
+			if(newFrac<minFrac) {
+				minFrac=newFrac;
+			}
+			previousParent = nextParent;
+		}
+		return minFrac;
+	}
+
 
 	
 	/**
@@ -2222,7 +2237,7 @@ System.exit(0);
 			// now loop over all cubes
 			for(int i=0;i <numCubes;i++) {
 				// skip if this cube cannot trigger supra-seis ruptures
-				double fracSupra = getERT_FracSupra(parentRup, getCubeLocationForIndex(i));
+				double fracSupra = getERT_MinFracSupra(parentRup, getCubeLocationForIndex(i));
 				if(APPLY_ERT_GRIDDED && fracSupra==0.0) {
 					continue;
 				}
@@ -3349,7 +3364,7 @@ System.exit(0);
 				return false;	// triggered location outside of the region
 		}
 
-		double fractionSupra = getERT_FracSupra(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
+		double fractionSupra = getERT_MinFracSupra(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
 		
 		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex, fractionSupra);
 		
