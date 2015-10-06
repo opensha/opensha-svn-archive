@@ -391,6 +391,11 @@ public class ETAS_Simulator {
 						RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(parRup.getFSSIndex(), fssERF, 0.05);
 						LocationList locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();
 						Location tempLoc = locList.get(etas_utils.getRandomInt(locList.size()-1));
+						
+						if(tempLoc.getDepth()>etas_PrimEventSampler.maxDepth) {
+							Location newLoc = new Location(tempLoc.getLatitude(),tempLoc.getLongitude(), etas_PrimEventSampler.maxDepth);
+							tempLoc=newLoc;
+						}
 
 						// now add some randomness for numerical stability:
 						newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));
