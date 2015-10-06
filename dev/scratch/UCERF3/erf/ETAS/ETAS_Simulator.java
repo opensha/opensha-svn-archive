@@ -1329,7 +1329,7 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_BoatRamp10_test";	// to increment runs
+		simulationName += "_BoatRamp10";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1439486175712l;

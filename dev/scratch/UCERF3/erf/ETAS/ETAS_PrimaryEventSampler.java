@@ -108,15 +108,10 @@ public class ETAS_PrimaryEventSampler {
 	
 	final static boolean D=ETAS_Simulator.D;
 	
-//	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCache";
-//	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
-	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCacheBoatRamp10";
-	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCacheBoatRamp10";
-//	String defaultFractSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/fractSectInCubeCacheUniform";
-//	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCacheUniform";
+	String defaultSectDistForCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectDistForCubeCache";
+	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
 	
 	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
-	
 	
 	// these define the cubes in space
 	int numCubeDepths, numCubesPerDepth, numCubes, numParDepths, numParLocsPerDepth, numParLocs;
@@ -153,6 +148,7 @@ public class ETAS_PrimaryEventSampler {
 	double totRate;
 	
 	List<float[]> fractionSectInCubeList;
+	List<float[]> sectDistForCubeList;
 	List<int[]> sectInCubeList;
 	int[] isCubeInsideFaultPolygon;	// independent of depth, so number of elements the equal to numCubesPerDepth
 	int[] numCubesInsideFaultPolygonArray;
@@ -203,18 +199,18 @@ public class ETAS_PrimaryEventSampler {
 	 * @param etasMinDist_d
 	 * @param applyGR_Corr
 	 * @param probMode
-	 * @param inputFractSectInCubeList
+	 * @param inputSectDistForCubeList
 	 * @param inputSectInCubeList
 	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String outputFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
 			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, U3ETAS_ProbabilityModelOptions probModel, 
-			List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
+			List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, outputFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr, probModel, inputFractSectInCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
+				applyGR_Corr, probModel, inputSectDistForCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
@@ -240,14 +236,14 @@ public class ETAS_PrimaryEventSampler {
 	 * @param etas_utils - this is for obtaining reproducible random numbers (seed set in this object)
 	 * @param applyGR_Corr - whether or not to apply the GR correction
 	 * @param probMode
-	 * @param inputFractSectInCubeList
+	 * @param inputSectDistForCubeList
 	 * @param inputSectInCubeList
 	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
 			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
-			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputFractSectInCubeList, List<int[]> inputSectInCubeList, 
+			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
 			int[] inputIsCubeInsideFaultPolygon) {
 		
 		if(probModel == U3ETAS_ProbabilityModelOptions.FULL_TD) {
@@ -367,19 +363,19 @@ public class ETAS_PrimaryEventSampler {
 		origGridSeisTrulyOffVsSubSeisStatus = getOrigGridSeisTrulyOffVsSubSeisStatus();
 		
 		// read or make cache data if needed
-		if(inputFractSectInCubeList!=null && inputSectInCubeList != null && inputIsCubeInsideFaultPolygon != null) {
+		if(inputSectDistForCubeList!=null && inputSectInCubeList != null && inputIsCubeInsideFaultPolygon != null) {
 				sectInCubeList = inputSectInCubeList;
-				fractionSectInCubeList = inputFractSectInCubeList;
+				sectDistForCubeList = inputSectDistForCubeList;
 				isCubeInsideFaultPolygon = inputIsCubeInsideFaultPolygon;
 		}
 		else {
 			File sectInCubeCacheFilename = new File(defaultSectInCubeCacheFilename);
-			File fractSectInCubeCacheFilename = new File(defaultFractSectInCubeCacheFilename);	
+			File sectDistForCubeCacheFilename = new File(defaultSectDistForCubeCacheFilename);	
 			File cubeInsidePolyCacheFilename = new File(defaultCubeInsidePolyCacheFilename);	
-			if (sectInCubeCacheFilename.exists() && fractSectInCubeCacheFilename.exists() && cubeInsidePolyCacheFilename.exists()) { // read from file if it exists
+			if (sectInCubeCacheFilename.exists() && sectDistForCubeCacheFilename.exists() && cubeInsidePolyCacheFilename.exists()) { // read from file if it exists
 				try {
-					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading "+fractSectInCubeCacheFilename);
-					fractionSectInCubeList = MatrixIO.floatArraysListFromFile(fractSectInCubeCacheFilename);
+					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading "+sectDistForCubeCacheFilename);
+					sectDistForCubeList = MatrixIO.floatArraysListFromFile(sectDistForCubeCacheFilename);
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading "+sectInCubeCacheFilename);
 					sectInCubeList = MatrixIO.intArraysListFromFile(sectInCubeCacheFilename);
 					if(D) ETAS_SimAnalysisTools.writeMemoryUse("Memory before reading "+cubeInsidePolyCacheFilename);
@@ -396,7 +392,7 @@ public class ETAS_PrimaryEventSampler {
 				System.gc();
 				// now read the data from files (because the generate method above does not set these)
 				try {
-					fractionSectInCubeList = MatrixIO.floatArraysListFromFile(fractSectInCubeCacheFilename);
+					sectDistForCubeList = MatrixIO.floatArraysListFromFile(sectDistForCubeCacheFilename);
 					sectInCubeList = MatrixIO.intArraysListFromFile(sectInCubeCacheFilename);
 					isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(cubeInsidePolyCacheFilename);
 				} catch (IOException e) {
@@ -405,14 +401,56 @@ public class ETAS_PrimaryEventSampler {
 			}
 		}
 		
-		
-		// Compute numCubesInsideFaultPolygonArray; this could be cached 
-		if(D) System.out.println("Starting to build numCubesInsideFaultPolygonArray");
+		// make fractionSectInCubeList
+		// first make lists of cubes and dists for each section
+		if(D) System.out.println("Starting to make fractionSectInCubeList");
 		long startTime= System.currentTimeMillis();
-		numCubesInsideFaultPolygonArray = new int[rupSet.getNumSections()];
-		for(int s=0;s<rupSet.getNumSections();s++)
-			numCubesInsideFaultPolygonArray[s] = getNumCubesInsideSectionPolygon(s);
+		ArrayList<ArrayList<Integer>> cubesForSectionList = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Float>> cubeDistsForSectionList = new ArrayList<ArrayList<Float>>();
+		for(int s=0;s<rupSet.getNumSections();s++) {
+			cubesForSectionList.add(new ArrayList<Integer>());
+			cubeDistsForSectionList.add(new ArrayList<Float>());
+		}
+		for(int c=0; c<numCubes;c++) {
+			int[] sectInCubeArray=sectInCubeList.get(c);
+			float[] sectDistForCubeArray = sectDistForCubeList.get(c);
+			for(int i=0;i<sectInCubeArray.length;i++) {
+				int s = sectInCubeArray[i];
+				float dist = sectDistForCubeArray[i];
+				cubesForSectionList.get(s).add(c);
+				cubeDistsForSectionList.get(s).add(dist);
+			}
+		}	
+		
+		// make temporary list of fraction hash maps
+		ArrayList<HashMap<Integer,Float>> hashMapForSectList = new ArrayList<HashMap<Integer,Float>>();
+//System.out.println("index\tname\ttotWtTest\tdistMap.size()\twtMap.size()\tdistThresh\tslope\tdip\tlowerSeisDepth\tupperSeisDepth\tgotOne\tminDist\tmaxDist\tminWt\tmaxWt\twtRatio");
+		for(int s=0;s<rupSet.getNumSections();s++) {
+			hashMapForSectList.add(getCubesAndFractForFaultSection_BoatRampAlt(s, this.MAX_CHAR_FACTOR_DEFAULT, cubesForSectionList, cubeDistsForSectionList));
+		}
+		fractionSectInCubeList = new ArrayList<float[]>();
+		for(int c=0; c<numCubes;c++) {
+			int[] sectInCubeArray = sectInCubeList.get(c);
+			float[] fracsForCubeArray = new float[sectInCubeArray.length];
+			for(int i=0;i<sectInCubeArray.length;i++) {
+				int s=sectInCubeArray[i];
+				fracsForCubeArray[i]=hashMapForSectList.get(s).get(c);
+			}
+			fractionSectInCubeList.add(fracsForCubeArray);
+		}
 		double runtime = ((double)(System.currentTimeMillis()-startTime))/1000;
+		if(D) System.out.println("fractionSectInCubeList took (sec): "+runtime);
+
+		
+		
+		// Compute numCubesInsideFaultPolygonArray 
+		if(D) System.out.println("Starting to build numCubesInsideFaultPolygonArray");
+		startTime= System.currentTimeMillis();
+		numCubesInsideFaultPolygonArray = new int[rupSet.getNumSections()];
+		for(int s=0;s<rupSet.getNumSections();s++) {
+			numCubesInsideFaultPolygonArray[s] = cubesForSectionList.get(s).size();
+		}
+		runtime = ((double)(System.currentTimeMillis()-startTime))/1000;
 		if(D) System.out.println("numCubesInsideFaultPolygonArray took (sec): "+runtime);
 		
 		
@@ -587,8 +625,8 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-	public void setSectInCubeCaches(List<float[]> fractionSectAtPointList, List<int[]> sectInCubeList) {
-		this.fractionSectInCubeList = fractionSectAtPointList;
+	public void setSectInCubeCaches(List<float[]> sectDistForCubeList, List<int[]> sectInCubeList) {
+		this.sectDistForCubeList = sectDistForCubeList;
 		this.sectInCubeList = sectInCubeList;
 	}
 	
@@ -610,18 +648,15 @@ public class ETAS_PrimaryEventSampler {
 	 * This returns a map giving the cubes that are inside the fault-section's polygon (cube index is map key),
 	 * plus the distance (map value) of each cube center from the fault-section surface.
 	 * @param sectionIndex
-	 * @param distBelowBottomThresh - this determines how far below the lower seismogenic depth we go for including cubes
 	 * @return
 	 */
-	private HashMap<Integer,Double> getCubesAndDistancesInsideSectionPolygon(int sectionIndex, double distBelowBottomThresh) {
+	private HashMap<Integer,Double> getCubesAndDistancesInsideSectionPolygon(int sectionIndex) {
 		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
 		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
 		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(0.25, false, true);
-		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
 		for(int i=0; i<numCubes;i++) {
 			Location cubeLoc = getCubeLocationForIndex(i);
-			double cubeDepthBelowSurf = cubeLoc.getDepth()-lowerSeisDepth;
-			if(cubeDepthBelowSurf < distBelowBottomThresh && faultPolygon.contains(cubeLoc)) {
+			if(faultPolygon.contains(cubeLoc)) {
 				double dist = LocationUtils.distanceToSurf(cubeLoc, surface);
 				cubeDistMap.put(i, dist);
 			}
@@ -650,11 +685,10 @@ public class ETAS_PrimaryEventSampler {
 	
 	
 	
-	// TODO remove
-	private double getFarthestCubeDistAtDepthForSection(int sectionIndex, double depthKm, Set<Integer> cubeList) {
+	// 
+	private double getFarthestCubeDistAtDepthForSection(StirlingGriddedSurface surface, double depthKm, ArrayList<Integer> cubeList) {
 		
 		// get the surface and find the row index corresponding to depthKm
-		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(1.0, false, true);
 		double min = Double.MAX_VALUE;
 		int rowIndex=-1;
 		for(int r=0;r<surface.getNumRows();r++) {
@@ -745,216 +779,6 @@ public class ETAS_PrimaryEventSampler {
 	}
 
 	
-	/**
-	 * For the given section, this returns all the cubes that are within the section polygon, together
-	 * with the fractional rate of the section that each cube gets using a linear distance decay
-	 * from the surface and constrained by the total section rate and that the farthest cubes above the 
-	 * seismogenic depth plus 4km have a perfect GR in cumulative M6.5 rate (plus any time dependence).  
-	 * If the section MFD is non-characteristic, then the rates are distributed uniformly among cubes.
-	 * 
-	 * The problem here is that all cubes below seismo depth plus 4 km are ignored (zero rate), and trying
-	 * to include them would produce negative rates at farthest cubes (unless we use a constaint where the
-	 * farthest cube has zero rate, ignoring any implied GRness).
-	 * @param sectionIndex
-	 * @return
-	 */
-	private HashMap<Integer,Float> getCubesAndFractForFaultSectionLinear(int sectionIndex) {
-		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
-		
-		// Make sure long-term MFDs are created
-		makeLongTermSectMFDs();
-
-		IncrementalMagFreqDist subSeisMFD = longTermSubSeisMFD_OnSectList.get(sectionIndex);
-		IncrementalMagFreqDist supraSeisMFD = longTermSupraSeisMFD_OnSectArray[sectionIndex];
-		
-		double minSupraSeisMag = subSeisMFD.getMaxMagWithNonZeroRate() + 0.1;
-		if(Double.isNaN(minSupraSeisMag)) {	// this happens for Mendocino sections outside the RELM region
-//			System.out.println(sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		
-		double totSupraSeisRate = supraSeisMFD.getCumRate(6.55);
-		double targetRateAtTargetDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
-
-//		double totSupraSeisRate = supraSeisMFD.getCumRate(minSupraSeisMag);
-//		IncrementalMagFreqDist trulyOffMFD = fss.getFinalTrulyOffFaultMFD().deepClone();
-//		trulyOffMFD.scaleToCumRate(2.55, totSectMFD.getCumRate(2.55));
-//		double targetRateAtMaxDist = trulyOffMFD.getCumRate(minSupraSeisMag);	// nearly the same rate as at cube outside polygon
-			
-//		// TEST HERE *****************************
-//		ArrayList<IncrementalMagFreqDist> mfdList = new ArrayList<IncrementalMagFreqDist>();
-//		mfdList.add(subSeisMFD);
-//		mfdList.add(supraSeisMFD);
-//		SummedMagFreqDist sumMFD = new SummedMagFreqDist( 2.55, 8.95, 65);
-//		sumMFD.addIncrementalMagFreqDist(subSeisMFD);
-//		sumMFD.addIncrementalMagFreqDist(supraSeisMFD);		
-//		computeMFD_ForSrcArrays(2.05, 8.95, 70);
-//		SummedMagFreqDist testSum = getCubeMFD_GriddedSeisOnly(41949); // this is just to get an MFD object
-//		testSum.scaleToCumRate(0, 0d);
-//		HashMap<Integer,Double> distMapTemp = getCubesAndDistancesInsideSectionPolygon(sectionIndex);
-//		for(int cubeIndex:distMapTemp.keySet())
-//			// but some of the grid node MFD may come from other sections with a different total rates, so the following shouldn't necessarily be the same as the above
-//			testSum.addIncrementalMagFreqDist(getCubeMFD_GriddedSeisOnly(cubeIndex));
-//		mfdList.add(testSum);
-//		
-//		GraphWindow mfd_Graph = new GraphWindow(mfdList, "MFDs"); 
-//		mfd_Graph.setX_AxisLabel("Mag");
-//		mfd_Graph.setY_AxisLabel("Rate");
-//		mfd_Graph.setYLog(true);
-//		mfd_Graph.setPlotLabelFontSize(22);
-//		mfd_Graph.setAxisLabelFontSize(20);
-//		mfd_Graph.setTickLabelFontSize(18);	
-//		
-//		ArrayList<EvenlyDiscretizedFunc> mfdListCum = new ArrayList<EvenlyDiscretizedFunc>();
-//		mfdListCum.add(sumMFD.getCumRateDistWithOffset());
-//		mfdListCum.add(testSum.getCumRateDistWithOffset());
-//		GraphWindow mfdCum_Graph = new GraphWindow(mfdListCum, "MFDs"); 
-//		mfdCum_Graph.setX_AxisLabel("Mag");
-//		mfdCum_Graph.setY_AxisLabel("Cumulative Rate");
-//		mfdCum_Graph.setYLog(true);
-//		mfdCum_Graph.setPlotLabelFontSize(22);
-//		mfdCum_Graph.setAxisLabelFontSize(20);
-//		mfdCum_Graph.setTickLabelFontSize(18);	
-//		
-//		System.out.println("minSupraSeisMag="+minSupraSeisMag);
-//		System.out.println("totSupraSeisRate="+totSupraSeisRate);
-//		System.out.println("targetRateAtMaxDist="+targetRateAtMaxDist);
-		
-		
-		HashMap<Integer,Double> distMap = getCubesAndDistancesInsideSectionPolygon(sectionIndex, 4.0);
-		
-//		// find farthest distance at 7 km
-//		int cubeDepthIndex = getCubeDepthIndex(7.0);
-//		
-//		// now find the distance of farthest cube at depthKm perpendicular to a line on the surface at depthKm
-//		double maxDistAt7km = -1;
-//		for(int cubeIndex:distMap.keySet()) {
-//			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
-//			if(this.getCubeDepthIndex(cubeLoc.getDepth()) != cubeDepthIndex)
-//				continue;	// skip those that aren't at 7 km depth
-//			if(distMap.get(cubeIndex) > maxDistAt7km)
-//				maxDistAt7km = distMap.get(cubeIndex);
-//		}
-		
-		
-//System.out.println("HERE maxDistAt7km = "+maxDistAt7km);
-		
-		double n = distMap.size();
-		if(targetRateAtTargetDist>totSupraSeisRate) {	// distribute uniformly
-			for(int cubeIndex:distMap.keySet()) {
-				wtMap.put(cubeIndex, (float)(1.0/n));
-			}
-			return wtMap;
-		}
-
-		// solve for linear-trend values a and b (r=ad+b, where d is distance and r is rate)
-		double dMax=0, dMin=Double.MAX_VALUE, dSum=0;
-		int cubeIndexMax=-1, cubeIndexMin=-1;
-		for(int cubeIndex:distMap.keySet()) {
-			double dist = distMap.get(cubeIndex);
-			dSum += dist;
-			if(dMax<dist) {
-				dMax=dist;
-				cubeIndexMax = cubeIndex;
-			}
-			if(dMin>dist) {
-				dMin=dist;
-				cubeIndexMin = cubeIndex;
-			}
-		}
-		
-//		double targetDist = getFaultSectionPolygonHalfWidth(sectionIndex, distMap.keySet());
-		double targetDist = dMax;
-
-		double a = (totSupraSeisRate-targetRateAtTargetDist)/(dSum-n*targetDist);
-		double b = targetRateAtTargetDist/distMap.size() - a*targetDist;
-		
-		if(a > 0) {
-			System.out.println("a>0 for\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName()+"\t"+(dSum-n*targetDist));
-//			throw new RuntimeException("Problem here");
-		}
-		
-//		// check for negative value at maximum distance
-//		if(a*dMax+b < 0.0) {
-//			targetDist = dMax+1.0;
-//			targetRateAtTargetDist = 0;
-//			double ratio = a*targetDist+b;
-//			a = (totSupraSeisRate-targetRateAtTargetDist)/(dSum-n*targetDist);
-//			b = targetRateAtTargetDist/distMap.size() - a*targetDist;
-//			ratio /= a*targetDist+b;
-//			System.out.println("CORR\t"+ratio+"\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-//		}
-		
-//System.out.println("dMin="+dMin+"\tcubeIndexMin="+cubeIndexMin+"\t"+this.getCubeLocationForIndex(cubeIndexMin));
-// this will plot the closest and farthest cube MFD
-//SummedMagFreqDist closestMFD = getCubeMFD(cubeIndexMin);
-//SummedMagFreqDist farthestMFD = getCubeMFD(cubeIndexMax);
-//ArrayList<EvenlyDiscretizedFunc> closeFarListCum = new ArrayList<EvenlyDiscretizedFunc>();
-//closeFarListCum.add(closestMFD.getCumRateDistWithOffset());
-//closeFarListCum.add(farthestMFD.getCumRateDistWithOffset());
-//GraphWindow closeFar_Graph = new GraphWindow(closeFarListCum, "Closest, Farthest MFDs"); 
-//closeFar_Graph.setX_AxisLabel("Mag");
-//closeFar_Graph.setY_AxisLabel("Cumulative Rate");
-//closeFar_Graph.setYLog(true);
-//closeFar_Graph.setPlotLabelFontSize(22);
-//closeFar_Graph.setAxisLabelFontSize(20);
-//closeFar_Graph.setTickLabelFontSize(18);	
-
-//System.out.println("N="+distMap.size()+"\tdMax="+dMax+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
-//System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist"+targetRateAtTargetDist);
-//System.out.println("targetDist = "+targetDist);
-
-//System.out.println("getCubesAndFractForFaultSectionLinear:");		
-		for(int cubeIndex:distMap.keySet()) {
-			double rate = a*distMap.get(cubeIndex) + b;
-			wtMap.put(cubeIndex, (float)(rate/totSupraSeisRate));
-//Location loc = this.getCubeLocationForIndex(cubeIndex);
-//System.out.println(cubeIndex+"\t"+distMap.get(cubeIndex)+"\t"+wtMap.get(cubeIndex)+"\t"+rate+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
-		}
-		
-		// test
-		double sum=0;
-		boolean negValPrinted = false;
-		for(int cubeIndex: wtMap.keySet()) {
-			double val = wtMap.get(cubeIndex);
-			if(val<0) {
-				throw new RuntimeException("problem");
-//				if(!negValPrinted) {
-//					System.out.println("NEG VALUE\t"+val+"\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-//					negValPrinted=true;
-//				}
-//				System.out.println("N="+distMap.size()+"\ttargetDist="+targetDist+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
-//				System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist="+targetRateAtTargetDist);
-//				System.out.println("val="+val+"\tdist="+distMap.get(cubeIndex));
-//				System.out.println(sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-//				System.out.println(subSeisMFD.toString());
-//				System.out.println(supraSeisMFD.toString());
-//
-//				System.exit(-1);
-			}
-			sum += val;
-		}
-		
-		if(sum == 0) {
-			System.out.println("sum=null for "+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		
-		if(sum<0.999 || sum>1.001) {
-			System.out.println("N="+distMap.size()+"\tdMax="+dMax+"\tdSum="+dSum+"\ta="+a+"\tb="+b);
-			System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtTargetDist);
-			System.out.println(subSeisMFD.toString());
-			throw new RuntimeException("problem; sum="+sum+" for sectionIndex="+sectionIndex+"\t"+
-					fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-		}
-
-//System.out.println("sum="+sum);
-//for(int cubeIndex:distMap.keySet()) {
-//	System.out.println(cubeIndex+"\t"+distMap.get(cubeIndex)+"\t"+wtMap.get(cubeIndex));
-//}
-
-		return wtMap;
-	}
 	
 	
 	/**
@@ -967,25 +791,40 @@ public class ETAS_PrimaryEventSampler {
 	
 	
 	
-	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRamp(int sectionIndex, double maxBulge) {
+
+	
+	
+	
+	
+	
+	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRampAlt(int sectionIndex, double maxBulge, ArrayList<ArrayList<Integer>> cubesForSectionList, 
+			ArrayList<ArrayList<Float>> cubeDistsForSectionList) {
 		
 		HashMap<Integer,Double> distMap = new HashMap<Integer,Double>();
 		
-		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
-		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(0.25, false, true);
+		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(1.0, false, true);
 		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
 		double upperSeisDepth = surface.getUpperSeismogenicDepth();
 		double distThresh = 0f; // where it goes from ramp to water level
-		for(int i=0; i<numCubes;i++) {
-			Location cubeLoc = getCubeLocationForIndex(i);
-			if(faultPolygon.contains(cubeLoc)) {
-				double dist = LocationUtils.distanceToSurf(cubeLoc, surface);
-				distMap.put(i, dist);
-				if(cubeLoc.getDepth()<=lowerSeisDepth && cubeLoc.getDepth()>=upperSeisDepth && dist>distThresh) {
-					distThresh = dist;
-				}				
-			}
+		boolean gotOne=false;
+		double minDist=Double.MAX_VALUE;
+		double maxDist=0.0;
+		for(int i=0; i<cubesForSectionList.get(sectionIndex).size();i++) {
+			int cubeIndex = cubesForSectionList.get(sectionIndex).get(i);
+			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
+			double dist = cubeDistsForSectionList.get(sectionIndex).get(i);
+			distMap.put(cubeIndex, dist);
+			if(minDist>dist) minDist=dist;
+			if(maxDist<dist) maxDist=dist;
+			if(cubeLoc.getDepth()<=lowerSeisDepth && cubeLoc.getDepth()>=upperSeisDepth && dist>distThresh) {
+				distThresh = dist;
+				gotOne=true;
+			}				
 		}
+		
+		// this happens if the surface has too small a down-dip width
+		if(!gotOne)
+			distThresh = getFarthestCubeDistAtDepthForSection(surface, surface.getLocation(0, 0).getDepth(), cubesForSectionList.get(sectionIndex));
 		
 		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
 		double slope = (1.0-maxBulge)/distThresh;
@@ -1001,15 +840,20 @@ public class ETAS_PrimaryEventSampler {
 		}
 		
 		// normalize values so they sum to 1.0
+		double minWt=Double.MAX_VALUE;
+		double maxWt=0.0;
 		for(int c:wtMap.keySet()) {
-			float wt = wtMap.get(c);
-			wtMap.put(c, wt/totWt);
+			float newWt = wtMap.get(c)/totWt;
+			wtMap.put(c, newWt);
+			if(minWt>newWt) minWt=newWt;
+			if(maxWt<newWt) maxWt=newWt;
+
 		}
 
 		float totWtTest=0;
 		for(int c:wtMap.keySet()) {
 			totWtTest+=wtMap.get(c);
-// System.out.println(wtMap.get(c)+"\t"+distMap.get(c)+"\t"+getCubeLocationForIndex(c));
+//System.out.println(wtMap.get(c)+"\t"+distMap.get(c)+"\t"+getCubeLocationForIndex(c));
 		}
 		
 		if(totWtTest<0.9999 || totWtTest>1.0001) {
@@ -1018,353 +862,19 @@ public class ETAS_PrimaryEventSampler {
 			return null;
 		}
 		
-//System.out.println(this.rupSet.getFaultSectionData(sectionIndex).getName()+"\tdistMap.size()="+distMap.size()+"\twtMap.size()="+wtMap.size());
-//System.out.println("totWtTest="+totWtTest);
+//System.out.println(sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totWtTest+"\t"+distMap.size()+"\t"+wtMap.size()+
+//"\t"+distThresh+"\t"+slope+"\t"+rupSet.getFaultSectionData(sectionIndex).getAveDip()+"\t"+lowerSeisDepth+"\t"+upperSeisDepth+"\t"+gotOne+
+//"\t"+minDist+"\t"+maxDist+"\t"+minWt+"\t"+maxWt+"\t"+(maxWt/minWt));
 
 		return wtMap;
 	}
 
+
+
 	
-	public void tempTestSectLoop() {
-		CalcProgressBar progressBar = new CalcProgressBar("tempTestSectLoop()", "junk");
-		progressBar.showProgress(true);
-		Long time = System.currentTimeMillis();
-		int tot=rupSet.getNumSections();
-		for(int s=0;s<this.rupSet.getNumSections();s++) {
-			progressBar.updateProgress(s, tot);
-			getCubesAndFractForFaultSection_BoatRamp(s, 5.0);
-		}
-		float runTime = ((float)(System.currentTimeMillis()-time))/1000f;
-		System.out.println("tempTestSectLoop() took (sec): "+runTime);
-		progressBar.showProgress(false);
-	}
-	
-	
-	/**
-	 * For the given section, this returns all the cubes that are within the section polygon, together
-	 * with the fractional rate of the section that each cube gets using an exponential distance decay
-	 * from the surface and constrained by the total section rate and that the farthest cubes above the 
-	 * seismogenic depth have a perfect GR in cumulative M6.5 rate (plus any time dependence).  If the 
-	 * section MFD is non-characteristic, then the rates are distributed uniformly among cubes.
-	 * @param sectionIndex
-	 * @return
-	 */
-	private HashMap<Integer,Float> getCubesAndFractForFaultSectionExponential(int sectionIndex) {
-		
-		double targetFractDiff = 0.0001;
-		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
-		
-// System.out.println("working on sect index "+sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName());
-		// Make sure long-term MFDs are created
-		makeLongTermSectMFDs();
-
-		IncrementalMagFreqDist subSeisMFD = longTermSubSeisMFD_OnSectList.get(sectionIndex);
-		IncrementalMagFreqDist supraSeisMFD = longTermSupraSeisMFD_OnSectArray[sectionIndex];
-		
-		double minSupraSeisMag = subSeisMFD.getMaxMagWithNonZeroRate() + 0.1;
-		if(Double.isNaN(minSupraSeisMag)) {	// this happens for Mendocino sections outside the RELM region
-			System.out.println("NULL for section:\t"+sectionIndex
-					+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		
-//		double totSupraSeisRate = supraSeisMFD.getCumRate(6.55);
-//		double targetRateAtTargetDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
-		double totSupraSeisRate = supraSeisMFD.getTotalIncrRate();
-		
-		if (totSupraSeisRate == 0d) {
-			System.out.println("NULL for section (totSupraSeisRate=0):\t"+sectionIndex
-					+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		double grCorr = ETAS_Utils.getScalingFactorToImposeGR_supraRates(supraSeisMFD, subSeisMFD, false);
-//		if(grCorr<0.5)
-//			grCorr=0.5;
-		double targetRateAtTargetDist = totSupraSeisRate*grCorr;
-//		System.out.println("getCubesAndFractForFaultSectionExponential grCorr="+grCorr);
-
-		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
-		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
-		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(0.25, false, true);
-		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
-		double targetDist = 0; // max dist within seismo depth
-		for(int i=0; i<numCubes;i++) {
-			Location cubeLoc = getCubeLocationForIndex(i);
-			if(faultPolygon.contains(cubeLoc)) {
-				double dist = LocationUtils.distanceToSurf(cubeLoc, surface);
-				cubeDistMap.put(i, dist);
-				if(cubeLoc.getDepth()<=lowerSeisDepth && dist>targetDist) {
-					targetDist = dist;
-				}				
-			}
-		}
-						
-		double n = cubeDistMap.size();
-		
-		// this is needed for Mendocino subsection 20; it has a subseimo mfd according to Peter's rules (barely, see email from him), but no cubes withing according to rules here
-		if(n==0) {
-			System.out.println("NULL for section (no cubes):\t"+sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;			
-		}
-		
-		
-		if(targetRateAtTargetDist>totSupraSeisRate) {	// distribute uniformly
-			for(int cubeIndex:cubeDistMap.keySet()) {
-				wtMap.put(cubeIndex, (float)(1.0/n));
-			}
-			System.out.println("UNIFORM CUBE RATES\t"+sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName());
-			return wtMap;
-		}
-
-		
- //System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist"+targetRateAtTargetDist+"\tN="+cubeDistMap.size());
-
- //System.exit(0);
-
-		targetRateAtTargetDist /= cubeDistMap.size();
-		
- //System.out.println("Reduced targetRateAtTargetDist="+targetRateAtTargetDist+"\ttargetDist="+targetDist);
-
-		// solve for log-linear-trend values a and b (R=10^(a-bD), where D is distance and R is rate in ith cube)
-		double b_trial = 0;
-		double b_incr = 1.0;
-		double b = Double.NaN;
-		int numTries=0;
-		boolean done = false;
-		while(!done) {
-			double b1 = b_trial;
-			double totTestRate1 = 0;
-			for(int cubeIndex:cubeDistMap.keySet()) {
-				totTestRate1 += targetRateAtTargetDist*Math.pow(10.0,b1*(targetDist-cubeDistMap.get(cubeIndex)));
-			}
-			double fractDiff1 = Math.abs((totSupraSeisRate-totTestRate1)/totSupraSeisRate);
-			if(fractDiff1<targetFractDiff) {
-				b=b1;
-				done=true;
-//System.out.println("Done1:\t"+b1+"\t"+totTestRate1+"\t"+totSupraSeisRate+"\t"+fractDiff1);
-				continue;
-			}
-	
-			double b2 = b_trial+b_incr;
-			double totTestRate2 = 0;
-			for(int cubeIndex:cubeDistMap.keySet()) {
-				totTestRate2 += targetRateAtTargetDist*Math.pow(10.0,b2*(targetDist-cubeDistMap.get(cubeIndex)));
-			}
-			double fractDiff2 = Math.abs((totSupraSeisRate-totTestRate2)/totSupraSeisRate);
-			if(fractDiff2<targetFractDiff) {
-				b=b2;
-				done=true;
- //System.out.println("Done2:\t"+b2+"\t"+totTestRate2+"\t"+totSupraSeisRate+"\t"+fractDiff2);
-				continue;
-			}
-
-			
-//System.out.println(b_trial+"\t"+b_incr+"\t"+totTestRate1+"\t"+totTestRate2+"\t"+totSupraSeisRate);
-if(numTries >1000000)
-System.exit(0);
-
-			// if it's bounded by the two tries above
-			if(totTestRate1<totSupraSeisRate && totTestRate2>totSupraSeisRate) {
-				b_incr /= 10.0;	// do again with smaller increment
-			}
-			else { // step to next increment
-				b_trial += b_incr;
-			}
-		}
-		
-		double a = Math.log10(targetRateAtTargetDist) + b*targetDist;
-		
- //System.out.println("N="+cubeDistMap.size()+"\ta="+a+"\tb="+b);
-		
-
-		for(int cubeIndex:cubeDistMap.keySet()) {
-			double rate = Math.pow(10, a - b*cubeDistMap.get(cubeIndex));
-			wtMap.put(cubeIndex, (float)(rate/totSupraSeisRate));
-//Location loc = this.getCubeLocationForIndex(cubeIndex);
-//System.out.println(cubeIndex+"\t"+cubeDistMap.get(cubeIndex)+"\t"+wtMap.get(cubeIndex)+"\t"+rate+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
-		}
-		
-		// test
-		double sum=0;
-		for(int cubeIndex: wtMap.keySet()) {
-			double val = wtMap.get(cubeIndex);
-			if(val<0) {
-				throw new RuntimeException("problem");
-			}
-			sum += val;
-		}
-		
-		if(sum == 0) {
-			System.out.println("sum=null for "+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		
-		if(sum<0.999 || sum>1.001) {
-			System.out.println("N="+cubeDistMap.size()+"\ta="+a+"\tb="+b);
-			System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtTargetDist);
-			System.out.println(subSeisMFD.toString());
-			throw new RuntimeException("problem; sum="+sum+" for sectionIndex="+sectionIndex+"\t"+
-					fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-		}
-
-		return wtMap;
-	}
 
 	
 	
-	/**
-	 * For the given section, this returns all the cubes that are within the section polygon, together
-	 * with the fractional rate of the section that each cube gets using an exponential distance decay
-	 * from the surface and constrained by the total section rate and that the farthest cubes above the 
-	 * seismogenic depth have a perfect GR in cumulative M6.5 rate (plus any time dependence).  If the 
-	 * section MFD is non-characteristic, then the rates are distributed uniformly among cubes.
-	 * 
-	 * This was tested on the Mojave section only
-	 * @param sectionIndex
-	 * @return
-	 */
-	private HashMap<Integer,Float> getCubesAndFractForFaultSectionPower(int sectionIndex) {
-		
-		double targetFractDiff = 0.0001;
-		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
-		
-		System.out.println("starting getCubesAndFractForFaultSectionExponential");
-		// Make sure long-term MFDs are created
-		makeLongTermSectMFDs();
-
-		IncrementalMagFreqDist subSeisMFD = longTermSubSeisMFD_OnSectList.get(sectionIndex);
-		IncrementalMagFreqDist supraSeisMFD = longTermSupraSeisMFD_OnSectArray[sectionIndex];
-		
-		double minSupraSeisMag = subSeisMFD.getMaxMagWithNonZeroRate() + 0.1;
-		if(Double.isNaN(minSupraSeisMag)) {	// this happens for Mendocino sections outside the RELM region
-//			System.out.println(sectionIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		
-		double totSupraSeisRate = supraSeisMFD.getCumRate(6.55);
-		double targetRateAtTargetDist = subSeisMFD.getCumRate(2.55)*Math.pow(10, -1*(6.5-2.5)); // assumes supra-seis does not contribute to M>2.5 rate
-
-		HashMap<Integer,Double> cubeDistMap = new HashMap<Integer,Double>();
-		Region faultPolygon = faultPolyMgr.getPoly(sectionIndex);
-		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(0.25, false, true);
-		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
-		double targetDist = 0; // max dist within seismo depth
-		for(int i=0; i<numCubes;i++) {
-			Location cubeLoc = getCubeLocationForIndex(i);
-			if(faultPolygon.contains(cubeLoc)) {
-				double dist = LocationUtils.distanceToSurf(cubeLoc, surface);
-				cubeDistMap.put(i, dist);
-				if(cubeLoc.getDepth()<=lowerSeisDepth && dist>targetDist) {
-					targetDist = dist;
-				}				
-			}
-		}
-						
-		double n = cubeDistMap.size();
-		if(targetRateAtTargetDist>totSupraSeisRate) {	// distribute uniformly
-			for(int cubeIndex:cubeDistMap.keySet()) {
-				wtMap.put(cubeIndex, (float)(1.0/n));
-			}
-			return wtMap;
-		}
-
-System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtTargetDist"+targetRateAtTargetDist+"\tN="+cubeDistMap.size());
-
-		targetRateAtTargetDist /= cubeDistMap.size();
-		
-System.out.println("Reduced targetRateAtTargetDist="+targetRateAtTargetDist+"\ttargetDist="+targetDist);
-
-		// solve for power-law trend values Ri = (Di+c)^-x, where Di is distance and Ri is rate in ith cube)
-		double x_trial = 1e-6;
-		double x_incr = 1.0;
-		double x = Double.NaN;
-		int numTries=0;
-		boolean done = false;
-		while(!done) {
-			double x1 = x_trial;
-			double totTestRate1 = 0;
-			for(int cubeIndex:cubeDistMap.keySet()) {
-				double val = cubeDistMap.get(cubeIndex) + Math.pow(targetRateAtTargetDist, -1.0/x1) - targetDist;
-				totTestRate1 += Math.pow(val, -x1);
-if(Double.isNaN(totTestRate1)) {
-	System.out.println("HERE:\t"+cubeDistMap.get(cubeIndex)+"\t"+x1+"\t"+targetRateAtTargetDist+"\t"+Math.pow(targetRateAtTargetDist,x1)+"\t"+targetDist+"\t"+val+"\t"+Math.pow(val, -x1));
-	System.exit(0);
-}
-			}
-			double fractDiff1 = Math.abs((totSupraSeisRate-totTestRate1)/totSupraSeisRate);
-			if(fractDiff1<targetFractDiff) {
-				x=x1;
-				done=true;
-System.out.println("Done1:\t"+x1+"\t"+totTestRate1+"\t"+totSupraSeisRate+"\t"+fractDiff1);
-				continue;
-			}
-	
-			double x2 = x_trial+x_incr;
-			double totTestRate2 = 0;
-			for(int cubeIndex:cubeDistMap.keySet()) {
-				double val = cubeDistMap.get(cubeIndex) + Math.pow(targetRateAtTargetDist, -1.0/x2) - targetDist;
-				totTestRate2 += Math.pow(val, -x2);
-			}
-			double fractDiff2 = Math.abs((totSupraSeisRate-totTestRate2)/totSupraSeisRate);
-			if(fractDiff2<targetFractDiff) {
-				x=x2;
-				done=true;
-System.out.println("Done2:\t"+x2+"\t"+totTestRate2+"\t"+totSupraSeisRate+"\t"+fractDiff2);
-				continue;
-			}
-
-			
-System.out.println(x_trial+"\t"+x_incr+"\t"+totTestRate1+"\t"+totTestRate2+"\t"+totSupraSeisRate+"\t"+fractDiff1+"\t"+fractDiff2);
-if(numTries >200)
-System.exit(0);
-
-			// if it's bounded by the two tries above
-			if(totTestRate1<totSupraSeisRate && totTestRate2>totSupraSeisRate) {
-				x_incr /= 10.0;	// do again with smaller increment
-			}
-			else { // step to next increment
-				x_trial += x_incr;
-			}
-		}
-		
-		double c = Math.pow(targetRateAtTargetDist,-1.0/x) - targetDist;
-		
-System.out.println("N="+cubeDistMap.size()+"\tc="+c+"\tx="+x);
-		
-
-		for(int cubeIndex:cubeDistMap.keySet()) {
-			double rate = Math.pow(cubeDistMap.get(cubeIndex) + c, -x);
-			wtMap.put(cubeIndex, (float)(rate/totSupraSeisRate));
-Location loc = this.getCubeLocationForIndex(cubeIndex);
-System.out.println(cubeIndex+"\t"+cubeDistMap.get(cubeIndex)+"\t"+wtMap.get(cubeIndex)+"\t"+rate+"\t"+loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth());
-		}
-		
-		// test
-		double sum=0;
-		for(int cubeIndex: wtMap.keySet()) {
-			double val = wtMap.get(cubeIndex);
-			if(val<0) {
-				throw new RuntimeException("problem");
-			}
-			sum += val;
-		}
-		
-		if(sum == 0) {
-			System.out.println("sum=null for "+fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-			return null;
-		}
-		
-		if(sum<0.999 || sum>1.001) {
-			System.out.println("N="+cubeDistMap.size()+"\tc="+c+"\tx="+x);
-			System.out.println("totSupraSeisRate="+totSupraSeisRate+"\ttargetRateAtMaxDist"+targetRateAtTargetDist);
-			System.out.println(subSeisMFD.toString());
-			throw new RuntimeException("problem; sum="+sum+" for sectionIndex="+sectionIndex+"\t"+
-					fssERF.getSolution().getRupSet().getFaultSectionData(sectionIndex).getName());
-		}
-
-		return wtMap;
-	}
-
 	
 	
 	
@@ -1385,75 +895,34 @@ System.out.println(cubeIndex+"\t"+cubeDistMap.get(cubeIndex)+"\t"+wtMap.get(cube
 			progressBar = new CalcProgressBar("Sections to process in generateAndWriteCacheDataToFiles()", "junk");
 		} catch (Exception e1) {} // headless
 		ArrayList<ArrayList<Integer>> sectAtPointList = new ArrayList<ArrayList<Integer>>();
-		ArrayList<ArrayList<Float>> fractionsAtPointList = new ArrayList<ArrayList<Float>>();
+		ArrayList<ArrayList<Float>> sectDistToPointList = new ArrayList<ArrayList<Float>>();
 
 		int numSect = rupSet.getNumSections();
 		for(int i=0; i<numCubes;i++) {
 			sectAtPointList.add(new ArrayList<Integer>());
-			fractionsAtPointList.add(new ArrayList<Float>());
+			sectDistToPointList.add(new ArrayList<Float>());
 		}
 		
-		boolean distributeOverPolygon = true;	// otherwise section surface assigned only to cubes it passes through
-		double surfGridSpacing = 1.0;	// TODO decrease for greater accuracy; this only applies if distributeOverPolygon=false.
 		if (progressBar != null) progressBar.showProgress(true);
 		for(int s=0;s<numSect;s++) {
 			if (progressBar != null) progressBar.updateProgress(s, numSect);
 			
-			if(distributeOverPolygon) {
-//				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSectionLinear(s);
-//				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSectionExponential(s);
-				HashMap<Integer,Float> cubeFractMap = getCubesAndFractForFaultSection_BoatRamp(s, MAX_CHAR_FACTOR_DEFAULT);
-				if(cubeFractMap != null) {	// null for some Mendocino sections because they are outside the RELM region
-					for(int cubeIndex:cubeFractMap.keySet()) {
-						sectAtPointList.get(cubeIndex).add(s);
-						fractionsAtPointList.get(cubeIndex).add(cubeFractMap.get(cubeIndex));
-					}			
-				}
-			}
-			
-			else {
-				Hashtable<Integer,Float> fractAtPointTable = new Hashtable<Integer,Float>(); // int is ptIndex and double is fraction there
-				LocationList locsOnSectSurf = rupSet.getFaultSectionData(s).getStirlingGriddedSurface(surfGridSpacing, false, true).getEvenlyDiscritizedListOfLocsOnSurface();
-				int numLocs = locsOnSectSurf.size();
-				float ptFract = 1f/(float)numLocs;
-				for(Location loc: locsOnSectSurf) {
-					int regIndex = gridRegForCubes.indexForLocation(loc);
-					int depIndex = getCubeDepthIndex(loc.getDepth());
-					if(depIndex >= numCubeDepths) {
-						depIndex = numCubeDepths-1;	// TODO
-						if(D) System.out.println("Depth below max for point on "+rupSet.getFaultSectionData(s).getName()+"\t depth="+loc.getDepth());
-					}
-
-					if(regIndex != -1) {
-						int cubeIndex = this.getCubeIndexForRegAndDepIndices(regIndex, depIndex);
-						if(cubeIndex>=numCubes) {
-							throw new RuntimeException("Error: ptIndex="+cubeIndex+"/depIndex="+depIndex+"/tnumDepths="+numCubeDepths);
-						}
-						if(fractAtPointTable.containsKey(cubeIndex)) {
-							float newFrac = fractAtPointTable.get(cubeIndex) + ptFract;
-							fractAtPointTable.put(cubeIndex,newFrac);
-						}
-						else {
-							fractAtPointTable.put(cubeIndex,ptFract);
-						}
-					}
-				}	
-				// now assign this hashTable
-				for(Integer cubeIndex : fractAtPointTable.keySet()) {
-					float fract = fractAtPointTable.get(cubeIndex);
+			HashMap<Integer,Double> cubeDistMap = getCubesAndDistancesInsideSectionPolygon(s);
+			if(cubeDistMap != null) {	// null for some Mendocino sections because they are outside the RELM region
+				for(int cubeIndex:cubeDistMap.keySet()) {
 					sectAtPointList.get(cubeIndex).add(s);
-					fractionsAtPointList.get(cubeIndex).add(fract);
-				}
+					sectDistToPointList.get(cubeIndex).add(new Float(cubeDistMap.get(cubeIndex)));
+				}			
 			}
 		}
 
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory before writing files");
 		File intListListFile = new File(defaultSectInCubeCacheFilename);
-		File floatListListFile = new File(defaultFractSectInCubeCacheFilename);
+		File floatListListFile = new File(defaultSectDistForCubeCacheFilename);
 		try {
 			MatrixIO.intListListToFile(sectAtPointList,intListListFile);
-			MatrixIO.floatListListToFile(fractionsAtPointList, floatListListFile);
+			MatrixIO.floatListListToFile(sectDistToPointList, floatListListFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -4008,8 +3477,12 @@ System.exit(0);
 			}
 		}
 
+//System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\tlongTermSectRate\tDip\tName");
+
 		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
 			charScaleFactorForSectArray[sectIndex] = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
+//System.out.println(sectIndex+"\t"+charScaleFactorForSectArray[sectIndex]+"\t"+grCorrFactorForSectArray[sectIndex]+"\t"+longTermSectRateArray[sectIndex]+"\t"+
+//rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
 		}
 
 	}
@@ -5043,9 +4516,6 @@ System.exit(0);
 //		etas_PrimEventSampler.computeCharScaleFactorForSection();
 //		float runTime = ((float)(System.currentTimeMillis()-startTime))/1000f;
 //		System.out.println("computeCharScaleFactorForSection() took (sec): "+runTime);
-
-		
-//		etas_PrimEventSampler.tempTestSectLoop();
 		
 
 		
@@ -5053,11 +4523,14 @@ System.exit(0);
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1841, 5.0);
 //		// for section with minimum dip: 1593 "Pitas Point (Lower West), Subsection 0"
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1593, 5.0);
+		// for "Bartlett Springs 2011 CFM, Subsection 10"
+//		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(59, 5.0);
+
 		
 //		etas_PrimEventSampler.getTrulyOffFaultGR_Corr(true);
 		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_uniform_Poiss_grCorr");
-		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp_Poiss_grCorr");
+		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp10_Poiss_grCorr");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_uniform_Poiss_grCorr");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_uniform_Poiss_grCorr");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_uniform_Poiss_grCorr");
