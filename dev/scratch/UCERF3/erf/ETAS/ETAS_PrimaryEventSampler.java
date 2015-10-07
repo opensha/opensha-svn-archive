@@ -63,6 +63,7 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
@@ -1111,26 +1112,14 @@ System.exit(0);
 		if(mag<=4.0) {
 			locList.add(hypoLoc);
 		}
+
 		else {
 			double radius = ETAS_Utils.getRuptureRadiusFromMag(mag);
-			double firstLat = hypoLoc.getLatitude()-radius/111.0;
-			double lastLat = hypoLoc.getLatitude()+radius/111.0;
-			double firstLon = hypoLoc.getLongitude()-radius/(111*Math.cos(hypoLoc.getLatRad()));
-			double lastLon = hypoLoc.getLongitude()+radius/(111*Math.cos(hypoLoc.getLatRad()));
-			double firstDepth = hypoLoc.getDepth()-radius;
-			if(firstDepth<0.0)
-				firstDepth=0.0;
-			double lastDepth = hypoLoc.getDepth()+radius;
-			if(lastDepth>maxDepth)
-				lastDepth=maxDepth;
-
+System.out.println("Test Locations:");
 			for(int c=0;c<numParLocs;c++) {
 				Location parLoc = getParLocationForIndex(c);
-				double lat=parLoc.getLatitude();
-				double lon=parLoc.getLongitude();
-				double depth=parLoc.getDepth();
-				if(lat>firstLat && lat<lastLat && lon>firstLon && lon<lastLon && depth>firstDepth && depth<lastDepth) {
- System.out.println(parLoc.getLongitude()+"\t"+parLoc.getLatitude()+"\t"+parLoc.getDepth());
+				if(LocationUtils.linearDistanceFast(hypoLoc, parLoc) <= radius) {
+System.out.println(parLoc.getLongitude()+"\t"+parLoc.getLatitude()+"\t"+parLoc.getDepth());
 					locList.add(parLoc);
 				}
 			}
@@ -2306,11 +2295,26 @@ System.exit(0);
 		// Make sure long-term MFDs are created
 		makeLongTermSectMFDs();
 		
-		FileWriter fileWriterGMT = new FileWriter(new File(resultsDir, "FaultSubsectionBulgeData.csv"));
-		fileWriterGMT.write("sectID,1.0/GRcor1.0/GRcorrSupraRates,tsectName\n");
+		FileWriter fileWriterGMT = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
+		fileWriterGMT.write("SectID,CharFactorSupraRates,CharFactorNumPrimary, MoRate,SectName\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
+		
+		double meanValSupraRates=0;
+		double meanValSupraRatesMoRateWted=0;
+		double meanVal=0;
+		double meanValMoRateWted=0;
+		double totMoRate=0;
+		
+		double meanValSupraRatesLog=0;
+		double meanValSupraRatesMoRateWtedLog=0;
+		double meanValLog=0;
+		double meanValMoRateWtedLog=0;
+		
+		ArbDiscrEmpiricalDistFunc charValSupraRatesDist = new ArbDiscrEmpiricalDistFunc();
+		ArbDiscrEmpiricalDistFunc charValSupraRatesDistMoRateWted = new ArbDiscrEmpiricalDistFunc();
 
+		int numPts=0;
 		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
 			double val, valSupraRates;
 			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
@@ -2329,17 +2333,82 @@ System.exit(0);
 			}
 			
 			values[sectIndex] = Math.log10(valSupraRates);
-
+			
+			// dont continue if the value defaulted to 1.0.
+			if(longTermSubSeisMFD_OnSectList.get(sectIndex).getTotalIncrRate()<=10e-16)
+				continue;
+			
+			numPts+=1;
+			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
+			
+			meanValSupraRates += valSupraRates;
+			meanValSupraRatesMoRateWted += moRate*valSupraRates;
+			meanVal += val;
+			meanValMoRateWted += moRate*val;
+			totMoRate += moRate;
+			
+			meanValSupraRatesLog += Math.log10(valSupraRates);
+			meanValSupraRatesMoRateWtedLog += Math.log10(moRate*valSupraRates);
+			meanValLog += Math.log10(val);
+			meanValMoRateWtedLog += Math.log10(moRate*val);
+			
+			charValSupraRatesDist.set(valSupraRates, 1.0);
+			charValSupraRatesDistMoRateWted.set(valSupraRates,moRate);
 
 			//System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-			fileWriterGMT.write(sectIndex+","+(float)val+","+(float)valSupraRates+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
+			fileWriterGMT.write(sectIndex+","+(float)valSupraRates+","+(float)val+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
 
 		}
 		
+		meanValSupraRates/=numPts;
+		meanVal/=numPts;
+		meanValSupraRatesMoRateWted/=totMoRate;
+		meanValMoRateWted/=totMoRate;
+
+		meanValSupraRatesLog/=numPts;
+		meanValLog/=numPts;
+		meanValSupraRatesMoRateWtedLog/=totMoRate;
+		meanValMoRateWtedLog/=totMoRate;
+		
+		meanValSupraRatesLog = Math.pow(10, meanValSupraRatesLog);
+		meanValLog = Math.pow(10, meanValLog);
+		meanValSupraRatesMoRateWtedLog = Math.pow(10, meanValSupraRatesMoRateWtedLog);
+		meanValMoRateWtedLog = Math.pow(10, meanValMoRateWtedLog);
+
+		System.out.println("meanValSupraRates="+meanValSupraRates+"\nmeanValSupraRatesMoRateWted="+meanValSupraRatesMoRateWted);
+		System.out.println("meanValNumPrimary="+meanVal+"\nmeanValNumPrimaryMoRateWted="+meanValMoRateWted);
+		System.out.println("meanValSupraRatesLog="+meanValSupraRatesLog+"\nmeanValSupraRatesMoRateWtedLog="+meanValSupraRatesMoRateWtedLog);
+		System.out.println("meanValNumPrimaryLog="+meanValLog+"\nmeanValNumPrimaryMoRateWtedLog="+meanValMoRateWtedLog);
+		
+		ArbitrarilyDiscretizedFunc charValSupraRatesDistCumDist = charValSupraRatesDist.getCumDist();
+		charValSupraRatesDistCumDist.scale(1.0/charValSupraRatesDist.calcSumOfY_Vals());
+		charValSupraRatesDistCumDist.setName("charValSupraRatesDistCumDist");
+		charValSupraRatesDistCumDist.setInfo("mean="+charValSupraRatesDist.getMean()+"; median="+charValSupraRatesDist.getMedian());
+		
+		ArbitrarilyDiscretizedFunc charValSupraRatesDistMoRateWtedCumDist = charValSupraRatesDistMoRateWted.getCumDist();
+		charValSupraRatesDistMoRateWtedCumDist.scale(1.0/charValSupraRatesDistMoRateWted.calcSumOfY_Vals());
+		charValSupraRatesDistMoRateWtedCumDist.setName("charValSupraRatesDistMoRateWtedCumDist");
+		charValSupraRatesDistMoRateWtedCumDist.setInfo("mean="+charValSupraRatesDistMoRateWted.getMean()+"; median="+charValSupraRatesDistMoRateWted.getMedian());
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		funcs.add(charValSupraRatesDistCumDist);
+		funcs.add(charValSupraRatesDistMoRateWtedCumDist);
+		GraphWindow sectGraph = new GraphWindow(funcs, "Sect CharFactor Stats"); 
+		sectGraph.setX_AxisLabel("CharFactor");
+		sectGraph.setY_AxisLabel("Cumulative Fraction");
+		
+		GraphWindow sectGraph2 = new GraphWindow(charValSupraRatesDist, "charValSupraRatesDist"); 
+		sectGraph.setX_AxisLabel("CharFactor");
+		sectGraph.setY_AxisLabel("Weight");
+		GraphWindow sectGraph3 = new GraphWindow(charValSupraRatesDistMoRateWted, "charValSupraRatesDistMoRateWted"); 
+		sectGraph.setX_AxisLabel("CharFactor");
+		sectGraph.setY_AxisLabel("Weight");
+	
+		
 		fileWriterGMT.close();
 
-		String name = "ImpliedBulgeForSubSections_"+nameSuffix;
-		String title = "Log10(1.0/GRcorrSupraRates)";
+		String name = "ImpliedCharFactorForSubSections_"+nameSuffix;
+		String title = "Log10(CharFactor)";
 		CPT cpt= FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
 		
 		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, display, false, title);
@@ -3479,10 +3548,24 @@ System.exit(0);
 
 //System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\tlongTermSectRate\tDip\tName");
 
+		double meanCharScaleFactor = 0;
+		double meanCharScaleFactorMoRateWted = 0;
+		double moRateSum=0;
 		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
-			charScaleFactorForSectArray[sectIndex] = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
+			double scaleFactor = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
+			charScaleFactorForSectArray[sectIndex] = scaleFactor;
+			meanCharScaleFactor+=scaleFactor;
+			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
+			meanCharScaleFactorMoRateWted+=moRate*scaleFactor;
+			moRateSum+=moRate;
 //System.out.println(sectIndex+"\t"+charScaleFactorForSectArray[sectIndex]+"\t"+grCorrFactorForSectArray[sectIndex]+"\t"+longTermSectRateArray[sectIndex]+"\t"+
 //rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
+		}
+		meanCharScaleFactor /= charScaleFactorForSectArray.length;
+		meanCharScaleFactorMoRateWted /= moRateSum;
+		if(D) {
+			System.out.println("meanCharScaleFactor="+meanCharScaleFactor);
+			System.out.println("meanCharScaleFactorMoRateWted="+meanCharScaleFactorMoRateWted);
 		}
 
 	}
@@ -4437,6 +4520,7 @@ System.exit(0);
 	
 	
 	public double getTrulyOffFaultGR_Corr(boolean debug) {
+		double aveMinSupra = 6.35; // from page 1150 of the UCERF3-TI BSSA report (right column)
 		double grCorr = Double.NaN;
 		for(int i=0;i<origGriddedRegion.getNumLocations();i++) {
 			if(origGridSeisTrulyOffVsSubSeisStatus[i] == 0) {
@@ -4446,8 +4530,7 @@ System.exit(0);
 				int numMag = (int)((maxMag-minMag)/mfd.getDelta()) + 1;
 				GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMag, numMag);
 				gr.scaleToIncrRate(minMag, mfd.getY(minMag));
-//				grCorr = gr.getCumRate(gr.getXIndex(6.55))/mfd.getCumRate(mfd.getXIndex(6.55));
-				grCorr = gr.getCumRate(6.55)/mfd.getCumRate(6.55);
+				grCorr = gr.getCumRate(aveMinSupra)/mfd.getCumRate(aveMinSupra);
 				if(debug) {
 					ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
 					mfd.setInfo("grCorr = "+(float)grCorr);
@@ -4465,6 +4548,189 @@ System.exit(0);
 		}
 		
 		return grCorr;
+	}
+	
+	public double getFaultGR_CorrFromTotalFaultMFDs(boolean debug) {
+		double aveMinSupra = 6.35; // from page 1150 of the UCERF3-TI BSSA report (right column)
+		double minMag = 2.55;
+		double maxMag=8.95;
+		int numMag = 65;
+		double grCorr = Double.NaN;
+		SummedMagFreqDist totMFD_Supra = new SummedMagFreqDist(minMag, maxMag, numMag);
+		totMFD_Supra.setName("totMFD_Supra");
+		SummedMagFreqDist totMFD_Sub =  new SummedMagFreqDist(minMag, maxMag, numMag);
+		totMFD_Sub.setName("totMFD_Sub");
+		for(int s=0;s<rupSet.getNumSections();s++) {
+			if(longTermSubSeisMFD_OnSectList.get(s) != null) {
+				totMFD_Sub.addIncrementalMagFreqDist(longTermSubSeisMFD_OnSectList.get(s));
+				if(longTermSupraSeisMFD_OnSectArray[s] != null)
+					totMFD_Supra.addIncrementalMagFreqDist(longTermSupraSeisMFD_OnSectArray[s]);
+			}
+		}
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMag, numMag);
+		gr.scaleToIncrRate(minMag, totMFD_Sub.getY(minMag));
+		gr.setName("GR Dist");
+		grCorr = gr.getCumRate(aveMinSupra)/totMFD_Supra.getCumRate(aveMinSupra);
+		if(debug) {
+			ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+			totMFD_Supra.setInfo("grCorr = "+(float)grCorr);
+			funcs.add(totMFD_Supra);
+			funcs.add(totMFD_Sub);
+			funcs.add(gr);
+			funcs.add(totMFD_Supra.getCumRateDistWithOffset());
+			funcs.add(totMFD_Sub.getCumRateDistWithOffset());
+			funcs.add(gr.getCumRateDistWithOffset());
+			GraphWindow graph = new GraphWindow(funcs, "From getFaultGR_CorrFromTotalFaultMFDs"); 
+			graph.setX_AxisLabel("Mag");
+			graph.setY_AxisLabel("Rate");
+			graph.setYLog(true);
+		}
+		
+		return grCorr;
+	}
+
+
+	/**
+	 * This plost sub, supra, and cumulative combined MFDs for a Mojave subsection
+	 * (San Andreas (Mojave S), Subsection 4) for both uncorrected and gr-corrected 
+	 * cases.
+	 */
+	public void plotMojaveSubSectMFDsExample() {
+		int sectIndex = 1841;
+		String name = rupSet.getFaultSectionData(1841).getName();
+		makeLongTermSectMFDs();
+		IncrementalMagFreqDist subSeisMFD = longTermSubSeisMFD_OnSectList.get(sectIndex);
+		subSeisMFD.setName(subSeisMFD+" for "+name);
+		IncrementalMagFreqDist supraSeisMFD = longTermSupraSeisMFD_OnSectArray[sectIndex];
+		supraSeisMFD.setName(supraSeisMFD+" for "+name);
+		SummedMagFreqDist combinedMFD = new SummedMagFreqDist(2.55,8.45,60);
+		combinedMFD.addIncrementalMagFreqDist(subSeisMFD);
+		combinedMFD.addIncrementalMagFreqDist(supraSeisMFD);
+		combinedMFD.setName("Total Cum MFD for "+name);
+		
+		GutenbergRichterMagFreqDist perfectGR = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.35, 59);
+		perfectGR.scaleToIncrRate(2.55, subSeisMFD.getY(2.55));
+		perfectGR.setName("perfectGR");
+		
+		double grCorr = ETAS_Utils.getScalingFactorToImposeGR_supraRates(supraSeisMFD, subSeisMFD, false);
+		
+		IncrementalMagFreqDist supraSeisMFD_grCorr = supraSeisMFD.deepClone();
+		supraSeisMFD_grCorr.scaleToCumRate(0, supraSeisMFD_grCorr.getTotalIncrRate()*grCorr);
+		double testCorr = ETAS_Utils.getScalingFactorToImposeGR_supraRates(supraSeisMFD_grCorr, subSeisMFD, false);
+		supraSeisMFD_grCorr.setName(supraSeisMFD_grCorr+" for "+name);
+		System.out.println("grCorr="+grCorr+"\ttestCorr="+testCorr);
+		supraSeisMFD_grCorr.setInfo("grCorr="+grCorr+"\ttestCorr="+testCorr);
+			
+		// Plot orig MFDs
+		ArrayList<EvenlyDiscretizedFunc> mfdList1 = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdList1.add(subSeisMFD);
+		mfdList1.add(supraSeisMFD);
+		mfdList1.add(combinedMFD.getCumRateDistWithOffset());
+		mfdList1.add(perfectGR);
+		mfdList1.add(perfectGR.getCumRateDistWithOffset());
+		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.LIGHT_GRAY));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.DARK_GRAY));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 3f, Color.BLACK));
+		GraphWindow magProbDistsGraph1 = new GraphWindow(mfdList1, "Mojave Subsection MFDs", chars); 
+		magProbDistsGraph1.setX_AxisLabel("Magnitude");
+		magProbDistsGraph1.setY_AxisLabel("Rate (per year)");
+		magProbDistsGraph1.setY_AxisRange(1e-8, 1.0);
+		magProbDistsGraph1.setX_AxisRange(2.5d, 8.5d);
+		magProbDistsGraph1.setYLog(true);
+		magProbDistsGraph1.setPlotLabelFontSize(22);
+		magProbDistsGraph1.setAxisLabelFontSize(22);
+		magProbDistsGraph1.setTickLabelFontSize(20);
+
+		// Plot correctd  MFDs
+		SummedMagFreqDist combinedMFDcorr = new SummedMagFreqDist(2.55,8.45,60);
+		combinedMFDcorr.addIncrementalMagFreqDist(subSeisMFD);
+		combinedMFDcorr.addIncrementalMagFreqDist(supraSeisMFD_grCorr);
+		combinedMFDcorr.setName("Total Corr Cum MFD for "+name);
+		ArrayList<EvenlyDiscretizedFunc> mfdList2 = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdList2.add(subSeisMFD);
+		mfdList2.add(supraSeisMFD_grCorr);
+		mfdList2.add(combinedMFDcorr.getCumRateDistWithOffset());
+		mfdList2.add(perfectGR);
+		mfdList2.add(perfectGR.getCumRateDistWithOffset());
+		GraphWindow magProbDistsGraph2 = new GraphWindow(mfdList2, "GR-corrected Mojave Subsection MFDs",chars); 
+		magProbDistsGraph2.setX_AxisLabel("Magnitude");
+		magProbDistsGraph2.setY_AxisLabel("Rate (per year)");
+		magProbDistsGraph2.setY_AxisRange(1e-8, 1.0);
+		magProbDistsGraph2.setX_AxisRange(2.5d, 8.5d);
+		magProbDistsGraph2.setYLog(true);
+		magProbDistsGraph2.setPlotLabelFontSize(22);
+		magProbDistsGraph2.setAxisLabelFontSize(22);
+		magProbDistsGraph2.setTickLabelFontSize(20);
+		
+		
+		
+		// Expected number primary from M5 event
+		ETAS_ParameterList params = new ETAS_ParameterList();
+		double expNum = ETAS_Utils.getExpectedNumEvents(params.get_k(), params.get_p(), 5.5, 2.5, params.get_c(), 0, 360);
+		
+		EvenlyDiscretizedFunc expCumDistForM5p5 = combinedMFD.getCumRateDistWithOffset();
+		double scaleFact = expNum/combinedMFD.getTotalIncrRate();
+		expCumDistForM5p5.scale(scaleFact);
+		expCumDistForM5p5.setName("expCumDistForM5p5");
+		expCumDistForM5p5.setTolerance(0.001);
+		double expNum5p5=expCumDistForM5p5.getY(5.5);
+		double expNum6p3=expCumDistForM5p5.getY(6.3);
+		expCumDistForM5p5.setInfo("expNum="+expNum+"\n"+"num≥5.5="+expNum5p5+"\n"+"num≥6.3="+expNum6p3);
+		
+		EvenlyDiscretizedFunc expCumDistForPerfectGR_M5p5 = perfectGR.getCumRateDistWithOffset();
+		scaleFact = expNum/perfectGR.getTotalIncrRate();
+		expCumDistForPerfectGR_M5p5.scale(scaleFact);
+		expCumDistForPerfectGR_M5p5.setName("expCumDistForPerfectGR_M5p5");
+		expCumDistForPerfectGR_M5p5.setTolerance(0.001);
+		expNum5p5=expCumDistForPerfectGR_M5p5.getY(5.5);
+		expNum6p3=expCumDistForPerfectGR_M5p5.getY(6.3);
+		expCumDistForPerfectGR_M5p5.setInfo("expNum="+expNum+"\n"+"num≥5.5="+expNum5p5+"\n"+"num≥6.3="+expNum6p3);
+		
+		EvenlyDiscretizedFunc expCumDistForCorrM5p5 = combinedMFDcorr.getCumRateDistWithOffset();
+		scaleFact = expNum/combinedMFDcorr.getTotalIncrRate();
+		expCumDistForCorrM5p5.scale(scaleFact);
+		expCumDistForCorrM5p5.setName("expCumDistForCorrM5p5");
+		expCumDistForCorrM5p5.setTolerance(0.001);
+		expNum5p5=expCumDistForCorrM5p5.getY(5.5);
+		expNum6p3=expCumDistForCorrM5p5.getY(6.3);
+		expCumDistForCorrM5p5.setInfo("expNum="+expNum+"\n"+"num≥5.5="+expNum5p5+"\n"+"num≥6.3="+expNum6p3);
+		
+		ArrayList<EvenlyDiscretizedFunc> mfdList3 = new ArrayList<EvenlyDiscretizedFunc>();
+		mfdList3.add(expCumDistForM5p5);
+		mfdList3.add(expCumDistForPerfectGR_M5p5);
+		mfdList3.add(expCumDistForCorrM5p5);
+		ArrayList<PlotCurveCharacterstics> chars2 = new ArrayList<PlotCurveCharacterstics>();
+		chars2.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		chars2.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.BLACK));
+		chars2.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 3f, Color.BLACK));
+
+		GraphWindow magProbDistsGraph3 = new GraphWindow(mfdList3, "Expected Num Primary for M 5.5 Main Shock",chars2); 
+		magProbDistsGraph3.setX_AxisLabel("Magnitude (M)");
+		magProbDistsGraph3.setY_AxisLabel("Num≥M (over the next year)");
+		magProbDistsGraph3.setY_AxisRange(1e-6, 100.0);
+		magProbDistsGraph3.setX_AxisRange(2.5d, 8.5d);
+		magProbDistsGraph3.setYLog(true);
+		magProbDistsGraph3.setPlotLabelFontSize(22);
+		magProbDistsGraph3.setAxisLabelFontSize(22);
+		magProbDistsGraph3.setTickLabelFontSize(20);
+
+		
+
+		try {
+			magProbDistsGraph1.saveAsPDF("MojaveSubSectMFDsExample.pdf");
+			magProbDistsGraph1.saveAsTXT("MojaveSubSectMFDsExample.txt");
+			magProbDistsGraph2.saveAsPDF("MojaveSubSectMFDsGRcorr_Example.pdf");
+			magProbDistsGraph2.saveAsTXT("MojaveSubSectMFDsGRcorr_Example.txt");
+			magProbDistsGraph3.saveAsPDF("MojaveSubSectExpNumM5p5_Example.pdf");
+			magProbDistsGraph3.saveAsTXT("MojaveSubSectExpNumM5p5_Example.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	
@@ -4510,6 +4776,18 @@ System.exit(0);
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				applyGRcorr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 		
+//		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
+
+		
+		// Sections bulge plot
+		try {
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		
+//		etas_PrimEventSampler.plotMojaveSubSectMFDsExample();
 		
 //		System.out.println("Starting computeCharScaleFactorForSection()");
 //		long startTime = System.currentTimeMillis();
@@ -4528,14 +4806,14 @@ System.exit(0);
 
 		
 //		etas_PrimEventSampler.getTrulyOffFaultGR_Corr(true);
+//		etas_PrimEventSampler.getFaultGR_CorrFromTotalFaultMFDs(true);
 		
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_uniform_Poiss_grCorr");
-		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp10_Poiss_grCorr");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp1_Poiss");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_uniform_Poiss_grCorr");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_uniform_Poiss_grCorr");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_uniform_Poiss_grCorr");
 
-//		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 
 //		etas_PrimEventSampler.testRates();
 //		etas_PrimEventSampler.testGriddedSeisRatesInCubes();
@@ -4574,12 +4852,6 @@ System.exit(0);
 
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
 
-		// Sections bulge plot
-//		try {
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedBulgeForSubSections"), "Test", true);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 
 		
 		

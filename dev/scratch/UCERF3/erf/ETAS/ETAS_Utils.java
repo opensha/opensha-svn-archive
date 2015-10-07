@@ -17,6 +17,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -787,10 +788,10 @@ public class ETAS_Utils {
 	
 	/**
 	 * This returns a random location from the given surface.  For point surfaces,
-	 * this returns the hypocenter if mag<=4.0, otherwise it returns a randome
-	 * location uniformly distributed between plus and minus one source radius
-	 * in lat, lon, and depth.  For finite surface is gets a random location
-	 * from the evenly discretized surface (uniformly distributed).
+	 * this returns the hypocenter if mag<=4.0, otherwise it returns a random
+	 * location uniformly distributed in a spherical radius defined by
+	 * this.getRuptureRadiusFromMag(mag).  For finite surfaces this gets a random 
+	 * location from the evenly discretized surface (uniformly distributed).
 	 * 
 	 * TODO remove hard coding of depthBottom and point-source magnitude
 	 * @param rupSurf
@@ -802,22 +803,30 @@ public class ETAS_Utils {
 			if(parRup.getMag()<=4.0)
 				return hypoLoc;
 			double radius = getRuptureRadiusFromMag(parRup.getMag());
-			double lat = hypoLoc.getLatitude()+(2.0*getRandomDouble()-1.0)*(radius/111.0);
-			double lon = hypoLoc.getLongitude()+(2.0*getRandomDouble()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
-			double depthBottom = hypoLoc.getDepth()+radius;
-			if(depthBottom>24.0)
-				depthBottom=24.0;
-			double depthTop = hypoLoc.getDepth()-radius;
-			if(depthTop<0.0)
-				depthTop=0.0;
-			double depth = depthTop + getRandomDouble()*(depthBottom-depthTop);
-			return new Location(lat,lon,depth);
+			double testRadius = radius+1;
+			Location loc = null;
+			while(testRadius>radius) {
+				double lat = hypoLoc.getLatitude()+(2.0*getRandomDouble()-1.0)*(radius/111.0);
+				double lon = hypoLoc.getLongitude()+(2.0*getRandomDouble()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
+				double depthBottom = hypoLoc.getDepth()+radius;
+				if(depthBottom>24.0)
+					depthBottom=24.0;
+				double depthTop = hypoLoc.getDepth()-radius;
+				if(depthTop<0.0)
+					depthTop=0.0;
+				double depth = depthTop + getRandomDouble()*(depthBottom-depthTop);
+				loc = new Location(lat,lon,depth);
+				testRadius=LocationUtils.linearDistanceFast(loc, hypoLoc);
+			}
+			return loc;
 		}
 		else {
 			LocationList locList = parRup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
 			return locList.get(getRandomInt(locList.size()-1));
 		}
 	}
+	
+	
 	
 	/**
 	 * This returns the rupture area given by mag=Log10(area)+4 

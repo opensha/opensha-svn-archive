@@ -1334,9 +1334,9 @@ public class ETAS_Simulator {
 		if(params.getImposeGR() == true)
 			simulationName += "_grCorr";
 		
-		simulationName += "_BoatRamp10";	// to increment runs
+		simulationName += "_BoatRamp10_test";	// to increment runs
 
-		Long seed = null;
+		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
 //		double startTimeYear=2012;
@@ -1347,7 +1347,7 @@ public class ETAS_Simulator {
 		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
 
-		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);	// aveStrike=295.0367915096109
+		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		
 		
 		

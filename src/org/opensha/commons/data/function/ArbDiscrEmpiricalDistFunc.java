@@ -226,16 +226,17 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * @return
      */
     public double getMode() {
-    	if(isMultiModal()) throw new RuntimeException(ERR_MSG_MULTI_MODAL);
-    	int index=-1;
-    	double maxY = Double.NEGATIVE_INFINITY;
-    	for(int i=0; i<size(); ++i) {
-    		if(getY(i)>maxY) {
-    			maxY = getY(i);
-    			index = i;
-    		}
-    	}
-    	return getX(index);
+    	throw new RuntimeException("this method is wrong (assumes even x-axis increments) and hasn't yet been fixed");
+//    	if(isMultiModal()) throw new RuntimeException(ERR_MSG_MULTI_MODAL);
+//    	int index=-1;
+//    	double maxY = Double.NEGATIVE_INFINITY;
+//    	for(int i=0; i<size(); ++i) {
+//    		if(getY(i)>maxY) {
+//    			maxY = getY(i);
+//    			index = i;
+//    		}
+//    	}
+//    	return getX(index);
     }
     
     /**
