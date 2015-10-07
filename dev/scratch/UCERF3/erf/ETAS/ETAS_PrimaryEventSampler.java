@@ -1115,11 +1115,11 @@ System.exit(0);
 
 		else {
 			double radius = ETAS_Utils.getRuptureRadiusFromMag(mag);
-System.out.println("Test Locations:");
+// System.out.println("Test Locations:");
 			for(int c=0;c<numParLocs;c++) {
 				Location parLoc = getParLocationForIndex(c);
 				if(LocationUtils.linearDistanceFast(hypoLoc, parLoc) <= radius) {
-System.out.println(parLoc.getLongitude()+"\t"+parLoc.getLatitude()+"\t"+parLoc.getDepth());
+// System.out.println(parLoc.getLongitude()+"\t"+parLoc.getLatitude()+"\t"+parLoc.getDepth());
 					locList.add(parLoc);
 				}
 			}
