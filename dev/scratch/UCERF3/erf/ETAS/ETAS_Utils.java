@@ -802,15 +802,15 @@ public class ETAS_Utils {
 			if(parRup.getMag()<=4.0)
 				return hypoLoc;
 			double radius = getRuptureRadiusFromMag(parRup.getMag());
-			double lat = hypoLoc.getLatitude()+(2.0*Math.random()-1.0)*(radius/111.0);
-			double lon = hypoLoc.getLongitude()+(2.0*Math.random()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
+			double lat = hypoLoc.getLatitude()+(2.0*getRandomDouble()-1.0)*(radius/111.0);
+			double lon = hypoLoc.getLongitude()+(2.0*getRandomDouble()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
 			double depthBottom = hypoLoc.getDepth()+radius;
 			if(depthBottom>24.0)
 				depthBottom=24.0;
 			double depthTop = hypoLoc.getDepth()-radius;
 			if(depthTop<0.0)
 				depthTop=0.0;
-			double depth = depthTop + Math.random()*(depthBottom-depthTop);
+			double depth = depthTop + getRandomDouble()*(depthBottom-depthTop);
 			return new Location(lat,lon,depth);
 		}
 		else {
