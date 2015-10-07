@@ -618,8 +618,8 @@ public class ETAS_Utils {
 		
 		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
 		System.out.println(func);
-		GraphWindow magProbDistsGraph2 = new GraphWindow(func, "MFDs"); 
-		magProbDistsGraph2.setYLog(true);
+		GraphWindow distDecayGraph2 = new GraphWindow(func, "Dist Decay"); 
+		distDecayGraph2.setYLog(true);
 
 //		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
 //		double mainMag = 6;
@@ -810,7 +810,7 @@ public class ETAS_Utils {
 			double depthTop = hypoLoc.getDepth()-radius;
 			if(depthTop<0.0)
 				depthTop=0.0;
-			double depth = depthTop + Math.random()/(depthBottom-depthTop);
+			double depth = depthTop + Math.random()*(depthBottom-depthTop);
 			return new Location(lat,lon,depth);
 		}
 		else {
