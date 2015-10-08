@@ -803,7 +803,7 @@ public class DataUtils {
 	 * have bins of identical values such that corresponding bin value is
 	 * Infinity. Such values are not included in the resultant data set.
 	 * 
-	 * @param data to be binned
+	 * @param data to be binned (does not need to be sorted)
 	 * @param origin for binning
 	 * @param size of each bin
 	 * @return an {@code XY_DataSet} of the binned distribution or
