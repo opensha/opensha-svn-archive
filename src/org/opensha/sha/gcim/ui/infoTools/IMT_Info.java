@@ -48,7 +48,7 @@ public final class IMT_Info {
 
 	//Default values for the PGV
 	public final static double MIN_PGV = .01;
-	public final static double MAX_PGV = 1000;
+	public final static double MAX_PGV = 900;
 	public final static double NUM_PGV = 51;
 	public final static double DEFAULT_PGV = 50;
 
@@ -67,13 +67,13 @@ public final class IMT_Info {
 
 	//Default values for the IA
 	public final static double MIN_IA = .0001;
-	public final static double MAX_IA = 1000;
+	public final static double MAX_IA = 900;
 	public final static double NUM_IA = 51;
 	public final static double DEFAULT_IA = 0.1;
 
 	//Default values for the SI
 	public final static double MIN_SI = .001;
-	public final static double MAX_SI = 1000;
+	public final static double MAX_SI = 900;
 	public final static double NUM_SI = 51;
 	public final static double DEFAULT_SI = 50;
 

@@ -28,11 +28,14 @@ import java.util.Comparator;
 import org.opensha.commons.param.event.ParameterChangeWarningListener;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.gcim.imr.attenRelImpl.BommerEtAl_2009_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.Bradley_2010_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.Bradley_ChchSpecific_2014_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.CB_2010_CAV_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.KS_2006_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.ASI_WrapperAttenRel.BA_2008_ASI_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.DSI_WrapperAttenRel.BA_2008_DSI_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedAS_2008_AttenRel;
+import org.opensha.sha.gcim.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedBradley_2010_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedCB_2008_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.SA_InterpolatedWrapperAttenRel.InterpolatedCY_2008_AttenRel;
 import org.opensha.sha.gcim.imr.attenRelImpl.SI_WrapperAttenRel.BA_2008_SI_AttenRel;
@@ -83,8 +86,13 @@ public class AttenuationRelationshipsInstance {
 		
 		//adds all the AttenRel classes to the ArrayList
 		// ******** ORDER THEM BY YEAR, NEWEST FIRST ********
+		// 2014
+		supportedAttenRelClasses.add(Bradley_ChchSpecific_2014_AttenRel.class.getName()); //Added on 16/09/2014 for Chch/NZ-specific application (BB)
+		
 		// 2010
 		supportedAttenRelClasses.add(CB_2010_CAV_AttenRel.class.getName());
+		supportedAttenRelClasses.add(Bradley_2010_AttenRel.class.getName()); //Added on 22/11/2012 for NZ-specific application (BB)
+		supportedAttenRelClasses.add(InterpolatedBradley_2010_AttenRel.class.getName());
 		
 		// 2009
 		supportedAttenRelClasses.add(BommerEtAl_2009_AttenRel.class.getName());

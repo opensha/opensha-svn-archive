@@ -662,7 +662,7 @@ public class CB_2010_CAV_AttenRel
 			  sigma = s_lny[iper];
 		  else {
 			  double s_lnYb = Math.sqrt(s_lny[iper]*s_lny[iper]-s_lnAF*s_lnAF);
-			  double s_lnAb = Math.sqrt(s_lny[2]*s_lny[2]-s_lnAF*s_lnAF); // iper=2 is for PGA
+			  double s_lnAb = Math.sqrt(s_lny[1]*s_lny[1]-s_lnAF*s_lnAF); // iper=1 is for PGA
 			  double alpha = k2[iper]*rock_pga*((1/(rock_pga+c*Math.pow(vs30/k1[iper], n)))-1/(rock_pga+c));
 			  sigma = Math.sqrt(s_lnYb*s_lnYb + s_lnAF*s_lnAF + alpha*alpha*s_lnAb*s_lnAb + 2*alpha*rho[iper]*s_lnYb*s_lnAb);
 		  }

@@ -46,7 +46,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.util.TRTUtils;
 import org.opensha.sha.util.TectonicRegionType;
 
-import Jama.CholeskyDecomposition;
+//import Jama.CholeskyDecomposition; //This JAMA one doesnt work!  
 import Jama.Matrix;
 
 import java.util.Random;
@@ -70,7 +70,7 @@ public class GcimCalculator {
 //implements GcimCalculatorAPI{
 	//Debugging
 	protected final static String C = "GcimCalculator";
-	protected final static boolean D = false;
+	protected final static boolean D = true;
 	
 	private Map<TectonicRegionType, ScalarIMR> imrjMap;
 	private double[][] pRup_IMj, rupCdf, epsilonIMj;
@@ -436,7 +436,8 @@ public class GcimCalculator {
 			}
 			//determine the cholesky decomposition of the correlation matrix			
 			Matrix rho_lnIMilnIMk_lnIMj_matrix = new Matrix(rho_lnIMilnIMk_lnIMj);
-			CholeskyDecomposition cholDecomp = rho_lnIMilnIMk_lnIMj_matrix.chol();
+			CholeskyDecomposition cholDecomp = new CholeskyDecomposition(rho_lnIMilnIMk_lnIMj_matrix);
+//			CholeskyDecomposition cholDecomp = rho_lnIMilnIMk_lnIMj_matrix.chol(); //This JAMA .chol doesnt work well
 			
 			//Check if the matrix is PD then get L
 			Matrix L_matrix;
@@ -468,7 +469,8 @@ public class GcimCalculator {
 					rho_lnIMilnIMk_lnIMj_PDmatrix.print(10,6);
 				}
 				//Now get the CholDecomp of this nearest matrix
-				CholeskyDecomposition cholDecompPD = rho_lnIMilnIMk_lnIMj_PDmatrix.chol();
+				CholeskyDecomposition cholDecompPD = new CholeskyDecomposition(rho_lnIMilnIMk_lnIMj_PDmatrix);
+//				CholeskyDecomposition cholDecompPD = rho_lnIMilnIMk_lnIMj_PDmatrix.chol(); //THis JAMA one doesnt work
 				if (cholDecompPD.isSPD()) {
 					L_matrix = cholDecompPD.getL();
 				} else {
