@@ -291,5 +291,21 @@ public class NormalEstimate extends Estimate {
     return func;
   }
   
+  /**
+	* It returns a random value from this estimate.
+	* It generates 2 random numbers from 0 to 1 using Math.random() function. Then obtains
+	* the standard random variable from the truncated normal distribution 
+	* Written: Brendon Bradley 29 Oct 2009
+	* @return
+	*/
+  public double getRandomValue() {
+	double uniformRandomVal = Math.random();
+	double lowerTruncLevel = getMinSigma();
+	double upperTruncLevel = getMaxSigma();
+	double tolerance = 0.0001;
+	double stdNormTruncRndVar = GaussianDistCalc.getStandRandVar(uniformRandomVal, lowerTruncLevel, upperTruncLevel, tolerance);
+	double X = mean+stdNormTruncRndVar*stdDev;
+	return X;
+  }
   
 }
