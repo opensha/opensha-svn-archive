@@ -351,7 +351,7 @@ public class ETAS_Simulator {
 		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
+				etasParams.getMaxCharFactor(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
 				inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
@@ -896,9 +896,7 @@ public class ETAS_Simulator {
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
 		
 		if(simulationName == null) {
-			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel();
-			if(etasParams.getImposeGR() == true)
-				simulationName += "_grCorr";
+			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel()+"_MaxCharFact"+etasParams.getMaxCharFactor();
 		}
 		
 //		testERF_ParamChanges(erf);
@@ -1317,24 +1315,23 @@ public class ETAS_Simulator {
 		
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
-		
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(true);		
+		params.setMaxCharFactor(10.0);;		
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		if(scenario == null)
-			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel();
+			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+params.getMaxCharFactor();
 		else
-			simulationName = scenario+"_"+params.getU3ETAS_ProbModel();
+			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+params.getMaxCharFactor();
 
-		if(params.getImposeGR() == true)
-			simulationName += "_grCorr";
+//		if(params.getImposeGR() == true)
+//			simulationName += "_grCorr";
 		
-		simulationName += "_BoatRamp10_test";	// to increment runs
+		simulationName += "_1";	// to increment runs
 
 		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;

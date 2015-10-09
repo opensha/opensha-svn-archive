@@ -26,9 +26,10 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	ETAS_MinTimeParam_c cParam = new ETAS_MinTimeParam_c();
 	ETAS_DistanceDecayParam_q qParam = new ETAS_DistanceDecayParam_q();
 	ETAS_MinDistanceParam_d dParam = new ETAS_MinDistanceParam_d();
-	ETAS_ImposeGR_SamplingParam imposeGR = new ETAS_ImposeGR_SamplingParam();
+//	ETAS_ImposeGR_SamplingParam imposeGR = new ETAS_ImposeGR_SamplingParam();
 	ETAS_ApplyLongTermRatesInSamplingParam applyLongTermRatesParam = new ETAS_ApplyLongTermRatesInSamplingParam();
 	U3ETAS_ProbabilityModelParam probModelParam = new U3ETAS_ProbabilityModelParam();
+	U3ETAS_MaxCharFactorParam maxCharFactorParam = new U3ETAS_MaxCharFactorParam();
 	
 	public ETAS_ParameterList() {
 		this.addParameter(probModelParam);
@@ -38,7 +39,8 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 		this.addParameter(cParam);
 		this.addParameter(qParam);
 		this.addParameter(dParam);
-		this.addParameter(imposeGR);
+//		this.addParameter(imposeGR);
+		this.addParameter(maxCharFactorParam);
 		this.addParameter(applyLongTermRatesParam);
 		
 	}
@@ -49,15 +51,17 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	public double get_c() {return cParam.getValue();}
 	public double get_q() {return qParam.getValue();}
 	public double get_d() {return dParam.getValue();}
-	public boolean getImposeGR() {return imposeGR.getValue();}
+//	public boolean getImposeGR() {return imposeGR.getValue();}
+	public double getMaxCharFactor() {return maxCharFactorParam.getValue(); }
 	public boolean getApplyLongTermRates() {return applyLongTermRatesParam.getValue();}
 	public U3ETAS_ProbabilityModelOptions getU3ETAS_ProbModel() {return probModelParam.getValue();}
 	
 	
 	public void set_d_MinDist(double minDist) { dParam.setValue(minDist);}
-	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
+//	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
 	public void setApplyLongTermRates(boolean value) { applyLongTermRatesParam.setValue(value);}
 	public void setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions value) { probModelParam.setValue(value); }
+	public void setMaxCharFactor(double value) {maxCharFactorParam.setValue(value); }
 
 	/**
 	 * @param args

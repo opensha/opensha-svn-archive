@@ -104,10 +104,12 @@ public class ETAS_PrimaryEventSampler {
 	
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
-	boolean applyGR_Corr;	// don't set here (set by constructor)
-	double MAX_CHAR_FACTOR_DEFAULT = 10.0;
+	boolean applyGR_Corr=true;	// don't set here (set by constructor)
+	double MAX_CHAR_FACTOR = Double.NaN;
 	
 	final static boolean D=ETAS_Simulator.D;
+	
+	double trulyOffFaultGR_Corr = Double.NaN;
 	
 	String defaultSectDistForCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectDistForCubeCache";
 	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
@@ -206,12 +208,12 @@ public class ETAS_PrimaryEventSampler {
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String outputFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
-			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, U3ETAS_ProbabilityModelOptions probModel, 
+			double etasDistDecay_q, double etasMinDist_d, double maxCharFactor, U3ETAS_ProbabilityModelOptions probModel, 
 			List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, outputFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr, probModel, inputSectDistForCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
+				maxCharFactor, probModel, inputSectDistForCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
@@ -243,7 +245,7 @@ public class ETAS_PrimaryEventSampler {
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
-			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
+			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, double maxCharFactor,
 			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
 			int[] inputIsCubeInsideFaultPolygon) {
 		
@@ -256,6 +258,7 @@ public class ETAS_PrimaryEventSampler {
 			APPLY_ERT_GRIDDED = false;
 		}
 			
+		MAX_CHAR_FACTOR = maxCharFactor;
 		
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -270,7 +273,6 @@ public class ETAS_PrimaryEventSampler {
 		numCubeDepths = (int)Math.round(maxDepth/depthDiscr);
 		
 		this.etas_utils = etas_utils;
-		this.applyGR_Corr=applyGR_Corr;
 		
 		
 		// fill in rupSet and faultPolyMgr is erf is a FaultSystemSolutionERF
@@ -427,7 +429,7 @@ public class ETAS_PrimaryEventSampler {
 		ArrayList<HashMap<Integer,Float>> hashMapForSectList = new ArrayList<HashMap<Integer,Float>>();
 //System.out.println("index\tname\ttotWtTest\tdistMap.size()\twtMap.size()\tdistThresh\tslope\tdip\tlowerSeisDepth\tupperSeisDepth\tgotOne\tminDist\tmaxDist\tminWt\tmaxWt\twtRatio");
 		for(int s=0;s<rupSet.getNumSections();s++) {
-			hashMapForSectList.add(getCubesAndFractForFaultSection_BoatRampAlt(s, this.MAX_CHAR_FACTOR_DEFAULT, cubesForSectionList, cubeDistsForSectionList));
+			hashMapForSectList.add(getCubesAndFractForFaultSection_BoatRamp(s, this.MAX_CHAR_FACTOR, cubesForSectionList, cubeDistsForSectionList));
 		}
 		fractionSectInCubeList = new ArrayList<float[]>();
 		for(int c=0; c<numCubes;c++) {
@@ -514,7 +516,7 @@ public class ETAS_PrimaryEventSampler {
 	 * This computes/updates the section nucleation rates (srcNuclRateOnSectList and totSectNuclRateArray), 
 	 * where the time-dependent fss source rates are mapped onto different sections in proportion to the 
 	 * normalized time since last event (the latter being 1.0 if unknown).  This also applies the GR
-	 * correction to each section (which is 1.0 if correction not requested).
+	 * correction and MaxCharFactor to each section.
 	 */
 	private void computeSectNucleationRates() {
 		
@@ -555,8 +557,9 @@ public class ETAS_PrimaryEventSampler {
 					sectNuclRate = charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
 //System.out.println("RIGHTHERE: "+grCorrFactorForSectArray[sectIndex]);
 				}
-				else
+				else {
 					sectNuclRate = 0d;
+				}
 				srcNuclRateOnSectList.get(sectIndex).put(src, (float)sectNuclRate);
 				totSectNuclRateArray[sectIndex] += sectNuclRate;
 				
@@ -797,36 +800,44 @@ public class ETAS_PrimaryEventSampler {
 	
 	
 	
-	
-	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRampAlt(int sectionIndex, double maxBulge, ArrayList<ArrayList<Integer>> cubesForSectionList, 
+	/**
+	 * 
+	 * DistThreshold is hard coded at 10 km.
+	 * @param sectionIndex
+	 * @param maxBulge
+	 * @param cubesForSectionList
+	 * @param cubeDistsForSectionList
+	 * @return
+	 */
+	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRamp(int sectionIndex, double maxBulge, ArrayList<ArrayList<Integer>> cubesForSectionList, 
 			ArrayList<ArrayList<Float>> cubeDistsForSectionList) {
 		
 		HashMap<Integer,Double> distMap = new HashMap<Integer,Double>();
 		
 		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(1.0, false, true);
-		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
-		double upperSeisDepth = surface.getUpperSeismogenicDepth();
-		double distThresh = 0f; // where it goes from ramp to water level
-		boolean gotOne=false;
+//		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
+//		double upperSeisDepth = surface.getUpperSeismogenicDepth();
+		double distThresh = 10f; // where it goes from ramp to water level
+//		boolean gotOne=false;
 		double minDist=Double.MAX_VALUE;
 		double maxDist=0.0;
 		for(int i=0; i<cubesForSectionList.get(sectionIndex).size();i++) {
 			int cubeIndex = cubesForSectionList.get(sectionIndex).get(i);
-			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
+//			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
 			double dist = cubeDistsForSectionList.get(sectionIndex).get(i);
 			distMap.put(cubeIndex, dist);
 			if(minDist>dist) minDist=dist;
 			if(maxDist<dist) maxDist=dist;
-			if(cubeLoc.getDepth()<=lowerSeisDepth && cubeLoc.getDepth()>=upperSeisDepth && dist>distThresh) {
-				distThresh = dist;
-				gotOne=true;
-			}				
+//			if(cubeLoc.getDepth()<=lowerSeisDepth && cubeLoc.getDepth()>=upperSeisDepth && dist>distThresh) {
+//				distThresh = dist;
+//				gotOne=true;
+//			}				
 		}
 		
 		// this happens if the surface has too small a down-dip width
-		if(!gotOne)
-			distThresh = getFarthestCubeDistAtDepthForSection(surface, surface.getLocation(0, 0).getDepth(), cubesForSectionList.get(sectionIndex));
-		
+//		if(!gotOne)
+//			distThresh = getFarthestCubeDistAtDepthForSection(surface, surface.getLocation(0, 0).getDepth(), cubesForSectionList.get(sectionIndex));
+				
 		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
 		double slope = (1.0-maxBulge)/distThresh;
 		float totWt=0;
@@ -2070,7 +2081,7 @@ System.exit(0);
 	
 	
 	
-	public void writeRatesCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix, double magThresh) {
+	public void writeRatesCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix, double magThresh, boolean fltOnly) {
 				
 		try {
 			FileWriter fileWriterGMT = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"GMT.txt"));
@@ -2081,7 +2092,7 @@ System.exit(0);
 			Location startCubeLoc = getCubeLocationForIndex(getCubeIndexForLocation(startLoc));
 	        
 	        // hard coded:
-	        cpt = cpt.rescale(-8.5, -4.5);
+	        cpt = cpt.rescale(-7.5, -5.2);
 	        cpt.setBelowMinColor(Color.WHITE);
 	        
 	        cpt.writeCPTFile(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"_CPT.txt"));
@@ -2108,11 +2119,13 @@ System.exit(0);
 					int cubeIndex = getCubeIndexForLocation(cubeLoc);
 					SummedMagFreqDist mfd = getCubeMFD(cubeIndex);
 					double val = mfd.getCumRate(magThresh);
-					Color c = cpt.getColor((float)Math.log10(val));
 					if(minVal>Math.log10(val))
 						minVal=Math.log10(val);
 					if(maxVal<Math.log10(val))
-						maxVal=Math.log10(val);					
+						maxVal=Math.log10(val);	
+					if(fltOnly && getCubeMFD_SupraSeisOnly(cubeIndex).getTotalIncrRate()>1e-15)
+						val = 1e-16; // make it white
+					Color c = cpt.getColor((float)Math.log10(val));
 					fileWriterGMT.write("> -W125/125/125 -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
 					fileWriterSCECVDO.write("> "+val+"\n");
 					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
@@ -2158,7 +2171,9 @@ System.exit(0);
 					if(minVal>Math.log10(val))
 						minVal=Math.log10(val);
 					if(maxVal<Math.log10(val))
-						maxVal=Math.log10(val);					
+						maxVal=Math.log10(val);		
+					if(fltOnly && getCubeMFD_SupraSeisOnly(cubeIndex).getTotalIncrRate()>1e-15)
+						val = 1e-16; // make it white
 					Color c = cpt.getColor((float)Math.log10(val));
 //if(cubeIndex==testCubeIndex) System.out.println("HERE index, val: "+testCubeIndex+"\t"+val+"\n"+mfd);
 //if(cubeIndex==testCubeIndex) System.out.println("HERE RGB: "+"> -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
@@ -2203,13 +2218,137 @@ System.exit(0);
 	}
 	
 	
+	
+	public void writeBulgeCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix, boolean fltOnly) {
+		
+		try {
+			FileWriter fileWriterGMT = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"GMT.txt"));
+			FileWriter fileWriterSCECVDO = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"SCECVDO.txt"));
+			CPT cpt = GMT_CPT_Files.UCERF3_RATIOS.instance();
+			
+			// get closest cube-center
+			Location startCubeLoc = getCubeLocationForIndex(getCubeIndexForLocation(startLoc));
+	        
+	        // hard coded:
+	        cpt = cpt.rescale(-2, 2);
+	        cpt.setBelowMinColor(Color.WHITE);
+	        
+	        cpt.writeCPTFile(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"_CPT.txt"));
+			
+			double halfCubeLatLon = cubeLatLonSpacing/2.0;
+			double halfCubeDepth = depthDiscr/2.0;
+			double startCubeLon = startCubeLoc.getLongitude();
+			double startCubeLat = startCubeLoc.getLatitude();
+			int numLatLon = (int)(lengthDegrees/cubeLatLonSpacing);
+			
+			double minVal = Double.MAX_VALUE, maxVal = -Double.MAX_VALUE;
+
+			// Data for squares on the EW trending vertical face
+			double lat = startCubeLat;
+			double lon = startCubeLon;
+			for(int i=0;i<numLatLon;i++) {
+				for(int d=0; d<numCubeDepths; d++) {
+					double depth = getCubeDepth(d);
+					Location cubeLoc = new Location(lat,lon,depth);
+					int cubeIndex = getCubeIndexForLocation(cubeLoc);
+					double val = 1.0/getAveScalingFactorToImposeGR_supraRatesInCube(cubeIndex);
+					if(minVal>Math.log10(val))
+						minVal=Math.log10(val);
+					if(maxVal<Math.log10(val))
+						maxVal=Math.log10(val);	
+					if(fltOnly && getCubeMFD_SupraSeisOnly(cubeIndex).getTotalIncrRate()>1e-15)
+						val = 1e-16; // make it white
+					Color c = cpt.getColor((float)Math.log10(val));
+					fileWriterGMT.write("> -W125/125/125 -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
+					fileWriterSCECVDO.write("> "+val+"\n");
+					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
+					polygonString += (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth+halfCubeDepth) +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + -(float)(depth-halfCubeDepth) +"\n";
+					fileWriterGMT.write(polygonString);
+					fileWriterSCECVDO.write(polygonString);
+				}
+				lat+=cubeLatLonSpacing;
+				lon+=cubeLatLonSpacing;
+			}
+			
+			// Data for the surface
+			double depth = 0;
+			int numOtherWay = 30;
+			double newStartLat = startCubeLat;
+			double newStartLon = startCubeLon+cubeLatLonSpacing;
+			int numLonDone=0;
+			for(int j=0; j<numOtherWay; j++) {
+				if(numLonDone!=2){
+					newStartLon -= cubeLatLonSpacing;
+					numLonDone+=1;
+				}
+				else {
+					newStartLat+=cubeLatLonSpacing;
+					numLonDone=0;
+				}
+				lat = newStartLat;
+				lon = newStartLon;
+				for(int i=0;i<numLatLon;i++) {
+					Location cubeLoc = new Location(lat,lon,depth+halfCubeDepth);
+					int cubeIndex = getCubeIndexForLocation(cubeLoc);
+					double val = 1.0/getAveScalingFactorToImposeGR_supraRatesInCube(cubeIndex);
+					if(minVal>Math.log10(val))
+						minVal=Math.log10(val);
+					if(maxVal<Math.log10(val))
+						maxVal=Math.log10(val);		
+					if(fltOnly && getCubeMFD_SupraSeisOnly(cubeIndex).getTotalIncrRate()>1e-15)
+						val = 1e-16; // make it white
+					Color c = cpt.getColor((float)Math.log10(val));
+					fileWriterGMT.write("> -W125/125/125 -G"+c.getRed()+"/"+c.getGreen()+"/"+c.getBlue()+"\n");
+					fileWriterSCECVDO.write("> "+val+"\n");
+					String polygonString = (float)(lat-halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + depth +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon-halfCubeLatLon) + "\t" + depth +"\n";
+					polygonString += (float)(lat+halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + depth +"\n";
+					if(j != 0)
+						polygonString += (float)(lat-halfCubeLatLon) + "\t" + (float)(lon+halfCubeLatLon) + "\t" + depth +"\n";
+					fileWriterGMT.write(polygonString);
+					fileWriterSCECVDO.write(polygonString);
+					lat += cubeLatLonSpacing;
+					lon += cubeLatLonSpacing;
+				}
+			}
+
+			
+			fileWriterGMT.close();
+			fileWriterSCECVDO.close();
+			
+			System.out.println("Value Range:\n\tminVal="+minVal+"\n\tmaxVal="+maxVal);
+			
+			// write out Mojave subsection polygons
+			FileWriter fileWriterPolygons = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, "PolygonData.txt"));
+			for(int i=1841; i>1835;i--) {
+				String polygonString = "> -W\n";
+				for(Location loc : faultPolyMgr.getPoly(i).getBorder()) {
+					polygonString += (float)loc.getLatitude() + "\t" + (float)loc.getLongitude() + "\t" + loc.getDepth() +"\n";
+				}
+				fileWriterPolygons.write(polygonString);
+
+			}
+			fileWriterPolygons.close();
+			
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+		
+		
+	}
+
+	
+	
 	/**
 	 * TODO THIS IS OUT OF DATE: START FROM SCRATCH USING writeRatesCrossSectionData
 	 * @param startLoc
 	 * @param lengthDegrees
 	 * @param fileNamePrefix
 	 */
-	public void writeBulgeCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix) {
+	public void OLDwriteBulgeCrossSectionData(Location startLoc, double lengthDegrees,String fileNamePrefix) {
 		
 		try {
 			FileWriter fileWriterGMT = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+"GMT.txt"));
@@ -2295,15 +2434,15 @@ System.exit(0);
 		// Make sure long-term MFDs are created
 		makeLongTermSectMFDs();
 		
-		FileWriter fileWriterGMT = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
-		fileWriterGMT.write("SectID,CharFactorSupraRates,CharFactorNumPrimary, MoRate,SectName\n");
+		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
+		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary, MoRate,SectName\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 		
 		double meanValSupraRates=0;
 		double meanValSupraRatesMoRateWted=0;
-		double meanVal=0;
-		double meanValMoRateWted=0;
+		double meanValNumPrimary=0;
+		double meanValNumPrimaryMoRateWted=0;
 		double totMoRate=0;
 		
 		double meanValSupraRatesLog=0;
@@ -2313,10 +2452,11 @@ System.exit(0);
 		
 		ArbDiscrEmpiricalDistFunc charValSupraRatesDist = new ArbDiscrEmpiricalDistFunc();
 		ArbDiscrEmpiricalDistFunc charValSupraRatesDistMoRateWted = new ArbDiscrEmpiricalDistFunc();
+		DefaultXY_DataSet charValSupraRatesVsMomentRateData = new DefaultXY_DataSet();
 
 		int numPts=0;
 		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
-			double val, valSupraRates;
+			double valNumPrimary, valSupraRates;
 			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
 				
 				// TODO only need this temporarily?
@@ -2325,7 +2465,7 @@ System.exit(0);
 					throw new RuntimeException("Problem");
 				}
 				
-				val = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				valNumPrimary = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 				valSupraRates = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 			}
 			else {	// no supra-seismogenic ruptures
@@ -2341,29 +2481,32 @@ System.exit(0);
 			numPts+=1;
 			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
 			
+			charValSupraRatesVsMomentRateData.set(moRate,valSupraRates);
+			
 			meanValSupraRates += valSupraRates;
 			meanValSupraRatesMoRateWted += moRate*valSupraRates;
-			meanVal += val;
-			meanValMoRateWted += moRate*val;
+			meanValNumPrimary += valNumPrimary;
+			meanValNumPrimaryMoRateWted += moRate*valNumPrimary;
 			totMoRate += moRate;
 			
 			meanValSupraRatesLog += Math.log10(valSupraRates);
 			meanValSupraRatesMoRateWtedLog += Math.log10(moRate*valSupraRates);
-			meanValLog += Math.log10(val);
-			meanValMoRateWtedLog += Math.log10(moRate*val);
+			meanValLog += Math.log10(valNumPrimary);
+			meanValMoRateWtedLog += Math.log10(moRate*valNumPrimary);
 			
 			charValSupraRatesDist.set(valSupraRates, 1.0);
 			charValSupraRatesDistMoRateWted.set(valSupraRates,moRate);
 
 			//System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-			fileWriterGMT.write(sectIndex+","+(float)valSupraRates+","+(float)val+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
+			fileWriter.write(sectIndex+","+(float)valSupraRates+","+(float)valNumPrimary+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
 
 		}
+		fileWriter.close();
 		
 		meanValSupraRates/=numPts;
-		meanVal/=numPts;
+		meanValNumPrimary/=numPts;
 		meanValSupraRatesMoRateWted/=totMoRate;
-		meanValMoRateWted/=totMoRate;
+		meanValNumPrimaryMoRateWted/=totMoRate;
 
 		meanValSupraRatesLog/=numPts;
 		meanValLog/=numPts;
@@ -2376,7 +2519,7 @@ System.exit(0);
 		meanValMoRateWtedLog = Math.pow(10, meanValMoRateWtedLog);
 
 		System.out.println("meanValSupraRates="+meanValSupraRates+"\nmeanValSupraRatesMoRateWted="+meanValSupraRatesMoRateWted);
-		System.out.println("meanValNumPrimary="+meanVal+"\nmeanValNumPrimaryMoRateWted="+meanValMoRateWted);
+		System.out.println("meanValNumPrimary="+meanValNumPrimary+"\nmeanValNumPrimaryMoRateWted="+meanValNumPrimaryMoRateWted);
 		System.out.println("meanValSupraRatesLog="+meanValSupraRatesLog+"\nmeanValSupraRatesMoRateWtedLog="+meanValSupraRatesMoRateWtedLog);
 		System.out.println("meanValNumPrimaryLog="+meanValLog+"\nmeanValNumPrimaryMoRateWtedLog="+meanValMoRateWtedLog);
 		
@@ -2394,18 +2537,33 @@ System.exit(0);
 		funcs.add(charValSupraRatesDistCumDist);
 		funcs.add(charValSupraRatesDistMoRateWtedCumDist);
 		GraphWindow sectGraph = new GraphWindow(funcs, "Sect CharFactor Stats"); 
-		sectGraph.setX_AxisLabel("CharFactor");
+		sectGraph.setX_AxisLabel("Log10(CharFactor)");
 		sectGraph.setY_AxisLabel("Cumulative Fraction");
+		sectGraph.setX_AxisRange(0.01,100.0);
+		sectGraph.setXLog(true);
+		sectGraph.setY_AxisRange(0.0,1.0);
+		sectGraph.setAxisLabelFontSize(20);
+		sectGraph.setTickLabelFontSize(18);
+		sectGraph.setPlotLabelFontSize(22);
+
 		
-		GraphWindow sectGraph2 = new GraphWindow(charValSupraRatesDist, "charValSupraRatesDist"); 
-		sectGraph.setX_AxisLabel("CharFactor");
-		sectGraph.setY_AxisLabel("Weight");
-		GraphWindow sectGraph3 = new GraphWindow(charValSupraRatesDistMoRateWted, "charValSupraRatesDistMoRateWted"); 
-		sectGraph.setX_AxisLabel("CharFactor");
-		sectGraph.setY_AxisLabel("Weight");
+		GraphWindow sectGraph4 = new GraphWindow(charValSupraRatesVsMomentRateData, "CharFactor vs Moment Rate", new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK)); 
+		sectGraph4.setY_AxisLabel("Log10(CharFactor)");
+		sectGraph4.setX_AxisLabel("Log10(Moment Rate (NM/yr))");
+		sectGraph4.setXLog(true);
+		sectGraph4.setYLog(true);
+		sectGraph4.setAxisLabelFontSize(20);
+		sectGraph4.setTickLabelFontSize(18);
+		sectGraph4.setPlotLabelFontSize(22);
+		
+//		GraphWindow sectGraph2 = new GraphWindow(charValSupraRatesDist, "charValSupraRatesDist"); 
+//		sectGraph.setX_AxisLabel("CharFactor");
+//		sectGraph.setY_AxisLabel("Weight");
+//		GraphWindow sectGraph3 = new GraphWindow(charValSupraRatesDistMoRateWted, "charValSupraRatesDistMoRateWted"); 
+//		sectGraph.setX_AxisLabel("CharFactor");
+//		sectGraph.setY_AxisLabel("Weight");
 	
 		
-		fileWriterGMT.close();
 
 		String name = "ImpliedCharFactorForSubSections_"+nameSuffix;
 		String title = "Log10(CharFactor)";
@@ -2416,18 +2574,18 @@ System.exit(0);
 	}
 	
 	
-	public void plotGRcorrStats(File resultsDir)  {
+	public void plotCharFactorStats(File resultsDir)  {
 
 		if(!resultsDir.exists())
 			resultsDir.mkdir();
 		
 		List<FaultSectionPrefData> faults = fssERF.getSolution().getRupSet().getFaultSectionDataList();
-		double[] grCorr = new double[faults.size()];
-		double[] grCorrSupraRates = new double[faults.size()];
+		double[] charFactorNumPrimaryArray = new double[faults.size()];
+		double[] charFactorSupraRatesArray = new double[faults.size()];
 		double[] momentRates = new double[faults.size()];
 		
-		DefaultXY_DataSet logGRcorrVsLogMomentRate = new DefaultXY_DataSet();
-		DefaultXY_DataSet logGRcorrSupraSeisVsLogMomentRate = new DefaultXY_DataSet();
+		DefaultXY_DataSet logCharFactorNumPrimaryVsLogMomentRate = new DefaultXY_DataSet();
+		DefaultXY_DataSet logCharFactorSupraSeisVsLogMomentRate = new DefaultXY_DataSet();
 
 		
 		// Make sure long-term MFDs are created
@@ -2438,7 +2596,8 @@ System.exit(0);
 		
 		HashMap<String,SummedMagFreqDist> parentSectSubSeisMFD_Map = new HashMap<String,SummedMagFreqDist>();
 		HashMap<String,SummedMagFreqDist> parentSectSupraSeisMFD_Map = new HashMap<String,SummedMagFreqDist>();
-		for(int sectIndex=0;sectIndex<grCorr.length;sectIndex++) {
+		
+		for(int sectIndex=0;sectIndex<charFactorNumPrimaryArray.length;sectIndex++) {
 			String name = this.rupSet.getFaultSectionData(sectIndex).getParentSectionName();
 			if(!parentSectSubSeisMFD_Map.containsKey(name))
 				parentSectSubSeisMFD_Map.put(name, new SummedMagFreqDist(2.55, 8.95, 65));
@@ -2450,12 +2609,12 @@ System.exit(0);
 //		FileWriter fileWriterGMT = new FileWriter(new File(resultsDir, "GRcorrStatsData.csv"));
 //		fileWriterGMT.write("sectID,1.0/GRcor1.0/GRcorrSupraRates,tsectName\n");
 
-		for(int sectIndex=0;sectIndex<grCorr.length;sectIndex++) {
-			grCorr[sectIndex] = Math.log10(ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
-			grCorrSupraRates[sectIndex] = Math.log10(ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
+		for(int sectIndex=0;sectIndex<charFactorNumPrimaryArray.length;sectIndex++) {
+			charFactorNumPrimaryArray[sectIndex] = Math.log10(1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
+			charFactorSupraRatesArray[sectIndex] = Math.log10(1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false));
 			momentRates[sectIndex] = faults.get(sectIndex).calcMomentRate(true);
-			logGRcorrVsLogMomentRate.set(Math.log10(momentRates[sectIndex]),grCorr[sectIndex]);
-			logGRcorrSupraSeisVsLogMomentRate.set(Math.log10(momentRates[sectIndex]),grCorrSupraRates[sectIndex]);
+			logCharFactorNumPrimaryVsLogMomentRate.set(Math.log10(momentRates[sectIndex]),charFactorNumPrimaryArray[sectIndex]);
+			logCharFactorSupraSeisVsLogMomentRate.set(Math.log10(momentRates[sectIndex]),charFactorSupraRatesArray[sectIndex]);
 			totSubMFD.addIncrementalMagFreqDist(longTermSubSeisMFD_OnSectList.get(sectIndex));
 			totSupraMFD.addIncrementalMagFreqDist(longTermSupraSeisMFD_OnSectArray[sectIndex]);
 			String name = this.rupSet.getFaultSectionData(sectIndex).getParentSectionName();
@@ -2465,122 +2624,148 @@ System.exit(0);
 		
 //		fileWriterGMT.close();
 		
-		HistogramFunction hist_MoRateWted = new HistogramFunction(-3.,3.,61);
+		HistogramFunction histNumPrimary_MoRateWted = new HistogramFunction(-3.,3.,61);
 		HistogramFunction histSupraRates_MoRateWted = new HistogramFunction(-3.,3.,61);
-		HistogramFunction hist = new HistogramFunction(-3.,3.,61);
+		HistogramFunction histNumPrimary = new HistogramFunction(-3.,3.,61);
 		HistogramFunction histSupraRates = new HistogramFunction(-3.,3.,61);
-		for(int sectIndex=0;sectIndex<grCorr.length;sectIndex++) {
-			hist_MoRateWted.add(grCorr[sectIndex], momentRates[sectIndex]);
-			histSupraRates_MoRateWted.add(grCorrSupraRates[sectIndex], momentRates[sectIndex]);
-			hist.add(grCorr[sectIndex], 1d);
-			histSupraRates.add(grCorrSupraRates[sectIndex], 1d);
+		for(int sectIndex=0;sectIndex<charFactorNumPrimaryArray.length;sectIndex++) {
+			histNumPrimary_MoRateWted.add(charFactorNumPrimaryArray[sectIndex], momentRates[sectIndex]);
+			histSupraRates_MoRateWted.add(charFactorSupraRatesArray[sectIndex], momentRates[sectIndex]);
+			histNumPrimary.add(charFactorNumPrimaryArray[sectIndex], 1d);
+			histSupraRates.add(charFactorSupraRatesArray[sectIndex], 1d);
 		}
 		
-		hist_MoRateWted.normalizeBySumOfY_Vals();
-		hist_MoRateWted.setName("grCorr_MoRateWted");
-		HistogramFunction hist_MoRateWtedCum = hist_MoRateWted.getCumulativeDistFunctionWithHalfBinOffset();
-		hist_MoRateWtedCum.setName("hist_MoRateWtedCum");
-		double median = hist_MoRateWtedCum.getFirstInterpolatedX(0.5);
-		String info = "mean="+Math.pow(10d, hist_MoRateWted.computeMean())+"; mode="+Math.pow(10d, hist_MoRateWted.getMode())+"; median="+Math.pow(10d, median);
-		hist_MoRateWted.setInfo(info);
-		hist_MoRateWtedCum.setInfo(info);
+		histNumPrimary_MoRateWted.normalizeBySumOfY_Vals();
+		histNumPrimary_MoRateWted.setName("histNumPrimary_MoRateWted");
+		HistogramFunction histNumPrimary_MoRateWtedCum = histNumPrimary_MoRateWted.getCumulativeDistFunctionWithHalfBinOffset();
+		histNumPrimary_MoRateWtedCum.setName("histNumPrimary_MoRateWtedCum");
+		double median = histNumPrimary_MoRateWtedCum.getFirstInterpolatedX(0.5);
+		String info = "mean="+Math.pow(10d, histNumPrimary_MoRateWted.computeMean())+"; mode="+Math.pow(10d, histNumPrimary_MoRateWted.getMode())+"; median="+Math.pow(10d, median);
+		histNumPrimary_MoRateWted.setInfo(info);
+		histNumPrimary_MoRateWtedCum.setInfo(info);
+		
 		histSupraRates_MoRateWted.normalizeBySumOfY_Vals();;
-		histSupraRates_MoRateWted.setName("grCorrSupraRates_MoRateWted");
+		histSupraRates_MoRateWted.setName("histSupraRates_MoRateWted");
 		HistogramFunction histSupraRates_MoRateWtedCum = histSupraRates_MoRateWted.getCumulativeDistFunctionWithHalfBinOffset();
+		histSupraRates_MoRateWtedCum.setName("histSupraRates_MoRateWtedCum");
 		median = histSupraRates_MoRateWtedCum.getFirstInterpolatedX(0.5);
 		info = "mean="+Math.pow(10d, histSupraRates_MoRateWted.computeMean())+"; mode="+Math.pow(10d, histSupraRates_MoRateWted.getMode())+"; median="+Math.pow(10d, median);
 		histSupraRates_MoRateWted.setInfo(info);
 		histSupraRates_MoRateWtedCum.setInfo(info);
 		ArrayList<EvenlyDiscretizedFunc> funcs1 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs1.add(hist_MoRateWted);
-		funcs1.add(hist_MoRateWtedCum);
+		funcs1.add(histNumPrimary_MoRateWted);
+		funcs1.add(histNumPrimary_MoRateWtedCum);
 		funcs1.add(histSupraRates_MoRateWted);
 		funcs1.add(histSupraRates_MoRateWtedCum);
-		GraphWindow graph = new GraphWindow(funcs1, "GR Correction Stats MoRate Wted"); 
-		graph.setX_AxisLabel("Log10-GRcorr");
-		graph.setY_AxisLabel("Moment Rate Weight");
+		GraphWindow graph = new GraphWindow(funcs1, "CharFactor Stats MoRate Wted"); 
+		graph.setX_AxisLabel("Log10-CharFactor");
+		graph.setY_AxisLabel("Density");
 		
-		hist.normalizeBySumOfY_Vals();
-		hist.setName("grCorr");
-		HistogramFunction histCum = hist.getCumulativeDistFunctionWithHalfBinOffset();
-		median = histCum.getFirstInterpolatedX(0.5);
-		info = "mean="+Math.pow(10d, hist.computeMean())+"; mode="+Math.pow(10d, hist.getMode())+"; median="+Math.pow(10d, median);
-		hist.setInfo(info);
-		histCum.setInfo(info);
+		histNumPrimary.normalizeBySumOfY_Vals();
+		histNumPrimary.setName("histNumPrimary");
+		HistogramFunction histNumPrimaryCum = histNumPrimary.getCumulativeDistFunctionWithHalfBinOffset();
+		histNumPrimaryCum.setName("histNumPrimaryCum");
+		median = histNumPrimaryCum.getFirstInterpolatedX(0.5);
+		info = "Stats converted our of log space:\ngeom mean="+Math.pow(10d, histNumPrimary.computeMean())+"; mode="+Math.pow(10d, histNumPrimary.getMode())+"; median="+Math.pow(10d, median);
+		histNumPrimary.setInfo(info);
+		histNumPrimaryCum.setInfo(info);
+		
 		histSupraRates.normalizeBySumOfY_Vals();;
-		histSupraRates.setName("grCorrSupraRates");
+		histSupraRates.setName("histSupraRates");
 		HistogramFunction histSupraRatesCum = histSupraRates.getCumulativeDistFunctionWithHalfBinOffset();
 		histSupraRatesCum.setName("histSupraRatesCum");
 		median = histSupraRatesCum.getFirstInterpolatedX(0.5);
-		info = "mean="+Math.pow(10d, histSupraRates.computeMean())+"; mode="+Math.pow(10d, histSupraRates.getMode())+"; median="+Math.pow(10d, median);
+		info = "Stats converted our of log space:\ngeom mean="+Math.pow(10d, histSupraRates.computeMean())+"; mode="+Math.pow(10d, histSupraRates.getMode())+"; median="+Math.pow(10d, median);
 		histSupraRates.setInfo(info);
 		histSupraRatesCum.setInfo(info);
 		ArrayList<EvenlyDiscretizedFunc> funcs2 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcs2.add(hist);
-		funcs2.add(histCum);
+		funcs2.add(histNumPrimary);
+		funcs2.add(histNumPrimaryCum);
 		funcs2.add(histSupraRates);
 		funcs2.add(histSupraRatesCum);
-		GraphWindow graph4 = new GraphWindow(funcs2, "GR Correction Stats"); 
+		GraphWindow graph4 = new GraphWindow(funcs2, "CharFactor Stats"); 
 		graph4.setX_AxisLabel("Log10-GRcorr");
 		graph4.setY_AxisLabel("Density");
 
 
 
-		GraphWindow graph2 = new GraphWindow(logGRcorrVsLogMomentRate, "GR Corr vs MoRate", 
+		GraphWindow graph2 = new GraphWindow(logCharFactorNumPrimaryVsLogMomentRate, "CharFactor NumPrimary vs MoRate", 
 				new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE)); 
-		graph2.setY_AxisLabel("Log10-GRcorr");
+		graph2.setY_AxisLabel("Log10-CharFactor");
 		graph2.setX_AxisLabel("Log10(MoRate)");
 
-		GraphWindow graph3 = new GraphWindow(logGRcorrSupraSeisVsLogMomentRate, "GR Corr Supra Rates vs MoRate", 
+		GraphWindow graph3 = new GraphWindow(logCharFactorSupraSeisVsLogMomentRate, "CharFactor SupraRates vs MoRate", 
 				new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLUE)); 
-		graph3.setY_AxisLabel("Log10-GRcorr");
+		graph3.setY_AxisLabel("Log10-CharFactor");
 		graph3.setX_AxisLabel("Log10(MoRate)");
 		
-		
-		ArrayList<EvenlyDiscretizedFunc> totalFuncs = new ArrayList<EvenlyDiscretizedFunc>();
-		totalFuncs.add(totSubMFD);
-		totalFuncs.add(totSupraMFD);
 		
 		IncrementalMagFreqDist tempSubMFD = new IncrementalMagFreqDist(2.55, 8.95, 65);
 		IncrementalMagFreqDist tempSupraMFD = new IncrementalMagFreqDist(2.55, 8.95, 65);
 
 		for(int i=0;i<totSupraMFD.size();i++) {
-			if(totSupraMFD.getX(i)<6.5)
+			if(totSupraMFD.getX(i)<6.3)	// cut each at the average seismogenic mag
 				tempSubMFD.set(i,totSubMFD.getY(i));
 			else
 				tempSupraMFD.set(i,totSupraMFD.getY(i));
 		}
-		double totGRcorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(tempSupraMFD, tempSubMFD, false);
-		double totGRcorrSupraRates = ETAS_Utils.getScalingFactorToImposeGR_supraRates(tempSupraMFD, tempSubMFD, false);
-		info = "GRcorr="+totGRcorr+"; GRcorrSupraRates="+totGRcorrSupraRates;
+		double totCharFactorNumPrimary = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(tempSupraMFD, tempSubMFD, false);
+		double totCharFactorSupraRates = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(tempSupraMFD, tempSubMFD, false);
+		info = "totCharFactorNumPrimary="+totCharFactorNumPrimary+"; totCharFactorSupraRates="+totCharFactorSupraRates;
 		totSubMFD.setInfo(info);
 		totSupraMFD.setInfo(info);
+		ArrayList<EvenlyDiscretizedFunc> totalFuncs = new ArrayList<EvenlyDiscretizedFunc>();
+		totalFuncs.add(totSubMFD);
+		totalFuncs.add(totSupraMFD);
 		GraphWindow totMFD_Graph = new GraphWindow(totalFuncs, "Total MFDs"); 
 		totMFD_Graph.setYLog(true);
 		
-		ArbDiscrEmpiricalDistFunc parSectDistGRcorr = new ArbDiscrEmpiricalDistFunc();
-		ArbDiscrEmpiricalDistFunc parSectDistGRcorrSupraRates = new ArbDiscrEmpiricalDistFunc();
-		System.out.println("name\tparGRcorr\tparGRcorrSupraRates\tmoRate");
+		
+		
+		ArbDiscrEmpiricalDistFunc parSectCharFactorDistMoRateWted = new ArbDiscrEmpiricalDistFunc();
+		ArbDiscrEmpiricalDistFunc parSectCharFactorDist = new ArbDiscrEmpiricalDistFunc();
+		DefaultXY_DataSet parSectCharFactorVsMomentRateData = new DefaultXY_DataSet();
+		System.out.println("name\tcharFactorSurpaRates\tcharFactorNumPrimary");
+
 		for(String name : parentSectSupraSeisMFD_Map.keySet()) {
-			double parGRcorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
 			double parGRcorrSupraRates = ETAS_Utils.getScalingFactorToImposeGR_supraRates(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
+			double parGRcorr = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(parentSectSupraSeisMFD_Map.get(name), parentSectSubSeisMFD_Map.get(name), false);
 			double moRate= parentSectSupraSeisMFD_Map.get(name).getTotalMomentRate() + parentSectSubSeisMFD_Map.get(name).getTotalMomentRate();
-			parSectDistGRcorr.set(parGRcorr,moRate);
-			parSectDistGRcorrSupraRates.set(parGRcorrSupraRates,moRate);
-			System.out.println(name+"\t"+parGRcorr+"\t"+parGRcorrSupraRates+"\t"+moRate);
+			parSectCharFactorDist.set(1/parGRcorrSupraRates,1.0);
+			parSectCharFactorDistMoRateWted.set(1/parGRcorrSupraRates,moRate);
+			parSectCharFactorVsMomentRateData.set(moRate,1.0/parGRcorrSupraRates);
+			System.out.println(name+"\t"+(1.0/parGRcorrSupraRates)+"\t"+(1.0/parGRcorr)+"\t"+moRate);
 		}
-		ArbitrarilyDiscretizedFunc parSectDistGRcorrCumDist = parSectDistGRcorr.getCumDist();
-		parSectDistGRcorrCumDist.scale(1.0/parSectDistGRcorr.calcSumOfY_Vals());
-		parSectDistGRcorrCumDist.setName("parSectDistGRcorrCumDist;  moRate weighted");
-		parSectDistGRcorrCumDist.setInfo("mean="+parSectDistGRcorr.getMean()+"; median="+parSectDistGRcorr.getMedian()+"; mode="+parSectDistGRcorr.getMode());
-		ArbitrarilyDiscretizedFunc parSectDistGRcorrSupraRatesCumDist = parSectDistGRcorrSupraRates.getCumDist();
-		parSectDistGRcorrSupraRatesCumDist.scale(1.0/parSectDistGRcorrSupraRates.calcSumOfY_Vals());
-		parSectDistGRcorrSupraRatesCumDist.setName("parSectDistGRcorrSupraRates;  moRate weighted");
-		parSectDistGRcorrSupraRatesCumDist.setInfo("mean="+parSectDistGRcorrSupraRates.getMean()+"; median="+parSectDistGRcorrSupraRates.getMedian()+"; mode="+parSectDistGRcorrSupraRates.getMode());
+		ArbitrarilyDiscretizedFunc parSectCharFactorDistMoRateWtedCum = parSectCharFactorDistMoRateWted.getCumDist();
+		parSectCharFactorDistMoRateWtedCum.scale(1.0/parSectCharFactorDistMoRateWted.calcSumOfY_Vals());
+		parSectCharFactorDistMoRateWtedCum.setName("parSectCharFactorDistMoRateWtedCum");
+		parSectCharFactorDistMoRateWtedCum.setInfo("mean="+parSectCharFactorDistMoRateWted.getMean()+"; median="+parSectCharFactorDistMoRateWted.getMedian()); //+"; mode="+parSectDistGRcorr.getMode());
+
+		ArbitrarilyDiscretizedFunc parSectCharFactorDistCum = parSectCharFactorDist.getCumDist();
+		parSectCharFactorDistCum.scale(1.0/parSectCharFactorDist.calcSumOfY_Vals());
+		parSectCharFactorDistCum.setName("parSectCharFactorDistCum");
+		parSectCharFactorDistCum.setInfo("mean="+parSectCharFactorDist.getMean()+"; median="+parSectCharFactorDist.getMedian()); // +"; mode="+parSectDistGRcorrSupraRates.getMode());
+
 		ArrayList<ArbitrarilyDiscretizedFunc> parSectFuncs = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		parSectFuncs.add(parSectDistGRcorrCumDist);
-		parSectFuncs.add(parSectDistGRcorrSupraRatesCumDist);
-		GraphWindow parSectGraph = new GraphWindow(parSectFuncs, "Parent Sect Stats (MoRate Wted)"); 
+		parSectFuncs.add(parSectCharFactorDistMoRateWtedCum);
+		parSectFuncs.add(parSectCharFactorDistCum);
+		GraphWindow parSectGraph = new GraphWindow(parSectFuncs, "Parent Sect CharFactor Stats"); 
+		parSectGraph.setY_AxisLabel("CharFactor");
+		parSectGraph.setX_AxisLabel("Cumulative Density");
+		parSectGraph.setXLog(true);
+		parSectGraph.setAxisLabelFontSize(20);
+		parSectGraph.setTickLabelFontSize(18);
+		parSectGraph.setPlotLabelFontSize(22);
+
+		GraphWindow parSectGrCorrVsMoRateGraph = new GraphWindow(parSectCharFactorVsMomentRateData, "parSectCharFactorVsMomentRateData",new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK)); 
+		parSectGrCorrVsMoRateGraph.setY_AxisLabel("Log10(grCorr)");
+		parSectGrCorrVsMoRateGraph.setX_AxisLabel("Log10(Moment Rate (NM/yr))");
+		parSectGrCorrVsMoRateGraph.setXLog(true);
+		parSectGrCorrVsMoRateGraph.setYLog(true);
+		parSectGrCorrVsMoRateGraph.setAxisLabelFontSize(20);
+		parSectGrCorrVsMoRateGraph.setTickLabelFontSize(18);
+		parSectGrCorrVsMoRateGraph.setPlotLabelFontSize(22);
+
 
 	}
 
@@ -3546,11 +3731,13 @@ System.exit(0);
 			}
 		}
 
-//System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\tlongTermSectRate\tDip\tName");
+// System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\tlongTermSectRate\tDip\tName");
 
 		double meanCharScaleFactor = 0;
 		double meanCharScaleFactorMoRateWted = 0;
 		double moRateSum=0;
+		double minCharScaleFactor = Double.MAX_VALUE;
+		double maxCharScaleFactor = -Double.MAX_VALUE;
 		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
 			double scaleFactor = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
 			charScaleFactorForSectArray[sectIndex] = scaleFactor;
@@ -3558,6 +3745,12 @@ System.exit(0);
 			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
 			meanCharScaleFactorMoRateWted+=moRate*scaleFactor;
 			moRateSum+=moRate;
+			if(minCharScaleFactor>scaleFactor && scaleFactor != 0.0) // avoid Menodocino outside RELM region
+				minCharScaleFactor=scaleFactor;
+			
+			if(maxCharScaleFactor<scaleFactor)
+				maxCharScaleFactor=scaleFactor;
+			
 //System.out.println(sectIndex+"\t"+charScaleFactorForSectArray[sectIndex]+"\t"+grCorrFactorForSectArray[sectIndex]+"\t"+longTermSectRateArray[sectIndex]+"\t"+
 //rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
 		}
@@ -3566,6 +3759,8 @@ System.exit(0);
 		if(D) {
 			System.out.println("meanCharScaleFactor="+meanCharScaleFactor);
 			System.out.println("meanCharScaleFactorMoRateWted="+meanCharScaleFactorMoRateWted);
+			System.out.println("minCharScaleFactor="+minCharScaleFactor);
+			System.out.println("maxCharScaleFactor="+maxCharScaleFactor);
 		}
 
 	}
@@ -4520,8 +4715,11 @@ System.exit(0);
 	
 	
 	public double getTrulyOffFaultGR_Corr(boolean debug) {
+		if (!Double.isNaN(trulyOffFaultGR_Corr)) {
+			return trulyOffFaultGR_Corr;
+		}
 		double aveMinSupra = 6.35; // from page 1150 of the UCERF3-TI BSSA report (right column)
-		double grCorr = Double.NaN;
+		trulyOffFaultGR_Corr = Double.NaN;
 		for(int i=0;i<origGriddedRegion.getNumLocations();i++) {
 			if(origGridSeisTrulyOffVsSubSeisStatus[i] == 0) {
 				SummedMagFreqDist mfd = mfdForTrulyOffOnlyArray[numFltSystSources+i];
@@ -4530,10 +4728,10 @@ System.exit(0);
 				int numMag = (int)((maxMag-minMag)/mfd.getDelta()) + 1;
 				GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMag, numMag);
 				gr.scaleToIncrRate(minMag, mfd.getY(minMag));
-				grCorr = gr.getCumRate(aveMinSupra)/mfd.getCumRate(aveMinSupra);
+				trulyOffFaultGR_Corr = gr.getCumRate(aveMinSupra)/mfd.getCumRate(aveMinSupra);
 				if(debug) {
 					ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
-					mfd.setInfo("grCorr = "+(float)grCorr);
+					mfd.setInfo("grCorr = "+(float)trulyOffFaultGR_Corr);
 					funcs.add(mfd);
 					funcs.add(gr);
 					funcs.add(mfd.getCumRateDistWithOffset());
@@ -4547,7 +4745,7 @@ System.exit(0);
 			}
 		}
 		
-		return grCorr;
+		return trulyOffFaultGR_Corr;
 	}
 	
 	public double getFaultGR_CorrFromTotalFaultMFDs(boolean debug) {
@@ -4744,7 +4942,6 @@ System.exit(0);
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
 		
-		
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
 //		System.exit(0);
@@ -4757,9 +4954,7 @@ System.exit(0);
 		erf.updateForecast();
 		boolean includeEqkRates = true;
 		double gridSeisDiscr = 0.1;
-		boolean applyGRcorr = true;
-
-		
+		double maxCharFactor = 10;
 		
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		// first make array of rates for each source
@@ -4771,20 +4966,33 @@ System.exit(0);
 //				System.out.println("HERE "+erf.getSource(s).getName());
 		}
 		
-		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				applyGRcorr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
+				maxCharFactor, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
+	
+		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
+		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
+//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_fltOnly", 6.35, true);
+//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave_fltOnly", true);
+
+//		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_BoatRamp10_Poisson");
+		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp10_Poisson_TEST");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_BoatRamp10_Poisson");
+////		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_BoatRamp10_FullTD");
+		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_BoatRamp10_Poisson_TEST");
+
 		
-//		etas_PrimEventSampler.plotGRcorrStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
+
+		
+//		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 
 		
 		// Sections bulge plot
-		try {
-			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		
 //		etas_PrimEventSampler.plotMojaveSubSectMFDsExample();
@@ -4808,11 +5016,6 @@ System.exit(0);
 //		etas_PrimEventSampler.getTrulyOffFaultGR_Corr(true);
 //		etas_PrimEventSampler.getFaultGR_CorrFromTotalFaultMFDs(true);
 		
-//		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_uniform_Poiss_grCorr");
-//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp1_Poiss");
-//		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_uniform_Poiss_grCorr");
-//		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_uniform_Poiss_grCorr");
-//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_uniform_Poiss_grCorr");
 
 
 //		etas_PrimEventSampler.testRates();
@@ -4847,10 +5050,6 @@ System.exit(0);
 //		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 12.0), "gmtPie_SliceData");
 
 		
-//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_onlyFault", 6.55);
-//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.55);
-
-//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.486,-118.283,1.), 0.75,"crossSectDataBulgeGRcorr_mojave");
 
 
 		
@@ -5308,6 +5507,9 @@ System.exit(0);
 		double totRateSupra=0;
 		float[] fracArray = fractionSectInCubeList.get(cubeIndex);
 		int[] sectArray = sectInCubeList.get(cubeIndex);
+		if(fracArray.length==0) { // no sections in cube
+			return getTrulyOffFaultGR_Corr(false);
+		}
 		for(int i=0;i<sectArray.length;i++) {
 			int sectID=sectArray[i];
 			IncrementalMagFreqDist supraMFD = longTermSupraSeisMFD_OnSectArray[sectID].deepClone();
@@ -5394,9 +5596,9 @@ System.exit(0);
 			progressBar.updateProgress(i, numCubesAtDepth);
 			int cubeIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
 			int[] regAndDepIndex = getCubeRegAndDepIndicesForIndex(cubeIndex);
-			double bulge = 1.0;
-			if(isCubeInsideFaultPolygon[regAndDepIndex[0]] == 1)
-				bulge = 1.0/getAveScalingFactorToImposeGR_supraRatesInCube(cubeIndex);
+//			double bulge = 1.0;
+//			if(isCubeInsideFaultPolygon[regAndDepIndex[0]] == 1)
+			double	bulge = 1.0/getAveScalingFactorToImposeGR_supraRatesInCube(cubeIndex);
 			
 //			SummedMagFreqDist mfdSupra = getCubeMFD_SupraSeisOnly(cubeIndex);
 //			SummedMagFreqDist mfdGridded = getCubeMFD_GriddedSeisOnly(cubeIndex);

@@ -1330,7 +1330,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		int[] isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(isCubeInsideFaultPolygonFile);
 		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
 				gridSeisDiscr, null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), U3ETAS_ProbabilityModelOptions.FULL_TD, fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon);
+				etasParams.getMaxCharFactor(), U3ETAS_ProbabilityModelOptions.FULL_TD, fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon);
 		
 		ETAS_EqkRupture rupture = scenario.getRupture(ot, sol.getRupSet(), fm);
 		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
