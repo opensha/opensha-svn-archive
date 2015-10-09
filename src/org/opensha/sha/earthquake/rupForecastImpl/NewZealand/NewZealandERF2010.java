@@ -52,7 +52,6 @@ import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.util.TectonicRegionType;
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Parameter;
 
 /**
  * <p>Title: New Zealand 2010 Eqk Rup Forecast</p>
