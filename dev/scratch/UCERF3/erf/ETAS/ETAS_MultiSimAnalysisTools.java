@@ -236,16 +236,20 @@ public class ETAS_MultiSimAnalysisTools {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setUserBounds(mfdMinMag, mfd.getMaxX(), Math.pow(10d, Math.log10(mfdMinY)-2), Math.pow(10d, Math.log10(mfdMaxY)-2));
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
 		gp.getCartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+	
+	private static void setFontSizes(HeadlessGraphPanel gp) {
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(22);
+		gp.setAxisLabelFontSize(24);
+		gp.setPlotLabelFontSize(24);
 	}
 	
 	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, double duration,
@@ -328,10 +332,7 @@ public class ETAS_MultiSimAnalysisTools {
 			HeadlessGraphPanel gp = new HeadlessGraphPanel();
 			gp.setUserBounds(mfdMinMag, subMFDs[0].getMaxX(), mfdMinY, mfdMaxY);
 			
-			gp.setBackgroundColor(Color.WHITE);
-			gp.setTickLabelFontSize(18);
-			gp.setAxisLabelFontSize(20);
-			gp.setPlotLabelFontSize(21);
+			setFontSizes(gp);
 			
 			gp.drawGraphPanel(spec, false, true);
 			gp.getCartPanel().setSize(1000, 800);
@@ -472,8 +473,9 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 	}
 	
-	public static void plotAftershockRateVsLogTimeHistForRup(List<List<ETAS_EqkRupture>> catalogs, ETAS_ParameterList params,
-			long rupOT_millis, File outputDir, String name, String prefix) throws IOException {
+	public static void plotAftershockRateVsLogTimeHistForRup(List<List<ETAS_EqkRupture>> catalogs,
+			TestScenario scenario, ETAS_ParameterList params, long rupOT_millis, File outputDir,
+			String name, String prefix) throws IOException {
 		EvenlyDiscretizedFunc[] funcsArray = new EvenlyDiscretizedFunc[catalogs.size()];
 		
 		double firstLogDay = -5;
@@ -496,7 +498,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		if (params != null) {
 			HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(params.get_k(), params.get_p(),
-					7d, ETAS_Utils.magMin_DEFAULT, params.get_c(), firstLogDay, lastLogDay, deltaLogDay);
+					scenario.getMagnitude(), ETAS_Utils.magMin_DEFAULT, params.get_c(), firstLogDay, lastLogDay, deltaLogDay);
 			targetFunc.setName("Expected");
 			
 			funcs.add(targetFunc);
@@ -513,10 +515,7 @@ public class ETAS_MultiSimAnalysisTools {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setUserBounds(-4d, 3d, 1e-3, maxY*1.2);
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
 		gp.getCartPanel().setSize(1000, 800);
@@ -590,10 +589,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		gp.setUserBounds(histLogMin+0.5*histLogDelta, 3, minY, maxY*1.2);
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
 		gp.getCartPanel().setSize(1000, 800);
@@ -625,10 +621,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
 		gp.getCartPanel().setSize(1000, 800);
@@ -666,10 +659,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
 		gp.getCartPanel().setSize(1000, 800);
@@ -869,10 +859,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
 		gp.drawGraphPanel(spec, false, false, new Range(minX, maxX), new Range(0, maxY));
@@ -919,10 +906,7 @@ public class ETAS_MultiSimAnalysisTools {
 			minX = 1;
 		gp.setUserBounds(minX, maxGeneration, 0, maxY*1.1);
 		
-		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
 		gp.getCartPanel().setSize(1000, 800);
@@ -1139,77 +1123,41 @@ public class ETAS_MultiSimAnalysisTools {
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 		FaultSystemSolution fss = FaultSystemIO.loadSol(fssFile);
 		
+		boolean skipEmpty = true;
+//		double minDurationForInclusion = 0d;
+		double minDurationForInclusion = 0.5d;
+		
 		List<String> names = Lists.newArrayList();
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-//		names.add("Mojave M5.5 Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-full_td/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5p5);
+		names.add("Mojave M5 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m5-full_td-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M5);
 		
-//		names.add("Mojave M5.5 Full TD, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-full_td-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5p5);
-		
-//		names.add("Mojave M5.5 Full TD, No ERT");
-//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5p5);
-		
-//		names.add("Mojave M5.5 Full TD, No ERT, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-no_ert-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5p5);
-		
-		names.add("Mojave M5.5 Full TD, Poisson, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_09_09-mojave_m5p5-poisson-grCorr/results.bin"));
+		names.add("Mojave M5.5 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m5p5-full_td-grCorr/results.bin"));
 		scenarios.add(TestScenario.MOJAVE_M5p5);
 		
-//		names.add("Mojave M5 Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m5-full_td/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5);
-//		
-//		names.add("Mojave M5 Full TD, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m5-full_td-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5);
-//		
-//		names.add("Mojave M5.5 Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_21-mojave_m5p5-full_td/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5p5);
-//		
-//		names.add("Mojave M5.5 Full TD, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_21-mojave_m5p5-full_td-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M5p5);
-//		
-//		names.add("Mojave M6 Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m6-full_td/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M6);
-//		
-//		names.add("Mojave M6 Full TD, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m6-full_td-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M6);
-//		
-//		names.add("Mojave M7 Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 Full TD, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-full_td-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 No ERT");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 No ERT, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-no_ert-grCorr/results.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-////		names.add("Mojave M7 Poisson");				// BAD, none completed
-////		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson/results_m4.bin"));
-////		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7 Poisson, GR Corr.");
-//		resultsZipFiles.add(new File(mainDir, "2015_08_07-mojave_m7-poisson-grCorr/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7);
+		names.add("Mojave M6.3 Finite Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m6pt3_fss-full_td-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M6pt3_FSS);
+		
+		names.add("Mojave M6.3 Pt. Src. Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m6pt3_ptsrc-full_td-grCorr/results.bin"));
+		scenarios.add(TestScenario.MOJAVE_M6pt3_ptSrc);
+		
+		names.add("Mojave M7 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m7-full_td-grCorr/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7);
+		
+		names.add("Mojave M7.4 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m7pt4-full_td-grCorr/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7pt4);
+		
+		names.add("Mojave M7.8 Full TD, GR Corr.");
+		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m7pt8-full_td-grCorr/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7pt8);
 		
 		// parent ID for the trigger rupture
 		int triggerParentID = 0;
@@ -1286,13 +1234,34 @@ public class ETAS_MultiSimAnalysisTools {
 			else
 				System.out.println("Catalog loading took "+secs+" seconds");
 			
+			if (skipEmpty) {
+				int skipped = 0;
+				for (int i=catalogs.size(); --i>=0;) {
+					if (catalogs.get(i).isEmpty()) {
+						catalogs.remove(i);
+						skipped++;
+					}
+				}
+				if (skipped > 0)
+					System.out.println("Removed "+skipped+" empty catalogs.");
+			}
+			
 			// now check actual duration
 			MinMaxAveTracker durationTrack = new MinMaxAveTracker();
-			for (List<ETAS_EqkRupture> catalog : catalogs) {
+			int skippedDuration = 0;
+			for (int i=catalogs.size(); --i>=0;) {
+				List<ETAS_EqkRupture> catalog = catalogs.get(i);
 				long durationMillis = catalog.get(catalog.size()-1).getOriginTime() - catalog.get(0).getOriginTime();
 				double myDuration = (double)durationMillis/MILLIS_PER_YEAR;
-				durationTrack.addValue(myDuration);
+				if (myDuration < minDurationForInclusion) {
+					catalogs.remove(i);
+					skippedDuration++;
+				} else {
+					durationTrack.addValue(myDuration);
+				}
 			}
+			if (skippedDuration > 0)
+				System.out.println("Removed "+skippedDuration+" catalgos that were too short");
 			System.out.println("Actual duration: "+durationTrack);
 			if (DataUtils.getPercentDiff(duration, durationTrack.getMin()) > 2d)
 				System.out.println("WARNING: at least 1 simulation doesn't match expected duration");
@@ -1369,8 +1338,10 @@ public class ETAS_MultiSimAnalysisTools {
 			if (plotTemporalDecay) {
 				// temporal decay
 				System.out.println("Plotting Temporal Decay");
-				plotAftershockRateVsLogTimeHistForRup(primaryCatalogs, params, ot, outputDir, name+" Primary", "primary_temporal_decay");
-				plotAftershockRateVsLogTimeHistForRup(childrenCatalogs, params, ot, outputDir, name, "full_children_temporal_decay");
+				plotAftershockRateVsLogTimeHistForRup(primaryCatalogs, scenario, params, ot, outputDir,
+						name+" Primary", "primary_temporal_decay");
+				plotAftershockRateVsLogTimeHistForRup(childrenCatalogs, scenario, params, ot, outputDir,
+						name, "full_children_temporal_decay");
 			}
 			
 			if (plotDistanceDecay) {

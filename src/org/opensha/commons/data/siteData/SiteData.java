@@ -72,6 +72,10 @@ public interface SiteData<Element> extends Named, XMLSaveable {
 	 * Topographic Slope, aka "scalar magnitudes of gradient vectors" from GMT (m/m)
 	 */
 	public static final String TYPE_TOPOGRAPHIC_SLOPE = "Topographic Slope (m/m)";
+	/**
+	 * Tectonic Regime
+	 */
+	public static final String TYPE_TECTONIC_REGIME = "Tectonic Regime";
 	
 	/* ************ Type Flags ************ */
 	

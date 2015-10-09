@@ -15,11 +15,13 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
@@ -54,6 +56,7 @@ import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -63,6 +66,44 @@ import scratch.UCERF3.utils.MatrixIO;
 import scratch.kevin.cybershake.ucerf3.CSDownsampledSolCreator;
 
 public class PureScratch {
+	
+	private static void test1() {
+		Location hypoLoc = new Location(34, -118);
+		int num = 1000;
+		double mag = 5d;
+		
+		ETAS_Utils utils = new ETAS_Utils();
+		
+		DefaultXY_DataSet xy = new DefaultXY_DataSet();
+		
+		int retries = 0;
+		
+		for (int i=0; i<num; i++) {
+			double radius = ETAS_Utils.getRuptureRadiusFromMag(mag);
+			double testRadius = radius+1;
+			Location loc = null;
+			while(testRadius>radius) {
+				double lat = hypoLoc.getLatitude()+(2.0*utils.getRandomDouble()-1.0)*(radius/111.0);
+				double lon = hypoLoc.getLongitude()+(2.0*utils.getRandomDouble()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
+				double depthBottom = hypoLoc.getDepth()+radius;
+				if(depthBottom>24.0)
+					depthBottom=24.0;
+				double depthTop = hypoLoc.getDepth()-radius;
+				if(depthTop<0.0)
+					depthTop=0.0;
+				double depth = depthTop + utils.getRandomDouble()*(depthBottom-depthTop);
+				loc = new Location(lat,lon,depth);
+				testRadius=LocationUtils.linearDistanceFast(loc, hypoLoc);
+				retries++;
+			}
+			xy.set(loc.getLongitude(), loc.getLatitude());
+		}
+		
+		System.out.println("Retries: "+retries);
+		GraphWindow gw = new GraphWindow(xy, "Circular Random Test", new PlotCurveCharacterstics(PlotSymbol.X, 2f, Color.BLACK));
+		gw.setAxisRange(xy.getMinX(), xy.getMaxX(), xy.getMinY(), xy.getMaxY());
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+	}
 
 	/**
 	 * @param args
@@ -70,77 +111,79 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-//		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
-//				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-//		System.out.println(sol3.getSubSeismoOnFaultMFD_List().size());
-//		System.exit(0);
-//		CompoundFaultSystemSolution cfss2 = CompoundFaultSystemSolution.fromZipFile(new File(
-//				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-//				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
-//		FaultSystemSolution sol1 = cfss2.getSolution(LogicTreeBranch.DEFAULT);
-		FaultSystemSolution inputSol = FaultSystemIO.loadSol(
-//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-//						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/UCERF3_ERF/"
-						+ "cached_dep10.0_depMean_rakeGEOLOGIC.zip"));
+		test1();
 		
-		Region region = new CaliforniaRegions.RELM_SOCAL();
-		
-		FaultSystemSolution sol1 = CSDownsampledSolCreator.getDownsampledSol(inputSol, region);
-		
-		double[] counts = new double[sol1.getRupSet().getNumSections()];
-		for (int sectIndex=0; sectIndex<sol1.getRupSet().getNumSections(); sectIndex++)
-			counts[sectIndex] = sol1.getRupSet().getRupturesForSection(sectIndex).size();
-		HistogramFunction numHist = HistogramFunction.getEncompassingHistogram(0d, 50000d, 1000d);
-//		HistogramFunction numHist = new HistogramFunction(50d, 10050d, (100));
-		for (double count : counts)
-			numHist.add(numHist.getClosestXIndex(count), 1d);
-		
-		List<DiscretizedFunc> funcs = Lists.newArrayList();
-		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		
-		funcs.add(numHist);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
-		
-		GraphWindow gw = new GraphWindow(funcs, "Ruptures Per Subsection", chars);
-		gw.setX_AxisLabel("Num Ruptures Including Subsection");
-		gw.setY_AxisLabel("Num Subsections");
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
-		gw.saveAsPNG("/tmp/rup_count_hist.png");
-		
-		// now fract
-		EvenlyDiscretizedFunc fractFunc = new EvenlyDiscretizedFunc(1d, 100000, 1d);
-		Arrays.sort(counts);
-		for (int i=0; i<fractFunc.size(); i++) {
-			double x = fractFunc.getX(i);
-			int index = Arrays.binarySearch(counts, x);
-			if (index < 0) {
-				index = -(index + 1);
-			}
-			double y = 1d - (double)(index)/(double)(counts.length-1);
-			fractFunc.set(i, y);
-		}
-		
-		funcs = Lists.newArrayList();
-		chars = Lists.newArrayList();
-		
-		funcs.add(fractFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		
-		gw = new GraphWindow(funcs, "Ruptures Per Subsection", chars);
-		gw.setX_AxisLabel("Num Ruptures Including Subsection");
-		gw.setY_AxisLabel("Fraction of Subsections >= Num");
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
-		gw.saveAsPNG("/tmp/rup_count_fract_func.png");
-		
-		while (" ".length() > 0) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
+////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+////		System.out.println(sol3.getSubSeismoOnFaultMFD_List().size());
+////		System.exit(0);
+////		CompoundFaultSystemSolution cfss2 = CompoundFaultSystemSolution.fromZipFile(new File(
+////				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
+////		FaultSystemSolution sol1 = cfss2.getSolution(LogicTreeBranch.DEFAULT);
+//		FaultSystemSolution inputSol = FaultSystemIO.loadSol(
+////				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+////						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/UCERF3_ERF/"
+//						+ "cached_dep10.0_depMean_rakeGEOLOGIC.zip"));
+//		
+//		Region region = new CaliforniaRegions.RELM_SOCAL();
+//		
+//		FaultSystemSolution sol1 = CSDownsampledSolCreator.getDownsampledSol(inputSol, region);
+//		
+//		double[] counts = new double[sol1.getRupSet().getNumSections()];
+//		for (int sectIndex=0; sectIndex<sol1.getRupSet().getNumSections(); sectIndex++)
+//			counts[sectIndex] = sol1.getRupSet().getRupturesForSection(sectIndex).size();
+//		HistogramFunction numHist = HistogramFunction.getEncompassingHistogram(0d, 50000d, 1000d);
+////		HistogramFunction numHist = new HistogramFunction(50d, 10050d, (100));
+//		for (double count : counts)
+//			numHist.add(numHist.getClosestXIndex(count), 1d);
+//		
+//		List<DiscretizedFunc> funcs = Lists.newArrayList();
+//		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+//		
+//		funcs.add(numHist);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+//		
+//		GraphWindow gw = new GraphWindow(funcs, "Ruptures Per Subsection", chars);
+//		gw.setX_AxisLabel("Num Ruptures Including Subsection");
+//		gw.setY_AxisLabel("Num Subsections");
+//		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+//		gw.saveAsPNG("/tmp/rup_count_hist.png");
+//		
+//		// now fract
+//		EvenlyDiscretizedFunc fractFunc = new EvenlyDiscretizedFunc(1d, 100000, 1d);
+//		Arrays.sort(counts);
+//		for (int i=0; i<fractFunc.size(); i++) {
+//			double x = fractFunc.getX(i);
+//			int index = Arrays.binarySearch(counts, x);
+//			if (index < 0) {
+//				index = -(index + 1);
+//			}
+//			double y = 1d - (double)(index)/(double)(counts.length-1);
+//			fractFunc.set(i, y);
+//		}
+//		
+//		funcs = Lists.newArrayList();
+//		chars = Lists.newArrayList();
+//		
+//		funcs.add(fractFunc);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+//		
+//		gw = new GraphWindow(funcs, "Ruptures Per Subsection", chars);
+//		gw.setX_AxisLabel("Num Ruptures Including Subsection");
+//		gw.setY_AxisLabel("Fraction of Subsections >= Num");
+//		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+//		gw.saveAsPNG("/tmp/rup_count_fract_func.png");
+//		
+//		while (" ".length() > 0) {
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 		
 //		int subSect = 1267;
 //		System.out.println(sol1.getSubSeismoOnFaultMFD_List().get(subSect));
@@ -161,7 +204,7 @@ public class PureScratch {
 //		System.out.println("# sub seismos: "+sol2.getSubSeismoOnFaultMFD_List().size());
 //		System.out.println("Orig first: "+sol1.getSubSeismoOnFaultMFD_List().get(0));
 //		System.out.println("New first: "+sol2.getSubSeismoOnFaultMFD_List().get(0));
-		System.exit(0);
+//		System.exit(0);
 //		RegionUtils.regionToKML(new CaliforniaRegions.LA_BOX(), "la_box", Color.BLACK);
 //		RegionUtils.regionToKML(new CaliforniaRegions.SF_BOX(), "sf_box", Color.BLACK);
 //		System.exit(0);

@@ -10,7 +10,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
+import org.json.simple.JSONObject;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
@@ -51,7 +53,29 @@ public class ComcatAccessor {
 			return null;
 		Preconditions.checkState(events.size() == 1, "More that 1 match? "+events.size());
 		
+		JsonEvent event = events.get(0);
+		printJSON(event);
+		
 		return eventToObsRup(events.get(0));
+	}
+	
+	private static void printJSON(JSONObject json) {
+		printJSON(json, "");
+	}
+	private static void printJSON(JSONObject json, String prefix) {
+		for (Object key : json.keySet()) {
+			Object val = json.get(key);
+			if (val instanceof JSONObject) {
+				System.out.println(prefix+key+":");
+				String prefix2 = prefix;
+				if (prefix2 == null)
+					prefix2 = "";
+				prefix2 += "\t";
+				printJSON((JSONObject)val, prefix2);
+			} else {
+				System.out.println(prefix+key+": "+json.get(key));
+			}
+		}
 	}
 	
 	private static final double day_millis = 24d*60d*60d*1000d;

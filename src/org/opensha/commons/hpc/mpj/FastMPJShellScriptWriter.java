@@ -17,6 +17,7 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 	
 	private File mpjHome;
 	private boolean useMXDev;
+	private boolean useLaunchWrapper = false;
 	
 	private FastMPJShellScriptWriter(JavaShellScriptWriter javaWriter,
 			File mpjHome, boolean useMXDev) {
@@ -48,6 +49,14 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		return useMXDev;
 	}
 	
+	public boolean isUseLaunchWrapper() {
+		return useLaunchWrapper;
+	}
+
+	public void setUseLaunchWrapper(boolean useLaunchWrapper) {
+		this.useLaunchWrapper = useLaunchWrapper;
+	}
+
 	@Override
 	public void setAutoMemDetect(boolean autoMemDetect) {
 		Preconditions.checkState(!autoMemDetect, "Not supported for FastMPJ as will only affect node 0");
@@ -95,6 +104,11 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		script.add("");
 		script.addAll(getJVMSetupLines());
 		
+		String launchCommand;
+		if (isUseLaunchWrapper())
+			launchCommand = "fmpjrun_errdetect_wrapper.sh";
+		else
+			launchCommand = "fmpjrun";
  
 		String dev;
 		if (useMXDev)
@@ -105,7 +119,7 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 			script.add("");
 			script.add("date");
 			script.add("echo \"RUNNING FMPJ\"");
-			String command = "fmpjrun -machinefile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$FMPJ_HOME/lib";
+			String command = launchCommand+" -machinefile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$FMPJ_HOME/lib";
 			command += getJVMArgs(" ");
 			if (!command.endsWith(" "))
 				command += " ";

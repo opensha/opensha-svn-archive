@@ -14,6 +14,7 @@ import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 
 import com.google.common.collect.Lists;
@@ -32,12 +33,17 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
+				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
 //		TestScenario[] scenarios = { null };
-		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-		boolean[] grCorrs = { false, true };
-//		boolean[] grCorrs = { true };
+//		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+//		boolean[] grCorrs = { false, true };
+		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
+		
+		String nameAdd = null;
+//		String nameAdd = "launch-debug";
 		
 		double duration = 1;
 		int startYear = 2014;
@@ -52,6 +58,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int numSims = 100;
 //		int nodes = 50;
 //		int mins = 24*60;
+		
+		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
+//		String dateStr = "2015_10_06";
 		
 		boolean timeIndep = false;
 		
@@ -76,6 +85,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
 					null, StampedeScriptWriter.FMPJ_HOME, false);
+			mpjWrite.setUseLaunchWrapper(true);
 			pbsWrite = new StampedeScriptWriter();
 			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
 		} else {
@@ -114,15 +124,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					scenarioName += "-"+(float)duration+"yr";
 			}
 			for (U3ETAS_ProbabilityModelOptions probModel : probModels) {
-				for (boolean grCorr : grCorrs) {
-					String grStr;
-					if (grCorr)
-						grStr = "-grCorr";
-					else
-						grStr = "";
-					
-					String jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+scenarioName;
-					jobName += "-"+probModel.name().toLowerCase()+grStr;
+				for (double maxCharFactor : maxCharFactors) {
+					String jobName = dateStr+"-"+scenarioName;
+					if (nameAdd != null && !nameAdd.isEmpty())
+						jobName += "-"+nameAdd;
+					jobName += "-"+probModel.name().toLowerCase()+"-maxChar"+(float)maxCharFactor;
 					if (timeIndep)
 						jobName += "-indep";
 					
@@ -152,8 +158,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					
 					argz += " --prob-model "+probModel.name();
 					
-					if (grCorr)
-						argz += " --impose-gr";
+					argz += " --max-char-factor "+maxCharFactor;
 					
 					if (timeIndep)
 						argz += " --indep";

@@ -534,6 +534,22 @@
     <url-pattern>/SiteData/US3secNED</url-pattern>
   </servlet-mapping>
 
+  <!-- * Garcia Region Perl Script * -->
+  <servlet>
+    <servlet-name>GarciaRegionPerlWrapper</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.GarciaRegionPerlWrapperServlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>GarciaRegionPerlWrapper</servlet-name>
+    <url-pattern>/SiteData/GarciaRegionPerlWrapper</url-pattern>
+  </servlet-mapping>
+
 
   <!-- ** ERF related ** -->
   <!-- * WG02 Fortran Wrapper * -->

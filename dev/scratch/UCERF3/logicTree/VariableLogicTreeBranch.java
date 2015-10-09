@@ -79,6 +79,10 @@ public class VariableLogicTreeBranch extends LogicTreeBranch {
 		if (!(o instanceof VariableLogicTreeBranch))
 			return 1;
 		VariableLogicTreeBranch other = (VariableLogicTreeBranch)o;
+		if (variations == null) {
+			Preconditions.checkState(other.variations == null);
+			return 0;
+		}
 		Preconditions.checkState(other.variations.size() == variations.size(), "Num variations inconsistent!");
 		for (int i=0; i<variations.size(); i++) {
 			String val = variations.get(i);
