@@ -159,8 +159,9 @@ public class GarciaRegionPerlWrapper extends AbstractSiteData<String> {
 	}
 	
 	public static void main(String[] args) {
-		GarciaRegionPerlWrapper garcia = new GarciaRegionPerlWrapper(
-				new File("/home/kevin/OpenSHA/oaf/flinn_engdahl_regions/feregion_ajm.pl"));
+//		GarciaRegionPerlWrapper garcia = new GarciaRegionPerlWrapper(
+//				new File("/home/kevin/OpenSHA/oaf/flinn_engdahl_regions/feregion_ajm.pl"));
+		GarciaRegionPerlWrapper garcia = new GarciaRegionPerlWrapper();
 		
 		LocationList locs = new LocationList();
 		
