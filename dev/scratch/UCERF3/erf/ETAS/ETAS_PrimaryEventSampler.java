@@ -144,6 +144,7 @@ public class ETAS_PrimaryEventSampler {
 	ArrayList<HashMap<Integer,Float>> srcNuclRateOnSectList;
 	SummedMagFreqDist[] longTermSupraSeisMFD_OnSectArray;
 	List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList;
+
 	
 	// this stores the rates of erf ruptures that go unassigned (outside the region here)
 //	double rateUnassigned;
@@ -480,6 +481,10 @@ public class ETAS_PrimaryEventSampler {
 					srcNuclRateOnSectList.get(sect).put(src,0f);
 				}
 			}	
+			
+			// do this first because is uses the above arrays:
+//			computeFaultSourceLongTermRateChangeFactors();
+			
 			// now compute initial values for these arrays (nucleation rates of sections given norm time since last and any GR corr)
 			computeSectNucleationRates();
 			System.gc();	// garbage collect
@@ -604,6 +609,81 @@ public class ETAS_PrimaryEventSampler {
 
 
 	}
+	
+	
+	/**
+	 * This is developmental; not yet sure whether it is needed.
+	 */
+	private void computeFaultSourceLongTermRateChangeFactors() {
+		
+		for(int s=0;s<totSectNuclRateArray.length;s++) {	// intialized totals to zero
+			totSectNuclRateArray[s] = 0d;
+		}
+		
+		// these are for fss rups, not the ERF fault sources
+		double longTermRateOfFltSysRupInERF[] = fssERF.getLongTermRateOfFltSysRupInERF();
+			
+		for(int src=0; src<numFltSystSources; src++) {
+			int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
+			List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
+			// get total rupture area
+			double totArea=0;
+			for(int s=0;s<sectIndexList.size();s++) {
+				int sectIndex = sectIndexList.get(s);
+				double sectArea = rupSet.getAreaForSection(sectIndex);
+				totArea+=sectArea;
+			}
+			for(int s=0;s<sectIndexList.size();s++) {
+				int sectIndex = sectIndexList.get(s);
+				double sectArea = rupSet.getAreaForSection(sectIndex);
+				double sectNuclRate;
+				int fssIndex = fssERF.getFltSysRupIndexForSource(src);
+				sectNuclRate = longTermRateOfFltSysRupInERF[fssIndex]*sectArea/totArea;
+				srcNuclRateOnSectList.get(sectIndex).put(src, (float)sectNuclRate);
+				totSectNuclRateArray[sectIndex] += sectNuclRate;				
+			}
+		}
+		
+		// TESTS TODO do this only in debug mode?
+		for(int sect=0;sect<rupSet.getNumSections(); sect++) {
+			double testTotRate = 0;
+			for(float vals:srcNuclRateOnSectList.get(sect).values()) 
+				testTotRate += vals;
+			double ratio = testTotRate/totSectNuclRateArray[sect];
+			if(ratio<0.9999 || ratio>1.0001) {
+				throw new RuntimeException("Test failed in computeSectNucleationRates(); ratio ="+ratio+" for sect "+sect);
+			}
+		}
+		
+		// now compute the revised source rates given charFactor and grCorr
+		double[] revisedSrcRates = new double[numFltSystSources];
+		for(int sectIndex=0;sectIndex<rupSet.getNumSections();sectIndex++) {
+			HashMap<Integer,Float> map = srcNuclRateOnSectList.get(sectIndex);
+			for(int srcIndex:map.keySet()) {
+				revisedSrcRates[srcIndex] += map.get(srcIndex)*charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex];
+			}
+		}
+		
+		HistogramFunction logRatioHist = new HistogramFunction(-4.0,4.0,80);
+		double fltSrcRateChangeFactor[] = new double[revisedSrcRates.length];
+		double origTotalRate=0;
+		double newTotalRate=0;
+		for(int src=0;src<revisedSrcRates.length;src++) {
+			fltSrcRateChangeFactor[src] = revisedSrcRates[src]/longTermRateOfFltSysRupInERF[fssERF.getFltSysRupIndexForSource(src)];
+			
+			if(logRatioHist.getXIndex(Math.log10(fltSrcRateChangeFactor[src])) == -1) {
+				System.out.println(fltSrcRateChangeFactor[src]+"\t"+revisedSrcRates[src]+"\t"+longTermRateOfFltSysRupInERF[fssERF.getFltSysRupIndexForSource(src)]);
+			}
+			logRatioHist.add(Math.log10(fltSrcRateChangeFactor[src]),1.0);
+			
+			origTotalRate+=longTermRateOfFltSysRupInERF[fssERF.getFltSysRupIndexForSource(src)];
+			newTotalRate+=revisedSrcRates[src];
+		}
+		GraphWindow magProbDistsGraph2 = new GraphWindow(logRatioHist, "logRatioHist"); 
+		System.out.println("getFaultSourceLongTermRateChangeFactor()+\n\torigTotalRate="+origTotalRate+"\n\tnewTotalRate="+newTotalRate);
+
+	}
+
 	
 	
 	/**
@@ -3740,12 +3820,17 @@ System.exit(0);
 		double maxCharScaleFactor = -Double.MAX_VALUE;
 		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
 			double scaleFactor = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
+			if(scaleFactor==0.0) {	// Mendocino cases
+				charScaleFactorForSectArray[sectIndex]=1.0;
+				if(D) System.out.println("charScaleFactorForSectArray[] set to 1.0 for "+rupSet.getFaultSectionData(sectIndex).getName());
+				continue; // don't include in stats
+			}
 			charScaleFactorForSectArray[sectIndex] = scaleFactor;
 			meanCharScaleFactor+=scaleFactor;
 			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
 			meanCharScaleFactorMoRateWted+=moRate*scaleFactor;
 			moRateSum+=moRate;
-			if(minCharScaleFactor>scaleFactor && scaleFactor != 0.0) // avoid Menodocino outside RELM region
+			if(minCharScaleFactor>scaleFactor) // avoid Menodocino outside RELM region
 				minCharScaleFactor=scaleFactor;
 			
 			if(maxCharScaleFactor<scaleFactor)
@@ -4970,16 +5055,16 @@ System.exit(0);
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				maxCharFactor, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 	
-		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
-		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
+//		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
+//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_fltOnly", 6.35, true);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave_fltOnly", true);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_BoatRamp10_Poisson");
-		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp10_Poisson_TEST");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_BoatRamp10_Poisson_TEST");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_BoatRamp10_Poisson");
 ////		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_BoatRamp10_FullTD");
-		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_BoatRamp10_Poisson_TEST");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_BoatRamp10_Poisson_TEST");
 
 		
 
