@@ -45,6 +45,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelParam;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -94,7 +95,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private ETAS_EqkRupture triggerRup;
 	
 	private U3ETAS_ProbabilityModelOptions probModel = U3ETAS_ProbabilityModelParam.DEFAULT;
-	private boolean imposeGR = false;
+	private double maxCharFactor = U3ETAS_MaxCharFactorParam.DEFAULT_VALUE;
 	
 	private static final int START_YEAR_DEFAULT = 2014;
 	private int startYear = START_YEAR_DEFAULT;
@@ -124,7 +125,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		timeIndep = cmd.hasOption("indep");
 		
-		imposeGR = cmd.hasOption("impose-gr");
+		if (cmd.hasOption("max-char-factor"))
+			maxCharFactor = Double.parseDouble(cmd.getOptionValue("max-char-factor"));
 		
 		if (cmd.hasOption("prob-model"))
 			probModel = U3ETAS_ProbabilityModelOptions.valueOf(cmd.getOptionValue("prob-model"));
@@ -196,6 +198,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			mainshockRup.setMag(rupSet.getMagForRup(fssScenarioRupID));
 			mainshockRup.setRuptureSurface(rupSet.getSurfaceForRupupture(fssScenarioRupID, 1d, false));
 			mainshockRup.setID(0);
+			mainshockRup.setFSSIndex(fssScenarioRupID);
 //			debug("test Mainshock: "+erf.getSource(srcID).getName());
 			
 			if (cmd.hasOption("trigger-mag"))
@@ -260,7 +263,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	@Override
 	protected void calculateBatch(int[] batch) throws Exception {
 		if (fractionSrcAtPointList == null) {
-			File fractionSrcAtPointListFile = new File(inputDir, "fractSectInCubeCache");
+			File fractionSrcAtPointListFile = new File(inputDir, "sectDistForCubeCache");
 			File srcAtPointListFile = new File(inputDir, "sectInCubeCache");
 			File isCubeInsideFaultPolygonFile = new File(inputDir, "cubeInsidePolyCache");
 			Preconditions.checkState(fractionSrcAtPointListFile.exists(),
@@ -463,7 +466,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 					randSeed = System.currentTimeMillis();
 
 				ETAS_ParameterList params = new ETAS_ParameterList();
-				params.setImposeGR(imposeGR);
+				params.setMaxCharFactor(maxCharFactor);
 				params.setU3ETAS_ProbModel(probModel);
 				
 				if (rank == 0) {
@@ -706,9 +709,14 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		probModel.setRequired(false);
 		ops.addOption(probModel);
 		
-		Option imposeGROption = new Option("gr", "impose-gr", false, "Impose G-R.");
-		imposeGROption.setRequired(false);
-		ops.addOption(imposeGROption);
+//		Option imposeGROption = new Option("gr", "impose-gr", false, "Impose G-R.");
+//		imposeGROption.setRequired(false);
+//		ops.addOption(imposeGROption);
+		
+		Option maxCharOption = new Option("mc", "max-char-factor", true, "Max characteristic factor allowed"
+				+ " on a fault section. Default: "+U3ETAS_MaxCharFactorParam.DEFAULT_VALUE);
+		maxCharOption.setRequired(false);
+		ops.addOption(maxCharOption);
 		
 		Option binaryOption = new Option("b", "binary", false, "Enables binary output. Default is ASCII.");
 		binaryOption.setRequired(false);
