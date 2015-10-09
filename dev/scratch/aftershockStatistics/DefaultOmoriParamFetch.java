@@ -1,13 +1,11 @@
 package scratch.aftershockStatistics;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.opensha.commons.data.siteData.impl.GarciaRegionPerlWrapper;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
