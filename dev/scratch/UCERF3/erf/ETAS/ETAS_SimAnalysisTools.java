@@ -1642,7 +1642,7 @@ public class ETAS_SimAnalysisTools {
 				rup.getOriginTime(), firstLogDay, lastLogDay, deltaLogDay);
 		rateVsLogTimePrimaryOnly.setName("Primary Aftershock Rate Histogram for "+info);
 //		rateVsLogTimePrimaryOnly.setInfo(" ");	// don't do this because there is info in here
-
+		
 		// get inter-event rates data
 		double[] relativeEventTimesDays = new double[aftershocksList.size()];
 		for(int i=0;i<aftershocksList.size();i++) {
@@ -1654,38 +1654,39 @@ public class ETAS_SimAnalysisTools {
 		for(int i=0;i<relativeEventTimesDays.length-1;i++) {
 			double xVal = Math.log10((relativeEventTimesDays[i]+relativeEventTimesDays[i+1])/2);
 			double yVal = 1.0/(relativeEventTimesDays[i+1]-relativeEventTimesDays[i]);
-			interEventRatesXY_DataSet.set(xVal,yVal);
+			if(!Double.isInfinite(yVal)) // avoid events that happened at the same time (at double precision, which accasionally happens)
+				interEventRatesXY_DataSet.set(xVal,yVal);
 		}
 		
 		interEventRatesXY_DataSet.setName("Inter-event Rates for "+info);
 		interEventRatesXY_DataSet.setInfo(" ");
-
 	
 		// make the target function & change it to a PDF
 		HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(etasProductivity_k, etasTemporalDecay_p, rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasMinTime_c, firstLogDay, lastLogDay, deltaLogDay);
 		targetFunc.setName("Expected Rate Decay for Primary Aftershocks");
 
-		
 		ArrayList<XY_DataSet> funcs = new ArrayList<XY_DataSet>();
 		funcs.add(interEventRatesXY_DataSet);
 		funcs.add(rateVsLogTimePrimaryOnly);
 		funcs.add(targetFunc);
 		
-		GraphWindow graph = new GraphWindow(funcs, "Primary Aftershock Rate for"+info); 
-		graph.setX_AxisLabel("Log10 Days");
-		graph.setY_AxisLabel("Rate (per day)");
-		graph.setX_AxisRange(-4, 3);
-		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
 		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2f, Color.BLUE));
 		plotChars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
 		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		graph.setPlotChars(plotChars);
+		GraphWindow graph = new GraphWindow(funcs, "Primary Aftershock Rate for"+info,plotChars); 
+
+		graph.setX_AxisLabel("Log10 Days");
+		graph.setY_AxisLabel("Rate (per day)");
+		graph.setX_AxisRange(-4, 3);
+		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+
 		graph.setYLog(true);
 //		graph.setXLog(true);
 		graph.setPlotLabelFontSize(18);
 		graph.setAxisLabelFontSize(16);
 		graph.setTickLabelFontSize(14);
+
 		if(pdf_FileName != null)
 			try {
 				graph.saveAsPDF(pdf_FileName);
@@ -1693,6 +1694,7 @@ public class ETAS_SimAnalysisTools {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
 	}
 
 
@@ -1724,7 +1726,8 @@ public class ETAS_SimAnalysisTools {
 		for(int i=0;i<relativeEventTimesDays.length-1;i++) {
 			double xVal = Math.log10((relativeEventTimesDays[i]+relativeEventTimesDays[i+1])/2);
 			double yVal = 1.0/(relativeEventTimesDays[i+1]-relativeEventTimesDays[i]);
-			interEventRatesXY_DataSet.set(xVal,yVal);
+			if(!Double.isInfinite(yVal)) // avoid events that happened at the same time (at double precision, which accasionally happens)
+				interEventRatesXY_DataSet.set(xVal,yVal);
 		}
 		
 		interEventRatesXY_DataSet.setName("Inter-event Rates for "+info);

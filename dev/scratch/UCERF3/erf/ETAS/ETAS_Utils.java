@@ -559,27 +559,33 @@ public class ETAS_Utils {
 	 * @param c
 	 * @param numDays - length of timespan following main shock
 	 */
-	public static void listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays) {
-		int numGen=15;
+	public static String listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
+		
+		boolean debug = false;
+		
 		double[] numForGen = new double[numGen];
+		
+		double minMagCheck = Math.abs(mfd.getMinMagWithNonZeroRate()-mfd.getDelta()/2.0-magMin);
+		if(minMagCheck>0.0001)
+			throw new RuntimeException("Min mags must be the same");
+		
+		IncrementalMagFreqDist normMFD = mfd.deepClone();
+		normMFD.scale(1.0/mfd.getTotalIncrRate());
 
 		double expPrimary = getExpectedNumEvents(k, p, mainMag, magMin, c, 0.0, numDays);
 		numForGen[0] = expPrimary;
+		IncrementalMagFreqDist expPrimaryMFD = mfd.deepClone();
+		expPrimaryMFD.scale(expPrimary/mfd.getTotalIncrRate());
 				
-		// normalize MFD to PDF between M 2.5 and max mag
-		int startMagIndex = mfd.getClosestXIndex(2.55);
+		int startMagIndex = mfd.getClosestXIndex(magMin+mfd.getDelta()/2.0);
 		int endMagIndex = mfd.getXIndex(mfd.getMaxMagWithNonZeroRate());
-		double sum=0;
-		for(int m=startMagIndex; m<=endMagIndex;m++) {
-			sum += mfd.getY(m);
-		}
-		mfd.scale(1.0/sum);
 
 		double numForLastGen = expPrimary;
 		for(int i=1; i<numGen;i++) {	// loop over generations
 			double expNum = 0;
 			for(int m=startMagIndex; m<=endMagIndex;m++) {
-				expNum += numForLastGen * mfd.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
+				double expNumAtMag = numForLastGen*normMFD.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
+				expNum += expNumAtMag;
 			}
 			numForGen[i] = expNum;
 			numForLastGen=expNum;
@@ -588,10 +594,65 @@ public class ETAS_Utils {
 		double totNum = 0;
 		for(int i=0; i<numGen;i++) 
 			totNum += numForGen[i];
+		
+		IncrementalMagFreqDist expTotalMFD = mfd.deepClone();
+		expTotalMFD.scale(totNum/mfd.getTotalIncrRate());
 
-		for(int i=0; i<numGen;i++) 
-			System.out.println("Gen "+(i+1)+"\t"+numForGen[i]+"\t"+numForGen[i]/totNum);
+		
+		String resultString = Double.toString(mainMag);
 
+		for(int i=0; i<numGen;i++) {
+			resultString+="\t"+Float.toString((float)numForGen[i]);
+			if(debug) System.out.println("Gen "+(i+1)+"\t"+(float)numForGen[i]+"\t"+(float)numForGen[i]/totNum);
+		}
+
+		if(debug) System.out.println("Total: "+(float)totNum);
+
+		double numPrimaryAtMainMag = expPrimaryMFD.getCumRate(mainMag+mfd.getDelta()/2.0);
+		double numTotalAtMainMag = expTotalMFD.getCumRate(mainMag+mfd.getDelta()/2.0);
+		
+		double magMinusOne = mainMag-1.0+mfd.getDelta()/2.0;
+		double numPrimaryAtMainMagMinusOne, numTotalAtMainMagMinusOne;
+		if(magMinusOne>=mfd.getMinX()) {
+			numPrimaryAtMainMagMinusOne = expPrimaryMFD.getCumRate(magMinusOne);
+			numTotalAtMainMagMinusOne = expTotalMFD.getCumRate(magMinusOne);
+		}
+		else {
+			numPrimaryAtMainMagMinusOne = Double.NaN;
+			numTotalAtMainMagMinusOne = Double.NaN;
+		}
+		
+		resultString += "\t"+Float.toString((float)numPrimaryAtMainMag)+"\t"+Float.toString((float)numTotalAtMainMag);
+		resultString += "\t"+Float.toString((float)numPrimaryAtMainMagMinusOne)+"\t"+Float.toString((float)numTotalAtMainMagMinusOne)+"\n";
+		
+		if(debug)  {
+			System.out.println("numPrimaryAtMainMag: "+(float)numPrimaryAtMainMag);
+			System.out.println("numTotalAtMainMag: "+(float)numTotalAtMainMag);
+			System.out.println("numPrimaryAtMainMagMinusOne: "+(float)numPrimaryAtMainMagMinusOne);
+			System.out.println("numTotalAtMainMagMinusOne: "+(float)numTotalAtMainMagMinusOne);
+			
+			System.out.println("expPrimaryMFD.getTotalIncrRate() = "+expPrimaryMFD.getTotalIncrRate());
+			System.out.println("expTotalMFD.getTotalIncrRate() = "+expTotalMFD.getTotalIncrRate());
+//			System.out.println("Primary\n"+expPrimaryMFD);
+//			System.out.println("Total\n"+expTotalMFD);
+			
+			ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+			expPrimaryMFD.setName("expPrimaryMFD");
+			funcs.add(expPrimaryMFD);
+			funcs.add(expPrimaryMFD.getCumRateDistWithOffset());
+			expTotalMFD.setName("expTotalMFD");
+			funcs.add(expTotalMFD);
+			funcs.add(expTotalMFD.getCumRateDistWithOffset());
+			GraphWindow sectGraph = new GraphWindow(funcs, "Expected MFDs"); 
+			sectGraph.setX_AxisLabel("Mag");
+			sectGraph.setY_AxisLabel("Rate");
+			sectGraph.setYLog(true);
+			sectGraph.setAxisLabelFontSize(20);
+			sectGraph.setTickLabelFontSize(18);
+			sectGraph.setPlotLabelFontSize(22);
+		}
+		
+		return resultString;
 	}
 
 	
@@ -617,19 +678,26 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
-		System.out.println(func);
-		GraphWindow distDecayGraph2 = new GraphWindow(func, "Dist Decay"); 
-		distDecayGraph2.setYLog(true);
+//		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
+//		System.out.println(func);
+//		GraphWindow distDecayGraph2 = new GraphWindow(func, "Dist Decay"); 
+//		distDecayGraph2.setYLog(true);
+		
+		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+		System.out.print("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+		System.out.print("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+		for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5)
+			System.out.print(listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, 365.25, 15));
 
 //		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
-//		double mainMag = 6;
-//		double numDays = 7;
+//		double mainMag = 5;
+//		double numDays = 365.25;
 //		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
 ////		System.out.println(grDist);
 //		System.out.println("Perfect GR:");
-//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
-//		tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
+//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays, 15);
+
+		//tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 ////		System.exit(0);	
 //		
 //		

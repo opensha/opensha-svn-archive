@@ -3167,7 +3167,9 @@ System.exit(0);
 				return false;	// triggered location outside of the region
 		}
 
-		double fractionSupra = getERT_MinFracSupra(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
+		double fractionSupra = 0;
+		if(this.totalSectRateInCubeArray[aftShCubeIndex] > 0)	// only do this if the cube has sections inside
+			fractionSupra = getERT_MinFracSupra(rupToFillIn.getParentRup(), getCubeLocationForIndex(aftShCubeIndex));
 		
 		int randSrcIndex = getRandomSourceIndexInCube(aftShCubeIndex, fractionSupra);
 		

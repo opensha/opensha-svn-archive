@@ -677,8 +677,10 @@ public class ETAS_Simulator {
 		if (mapThread != null)
 			mapThread.kill();
 
-		if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs");
-		info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");
+		if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");
+		info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n\n");
+		
+		ETAS_SimAnalysisTools.writeMemoryUse("Memory after loop:");
 		
 		
 		int[] numInEachGeneration = ETAS_SimAnalysisTools.getNumAftershocksForEachGeneration(simulatedRupsQueue, 10);
@@ -896,7 +898,8 @@ public class ETAS_Simulator {
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
 		
 		if(simulationName == null) {
-			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel()+"_MaxCharFact"+etasParams.getMaxCharFactor();
+			String maxCharFactorString = Double.toString(etasParams.getMaxCharFactor()).replace(".", "p");
+			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel()+"_MaxCharFact"+maxCharFactorString;
 		}
 		
 //		testERF_ParamChanges(erf);
@@ -1319,21 +1322,23 @@ public class ETAS_Simulator {
 		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setMaxCharFactor(10.0);;		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setMaxCharFactor(10);;		
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		String simulationName;
+		String maxCharFactorString = Double.toString(params.getMaxCharFactor()).replace(".", "p");
 		if(scenario == null)
-			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+params.getMaxCharFactor();
+			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+maxCharFactorString;
 		else
-			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+params.getMaxCharFactor();
+			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+maxCharFactorString;
 
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
 		simulationName += "_1";	// to increment runs
 
-		Long seed = 1444170206879l;
+		Long seed = null;
+//		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
 //		double startTimeYear=2012;
