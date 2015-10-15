@@ -1,9 +1,12 @@
 package org.opensha.sha.calc.mcer;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
+
+import com.google.common.collect.Lists;
 
 public class DeterministicResult implements XMLSaveable, Serializable {
 	
@@ -52,6 +55,20 @@ public class DeterministicResult implements XMLSaveable, Serializable {
 	@Override
 	public String toString() {
 		return "DetResult: "+val+", src("+getSourceID()+","+getRupID()+"): "+getSourceName()+" (M="+(float)getMag()+")";
+	}
+	
+	public static DeterministicResult getPsuedoVel(DeterministicResult saResult, double period) {
+		if (saResult == null)
+			return null;
+		return new DeterministicResult(saResult.getSourceID(), saResult.getRupID(), saResult.getMag(),
+				saResult.getSourceName(), MCErCalcUtils.saToPsuedoVel(saResult.getVal(), period));
+	}
+	
+	public static List<DeterministicResult> getPsuedoVels(List<DeterministicResult> saResults, List<Double> periods) {
+		List<DeterministicResult> velResults = Lists.newArrayList();
+		for (int i=0; i<saResults.size(); i++)
+			velResults.add(getPsuedoVel(saResults.get(i), periods.get(i)));
+		return velResults;
 	}
 
 	@Override

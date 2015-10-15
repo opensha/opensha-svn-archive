@@ -189,6 +189,7 @@ public class MCERDataProductsCalc {
 			if (gmpeERF == null)
 				gmpeERF = erf;
 			ERF gmpeDetERF = getGMPEDetERF(gmpeERF, csDetCalc.getRupProbMod());
+			System.out.println("GMPE Det ERF: "+ClassUtils.getClassNameWithoutPackage(gmpeDetERF.getClass()));
 			
 			Component gmpeComp = MCErCalcUtils.getSupportedTranslationComponent(
 					gmpes.get(0), comp.getGMPESupportedComponents());
@@ -238,6 +239,7 @@ public class MCERDataProductsCalc {
 			System.out.println("Creating UCERF2 deterministic ERF");
 			RupProbModERF detERF = new RupProbModERF(erf, detProbMod);
 			detERF.updateForecast();
+			return detERF;
 		}
 		return erf;
 	}
@@ -379,7 +381,14 @@ public class MCERDataProductsCalc {
 		name += comp.getShortName()+"_"+perStr+"per_"+dateFormat.format(new Date())+".csv";
 		
 		File outputFile = new File(runOutputDir, name);
-		DeterministicResultPlotter.writeCSV(periods, csDeterms, gmpes, gmpeDeterms, outputFile);
+		DeterministicResultPlotter.writeCSV(periods, csDeterms, gmpes, gmpeDeterms, outputFile, false);
+		
+		// now PSV
+		name = site.getCS_Site().short_name+"_run"+run.getRunID()+"_Deterministic_";
+		name += comp.getShortName()+"_vel_"+perStr+"per_"+dateFormat.format(new Date())+".csv";
+		
+		outputFile = new File(runOutputDir, name);
+		DeterministicResultPlotter.writeCSV(periods, csDeterms, gmpes, gmpeDeterms, outputFile, true);
 		
 		// plot probabilistic
 		for (boolean velPlot : new boolean[] {true, false})
@@ -757,7 +766,7 @@ public class MCERDataProductsCalc {
 		ops.addOption(attenRelFiles);
 		
 		Option gmpeCacheDir = new Option("gcache", "gmpe-cache-dir", true, "GMPE cache directory");
-		gmpeCacheDir.setRequired(true);
+		gmpeCacheDir.setRequired(false);
 		ops.addOption(gmpeCacheDir);
 		
 		Option help = new Option("?", "help", false, "Display this message");
@@ -787,8 +796,9 @@ public class MCERDataProductsCalc {
 //			String argStr = "--run-id 2657";
 //			String argStr = "--run-id 3030"; // STNI orig
 //			String argStr = "--run-id 3873"; // STNI 1 hz
-			String argStr = "--run-id 3873,3880"; // STNI,SBSM 1 hz
+//			String argStr = "--run-id 3873,3880"; // STNI,SBSM 1 hz
 //			String argStr = "--run-id 3883"; // s603 1 hz
+			String argStr = "--run-id 3875,3878,3877"; // LAPD,PAS,COO 1 hz
 			argStr += " --component RotD100";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
 			argStr += " --output-dir /tmp/mcer_data_products";
@@ -798,9 +808,9 @@ public class MCERDataProductsCalc {
 					+ "src/org/opensha/sha/cybershake/conf/cb2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cy2014.xml";
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
-			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_full.xml";
-			argStr += " --gmpe-cache-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2/";
-			argStr += " --weight-average";
+//			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_full.xml";
+//			argStr += " --gmpe-cache-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2/";
+//			argStr += " --weight-average";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
 		

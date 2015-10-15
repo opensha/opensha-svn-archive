@@ -183,7 +183,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-				ims.add(CybershakeIM.fromResultSet(rs));
+				try {
+					ims.add(CybershakeIM.fromResultSet(rs));
+				} catch (IllegalStateException e) {
+					System.out.println("Skipping IM: "+e.getMessage());
+				}
 				rs.next();
 			}
 			rs.close();
@@ -213,7 +217,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-				ims.add(CybershakeIM.fromResultSet(rs));
+				try {
+					ims.add(CybershakeIM.fromResultSet(rs));
+				} catch (IllegalStateException e) {
+					System.out.println("Skipping IM: "+e.getMessage());
+				}
 				rs.next();
 			}
 			rs.close();
@@ -313,7 +321,11 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		try {
 			rs.first();
 			while(!rs.isAfterLast()){
-				ims.add(CybershakeIM.fromResultSet(rs));
+				try {
+					ims.add(CybershakeIM.fromResultSet(rs));
+				} catch (IllegalStateException e) {
+					System.out.println("Skipping IM: "+e.getMessage());
+				}
 				rs.next();
 			}
 			rs.close();

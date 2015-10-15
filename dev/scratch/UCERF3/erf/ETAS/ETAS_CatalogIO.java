@@ -275,6 +275,11 @@ public class ETAS_CatalogIO {
 	 * @throws IOException
 	 */
 	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream, double minMag) throws IOException {
+		return loadCatalog(	catalogStream, minMag, false);
+	}
+	
+	public static List<ETAS_EqkRupture> loadCatalog(InputStream catalogStream, double minMag, boolean ignoreFailure)
+			throws IOException {
 		List<ETAS_EqkRupture> catalog = Lists.newArrayList();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(catalogStream));
 
@@ -282,9 +287,17 @@ public class ETAS_CatalogIO {
 			line = line.trim();
 			if (line.startsWith("%") || line.startsWith("#") || line.isEmpty())
 				continue;
-			ETAS_EqkRupture rup = loadRuptureFromFileLine(line);
-			if (rup.getMag() >= minMag)
-				catalog.add(rup);
+			try {
+				ETAS_EqkRupture rup = loadRuptureFromFileLine(line);
+				if (rup.getMag() >= minMag)
+					catalog.add(rup);
+			} catch (RuntimeException e) {
+				if (ignoreFailure) {
+					System.err.println("Warning, skipping line: "+e.getMessage());
+					continue;
+				}
+				else throw e;
+			}
 		}
 		return catalog;
 	}
@@ -451,15 +464,15 @@ public class ETAS_CatalogIO {
 			double lon = in.readDouble();
 			double depth = in.readDouble();
 			double mag = in.readDouble();
-			Preconditions.checkState(mag >= 0 && mag < 10);
+			Preconditions.checkState(mag >= 0 && mag < 10, "Bad Mag: %s", mag);
 			double distToParent = in.readDouble();
 			Preconditions.checkState(Double.isNaN(distToParent) || distToParent >= 0, "bad dist to parent: %s", distToParent);
 			int nthERFIndex = in.readInt();
-			Preconditions.checkState(nthERFIndex >= -1);
+			Preconditions.checkState(nthERFIndex >= -1, "Bad Grid Node Index: %s", nthERFIndex);
 			int fssIndex = in.readInt();
-			Preconditions.checkState(fssIndex >= -1);
+			Preconditions.checkState(fssIndex >= -1, "Bad Grid Node Index: %s", fssIndex);
 			int gridNodeIndex = in.readInt();
-			Preconditions.checkState(gridNodeIndex >= -1);
+			Preconditions.checkState(gridNodeIndex >= -1, "Bad Grid Node Index: %s", gridNodeIndex);
 
 			if (mag < minMag)
 				continue;
@@ -488,8 +501,14 @@ public class ETAS_CatalogIO {
 	public static List<List<ETAS_EqkRupture>> loadCatalogs(File zipFile) throws ZipException, IOException {
 		return loadCatalogs(zipFile, -10);
 	}
+	
+	public static List<List<ETAS_EqkRupture>> loadCatalogs(File zipFile, double minMag)
+			throws ZipException, IOException {
+		return loadCatalogs(zipFile, minMag, false);
+	}
 
-	public static List<List<ETAS_EqkRupture>> loadCatalogs(File zipFile, double minMag) throws ZipException, IOException {
+	public static List<List<ETAS_EqkRupture>> loadCatalogs(File zipFile, double minMag, boolean ignoreFailure)
+			throws ZipException, IOException {
 		if (isBinary(zipFile))
 			return loadCatalogsBinary(zipFile, minMag);
 		ZipFile zip = new ZipFile(zipFile);
@@ -508,7 +527,7 @@ public class ETAS_CatalogIO {
 
 			try {
 				List<ETAS_EqkRupture> cat = loadCatalog(
-						zip.getInputStream(catEntry), minMag);
+						zip.getInputStream(catEntry), minMag, ignoreFailure);
 
 				catalogs.add(cat);
 			} catch (Exception e) {
@@ -553,7 +572,14 @@ public class ETAS_CatalogIO {
 			if (!subDir.isDirectory() || !subDir.getName().startsWith("sim_"))
 				continue;
 
-			// first try to just copy over binary data
+			// check ASCII first
+			File asciiFile = new File(subDir, "simulatedEvents.txt");
+			if (asciiFile.exists()) {
+				eventsFiles.add(asciiFile);
+				continue;
+			}
+			
+			// then try to just copy over binary data
 			File binaryFile = new File(subDir, "simulatedEvents.bin");
 			if (binaryFile.exists() && binaryFile.length() > 0l) {
 				eventsFiles.add(binaryFile);
@@ -562,11 +588,6 @@ public class ETAS_CatalogIO {
 			File binaryGZipFile = new File(subDir, "simulatedEvents.bin.gz");
 			if (binaryGZipFile.exists() && binaryGZipFile.length() > 0l) {
 				eventsFiles.add(binaryGZipFile);
-				continue;
-			}
-			File asciiFile = new File(subDir, "simulatedEvents.txt");
-			if (asciiFile.exists()) {
-				eventsFiles.add(asciiFile);
 				continue;
 			}
 		}
@@ -583,6 +604,12 @@ public class ETAS_CatalogIO {
 		for (File eventsFile : eventsFiles) {
 			String name = eventsFile.getName();
 			// make sure that we actually write something
+			if (!eventsFile.exists() && name.endsWith(".txt")) {
+				// currently running, skip
+				eventsFile = new File(eventsFile.getParentFile(), "simulatedEvents.bin");
+				name = eventsFile.getName();
+				Preconditions.checkState(eventsFile.exists(), "TXT file deleted but bin doesn't exist?");
+			}
 			int prevCounter = out.size();
 			try {
 				if (minMag < 0 && name.endsWith(".bin")) {

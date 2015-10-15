@@ -115,7 +115,7 @@ public class CybershakeIM implements Comparable<CybershakeIM> {
 			if (db.getDBName().equals(dbName.trim()))
 				return e;
 		}
-		throw new IllegalArgumentException("DB field for type "
+		throw new IllegalStateException("DB field for type "
 				+ClassUtils.getClassNameWithoutPackage(clazz)+" not found: "+dbName);
 	}
 	

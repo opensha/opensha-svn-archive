@@ -34,13 +34,17 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
-				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
+//				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
+				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = { null };
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
-		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
+//		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
+		double[] maxCharFactors = { 10 };
 		
 		String nameAdd = null;
 //		String nameAdd = "launch-debug";
@@ -52,11 +56,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		int nodes = 40;
 		int mins = 18*60;
 		
-//		double duration = 1000;
+//		double duration = 100;
 //		int startYear = 2012;
 //		boolean histCatalog = true;
 //		int numSims = 100;
-//		int nodes = 50;
+//		int nodes = 15;
 //		int mins = 24*60;
 		
 		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
@@ -136,6 +140,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					if (!localJobDir.exists())
 						localJobDir.mkdir();
 					File remoteJobDir = new File(remoteDir, jobName);
+					
+					System.out.println(jobName);
 					
 					List<File> subClasspath = Lists.newArrayList(classpath);
 					subClasspath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));

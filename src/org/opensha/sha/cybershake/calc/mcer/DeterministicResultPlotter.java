@@ -241,7 +241,18 @@ public class DeterministicResultPlotter {
 	
 	static void writeCSV(List<Double> periods, List<DeterministicResult> csDeterms,
 			List<? extends ScalarIMR> gmpes, List<List<DeterministicResult>> gmpeDeterms,
-			File outputFile) throws IOException {
+			File outputFile, boolean vel) throws IOException {
+		String units = "(g)";
+		if (vel) {
+			units = "(cm/s)";
+			csDeterms = DeterministicResult.getPsuedoVels(csDeterms, periods);
+			if (gmpeDeterms != null) {
+				List<List<DeterministicResult>> velGMPEDeterms = Lists.newArrayList();
+				for (List<DeterministicResult> gmpeDeterm : gmpeDeterms)
+					velGMPEDeterms.add(DeterministicResult.getPsuedoVels(gmpeDeterm, periods));
+				gmpeDeterms = velGMPEDeterms;
+			}
+		}
 		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList();
 		header.add("Period");
@@ -249,7 +260,7 @@ public class DeterministicResultPlotter {
 			header.add("CyberShake Source ID");
 			header.add("CyberShake Rup ID");
 			header.add("CyberShake Name");
-			header.add("CyberShake Value (g)");
+			header.add("CyberShake Value "+units);
 		}
 		if (gmpes == null)
 			gmpes = Lists.newArrayList();
@@ -261,7 +272,7 @@ public class DeterministicResultPlotter {
 			header.add(gmpe.getShortName()+" Source ID");
 			header.add(gmpe.getShortName()+" Rup ID");
 			header.add(gmpe.getShortName()+" Name");
-			header.add(gmpe.getShortName()+" Value (g)");
+			header.add(gmpe.getShortName()+" Value "+units);
 		}
 		csv.addLine(header);
 		

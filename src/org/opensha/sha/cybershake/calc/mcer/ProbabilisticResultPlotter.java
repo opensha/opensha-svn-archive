@@ -30,7 +30,16 @@ public class ProbabilisticResultPlotter {
 	
 	private static void writeCSV(CyberShakeSiteRun site, CyberShakeComponent comp, DiscretizedFunc csSpectrum,
 			List<? extends ScalarIMR> gmpes, List<DiscretizedFunc> gmpeSpectrums,
-			List<Double> periods, File outputFile) throws IOException {
+			List<Double> periods, File outputFile, boolean vel) throws IOException {
+//		writeCSV(site, comp, MCErCalcUtils.saToPsuedoVel(csSpectrum), gmpes, sasToPsuedoVel(gmpeSpectrums),
+//				periods, outputFile);
+		String units = "(g)";
+		if (vel) {
+			 csSpectrum = MCErCalcUtils.saToPsuedoVel(csSpectrum);
+			 if (gmpeSpectrums != null)
+				 gmpeSpectrums = sasToPsuedoVel(gmpeSpectrums);
+			 units = "(cm/s)";
+		}
 		if (gmpes == null) {
 			gmpes = Lists.newArrayList();
 			gmpeSpectrums = Lists.newArrayList();
@@ -38,10 +47,11 @@ public class ProbabilisticResultPlotter {
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
-		List<String> header = Lists.newArrayList("Site Short Name", "Run ID", "Component", "Period", "CyberShake RTGM (g)");
+		List<String> header = Lists.newArrayList("Site Short Name", "Run ID", "Component",
+				"Period", "CyberShake RTGM "+units);
 		for (ScalarIMR gmpe : gmpes) {
 			header.add(gmpe.getShortName()+" Metadata");
-			header.add(gmpe.getShortName()+" RTGM (g)");
+			header.add(gmpe.getShortName()+" RTGM "+units);
 		}
 		csv.addLine(header);
 		
@@ -101,8 +111,8 @@ public class ProbabilisticResultPlotter {
 			File outputFile = new File(outputDir, name);
 			switch (type) {
 			case CSV:
-				writeCSV(site, comp, MCErCalcUtils.saToPsuedoVel(csSpectrum), gmpes, sasToPsuedoVel(gmpeSpectrums),
-						periods, outputFile);
+				writeCSV(site, comp, csSpectrum, gmpes, gmpeSpectrums,
+						periods, outputFile, velPlot);
 				break;
 			case PDF:
 				if (spec == null) {

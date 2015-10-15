@@ -279,10 +279,17 @@ public class ETAS_MultiSimAnalysisTools {
 		for (int i=0; i<catalogs.size(); i++)
 			subMFDs[i] = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
 		
-		double rateEach = 1d/duration;
-		
 		for (int i=0; i<catalogs.size(); i++) {
 			List<ETAS_EqkRupture> catalog = catalogs.get(i);
+			double myDuration;
+			if (duration < 0)
+				myDuration = calcDurationYears(catalog);
+			else
+				myDuration = duration;
+			if (myDuration == 0)
+				continue;
+			double rateEach = 1d/myDuration;
+			
 			for (ETAS_EqkRupture rup : catalog) {
 				subMFDs[i].addResampledMagRate(rup.getMag(), rateEach, true);
 			}
@@ -496,7 +503,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		getFractilePlotFuncs(funcsArray, fractiles, false, funcs, chars, null);
 		
-		if (params != null) {
+		if (params != null && scenario != null) {
 			HistogramFunction targetFunc = ETAS_Utils.getRateWithLogTimeFunc(params.get_k(), params.get_p(),
 					scenario.getMagnitude(), ETAS_Utils.magMin_DEFAULT, params.get_c(), firstLogDay, lastLogDay, deltaLogDay);
 			targetFunc.setName("Expected");
@@ -691,11 +698,19 @@ public class ETAS_MultiSimAnalysisTools {
 		for (int i=0; i<minMags.length; i++)
 			triggerRatesList.add(new double[rupSet.getNumSections()]);
 		
-		double fractionalRate = 1d/(catalogs.size()*duration);
-		
 		Map<Integer, List<Location>> locsForSectsMap = Maps.newHashMap();
 		
+		double maxDuration = 0;
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			double myDuration;
+			if (duration < 0)
+				myDuration = calcDurationYears(catalog);
+			else
+				myDuration = duration;
+			if (myDuration == 0)
+				continue;
+			maxDuration = Math.max(maxDuration, myDuration);
+			double fractionalRate = 1d/(catalogs.size()*myDuration);
 			for (ETAS_EqkRupture rup : catalog) {
 				int rupIndex = rup.getFSSIndex();
 				if (rupIndex < 0)
@@ -738,10 +753,19 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 		
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+		if (maxDuration == 0d)
+			return;
 		double maxRate = 0;
 		for (double[] particRates : particRatesList)
 			maxRate = Math.max(maxRate, StatUtils.max(particRates));
-		cpt = cpt.rescale(Math.log10(fractionalRate), Math.ceil(Math.log10(maxRate)));
+		double fractionalRate = 1d/Math.max(1d, Math.round(catalogs.size()*maxDuration));
+		double cptMin = Math.log10(fractionalRate);
+		double cptMax = Math.ceil(Math.log10(maxRate));
+		if (!Doubles.isFinite(cptMin) || !Doubles.isFinite(cptMax))
+			return;
+		while (cptMax <= cptMin)
+			cptMax++;
+		cpt = cpt.rescale(cptMin, cptMax);
 		cpt.setBelowMinColor(Color.LIGHT_GRAY);
 		
 		List<LocationList> faults = Lists.newArrayList();
@@ -947,8 +971,17 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		int numSkipped = 0;
 		
+		double maxDuration = 0d;
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
-			
+			double myDuration;
+			if (duration < 0)
+				myDuration = calcDurationYears(catalog);
+			else
+				myDuration = duration;
+			if (myDuration == 0)
+				continue;
+			maxDuration = Math.max(myDuration, maxDuration);
+			double rateEach = 1d/(catalogs.size()*myDuration);
 			for (ETAS_EqkRupture rup : catalog) {
 				double mag = rup.getMag();
 				Location loc = rup.getHypocenterLocation();
@@ -960,15 +993,15 @@ public class ETAS_MultiSimAnalysisTools {
 				}
 				for (int i=0; i<mags.length; i++)
 					if (mag >= mags[i])
-						xyzs[i].set(index, xyzs[i].get(index)+1d);
+						xyzs[i].set(index, xyzs[i].get(index)+rateEach);
 			}
 		}
 		
 		System.out.println("Skipped "+numSkipped+" events outside of region");
 		
-		double scalar = 1d/(catalogs.size()*duration);
-		for (GriddedGeoDataSet xyz : xyzs)
-			xyz.scale(scalar);
+		double scalar = 1d/(catalogs.size()*Math.max(1d, Math.round(maxDuration)));
+//		for (GriddedGeoDataSet xyz : xyzs) // now done earlier
+//			xyz.scale(scalar);
 		
 		// now log10
 		for (GriddedGeoDataSet xyz : xyzs)
@@ -1103,6 +1136,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
+		boolean useActualDurations = false;
 		
 //		File resultDir = new File(mainDir, "2015_08_20-spontaneous-full_td");
 //		File myOutput = new File(resultDir, "output_stats");
@@ -1131,51 +1165,66 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-		names.add("Mojave M5 Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m5-full_td-grCorr/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M5);
+//		names.add("100yr, CF=6");
+//		useActualDurations = true;
+//		resultsZipFiles.add(new File(mainDir, "2015_10_12-spontaneous-100yr-full_td-maxChar6.0/results.zip"));
+//		scenarios.add(null);
 		
-		names.add("Mojave M5.5 Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m5p5-full_td-grCorr/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M5p5);
+//		names.add("Mojave M5 Full TD, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m5-full_td-maxChar6.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5);
 		
-		names.add("Mojave M6.3 Finite Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m6pt3_fss-full_td-grCorr/results.bin"));
+//		names.add("Mojave M5.5 Full TD, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m5p5-full_td-maxChar6.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+//		names.add("Mojave M5.5 No ERT, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m5p5-no_ert-maxChar6.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5p5);
+		
+		names.add("Mojave M6.3 Finite Full TD, CF=6");
+		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m6pt3_fss-full_td-maxChar6.0/results.bin"));
 		scenarios.add(TestScenario.MOJAVE_M6pt3_FSS);
 		
-		names.add("Mojave M6.3 Pt. Src. Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m6pt3_ptsrc-full_td-grCorr/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M6pt3_ptSrc);
-		
-		names.add("Mojave M7 Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m7-full_td-grCorr/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
-		
-		names.add("Mojave M7.4 Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m7pt4-full_td-grCorr/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7pt4);
-		
-		names.add("Mojave M7.8 Full TD, GR Corr.");
-		resultsZipFiles.add(new File(mainDir, "2015_10_06-mojave_m7pt8-full_td-grCorr/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7pt8);
-		
-		// parent ID for the trigger rupture
-		int triggerParentID = 0;
+//		names.add("Mojave M6.3 Pt. Src. Full TD, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m6pt3_ptsrc-full_td-maxChar6.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M6pt3_ptSrc);
+//		
+//		names.add("Mojave M7 Full TD, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m7-full_td-maxChar6.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
+//		
+//		names.add("Mojave M7.4 Full TD, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m7pt4-full_td-maxChar6.0/results_m4.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7pt4);
+//		
+//		names.add("Mojave M7.8 Full TD, CF=6");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m7pt8-full_td-maxChar6.0/results_m4.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7pt8);
 		
 		for (int n=0; n<names.size(); n++) {
 			String name = names.get(n);
 			File resultsZipFile = resultsZipFiles.get(n);
 			TestScenario scenario = scenarios.get(n);
 			
-			if (scenario.getFSS_Index() >= 0)
+			if (scenario != null && scenario.getFSS_Index() >= 0)
 				scenario.updateMag(fss.getRupSet().getMagForRup(scenario.getFSS_Index()));
+			
+			// parent ID for the trigger rupture
+			int triggerParentID;
+			if (scenario == null)
+				triggerParentID = -1;
+			else
+				triggerParentID = 0;
 			
 			System.out.println("Loading "+name+" from "+resultsZipFile.getAbsolutePath());
 			
 			System.gc();
 			
 			RuptureSurface surf;
-			if (scenario.getLocation() != null)
+			if (scenario == null)
+				surf = null;
+			else if (scenario.getLocation() != null)
 				surf = new PointSurface(scenario.getLocation());
 			else
 				surf = fss.getRupSet().getSurfaceForRupupture(scenario.getFSS_Index(), 1d, false);
@@ -1210,6 +1259,8 @@ public class ETAS_MultiSimAnalysisTools {
 				ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 				duration = 1d;
 			}
+			if (useActualDurations)
+				duration = -1;
 			
 			if (!outputDir.exists()) {
 				// see if old dirs exist;
@@ -1226,7 +1277,7 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			// load the catalogs
 			Stopwatch timer = Stopwatch.createStarted();
-			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogs(resultsZipFile, minLoadMag);
+			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogs(resultsZipFile, minLoadMag, true);
 			timer.stop();
 			long secs = timer.elapsed(TimeUnit.SECONDS);
 			if (secs > 60)
@@ -1251,8 +1302,7 @@ public class ETAS_MultiSimAnalysisTools {
 			int skippedDuration = 0;
 			for (int i=catalogs.size(); --i>=0;) {
 				List<ETAS_EqkRupture> catalog = catalogs.get(i);
-				long durationMillis = catalog.get(catalog.size()-1).getOriginTime() - catalog.get(0).getOriginTime();
-				double myDuration = (double)durationMillis/MILLIS_PER_YEAR;
+				double myDuration = calcDurationYears(catalog);
 				if (myDuration < minDurationForInclusion) {
 					catalogs.remove(i);
 					skippedDuration++;
@@ -1263,12 +1313,15 @@ public class ETAS_MultiSimAnalysisTools {
 			if (skippedDuration > 0)
 				System.out.println("Removed "+skippedDuration+" catalgos that were too short");
 			System.out.println("Actual duration: "+durationTrack);
-			if (DataUtils.getPercentDiff(duration, durationTrack.getMin()) > 2d)
+			if (duration > 0 && DataUtils.getPercentDiff(duration, durationTrack.getMin()) > 2d)
 				System.out.println("WARNING: at least 1 simulation doesn't match expected duration");
 			
 			List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
-			for (List<ETAS_EqkRupture> catalog : catalogs)
-				childrenCatalogs.add(ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, triggerParentID));
+			if (triggerParentID >= 0)
+				for (List<ETAS_EqkRupture> catalog : catalogs)
+					childrenCatalogs.add(ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, triggerParentID));
+			else
+				childrenCatalogs.addAll(catalogs);
 			
 			MinMaxAveTracker childrenTrack = new MinMaxAveTracker();
 			for (List<ETAS_EqkRupture> catalog : childrenCatalogs)
@@ -1301,28 +1354,53 @@ public class ETAS_MultiSimAnalysisTools {
 //			}
 			
 			List<List<ETAS_EqkRupture>> primaryCatalogs = Lists.newArrayList();
-			for (List<ETAS_EqkRupture> catalog : catalogs)
-				primaryCatalogs.add(ETAS_SimAnalysisTools.getPrimaryAftershocks(catalog, triggerParentID));
+			if (triggerParentID >= 0) {
+				for (List<ETAS_EqkRupture> catalog : catalogs)
+					primaryCatalogs.add(ETAS_SimAnalysisTools.getPrimaryAftershocks(catalog, triggerParentID));
+			} else {
+				for (List<ETAS_EqkRupture> catalog : catalogs)
+					primaryCatalogs.add(ETAS_SimAnalysisTools.getByGeneration(catalog, 0));
+			}
+			
+			String fullName;
+			String fullFileName;
+			String subsetName;
+			String subsetFileName;
+			if (triggerParentID >= 0) {
+				fullName = "Children";
+				fullFileName = "full_children";
+				subsetName = "Primary";
+				subsetFileName = "primary";
+			} else {
+				fullName = "All EQs";
+				fullFileName = "all_eqs";
+				subsetName = "Spontaneous";
+				subsetFileName = "spontaneous";
+			}
+			
 			
 			if (plotMFDs) {
 				System.out.println("Plotting MFDs");
-				plotMFD(childrenCatalogs, duration, outputDir, name, "full_children");
 				
-				plotMFD(primaryCatalogs, duration, outputDir, "Primary "+name, "primary_aftershocks");
+				plotMFD(childrenCatalogs, duration, outputDir, name, fullFileName);
+				if (triggerParentID >= 0)
+					plotMFD(primaryCatalogs, duration, outputDir, subsetName+" "+name, subsetFileName+"_aftershocks");
+				else
+					plotMFD(primaryCatalogs, duration, outputDir, subsetName+" "+name, subsetFileName+"_events");
 			}
 			
-			if (plotExpectedComparison) {
+			if (plotExpectedComparison && triggerParentID >= 0) {
 				System.out.println("Plotting Expected Comparison MFDs");
-				plotExpectedSupraComparisonMFD(primaryCatalogs, outputDir, "Primary "+name, "primary_supra_compare_to_expected");
+				plotExpectedSupraComparisonMFD(primaryCatalogs, outputDir, subsetName+" "+name, subsetFileName+"_supra_compare_to_expected");
 				
 				// now do first/last half
 				int numCatalogs = primaryCatalogs.size();
 				List<List<ETAS_EqkRupture>> firstHalfPrimary = primaryCatalogs.subList(0, numCatalogs/2);
 				List<List<ETAS_EqkRupture>> secondHalfPrimary = primaryCatalogs.subList(firstHalfPrimary.size(), primaryCatalogs.size());
-				plotExpectedSupraComparisonMFD(firstHalfPrimary, outputDir, "Primary "+name,
-						"primary_supra_compare_to_expected_first"+firstHalfPrimary.size());
-				plotExpectedSupraComparisonMFD(secondHalfPrimary, outputDir, "Primary "+name,
-						"primary_supra_compare_to_expected_last"+secondHalfPrimary.size());
+				plotExpectedSupraComparisonMFD(firstHalfPrimary, outputDir, subsetName+" "+name,
+						subsetFileName+"_supra_compare_to_expected_first"+firstHalfPrimary.size());
+				plotExpectedSupraComparisonMFD(secondHalfPrimary, outputDir, subsetName+" "+name,
+						subsetFileName+"_supra_compare_to_expected_last"+secondHalfPrimary.size());
 			}
 			
 			if (plotSectRates) {
@@ -1330,36 +1408,36 @@ public class ETAS_MultiSimAnalysisTools {
 				System.out.println("Plotting Sub Sect Rates");
 				double[] minMags = { 0, 6.7, 7.8 };
 				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" Children", "full_children_sect");
+						name+" "+fullName, fullFileName+"_sect");
 				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" Primary", "primary_sect");
+						name+" "+subsetName, subsetFileName+"_sect");
 			}
 			
-			if (plotTemporalDecay) {
+			if (plotTemporalDecay && triggerParentID >= 0) {
 				// temporal decay
 				System.out.println("Plotting Temporal Decay");
 				plotAftershockRateVsLogTimeHistForRup(primaryCatalogs, scenario, params, ot, outputDir,
-						name+" Primary", "primary_temporal_decay");
+						name+" "+subsetName, subsetFileName+"_temporal_decay");
 				plotAftershockRateVsLogTimeHistForRup(childrenCatalogs, scenario, params, ot, outputDir,
-						name, "full_children_temporal_decay");
+						name, fullFileName+"_temporal_decay");
 			}
 			
-			if (plotDistanceDecay) {
+			if (plotDistanceDecay && triggerParentID >= 0) {
 				// dist decay trigger loc
 				System.out.println("Plotting Trigger Loc Dist Decay");
-				plotDistDecay(primaryCatalogs, params, null, outputDir, name+" Primary", "primary_dist_decay_trigger");
-				plotDistDecay(childrenCatalogs, params, null, outputDir, name, "full_children_dist_decay_trigger");
+				plotDistDecay(primaryCatalogs, params, null, outputDir, name+" Primary", subsetFileName+"_dist_decay_trigger");
+				plotDistDecay(childrenCatalogs, params, null, outputDir, name, fullFileName+"_dist_decay_trigger");
 			
 				// dist decay rup surf
-				if (scenario.getFSS_Index() >= 0) {
+				if (scenario != null && scenario.getFSS_Index() >= 0) {
 					System.out.println("Plotting Surface Dist Decay");
 					Stopwatch watch = Stopwatch.createStarted();
-					plotDistDecay(primaryCatalogs, params, surf, outputDir, name+" Primary", "primary_dist_decay_surf");
+					plotDistDecay(primaryCatalogs, params, surf, outputDir, name+" Primary", subsetFileName+"_dist_decay_surf");
 					double mins = (watch.elapsed(TimeUnit.SECONDS))/60d;
 					System.out.println("Primary surf dist decay took "+(float)mins+" mins");
 					watch.reset();
 					watch.start();
-					plotDistDecay(childrenCatalogs, params, surf, outputDir, name, "full_children_dist_decay_surf");
+					plotDistDecay(childrenCatalogs, params, surf, outputDir, name, fullFileName+"_dist_decay_surf");
 					watch.stop();
 					mins = (watch.elapsed(TimeUnit.SECONDS))/60d;
 					System.out.println("Full surf dist decay took "+(float)mins+" mins");
@@ -1373,14 +1451,14 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			if (plotGenerations) {
 				System.out.println("Plotting generations");
-				plotNumEventsPerGeneration(childrenCatalogs, outputDir, name, "full_children_generations");
+				plotNumEventsPerGeneration(childrenCatalogs, outputDir, name, fullFileName+"_generations");
 			}
 			
 			if (plotGriddedNucleation) {
 				System.out.println("Plotting gridded nucleation");
 				double[] mags = { 2.5, 6.7, 7.8 };
-				plotCubeNucleationRates(childrenCatalogs, duration, outputDir, name, "full_children_gridded_nucl", mags);
-				plotCubeNucleationRates(primaryCatalogs, duration, outputDir, name, "primary_gridded_nucl", mags);
+				plotCubeNucleationRates(childrenCatalogs, duration, outputDir, name, fullFileName+"_gridded_nucl", mags);
+				plotCubeNucleationRates(primaryCatalogs, duration, outputDir, name, subsetFileName+"_gridded_nucl", mags);
 			}
 			
 			if (writeCatsForViz) {
@@ -1390,6 +1468,12 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			writeHTML(parentDir, scenario, name, catalogs, duration);
 		}
+	}
+
+	private static double calcDurationYears(List<ETAS_EqkRupture> catalog) {
+		long durationMillis = catalog.get(catalog.size()-1).getOriginTime() - catalog.get(0).getOriginTime();
+		double myDuration = (double)durationMillis/MILLIS_PER_YEAR;
+		return myDuration;
 	}
 	
 	private static final int html_w_px = 800;

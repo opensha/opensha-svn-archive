@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
@@ -176,6 +178,30 @@ public class SimAnalysisCatLoader {
 	
 	public List<RectangularElement> getElements() {
 		return tools.getElementsList();
+	}
+	
+	public static void main(String[] args) throws IOException {
+		SimAnalysisCatLoader load = new SimAnalysisCatLoader(true, null, false);
+		
+		System.out.println("Num elements: "+load.getElements().size());
+		System.out.println("Num events: "+load.getEvents().size());
+		double minMag = Double.POSITIVE_INFINITY;
+		double maxMag = 0d;
+		List<Double> allMags = Lists.newArrayList();
+		for (EQSIM_Event e : load.getEvents()) {
+			double mag = e.getMagnitude();
+			if (!Double.isNaN(mag)) {
+				minMag = Math.min(minMag, mag);
+				maxMag = Math.max(maxMag, mag);
+				allMags.add(mag);
+			}
+		}
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(minMag, maxMag, 0.1);
+		System.out.println("Min mag: "+minMag);
+		for (double mag : allMags) {
+			hist.add(mag, 1d);
+		}
+		new GraphWindow(hist, "Mag Histogram");
 	}
 
 }

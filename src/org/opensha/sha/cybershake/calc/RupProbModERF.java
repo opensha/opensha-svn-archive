@@ -54,6 +54,16 @@ public class RupProbModERF extends AbstractERF {
 		}
 
 		@Override
+		public String getName() {
+			return origSource.getName();
+		}
+
+		@Override
+		public String getInfo() {
+			return origSource.getInfo();
+		}
+
+		@Override
 		public LocationList getAllSourceLocs() {
 			return origSource.getAllSourceLocs();
 		}

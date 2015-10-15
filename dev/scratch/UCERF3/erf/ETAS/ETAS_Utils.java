@@ -22,6 +22,7 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -688,6 +689,14 @@ public class ETAS_Utils {
 //		System.out.print("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
 //		for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5)
 //			System.out.print(listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, 365.25, 15));
+		
+		EvenlyDiscretizedFunc magFunc = new EvenlyDiscretizedFunc(2d, 50, 0.1d);
+		for (int i=0; i<magFunc.size(); i++)
+			magFunc.set(i, getRuptureRadiusFromMag(magFunc.getX(i)));
+		new GraphWindow(magFunc, "Radius vs Mag");
+		
+		new ETAS_Utils().getRandomLocationOnRupSurface(
+				new ETAS_EqkRupture(new ObsEqkRupture("", 0l, new Location(32.25570, -115.26100, 33.54000), 4.19)));
 
 		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
 		double mainMag = 5.5;
@@ -873,6 +882,16 @@ public class ETAS_Utils {
 			double radius = getRuptureRadiusFromMag(parRup.getMag());
 			double testRadius = radius+1;
 			Location loc = null;
+			int count = 0;
+			double minDist = Double.POSITIVE_INFINITY;
+			if (hypoLoc.getDepth() > 24d || hypoLoc.getDepth() < 0) {
+				System.err.println("WARNING: Temporary fix for bad input hypo depth.\nParent rup: "
+						+ETAS_CatalogIO.getEventFileLine(parRup));
+				if (hypoLoc.getDepth() > 24d)
+					hypoLoc = new Location(hypoLoc.getLatitude(), hypoLoc.getLongitude(), 24d);
+				else
+					hypoLoc = new Location(hypoLoc.getLatitude(), hypoLoc.getLongitude(), 0d);
+			}
 			while(testRadius>radius) {
 				double lat = hypoLoc.getLatitude()+(2.0*getRandomDouble()-1.0)*(radius/111.0);
 				double lon = hypoLoc.getLongitude()+(2.0*getRandomDouble()-1.0)*(radius/(111*Math.cos(hypoLoc.getLatRad())));
@@ -885,6 +904,15 @@ public class ETAS_Utils {
 				double depth = depthTop + getRandomDouble()*(depthBottom-depthTop);
 				loc = new Location(lat,lon,depth);
 				testRadius=LocationUtils.linearDistanceFast(loc, hypoLoc);
+				minDist = Math.min(minDist, testRadius);
+				count++;
+				if (count == 1000000) {
+					String debug = "Stuck in loop, quitting after "+count+" tries.\nHypo loc: "+hypoLoc
+							+"\nCur loc: "+loc+"\nRadius: "+radius+"\nCur dist: "+testRadius+"\nClosest so far: "+minDist;
+					debug += "\ndepthTop="+depthTop+", depthBottom="+depthBottom;
+					debug += "\nParent rup: "+ETAS_CatalogIO.getEventFileLine(parRup);
+					throw new IllegalStateException(debug);
+				}
 			}
 			return loc;
 		}

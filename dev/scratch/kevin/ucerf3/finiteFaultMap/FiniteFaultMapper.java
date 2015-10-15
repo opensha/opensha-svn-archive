@@ -207,6 +207,11 @@ public class FiniteFaultMapper {
 		File finiteFile = new File("/home/kevin/OpenSHA/UCERF3/historical_finite_fault_mapping/UCERF3_finite.dat");
 		ObsEqkRupList inputRups = UCERF3_CatalogParser.loadCatalog(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt"));
+		for (ObsEqkRupture rup : inputRups) {
+			if (rup.getHypocenterLocation().getDepth() > 24 && rup.getMag() >= 4)
+				System.out.println(rup.getHypocenterLocation()+", mag="+rup.getMag());
+		}
+		System.exit(0);
 		List<ObsEqkRupture> finiteRups = JeanneFileLoader.loadFiniteRups(finiteFile, inputRups);
 		finiteRups = finiteRups.subList(0, 1);
 		System.out.println("Loaded "+finiteRups.size()+" finite rups");

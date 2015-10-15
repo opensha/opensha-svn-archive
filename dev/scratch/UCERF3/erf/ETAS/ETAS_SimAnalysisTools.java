@@ -1936,6 +1936,24 @@ public class ETAS_SimAnalysisTools {
 		return ret;
 	}
 	
+	/**
+	 * This will return a catalog that contains only ruptures that are direct children of the given parent ID,
+	 * the parent rupture and any further generations are excluded
+	 * 
+	 * @param catalog
+	 * @param parentID
+	 * @return
+	 */
+	public static List<ETAS_EqkRupture> getByGeneration(List<ETAS_EqkRupture> catalog, int generation) {
+		List<ETAS_EqkRupture> ret = Lists.newArrayList();
+		
+		for (ETAS_EqkRupture rup : catalog)
+			if (rup.getGeneration() == generation)
+				ret.add(rup);
+		
+		return ret;
+	}
+	
 	
 	/**
 	 * This will return a catalog that contains only ruptures that are primary aftershocks (first generation)
