@@ -121,7 +121,10 @@ public class SeisDepthDistribution {
 		HistogramFunction testRandHistFunc = new HistogramFunction(0.05, 240,0.1);
 		long st = System.currentTimeMillis();
 		for(int i=0;i<numSamples;i++) {
-			testRandHistFunc.add(getRandomDepth(), 1.0);
+			double depth = getRandomDepth();
+			if(depth<0 || depth>24)
+				throw new RuntimeException("problem depth: "+depth);
+			testRandHistFunc.add(depth, 1.0);
 		}
 		testRandHistFunc.scale(1.0/(numSamples*0.1));
 		System.out.println("That took "+(System.currentTimeMillis()-st)+" millisec");
@@ -143,9 +146,9 @@ public class SeisDepthDistribution {
 		
 		SeisDepthDistribution test = new SeisDepthDistribution(new ETAS_Utils());
 		
-		test.plotBinnedDepthDistribution();
+//		test.plotBinnedDepthDistribution();
 		
-//		test.testRandomDepth(10000000);
+		test.testRandomDepth(100000000);
 
 	}
 

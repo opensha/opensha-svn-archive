@@ -1319,11 +1319,11 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = TestScenario.MOJAVE_M5p5;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setMaxCharFactor(10);;		
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		String maxCharFactorString = Double.toString(params.getMaxCharFactor()).replace(".", "p");
@@ -1335,7 +1335,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_1";	// to increment runs
+		simulationName += "_test_2";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1444170206879l;
@@ -1346,8 +1346,8 @@ public class ETAS_Simulator {
 		double startTimeYear=2014;
 		double durationYears=1;
 		
-		ObsEqkRupList histCat = null;
-//		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
+//		ObsEqkRupList histCat = null;
+		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		

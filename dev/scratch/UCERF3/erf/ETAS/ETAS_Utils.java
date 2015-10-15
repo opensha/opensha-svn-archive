@@ -561,7 +561,7 @@ public class ETAS_Utils {
 	 */
 	public static String listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
 		
-		boolean debug = false;
+		boolean debug = true;
 		
 		double[] numForGen = new double[numGen];
 		
@@ -683,19 +683,19 @@ public class ETAS_Utils {
 //		GraphWindow distDecayGraph2 = new GraphWindow(func, "Dist Decay"); 
 //		distDecayGraph2.setYLog(true);
 		
-		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
-		System.out.print("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
-		System.out.print("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
-		for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5)
-			System.out.print(listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, 365.25, 15));
-
-//		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
-//		double mainMag = 5;
-//		double numDays = 365.25;
 //		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
-////		System.out.println(grDist);
-//		System.out.println("Perfect GR:");
-//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays, 15);
+//		System.out.print("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+//		System.out.print("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+//		for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5)
+//			System.out.print(listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, 365.25, 15));
+
+		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
+		double mainMag = 5.5;
+		double numDays = 7;
+		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+//		System.out.println(grDist);
+		System.out.println("Perfect GR:");
+		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays, 15);
 
 		//tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 ////		System.exit(0);	
@@ -982,25 +982,15 @@ public class ETAS_Utils {
 		
 		return result;
 	}
-
-
-
-	/**
-	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total MFD (sub+supra) to
-	 * have the same expected number of primary aftershocks as a perfect GR (extrapolated from the sub MFD to the max-non-zero-mag
-	 * of the supra MFD).
-	 * 
-	 * @param supraSeisMFD
-	 * @param subSeisMFD
-	 * @return
-	 */
-	public static double getScalingFactorToImposeGR_supraRates(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
+	
+	
+	public static double getMinMagSupra(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD) {
 		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
 			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
-			return 1d;
+			return Double.NaN;
 
 		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
-		
+
 		double minMagSupra;
 		double minMagSupraAlt1 = supraSeisMFD.getMinMagWithNonZeroRate();	// can't use this because there are some very low mags with low rates on some branches
 //		double minMagSupra = subSeisMFD.getMaxMagWithNonZeroRate()+subSeisMFD.getDelta();	// this not good either
@@ -1048,6 +1038,79 @@ public class ETAS_Utils {
 		if(minMagSupra>supraSeisMFD.getMaxMagWithNonZeroRate()) {
 			minMagSupra=supraSeisMFD.getMaxMagWithNonZeroRate();
 		}
+		
+		return minMagSupra;
+
+	}
+
+
+
+	/**
+	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total MFD (sub+supra) to
+	 * have the same expected number of primary aftershocks as a perfect GR (extrapolated from the sub MFD to the max-non-zero-mag
+	 * of the supra MFD).
+	 * 
+	 * @param supraSeisMFD
+	 * @param subSeisMFD
+	 * @return
+	 */
+	public static double getScalingFactorToImposeGR_supraRates(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
+		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
+			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
+			return 1d;
+
+		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
+		
+		double minMagSupra = getMinMagSupra(supraSeisMFD, subSeisMFD);
+		
+		// MOVED TO OTHER METHOD:
+//		double minMagSupra;
+//		double minMagSupraAlt1 = supraSeisMFD.getMinMagWithNonZeroRate();	// can't use this because there are some very low mags with low rates on some branches
+////		double minMagSupra = subSeisMFD.getMaxMagWithNonZeroRate()+subSeisMFD.getDelta();	// this not good either
+//
+//		if(minMagSupraAlt1>subSeisMFD.getMaxMagWithNonZeroRate()) {
+//			minMagSupra=minMagSupraAlt1;
+//		}
+//		else {
+//			// Define the minSupraMag as the bin above the last perfect GR value on the subseismo MFD (non-perfect for branch averaged solutions)
+//			// as long as it remains above minMagSupraAlt1
+//			// mags below this point should really be filtered from the forecast
+//			double thresh = 0.9;
+//			minMagSupra=subSeisMFD.getMaxMagWithNonZeroRate();
+//			int indexForMinMagSupra = subSeisMFD.getXIndex(minMagSupra);
+//			double testVal = subSeisMFD.getY(indexForMinMagSupra)/(subSeisMFD.getY(minMag)*Math.pow(10, minMag-minMagSupra));
+//			while(testVal<thresh && indexForMinMagSupra>0) {
+//				indexForMinMagSupra-=1;
+//				minMagSupra=subSeisMFD.getX(indexForMinMagSupra);
+//				testVal = subSeisMFD.getY(indexForMinMagSupra)/(subSeisMFD.getY(minMag)*Math.pow(10, minMag-minMagSupra));
+//			}
+//			if(indexForMinMagSupra==0) {
+//				throw new RuntimeException("Problem");
+////				System.out.println("indexForMinMagSupra="+indexForMinMagSupra+"\tfor\t"+supraSeisMFD.getName());
+////				GraphWindow graph = new GraphWindow(subSeisMFD, supraSeisMFD.getName());
+////				System.out.println(subSeisMFD);
+////				minMagSupra=subSeisMFD.getMaxMagWithNonZeroRate();
+////				indexForMinMagSupra = subSeisMFD.getXIndex(minMagSupra);
+////				testVal = subSeisMFD.getY(indexForMinMagSupra)/Math.pow(10, minMag-minMagSupra);
+////				System.out.println(testVal+"t"+minMagSupra+"\t"+indexForMinMagSupra);
+////				while(testVal<thresh && indexForMinMagSupra>0) {
+////					indexForMinMagSupra-=1;
+////					minMagSupra=subSeisMFD.getX(indexForMinMagSupra);
+////					testVal = subSeisMFD.getY(indexForMinMagSupra)/Math.pow(10, minMag-minMagSupra);
+////					System.out.println(testVal+"\t"+minMagSupra+"\t"+indexForMinMagSupra);
+////				}
+//			}
+//			indexForMinMagSupra+=1;
+//			minMagSupra=subSeisMFD.getX(indexForMinMagSupra);
+//		}
+//		
+//		// don't let it go below minMagSupraAlt1
+//		if(minMagSupra<minMagSupraAlt1)
+//			minMagSupra=minMagSupraAlt1;
+//
+//		if(minMagSupra>supraSeisMFD.getMaxMagWithNonZeroRate()) {
+//			minMagSupra=supraSeisMFD.getMaxMagWithNonZeroRate();
+//		}
 		
 		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
 		if(Double.isNaN(maxMagWithNonZeroRate)) {
