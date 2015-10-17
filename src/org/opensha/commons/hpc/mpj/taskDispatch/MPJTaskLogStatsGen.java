@@ -1,0 +1,509 @@
+package org.opensha.commons.hpc.mpj.taskDispatch;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+/**
+ * Class to read in the log file from a MPJTaskCalculator run and print stats on task runtime
+ * @author kevin
+ *
+ */
+public class MPJTaskLogStatsGen {
+
+	public static void main(String[] args) throws IOException {
+		Preconditions.checkArgument(args.length == 1,
+				"USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJTaskLogStatsGen.class)+" <log-file>");
+		
+		File logFile = new File(args[0]);
+		Preconditions.checkArgument(logFile.exists(), "Log file doesn't exist: %s", logFile.getAbsolutePath());
+		
+		BufferedReader read = new BufferedReader(new FileReader(logFile), 81920);
+		
+		Map<Node, Node> nodeSet = Maps.newHashMap();
+		Map<Node, Date> lastHeardFromMap = Maps.newHashMap();
+		Map<Node, List<CalcBatch>> nodeBatches = Maps.newHashMap();
+		
+		String line;
+		
+		// used to detect midnight transitions
+		Date prevDate = null;
+		
+		int numTasks = -1;
+		int numLeft = -1;
+		int prevDispatch = 0;
+		int numDone = 0;
+		
+		boolean nodeZeroDirect = false;
+		
+		while ((line = read.readLine()) != null) {
+			if (line.contains("DispatcherThread]:")) {
+				if (line.contains("getting batch with ")) {
+					line = line.substring(line.indexOf("]:")+2, line.indexOf(" left"));
+					String[] split = line.split(" ");
+					try {
+						numLeft = Integer.parseInt(split[split.length-1]);
+					} catch (NumberFormatException e) {
+						System.err.println("Bad num left parse: "+e.getMessage());
+					}
+					if (numTasks < 0)
+						numTasks = numLeft; 
+				} else if (line.contains("returning batch of size:")) {
+					String[] split = line.trim().split(" ");
+					try {
+						prevDispatch = Integer.parseInt(split[split.length-1]);
+					} catch (NumberFormatException e) {
+						System.err.println("Bad num dispatch size parse: "+e.getMessage());
+					}
+				}
+			}
+			Node node = parseNodeLine(line);
+			if (node == null)
+				continue;
+			
+			if (nodeSet.containsKey(node)) {
+				// don't want duplicates in memory, use the one we already have
+				node = nodeSet.get(node);
+			} else {
+				nodeSet.put(node, node);
+				nodeBatches.put(node, new ArrayList<MPJTaskLogStatsGen.CalcBatch>());
+			}
+			
+			Date date = parseDate(line, prevDate);
+			if (date == null)
+				continue;
+			
+			lastHeardFromMap.put(node, date);
+			
+			List<CalcBatch> batches = nodeBatches.get(node);
+			
+			if (line.contains("receiving batch of length")) {
+				// new batch
+				batches.add(parseBatchLine(line, node, date));
+			} else if (!nodeZeroDirect && line.contains("getting next batch directly")) {
+				nodeZeroDirect = true;
+			} else if (nodeZeroDirect && node.getProcessNum() == 0) {
+				boolean newCalc = line.contains("calculating batch");
+				boolean done = line.contains("DONE!");
+				if ((newCalc && prevDispatch > 0) || done) {
+					if (!batches.isEmpty()) {
+						CalcBatch batch = getLastInProgress(batches);
+						if (batch != null) {
+							batch.setEndDate(date);
+							numDone += batch.size;
+						}
+					}
+				}
+				if (newCalc)
+					batches.add(new CalcBatch(prevDispatch, node, date));
+			} else if (line.contains("sending READY message")) {
+				if (!batches.isEmpty()) {
+					// finished a batch
+					CalcBatch batch = getLastInProgress(batches);
+					if (batch != null) {
+						batch.setEndDate(date);
+						numDone += batch.size;
+					}
+				}
+			}
+			
+			prevDate = date;
+		}
+		
+		read.close();
+		
+		System.out.println("Done parsing log");
+		
+		List<Node> nodes = Lists.newArrayList(nodeSet.keySet());
+		Collections.sort(nodes, new Comparator<Node>() {
+
+			@Override
+			public int compare(Node o1, Node o2) {
+				return Integer.compare(o1.getProcessNum(), o2.getProcessNum());
+			}
+		});
+		
+		double longestPeriod = 0d;
+		Node longestPeriodNode = null;
+		
+		MinMaxAveTracker allDurationTrack = new MinMaxAveTracker();
+		MinMaxAveTracker allBatchDurationTrack = new MinMaxAveTracker();
+		
+		System.out.println();
+		for (Node node : nodes) {
+			double lastContactMillis = timeDeltaMillis(lastHeardFromMap.get(node), prevDate);
+			if (lastContactMillis > longestPeriod) {
+				longestPeriod = lastContactMillis;
+				longestPeriodNode = node;
+			}
+			List<CalcBatch> batches = nodeBatches.get(node);
+			
+			int numBatches = batches.size();
+			int numBatchesCompleted = 0;
+			int numTasksAssigned = 0;
+			int numTasksCompleted = 0;
+			
+			MinMaxAveTracker track = new MinMaxAveTracker();
+			
+			for (CalcBatch batch : batches) {
+				if (batch.isCompleted()) {
+					numBatchesCompleted++;
+					numTasksCompleted += batch.getSize();
+					if (batch.getSize() > 0) {
+						double each = batch.getDurationMillisEach();
+						track.addValue(each);
+						allDurationTrack.addValue(each);
+						allBatchDurationTrack.addValue(batch.getDurationMillis());
+					}
+				}
+				numTasksAssigned += batch.getSize();
+			}
+			
+			double avg;
+			if (numTasksCompleted > 0)
+				avg = track.getAverage();
+			else
+				avg = Double.NaN;
+			
+			System.out.println(node+":\tlastContact: "+smartTimePrint(lastContactMillis)
+					+"\tbatches: "+numBatchesCompleted+"/"+numBatches
+					+"\ttasks: "+numTasksCompleted+"/"+numTasksAssigned
+					+"\tavg: "+smartTimePrint(avg));
+		}
+		
+		System.out.println();
+		System.out.println("Longest current time without contact: "+longestPeriodNode+": "+smartTimePrint(longestPeriod));
+		System.out.println();
+		
+		int numDispatched = numTasks - numLeft;
+		System.out.println(numDispatched+"/"+numTasks+" dispatched ("+(numTasks-numDispatched)+" left)");
+		System.out.println(numDone+"/"+numTasks+" completed ("+(numTasks-numDone)+" left)");
+		int inProcess = numDispatched - numDone;
+		System.out.println(inProcess+" in process");
+		
+		System.out.println("Calc durations (note, threading effects ignored):");
+		System.out.println("\tRange: ["+smartTimePrint(allDurationTrack.getMin())
+				+" "+smartTimePrint(allDurationTrack.getMax())+"]");
+		System.out.println("\tAverage: "+smartTimePrint(allDurationTrack.getAverage()));
+		System.out.println("\tTotal: "+smartTimePrint(allDurationTrack.getAverage()*allDurationTrack.getNum()));
+		
+		System.out.println("Batch durations (note, threading effects ignored):");
+		System.out.println("\tRange: ["+smartTimePrint(allBatchDurationTrack.getMin())
+				+" "+smartTimePrint(allBatchDurationTrack.getMax())+"]");
+		System.out.println("\tAverage: "+smartTimePrint(allBatchDurationTrack.getAverage()));
+		System.out.println("\tTotal: "+smartTimePrint(allBatchDurationTrack.getAverage()*allBatchDurationTrack.getNum()));
+		
+		System.out.println();
+		boolean done = numDone == numTasks;
+		System.out.println("DONE? "+done);
+		
+		long avgMillis = (long)allDurationTrack.getAverage();
+		
+		if (!done && numDone > 0 && avgMillis > 10 && numTasks > 0 && numDispatched > 0) {
+			System.out.println();
+			System.out.println("Estimating time left, assuming average runtime & ideal dispatching.");
+			
+			// estimate time left
+			
+			// simulation based approach using actual time slots
+			// assume each task takes the average time
+
+			long maxSimMillis = 10*MILLISEC_PER_DAY;
+			
+			System.out.println("Estimating time left from last known date ("+MPJTaskCalculator.df.format(prevDate)+"):");
+			double timeLeftFromLast = estimateTimeLeft(prevDate, numDone, numDispatched, numTasks, nodeBatches,
+					avgMillis, maxSimMillis);
+			if (timeLeftFromLast >= maxSimMillis)
+				System.out.println("\tTime left: >= "+smartTimePrint(timeLeftFromLast));
+			else
+				System.out.println("\tTime left: "+smartTimePrint(timeLeftFromLast));
+			Date curDate = new Date();
+			while (curDate.getTime() < prevDate.getTime())
+				curDate = new Date(curDate.getTime() + MILLISEC_PER_DAY);
+			System.out.println("Estimating time left from current date ("+MPJTaskCalculator.df.format(curDate)+"):");
+			double timeLeftFromCur = estimateTimeLeft(curDate, numDone, numDispatched, numTasks, nodeBatches,
+					avgMillis, maxSimMillis);
+			if (timeLeftFromLast >= maxSimMillis)
+				System.out.println("\tTime left: >= "+smartTimePrint(timeLeftFromCur));
+			else
+				System.out.println("\tTime left: "+smartTimePrint(timeLeftFromCur));
+//			System.out.println("Estimated time assuming average runtime & ideal dispatching: "+smartTimePrint(deltaMillis));
+		}
+	}
+	
+	private static double estimateTimeLeft(Date simStartDate, int numDone, int numDispatched, int numTasks,
+			Map<Node, List<CalcBatch>> nodeBatches, long avgMillis, long maxSimMillis) {
+		
+		// clone batches lists since we'll be messing with them
+		Map<Node, List<CalcBatch>> newNodeBatches = Maps.newHashMap();
+		List<Node> nodes = Lists.newArrayList();
+		for (Node node : nodeBatches.keySet()) {
+			nodes.add(node);
+			List<CalcBatch> newBatches = Lists.newArrayList();
+			List<CalcBatch> batches = nodeBatches.get(node);
+			
+			for (CalcBatch batch : batches) {
+				CalcBatch newBatch = new CalcBatch(batch.size, batch.node, batch.startDate);
+				if (batch.isCompleted())
+					newBatch.setEndDate(batch.endDate);
+				newBatches.add(newBatch);
+			}
+			newNodeBatches.put(node, newBatches);
+		}
+		
+		nodeBatches = newNodeBatches;
+		
+		long timeStepMillis = 1000l*60l; // step forward in minutes
+		
+		Date curDate = new Date(simStartDate.getTime());
+		
+		while (numDone < numTasks) {
+			if (timeDeltaMillis(simStartDate, curDate) > maxSimMillis) {
+				System.out.println("Bailing on time estimate, too long. Dispatched: "
+						+numDispatched+"/"+numTasks+", completed "+numDone+"/"+numTasks);
+				break;
+			}
+			// set end date on any in progress
+			for (Node node : nodes) {
+				List<CalcBatch> batches = nodeBatches.get(node);
+				CalcBatch curBatch = getLastInProgress(batches);
+				if (curBatch != null) {
+					Date start = curBatch.startDate;
+					Date end = new Date(start.getTime() + avgMillis*curBatch.size);
+					if (end.getTime() <= curDate.getTime()) {
+						numDone += curBatch.size;
+						curBatch.setEndDate(end);
+					}
+				}
+			}
+			
+			// now see if we can send any new batches out
+			for (Node node : nodes) {
+				List<CalcBatch> batches = nodeBatches.get(node);
+				CalcBatch curBatch = getLastInProgress(batches);
+				if (curBatch == null && numDispatched < numTasks) {
+					Date startDate;
+					if (batches.isEmpty())
+						startDate = curDate;
+					else
+						startDate = batches.get(batches.size()-1).endDate;
+					// we can assign a new one
+					batches.add(new CalcBatch(1, node, startDate));
+					numDispatched++;
+				}
+			}
+			
+			curDate = new Date(curDate.getTime()+timeStepMillis);
+		}
+		
+		double deltaMillis = timeDeltaMillis(simStartDate, curDate);
+		return deltaMillis;
+	}
+	
+	private static CalcBatch getLastInProgress(List<CalcBatch> batches) {
+		if (batches.isEmpty())
+			return null;
+		CalcBatch batch = batches.get(batches.size()-1);
+		if (batch.isCompleted())
+			return null;
+		return batch;
+	}
+	
+	private static double timeDeltaMillis(Date start, Date end) {
+		return end.getTime() - start.getTime();
+	}
+	
+	private static class Node {
+		private final int processNum;
+		private final String hostName;
+		
+		private Node(int processNum, String hostName) {
+			this.processNum = processNum;
+			this.hostName = hostName;
+		}
+
+		public int getProcessNum() {
+			return processNum;
+		}
+
+		public String getHostName() {
+			return hostName;
+		}
+		
+		@Override
+		public String toString() {
+			String str = "Process "+getProcessNum();
+			if (getHostName() != null)
+				str += " ("+getHostName()+")";
+			return str;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((hostName == null) ? 0 : hostName.hashCode());
+			result = prime * result + processNum;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Node other = (Node) obj;
+			if (hostName == null) {
+				if (other.hostName != null)
+					return false;
+			} else if (!hostName.equals(other.hostName))
+				return false;
+			if (processNum != other.processNum)
+				return false;
+			return true;
+		}
+	}
+	
+	public static Node parseNodeLine(String line) {
+		if (!line.startsWith("["))
+			return null;
+		int endBracketIndex = line.indexOf("]:");
+		if (endBracketIndex < 0)
+			return null;
+		line = line.substring(0, endBracketIndex);
+		if (!line.contains("Process"))
+			return null;
+		String[] split = line.split(" ");
+		if (split.length < 2)
+			return null;
+		// last token is process num
+		int processNum;
+		try {
+			processNum = Integer.parseInt(split[split.length-1]);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+		
+		String hostName = null;
+		if (split[1].startsWith("(") && split[1].endsWith(")")) {
+			// we have hostNames
+			hostName = split[1].substring(1);
+			hostName = hostName.substring(0, hostName.length()-2);
+		}
+		
+		return new Node(processNum, hostName);
+	}
+	
+	private static class CalcBatch {
+		private final int size;
+		private final Node node;
+		private final Date startDate;
+		private Date endDate;
+		
+		private CalcBatch(int size, Node node, Date startDate) {
+			super();
+			this.size = size;
+			this.node = node;
+			this.startDate = startDate;
+		}
+		
+		public void setEndDate(Date endDate) {
+			this.endDate = endDate;
+		}
+		
+		public long getDurationMillis() {
+			long dur = endDate.getTime() - startDate.getTime();
+			Preconditions.checkState(dur >= 0);
+			return dur;
+		}
+		
+		public double getDurationMillisEach() {
+			return (double)getDurationMillis() / (double)size;
+		}
+		
+		public boolean isCompleted() {
+			return endDate != null;
+		}
+		
+		public int getSize() {
+			return size;
+		}
+	}
+	
+	private static final DecimalFormat timeDF = new DecimalFormat("0.00");
+	
+	public static String smartTimePrint(double millis) {
+		if (Double.isNaN(millis))
+			return "N/A";
+		double secs = millis / 1000d;
+		if (secs < 1d)
+			return timeDF.format(millis)+" ms";
+		double mins = secs / 60d;
+		if (mins < 1d)
+			return timeDF.format(secs)+" s";
+		double hours = mins / 60d;
+		if (hours < 1d)
+			return timeDF.format(mins)+" m";
+		double days = hours / 24;
+		if (days < 1)
+			return timeDF.format(hours)+" h";
+		return timeDF.format(days)+" d";
+	}
+	
+	private static final String receive_message = "receiving batch of length";
+	
+	private static CalcBatch parseBatchLine(String line, Node node, Date date) {
+		Preconditions.checkState(line.contains(receive_message));
+		
+		int size;
+		try {
+			size = Integer.parseInt(line.substring(line.indexOf(receive_message)+receive_message.length()).trim());
+		} catch (NumberFormatException e) {
+			System.err.println("Couldn't parse node size: "+e.getMessage());
+			return null;
+		}
+		
+		return new CalcBatch(size,  node, date);
+	}
+	
+	private final static long MILLISEC_PER_DAY = 1000*60*60*24;
+	private static final long HALF_DAY_MILLIS = MILLISEC_PER_DAY/2;
+	
+	private static Date parseDate(String line, Date prevDate) {
+		line = line.substring(1).split(" ")[0];
+		try {
+			Date date =  MPJTaskCalculator.df.parse(line);
+			if (prevDate != null) {
+				// properly handle midnight, if this date is before, then add 24 hours (but make sure it's at least 12 hours before)
+				
+				while (date.getTime() < (prevDate.getTime() - HALF_DAY_MILLIS))
+					date = new Date(date.getTime()+MILLISEC_PER_DAY);
+			}
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+
+}
