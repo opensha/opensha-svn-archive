@@ -204,7 +204,7 @@ public class MPJTaskLogStatsGen {
 		System.out.println("\tAverage: "+smartTimePrint(allDurationTrack.getAverage()));
 		System.out.println("\tTotal: "+smartTimePrint(allDurationTrack.getAverage()*allDurationTrack.getNum()));
 		
-		System.out.println("Batch durations (note, threading effects ignored):");
+		System.out.println("Batch durations:");
 		System.out.println("\tRange: ["+smartTimePrint(allBatchDurationTrack.getMin())
 				+" "+smartTimePrint(allBatchDurationTrack.getMax())+"]");
 		System.out.println("\tAverage: "+smartTimePrint(allBatchDurationTrack.getAverage()));
@@ -218,7 +218,7 @@ public class MPJTaskLogStatsGen {
 		
 		if (!done && numDone > 0 && avgMillis > 10 && numTasks > 0 && numDispatched > 0) {
 			System.out.println();
-			System.out.println("Estimating time left, assuming average runtime & ideal dispatching.");
+			System.out.println("Estimating time left, assuming average task runtime & ideal dispatching.");
 			
 			// estimate time left
 			
