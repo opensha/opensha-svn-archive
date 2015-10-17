@@ -137,7 +137,7 @@ public class MPJTaskLogStatsGen {
 
 			@Override
 			public int compare(Node o1, Node o2) {
-				return Integer.compare(o1.getProcessNum(), o2.getProcessNum());
+				return new Integer(o1.getProcessNum()).compareTo(o2.getProcessNum());
 			}
 		});
 		
