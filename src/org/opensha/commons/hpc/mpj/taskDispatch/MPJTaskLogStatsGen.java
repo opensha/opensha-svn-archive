@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
 import com.google.common.base.Preconditions;
@@ -234,7 +235,12 @@ public class MPJTaskLogStatsGen {
 				System.out.println("\tTime left: >= "+smartTimePrint(timeLeftFromLast));
 			else
 				System.out.println("\tTime left: "+smartTimePrint(timeLeftFromLast));
-			Date curDate = new Date();
+			Date curDate;
+			try {
+				curDate = MPJTaskCalculator.df.parse(MPJTaskCalculator.df.format(new Date()));
+			} catch (ParseException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
 			while (curDate.getTime() < prevDate.getTime())
 				curDate = new Date(curDate.getTime() + MILLISEC_PER_DAY);
 			System.out.println("Estimating time left from current date ("+MPJTaskCalculator.df.format(curDate)+"):");
