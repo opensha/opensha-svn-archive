@@ -144,6 +144,62 @@ public class AftershockStatsCalc {
 			return k*(Math.log(c+tMaxDays) - Math.log(c+tMinDays));
 		}
 	}
+	
+	
+	
+	/**
+	 * This returns the expected number of primary aftershocks as a function of time
+	 * 
+	 * @param a
+	 * @param b
+	 * @param magMain
+	 * @param magMin
+	 * @param p
+	 * @param c
+	 * @param tMin
+	 * @param tMax
+	 * @param tDelta
+	 * @return
+	 */
+	public static  EvenlyDiscretizedFunc getExpectedNumWithTimeFunc(double a, double b, double magMain, double magMin, double p, double c,  double tMin, double tMax, double tDelta) {
+		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
+		for(int i=0;i<func.size();i++) {
+			double binTmin = func.getX(i) - tDelta/2;
+			double binTmax = func.getX(i) + tDelta/2;
+			double yVal = getExpectedNumEvents(a, b, magMain, magMin, p, c, binTmin, binTmax);
+			func.set(i,yVal);
+		}
+		func.setName("Expected Number of Primary Aftershocks for "+tDelta+"-day intervals");
+		func.setInfo("for a="+a+", b="+b+", p="+p+", c="+c+", magMain="+magMain+", magMin="+magMin);
+		return func;
+	}
+	
+	
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @param magMain
+	 * @param magMin
+	 * @param p
+	 * @param c
+	 * @param tMin
+	 * @param tMax
+	 * @param tDelta
+	 * @return
+	 */
+	public static  EvenlyDiscretizedFunc getExpectedCumulativeNumWithTimeFunc(double a, double b, double magMain, double magMin, double p, double c,  double tMin, double tMax, double tDelta) {
+		EvenlyDiscretizedFunc cumFunc = new EvenlyDiscretizedFunc(tMin+tDelta/2, tMax-tDelta/2, (int)Math.round((tMax-tMin)/tDelta));
+		EvenlyDiscretizedFunc numWithTimeFunc = getExpectedNumWithTimeFunc(a, b, magMain, magMin, p, c,  tMin, tMax, tDelta);
+		double sum = 0;
+		for(int i=0;i<cumFunc.size();i++) {
+			sum += numWithTimeFunc.getY(i);
+			cumFunc.set(i,sum);
+		}
+		return cumFunc;
+	}
+
+
 
 	
 	/**

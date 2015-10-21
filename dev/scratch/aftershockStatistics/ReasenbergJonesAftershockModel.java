@@ -435,6 +435,29 @@ public class ReasenbergJonesAftershockModel {
 	
 	
 	/**
+	 * This gives the expected number of aftershocks, according to maximum likelihood values, above the 
+	 * specified minimum magnitude over the specified time span.
+	 * @param magMin
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return
+	 */
+	/**
+	 * This gives the expected number of aftershocks with time according to maximum likelihood values, and above the 
+	 * specified minimum magnitude over the specified time span.
+	 * @param magMin
+	 * @param tMinDays - left edge of first time intercal
+	 * @param tMaxDays - right edge of last time interval
+	 * @param tDelta
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getExpectedCumNumEventsWithTime(double magMin, double tMinDays, double tMaxDays, double tDelta) {
+		return AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(getMaxLikelihood_a(), b, magMain, magMin, 
+				getMaxLikelihood_p(), getMaxLikelihood_c(), tMinDays, tMaxDays, tDelta);
+	}
+
+	
+	/**
 	 * This returns an MFD with the expected number of events greater than or equal to each magnitude 
 	 * for the current model and the given time span.
 	 * @param minMag - the minimum magnitude considered
