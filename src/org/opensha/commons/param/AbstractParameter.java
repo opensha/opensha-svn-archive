@@ -149,7 +149,7 @@ public abstract class AbstractParameter<E> implements Parameter<E> {
 		if (value != null && constraint != null) {
 			if (!constraint.isAllowed(value)) {
 				System.out.println(S + "Value not allowed");
-				throw new ConstraintException(S + "Value not allowed");
+				throw new ConstraintException(S + "Value not allowed: "+value);
 			}
 		}
 

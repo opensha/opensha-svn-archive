@@ -111,6 +111,7 @@ public class CyberShakeMCErDeterministicCalc extends AbstractMCErDeterministicCa
 			int curveID = curves2db.getHazardCurveID(runID, im.getID());
 			if (curveID < 0) {
 				System.out.println("Skipping period "+period+" for site "+site.getName()+", no amplitudes exist");
+				result.put(period, null);
 				continue;
 			}
 			

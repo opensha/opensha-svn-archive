@@ -17,6 +17,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class MPJ_ETAS_SimulatorScriptGen {
@@ -26,6 +27,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 		boolean stampede = true;
 		int threads = 2;
+		boolean smallTest = false;
+		double duration = 1;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -34,13 +37,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
-//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
-//				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
-				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
+				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
+//				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = { null };
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
+				U3ETAS_ProbabilityModelOptions.NO_ERT};
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 //		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
@@ -49,22 +53,41 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		String nameAdd = null;
 //		String nameAdd = "launch-debug";
 		
-		double duration = 1;
-		int startYear = 2014;
-		boolean histCatalog = false;
-		int numSims = 10000;
-		int nodes = 40;
-		int mins = 18*60;
-		
-//		double duration = 100;
-//		int startYear = 2012;
-//		boolean histCatalog = true;
-//		int numSims = 100;
-//		int nodes = 15;
-//		int mins = 24*60;
+		boolean histCatalog;
+		String queue;
+		int startYear, numSims, nodes, mins;
+		if (duration > 1) {
+			// long simulation
+			queue = null;
+			startYear = 2012;
+			histCatalog = true;
+			numSims = 100;
+			nodes = 15;
+			mins = 24*60;
+			Preconditions.checkState(!smallTest);
+		} else {
+			histCatalog = false;
+			startYear = 2014;
+			if (smallTest) {
+				queue = "development";
+				numSims = 200;
+				nodes = 10;
+				mins = 2*60;
+				if (nameAdd == null)
+					nameAdd = "";
+				else
+					nameAdd += "-";
+				nameAdd += "quick_test";
+			} else {
+				queue = null;
+				numSims = 10000;
+				nodes = 40;
+				mins = 18*60;
+			}
+		}
 		
 		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
-//		String dateStr = "2015_10_06";
+//		String dateStr = "2015_10_15";
 		
 		boolean timeIndep = false;
 		
@@ -76,7 +99,6 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			ppn = 16;
 		else
 			ppn = 8;
-		String queue = null;
 		
 		File remoteDir, remoteSolFile, cacheDir;
 		FastMPJShellScriptWriter mpjWrite;

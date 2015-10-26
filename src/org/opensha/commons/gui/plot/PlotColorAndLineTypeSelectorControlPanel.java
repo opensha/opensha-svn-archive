@@ -342,7 +342,7 @@ ActionListener,ParameterChangeListener{
 		lineWidthParameter = new DoubleParameter[numCurves];
 		symbolTypeParam = new StringParameter[numCurves];
 		symbolWidthParameter = new DoubleParameter[numCurves];
-		DoubleConstraint sizeConstraint = new DoubleConstraint(0,20);
+		DoubleConstraint sizeConstraint = new DoubleConstraint(0,1000);
 		for(int i=0;i<numCurves;++i){
 			PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
 			//creating the dataset Labl with the color in which they are shown in plots.

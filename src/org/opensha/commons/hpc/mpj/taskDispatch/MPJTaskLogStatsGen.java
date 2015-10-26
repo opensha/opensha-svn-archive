@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FileNameComparator;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 
 import com.google.common.base.Preconditions;
@@ -35,6 +37,22 @@ public class MPJTaskLogStatsGen {
 		
 		File logFile = new File(args[0]);
 		Preconditions.checkArgument(logFile.exists(), "Log file doesn't exist: %s", logFile.getAbsolutePath());
+		
+		if (logFile.isDirectory()) {
+			// look for log file
+			File[] files = logFile.listFiles();
+			Arrays.sort(files, new FileNameComparator());
+			File match = null;
+			for (int i=files.length; --i>=0;) {
+				if (files[i].getName().contains(".pbs.o")) {
+					match = files[i];
+					break;
+				}
+			}
+			Preconditions.checkState(match != null, "No *.pbs.o* output file found in directory: %s", logFile.getAbsolutePath());
+			System.out.println("Found match in directory: "+match.getAbsolutePath());
+			logFile = match;
+		}
 		
 		BufferedReader read = new BufferedReader(new FileReader(logFile), 81920);
 		
@@ -141,32 +159,28 @@ public class MPJTaskLogStatsGen {
 			}
 		});
 		
-		double longestPeriod = 0d;
-		Node longestPeriodNode = null;
-		
 		MinMaxAveTracker allDurationTrack = new MinMaxAveTracker();
 		MinMaxAveTracker allBatchDurationTrack = new MinMaxAveTracker();
 		
+		int[] numBatches = new int[nodes.size()];
+		int[] numBatchesCompleted = new int[nodes.size()];
+		int[] numTasksAssigned = new int[nodes.size()];
+		int[] numTasksCompleted = new int[nodes.size()];
+		double[] averages = new double[nodes.size()];
+		
 		System.out.println();
-		for (Node node : nodes) {
-			double lastContactMillis = timeDeltaMillis(lastHeardFromMap.get(node), prevDate);
-			if (lastContactMillis > longestPeriod) {
-				longestPeriod = lastContactMillis;
-				longestPeriodNode = node;
-			}
+		for (int i=0; i<nodes.size(); i++) {
+			Node node = nodes.get(i);
 			List<CalcBatch> batches = nodeBatches.get(node);
 			
-			int numBatches = batches.size();
-			int numBatchesCompleted = 0;
-			int numTasksAssigned = 0;
-			int numTasksCompleted = 0;
+			numBatches[i] = batches.size();
 			
 			MinMaxAveTracker track = new MinMaxAveTracker();
 			
 			for (CalcBatch batch : batches) {
 				if (batch.isCompleted()) {
-					numBatchesCompleted++;
-					numTasksCompleted += batch.getSize();
+					numBatchesCompleted[i]++;
+					numTasksCompleted[i] += batch.getSize();
 					if (batch.getSize() > 0) {
 						double each = batch.getDurationMillisEach();
 						track.addValue(each);
@@ -174,23 +188,60 @@ public class MPJTaskLogStatsGen {
 						allBatchDurationTrack.addValue(batch.getDurationMillis());
 					}
 				}
-				numTasksAssigned += batch.getSize();
+				numTasksAssigned[i] += batch.getSize();
 			}
 			
-			double avg;
-			if (numTasksCompleted > 0)
-				avg = track.getAverage();
+			if (numTasksCompleted[i] > 0)
+				averages[i] = track.getAverage();
 			else
-				avg = Double.NaN;
+				averages[i] = Double.NaN;
+		}
+		
+		String countStr = "";
+		for (int i=0; i<(max(numTasksAssigned)+"").length(); i++)
+			countStr += "0";
+		DecimalFormat nodeTaskDF = new DecimalFormat(countStr);
+		countStr = "";
+		for (int i=0; i<(max(numBatches)+"").length(); i++)
+			countStr += "0";
+		DecimalFormat nodeBatchDF = new DecimalFormat(countStr);
+		
+		Date curDate;
+		try {
+			curDate = MPJTaskCalculator.df.parse(MPJTaskCalculator.df.format(new Date()));
+		} catch (ParseException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		while (curDate.getTime() < prevDate.getTime())
+			curDate = new Date(curDate.getTime() + MILLISEC_PER_DAY);
+
+		double longestPeriod = 0d;
+		Node longestPeriodNode = null;
+		double longestPeriod2 = 0d;
+		
+		for (int i=0; i<nodes.size(); i++) {
+			Node node = nodes.get(i);
+			double lastContactMillis = timeDeltaMillis(lastHeardFromMap.get(node), prevDate);
+			if (lastContactMillis > longestPeriod) {
+				longestPeriod = lastContactMillis;
+				longestPeriodNode = node;
+			}
+			double lastContactMillis2 = timeDeltaMillis(lastHeardFromMap.get(node), curDate);
+			if (lastContactMillis2 > longestPeriod2)
+				longestPeriod2 = lastContactMillis2;
 			
-			System.out.println(node+":\tlastContact: "+smartTimePrint(lastContactMillis)
-					+"\tbatches: "+numBatchesCompleted+"/"+numBatches
-					+"\ttasks: "+numTasksCompleted+"/"+numTasksAssigned
-					+"\tavg: "+smartTimePrint(avg));
+			String runningAdd = "";
+			if (numTasksCompleted[i] < numTasksAssigned[i])
+				runningAdd = "\tRUNNING: "+(numTasksAssigned[i] - numTasksCompleted[i]);
+			System.out.println(node+":\tlastContact: "+smartTimePrint(lastContactMillis)+"\t("+smartTimePrint(lastContactMillis2)+")"
+					+"\tbatches: "+nodeBatchDF.format(numBatchesCompleted[i])+"/"+nodeBatchDF.format(numBatches[i])
+					+"\ttasks: "+nodeTaskDF.format(numTasksCompleted[i])+"/"+nodeTaskDF.format(numTasksAssigned[i])
+					+"\tavg: "+smartTimePrint(averages[i])+runningAdd);
 		}
 		
 		System.out.println();
-		System.out.println("Longest current time without contact: "+longestPeriodNode+": "+smartTimePrint(longestPeriod));
+		System.out.println("Longest current time without contact: "+longestPeriodNode+": "
+				+smartTimePrint(longestPeriod)+" ("+smartTimePrint(longestPeriod2)+")");
 		System.out.println();
 		
 		int numDispatched = numTasks - numLeft;
@@ -235,14 +286,6 @@ public class MPJTaskLogStatsGen {
 				System.out.println("\tTime left: >= "+smartTimePrint(timeLeftFromLast));
 			else
 				System.out.println("\tTime left: "+smartTimePrint(timeLeftFromLast));
-			Date curDate;
-			try {
-				curDate = MPJTaskCalculator.df.parse(MPJTaskCalculator.df.format(new Date()));
-			} catch (ParseException e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-			while (curDate.getTime() < prevDate.getTime())
-				curDate = new Date(curDate.getTime() + MILLISEC_PER_DAY);
 			System.out.println("Estimating time left from current date ("+MPJTaskCalculator.df.format(curDate)+"):");
 			double timeLeftFromCur = estimateTimeLeft(curDate, numDone, numDispatched, numTasks, nodeBatches,
 					avgMillis, maxSimMillis);
@@ -252,6 +295,14 @@ public class MPJTaskLogStatsGen {
 				System.out.println("\tTime left: "+smartTimePrint(timeLeftFromCur));
 //			System.out.println("Estimated time assuming average runtime & ideal dispatching: "+smartTimePrint(deltaMillis));
 		}
+	}
+	
+	private static int max(int[] vals) {
+		int max = 0;
+		for (int val : vals)
+			if (val > max)
+				max = val;
+		return max;
 	}
 	
 	private static double estimateTimeLeft(Date simStartDate, int numDone, int numDispatched, int numTasks,

@@ -397,21 +397,8 @@ public class XYZGraphPanel extends JPanel {
 				subPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 			}
 			
-			NumberAxis fakeZAxis = new NumberAxis();
-			fakeZAxis.setLowerBound(scale.getLowerBound());
-			fakeZAxis.setUpperBound(scale.getUpperBound());
-			fakeZAxis.setLabel(spec.getZAxisLabel());
-			Font axisLabelFont = fakeZAxis.getLabelFont();
-			fakeZAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
-			Font axisTickFont = fakeZAxis.getTickLabelFont();
-			fakeZAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
-			if (spec.getCPTTickUnit() > 0)
-				fakeZAxis.setTickUnit(new NumberTickUnit(spec.getCPTTickUnit()));
-			PaintScaleLegend legend = new PaintScaleLegend(scale, fakeZAxis);
-			if (spec.getLegendPosition() != null)
-				legend.setPosition(spec.getLegendPosition());
-			legend.setPadding(5d, 50d, 5d, 50d);
-			legends.add(legend);
+			legends.add(getLegendForCPT(scale, spec.getZAxisLabel(), axisFontSize, tickFontSize,
+					spec.getCPTTickUnit(), spec.getLegendPosition()));
 			
 			// now add any annotations
 			if (spec.getPlotAnnotations() != null)
@@ -474,6 +461,36 @@ public class XYZGraphPanel extends JPanel {
 		chartPanel.setVerticalAxisTrace(false);
 		
 		this.add(chartPanel);
+	}
+	
+	public static PaintScaleLegend getLegendForCPT(CPT cpt, String zAxisLabel,
+			int axisFontSize, int tickFontSize, double tickUnit, RectangleEdge position) {
+		return getLegendForCPT(new PaintScaleWrapper(cpt), zAxisLabel, axisFontSize, tickFontSize, tickUnit, position);
+	}
+	
+	private static PaintScaleLegend getLegendForCPT(PaintScaleWrapper scale, String zAxisLabel,
+			int axisFontSize, int tickFontSize, double tickUnit, RectangleEdge position) {
+		NumberAxis fakeZAxis = new NumberAxis();
+		fakeZAxis.setLowerBound(scale.getLowerBound());
+		fakeZAxis.setUpperBound(scale.getUpperBound());
+		fakeZAxis.setLabel(zAxisLabel);
+		Font axisLabelFont = fakeZAxis.getLabelFont();
+		fakeZAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
+		Font axisTickFont = fakeZAxis.getTickLabelFont();
+		fakeZAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
+		if (tickUnit > 0)
+			fakeZAxis.setTickUnit(new NumberTickUnit(tickUnit));
+		PaintScaleLegend legend = new PaintScaleLegend(scale, fakeZAxis);
+		if (position != null)
+			legend.setPosition(position);
+		if (legend.getPosition() == RectangleEdge.BOTTOM || legend.getPosition() == RectangleEdge.TOP)
+			legend.setPadding(5d, 50d, 5d, 50d);
+		else if (legend.getPosition() == RectangleEdge.LEFT)
+			legend.setPadding(15d, 20d, 15d, 5d);
+		else
+			// right
+			legend.setPadding(15d, 5d, 15d, 20d);
+		return legend;
 	}
 	
 	public ChartPanel getChartPanel() {
@@ -594,7 +611,7 @@ public class XYZGraphPanel extends JPanel {
 		
 	}
 	
-	private class PaintScaleWrapper implements PaintScale {
+	private static class PaintScaleWrapper implements PaintScale {
 		
 		private CPT cpt;
 		

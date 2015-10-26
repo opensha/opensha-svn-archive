@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.DataUtils;
@@ -252,7 +254,7 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.setPlotLabelFontSize(24);
 	}
 	
-	private static void plotMFD(List<List<ETAS_EqkRupture>> catalogs, double duration,
+	private static ArbIncrementalMagFreqDist[] plotMFD(List<List<ETAS_EqkRupture>> catalogs, double duration,
 			File outputDir, String name, String prefix) throws IOException {
 //		double minMag = 5.05;
 //		int numMag = 41;
@@ -298,7 +300,8 @@ public class ETAS_MultiSimAnalysisTools {
 			cmlSubMFDs[i] = subMFDs[i].getCumRateDistWithOffset();
 		}
 		
-		
+		if (outputDir == null)
+			return subMFDs;
 		
 		boolean[] cumulatives = { false, true };
 		
@@ -347,6 +350,99 @@ public class ETAS_MultiSimAnalysisTools {
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
 			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
 		}
+		
+		return subMFDs;
+	}
+	
+	private static void plotFractWithMagAbove(List<List<ETAS_EqkRupture>> catalogs,
+			ArbIncrementalMagFreqDist[] subMFDs, TestScenario scenario,
+			File outputDir, String name, String prefix) throws IOException {
+		if (subMFDs == null)
+			subMFDs = plotMFD(catalogs, -1d, null, null, null);
+		
+		Preconditions.checkArgument(subMFDs.length > 0);
+		Preconditions.checkArgument(subMFDs.length == catalogs.size());
+		
+		double minMag = subMFDs[0].getMinX();
+		int numMag = subMFDs[0].size();
+		double delta = subMFDs[0].getDelta();
+		
+		EvenlyDiscretizedFunc atOrAboveFunc = new EvenlyDiscretizedFunc(minMag-delta*0.5, numMag, delta);
+		EvenlyDiscretizedFunc atFunc = new EvenlyDiscretizedFunc(minMag, numMag, delta);
+
+		double fractEach = 1d/subMFDs.length;
+		double minY = Math.min(fractEach, 1d/10000d);
+		
+		for (ArbIncrementalMagFreqDist subMFD : subMFDs) {
+			int maxIndex = -1;
+			for (int i=0; i<numMag; i++) {
+				if (subMFD.getY(i) > 0d) {
+					atFunc.add(i, fractEach);
+					maxIndex = i;
+				}
+			}
+			for (int i=0; i<=maxIndex; i++)
+				atOrAboveFunc.add(i, fractEach);
+		}
+		
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		atFunc.setName("Fract With Mag");
+		funcs.add(atFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+		
+		atOrAboveFunc.setName("Fract With ≥Mag");
+		funcs.add(atOrAboveFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		
+		List<XYTextAnnotation> anns = null;
+		
+		if (scenario != null) {
+			DefaultXY_DataSet xy = new DefaultXY_DataSet();
+			double mag = scenario.getMagnitude();
+			xy.setName("Scenario M="+(float)mag);
+			xy.set(mag, 0d);
+			xy.set(mag, minY);
+			xy.set(mag, fractEach);
+			xy.set(mag, 1d);
+			
+			funcs.add(xy);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, new Color(0, 180, 0)));	
+			
+			double fractAboveMag = (double)calcNumWithMagAbove(catalogs, mag)/catalogs.size();
+			
+			DecimalFormat df = new DecimalFormat("0.#");
+			XYTextAnnotation ann = new XYTextAnnotation(
+					" "+df.format(fractAboveMag*100d)+"% > M"+df.format(mag), mag, fractAboveMag);
+			ann.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 24));
+			ann.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+			Color red = new Color(180, 0, 0);
+			ann.setPaint(red);
+			anns = Lists.newArrayList(ann);
+			
+			xy = new DefaultXY_DataSet();
+			xy.setName(null);
+			xy.set(mag, fractAboveMag);
+			
+			funcs.add(xy);
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 5f, red));	
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, name+" Fract With Mag", "Magnitude", "Fraction Of Simulations");
+		spec.setLegendVisible(true);
+		spec.setPlotAnnotations(anns);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setUserBounds(atFunc.getMinX()-0.5*delta, atFunc.getMaxX(), minY, 1d);
+		
+		setFontSizes(gp);
+		
+		gp.drawGraphPanel(spec, false, true);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
 	/**
@@ -1032,6 +1128,103 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 	}
 	
+	private static void writeTimeFromPrevSupraHist(List<List<ETAS_EqkRupture>> catalogs, File outputDir) throws IOException {
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(0d, 20d, 1d);
+		
+		List<Double> allVals = Lists.newArrayList();
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			if (catalog.size() < 2)
+				continue;
+//			long durationMillis = catalog.get(catalog.size()-1).getOriginTime() - catalog.get(0).getOriginTime();
+//			double myDuration = (double)durationMillis/MILLIS_PER_YEAR;
+			long startTime = catalog.get(0).getOriginTime();
+			long endTime = catalog.get(catalog.size()-1).getOriginTime();
+			long durationMillis = endTime - startTime;
+			Preconditions.checkState(durationMillis > 0l);
+			
+			int num = 10000;
+			long delta = durationMillis / num;
+			Preconditions.checkState(delta > 0);
+			
+			int catIndexBeforeTime = 0;
+			long prevSupra = Long.MIN_VALUE;
+			for (long time=startTime; time<endTime; time+=delta) {
+				for (int i=catIndexBeforeTime; i<catalog.size(); i++) {
+					ETAS_EqkRupture e = catalog.get(i);
+					if (e.getOriginTime() > time)
+						break;
+					catIndexBeforeTime = i;
+					if (e.getFSSIndex() >= 0)
+						prevSupra = e.getOriginTime();
+				}
+				if (prevSupra > Long.MIN_VALUE) {
+					long curDelta = time - prevSupra;
+					Preconditions.checkState(curDelta >= 0);
+					double curDeltaYears = curDelta / MILLIS_PER_YEAR;
+					if (curDeltaYears > hist.getMaxX())
+						hist.add(hist.size()-1, 1d);
+					else
+						hist.add(curDeltaYears, 1d);
+					allVals.add(curDeltaYears);
+				}
+			}
+		}
+		hist.normalizeBySumOfY_Vals();
+		
+		HistogramFunction cmlHist = new HistogramFunction(hist.getMinX()-hist.getDelta()*0.5, hist.size(), hist.getDelta());
+		double cmlVal = 0d;
+		for (int i=hist.size(); --i>=0;) {
+			double val = hist.getY(i);
+			cmlVal += val;
+			cmlHist.set(i, cmlVal);
+		}
+		
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(hist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		hist.setName("Histogram");
+		
+		funcs.add(cmlHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GRAY));
+		cmlHist.setName("Cumulative (≥) Histogram");
+		
+		double[] allValsArray = Doubles.toArray(allVals);
+		double mean = StatUtils.mean(allValsArray);
+		double median = DataUtils.median(allValsArray);
+		
+		XY_DataSet meanLine = new DefaultXY_DataSet();
+		meanLine.set(mean, 0d);
+		meanLine.set(mean, 1d);
+		meanLine.setName("Mean="+(float)mean);
+		
+		funcs.add(meanLine);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.BLUE));
+		
+		XY_DataSet medianLine = new DefaultXY_DataSet();
+		medianLine.set(median, 0d);
+		medianLine.set(median, 1d);
+		medianLine.setName("Median="+(float)median);
+		
+		funcs.add(medianLine);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GREEN.darker()));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Time Since Last Supra-Seosmogenic Hist", "Time (years)", "Density");
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		setFontSizes(gp);
+		
+		gp.drawGraphPanel(spec, false, false, new Range(0, hist.getMaxX()+0.5*hist.getDelta()), new Range(0d, 1d));
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, "time_since_last_supra.png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, "time_since_last_supra.pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, "time_since_last_supra.txt").getAbsolutePath());
+	}
+	
 	/**
 	 * Writes out catalogs with minimum, median, and maximum total moment release to the given directory
 	 * @param catalogs
@@ -1116,13 +1309,14 @@ public class ETAS_MultiSimAnalysisTools {
 		double minLoadMag = -1;
 		
 //		boolean plotMFDs = true;
-//		boolean plotExpectedComparison = true;
-//		boolean plotSectRates = true;
-//		boolean plotTemporalDecay = true;
-//		boolean plotDistanceDecay = true;
-//		boolean plotMaxMagHist = true;
-//		boolean plotGenerations = true;
-//		boolean plotGriddedNucleation = true;
+//		boolean plotExpectedComparison = false;
+//		boolean plotSectRates = false;
+//		boolean plotTemporalDecay = false;
+//		boolean plotDistanceDecay = false;
+//		boolean plotMaxMagHist = false;
+//		boolean plotGenerations = false;
+//		boolean plotGriddedNucleation = false;
+//		boolean writeTimeFromPrevSupra = false;
 //		boolean writeCatsForViz = false;
 		
 		boolean plotMFDs = true;
@@ -1133,6 +1327,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean plotMaxMagHist = true;
 		boolean plotGenerations = true;
 		boolean plotGriddedNucleation = true;
+		boolean writeTimeFromPrevSupra = true;
 		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
@@ -1165,42 +1360,77 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-//		names.add("100yr, CF=6");
-//		useActualDurations = true;
-//		resultsZipFiles.add(new File(mainDir, "2015_10_12-spontaneous-100yr-full_td-maxChar6.0/results.zip"));
+//		names.add("100yr Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-spontaneous-100yr-full_td-maxChar10.0/results.zip"));
 //		scenarios.add(null);
 		
-//		names.add("Mojave M5 Full TD, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m5-full_td-maxChar6.0/results.bin"));
+//		names.add("100yr No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-spontaneous-100yr-no_ert-maxChar10.0/results.zip"));
+//		scenarios.add(null);
+		
+//		names.add("200yr Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-spontaneous-200yr-full_td-maxChar10.0/results.zip"));
+//		scenarios.add(null);
+		
+//		names.add("200yr No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-spontaneous-200yr-no_ert-maxChar10.0/results.zip"));
+//		scenarios.add(null);
+		
+//		names.add("Mojave M5 Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m5-full_td-maxChar10.0/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M5);
 		
-//		names.add("Mojave M5.5 Full TD, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m5p5-full_td-maxChar6.0/results.bin"));
+//		names.add("Mojave M5 No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m5-no_ert-maxChar10.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M5);
+		
+//		names.add("Mojave M5.5 Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m5p5-full_td-maxChar10.0/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M5p5);
 		
-//		names.add("Mojave M5.5 No ERT, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m5p5-no_ert-maxChar6.0/results.bin"));
+//		names.add("Mojave M5.5 No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m5p5-no_ert-maxChar10.0/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M5p5);
 		
-		names.add("Mojave M6.3 Finite Full TD, CF=6");
-		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m6pt3_fss-full_td-maxChar6.0/results.bin"));
-		scenarios.add(TestScenario.MOJAVE_M6pt3_FSS);
+//		names.add("Mojave M6.3 Finite Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m6pt3_fss-full_td-maxChar10.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M6pt3_FSS);
 		
-//		names.add("Mojave M6.3 Pt. Src. Full TD, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m6pt3_ptsrc-full_td-maxChar6.0/results.bin"));
+//		names.add("Mojave M6.3 Finite No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m6pt3_fss-no_ert-maxChar10.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M6pt3_FSS);
+		
+//		names.add("Mojave M6.3 Pt. Src. Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m6pt3_ptsrc-full_td-maxChar10.0/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M6pt3_ptSrc);
-//		
-//		names.add("Mojave M7 Full TD, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m7-full_td-maxChar6.0/results.bin"));
+		
+//		names.add("Mojave M6.3 Pt. Src. No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m6pt3_ptsrc-no_ert-maxChar10.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M6pt3_ptSrc);
+		
+//		names.add("Mojave M7 Full TD, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m7-full_td-maxChar10.0/results.bin"));
 //		scenarios.add(TestScenario.MOJAVE_M7);
-//		
-//		names.add("Mojave M7.4 Full TD, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m7pt4-full_td-maxChar6.0/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7pt4);
-//		
-//		names.add("Mojave M7.8 Full TD, CF=6");
-//		resultsZipFiles.add(new File(mainDir, "2015_10_13-mojave_m7pt8-full_td-maxChar6.0/results_m4.bin"));
-//		scenarios.add(TestScenario.MOJAVE_M7pt8);
+		
+//		names.add("Mojave M7 No ERT, CF=10");
+//		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m7-no_ert-maxChar10.0/results.bin"));
+//		scenarios.add(TestScenario.MOJAVE_M7);
+		
+		names.add("Mojave M7.4 Full TD, CF=10");
+		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m7pt4-full_td-maxChar10.0/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7pt4);
+		
+		names.add("Mojave M7.4 No ERT, CF=10");
+		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m7pt4-no_ert-maxChar10.0/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7pt4);
+		
+		names.add("Mojave M7.8 Full TD, CF=10");
+		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m7pt8-full_td-maxChar10.0/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7pt8);
+		
+		names.add("Mojave M7.8 No ERT, CF=10");
+		resultsZipFiles.add(new File(mainDir, "2015_10_15-mojave_m7pt8-no_ert-maxChar10.0/results_m4.bin"));
+		scenarios.add(TestScenario.MOJAVE_M7pt8);
 		
 		for (int n=0; n<names.size(); n++) {
 			String name = names.get(n);
@@ -1382,11 +1612,13 @@ public class ETAS_MultiSimAnalysisTools {
 			if (plotMFDs) {
 				System.out.println("Plotting MFDs");
 				
-				plotMFD(childrenCatalogs, duration, outputDir, name, fullFileName);
+				ArbIncrementalMagFreqDist[] subMFDs = plotMFD(childrenCatalogs, duration, outputDir, name, fullFileName);
 				if (triggerParentID >= 0)
 					plotMFD(primaryCatalogs, duration, outputDir, subsetName+" "+name, subsetFileName+"_aftershocks");
 				else
 					plotMFD(primaryCatalogs, duration, outputDir, subsetName+" "+name, subsetFileName+"_events");
+				
+				plotFractWithMagAbove(childrenCatalogs, subMFDs, scenario, outputDir, name, fullFileName+"_fract_above_mag");
 			}
 			
 			if (plotExpectedComparison && triggerParentID >= 0) {
@@ -1464,6 +1696,11 @@ public class ETAS_MultiSimAnalysisTools {
 			if (writeCatsForViz) {
 				System.out.println("Writing catalogs for vizualisation in SCEC-VDO");
 				writeCatalogsForViz(childrenCatalogs, scenario, new File(parentDir, catsDirName), 5);
+			}
+			
+			if (scenario == null && writeTimeFromPrevSupra) {
+				System.out.println("Plotting time since last supra");
+				writeTimeFromPrevSupraHist(catalogs, outputDir);
 			}
 			
 			writeHTML(parentDir, scenario, name, catalogs, duration);

@@ -24,6 +24,8 @@ import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.magdist.SummedMagFreqDist;
@@ -152,6 +154,7 @@ public class LaHabraProbCalc {
 //		RupInRegionsCache cache = null;
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+//		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
 		erf.getTimeSpan().setStartTime(2014);
 //		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);

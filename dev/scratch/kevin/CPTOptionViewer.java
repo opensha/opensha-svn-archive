@@ -33,6 +33,7 @@ public class CPTOptionViewer {
 		frame.setContentPane(panel);
 		frame.pack();
 		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 }

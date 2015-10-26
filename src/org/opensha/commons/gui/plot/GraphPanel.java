@@ -64,6 +64,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.LegendTitle;
+import org.jfree.chart.title.Title;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
@@ -929,6 +930,11 @@ public class GraphPanel extends JSplitPane {
 		chartPanel = null;
 		metadataText.setText("");
 		dataTextArea.setText(NO_PLOT_MSG);
+	}
+	
+	public void addSubtitle(Title subtitle) {
+		JFreeChart chart = chartPanel.getChart();
+		chart.addSubtitle(subtitle);
 	}
 
 

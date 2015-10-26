@@ -117,6 +117,8 @@ public class MCERDataProductsCalc {
 	private WeightedAverageMCErProbabilisticCalc avgProbCalc;
 	
 	static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
+	static final String all_periods = "0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,"
+				+"0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0";
 	
 	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
@@ -303,14 +305,16 @@ public class MCERDataProductsCalc {
 		for (double period : periods) {
 			try {
 				DeterministicResult csDet = csDetCalc.calc(site, period);
+				Preconditions.checkNotNull(csDet); // will kick down to catch and skip this period if null
 				csDeterms.add(csDet);
 				DiscretizedFunc curve = csProbCalc.calcHazardCurves(site, Lists.newArrayList(period)).get(period);
 				xValsMap.put(period, curve);
 				double csProb = CurveBasedMCErProbabilisitCalc.calcRTGM(curve);
 //				double csProb = csProbCalc.calc(site, period);
 				csProbSpectrum.set(period, csProb);
-			} catch (IllegalStateException e) {
-				if (e.getMessage() != null && e.getMessage().startsWith("No CyberShake IM match")) {
+			} catch (RuntimeException e) {
+				if (e.getMessage() != null && e.getMessage().startsWith("No CyberShake IM match")
+						|| e instanceof NullPointerException) {
 					System.out.println("Skipping period "+period+", no matching CyberShake IM");
 					csDeterms.add(null);
 					continue;
@@ -807,6 +811,7 @@ public class MCERDataProductsCalc {
 					+ "src/org/opensha/sha/cybershake/conf/bssa2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cb2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cy2014.xml";
+//			argStr += " --period "+all_periods;
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_full.xml";
 //			argStr += " --gmpe-cache-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2/";
