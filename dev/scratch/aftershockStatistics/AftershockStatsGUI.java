@@ -800,7 +800,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				plotMaxMag = Math.max(plotMaxMag, mag);
 			}
 		}
-		if (!Double.isFinite(plotMinMag))
+		if (Double.isInfinite(plotMinMag))
 			plotMinMag = 0d;
 		plotMinMag = Math.floor(plotMinMag);
 		plotMaxMag = Math.ceil(plotMaxMag);
