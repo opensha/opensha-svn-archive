@@ -21,8 +21,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.Range;
+import org.jfree.ui.RectangleEdge;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -181,12 +184,14 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private static final int hypo_tab_index = 1;
 	private static final int mag_num_tab_index = 2;
 	private static final int mag_time_tab_index = 3;
-	private static final int catalog_tab_index = 4;
-	private static final int pdf_tab_index = 5;
-	private static final int aftershock_expected_index = 6;
+	private static final int cml_num_tab_index = 4;
+	private static final int catalog_tab_index = 5;
+	private static final int pdf_tab_index = 6;
+	private static final int aftershock_expected_index = 7;
 	private GraphWidget hypocenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
+	private GraphWidget cmlNumGraph;
 	private JTextArea catalogText;
 	private JTabbedPane pdfGraphsPane;
 	private GraphWidget aftershockExpectedGraph;
@@ -242,7 +247,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		maxLonParam = new DoubleParameter("Max Lon", -180d, 180d, new Double(36d));
 		minDepthParam = new DoubleParameter("Min Depth", 0d, 1000d, new Double(0));
 		minDepthParam.setUnits("km");
-		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(20));
+		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(40));
 		maxDepthParam.setUnits("km");
 		regionCenterTypeParam = new EnumParameter<AftershockStatsGUI.RegionCenterType>(
 				"Region Center", EnumSet.allOf(RegionCenterType.class), RegionCenterType.CENTROID, null);
@@ -550,17 +555,32 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 //		double maxSize = 20d;
 		double sizeMult = 1.4;
 		double size = minSize;
+		
+		double dS = 3;
 		for (int i=0; i<magSizeFunc.size(); i++) {
 			double mag = magSizeFunc.getX(i);
 //			double fract = (mag - minMag)/(maxMag - minMag);
 //			double size = minSize + fract*(maxSize - minSize);
 			
-			magSizeFunc.set(i, size);
-			
+//			magSizeFunc.set(i, size);
+//			double radius = Math.pow((7d/16d)*Math.pow(10, 1.5*mag + 9)/(dS*1e6), 1d/3d) / 1000 / 111.111;
+			// scale with stress drop, from Nicholas via e-mail 10/26/2015
+			double radius = Math.pow((7d/16d)*Math.pow(10, 1.5*mag + 9)/(dS*1e6), 1d/3d) / 300d;
+			magSizeFunc.set(i, radius);
+			System.out.println("Mag="+mag+", radius="+radius);
 			size *= sizeMult;
 		}
 		
 		return magSizeFunc;
+	}
+	
+	private EvenlyDiscretizedFunc distFunc;
+	
+	private EvenlyDiscretizedFunc getDistFunc() {
+		if (distFunc == null)
+			distFunc = HistogramFunction.getEncompassingHistogram(0d, 199d, 20d);
+		
+		return distFunc; 
 	}
 	
 	private CPT magCPT;
@@ -578,11 +598,50 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		return magCPT;
 	}
 	
+	private CPT distCPT;
+	
+	private CPT getDistCPT() {
+		if (distCPT != null)
+			return distCPT;
+		EvenlyDiscretizedFunc distFunc = getDistFunc();
+		double halfDelta = 0.5*distFunc.getDelta();
+		try {
+			distCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(
+					distFunc.getMinX()-halfDelta, distFunc.getMaxX()+halfDelta);
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		return distCPT;
+	}
+	
+	private static final int tickLabelFontSize = 22;
+	private static final int axisLabelFontSize = 24;
+	private static final int plotLabelFontSize = 24;
+	
+	private static void setupGP(GraphWidget widget) {
+		widget.setPlotLabelFontSize(plotLabelFontSize);
+		widget.setAxisLabelFontSize(axisLabelFontSize);
+		widget.setTickLabelFontSize(tickLabelFontSize);
+		widget.setBackgroundColor(Color.WHITE);
+	}
+	
 	private void plotAftershockHypocs() {
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
 		EvenlyDiscretizedFunc magSizeFunc = getMagSizeFunc();
+		
+		boolean colorByTime = true;
+		CPT timeCPT = null;
+		
+		if (colorByTime) {
+			try {
+				timeCPT = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0d, dataEndTimeParam.getValue());
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+		}
+		PaintScaleLegend subtitle = null;
 		
 		RuptureSurface mainSurf = mainshock.getRuptureSurface();
 		if (mainSurf != null && !mainSurf.isPointSurface()) {
@@ -600,20 +659,41 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			xy.setName("Main Shock Location");
 			funcs.add(xy);
 			float size = (float)magSizeFunc.getY(magSizeFunc.getClosestXIndex(mainshock.getMag()));
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, size, Color.BLACK));
+			Color c;
+			if (colorByTime)
+				c = timeCPT.getMinColor();
+			else
+				c = Color.BLACK;
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, size, c));
 		}
 		
 		// now aftershocks
 		List<Point2D> points = Lists.newArrayList();
 		List<Double> mags = Lists.newArrayList();
+		List<Double> timeDeltas = Lists.newArrayList();
 		for (ObsEqkRupture rup : aftershocks) {
 			Location loc = rup.getHypocenterLocation();
 			points.add(new Point2D.Double(loc.getLongitude(), loc.getLatitude()));
 			mags.add(rup.getMag());
+			timeDeltas.add(getTimeSinceMainshock(rup));
 		}
-		XY_DataSet[] aftershockDatasets = XY_DatasetBinner.bin(points, mags, magSizeFunc);
 		
-		buildFuncsCharsForBinned(aftershockDatasets, funcs, chars);
+		if (colorByTime) {
+			EvenlyDiscretizedFunc timeFunc = HistogramFunction.getEncompassingHistogram(0d, timeCPT.getMaxValue()*0.99, 1d);
+			XY_DataSet[][] aftershockDatasets = XY_DatasetBinner.bin2D(points, mags, timeDeltas, magSizeFunc, timeFunc);
+			
+			buildFuncsCharsForBinned2D(aftershockDatasets, funcs, chars, timeCPT, "time", timeFunc, PlotSymbol.CIRCLE);
+			
+			double cptInc = 0d;
+			if ((timeCPT.getMaxValue() - timeCPT.getMinValue()) < 10)
+				cptInc = 1d;
+			subtitle = XYZGraphPanel.getLegendForCPT(timeCPT, "Time (days)", axisLabelFontSize, tickLabelFontSize,
+					cptInc, RectangleEdge.RIGHT);
+		} else {
+			XY_DataSet[] aftershockDatasets = XY_DatasetBinner.bin(points, mags, magSizeFunc);
+			
+			buildFuncsCharsForBinned(aftershockDatasets, funcs, chars, PlotSymbol.CIRCLE);
+		}
 		
 		// now add outline
 		DefaultXY_DataSet outline = new DefaultXY_DataSet();
@@ -623,7 +703,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		outline.setName("Region Outline");
 		
 		funcs.add(outline);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		
 		Collections.reverse(funcs);
 		Collections.reverse(chars);
@@ -638,6 +718,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		hypocenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
 				region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
 		
+		setupGP(hypocenterGraph);
+		
+		if (subtitle != null)
+			hypocenterGraph.getGraphPanel().addSubtitle(subtitle);
+		
 		if (tabbedPane.getTabCount() == hypo_tab_index)
 			tabbedPane.addTab("Hypocenters", null, hypocenterGraph, "Hypocenter Map");
 		else
@@ -645,7 +730,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	private void buildFuncsCharsForBinned(XY_DataSet[] binnedFuncs,
-			List<PlotElement> funcs, List<PlotCurveCharacterstics> chars) {
+			List<PlotElement> funcs, List<PlotCurveCharacterstics> chars, PlotSymbol sym) {
 		EvenlyDiscretizedFunc magSizeFunc = getMagSizeFunc();
 		double magDelta = magSizeFunc.getDelta();
 		CPT magColorCPT = getMagCPT();
@@ -659,7 +744,41 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			float size = (float)magSizeFunc.getY(i);
 			Color c = magColorCPT.getColor((float)magSizeFunc.getX(i));
 			funcs.add(xy);
-			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, size, c));
+			chars.add(new PlotCurveCharacterstics(sym, size, c));
+		}
+	}
+	
+	/**
+	 * Uses scalars from func2 to color funcs
+	 * 
+	 * @param binnedFuncs
+	 * @param funcs
+	 * @param chars
+	 * @param cpt
+	 * @param name2
+	 * @param func2
+	 */
+	private void buildFuncsCharsForBinned2D(XY_DataSet[][] binnedFuncs, List<PlotElement> funcs,
+			List<PlotCurveCharacterstics> chars, CPT cpt, String name2, EvenlyDiscretizedFunc func2, PlotSymbol sym) {
+		EvenlyDiscretizedFunc magSizeFunc = getMagSizeFunc();
+		double magDelta = magSizeFunc.getDelta();
+		double func2Delta = func2.getDelta();
+		for (int i=0; i<binnedFuncs.length; i++) {
+			double mag = magSizeFunc.getX(i);
+			for (int j=0; j<binnedFuncs[i].length; j++) {
+				XY_DataSet xy = binnedFuncs[i][j];
+				if (xy.size() == 0)
+					continue;
+				double scalar2 = func2.getX(j);
+				String name = (float)(mag-0.5*magDelta)+" < M < "+(float)(mag+0.5*magDelta);
+				name += ", "+(float)(scalar2-0.5*func2Delta)+" < "+name2+" < "+(float)(scalar2+0.5*func2Delta);
+				name += ": "+xy.size()+" EQ";
+				xy.setName(name);
+				float size = (float)magSizeFunc.getY(i);
+				Color c = cpt.getColor((float)func2.getX(j));
+				funcs.add(xy);
+				chars.add(new PlotCurveCharacterstics(sym, size, c));
+			}
 		}
 	}
 	
@@ -669,17 +788,53 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		mfd.setName("Incremental");
 		funcs.add(mfd);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 6f, Color.BLUE));
+		
+		double plotMinMag = Double.POSITIVE_INFINITY;
+		double plotMaxMag = mainshock.getMag();
+		for (int i=0; i<mfd.size(); i++) {
+			if (mfd.getY(i) > 0) {
+				double mag = mfd.getX(i);
+				plotMinMag = Math.min(plotMinMag, mag);
+				plotMaxMag = Math.max(plotMaxMag, mag);
+			}
+		}
+		if (!Double.isFinite(plotMinMag))
+			plotMinMag = 0d;
+		plotMinMag = Math.floor(plotMinMag);
+		plotMaxMag = Math.ceil(plotMaxMag);
 		
 		EvenlyDiscretizedFunc cmlMFD =  mfd.getCumRateDistWithOffset();
 		cmlMFD.setName("Cumulative");
 		funcs.add(cmlMFD);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
-		double plotMinY = 0.5;
+		boolean addCmlPoints = true;
+		
+		if (addCmlPoints) {
+			ArbitrarilyDiscretizedFunc cmlPoints = new ArbitrarilyDiscretizedFunc();
+			cmlPoints.setName(null); // don't show legend
+			
+			double prevVal = cmlMFD.getY(0);
+			
+			for (int i=1; i<cmlMFD.size(); i++) {
+				double val = cmlMFD.getY(i);
+				if (val != prevVal) {
+					cmlPoints.set(cmlMFD.getX(i-1), prevVal);
+					
+					prevVal = val;
+				}
+			}
+			
+			funcs.add(cmlPoints);
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, 6f, Color.BLACK));
+		}
+		
+		double plotMinY = 0.9d;
 		double plotMaxY = cmlMFD.getMaxY()+2d;
 		
-		List<Double> yValsForVerticalLines = Lists.newArrayList(0d, 1e-16, plotMinY, 1d, plotMaxY, 1e3);
+		List<Double> yValsForVerticalLines = Lists.newArrayList(0d, 1e-16, plotMinY, 1d, plotMaxY, 1e3, 2e3, 3e3 ,4e3, 5e3);
 		
 		// add mainshock mag
 		DefaultXY_DataSet xy = new DefaultXY_DataSet();
@@ -713,10 +868,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			// scale to rate at Mc
 			int index = mfd.getClosestXIndex(mc);
 			gr.scaleToCumRate(index, cmlMFD.getY(index));
+//			gr.scaleToIncrRate(index, cmlMFD.getY(index));
 			
 			gr.setName("G-R b="+(float)b);
-			funcs.add(gr);
+//			funcs.add(gr);
+			EvenlyDiscretizedFunc cmlGR = gr.getCumRateDistWithOffset();
+			funcs.add(cmlGR);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.ORANGE));
+			
+			plotMaxY = Math.max(plotMaxY, cmlGR.getY(cmlGR.getClosestXIndex(plotMinMag)));
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Mag Num Dist", "Magnitude", "Count");
@@ -727,7 +887,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		else
 			magNumGraph.setPlotSpec(spec);
 		magNumGraph.setY_Log(true);
+		
 		magNumGraph.setY_AxisRange(plotMinY, plotMaxY);
+		magNumGraph.setX_AxisRange(plotMinMag, plotMaxMag);
+		setupGP(magNumGraph);
 		
 		if (tabbedPane.getTabCount() == mag_num_tab_index)
 			tabbedPane.addTab("Mag/Num Dist", null, magNumGraph,
@@ -759,13 +922,39 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			magTrack.addValue(aftershock.getMag());
 		}
 		
-		EvenlyDiscretizedFunc magSizeFunc = getMagSizeFunc();
-		XY_DataSet[] binnedFuncs = XY_DatasetBinner.bin(points, mags, magSizeFunc);
+		boolean colorByDist = true;
 		
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		buildFuncsCharsForBinned(binnedFuncs, funcs, chars);
+		EvenlyDiscretizedFunc magSizeFunc = getMagSizeFunc();
+		PaintScaleLegend subtitle = null;
+		
+		if (colorByDist) {
+			List<Double> dists = Lists.newArrayList();
+			// TODO horizontal, correct?
+			dists.add(0d); // mainshock distance from itself, thus zero
+			
+			for (int i=0; i<aftershocks.size(); i++) {
+				ObsEqkRupture aftershock = aftershocks.get(i);
+				dists.add(LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), aftershock.getHypocenterLocation()));
+			}
+			
+			EvenlyDiscretizedFunc distFunc = getDistFunc();
+			
+			XY_DataSet[][] binnedFuncs = XY_DatasetBinner.bin2D(points, mags, dists, magSizeFunc, distFunc);
+			
+			CPT distCPT = getDistCPT();
+			
+			buildFuncsCharsForBinned2D(binnedFuncs, funcs, chars, distCPT, "dist", distFunc, PlotSymbol.FILLED_CIRCLE);
+			
+			subtitle = XYZGraphPanel.getLegendForCPT(distCPT, "Distance (km)", axisLabelFontSize, tickLabelFontSize,
+					0d, RectangleEdge.RIGHT);
+		} else {
+			XY_DataSet[] magBinnedFuncs = XY_DatasetBinner.bin(points, mags, magSizeFunc);
+			
+			buildFuncsCharsForBinned(magBinnedFuncs, funcs, chars, PlotSymbol.CIRCLE);
+		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Magnitude Vs Time", "Days Since Mainshock", "Magnitude");
 		
@@ -775,6 +964,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			magTimeGraph.setPlotSpec(spec);
 		magTimeGraph.setX_AxisRange(-0.75, dataEndTimeParam.getValue()+0.75);
 		magTimeGraph.setY_AxisRange(Math.max(0, magTrack.getMin()-1d), magTrack.getMax()+1d);
+		setupGP(magTimeGraph);
+		if (subtitle != null)
+			magTimeGraph.getGraphPanel().addSubtitle(subtitle);
 		
 		if (tabbedPane.getTabCount() == mag_time_tab_index)
 			tabbedPane.addTab("Mag/Time Plot", null, magTimeGraph,
@@ -783,22 +975,99 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > mag_time_tab_index, "Plots added out of order");
 	}
 	
+	private void plotCumulativeNum() {
+		double magMin;
+		
+		if (model != null && timeDepMcParam.getValue() == true)
+			magMin = mCatParam.getValue();
+		else
+			magMin = mcParam.getValue();
+		
+		ArbitrarilyDiscretizedFunc countFunc = new ArbitrarilyDiscretizedFunc();
+		double count = 0;
+		
+		aftershocks.sortByOriginTime();
+		for (int i=0; i<aftershocks.size(); i++) {
+			ObsEqkRupture aftershock = aftershocks.get(i);
+			if (aftershock.getMag() < magMin)
+				continue;
+			double time = getTimeSinceMainshock(aftershock);
+			count++;
+			countFunc.set(time, count);
+		}
+		countFunc.set(dataEndTimeParam.getValue(), count);
+		
+		double maxY = count;
+		
+		List<PlotElement> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(countFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.CYAN));
+		
+		if (model != null) {
+			double a = model.getMaxLikelihood_a();
+			double b = bParam.getValue();
+			double magMain = mainshock.getMag();
+			double p = model.getMaxLikelihood_p();
+			double c = model.getMaxLikelihood_c();
+			double tMin = 0d;
+			double tMax = forecastEndTimeParam.getValue();
+			Preconditions.checkState(tMax > tMin);
+			double tDelta = (tMax - tMin)/1000d;
+			EvenlyDiscretizedFunc expected = AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(
+					a, b, magMain, magMin, p, c, tMin, tMax, tDelta);
+			
+			maxY = Math.max(count, expected.getMaxY());
+			
+			funcs.add(expected);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Cumulative M≥"+(float)magMin, "Days Since Mainshock",
+				"Cumulative Number of Aftershocks");
+		
+		if (cmlNumGraph == null)
+			cmlNumGraph = new GraphWidget(spec);
+		else
+			cmlNumGraph.setPlotSpec(spec);
+		
+		setupGP(cmlNumGraph);
+//		cmlNumGraph.setX_AxisRange(-0.75, dataEndTimeParam.getValue()+0.75);
+//		magTimeGraph.setY_AxisRange(Math.max(0, magTrack.getMin()-1d), magTrack.getMax()+1d);
+		cmlNumGraph.setY_AxisRange(0d, maxY*1.1);
+		
+		if (tabbedPane.getTabCount() == cml_num_tab_index)
+			tabbedPane.addTab("Cumulative Num Plot", null, cmlNumGraph,
+					"Cumulative Number Of Aftershocks Plot");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > cml_num_tab_index, "Plots added out of order");
+	}
+	
 	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
 	private static final TimeZone utc = TimeZone.getTimeZone("UTC");
 	static {
 		catDateFormat.setTimeZone(utc);
 	}
 	
+	private static String getCatalogLine(ObsEqkRupture rup) {
+		StringBuilder sb = new StringBuilder();
+		Location hypoLoc = rup.getHypocenterLocation();
+		sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
+		sb.append(hypoLoc.getLatitude()).append("\t");
+		sb.append(hypoLoc.getLongitude()).append("\t");
+		sb.append(hypoLoc.getDepth()).append("\t");
+		sb.append(rup.getMag());
+		return sb.toString();
+	}
+	
 	private void plotCatalogText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("# Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\n");
+		sb.append("# Main Shock:\n");
+		sb.append("# ").append(getCatalogLine(mainshock)).append("\n");
 		for (ObsEqkRupture rup : aftershocks) {
-			Location hypoLoc = rup.getHypocenterLocation();
-			sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
-			sb.append(hypoLoc.getLatitude()).append("\t");
-			sb.append(hypoLoc.getLongitude()).append("\t");
-			sb.append(hypoLoc.getDepth()).append("\t");
-			sb.append(rup.getMag()).append("\n");
+			sb.append(getCatalogLine(rup)).append("\n");
 		}
 		if (catalogText == null) {
 			Preconditions.checkState(tabbedPane.getTabCount() == catalog_tab_index,  "Plots added out of order");
@@ -846,6 +1115,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		PlotSpec spec = new PlotSpec(funcs, chars, pdf.getName(), name, "Density");
 		
 		GraphWidget widget = new GraphWidget(spec);
+		setupGP(widget);
 		pdfGraphsPane.addTab(name, null, widget);
 	}
 	
@@ -907,6 +1177,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		else
 			aftershockExpectedGraph.setPlotSpec(spec);
 		aftershockExpectedGraph.setY_Log(true);
+		setupGP(aftershockExpectedGraph);
 		
 		if (tabbedPane.getTabCount() == aftershock_expected_index)
 			tabbedPane.addTab("Forecast", null, aftershockExpectedGraph,
@@ -939,7 +1210,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				plotAftershockHypocs();
 				plotMFDs(aftershockMND, mmaxc);
 				plotMagVsTime();
+				plotCumulativeNum();
 				plotCatalogText();
+				
+				tabbedPane.setSelectedIndex(hypo_tab_index);
 
 				setEnableParamsPostFetch(true);
 			} catch (Exception e) {
@@ -1001,6 +1275,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			setEnableParamsPostAfershockParams(false);
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
 				plotMFDs(aftershockMND, mmaxc);
+			if (tabbedPane.getTabCount() > cml_num_tab_index)
+				plotCumulativeNum();
 		} else if (param == aValRangeParam || param == aValNumParam) {
 			updateRangeParams(aValRangeParam, aValNumParam, 51);
 			setEnableParamsPostAfershockParams(false);
@@ -1067,6 +1343,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				
 				plotPDFs();
 				setEnableParamsPostAfershockParams(true);
+				plotCumulativeNum();
 				tabbedPane.setSelectedIndex(pdf_tab_index);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1172,6 +1449,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		forecastStartTimeParam.getEditor().setEnabled(enabled);
 		forecastEndTimeParam.getEditor().setEnabled(enabled);
 		computeAftershockForecastButton.getEditor().setEnabled(enabled);
+		if (!enabled)
+			model = null;
 	}
 	
 	public static void main(String[] args) {
