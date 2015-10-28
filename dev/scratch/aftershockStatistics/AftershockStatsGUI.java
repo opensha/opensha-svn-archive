@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -208,6 +209,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private ReasenbergJonesAftershockModel model;
 	
+	private DefaultOmoriParamFetch genericFetch = null;
+	private double[] genericParams = null;
+	
 	public AftershockStatsGUI() {
 		/*
 		 * Data parameters
@@ -322,7 +326,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		cValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(cValNumParam);
 		
-		timeDepMcParam = new BooleanParameter("Apply time dependent Mc", true);
+		timeDepMcParam = new BooleanParameter("Apply time dep. Mc", true);
 		timeDepMcParam.addParameterChangeListener(this);
 		fitParams.addParameter(timeDepMcParam);
 		
@@ -489,6 +493,23 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		mainshock = accessor.fetchEvent(eventID);
 		Preconditions.checkState(mainshock != null, "Event not found: %s", eventID);
 		
+		genericParams = null;
+		bParam.setValue(null);
+		try {
+			if (genericFetch == null)
+				genericFetch = new DefaultOmoriParamFetch();
+			
+			String tectonicRegion = genericFetch.getRegion(mainshock.getHypocenterLocation());
+			genericParams = genericFetch.get(mainshock.getHypocenterLocation());
+			Preconditions.checkState(genericParams.length == 3);
+			System.out.println("Generic params for "+tectonicRegion+": a="+(float)genericParams[0]
+					+", p="+(float)genericParams[1]+", c="+(float)genericParams[2]);
+		} catch (RuntimeException e) {
+			System.err.println("Error fetching generic params");
+			e.printStackTrace();
+			genericParams = null;
+		}
+		
 		Double minDepth = minDepthParam.getValue();
 		validateParameter(minDepth, "min depth");
 		Double maxDepth = maxDepthParam.getValue();
@@ -567,7 +588,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			// scale with stress drop, from Nicholas via e-mail 10/26/2015
 			double radius = Math.pow((7d/16d)*Math.pow(10, 1.5*mag + 9)/(dS*1e6), 1d/3d) / 300d;
 			magSizeFunc.set(i, radius);
-			System.out.println("Mag="+mag+", radius="+radius);
+//			System.out.println("Mag="+mag+", radius="+radius);
 			size *= sizeMult;
 		}
 		
@@ -996,6 +1017,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			countFunc.set(time, count);
 		}
 		countFunc.set(dataEndTimeParam.getValue(), count);
+		countFunc.setName("Data: "+(int)countFunc.getMaxY());
 		
 		double maxY = count;
 		
@@ -1007,25 +1029,37 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		if (model != null) {
 			double a = model.getMaxLikelihood_a();
-			double b = bParam.getValue();
-			double magMain = mainshock.getMag();
 			double p = model.getMaxLikelihood_p();
 			double c = model.getMaxLikelihood_c();
-			double tMin = 0d;
-			double tMax = forecastEndTimeParam.getValue();
-			Preconditions.checkState(tMax > tMin);
-			double tDelta = (tMax - tMin)/1000d;
-			EvenlyDiscretizedFunc expected = AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(
-					a, b, magMain, magMin, p, c, tMin, tMax, tDelta);
+			
+			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
 			
 			maxY = Math.max(count, expected.getMaxY());
 			
 			funcs.add(expected);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+			
+			expected.setName("Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+		}
+		
+		if (genericParams != null && bParam.getValue() != null) {
+			double a = genericParams[0];
+			double p = genericParams[1];
+			double c = genericParams[2];
+			
+			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
+			
+			maxY = Math.max(count, expected.getMaxY());
+			
+			funcs.add(expected);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
+			
+			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Cumulative M≥"+(float)magMin, "Days Since Mainshock",
 				"Cumulative Number of Aftershocks");
+		spec.setLegendVisible(true);
 		
 		if (cmlNumGraph == null)
 			cmlNumGraph = new GraphWidget(spec);
@@ -1044,6 +1078,17 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > cml_num_tab_index, "Plots added out of order");
 	}
 	
+	private EvenlyDiscretizedFunc getModelCumNumPlot(double a, double p, double c, double magMin) {
+		double b = bParam.getValue();
+		double magMain = mainshock.getMag();
+		double tMin = dataStartTimeParam.getValue();
+		double tMax = Math.max(dataEndTimeParam.getValue(), forecastEndTimeParam.getValue());
+		Preconditions.checkState(tMax > tMin);
+		double tDelta = (tMax - tMin)/1000d;
+		return AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(
+				a, b, magMain, magMin, p, c, tMin, tMax, tDelta);
+	}
+	
 	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
 	private static final TimeZone utc = TimeZone.getTimeZone("UTC");
 	static {
@@ -1054,10 +1099,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		StringBuilder sb = new StringBuilder();
 		Location hypoLoc = rup.getHypocenterLocation();
 		sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
-		sb.append(hypoLoc.getLatitude()).append("\t");
-		sb.append(hypoLoc.getLongitude()).append("\t");
-		sb.append(hypoLoc.getDepth()).append("\t");
-		sb.append(rup.getMag());
+		sb.append((float)hypoLoc.getLatitude()).append("\t");
+		sb.append((float)hypoLoc.getLongitude()).append("\t");
+		sb.append((float)hypoLoc.getDepth()).append("\t");
+		sb.append((float)rup.getMag());
 		return sb.toString();
 	}
 	
@@ -1145,12 +1190,46 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				new Range(pdf.getMinY()-0.5*yDelta, pdf.getMaxY()+0.5*yDelta));
 	}
 	
-	private void plotExpectedAfershockMFD(EvenlyDiscretizedFunc mfd) {
+	private void plotExpectedAfershockMFDs() {
+		Double minDays = forecastStartTimeParam.getValue();
+		validateParameter(minDays, "start time");
+		Double maxDays = forecastEndTimeParam.getValue();
+		validateParameter(maxDays, "end time");
+		
+		double minMag = 3d;
+		double maxMag = 9d;
+		double deltaMag = 0.1;
+		int numMag = (int)((maxMag - minMag)/deltaMag + 1.5);
+		
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
+		EvenlyDiscretizedFunc mfd = model.getExpectedCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+		
 		funcs.add(mfd);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		if (genericParams != null) {
+			// calculate generic
+			EvenlyDiscretizedFunc genericMFD = new EvenlyDiscretizedFunc(mfd.getMinX(), mfd.size(), mfd.getDelta());
+			
+			double a = genericParams[0];
+			double p = genericParams[1];
+			double c = genericParams[2];
+			double b = bParam.getValue();
+			double magMain = mainshock.getMag();
+			
+			for (int i=0; i<mfd.size(); i++) {
+				double magMin = mfd.getX(i);
+				double val = AftershockStatsCalc.getExpectedNumEvents(a, b, magMain, magMin, p, c, minDays, maxDays);
+				genericMFD.set(i, val);
+			}
+			
+			genericMFD.setName("Generic Model Expected Num Events");
+			
+			funcs.add(genericMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		}
 		
 		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
 		double mainshockMag = mainshock.getMag();
@@ -1361,18 +1440,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 //				Double c = cValParam.getValue();
 //				validateParameter(c, "c-value");
 				
-				Double minDays = forecastStartTimeParam.getValue();
-				validateParameter(minDays, "start time");
-				Double maxDays = forecastEndTimeParam.getValue();
-				validateParameter(maxDays, "end time");
-				
-				double minMag = 3d;
-				double maxMag = 9d;
-				double deltaMag = 0.1;
-				int numMag = (int)((maxMag - minMag)/deltaMag + 1.5);
-				
-				EvenlyDiscretizedFunc mfd = model.getExpectedCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
-				plotExpectedAfershockMFD(mfd);
+				plotExpectedAfershockMFDs();
 				
 				tabbedPane.setSelectedIndex(aftershock_expected_index);
 			} catch (Exception e) {

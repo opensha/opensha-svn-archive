@@ -64,12 +64,7 @@ public class DefaultOmoriParamFetch {
 	 * @return array of parameters: {a, p, c};
 	 */
 	public double[] get(Location loc) {
-		String region;
-		try {
-			region = garciaFetch.getValue(loc);
-		} catch (IOException e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
+		String region = getRegion(loc);
 		return get(region);
 	}
 	
@@ -80,6 +75,14 @@ public class DefaultOmoriParamFetch {
 	 */
 	public double[] get(String region) {
 		return dataMap.get(region);
+	}
+	
+	public String getRegion(Location loc) {
+		try {
+			return garciaFetch.getValue(loc);
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
 	}
 	
 	public static void main(String[] args) {
