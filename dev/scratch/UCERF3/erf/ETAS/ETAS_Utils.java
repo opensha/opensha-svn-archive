@@ -863,13 +863,13 @@ public class ETAS_Utils {
 		
 		
 		
-		EvenlyDiscretizedFunc magFunc = new EvenlyDiscretizedFunc(2d, 50, 0.1d);
-		for (int i=0; i<magFunc.size(); i++)
-			magFunc.set(i, getRuptureRadiusFromMag(magFunc.getX(i)));
-		new GraphWindow(magFunc, "Radius vs Mag");
-		
-		new ETAS_Utils().getRandomLocationOnRupSurface(
-				new ETAS_EqkRupture(new ObsEqkRupture("", 0l, new Location(32.25570, -115.26100, 33.54000), 4.19)));
+//		EvenlyDiscretizedFunc magFunc = new EvenlyDiscretizedFunc(2d, 50, 0.1d);
+//		for (int i=0; i<magFunc.size(); i++)
+//			magFunc.set(i, getRuptureRadiusFromMag(magFunc.getX(i)));
+//		new GraphWindow(magFunc, "Radius vs Mag");
+//		
+//		new ETAS_Utils().getRandomLocationOnRupSurface(
+//				new ETAS_EqkRupture(new ObsEqkRupture("", 0l, new Location(32.25570, -115.26100, 33.54000), 4.19)));
 
 //		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
 //		double mainMag = 5.5;
