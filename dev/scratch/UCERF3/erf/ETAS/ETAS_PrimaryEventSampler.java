@@ -2577,7 +2577,7 @@ System.exit(0);
 		makeLongTermSectMFDs();
 		
 		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
-		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary, supraRate, MoRate,SectName\n");
+		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary, CharFactorMoRate,supraRate,MoRate,SectName\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 		
@@ -2605,7 +2605,7 @@ System.exit(0);
 
 		int numPts=0;
 		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
-			double valNumPrimary, valSupraRates;
+			double valNumPrimary, valSupraRates, valMoRate;
 			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
 				
 				// TODO only need this temporarily?
@@ -2616,6 +2616,7 @@ System.exit(0);
 				
 				valNumPrimary = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 				valSupraRates = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				valMoRate = 1.0/ETAS_Utils.getScalingFactorToImposeGR_MoRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 			}
 			else {	// no supra-seismogenic ruptures
 				throw new RuntimeException("Problem");
@@ -2656,7 +2657,7 @@ System.exit(0);
 			charValSupraRatesDistSupraRateWted.set(valSupraRates,supraRate);
 
 			//System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-			fileWriter.write(sectIndex+","+(float)valSupraRates+","+(float)valNumPrimary+","+supraRate+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
+			fileWriter.write(sectIndex+","+(float)valSupraRates+","+(float)valNumPrimary+","+(float)valMoRate+","+supraRate+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
 
 		}
 		fileWriter.close();
@@ -2707,7 +2708,7 @@ System.exit(0);
 		funcs.add(charValSupraRatesDistMoRateWtedCumDist);
 		funcs.add(charValSupraRatesDistSupraRateWtedCumDist);
 		GraphWindow sectGraph = new GraphWindow(funcs, "Sect CharFactor Stats"); 
-		sectGraph.setX_AxisLabel("Log10(CharFactor)");
+		sectGraph.setX_AxisLabel("CharFactor");
 		sectGraph.setY_AxisLabel("Cumulative Fraction");
 		sectGraph.setX_AxisRange(0.01,100.0);
 		sectGraph.setXLog(true);
@@ -2821,6 +2822,279 @@ System.exit(0);
 		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, display, false, title);
 		
 	}
+	
+	
+	
+	/**
+	 * This plots the implied MFD bulge for sections (log10 of one over the GR correction) using GMT
+	 * @param resultsDir
+	 * @param nameSuffix
+	 * @param display
+	 * @throws GMT_MapException
+	 * @throws RuntimeException
+	 * @throws IOException
+	 */
+	public void plotImpliedBulgeForSubSectionsHackTestMoRate(File resultsDir, String nameSuffix, boolean display) 
+			throws GMT_MapException, RuntimeException, IOException {
+
+		if(!resultsDir.exists())
+			resultsDir.mkdir();
+		
+		List<FaultSectionPrefData> faults = fssERF.getSolution().getRupSet().getFaultSectionDataList();
+		double[] values = new double[faults.size()];
+		
+		// Make sure long-term MFDs are created
+		makeLongTermSectMFDs();
+		
+		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
+		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,supraRate,MoRate,SectName\n");
+
+		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
+		
+		double meanValSupraRates=0;
+		double meanValSupraRatesMoRateWted=0;
+		double meanValSupraRatesSupraRateWted=0;
+		double meanValNumPrimary=0;
+		double meanValNumPrimaryMoRateWted=0;
+		double meanValNumPrimarySupraRateWted=0;
+		double totMoRate=0;
+		double totSupraRate=0;
+		
+		double meanValSupraRatesLog=0;
+		double meanValSupraRatesMoRateWtedLog=0;
+		double meanValSupraRatesSupraRateWtedLog=0;
+		double meanValLog=0;
+		double meanValMoRateWtedLog=0;
+		double meanValSupraRateWtedLog=0;
+		
+		ArbDiscrEmpiricalDistFunc charValSupraRatesDist = new ArbDiscrEmpiricalDistFunc();
+		ArbDiscrEmpiricalDistFunc charValSupraRatesDistMoRateWted = new ArbDiscrEmpiricalDistFunc();
+		ArbDiscrEmpiricalDistFunc charValSupraRatesDistSupraRateWted = new ArbDiscrEmpiricalDistFunc();
+		DefaultXY_DataSet charValSupraRatesVsMomentRateData = new DefaultXY_DataSet();
+		DefaultXY_DataSet charValSupraRatesVsSupraRateData = new DefaultXY_DataSet();
+
+		int numPts=0;
+		for(int sectIndex=0;sectIndex<values.length;sectIndex++) {
+			double valNumPrimary, valSupraRates, valMoRate;
+			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
+				
+				// TODO only need this temporarily?
+				if (Double.isNaN(longTermSupraSeisMFD_OnSectArray[sectIndex].getMaxMagWithNonZeroRate())){
+					System.out.println("NaN HERE: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+					throw new RuntimeException("Problem");
+				}
+				
+				valNumPrimary = 1.0/ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				valSupraRates = 1.0/ETAS_Utils.getScalingFactorToImposeGR_MoRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+			}
+			else {	// no supra-seismogenic ruptures
+				throw new RuntimeException("Problem");
+			}
+			
+			values[sectIndex] = Math.log10(valSupraRates);
+			
+			// dont continue if the value defaulted to 1.0.
+			if(longTermSubSeisMFD_OnSectList.get(sectIndex).getTotalIncrRate()<=10e-16)
+				continue;
+			
+			numPts+=1;
+			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
+			double minSupraMag = ETAS_Utils.getMinMagSupra(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex));
+			double supraRate = longTermSupraSeisMFD_OnSectArray[sectIndex].getCumRate(minSupraMag);
+			
+			charValSupraRatesVsMomentRateData.set(moRate,valSupraRates);
+			charValSupraRatesVsSupraRateData.set(moRate,valSupraRates);
+			
+			meanValSupraRates += valSupraRates;
+			meanValSupraRatesMoRateWted += moRate*valSupraRates;
+			meanValSupraRatesSupraRateWted += supraRate*valSupraRates;
+			meanValNumPrimary += valNumPrimary;
+			meanValNumPrimaryMoRateWted += moRate*valNumPrimary;
+			meanValNumPrimarySupraRateWted += supraRate*valNumPrimary;
+			totMoRate += moRate;
+			totSupraRate+=supraRate;
+			
+			meanValSupraRatesLog += Math.log10(valSupraRates);
+			meanValSupraRatesMoRateWtedLog += moRate*Math.log10(valSupraRates);
+			meanValSupraRatesSupraRateWtedLog += supraRate*Math.log10(valSupraRates);
+			meanValLog += Math.log10(valNumPrimary);
+			meanValMoRateWtedLog += moRate*Math.log10(valNumPrimary);
+			meanValSupraRateWtedLog += supraRate*Math.log10(valNumPrimary);
+			
+			charValSupraRatesDist.set(valSupraRates, 1.0);
+			charValSupraRatesDistMoRateWted.set(valSupraRates,moRate);
+			charValSupraRatesDistSupraRateWted.set(valSupraRates,supraRate);
+
+			//System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			fileWriter.write(sectIndex+","+(float)valSupraRates+","+(float)valNumPrimary+","+supraRate+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
+
+		}
+		fileWriter.close();
+		
+		meanValSupraRates/=numPts;
+		meanValNumPrimary/=numPts;
+		meanValSupraRatesMoRateWted/=totMoRate;
+		meanValNumPrimaryMoRateWted/=totMoRate;
+		meanValSupraRatesSupraRateWted/=totSupraRate;
+		meanValNumPrimarySupraRateWted/=totSupraRate;
+
+		meanValSupraRatesLog/=numPts;
+		meanValLog/=numPts;
+		meanValSupraRatesMoRateWtedLog/=totMoRate;
+		meanValMoRateWtedLog/=totMoRate;
+		meanValSupraRatesSupraRateWtedLog/=totSupraRate;
+		meanValSupraRateWtedLog/=totSupraRate;
+		
+		meanValSupraRatesLog = Math.pow(10, meanValSupraRatesLog);
+		meanValLog = Math.pow(10, meanValLog);
+		meanValSupraRatesMoRateWtedLog = Math.pow(10, meanValSupraRatesMoRateWtedLog);
+		meanValMoRateWtedLog = Math.pow(10, meanValMoRateWtedLog);
+		meanValSupraRatesSupraRateWtedLog = Math.pow(10, meanValSupraRatesSupraRateWtedLog);
+		meanValSupraRateWtedLog = Math.pow(10, meanValSupraRateWtedLog);
+
+		System.out.println("meanValSupraRates="+meanValSupraRates+"\nmeanValSupraRatesMoRateWted="+meanValSupraRatesMoRateWted+"\nmeanValSupraRatesSupraRateWted="+meanValSupraRatesSupraRateWted);
+		System.out.println("meanValNumPrimary="+meanValNumPrimary+"\nmeanValNumPrimaryMoRateWted="+meanValNumPrimaryMoRateWted+"\nmeanValNumPrimarySupraRateWted="+meanValNumPrimarySupraRateWted);
+		System.out.println("meanValSupraRatesLog="+meanValSupraRatesLog+"\nmeanValSupraRatesMoRateWtedLog="+meanValSupraRatesMoRateWtedLog+"\nmeanValSupraRatesSupraRateWtedLog="+meanValSupraRatesSupraRateWtedLog);
+		System.out.println("meanValNumPrimaryLog="+meanValLog+"\nmeanValNumPrimaryMoRateWtedLog="+meanValMoRateWtedLog+"\nmeanValNumPrimarySupraRateWtedLog="+meanValSupraRateWtedLog);
+		
+		ArbitrarilyDiscretizedFunc charValSupraRatesDistCumDist = charValSupraRatesDist.getCumDist();
+		charValSupraRatesDistCumDist.scale(1.0/charValSupraRatesDist.calcSumOfY_Vals());
+		charValSupraRatesDistCumDist.setName("charValSupraRatesDistCumDist");
+		charValSupraRatesDistCumDist.setInfo("mean="+charValSupraRatesDist.getMean()+"; median="+charValSupraRatesDist.getMedian());
+		
+		ArbitrarilyDiscretizedFunc charValSupraRatesDistMoRateWtedCumDist = charValSupraRatesDistMoRateWted.getCumDist();
+		charValSupraRatesDistMoRateWtedCumDist.scale(1.0/charValSupraRatesDistMoRateWted.calcSumOfY_Vals());
+		charValSupraRatesDistMoRateWtedCumDist.setName("charValSupraRatesDistMoRateWtedCumDist");
+		charValSupraRatesDistMoRateWtedCumDist.setInfo("mean="+charValSupraRatesDistMoRateWted.getMean()+"; median="+charValSupraRatesDistMoRateWted.getMedian());
+
+		ArbitrarilyDiscretizedFunc charValSupraRatesDistSupraRateWtedCumDist = charValSupraRatesDistSupraRateWted.getCumDist();
+		charValSupraRatesDistSupraRateWtedCumDist.scale(1.0/charValSupraRatesDistSupraRateWted.calcSumOfY_Vals());
+		charValSupraRatesDistSupraRateWtedCumDist.setName("charValSupraRatesDistSupraRateWtedCumDist");
+		charValSupraRatesDistSupraRateWtedCumDist.setInfo("mean="+charValSupraRatesDistSupraRateWted.getMean()+"; median="+charValSupraRatesDistSupraRateWted.getMedian());
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> funcs = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		funcs.add(charValSupraRatesDistCumDist);
+		funcs.add(charValSupraRatesDistMoRateWtedCumDist);
+		funcs.add(charValSupraRatesDistSupraRateWtedCumDist);
+		GraphWindow sectGraph = new GraphWindow(funcs, "Sect CharFactor Stats"); 
+		sectGraph.setX_AxisLabel("CharFactor");
+		sectGraph.setY_AxisLabel("Cumulative Fraction");
+		sectGraph.setX_AxisRange(0.01,100.0);
+		sectGraph.setXLog(true);
+		sectGraph.setY_AxisRange(0.0,1.0);
+		sectGraph.setAxisLabelFontSize(24);
+		sectGraph.setTickLabelFontSize(22);
+		sectGraph.setPlotLabelFontSize(26);
+		File fileName1 = new File(resultsDir,"charValSupraRatesDist.pdf");
+		sectGraph.saveAsPDF(fileName1.getAbsolutePath());
+
+		
+		GraphWindow sectGraph4 = new GraphWindow(charValSupraRatesVsMomentRateData, "CharFactor vs Moment Rate", new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK)); 
+		sectGraph4.setY_AxisLabel("CharFactor");
+		sectGraph4.setX_AxisLabel("Moment Rate (NM/yr)");
+		sectGraph4.setXLog(true);
+		sectGraph4.setYLog(true);
+		sectGraph4.setAxisLabelFontSize(24);
+		sectGraph4.setTickLabelFontSize(22);
+		sectGraph4.setPlotLabelFontSize(26);
+		File fileName2 = new File(resultsDir,"charValSupraRatesVsMoRate.pdf");
+		sectGraph4.saveAsPDF(fileName2.getAbsolutePath());
+		
+		
+		// make binned data statistics for charValSupraRatesVsSupraRateData
+//		double startBinCenterLogX = -2.25;
+		double startBinCenterLogX = 17;
+		double binWidthLogX = 0.5;
+//		double endBinCenterLogX = -6.5;
+		double endBinCenterLogX = 13;
+		DefaultXY_DataSet medianBinnedData= new DefaultXY_DataSet();
+		DefaultXY_DataSet meanBinnedData= new DefaultXY_DataSet();
+		DefaultXY_DataSet meanMinus2stdomData= new DefaultXY_DataSet();
+		DefaultXY_DataSet meanPlus2stdomData= new DefaultXY_DataSet();
+
+		for(double binCenterLogX=startBinCenterLogX; binCenterLogX>endBinCenterLogX; binCenterLogX-=binWidthLogX) {
+			double minVal = Math.pow(10.0, binCenterLogX-binWidthLogX/2.0);
+			double maxVal = Math.pow(10.0, binCenterLogX+binWidthLogX/2.0);
+			ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc ();
+
+//			for(int i=0;i<charValSupraRatesVsSupraRateData.size();i++) {
+//				double xVal = charValSupraRatesVsSupraRateData.getX(i);
+//				if(xVal>minVal && xVal<=maxVal)
+//					distFunc.set(charValSupraRatesVsSupraRateData.getY(i),1.0);
+//			}
+//			medianBinnedData.set(Math.pow(10.0, binCenterLogX),distFunc.getMedian());
+//			meanBinnedData.set(Math.pow(10.0, binCenterLogX),distFunc.getMean());
+//			double stdom = distFunc.getStdDev()/Math.sqrt(distFunc.calcSumOfY_Vals());
+//			meanMinus2stdomData.set(Math.pow(10.0, binCenterLogX),distFunc.getMean()-2*stdom);
+//			meanPlus2stdomData.set(Math.pow(10.0, binCenterLogX),distFunc.getMean()+2*stdom);
+
+			// log means, shouldn't use if we want to preserve rates
+			for(int i=0;i<charValSupraRatesVsSupraRateData.size();i++) {
+				double xVal = charValSupraRatesVsSupraRateData.getX(i);
+				if(xVal>minVal && xVal<=maxVal)
+					distFunc.set(Math.log10(charValSupraRatesVsSupraRateData.getY(i)),1.0);
+			}
+			medianBinnedData.set(Math.pow(10.0, binCenterLogX),Math.pow(10.0,distFunc.getMedian()));
+			meanBinnedData.set(Math.pow(10.0, binCenterLogX),Math.pow(10.0,distFunc.getMean()));
+			double stdom = distFunc.getStdDev()/Math.sqrt(distFunc.calcSumOfY_Vals());
+			meanMinus2stdomData.set(Math.pow(10.0, binCenterLogX),Math.pow(10.0,distFunc.getMean()-2*stdom));
+			meanPlus2stdomData.set(Math.pow(10.0, binCenterLogX),Math.pow(10.0,distFunc.getMean()+2*stdom));
+		}
+		
+		EvenlyDiscretizedFunc targetMeanCharFactorVsLogSupraRate = computeMeanCharFactorVsLogSupraRate();
+		DefaultXY_DataSet targetMeanCharFactorVsLogSupraRate_XYdata = new DefaultXY_DataSet();
+		for(int i=0;i<targetMeanCharFactorVsLogSupraRate.size();i++)
+			targetMeanCharFactorVsLogSupraRate_XYdata.set(Math.pow(10.0, targetMeanCharFactorVsLogSupraRate.getX(i)), targetMeanCharFactorVsLogSupraRate.getY(i));
+		targetMeanCharFactorVsLogSupraRate_XYdata.setName("targetMeanCharFactorVsLogSupraRate_XYdata");
+		
+		ArrayList<XY_DataSet> funcs2 = new ArrayList<XY_DataSet>();
+		funcs2.add(charValSupraRatesVsSupraRateData);
+		funcs2.add(medianBinnedData);
+		funcs2.add(meanBinnedData);
+		funcs2.add(meanMinus2stdomData);
+		funcs2.add(meanPlus2stdomData);
+		funcs2.add(targetMeanCharFactorVsLogSupraRate_XYdata);
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.red));
+
+		
+		GraphWindow sectGraph5 = new GraphWindow(funcs2, "CharFactor vs SupraRate", plotCharList); 
+		sectGraph5.setY_AxisLabel("CharFactor");
+		sectGraph5.setX_AxisLabel("SupraRate (per year)");
+		sectGraph5.setXLog(true);
+		sectGraph5.setYLog(true);
+		sectGraph5.setAxisLabelFontSize(24);
+		sectGraph5.setTickLabelFontSize(22);
+		sectGraph5.setPlotLabelFontSize(26);
+		File fileName3 = new File(resultsDir,"charValSupraRatesVsSupraRate.pdf");
+		sectGraph5.saveAsPDF(fileName3.getAbsolutePath());
+		
+
+		
+//		GraphWindow sectGraph2 = new GraphWindow(charValSupraRatesDist, "charValSupraRatesDist"); 
+//		sectGraph.setX_AxisLabel("CharFactor");
+//		sectGraph.setY_AxisLabel("Weight");
+//		GraphWindow sectGraph3 = new GraphWindow(charValSupraRatesDistMoRateWted, "charValSupraRatesDistMoRateWted"); 
+//		sectGraph.setX_AxisLabel("CharFactor");
+//		sectGraph.setY_AxisLabel("Weight");
+	
+
+		String name = "ImpliedCharFactorForSubSections_"+nameSuffix;
+		String title = "Log10(CharFactor)";
+		CPT cpt= FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
+		
+		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, display, false, title);
+		
+	}
+	
+	
+
+
 	
 	
 	/**
@@ -4401,7 +4675,7 @@ System.exit(0);
 		
 //		double totRateCorr = totLongTermRate/totCorrectedRate;
 
-//System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\torigLongTermSectRate\tnewLongTermSectRate\tminCharFactorAmongCubesForSect\tmaxCharFactorAmongCubesForSect\tDip\tName");
+System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\torigLongTermSectRate\tnewLongTermSectRate\tminCharFactorAmongCubesForSect\tmaxCharFactorAmongCubesForSect\tDip\tName");
 
 		double meanCharScaleFactor = 0;
 		double meanCharScaleFactorSupraRateWted = 0;
@@ -4434,9 +4708,9 @@ System.exit(0);
 			
 			double finalRate = charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]*longTermSectRateArray[sectIndex];
 			
-//System.out.println(sectIndex+"\t"+charScaleFactorForSectArray[sectIndex]+"\t"+grCorrFactorForSectArray[sectIndex]+"\t"+longTermSectRateArray[sectIndex]+"\t"+finalRate+"\t"+
-//		minCharFactorAmongCubesForSectArray[sectIndex]+"\t"+maxCharFactorAmongCubesForSectArray[sectIndex]+"\t"+
-//rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
+System.out.println(sectIndex+"\t"+charScaleFactorForSectArray[sectIndex]+"\t"+grCorrFactorForSectArray[sectIndex]+"\t"+longTermSectRateArray[sectIndex]+"\t"+finalRate+"\t"+
+		minCharFactorAmongCubesForSectArray[sectIndex]+"\t"+maxCharFactorAmongCubesForSectArray[sectIndex]+"\t"+
+rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
 		}
 		meanCharScaleFactor /= charScaleFactorForSectArray.length;
 		meanCharScaleFactorSupraRateWted /= supraRateSum;
@@ -5499,13 +5773,11 @@ System.exit(0);
 
 
 	/**
-	 * This plost sub, supra, and cumulative combined MFDs for a Mojave subsection
-	 * (San Andreas (Mojave S), Subsection 4) for both uncorrected and gr-corrected 
-	 * cases.
+	 * This plost sub, supra, and cumulative combined MFDs for a given subsection
+	 * for both uncorrected and gr-corrected cases.
 	 */
-	public void plotMojaveSubSectMFDsExample() {
-		int sectIndex = 1841;
-		String name = rupSet.getFaultSectionData(1841).getName();
+	public void plotMFDsForSubSect(int sectIndex) {
+		String name = rupSet.getFaultSectionData(sectIndex).getName();
 		makeLongTermSectMFDs();
 		IncrementalMagFreqDist subSeisMFD = longTermSubSeisMFD_OnSectList.get(sectIndex);
 		subSeisMFD.setName(subSeisMFD+" for "+name);
@@ -5542,13 +5814,13 @@ System.exit(0);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 3f, Color.BLACK));
-		GraphWindow magProbDistsGraph1 = new GraphWindow(mfdList1, "Mojave Subsection MFDs", chars); 
+		GraphWindow magProbDistsGraph1 = new GraphWindow(mfdList1, name, chars); 
 		magProbDistsGraph1.setX_AxisLabel("Magnitude");
 		magProbDistsGraph1.setY_AxisLabel("Rate (per year)");
 		magProbDistsGraph1.setY_AxisRange(1e-8, 1.0);
 		magProbDistsGraph1.setX_AxisRange(2.5d, 8.5d);
 		magProbDistsGraph1.setYLog(true);
-		magProbDistsGraph1.setPlotLabelFontSize(22);
+		magProbDistsGraph1.setPlotLabelFontSize(18);
 		magProbDistsGraph1.setAxisLabelFontSize(22);
 		magProbDistsGraph1.setTickLabelFontSize(20);
 
@@ -5563,13 +5835,13 @@ System.exit(0);
 		mfdList2.add(combinedMFDcorr.getCumRateDistWithOffset());
 		mfdList2.add(perfectGR);
 		mfdList2.add(perfectGR.getCumRateDistWithOffset());
-		GraphWindow magProbDistsGraph2 = new GraphWindow(mfdList2, "GR-corrected Mojave Subsection MFDs",chars); 
+		GraphWindow magProbDistsGraph2 = new GraphWindow(mfdList2, name+" (GR-corrected)",chars); 
 		magProbDistsGraph2.setX_AxisLabel("Magnitude");
 		magProbDistsGraph2.setY_AxisLabel("Rate (per year)");
 		magProbDistsGraph2.setY_AxisRange(1e-8, 1.0);
 		magProbDistsGraph2.setX_AxisRange(2.5d, 8.5d);
 		magProbDistsGraph2.setYLog(true);
-		magProbDistsGraph2.setPlotLabelFontSize(22);
+		magProbDistsGraph2.setPlotLabelFontSize(18);
 		magProbDistsGraph2.setAxisLabelFontSize(22);
 		magProbDistsGraph2.setTickLabelFontSize(20);
 		
@@ -5621,19 +5893,20 @@ System.exit(0);
 		magProbDistsGraph3.setY_AxisRange(1e-6, 100.0);
 		magProbDistsGraph3.setX_AxisRange(2.5d, 8.5d);
 		magProbDistsGraph3.setYLog(true);
-		magProbDistsGraph3.setPlotLabelFontSize(22);
+		magProbDistsGraph3.setPlotLabelFontSize(18);
 		magProbDistsGraph3.setAxisLabelFontSize(22);
 		magProbDistsGraph3.setTickLabelFontSize(20);
 
+		String fileNamePrefix =name.replace(" ", "_").replace(",", "_");
 		
 
 		try {
-			magProbDistsGraph1.saveAsPDF("MojaveSubSectMFDsExample.pdf");
-			magProbDistsGraph1.saveAsTXT("MojaveSubSectMFDsExample.txt");
-			magProbDistsGraph2.saveAsPDF("MojaveSubSectMFDsGRcorr_Example.pdf");
-			magProbDistsGraph2.saveAsTXT("MojaveSubSectMFDsGRcorr_Example.txt");
-			magProbDistsGraph3.saveAsPDF("MojaveSubSectExpNumM5p5_Example.pdf");
-			magProbDistsGraph3.saveAsTXT("MojaveSubSectExpNumM5p5_Example.txt");
+			magProbDistsGraph1.saveAsPDF(fileNamePrefix+"_MFDs.pdf");
+			magProbDistsGraph1.saveAsTXT(fileNamePrefix+"_MFDs.txt");
+			magProbDistsGraph2.saveAsPDF(fileNamePrefix+"_MFDs_GRcorr.pdf");
+			magProbDistsGraph2.saveAsTXT(fileNamePrefix+"_MFDs_GRcorr.txt");
+			magProbDistsGraph3.saveAsPDF(fileNamePrefix+"_ExpNumM5p5.pdf");
+			magProbDistsGraph3.saveAsTXT(fileNamePrefix+"_ExpNumM5p5.txt");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -5679,6 +5952,11 @@ System.exit(0);
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				maxCharFactor, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
+		
+//		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
+//		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
+//		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
+
 	
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
@@ -5686,23 +5964,21 @@ System.exit(0);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave_fltOnly", true);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "BulgeAtDepth7km_MaxCharFactor20_Poisson");
-//		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_FullTD");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor10_Poisson");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
+//		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
 
 //		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 
 		
 		// Sections bulge plot
 		try {
-			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
+			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-//		etas_PrimEventSampler.plotMojaveSubSectMFDsExample();
 		
 //		System.out.println("Starting computeCharScaleFactorForSection()");
 //		long startTime = System.currentTimeMillis();
@@ -6090,7 +6366,7 @@ System.exit(0);
 		String metadata = "Map from calling plotMaxMagAtDepthMap(*) method";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(maxMagData, "Max Mag at depth="+depth, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(maxMagData, "Max Mag at "+depth+" km depth", metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				
@@ -6326,7 +6602,7 @@ System.exit(0);
 		String metadata = "Map from calling plotBulgeDepthMap(*) method";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(bulgeData, "Bulge at depth="+depth, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(bulgeData, "CharFactor at "+depth+" km depth", metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				
@@ -6464,7 +6740,7 @@ System.exit(0);
 		String metadata = "Map from calling plotRateAtDepthMap(*) method";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(xyzDataSet, "Rates at depth="+depth+" above M "+mag, metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "M≥"+mag+" Rates at "+depth+" km depth", metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				

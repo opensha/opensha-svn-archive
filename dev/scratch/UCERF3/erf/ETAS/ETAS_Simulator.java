@@ -108,8 +108,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
-	private static boolean live_map = false;
-	static boolean pause_for_events = false;
+	private static boolean live_map = true;
+	static boolean pause_for_events = true;
 	// if true and in debug mode, will exit after scenario diagnostics
 	static boolean exit_after_scenario_diagnostics = false;
 	
@@ -189,7 +189,7 @@ public class ETAS_Simulator {
 			erf.updateForecast();
 		}
 		
-		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
+		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -1319,7 +1319,7 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M5p5;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setMaxCharFactor(10);;		
@@ -1335,7 +1335,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_test_2";	// to increment runs
+		simulationName += "_test_3";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1444170206879l;

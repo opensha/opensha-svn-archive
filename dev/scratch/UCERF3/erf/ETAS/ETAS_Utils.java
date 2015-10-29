@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -21,6 +22,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.CompoundSurface;
@@ -34,6 +36,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
@@ -549,6 +552,145 @@ public class ETAS_Utils {
 	}
 	
 	
+	
+	public double[] JUNK_getRandomNumberForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
+		double[] numForEachGeneration = new double[numGen+1];	// ignore 0th element; 1st is for 1st gen, etc.
+		double[] mfdValsArray = new double[mfd.size()];
+		double[] mfdMagsArray = new double[mfd.size()];
+		for(int i=0;i<mfd.size();i++) {
+			mfdValsArray[i] = mfd.getY(i);
+			mfdMagsArray[i] = mfd.getX(i);
+		}
+		IntegerPDF_FunctionSampler randMFD_Sampler = new IntegerPDF_FunctionSampler(mfdValsArray);
+		double[] primaryEventTimesArray = getRandomEventTimes(k, p, mainMag, magMin, c, 0.0, numDays);
+		List<Double> timesForCurrentGenList = Doubles.asList(primaryEventTimesArray);
+		numForEachGeneration[1] = timesForCurrentGenList.size();
+		int currentGen = 2;
+		while(currentGen<=15) {
+			List<Double>  timesForNextGeneration = new ArrayList<Double>();
+			for(double eventTime:timesForCurrentGenList) {
+				double mag = mfdMagsArray[randMFD_Sampler.getRandomInt()];
+				double numDaysLeft = numDays-eventTime;
+				double[] eventTimesArray = getRandomEventTimes(k, p, mag, magMin, c, 0.0, numDaysLeft);
+				for(int j=0;j<eventTimesArray.length;j++)
+					eventTimesArray[j] += eventTime;	// convert to time relative to main shock
+				numForEachGeneration[currentGen] += eventTimesArray.length;
+				timesForNextGeneration.addAll(Doubles.asList(eventTimesArray));
+			}
+			currentGen+=1;
+			timesForCurrentGenList = timesForNextGeneration;
+		}
+		return numForEachGeneration;
+	}
+	
+	
+	public String listExpNumForEachGenerationAlt(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen, int numRandomSamples) {
+		
+		boolean debug = true;
+		
+		double[] mfdValsArray = new double[mfd.size()];
+		double[] mfdMagsArray = new double[mfd.size()];
+		for(int j=0;j<mfd.size();j++) {
+			mfdValsArray[j] = mfd.getY(j);
+			mfdMagsArray[j] = mfd.getX(j);
+		}
+		IntegerPDF_FunctionSampler randMFD_Sampler = new IntegerPDF_FunctionSampler(mfdValsArray);
+		
+		double[] aveNumForGen = new double[numGen+1];	// 0th element ignored
+		double totNum=0;
+		
+		double numPrimaryAboveMainMag = 0;
+		double numTotalAboveMainMag = 0;
+		
+		double magMinusOne = mainMag-1.0;
+		boolean minMagOK = (magMinusOne>=mfd.getMinX());
+		double numPrimaryAtMainMagMinusOne=0;
+		double numTotalAtMainMagMinusOne=0;
+		if(!minMagOK) {
+			numPrimaryAtMainMagMinusOne = Double.NaN;
+			numTotalAtMainMagMinusOne = Double.NaN;
+		}		
+		
+//		SummedMagFreqDist summedDist = new SummedMagFreqDist(mfd.getMinX(),mfd.getMaxMagWithNonZeroRate(),mfd.size());
+		
+		CalcProgressBar progressBar = new CalcProgressBar(mainMag+"; "+numDays,"junk");
+		progressBar.showProgress(true);
+
+
+		for(int i=0;i<numRandomSamples;i++) {
+			progressBar.updateProgress(i, numRandomSamples);
+			double[] numForEachGeneration = new double[numGen+1];	// ignore 0th element; 1st is for 1st gen, etc.
+			double[] primaryEventTimesArray = getRandomEventTimes(k, p, mainMag, magMin, c, 0.0, numDays);
+			List<Double> timesForCurrentGenList = Doubles.asList(primaryEventTimesArray);
+			numForEachGeneration[1] = timesForCurrentGenList.size();
+			int currentGen = 2;
+			while(currentGen<=15) {
+				List<Double>  timesForNextGeneration = new ArrayList<Double>();
+				for(double eventTime:timesForCurrentGenList) {
+					double mag = mfdMagsArray[randMFD_Sampler.getRandomInt()];
+//					summedDist.add(mag, 1.0);
+					if(currentGen==2 && mag>=mainMag)
+						numPrimaryAboveMainMag+=1.0/(double)numRandomSamples;
+					if(mag>=mainMag)
+						numTotalAboveMainMag+=1.0/(double)numRandomSamples;
+					if(minMagOK && currentGen==2 && mag>=magMinusOne)
+						numPrimaryAtMainMagMinusOne+=1.0/(double)numRandomSamples;
+					if(minMagOK && mag>=magMinusOne)
+						numTotalAtMainMagMinusOne+=1.0/(double)numRandomSamples;
+					double numDaysLeft = numDays-eventTime;
+					if(numDaysLeft<0)
+						throw new RuntimeException("Problem");
+					double[] eventTimesArray = getRandomEventTimes(k, p, mag, magMin, c, 0.0, numDaysLeft);
+					for(int j=0;j<eventTimesArray.length;j++) {
+						eventTimesArray[j] += eventTime;	// convert to time relative to main shock
+					}
+					numForEachGeneration[currentGen] += eventTimesArray.length;
+					timesForNextGeneration.addAll(Doubles.asList(eventTimesArray));
+				}
+				currentGen+=1;
+				timesForCurrentGenList = timesForNextGeneration;
+			}
+
+			
+			for(int j=1;j<numForEachGeneration.length;j++) {
+				aveNumForGen[j] += numForEachGeneration[j]/(double)numRandomSamples;
+				totNum += numForEachGeneration[j]/(double)numRandomSamples;
+			}
+			
+		}
+		
+		progressBar.showProgress(false);
+		
+		System.out.println("numPrimaryAboveMainMag="+numPrimaryAboveMainMag);
+		
+		String resultString = Double.toString(mainMag);
+		
+//		summedDist.scale(1.0/(double)numRandomSamples);
+		
+//		ArrayList<IncrementalMagFreqDist> funcs = new ArrayList<IncrementalMagFreqDist>();
+//		funcs.add(mfd);
+//		funcs.add(summedDist);
+//		GraphWindow graph = new GraphWindow(funcs, "Sampled MFD for M="+mainMag); 
+//		graph.setY_AxisLabel("Num Sampled");
+//		graph.setX_AxisLabel("Mag");
+//		graph.setYLog(true);
+
+
+		for(int i=1; i<=numGen;i++) {
+			resultString+="\t"+Float.toString((float)aveNumForGen[i]);
+			if(debug) System.out.println("Gen "+(i+1)+"\t"+(float)aveNumForGen[i]+"\t"+(float)aveNumForGen[i]/totNum);
+		}
+
+		if(debug) System.out.println("Total: "+(float)totNum);
+
+		resultString += "\t"+Float.toString((float)numPrimaryAboveMainMag)+"\t"+Float.toString((float)numTotalAboveMainMag);
+		resultString += "\t"+Float.toString((float)numPrimaryAtMainMagMinusOne)+"\t"+Float.toString((float)numTotalAtMainMagMinusOne)+"\n";
+				
+		return resultString;
+
+
+	}
+	
 	/**
 	 * This lists the relative number of events in each generation expected from the given MFD
 	 * (relative to the number of primary events)
@@ -560,9 +702,9 @@ public class ETAS_Utils {
 	 * @param c
 	 * @param numDays - length of timespan following main shock
 	 */
-	public static String listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
+	public static String JUNK_wrong_listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
 		
-		boolean debug = true;
+		boolean debug = false;
 		
 		double[] numForGen = new double[numGen];
 		
@@ -675,20 +817,51 @@ public class ETAS_Utils {
 		System.out.println("criticality = "+criticality);
 
 	}
+	
+	public static void writeTriggerStatsToFiles() {
+		
+		ETAS_Utils etasUtils = new ETAS_Utils();
+		
+		double numDays[] = {7.0,365.25, 365250.0};	// 1 week, 1 year, and 1000 years
+		String filenames[] = {"ETAS_TriggerStats_1week.txt","ETAS_TriggerStats_1year.txt","ETAS_TriggerStats_1000year.txt"};
+		
+		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+//		GraphWindow graph = new GraphWindow(grDist, "grDist"); 
+
+		
+		for(int i=0;i<numDays.length;i++) {
+			FileWriter fw;
+			try {
+				fw = new FileWriter(new File(filenames[i]));
+				fw.write("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+				fw.write("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+				for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5) {
+					int numRandomSamples = (int) Math.pow(10000.0, 1+(8-mainMag)/8);
+					System.out.println("Working on mag "+mainMag+"; numDays="+numDays[i]+"; "+numRandomSamples);
+					String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays[i], 15, numRandomSamples);
+//					System.out.println(line);
+					fw.write(line);
+				}
+				fw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	
 	public static void main(String[] args) {
+		
+		writeTriggerStatsToFiles();
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
 //		System.out.println(func);
 //		GraphWindow distDecayGraph2 = new GraphWindow(func, "Dist Decay"); 
 //		distDecayGraph2.setYLog(true);
 		
-//		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
-//		System.out.print("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
-//		System.out.print("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
-//		for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5)
-//			System.out.print(listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, 365.25, 15));
+		
+		
 		
 		EvenlyDiscretizedFunc magFunc = new EvenlyDiscretizedFunc(2d, 50, 0.1d);
 		for (int i=0; i<magFunc.size(); i++)
@@ -698,13 +871,13 @@ public class ETAS_Utils {
 		new ETAS_Utils().getRandomLocationOnRupSurface(
 				new ETAS_EqkRupture(new ObsEqkRupture("", 0l, new Location(32.25570, -115.26100, 33.54000), 4.19)));
 
-		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
-		double mainMag = 5.5;
-		double numDays = 7;
-		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
-//		System.out.println(grDist);
-		System.out.println("Perfect GR:");
-		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays, 15);
+//		// THIS EXPLORES THE NUMBER OF EXPECTED EVENTS FOR EACH GENERATION FOR GR VS CHAR DISTRIBUTIONS
+//		double mainMag = 5.5;
+//		double numDays = 7;
+//		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+////		System.out.println(grDist);
+//		System.out.println("Perfect GR:");
+//		listExpNumForEachGeneration(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays, 15);
 
 		//tempCriticality(grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays);
 ////		System.exit(0);	
@@ -1194,5 +1367,64 @@ public class ETAS_Utils {
 
 		return result;
 	}
+	
+	
+	public static double getScalingFactorToImposeGR_MoRates(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
+		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
+			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
+			return 1d;
+
+		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
+		
+		double minMagSupra = getMinMagSupra(supraSeisMFD, subSeisMFD);
+		
+		
+		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
+		if(Double.isNaN(maxMagWithNonZeroRate)) {
+			System.out.println("ISSUE: maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+			return 1d;
+		}
+		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/supraSeisMFD.getDelta()) + 1;
+		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
+				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
+		gr.scaleToTotalMomentRate(supraSeisMFD.getTotalMomentRate()+subSeisMFD.getTotalMomentRate());
+
+		double result=Double.NaN;
+		try {
+			result = subSeisMFD.getCumRate(minMag)/gr.getCumRate(minMag);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if(debug) {
+			supraSeisMFD.setName("supraSeisMFD");
+			supraSeisMFD.setInfo("minMagSupra="+minMagSupra+"\nminMag="+minMag);
+			subSeisMFD.setName("subSeisMFD");
+			ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+			funcs.add(supraSeisMFD);
+			funcs.add(subSeisMFD);
+			funcs.add(gr);
+			EvenlyDiscretizedFunc cumGR = gr.getCumRateDistWithOffset();
+			cumGR.setName("cumGR");
+			funcs.add(cumGR);
+			EvenlyDiscretizedFunc cumSupraSeisMFD = supraSeisMFD.getCumRateDistWithOffset();
+			cumSupraSeisMFD.setName("cumSupraSeisMFD");
+			funcs.add(cumSupraSeisMFD);
+			EvenlyDiscretizedFunc cumSupraSeisMFD_scaled = cumSupraSeisMFD.deepClone();
+			cumSupraSeisMFD_scaled.scale(result);
+			cumSupraSeisMFD_scaled.setName("cumSupraSeisMFD_scaled");
+			funcs.add(cumSupraSeisMFD_scaled);
+			GraphWindow graph = new GraphWindow(funcs, "getScalingFactorToImposeGR_supraRates "+result);
+			graph.setX_AxisLabel("Mag");
+			graph.setY_AxisLabel("Incr Rate");
+			graph.setYLog(true);
+			System.out.println("minMag="+minMag+" ;minMagSupra="+minMagSupra+"; maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+			System.out.println("result="+result);
+		}
+
+		return result;
+	}
+
 }
 
