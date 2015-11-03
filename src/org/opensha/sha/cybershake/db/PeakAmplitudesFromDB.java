@@ -300,12 +300,15 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	 * @return the supported SA Period as list of strings.
 	 */
 	public ArrayList<CybershakeIM>  getSupportedIMs(int runID) {
-		String whereClause = "Run_ID="+runID;
 		long startTime = System.currentTimeMillis();
-		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units,I.IM_Type_Component"
-				+ " from IM_Types I JOIN (";
-		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE " + whereClause;
-		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
+//		String sql = "SELECT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units,I.IM_Type_Component"
+//				+ " from IM_Types I JOIN (";
+//		sql += "SELECT distinct IM_Type_ID from " + TABLE_NAME + " WHERE " + whereClause;
+//		sql += ") A ON A.IM_Type_ID=I.IM_Type_ID";
+		String sql = "SELECT DISTINCT I.IM_Type_ID,I.IM_Type_Measure,I.IM_Type_Value,I.Units,I.IM_Type_Component";
+		sql += "\nFROM IM_Types I, PeakAmplitudes P";
+		sql += "\nWHERE P.Run_ID="+runID+" AND P.IM_Type_ID=I.IM_Type_ID";
+		sql += "\nAND P.Source_ID=(select min(Source_ID) from PeakAmplitudes where Run_ID="+runID+")";
 		
 		System.out.println(sql);
 		
@@ -608,8 +611,9 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
-		ArrayList<CybershakeIM> ims = amps.getSupportedIMForPeriods(ListUtils.wrapInList(0.1d),
-				IMType.SA, CyberShakeComponent.GEOM_MEAN, 885, new HazardCurve2DB(db));
+//		ArrayList<CybershakeIM> ims = amps.getSupportedIMForPeriods(ListUtils.wrapInList(0.1d),
+//				IMType.SA, CyberShakeComponent.GEOM_MEAN, 885, new HazardCurve2DB(db));
+		ArrayList<CybershakeIM> ims = amps.getSupportedIMs(4266);
 		for (CybershakeIM im : ims)
 			System.out.println(im);
 		
