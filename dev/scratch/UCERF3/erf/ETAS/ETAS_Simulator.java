@@ -108,8 +108,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class ETAS_Simulator {
 	
 	public static boolean D=true; // debug flag
-	private static boolean live_map = true;
-	static boolean pause_for_events = true;
+	private static boolean live_map = false;
+	static boolean pause_for_events = false;
 	// if true and in debug mode, will exit after scenario diagnostics
 	static boolean exit_after_scenario_diagnostics = false;
 	
@@ -1319,11 +1319,13 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
-//		TestScenario scenario = null;
+//		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = null;
+		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setMaxCharFactor(10);;		
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setApplyLongTermRates(false);
 		
 		String simulationName;
 		String maxCharFactorString = Double.toString(params.getMaxCharFactor()).replace(".", "p");
@@ -1335,16 +1337,16 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_test_3";	// to increment runs
+		simulationName += "_noLongTermRates";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
-//		double startTimeYear=2012;
-//		double durationYears=10;
-		double startTimeYear=2014;
-		double durationYears=1;
+		double startTimeYear=2012;
+		double durationYears=100;
+//		double startTimeYear=2014;
+//		double durationYears=1;
 		
 //		ObsEqkRupList histCat = null;
 		ObsEqkRupList histCat = getHistCatalog(startTimeYear);

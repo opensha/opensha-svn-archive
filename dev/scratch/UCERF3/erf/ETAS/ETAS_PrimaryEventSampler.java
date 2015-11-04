@@ -3988,6 +3988,9 @@ System.exit(0);
 			aftShCubeIndex = getCubeIndexForLocation(cubeLoc);
 			if(aftShCubeIndex == -1)
 				return false;	// triggered location outside of the region
+			int griddeSeisRegionIndex = origGriddedRegion.indexForLocation(getCubeLocationForIndex(aftShCubeIndex));
+			if(griddeSeisRegionIndex == -1)	// check whether the cube has any gridded seismicity
+				return false;
 		}
 
 		double fractionSupra = 0;
