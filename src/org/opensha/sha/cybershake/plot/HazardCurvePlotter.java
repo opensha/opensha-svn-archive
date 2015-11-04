@@ -134,8 +134,6 @@ public class HazardCurvePlotter {
 	private static final IMType defaultIMType = IMType.SA;
 	private static final CyberShakeComponent defaultComponent = CyberShakeComponent.GEOM_MEAN;
 	
-	private static final boolean use_cvm_vs30 = false;
-	
 	private double maxSourceDistance = 200;
 	
 	public static final int PLOT_WIDTH_DEFAULT = 600;
@@ -182,6 +180,9 @@ public class HazardCurvePlotter {
 	private HazardCurveComputation curveCalc;
 	
 	private static DecimalFormat period_format = new DecimalFormat("0.##");
+	
+	private boolean useCVMVs30 = false;
+	private ConstantValueDataProvider<Double> forcedVs30 = null;
 	
 	public HazardCurvePlotter(DBAccess db) {
 		this.db = db;
@@ -250,17 +251,27 @@ public class HazardCurvePlotter {
 	
 	private OrderedSiteDataProviderList getProviders(int velModelID) {
 		if (dataProviders == null) {
-			dataProviders = createProviders(velModelID);
+			dataProviders = createProviders(velModelID, useCVMVs30);
+			if (forcedVs30 != null) {
+				for (int i=dataProviders.size(); --i>=0;)
+					if (dataProviders.getProvider(i).getDataType().equals(SiteData.TYPE_VS30))
+						dataProviders.remove(i);
+				dataProviders.add(0, forcedVs30);
+			}
 		}
 
 		return dataProviders;
 	}
 	
 	public static OrderedSiteDataProviderList createProviders(int velModelID) {
+		return createProviders(velModelID, false);
+	}
+	
+	public static OrderedSiteDataProviderList createProviders(int velModelID, boolean useCVMVs30) {
 		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 
 		if (velModelID == 6) {
-			// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14
+			// Hadley-Kanamori 1D model. Set to 0KM (as per e-mail from David Gill 1/17/14)
 			providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
 					SiteData.TYPE_FLAG_INFERRED, 0d, "Hadley-Kanamori 1D model", "HK-1D"));
 			providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
@@ -269,32 +280,23 @@ public class HazardCurvePlotter {
 					SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
 		} else if (velModelID == 8) {
 			providers.addAll(getBBP_1D_Providers());
-		} else if (velModelID == 5 && use_cvm_vs30) {
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM_Vs30(CVM.CVMS4i26)));
-			} catch (IOException e1) {
-				ExceptionUtils.throwAsRuntimeException(e1);
-			}
-			/*		CVM4i26 Depth to 2.5					 */
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
-			}
-
-			/*		CVM4i26 Depth to 1.0					 */
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
-			}
 		} else {
-			/*		Wills 2006 Map (2000 as backup)	 */
-			// try the 2006 map first
-			try {
-				providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
-			} catch (IOException e) {
-				ExceptionUtils.throwAsRuntimeException(e);
+			if (useCVMVs30) {
+				if (velModelID == 5) {
+					try {
+						providers.add(new CachedSiteDataWrapper<Double>(new CVM_Vs30(CVM.CVMS4i26)));
+					} catch (IOException e1) {
+						ExceptionUtils.throwAsRuntimeException(e1);
+					}
+				} else {
+					throw new IllegalStateException("Velocity Model Vs30 not yet available for Vel_Model_ID="+velModelID);
+				}
+			} else {
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
 			}
 			if (velModelID == 1) {
 				/*		CVM4 Depth to 2.5					 */
@@ -420,8 +422,6 @@ public class HazardCurvePlotter {
 	}
 	
 	public boolean plotCurvesFromOptions(CommandLine cmd) {
-		
-		
 		SiteInfo2DB site2db = getSite2DB();
 		PeakAmplitudesFromDB amps2db = getAmps2DB();
 		
@@ -452,6 +452,15 @@ public class HazardCurvePlotter {
 				System.out.println("Comparing to: "+runCompare);
 				runCompares.add(runCompare);
 			}
+		}
+		
+		useCVMVs30 = cmd.hasOption("cvm-vs30");
+		if (cmd.hasOption("force-vs30")) {
+			double value = Double.parseDouble(cmd.getOptionValue("force-vs30"));
+			forcedVs30 = new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, value);
+			System.out.println("Forcing GMPEs to use specified Vs30 value: "+value);
+		} else {
+			forcedVs30 = null;
 		}
 		
 		String siteName = site2db.getSiteFromDB(run.getSiteID()).short_name;
@@ -1685,6 +1694,14 @@ public class HazardCurvePlotter {
 		Option vs30 = new Option("v", "vs30", true, "Specify default Vs30 for sites with no Vs30 data, or leave blank " + 
 				"for default value. Otherwise, you will be prompted to enter vs30 interactively if needed.");
 		ops.addOption(vs30);
+		
+		Option cvmVs30 = new Option("cvmvs", "cvm-vs30", false, "Option to use Vs30 value from the velocity model itself"
+				+ " in GMPE calculations rather than, for example, the Wills 2006 value.");
+		ops.addOption(cvmVs30);
+		
+		Option forceVs30 = new Option("fvs", "force-vs30", true, "Option to force the given Vs30 value to be used"
+				+ " in GMPE calculations.");
+		ops.addOption(forceVs30);
 		
 		Option calcOnly = new Option("c", "calc-only", false, "Only calculate and insert the CyberShake curves, don't make " + 
 				"plots. If a curve already exists, it will be skipped.");
