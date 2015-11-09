@@ -189,7 +189,7 @@ public class ETAS_Simulator {
 			erf.updateForecast();
 		}
 		
-		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
+		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -351,7 +351,7 @@ public class ETAS_Simulator {
 		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
 				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getMaxCharFactor(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
+				etasParams.getImposeGR(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
 				inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
@@ -523,14 +523,16 @@ public class ETAS_Simulator {
 					hypoLoc = new Location(ptLoc.getLatitude()+(etas_utils.getRandomDouble()-0.5)*0.1*0.99,
 							ptLoc.getLongitude()+(etas_utils.getRandomDouble()-0.5)*0.1*0.99,
 							seisDepthDistribution.getRandomDepth());
+					rup.setPointSurface(hypoLoc);
+
 				}
 				else {
 					int hypIndex = etas_utils.getRandomInt(surfPts.size()-1);	// choose random loc assuming uniform probability among points
 					hypoLoc = surfPts.get(hypIndex);
+					rup.setRuptureSurface(erf_rup.getRuptureSurface());
 				}
 				rup.setAveRake(erf_rup.getAveRake());
 				rup.setMag(erf_rup.getMag());
-				rup.setRuptureSurface(erf_rup.getRuptureSurface());
 				rup.setNthERF_Index(nthRup);
 				rup.setHypocenterLocation(hypoLoc);
 				int sourceIndex = erf.getSrcIndexForNthRup(nthRup);
@@ -808,6 +810,20 @@ public class ETAS_Simulator {
 			}
 		}
 	}
+	
+	
+	/**
+	 * This utility writes a location near the center of the surface of the given section
+	 * @param erf
+	 * @param sectID
+	 */
+	private static void writeLocationAtCenterOfSectionSurf(FaultSystemSolutionERF erf, int sectID) {
+		String name = erf.getSolution().getRupSet().getFaultSectionData(sectID).getName();
+		StirlingGriddedSurface surf = erf.getSolution().getRupSet().getFaultSectionData(sectID).getStirlingGriddedSurface(1.0, false, true);
+		Location loc = surf.getLocation(surf.getNumRows()/2, surf.getNumCols()/2);
+		System.out.println("Locationat center of "+name+"\t"+loc.getLatitude()+", "+loc.getLongitude()+", "+loc.getDepth());
+	}
+
 
 	
 	
@@ -898,8 +914,13 @@ public class ETAS_Simulator {
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
 		
 		if(simulationName == null) {
-			String maxCharFactorString = Double.toString(etasParams.getMaxCharFactor()).replace(".", "p");
-			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel()+"_MaxCharFact"+maxCharFactorString;
+			String imposeGR_string;
+			if(etasParams.getImposeGR())
+				imposeGR_string = "_GRcorrApplied";
+			else {
+				imposeGR_string = "_noGRcorr";
+			}
+			simulationName = scenario+"_"+etasParams.getU3ETAS_ProbModel()+imposeGR_string;
 		}
 		
 //		testERF_ParamChanges(erf);
@@ -1125,6 +1146,7 @@ public class ETAS_Simulator {
 		MOJAVE_M6pt3_FSS("MojaveM6.3_FSS", 195759),	// unzipper case		
 		MOJAVE_M6pt3_ptSrc("MojaveM6.3_PtSrc", new Location(34.42295,-117.80177,5.8), 6.3),	// original test for Kevin
 		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
+		MOJAVE_M5p5_SECT1850("Mojave_M5.5_Sect1850", new Location(34.354,-117.639,6.5500), 5.5), // Location at center of San Andreas (Mojave S), Subsection 13	34.35453627367332, -117.63914790390031, 6.550000190734863
 		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
 		MOJAVE_M5p5_5kmAway("MojaveM5.5_5kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 5.0, 0.0)), 5.5),	//
 		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	//
@@ -1312,6 +1334,7 @@ public class ETAS_Simulator {
 	public static void main(String[] args) {
 		
 //		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);
+//		writeLocationAtCenterOfSectionSurf(erf, 1850);
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
 //		System.exit(0);
@@ -1319,37 +1342,43 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
 
-//		TestScenario scenario = TestScenario.MOJAVE_M7;
-		TestScenario scenario = null;
+		TestScenario scenario = TestScenario.MOJAVE_M5p5_SECT1850;
+//		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setMaxCharFactor(10);;		
+		params.setImposeGR(false);	
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		params.setApplyLongTermRates(false);
 		
 		String simulationName;
-		String maxCharFactorString = Double.toString(params.getMaxCharFactor()).replace(".", "p");
+		String imposeGR_string;
+		if(params.getImposeGR())
+			imposeGR_string = "_GRcorrApplied";
+		else {
+			imposeGR_string = "_noGRcorr";
+		}
+
 		if(scenario == null)
-			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+maxCharFactorString;
+			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 		else
-			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+"_MaxCharFact"+maxCharFactorString;
+			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_noLongTermRates";	// to increment runs
+		simulationName += "_new_1";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
-		double startTimeYear=2012;
-		double durationYears=100;
-//		double startTimeYear=2014;
-//		double durationYears=1;
+//		double startTimeYear=2012;
+//		double durationYears=100;
+		double startTimeYear=2014;
+		double durationYears=1;
 		
-//		ObsEqkRupList histCat = null;
-		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
+		ObsEqkRupList histCat = null;
+//		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		

@@ -106,7 +106,6 @@ public class ETAS_PrimaryEventSampler {
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr=true;	// don't set here (set by constructor)
-	double MAX_CHAR_FACTOR = Double.NaN;
 	
 	final static boolean D=ETAS_Simulator.D;
 	
@@ -172,9 +171,8 @@ public class ETAS_PrimaryEventSampler {
 //	int incrForReportingNumCachedSamplers=100;
 //	int nextNumCachedSamplers=incrForReportingNumCachedSamplers;
 	
-	double[] grCorrFactorForSectArray;
-	double[] charScaleFactorForSectArray;
-	double[] maxCharFactorForSectArray;
+	double[] grCorrFactorForSectArray;	// this will be 1.0 if applyGR_Corr = false
+	double[] charFactorForSectArray;	// this is populated regardless of whether applyGR_Corr = true
 
 	// ETAS distance decay params
 	double etasDistDecay, etasMinDist;
@@ -211,12 +209,12 @@ public class ETAS_PrimaryEventSampler {
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
 			double pointSrcDiscr, String outputFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
-			double etasDistDecay_q, double etasMinDist_d, double maxCharFactor, U3ETAS_ProbabilityModelOptions probModel, 
+			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, U3ETAS_ProbabilityModelOptions probModel, 
 			List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
 				pointSrcDiscr, outputFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				maxCharFactor, probModel, inputSectDistForCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
+				applyGR_Corr, probModel, inputSectDistForCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
@@ -248,7 +246,7 @@ public class ETAS_PrimaryEventSampler {
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
-			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, double maxCharFactor,
+			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
 			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
 			int[] inputIsCubeInsideFaultPolygon) {
 		
@@ -260,9 +258,9 @@ public class ETAS_PrimaryEventSampler {
 			APPLY_ERT_FAULTS = false;
 			APPLY_ERT_GRIDDED = false;
 		}
-			
-		MAX_CHAR_FACTOR = maxCharFactor;
 		
+		this.applyGR_Corr = applyGR_Corr;
+			
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
 		if(D) System.out.println("Gridded Region has "+griddedRegion.getNumLocations()+" cells");
@@ -428,13 +426,12 @@ public class ETAS_PrimaryEventSampler {
 			}
 		}	
 		
+		makeLongTermSectMFDs();
+		
 		// make temporary list of fraction hash maps
 		ArrayList<HashMap<Integer,Float>> hashMapForSectList = new ArrayList<HashMap<Integer,Float>>();
-//System.out.println("index\tname\ttotWtTest\tdistMap.size()\twtMap.size()\tdistThresh\tslope\tdip\tlowerSeisDepth\tupperSeisDepth\tgotOne\tminDist\tmaxDist\tminWt\tmaxWt\twtRatio");
-		computeMaxCharFactorForSections();
 		for(int s=0;s<rupSet.getNumSections();s++) {
-//			hashMapForSectList.add(getCubesAndFractForFaultSection_BoatRamp(s, MAX_CHAR_FACTOR, cubesForSectionList, cubeDistsForSectionList));
-			hashMapForSectList.add(getCubesAndFractForFaultSection_BoatRamp(s, maxCharFactorForSectArray[s], cubesForSectionList, cubeDistsForSectionList));
+			hashMapForSectList.add(getCubesAndFractForFaultSection_BoatRamp(s, cubesForSectionList, cubeDistsForSectionList));
 		}
 		fractionSectInCubeList = new ArrayList<float[]>();
 		for(int c=0; c<numCubes;c++) {
@@ -462,14 +459,6 @@ public class ETAS_PrimaryEventSampler {
 		if(D) System.out.println("numCubesInsideFaultPolygonArray took (sec): "+runtime);
 		
 		
-		makeLongTermSectMFDs();
-		startTime= System.currentTimeMillis();
-		if(D) System.out.println("Starting computeCharScaleFactorForSection()");
-		computeCharScaleFactorForSection();
-		runtime = ((double)(System.currentTimeMillis()-startTime))/1000;
-		if (D) System.out.println("computeCharScaleFactorForSection() took (sec): "+runtime);
-
-		
 		if(erf instanceof FaultSystemSolutionERF) {
 			// create the arrays that will store section nucleation info
 			totSectNuclRateArray = new double[rupSet.getNumSections()];
@@ -485,9 +474,6 @@ public class ETAS_PrimaryEventSampler {
 					srcNuclRateOnSectList.get(sect).put(src,0f);
 				}
 			}	
-			
-			// do this first because is uses the above arrays:
-//			computeFaultSourceLongTermRateChangeFactors();
 			
 			// now compute initial values for these arrays (nucleation rates of sections given norm time since last and any GR corr)
 			computeSectNucleationRates();
@@ -563,7 +549,7 @@ public class ETAS_PrimaryEventSampler {
 				int sectIndex = sectIndexList.get(s);
 				double sectNuclRate;
 				if(sum>0) {
-					sectNuclRate = charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
+					sectNuclRate = grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
 //System.out.println("RIGHTHERE: "+grCorrFactorForSectArray[sectIndex]);
 				}
 				else {
@@ -595,7 +581,7 @@ public class ETAS_PrimaryEventSampler {
 		for(int sectIndex=0;sectIndex<rupSet.getNumSections();sectIndex++) {
 			HashMap<Integer,Float> map = srcNuclRateOnSectList.get(sectIndex);
 			for(int srcIndex:map.keySet())
-				testSrcRates[srcIndex] += map.get(srcIndex)/(charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
+				testSrcRates[srcIndex] += map.get(srcIndex)/(grCorrFactorForSectArray[sectIndex]);
 		}
 		for(int srcIndex=0;srcIndex<this.numFltSystSources;srcIndex++) {
 			double testRatio = testSrcRates[srcIndex]/sourceRates[srcIndex];
@@ -615,79 +601,6 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-	/**
-	 * This is developmental; not yet sure whether it is needed.
-	 */
-	private void computeFaultSourceLongTermRateChangeFactors() {
-		
-		for(int s=0;s<totSectNuclRateArray.length;s++) {	// intialized totals to zero
-			totSectNuclRateArray[s] = 0d;
-		}
-		
-		// these are for fss rups, not the ERF fault sources
-		double longTermRateOfFltSysRupInERF[] = fssERF.getLongTermRateOfFltSysRupInERF();
-			
-		for(int src=0; src<numFltSystSources; src++) {
-			int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
-			List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
-			// get total rupture area
-			double totArea=0;
-			for(int s=0;s<sectIndexList.size();s++) {
-				int sectIndex = sectIndexList.get(s);
-				double sectArea = rupSet.getAreaForSection(sectIndex);
-				totArea+=sectArea;
-			}
-			for(int s=0;s<sectIndexList.size();s++) {
-				int sectIndex = sectIndexList.get(s);
-				double sectArea = rupSet.getAreaForSection(sectIndex);
-				double sectNuclRate;
-				int fssIndex = fssERF.getFltSysRupIndexForSource(src);
-				sectNuclRate = longTermRateOfFltSysRupInERF[fssIndex]*sectArea/totArea;
-				srcNuclRateOnSectList.get(sectIndex).put(src, (float)sectNuclRate);
-				totSectNuclRateArray[sectIndex] += sectNuclRate;				
-			}
-		}
-		
-		// TESTS TODO do this only in debug mode?
-		for(int sect=0;sect<rupSet.getNumSections(); sect++) {
-			double testTotRate = 0;
-			for(float vals:srcNuclRateOnSectList.get(sect).values()) 
-				testTotRate += vals;
-			double ratio = testTotRate/totSectNuclRateArray[sect];
-			if(ratio<0.9999 || ratio>1.0001) {
-				throw new RuntimeException("Test failed in computeSectNucleationRates(); ratio ="+ratio+" for sect "+sect);
-			}
-		}
-		
-		// now compute the revised source rates given charFactor and grCorr
-		double[] revisedSrcRates = new double[numFltSystSources];
-		for(int sectIndex=0;sectIndex<rupSet.getNumSections();sectIndex++) {
-			HashMap<Integer,Float> map = srcNuclRateOnSectList.get(sectIndex);
-			for(int srcIndex:map.keySet()) {
-				revisedSrcRates[srcIndex] += map.get(srcIndex)*charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex];
-			}
-		}
-		
-		HistogramFunction logRatioHist = new HistogramFunction(-4.0,4.0,80);
-		double fltSrcRateChangeFactor[] = new double[revisedSrcRates.length];
-		double origTotalRate=0;
-		double newTotalRate=0;
-		for(int src=0;src<revisedSrcRates.length;src++) {
-			fltSrcRateChangeFactor[src] = revisedSrcRates[src]/longTermRateOfFltSysRupInERF[fssERF.getFltSysRupIndexForSource(src)];
-			
-			if(logRatioHist.getXIndex(Math.log10(fltSrcRateChangeFactor[src])) == -1) {
-				System.out.println(fltSrcRateChangeFactor[src]+"\t"+revisedSrcRates[src]+"\t"+longTermRateOfFltSysRupInERF[fssERF.getFltSysRupIndexForSource(src)]);
-			}
-			logRatioHist.add(Math.log10(fltSrcRateChangeFactor[src]),1.0);
-			
-			origTotalRate+=longTermRateOfFltSysRupInERF[fssERF.getFltSysRupIndexForSource(src)];
-			newTotalRate+=revisedSrcRates[src];
-		}
-		GraphWindow magProbDistsGraph2 = new GraphWindow(logRatioHist, "logRatioHist"); 
-		System.out.println("getFaultSourceLongTermRateChangeFactor()+\n\torigTotalRate="+origTotalRate+"\n\tnewTotalRate="+newTotalRate);
-
-	}
-
 	
 	
 	/**
@@ -878,145 +791,98 @@ public class ETAS_PrimaryEventSampler {
 	}
 	
 	
-	
-	private void computeMaxCharFactorForSections() {
-		double maxFactor = 4;
-		maxCharFactorForSectArray = new double[rupSet.getNumSections()];
-		EvenlyDiscretizedFunc targetCharFactorForSectFunc = computeMeanCharFactorVsLogSupraRate();
-		double maxObsCharFactor = targetCharFactorForSectFunc.getMaxY();
-		double slope = (maxFactor-1.0)/(maxObsCharFactor-1);
-		double intercept = 1-slope;
-		for(int sectIndex=0;sectIndex<longTermSupraSeisMFD_OnSectArray.length;sectIndex++) {
-			double logSupraRate = Math.log10(longTermSupraSeisMFD_OnSectArray[sectIndex].getTotalIncrRate());
-			double targetCharFactor;
-			if(logSupraRate<targetCharFactorForSectFunc.getMinX())
-				targetCharFactor = targetCharFactorForSectFunc.getY(0);
-			else if(logSupraRate>targetCharFactorForSectFunc.getMaxX())
-				targetCharFactor = targetCharFactorForSectFunc.getY(targetCharFactorForSectFunc.size()-1);
-			else
-				targetCharFactor = targetCharFactorForSectFunc.getInterpolatedY(logSupraRate);
-			
-//			maxCharFactorForSectArray[sectIndex] = 0.5*targetCharFactor;
-			
-			if(targetCharFactor<=1.0)
-				maxCharFactorForSectArray[sectIndex] = targetCharFactor;
-			else
-				maxCharFactorForSectArray[sectIndex] = targetCharFactor*(targetCharFactor*slope+intercept);	// this adds some so the average comes out about right
-		}
 
-		
-//		double minCharFactor = 1.0/20.0;
-//		double maxCharFactor = this.MAX_CHAR_FACTOR;
-//		double maxLongTermSectRate=0;
-//		double minLongTermSectRate=Double.MAX_VALUE;
-//		double[] longTermSectRateArray = new double[rupSet.getNumSections()];
-//		maxCharFactorForSectArray = new double[rupSet.getNumSections()];
-//
-//		for(int sectIndex=0;sectIndex<longTermSupraSeisMFD_OnSectArray.length;sectIndex++) {
-//			longTermSectRateArray[sectIndex] = longTermSupraSeisMFD_OnSectArray[sectIndex].getTotalIncrRate();	// TODO the best way to get this?
-//			if(maxLongTermSectRate<longTermSectRateArray[sectIndex])
-//				maxLongTermSectRate=longTermSectRateArray[sectIndex];
-//			if(minLongTermSectRate>longTermSectRateArray[sectIndex])
-//				minLongTermSectRate=longTermSectRateArray[sectIndex];
-//		}
-//		
-//		double slope = (Math.log10(maxCharFactor)-Math.log10(minCharFactor))/(Math.log10(maxLongTermSectRate)-Math.log10(minLongTermSectRate));
-//		double intercept = Math.log10(minCharFactor)-slope*Math.log10(minLongTermSectRate);
-//		
-//		DefaultXY_DataSet logCharFactorVsLogSupraRate = new DefaultXY_DataSet();
-//
-//		for(int sectIndex=0;sectIndex<longTermSupraSeisMFD_OnSectArray.length;sectIndex++) {
-//			maxCharFactorForSectArray[sectIndex] = Math.pow(10.0, slope*Math.log10(longTermSectRateArray[sectIndex])+intercept);
-//			logCharFactorVsLogSupraRate.set(Math.log10(longTermSectRateArray[sectIndex]),Math.log10(maxCharFactorForSectArray[sectIndex]));
-//		}
-//		
-////		System.out.println("getMaxCharFactorForSections()\n\tmaxLongTermSectRate="+maxLongTermSectRate+"\n\tminLongTermSectRate="+minLongTermSectRate);
-////		
-////		GraphWindow logCharFactorVsLogSupraRateGraph = new GraphWindow(logCharFactorVsLogSupraRate, "logCharFactorVsLogSupraRate",new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK)); 
-////		logCharFactorVsLogSupraRateGraph.setY_AxisLabel("CharFactor");
-////		logCharFactorVsLogSupraRateGraph.setX_AxisLabel("SupraRate");
-////		logCharFactorVsLogSupraRateGraph.setAxisLabelFontSize(20);
-////		logCharFactorVsLogSupraRateGraph.setTickLabelFontSize(18);
-////		logCharFactorVsLogSupraRateGraph.setPlotLabelFontSize(22);
-	}
-	
-	
-	
-	
 	/**
+	 * This version ??????.
 	 * 
 	 * DistThreshold is hard coded at 10 km.
 	 * @param sectionIndex
-	 * @param maxCharFactor
 	 * @param cubesForSectionList
 	 * @param cubeDistsForSectionList
 	 * @return
 	 */
-	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRamp(int sectionIndex, double maxCharFactor, ArrayList<ArrayList<Integer>> cubesForSectionList, 
+	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRamp(int sectionIndex, ArrayList<ArrayList<Integer>> cubesForSectionList, 
 			ArrayList<ArrayList<Float>> cubeDistsForSectionList) {
 		
-		HashMap<Integer,Double> distMap = new HashMap<Integer,Double>();
+		double charFactor = charFactorForSectArray[sectionIndex];
+		double numCubes = (double)cubesForSectionList.get(sectionIndex).size();
 		
-		StirlingGriddedSurface surface = rupSet.getFaultSectionData(sectionIndex).getStirlingGriddedSurface(1.0, false, true);
-//		double lowerSeisDepth = surface.getLowerSeismogenicDepth();
-//		double upperSeisDepth = surface.getUpperSeismogenicDepth();
+		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
+		
+		if(applyGR_Corr || charFactor<=1.0) {	// distribute evenly among cubes
+			float wt = 1f/(float)numCubes;
+			for(int i=0; i<cubesForSectionList.get(sectionIndex).size();i++) {
+				int cubeIndex = cubesForSectionList.get(sectionIndex).get(i);
+				wtMap.put(cubeIndex, wt);
+			}
+			return wtMap;
+		}
+		
 		double distThresh = 10f; // where it goes from ramp to water level
-//		boolean gotOne=false;
+		double totalRate = longTermSupraSeisMFD_OnSectArray[sectionIndex].getTotalIncrRate();
+		double cubeRateBeyondDistThresh = totalRate/(charFactor*numCubes);
+		double totalRateBeyondDistThresh = 0.0;
+		double numCubesWithinDistThresh = 0.0;
+		double sumDistWithinDistThresh = 0.0;
 		double minDist=Double.MAX_VALUE;
 		double maxDist=0.0;
 		for(int i=0; i<cubesForSectionList.get(sectionIndex).size();i++) {
-			int cubeIndex = cubesForSectionList.get(sectionIndex).get(i);
-//			Location cubeLoc = getCubeLocationForIndex(cubeIndex);
 			double dist = cubeDistsForSectionList.get(sectionIndex).get(i);
-			distMap.put(cubeIndex, dist);
+			if(dist<=distThresh) {
+				numCubesWithinDistThresh += 1.0;
+				sumDistWithinDistThresh += dist;
+			}
+			else {
+				totalRateBeyondDistThresh += cubeRateBeyondDistThresh;
+			}
 			if(minDist>dist) minDist=dist;
 			if(maxDist<dist) maxDist=dist;
-//			if(cubeLoc.getDepth()<=lowerSeisDepth && cubeLoc.getDepth()>=upperSeisDepth && dist>distThresh) {
-//				distThresh = dist;
-//				gotOne=true;
-//			}				
 		}
 		
-		// this happens if the surface has too small a down-dip width
-//		if(!gotOne)
-//			distThresh = getFarthestCubeDistAtDepthForSection(surface, surface.getLocation(0, 0).getDepth(), cubesForSectionList.get(sectionIndex));
-				
-		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
-		double slope = (1.0-maxCharFactor)/distThresh;
+		double totRateWithinDistThresh = totalRate - totalRateBeyondDistThresh;
+		
+		double slope = (totRateWithinDistThresh-numCubesWithinDistThresh*cubeRateBeyondDistThresh)/(sumDistWithinDistThresh-numCubesWithinDistThresh*distThresh);
+		double intercept = cubeRateBeyondDistThresh-slope*distThresh;
+		double minRate=Double.MAX_VALUE;
+		double maxRate=0.0;
 		float totWt=0;
-		for(int c:distMap.keySet()) {
-			double dist = distMap.get(c);
-			double wt = 1.0; // the value beyond
-			if(dist<distThresh && maxCharFactor>1) {	// the latter forces uniform distribution for maxCharFactor<=1.0
-				wt = (slope*dist+maxCharFactor);
-			}
-			wtMap.put(c, (float)wt);
+		for(int i=0; i<cubesForSectionList.get(sectionIndex).size();i++) {
+			int cubeIndex = cubesForSectionList.get(sectionIndex).get(i);
+			double dist = cubeDistsForSectionList.get(sectionIndex).get(i);
+			double rate;
+			if(dist<=distThresh)
+				rate = (slope*dist+intercept);
+			else
+				rate = cubeRateBeyondDistThresh;
+			
+			if(minRate>rate)
+				minRate=rate;
+			if(maxRate<rate)
+				maxRate=rate;
+
+//if(sectionIndex==1841) {
+//	if(i==0)
+//		System.out.println("Test for "+rupSet.getFaultSectionData(sectionIndex).getName()+"\tcharFactor="+charFactor+"\ttotalRate="+totalRate);
+//	System.out.println(dist+"\t"+rate+"\t"+rate/cubeRateBeyondDistThresh);
+//}
+			double wt = rate/totalRate;
+			wtMap.put(cubeIndex, (float)wt);
 			totWt+=wt;
 		}
 		
-		// normalize values so they sum to 1.0
-		double minWt=Double.MAX_VALUE;
-		double maxWt=0.0;
-		for(int c:wtMap.keySet()) {
-			float newWt = wtMap.get(c)/totWt;
-			wtMap.put(c, newWt);
-			if(minWt>newWt) minWt=newWt;
-			if(maxWt<newWt) maxWt=newWt;
-		}
+double minCharFactor = minRate/cubeRateBeyondDistThresh;
+double maxCharFactor = maxRate/cubeRateBeyondDistThresh;
 
-		float totWtTest=0;
-		for(int c:wtMap.keySet()) {
-			totWtTest+=wtMap.get(c);
-//System.out.println(wtMap.get(c)+"\t"+distMap.get(c)+"\t"+getCubeLocationForIndex(c));
-		}
-		
-		if(totWtTest<0.9999 || totWtTest>1.0001) {
-//			throw new RuntimeException("Problem)");
-			System.out.println("getCubesAndFractForFaultSection_BoatRamp returned null for "+rupSet.getFaultSectionData(sectionIndex).getName()+"\ttotWtTest="+totWtTest);
+System.out.println(sectionIndex+"\t"+charFactor+"\t"+maxCharFactor+"\t"+(maxCharFactor/charFactor)+"\t"+minCharFactor+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totalRate);
+
+		if(totWt<0.9999 || totWt>1.0001) {
+			System.out.println("getCubesAndFractForFaultSection_BoatRamp returned null for: "+sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\tcharFactor="+charFactor
+					+"\ttotalRate="+totalRate+"\ttotWt="+totWt);
 			return null;
+//			throw new RuntimeException("Problem)");
 		}
 		
-//System.out.println(sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totWtTest+"\t"+distMap.size()+"\t"+wtMap.size()+
+//System.out.println(sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+wtMap.size()+
 //"\t"+distThresh+"\t"+slope+"\t"+rupSet.getFaultSectionData(sectionIndex).getAveDip()+"\t"+lowerSeisDepth+"\t"+upperSeisDepth+"\t"+gotOne+
 //"\t"+minDist+"\t"+maxDist+"\t"+minWt+"\t"+maxWt+"\t"+(maxWt/minWt));
 
@@ -1024,10 +890,6 @@ public class ETAS_PrimaryEventSampler {
 	}
 
 
-
-	
-
-	
 	
 	
 	
@@ -2772,19 +2634,12 @@ System.exit(0);
 			meanPlus2stdomData.set(Math.pow(10.0, binCenterLogX),Math.pow(10.0,distFunc.getMean()+2*stdom));
 		}
 		
-		EvenlyDiscretizedFunc targetMeanCharFactorVsLogSupraRate = computeMeanCharFactorVsLogSupraRate();
-		DefaultXY_DataSet targetMeanCharFactorVsLogSupraRate_XYdata = new DefaultXY_DataSet();
-		for(int i=0;i<targetMeanCharFactorVsLogSupraRate.size();i++)
-			targetMeanCharFactorVsLogSupraRate_XYdata.set(Math.pow(10.0, targetMeanCharFactorVsLogSupraRate.getX(i)), targetMeanCharFactorVsLogSupraRate.getY(i));
-		targetMeanCharFactorVsLogSupraRate_XYdata.setName("targetMeanCharFactorVsLogSupraRate_XYdata");
-		
 		ArrayList<XY_DataSet> funcs2 = new ArrayList<XY_DataSet>();
 		funcs2.add(charValSupraRatesVsSupraRateData);
 		funcs2.add(medianBinnedData);
 		funcs2.add(meanBinnedData);
 		funcs2.add(meanMinus2stdomData);
 		funcs2.add(meanPlus2stdomData);
-		funcs2.add(targetMeanCharFactorVsLogSupraRate_XYdata);
 		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
 		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK));
 		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
@@ -3041,19 +2896,12 @@ System.exit(0);
 			meanPlus2stdomData.set(Math.pow(10.0, binCenterLogX),Math.pow(10.0,distFunc.getMean()+2*stdom));
 		}
 		
-		EvenlyDiscretizedFunc targetMeanCharFactorVsLogSupraRate = computeMeanCharFactorVsLogSupraRate();
-		DefaultXY_DataSet targetMeanCharFactorVsLogSupraRate_XYdata = new DefaultXY_DataSet();
-		for(int i=0;i<targetMeanCharFactorVsLogSupraRate.size();i++)
-			targetMeanCharFactorVsLogSupraRate_XYdata.set(Math.pow(10.0, targetMeanCharFactorVsLogSupraRate.getX(i)), targetMeanCharFactorVsLogSupraRate.getY(i));
-		targetMeanCharFactorVsLogSupraRate_XYdata.setName("targetMeanCharFactorVsLogSupraRate_XYdata");
-		
 		ArrayList<XY_DataSet> funcs2 = new ArrayList<XY_DataSet>();
 		funcs2.add(charValSupraRatesVsSupraRateData);
 		funcs2.add(medianBinnedData);
 		funcs2.add(meanBinnedData);
 		funcs2.add(meanMinus2stdomData);
 		funcs2.add(meanPlus2stdomData);
-		funcs2.add(targetMeanCharFactorVsLogSupraRate_XYdata);
 		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
 		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK));
 		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
@@ -3092,104 +2940,7 @@ System.exit(0);
 		
 	}
 	
-	
 
-
-	
-	
-	/**
-	 *
-	 */
-	public EvenlyDiscretizedFunc computeMeanCharFactorVsLogSupraRate() {
-		
-		// Make sure long-term MFDs are created
-		makeLongTermSectMFDs();
-		
-		DefaultXY_DataSet charValSupraRatesVsSupraRateData = new DefaultXY_DataSet();
-
-		for(int sectIndex=0;sectIndex<rupSet.getNumSections();sectIndex++) {
-			double valSupraRates;
-			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
-				
-				// TODO only need this temporarily?
-				if (Double.isNaN(longTermSupraSeisMFD_OnSectArray[sectIndex].getMaxMagWithNonZeroRate())){
-					System.out.println("NaN HERE: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-					throw new RuntimeException("Problem");
-				}
-				
-				valSupraRates = 1.0/ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
-			}
-			else {	// no supra-seismogenic ruptures
-				throw new RuntimeException("Problem");
-			}
-						
-			// dont continue if the value defaulted to 1.0.
-			if(longTermSubSeisMFD_OnSectList.get(sectIndex).getTotalIncrRate()<=10e-16)
-				continue;
-			
-			double minSupraMag = ETAS_Utils.getMinMagSupra(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex));
-			double supraRate = longTermSupraSeisMFD_OnSectArray[sectIndex].getCumRate(minSupraMag);			
-			charValSupraRatesVsSupraRateData.set(supraRate,valSupraRates);
-		}
-				
-		
-		// make binned data statistics for charValSupraRatesVsSupraRateData
-		double startBinCenterLogX = -6.0+0.25/2.0;
-		double binWidthLogX = 0.25;
-		double endBinCenterLogX = -2.0-0.25/2.0;
-		int numBins = (int)Math.round((endBinCenterLogX-startBinCenterLogX)/binWidthLogX) + 1;
-
-//		EvenlyDiscretizedFunc func2 = new EvenlyDiscretizedFunc(startBinCenterLogX,endBinCenterLogX,numBins);
-		EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(startBinCenterLogX,endBinCenterLogX,numBins);
-
-		for(int j=0;j<func.size();j++) {
-			
-			double minVal = Math.pow(10.0, func.getX(j)-binWidthLogX/2.0);
-			double maxVal = Math.pow(10.0, func.getX(j)+binWidthLogX/2.0);
-			
-//			double rateSum=0;
-//			double rateOverCharFactorSum = 0;
-//			for(int i=0;i<charValSupraRatesVsSupraRateData.size();i++) {
-//				double rateVal = charValSupraRatesVsSupraRateData.getX(i);
-//				if(rateVal>minVal && rateVal<=maxVal) {
-//					rateSum+=rateVal;
-//					rateOverCharFactorSum+=rateVal/charValSupraRatesVsSupraRateData.getY(i);
-//				}
-//			}
-//			double meanVal = rateSum/rateOverCharFactorSum;
-//			func2.set(j,meanVal);
-			
-
-			ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc ();
-			for(int i=0;i<charValSupraRatesVsSupraRateData.size();i++) {
-				double xVal = charValSupraRatesVsSupraRateData.getX(i);
-				if(xVal>minVal && xVal<=maxVal)
-					distFunc.set(Math.log10(charValSupraRatesVsSupraRateData.getY(i)),1.0);
-			}
-			double meanVal2 = Math.pow(10, distFunc.getMean());
-			if(meanVal2<=MAX_CHAR_FACTOR)
-				func.set(j,meanVal2);
-			else
-				func.set(j,MAX_CHAR_FACTOR);
-		}
-		
-//		ArrayList<XY_DataSet> funcs2 = new ArrayList<XY_DataSet>();
-//		funcs2.add(func);
-//		funcs2.add(func2);
-//		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
-//		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-//		
-//		GraphWindow sectGraph5 = new GraphWindow(funcs2, "CharFactor vs SupraRate", plotCharList); 
-//		sectGraph5.setY_AxisLabel("CharFactor");
-//		sectGraph5.setX_AxisLabel("SupraRate (per year)");
-//		sectGraph5.setYLog(true);
-//		sectGraph5.setAxisLabelFontSize(24);
-//		sectGraph5.setTickLabelFontSize(22);
-//		sectGraph5.setPlotLabelFontSize(26);
-		
-		return func;
-		
-	}
 
 	
 	
@@ -4555,7 +4306,7 @@ System.exit(0);
 	
 	/**
 	 * This computes a scale factor for each fault section, whereby multiplying the associate supra-seismogenic MFD
-	 * by this factor will produced the same number of expected primary aftershocks as for a perfect GR
+	 * by this factor will produced the same ??????? as for a perfect GR
 	 * (extrapolating the sub-seismogenic MFD to the maximum, non-zero-rate  magnitude of the supra-seismogenic MFD).
 	 * 
 	 * The array is all 1.0 values if the erf is not a FaultSystemSolutionERF or if applyGR_Corr=false
@@ -4563,194 +4314,50 @@ System.exit(0);
 	 * @return
 	 */
 	private void computeGR_CorrFactorsForSections() {
-		
+
 		grCorrFactorForSectArray = new double[rupSet.getNumSections()];
-		
-		if(erf instanceof FaultSystemSolutionERF && applyGR_Corr) {
-			
-			// Make sure long-term MFDs are created
-			makeLongTermSectMFDs();
+		charFactorForSectArray = new double[rupSet.getNumSections()];
 
-//System.out.println("GR Correction Factors:");
+		// Make sure long-term MFDs are created
+		makeLongTermSectMFDs();
 
-			double minCorr=Double.MAX_VALUE;
-			int minCorrIndex = -1;
-//System.out.println("STARTING TEST RIGHT HERE");
-			for(int sectIndex=0;sectIndex<grCorrFactorForSectArray.length;sectIndex++) {
-				if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
-					
-					// TODO only need this temporarily?
-					if (Double.isNaN(longTermSupraSeisMFD_OnSectArray[sectIndex].getMaxMagWithNonZeroRate())){
-						System.out.println("NaN HERE: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-						throw new RuntimeException("Problem");
-					}
-					
-//					double val = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
-					double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
-					if(val<1.0) {
-						grCorrFactorForSectArray[sectIndex]=1.0*val;
-//System.out.println("RIGHTHERE1: "+grCorrFactorForSectArray[sectIndex]+"\t"+val);
-					}
-					else {
-						grCorrFactorForSectArray[sectIndex]=1.0*val; 
-//System.out.println("RIGHTHERE2: "+grCorrFactorForSectArray[sectIndex]+"\t"+val);
-					}
-					if(val<minCorr) {
-						minCorr=val;
-						minCorrIndex=sectIndex;
-					}
+		//System.out.println("GR Correction Factors:");
+
+		double minCorr=Double.MAX_VALUE;
+		int minCorrIndex = -1;
+		//System.out.println("STARTING TEST RIGHT HERE");
+		for(int sectIndex=0;sectIndex<grCorrFactorForSectArray.length;sectIndex++) {
+			if(longTermSupraSeisMFD_OnSectArray[sectIndex] != null) {
+
+				// TODO only need this temporarily?
+				if (Double.isNaN(longTermSupraSeisMFD_OnSectArray[sectIndex].getMaxMagWithNonZeroRate())){
+					System.out.println("NaN HERE: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+					throw new RuntimeException("Problem");
 				}
-				else {	// no supra-seismogenic ruptures
+
+				//					double val = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
+				charFactorForSectArray[sectIndex]=1.0/val;
+				
+				if(applyGR_Corr)
+					grCorrFactorForSectArray[sectIndex]=val;
+				else
 					grCorrFactorForSectArray[sectIndex]=1.0;
-				}
 
-// System.out.println(sectIndex+"\t"+(float)grCorrFactorForSectArray[sectIndex]+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+				if(val<minCorr) {
+					minCorr=val;
+					minCorrIndex=sectIndex;
+				}
 			}
-			if(D) System.out.println("min GR Corr ("+minCorr+") at sect index: "+minCorrIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(minCorrIndex).getName());
+			else {	// no supra-seismogenic ruptures
+				grCorrFactorForSectArray[sectIndex]=1.0;
+			}
+
+			// System.out.println(sectIndex+"\t"+(float)grCorrFactorForSectArray[sectIndex]+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
 		}
-		else {
-			for(int i=0;i<grCorrFactorForSectArray.length;i++)
-				grCorrFactorForSectArray[i] = 1.0;
-		}
+		if(D) System.out.println("min GR Corr ("+minCorr+") at sect index: "+minCorrIndex+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(minCorrIndex).getName());
 	}
 	
-	/**
-	 * This is the factor by which gr-corrected long-term section rates need to be multiplied by in order to
-	 * have MAX_CHAR_FACTOR_DEFAULT right on the fault and a perfect GR at distant cubes within the polygon. 
-	 * First make sure the farthest cubes have a perfect GR
-	 */
-	private void computeCharScaleFactorForSection() {
-		charScaleFactorForSectArray = new double[rupSet.getNumSections()];
-		
-		double[] minWtForSectArray = new double[rupSet.getNumSections()];
-		double[] longTermSectRateArray = new double[rupSet.getNumSections()];
-		double[] minCharFactorAmongCubesForSectArray = new double[rupSet.getNumSections()];
-		double[] maxCharFactorAmongCubesForSectArray = new double[rupSet.getNumSections()];
-
-		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
-			minWtForSectArray[sectIndex] = Double.MAX_VALUE;
-			longTermSectRateArray[sectIndex] = longTermSupraSeisMFD_OnSectArray[sectIndex].getTotalIncrRate();	// TODO the best way to get this?
-			minCharFactorAmongCubesForSectArray[sectIndex] = Double.MAX_VALUE;
-			maxCharFactorAmongCubesForSectArray[sectIndex] = Double.MIN_VALUE;
-		}
-		
-		for(int c=0;c<numCubes;c++) {
-			float[] wtInCubeArray = fractionSectInCubeList.get(c);
-			int[] sectInCubeArray = sectInCubeList.get(c);
-			for(int i=0;i<sectInCubeArray.length;i++) {
-				if(wtInCubeArray[i]<minWtForSectArray[sectInCubeArray[i]]) {
-					minWtForSectArray[sectInCubeArray[i]]=wtInCubeArray[i];
-				}
-			}
-		}
-		
-		double[] totRateForSectArray = new double[rupSet.getNumSections()];
-		for(int c=0;c<numCubes;c++) {
-			float[] wtInCubeArray = fractionSectInCubeList.get(c);
-			int[] sectInCubeArray = sectInCubeList.get(c);
-			for(int i=0;i<sectInCubeArray.length;i++) {
-				int sectIndex = sectInCubeArray[i];
-				double sectWtInCube = wtInCubeArray[i];
-				double maxCharFactor = 1.0;
-				if(maxCharFactorForSectArray[sectIndex]<1.0)
-					maxCharFactor = maxCharFactorForSectArray[sectIndex];
-				totRateForSectArray[sectIndex] += (sectWtInCube/minWtForSectArray[sectIndex])*(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]*maxCharFactor/numCubesInsideFaultPolygonArray[sectIndex]);
-				
-				double charFactor = (sectWtInCube/minWtForSectArray[sectIndex])*(maxCharFactor);
-				if(maxCharFactorAmongCubesForSectArray[sectIndex]<charFactor)
-					maxCharFactorAmongCubesForSectArray[sectIndex]=charFactor;
-				if(minCharFactorAmongCubesForSectArray[sectIndex]>charFactor)
-					minCharFactorAmongCubesForSectArray[sectIndex]=charFactor;
-			}
-		}
-		
-		//
-		double totLongTermRate=0;
-		double totCorrectedRate=0;
-		for(int s=0;s<totRateForSectArray.length;s++) {
-			if(totRateForSectArray[s]>0) {	// avoid Mendocino sections in this comparison
-				totLongTermRate+=longTermSectRateArray[s];
-				totCorrectedRate+=totRateForSectArray[s];
-			}
-		}
-		System.out.println("From computeCharScaleFactorForSection():\n\tTotal Long-Term Section Rate Before Corrections:"+totLongTermRate+
-				"\n\tTotal Long-Term Section Rate After Corrections:"+totCorrectedRate+"\n\tratio="+(totCorrectedRate/totLongTermRate)+"\n");
-		
-//		double totRateCorr = totLongTermRate/totCorrectedRate;
-
-System.out.println("sectIndex\tcharScaleFactor\tgrCorrFactor\torigLongTermSectRate\tnewLongTermSectRate\tminCharFactorAmongCubesForSect\tmaxCharFactorAmongCubesForSect\tDip\tName");
-
-		double meanCharScaleFactor = 0;
-		double meanCharScaleFactorSupraRateWted = 0;
-		double supraRateSum=0;
-		double minCharScaleFactor = Double.MAX_VALUE;
-		double maxCharScaleFactor = -Double.MAX_VALUE;
-		for(int sectIndex=0;sectIndex<charScaleFactorForSectArray.length;sectIndex++) {
-			double scaleFactor = totRateForSectArray[sectIndex]/(longTermSectRateArray[sectIndex]*grCorrFactorForSectArray[sectIndex]);
-
-//			// correction to preserve total rates
-//			scaleFactor *= totRateCorr;
-//			minCharFactorAmongCubesForSectArray[sectIndex] *= totRateCorr;
-//			maxCharFactorAmongCubesForSectArray[sectIndex] *= totRateCorr;
-
-			if(scaleFactor==0.0) {	// Mendocino cases
-				charScaleFactorForSectArray[sectIndex]=1.0;
-				if(D) System.out.println("charScaleFactorForSectArray[] set to 1.0 for "+rupSet.getFaultSectionData(sectIndex).getName());
-				continue; // don't include in stats
-			}
-			charScaleFactorForSectArray[sectIndex] = scaleFactor;
-			meanCharScaleFactor+=scaleFactor;
-//			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
-			meanCharScaleFactorSupraRateWted+=longTermSectRateArray[sectIndex]*scaleFactor;
-			supraRateSum+=longTermSectRateArray[sectIndex];
-			if(minCharScaleFactor>scaleFactor)
-				minCharScaleFactor=scaleFactor;
-			
-			if(maxCharScaleFactor<scaleFactor)
-				maxCharScaleFactor=scaleFactor;
-			
-			double finalRate = charScaleFactorForSectArray[sectIndex]*grCorrFactorForSectArray[sectIndex]*longTermSectRateArray[sectIndex];
-			
-System.out.println(sectIndex+"\t"+charScaleFactorForSectArray[sectIndex]+"\t"+grCorrFactorForSectArray[sectIndex]+"\t"+longTermSectRateArray[sectIndex]+"\t"+finalRate+"\t"+
-		minCharFactorAmongCubesForSectArray[sectIndex]+"\t"+maxCharFactorAmongCubesForSectArray[sectIndex]+"\t"+
-rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionData(sectIndex).getName());
-		}
-		meanCharScaleFactor /= charScaleFactorForSectArray.length;
-		meanCharScaleFactorSupraRateWted /= supraRateSum;
-		if(D) {
-			System.out.println("meanCharScaleFactor="+meanCharScaleFactor);
-			System.out.println("meanCharScaleFactorSupraRateWted="+meanCharScaleFactorSupraRateWted);
-			System.out.println("minCharScaleFactor="+minCharScaleFactor);
-			System.out.println("maxCharScaleFactor="+maxCharScaleFactor);
-		}
-		
-//		EvenlyDiscretizedFunc tempFunc = computeMeanCharFactorVsLogSupraRate();
-//		DefaultXY_DataSet targetLogCharFactorVsLogSupraRate = new DefaultXY_DataSet();
-//		for(int i=0;i<tempFunc.size();i++)
-//			targetLogCharFactorVsLogSupraRate.set(tempFunc.getX(i),Math.log10(tempFunc.getY(i)));
-//		targetLogCharFactorVsLogSupraRate.setName("targetLogCharFactorVsLogSupraRate");
-//		DefaultXY_DataSet logCharFactorVsLogSupraRate = new DefaultXY_DataSet();
-//		for(int sectIndex=0;sectIndex<longTermSupraSeisMFD_OnSectArray.length;sectIndex++) {
-//			if(charScaleFactorForSectArray[sectIndex] != 1)	// filter out Mendocino
-//				logCharFactorVsLogSupraRate.set(Math.log10(longTermSectRateArray[sectIndex]),Math.log10(charScaleFactorForSectArray[sectIndex]));
-//		}
-//		ArrayList<DefaultXY_DataSet> funcList = new ArrayList<DefaultXY_DataSet>();
-//		funcList.add(logCharFactorVsLogSupraRate);
-//		funcList.add(targetLogCharFactorVsLogSupraRate);
-//		ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
-//		curveCharList.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 4f, Color.BLACK));
-//		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
-//		GraphWindow logCharFactorVsLogSupraRateGraph = new GraphWindow(funcList, "Final & Target CharFactor Vs SupraRate", curveCharList); 
-//		logCharFactorVsLogSupraRateGraph.setY_AxisLabel("Log10-CharFactor");
-//		logCharFactorVsLogSupraRateGraph.setX_AxisLabel("Log10-SupraRate");
-//		logCharFactorVsLogSupraRateGraph.setX_AxisRange(-7,-2);
-//		logCharFactorVsLogSupraRateGraph.setY_AxisRange(-3.0,3.0);
-//		logCharFactorVsLogSupraRateGraph.setAxisLabelFontSize(20);
-//		logCharFactorVsLogSupraRateGraph.setTickLabelFontSize(18);
-//		logCharFactorVsLogSupraRateGraph.setPlotLabelFontSize(22);
-
-
-	}
 	
 	
 	/**
@@ -5916,6 +5523,41 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 		}
 
 	}
+	
+	public  void writePolygonsForSubSections(String fileNamePrefix, int firstSubSectID, int lastSubSectID) {
+		FileWriter fileWriterPolygons;
+		try {
+			fileWriterPolygons = new FileWriter(new File(GMT_CA_Maps.GMT_DIR, fileNamePrefix+".txt"));
+			fileWriterPolygons.write("lat\tlon\tdepth\n");
+			for(int i=firstSubSectID; i<=lastSubSectID;i++) {
+				String polygonString="";
+				for(Location loc : faultPolyMgr.getPoly(i).getBorder()) {
+					polygonString += (float)loc.getLatitude() + "\t" + (float)loc.getLongitude() + "\t" + loc.getDepth() +"\n";
+				}
+				fileWriterPolygons.write(polygonString);
+
+			}
+			fileWriterPolygons.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	
+//	longTermSubSeisMFD_OnSectList
+
+	public  void writeTotSubSeisRateForSections(int firstSubSectID, int lastSubSectID) {
+		double totRate=0;
+		System.out.println("\nM≥2.5 Subseis Rates for Subsections\n");
+			for(int i=firstSubSectID; i<=lastSubSectID;i++) {
+				String name = rupSet.getFaultSectionData(i).getName();
+				double rate = longTermSubSeisMFD_OnSectList.get(i).getCumRate(2.55);
+				System.out.println("\t"+rate+"\t"+name);
+				totRate+=rate;
+			}
+			System.out.println("\ttotRate="+totRate);
+	}
 
 	
 
@@ -5938,9 +5580,9 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 		// Overide to Poisson if needed
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
-		boolean includeEqkRates = true;
+		boolean includeEqkRates = false;
 		double gridSeisDiscr = 0.1;
-		double maxCharFactor = 10;
+		boolean applyGR_Corr = false;
 		
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		// first make array of rates for each source
@@ -5954,7 +5596,10 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				maxCharFactor, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
+				applyGR_Corr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
+		
+		// Surprise valley subsection subseis rates
+//		etas_PrimEventSampler.writeTotSubSeisRateForSections(2446, 2461);
 		
 //		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
 //		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
@@ -5967,7 +5612,7 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave_fltOnly", true);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor10_Poisson");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor10_PoissonNew");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
@@ -5977,19 +5622,12 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 		
 		// Sections bulge plot
 		try {
-			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-//		System.out.println("Starting computeCharScaleFactorForSection()");
-//		long startTime = System.currentTimeMillis();
-//		etas_PrimEventSampler.computeCharScaleFactorForSection();
-//		float runTime = ((float)(System.currentTimeMillis()-startTime))/1000f;
-//		System.out.println("computeCharScaleFactorForSection() took (sec): "+runTime);
-		
-
 		
 //		// San Andreas (Mojave S), Subsection 4
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1841, 5.0);
@@ -6504,7 +6142,7 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 			if(supraMFD == null ||  subMFD == null)
 				continue;
 			
-			supraMFD.scale(charScaleFactorForSectArray[sectID]*grCorrFactorForSectArray[sectID]*fracArray[i]);
+			supraMFD.scale(grCorrFactorForSectArray[sectID]*fracArray[i]);
 			subMFD.scale(1.0/numCubesInsideFaultPolygonArray[sectID]);
 			
 			// weight by total supra rate
@@ -6626,8 +6264,8 @@ rupSet.getFaultSectionData(sectIndex).getAveDip()+"\t"+rupSet.getFaultSectionDat
 		
 		// make historgram
 		double delta = Math.log10(1.01);
-		double min = -3.0+delta/2;
-		double max = 3;
+		double min = -4.0+delta/2;
+		double max = 4;
 		int num = (int)((max-min)/delta);
 		HistogramFunction hist = new HistogramFunction(min,num,delta);
 		for(int i=0;i<bulgeData.size();i++)
