@@ -31,6 +31,7 @@ public class ETAS_ApplyLongTermRatesInSamplingParam extends BooleanParameter {
 	private static final long serialVersionUID = 1L;
 	public final static String NAME = "Apply Long-Term Rates";
 	public final static String INFO = "This tells whether to apply the spatial distribution of long-term rates when sampling ETAS aftershocks";
+	public static final boolean DEFAULT = true;
 
 	/**
 	 * This sets the default value as given, and leaves the parameter
@@ -49,6 +50,6 @@ public class ETAS_ApplyLongTermRatesInSamplingParam extends BooleanParameter {
 	 * non editable.
 	 * @param defaultValue
 	 */
-	public ETAS_ApplyLongTermRatesInSamplingParam() {this(true);}
+	public ETAS_ApplyLongTermRatesInSamplingParam() {this(DEFAULT);}
 
 }

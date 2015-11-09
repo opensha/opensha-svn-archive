@@ -29,7 +29,7 @@ public class ProbabilisticResultPlotter {
 	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
 	
 	private static void writeCSV(CyberShakeSiteRun site, CyberShakeComponent comp, DiscretizedFunc csSpectrum,
-			List<? extends ScalarIMR> gmpes, List<DiscretizedFunc> gmpeSpectrums,
+			DiscretizedFunc avgSpectrum, List<? extends ScalarIMR> gmpes, List<DiscretizedFunc> gmpeSpectrums,
 			List<Double> periods, File outputFile, boolean vel) throws IOException {
 //		writeCSV(site, comp, MCErCalcUtils.saToPsuedoVel(csSpectrum), gmpes, sasToPsuedoVel(gmpeSpectrums),
 //				periods, outputFile);
@@ -38,6 +38,8 @@ public class ProbabilisticResultPlotter {
 			 csSpectrum = MCErCalcUtils.saToPsuedoVel(csSpectrum);
 			 if (gmpeSpectrums != null)
 				 gmpeSpectrums = sasToPsuedoVel(gmpeSpectrums);
+			 if (avgSpectrum != null)
+				 avgSpectrum = MCErCalcUtils.saToPsuedoVel(avgSpectrum);
 			 units = "(cm/s)";
 		}
 		if (gmpes == null) {
@@ -49,6 +51,8 @@ public class ProbabilisticResultPlotter {
 		
 		List<String> header = Lists.newArrayList("Site Short Name", "Run ID", "Component",
 				"Period", "CyberShake RTGM "+units);
+		if (avgSpectrum != null)
+			header.add("Weight Averaged RTGM");
 		for (ScalarIMR gmpe : gmpes) {
 			header.add(gmpe.getShortName()+" Metadata");
 			header.add(gmpe.getShortName()+" RTGM "+units);
@@ -72,6 +76,12 @@ public class ProbabilisticResultPlotter {
 				line.add(csSpectrum.getY(period)+"");
 			else
 				line.add("");
+			if (avgSpectrum != null) {
+				if (avgSpectrum.hasX(period))
+					line.add(avgSpectrum.getY(period)+"");
+				else
+					line.add("");
+			}
 			for (int i=0; i<gmpes.size(); i++) {
 				ComponentTranslation myGMPETrans = gmpeTrans.get(i);
 				if (myGMPETrans == null) {
@@ -96,6 +106,12 @@ public class ProbabilisticResultPlotter {
 	static void plotProbMCEr(CyberShakeSiteRun site, CyberShakeComponent comp, DiscretizedFunc csSpectrum,
 			List<? extends ScalarIMR> gmpes, List<DiscretizedFunc> gmpeSpectrums,
 			List<Double> periods, List<PlotType> plotTypes, boolean velPlot, File outputDir) throws IOException {
+		plotProbMCEr(site, comp, csSpectrum, null, gmpes, gmpeSpectrums, periods, plotTypes, velPlot, outputDir);
+	}
+	
+	static void plotProbMCEr(CyberShakeSiteRun site, CyberShakeComponent comp, DiscretizedFunc csSpectrum,
+			DiscretizedFunc avgSpectrum, List<? extends ScalarIMR> gmpes, List<DiscretizedFunc> gmpeSpectrums,
+			List<Double> periods, List<PlotType> plotTypes, boolean velPlot, File outputDir) throws IOException {
 		String siteName = site.getCS_Site().short_name;
 		
 		String namePrefix = siteName+"_run"+site.getCS_Run().getRunID()+"_RTGM";
@@ -111,7 +127,7 @@ public class ProbabilisticResultPlotter {
 			File outputFile = new File(outputDir, name);
 			switch (type) {
 			case CSV:
-				writeCSV(site, comp, csSpectrum, gmpes, gmpeSpectrums,
+				writeCSV(site, comp, csSpectrum, avgSpectrum, gmpes, gmpeSpectrums,
 						periods, outputFile, velPlot);
 				break;
 			case PDF:

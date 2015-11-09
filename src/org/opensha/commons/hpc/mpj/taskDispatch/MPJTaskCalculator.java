@@ -38,6 +38,9 @@ public abstract class MPJTaskCalculator {
 	private int numThreads;
 	protected boolean shuffle = true;
 	
+	private int startIndex;
+	private int endIndex;
+	
 	private DispatcherThread dispatcher;
 	
 	private static DeadlockDetectionThread deadlock;
@@ -49,6 +52,8 @@ public abstract class MPJTaskCalculator {
 		int minDispatch = MIN_DISPATCH_DEFAULT;
 		int maxDispatch = MAX_DISPATCH_DEFAULT;
 		int exactDispatch = -1;
+		int startIndex = -1;
+		int endIndex = -1;
 		boolean rootDispatchOnly = false;
 		
 		try {
@@ -75,6 +80,12 @@ public abstract class MPJTaskCalculator {
 			deadlock.start();
 		}
 		
+		if (cmd.hasOption("start-index"))
+			startIndex = Integer.parseInt(cmd.getOptionValue("start-index"));
+		
+		if (cmd.hasOption("end-index"))
+			endIndex = Integer.parseInt(cmd.getOptionValue("end-index"));
+		
 		init(numThreads, minDispatch, maxDispatch, exactDispatch, rootDispatchOnly);
 	}
 	
@@ -83,6 +94,11 @@ public abstract class MPJTaskCalculator {
 	}
 	
 	private void init(int numThreads, int minDispatch, int maxDispatch, int exactDispatch, boolean rootDispatchOnly) {
+		init(numThreads, minDispatch, maxDispatch, exactDispatch, rootDispatchOnly, -1, -1);
+	}
+	
+	private void init(int numThreads, int minDispatch, int maxDispatch, int exactDispatch, boolean rootDispatchOnly,
+			int startIndex, int endIndex) {
 		this.rank = MPI.COMM_WORLD.Rank();
 		this.size = MPI.COMM_WORLD.Size();
 		this.numThreads = numThreads;
@@ -90,6 +106,9 @@ public abstract class MPJTaskCalculator {
 		this.maxDispatch = maxDispatch;
 		this.exactDispatch = exactDispatch;
 		this.rootDispatchOnly = rootDispatchOnly;
+		
+		this.startIndex = startIndex;
+		this.endIndex = endIndex;
 	}
 	
 	protected int getNumThreads() {
@@ -103,10 +122,12 @@ public abstract class MPJTaskCalculator {
 	protected static void debug(int rank, String hostname, String message) {
 		if (!D)
 			return;
+		System.out.flush();
 		if (hostname == null)
 			System.out.println("["+df.format(new Date())+" Process "+rank+"]: "+message);
 		else
 			System.out.println("["+df.format(new Date())+" ("+hostname+") Process "+rank+"]: "+message);
+		System.out.flush();
 	}
 	
 	protected abstract int getNumTasks();
@@ -114,8 +135,12 @@ public abstract class MPJTaskCalculator {
 	public void run() throws IOException, InterruptedException {
 		if (rank == 0) {
 			// launch the dispatcher
+			if (startIndex < 0)
+				startIndex = 0;
+			if (endIndex < 0)
+				endIndex = getNumTasks();
 			dispatcher = new DispatcherThread(size, getNumTasks(),
-					minDispatch, maxDispatch, exactDispatch, shuffle);
+					minDispatch, maxDispatch, exactDispatch, shuffle, startIndex, endIndex);
 			if (rootDispatchOnly) {
 				debug("starting dispatcher serially");
 				dispatcher.run();
@@ -226,6 +251,16 @@ public abstract class MPJTaskCalculator {
 				"If supplied, dedlock detection will be enabled (no recovery, however).");
 		deadlockOption.setRequired(false);
 		ops.addOption(deadlockOption);
+		
+		Option startIndexOption = new Option("start", "start-index", true, "If supplied, will calculate tasks starting at the"
+				+ " given index, includsive. Default is zero.");
+		startIndexOption.setRequired(false);
+		ops.addOption(startIndexOption);
+		
+		Option endIndexOption = new Option("end", "end-index", true, "If supplied, will calculate tasks up until the"
+				+ " given index, excludsive. Default is the number of tasks.");
+		endIndexOption.setRequired(false);
+		ops.addOption(endIndexOption);
 		
 		return ops;
 	}

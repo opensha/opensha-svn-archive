@@ -104,7 +104,8 @@ public class DurationLogPlotter {
 			deltaSecsMap.put(index, diffSecs);
 		}
 		
-		HistogramFunction hist = new HistogramFunction(0.5, 100, 1d);
+//		HistogramFunction hist = new HistogramFunction(0.5, 100, 1d);
+		HistogramFunction hist = new HistogramFunction(0.5, 1000, 1d);
 		
 		double[] vals = new double[deltaSecsMap.size()];
 		int cnt = 0;
@@ -152,10 +153,11 @@ public class DurationLogPlotter {
 	public static void main(String[] args) throws IOException {
 		
 		File[] logFiles = {
-						new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/"
-								+ "2015_05_13-mojave_7.pbs.o5290046"),
-						new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_10-mojave_7/"
-								+ "2015_06_10-mojave_7.pbs.o5388265")
+//						new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/"
+//								+ "2015_05_13-mojave_7.pbs.o5290046"),
+//						new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_06_10-mojave_7/"
+//								+ "2015_06_10-mojave_7.pbs.o5388265")
+//						new File("/tmp/2015_11_04-spontaneous-1000yr-full_td-maxChar10.0-noApplyLTR.pbs.o5997982")
 		};
 		
 //		File logFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2015_05_13-mojave_7/"

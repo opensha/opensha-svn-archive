@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.stat.StatUtils;
@@ -50,6 +51,7 @@ import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -104,6 +106,91 @@ public class PureScratch {
 		gw.setAxisRange(xy.getMinX(), xy.getMaxX(), xy.getMinY(), xy.getMaxY());
 		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
 	}
+	
+	private static void test2() throws IOException, DocumentException {
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		HashSet<Integer> parents = new HashSet(FaultModels.FM3_1.getNamedFaultsMapAlt().get("San Andreas"));
+		
+		Region soCal = new CaliforniaRegions.RELM_SOCAL();
+		
+		Map<Integer, Boolean> safSectsInSoCal = Maps.newHashMap();
+		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+			FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
+			if (!parents.contains(sect.getParentSectionId()))
+				continue;
+			boolean inside = false;
+			for (Location loc : sect.getFaultTrace()) {
+				if (soCal.contains(loc)) {
+					inside = true;
+					break;
+				}
+			}
+			safSectsInSoCal.put(sectIndex, inside);
+//			System.out.println(sect.getName()+": "+inside);
+		}
+		
+		int numSAF = 0;
+		int numPartiallySAFSoCal = 0;
+		int numOnlySAFSoCal = 0;
+		rupLoop:
+		for (int rupIndex = 0; rupIndex<rupSet.getNumRuptures(); rupIndex++) {
+			for (int parent : rupSet.getParentSectionsForRup(rupIndex)) {
+				if (!parents.contains(parent))
+					continue rupLoop;
+			}
+			numSAF++;
+			boolean partial = false;
+			boolean only = true;
+			for (int sectIndex : rupSet.getSectionsIndicesForRup(rupIndex)) {
+				boolean inside = safSectsInSoCal.get(sectIndex);
+				partial = partial || inside;
+				only = only && inside;
+			}
+			if (partial)
+				numPartiallySAFSoCal++;
+			if (only)
+				numOnlySAFSoCal++;
+		}
+		
+		System.out.println(numSAF+"/"+rupSet.getNumRuptures()+" ruputures are only on SAF");
+		System.out.println(numPartiallySAFSoCal+" of those are at least partially in SoCal");
+		System.out.println(numOnlySAFSoCal+" of those are entirely in SoCal");
+	}
+	
+	private static void test3() throws IOException, DocumentException {
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		Region region = new CaliforniaRegions.SF_BOX();
+		
+		Map<String, Integer> parentsInBox = Maps.newHashMap();
+		
+		for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+			FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
+			boolean inside = false;
+			for (Location loc : sect.getFaultTrace()) {
+				if (region.contains(loc)) {
+					inside = true;
+					break;
+				}
+			}
+			if (inside)
+				parentsInBox.put(sect.getParentSectionName(), sect.getParentSectionId());
+//			System.out.println(sect.getName()+": "+inside);
+		}
+		
+		List<String> names = Lists.newArrayList(parentsInBox.keySet());
+		Collections.sort(names);
+		
+		for (String name : names)
+			System.out.println(parentsInBox.get(name)+". "+name);
+	}
 
 	/**
 	 * @param args
@@ -111,7 +198,8 @@ public class PureScratch {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		test1();
+//		test1();
+		test3();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

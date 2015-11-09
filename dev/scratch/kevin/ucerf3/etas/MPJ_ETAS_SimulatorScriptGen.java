@@ -28,7 +28,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
-		double duration = 1;
+		double duration = 1000;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -37,18 +37,21 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
-				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
+//				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
-//		TestScenario[] scenarios = { null };
+		TestScenario[] scenarios = { null };
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
-				U3ETAS_ProbabilityModelOptions.NO_ERT};
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
+//				U3ETAS_ProbabilityModelOptions.NO_ERT};
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
+		boolean[] grCorrs = { false };
 //		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
-		double[] maxCharFactors = { 10 };
+//		double[] maxCharFactors = { 10 };
+		boolean applyLongTermRates = false;
 		
 		String nameAdd = null;
 //		String nameAdd = "launch-debug";
@@ -65,6 +68,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			nodes = 15;
 			mins = 24*60;
 			Preconditions.checkState(!smallTest);
+			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);
 		} else {
 			histCatalog = false;
 			startYear = 2014;
@@ -91,7 +95,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 		boolean timeIndep = false;
 		
-		boolean binary = numSims > 1000;
+		boolean binary = numSims > 1000 || duration > 200;
 		
 		int memGigs;
 		int ppn;
@@ -150,13 +154,22 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					scenarioName += "-"+(float)duration+"yr";
 			}
 			for (U3ETAS_ProbabilityModelOptions probModel : probModels) {
-				for (double maxCharFactor : maxCharFactors) {
+//				for (double maxCharFactor : maxCharFactors) {
+				for (boolean grCorr : grCorrs) {
+					String grStr;
+					if (grCorr)
+						grStr = "-grCorr";
+					else
+						grStr = "";
 					String jobName = dateStr+"-"+scenarioName;
 					if (nameAdd != null && !nameAdd.isEmpty())
 						jobName += "-"+nameAdd;
-					jobName += "-"+probModel.name().toLowerCase()+"-maxChar"+(float)maxCharFactor;
+//					jobName += "-"+probModel.name().toLowerCase()+"-maxChar"+(float)maxCharFactor;
+					jobName += "-"+probModel.name().toLowerCase()+grStr;
 					if (timeIndep)
 						jobName += "-indep";
+					if (!applyLongTermRates)
+						jobName += "-noApplyLTR";
 					
 					File localJobDir = new File(localDir, jobName);
 					if (!localJobDir.exists())
@@ -186,7 +199,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					
 					argz += " --prob-model "+probModel.name();
 					
-					argz += " --max-char-factor "+maxCharFactor;
+//					argz += " --max-char-factor "+maxCharFactor;
+					if (grCorr)
+						argz += " --impose-gr";
+					
+					argz += " --apply-long-term-rates "+applyLongTermRates;
 					
 					if (timeIndep)
 						argz += " --indep";

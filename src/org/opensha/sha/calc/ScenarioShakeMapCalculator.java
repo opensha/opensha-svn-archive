@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.opensha.commons.data.Site;
@@ -95,8 +96,8 @@ public class ScenarioShakeMapCalculator {
 	 * @param value : the IML or Prob to compute the map for.
 	 * @return the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
 	 */
-	public GeoDataSet getScenarioShakeMapData(ArrayList<AttenuationRelationship> selectedAttenRels,
-			ArrayList<Double> attenRelWts,
+	public GeoDataSet getScenarioShakeMapData(List<AttenuationRelationship> selectedAttenRels,
+			List<Double> attenRelWts,
 			Iterable<Site> sites,
 			EqkRupture rupture,
 			boolean isProbAtIML,double value) throws ParameterException {

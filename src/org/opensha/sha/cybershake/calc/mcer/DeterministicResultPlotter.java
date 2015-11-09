@@ -242,6 +242,12 @@ public class DeterministicResultPlotter {
 	static void writeCSV(List<Double> periods, List<DeterministicResult> csDeterms,
 			List<? extends ScalarIMR> gmpes, List<List<DeterministicResult>> gmpeDeterms,
 			File outputFile, boolean vel) throws IOException {
+		writeCSV(periods, csDeterms, null, gmpes, gmpeDeterms, outputFile, vel);
+	}
+	
+	static void writeCSV(List<Double> periods, List<DeterministicResult> csDeterms, List<DeterministicResult> avgDeterms,
+			List<? extends ScalarIMR> gmpes, List<List<DeterministicResult>> gmpeDeterms,
+			File outputFile, boolean vel) throws IOException {
 		String units = "(g)";
 		if (vel) {
 			units = "(cm/s)";
@@ -252,6 +258,8 @@ public class DeterministicResultPlotter {
 					velGMPEDeterms.add(DeterministicResult.getPsuedoVels(gmpeDeterm, periods));
 				gmpeDeterms = velGMPEDeterms;
 			}
+			if (avgDeterms != null)
+				avgDeterms = DeterministicResult.getPsuedoVels(avgDeterms, periods);
 		}
 		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList();
@@ -261,6 +269,10 @@ public class DeterministicResultPlotter {
 			header.add("CyberShake Rup ID");
 			header.add("CyberShake Name");
 			header.add("CyberShake Value "+units);
+		}
+		if (avgDeterms != null) {
+			header.add("Weight Averaged Value");
+			Preconditions.checkState(avgDeterms.size() == periods.size());
 		}
 		if (gmpes == null)
 			gmpes = Lists.newArrayList();
@@ -295,6 +307,10 @@ public class DeterministicResultPlotter {
 					line.add(csDeterm.getSourceName()+" (M="+(float)csDeterm.getMag()+")");
 					line.add(csDeterm.getVal()+"");
 				}
+			}
+			if (avgDeterms != null) {
+				DeterministicResult avgDeterm = avgDeterms.get(i);
+				line.add(avgDeterm.getVal()+"");
 			}
 			for (int j=0; j<gmpes.size(); j++) {
 				DeterministicResult detVal = gmpeDeterms.get(j).get(i);

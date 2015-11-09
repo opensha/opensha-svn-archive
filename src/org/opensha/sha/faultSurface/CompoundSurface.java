@@ -468,7 +468,14 @@ public class CompoundSurface implements RuptureSurface, CacheEnabledSurface {
 			upperEdge = new FaultTrace(null);
 			if(reverseOrderOfSurfaces) {
 				for(int s=surfaces.size()-1; s>=0;s--) {
-					FaultTrace trace = surfaces.get(s).getUpperEdge();
+					FaultTrace trace;
+					try {
+						trace = surfaces.get(s).getUpperEdge();
+					} catch (RuntimeException e) {
+						// some surfaces don't support getUpperEdge in some circumstances,
+						// so revert to evenly discretized upper if needed
+						trace = surfaces.get(s).getEvenlyDiscritizedUpperEdge();
+					}
 					if(reverseSurfTrace[s]) {
 						for(int i=0; i<trace.size();i++)
 							upperEdge.add(trace.get(i));
@@ -481,7 +488,14 @@ public class CompoundSurface implements RuptureSurface, CacheEnabledSurface {
 			}
 			else { // don't reverse order of surfaces
 				for(int s=0; s<surfaces.size();s++) {
-					FaultTrace trace = surfaces.get(s).getUpperEdge();
+					FaultTrace trace;
+					try {
+						// some surfaces don't support getUpperEdge in some circumstances,
+						// so revert to evenly discretized upper if needed
+						trace = surfaces.get(s).getUpperEdge();
+					} catch (RuntimeException e) {
+						trace = surfaces.get(s).getEvenlyDiscritizedUpperEdge();
+					}
 					if(reverseSurfTrace[s]) {
 						for(int i=trace.size()-1; i>=0;i--)
 							upperEdge.add(trace.get(i));

@@ -34,6 +34,7 @@ import scratch.UCERF3.utils.MatrixIO;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.SynchIdens;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
@@ -363,6 +364,12 @@ public class SimulatorMomRateVarCalc {
 			for (EventRecord r : e)
 				m += r.getMoment();
 			
+//			if (i == 1000) {
+//				System.out.println("Debug for event "+i+" with moment "+m);
+//				System.out.println("Event time: "+t);
+//				System.out.println("Mapped to year "+years[index]+" at index "+index);
+//			}
+			
 			for (int j=0; j<taper.length; j++) {
 				int yearIndex = taperStart + j;
 				if (yearIndex < 0)
@@ -371,6 +378,10 @@ public class SimulatorMomRateVarCalc {
 					break;
 				
 				momRates[yearIndex] += m*taper[j];
+//				if (i == 1000) {
+//					System.out.println("\tAdding "+m*taper[j]+" moment to year "
+//							+years[yearIndex]+" at index "+yearIndex);
+//				}
 			}
 		}
 		
@@ -491,6 +502,21 @@ public class SimulatorMomRateVarCalc {
 			ret[i] /= sum;
 		
 //		System.out.println("Window has sum="+StatUtils.sum(ret));
+		
+		return ret;
+	}
+	
+	public static double[] getOnlyBeforeWindowTaper(int windowLenBefore) {
+		double[] ret = new double[windowLenBefore*2+1];
+//		for (int i=0; i<=windowLenBefore; i++)
+		for (int i=windowLenBefore+1; i<ret.length; i++)
+			ret[i] = 1d;
+		
+		double sum = StatUtils.sum(ret);
+		for (int i=0; i<ret.length; i++)
+			ret[i] /= sum;
+		
+		System.out.println(Joiner.on(",").join(Doubles.asList(ret)));
 		
 		return ret;
 	}

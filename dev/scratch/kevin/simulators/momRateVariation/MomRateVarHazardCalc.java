@@ -1,16 +1,21 @@
 package scratch.kevin.simulators.momRateVariation;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
@@ -18,8 +23,10 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.FaultUtils;
@@ -38,6 +45,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -71,46 +79,113 @@ public class MomRateVarHazardCalc {
 		List<EQSIM_Event> events = loader.getEvents();
 		List<RectangularElement> elements = loader.getElements();
 		
-		double totalDurationYears = events.get(events.size()-1).getTimeInYears()
-				- events.get(0).getTimeInYears();
+//		int windowLen = 75;
+//		int windowLen = 25;
+//		boolean before = false;
 		
-		double[] hazard_durations = { 5d, 30d, 50d, 75d };
-		double hazardMinMag = 5.5d;
+		int windowLen = 100;
+		boolean before = true;
 		
-		int offset = 5;
+		double[] taper;
+		if (before)
+			taper = SimulatorMomRateVarCalc.getOnlyBeforeWindowTaper(windowLen);
+		else
+			taper = SimulatorMomRateVarCalc.buildHanningTaper(windowLen);
 		
-		int windowLen = 75;
-		double upperMomRate = 1.5e19;
-		double lowerMomRate = 9e18;
-		double[] taper = SimulatorMomRateVarCalc.buildHanningTaper(windowLen);
-		
-		double startYear = events.get(0).getTimeInYears();
+		double startYear = events.get(0).getTimeInYears() + windowLen;
 		double endYear = events.get(events.size()-1).getTimeInYears();
-		
-		int numAbove = 0;
-		int numBelow = 0;
-		int numBetween = 0;
-		int numYears = 0;
 		
 		List<Double> yearsList = Lists.newArrayList();
 		for (double year=startYear+windowLen; year<endYear-windowLen; year+=1d)
 			yearsList.add(year);
 		double[] years = Doubles.toArray(yearsList);
 		double[] momRates;
-		State[] states = new State[years.length];
 		
-		File momRateFile = new File(outputDir, "mom_rates"+"_taper"+windowLen+"yr_"+years.length+"yrs.bin");
+		String beforeStr = "";
+		if (before)
+			beforeStr = "_before";
+		File momRateFile = new File(outputDir,
+				"mom_rates"+"_taper"+windowLen+"yr"+beforeStr+"_"+years.length+"yrs.bin");
 		if (momRateFile.exists()) {
 			momRates = MatrixIO.doubleArrayFromFile(momRateFile);
 			Preconditions.checkState(momRates.length == years.length);
 		} else {
-//			momRates = new double[years.length];
-//			for (int i=0; i<years.length; i++)
-//				momRates[i] = SimulatorMomRateVarCalc.calcWindowedMomentRate(
-//						events, windowLen, years[i], taper, twoWay);
 			momRates = SimulatorMomRateVarCalc.calcTaperedMomRates(events, years, taper);
 			MatrixIO.doubleArrayToFile(momRates, momRateFile);
 		}
+		if (before) {
+			int startIndex = 0;
+			ArbitrarilyDiscretizedFunc origFunc = new ArbitrarilyDiscretizedFunc();
+			ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+			for (int i=0; i<years.length; i++) {
+				double endTime = years[i];
+				double startTime = endTime-windowLen;
+				
+				if (i < 1000)
+					origFunc.set(endTime, momRates[i]);
+				
+				momRates[i] = 0;
+				
+				for (int j=startIndex; j<events.size(); j++) {
+					EQSIM_Event e = events.get(j);
+					double t = e.getTimeInYears();
+					if (t < startTime) {
+						startIndex = j;
+						continue;
+					}
+					if (t > endTime)
+						break;
+					for (EventRecord rec : e)
+						momRates[i] += rec.getMoment();
+				}
+				
+				momRates[i] /= windowLen;
+				if (i < 1000)
+					newFunc.set(endTime, momRates[i]);
+			}
+//			List<PlotElement> funcs = Lists.newArrayList();
+//			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+//			funcs.add(origFunc);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+//			funcs.add(newFunc);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+//			DefaultXY_DataSet xy = new DefaultXY_DataSet();
+//			for (EQSIM_Event e : events) {
+//				if (e.getMagnitude() < 7d)
+//					continue;
+//				double t = e.getTimeInYears();
+//				if (t < years[0])
+//					continue;
+//				if (t > years[1000])
+//					break;
+//				xy.set(t, (e.getMagnitude()-6)*1e19);
+//			}
+//			funcs.add(xy);
+//			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
+//			new GraphWindow(funcs, "Test", chars);
+		}
+		
+//		double[] hazard_durations = { 5d, 30d, 50d, 75d };
+//		double hazardMinMag = 5.5d;
+//		doHazardCalc(outputDir, events, elements, hazard_durations,
+//				hazardMinMag, years, momRates);
+		
+		double[] durations = { 1d, 5d, 10d, 15d, 30d, 50d, 100d };
+		doEventRateCalc(events, years, momRates, 7d, durations);
+	}
+
+	private static void doHazardCalc(File outputDir, List<EQSIM_Event> events,
+			List<RectangularElement> elements, double[] hazard_durations,
+			double hazardMinMag, double[] years, double[] momRates)
+			throws IOException {
+		double upperMomRate = 1.5e19;
+		double lowerMomRate = 9e18;
+		int numAbove = 0;
+		int numBelow = 0;
+		int numBetween = 0;
+		int numYears = 0;
+		
+		State[] states = new State[years.length];
 		
 		for (int i=0; i<years.length; i++) {
 			if (momRates[i] > upperMomRate) {
@@ -318,6 +393,114 @@ public class MomRateVarHazardCalc {
 		func = HazardCurveSetCalculator.unLogFunction(xVals, func);
 		
 		return func;
+	}
+	
+	private static void doEventRateCalc(List<EQSIM_Event> events, double[] years,
+			double[] moRates, double minMag, double[] durations) {
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		int colorIndex = 0;
+		
+		for (double duration : durations) {
+			DiscretizedFunc hist = calcEventRatesForMomRates(events, years, moRates, minMag, duration);
+			hist.setName((int)duration+"yr");
+			funcs.add(hist);
+			if (colorIndex == colors.size())
+				colorIndex = 0;
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(colorIndex++)));
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Event Rates vs Moment Rates",
+				"Moment Rate Before", "Rate M>="+(double)minMag+" Following");
+		spec.setLegendVisible(true);
+		GraphWindow gw = new GraphWindow(spec);
+		gw.setXLog(true);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		
+		// now gain func
+		int countAbove = 0;
+		for (EQSIM_Event e : events)
+			if (e.getMagnitude() >= minMag)
+				countAbove++;
+		double simDuration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
+		double rateAbove = (double)countAbove/simDuration;
+		
+		List<DiscretizedFunc> gainFuncs = Lists.newArrayList();
+		for (int i=0; i<durations.length; i++) {
+			double duration = durations[i];
+			DiscretizedFunc countFunc = funcs.get(i);
+			DiscretizedFunc gainFunc = new ArbitrarilyDiscretizedFunc();
+			gainFunc.setName(countFunc.getName());
+			
+			for (Point2D pt : countFunc) {
+				double count = pt.getY();
+				double myRate = count/duration;
+				double gain = myRate/rateAbove;
+				gainFunc.set(pt.getX(), gain);
+			}
+			
+			gainFuncs.add(gainFunc);
+		}
+		
+		spec = new PlotSpec(gainFuncs, chars, "Event Rate Gain vs Moment Rates",
+				"Moment Rate Before", "Rate Gain M>="+(double)minMag+" Following");
+		spec.setLegendVisible(true);
+		gw = new GraphWindow(spec);
+		gw.setXLog(true);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+	}
+	
+	private static ArbitrarilyDiscretizedFunc calcEventRatesForMomRates(
+			List<EQSIM_Event> events, double[] years, double[] moRates, double minMag, double durationYears) {
+		Preconditions.checkArgument(moRates.length == years.length);
+		
+		double maxMoRate = StatUtils.max(moRates);
+		double minMoRate = StatUtils.min(moRates);
+		Preconditions.checkState(minMoRate > 0d, "Cannot have mo rate of zero");
+		
+		// bin in Log10 space
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(
+				Math.log10(minMoRate), Math.log10(maxMoRate), 0.1);
+		int[] binCounts = new int[hist.size()];
+		
+		int startEventIndex = 0;
+		
+		for (int i=0; i<years.length; i++) {
+			double moRate = moRates[i];
+			int xIndex = hist.getClosestXIndex(Math.log10(moRate));
+			binCounts[xIndex]++;
+			
+			double startYear = years[i];
+			double endYear = startYear + durationYears;
+			
+			for (int j=startEventIndex; j<events.size(); j++) {
+				EQSIM_Event e = events.get(j);
+				double t = e.getTimeInYears();
+				if (t < startYear) {
+					startEventIndex = j;
+					continue;
+				}
+				if (t > endYear)
+					break;
+				if (e.getMagnitude() >= minMag) {
+					hist.add(xIndex, 1d);
+				}
+			}
+		}
+		
+		for (int i=0; i<hist.size(); i++)
+			if (binCounts[i] > 0)
+				hist.set(i, hist.getY(i)/(double)binCounts[i]);
+		
+		// now go back to linear space
+		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+		for (int i=0; i<hist.size(); i++)
+			if (binCounts[i] >= 10)
+				ret.set(Math.pow(10d, hist.getX(i)), hist.getY(i));
+		
+		return ret;
 	}
 
 }

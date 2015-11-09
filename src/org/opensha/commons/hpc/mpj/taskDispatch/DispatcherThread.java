@@ -25,7 +25,7 @@ public class DispatcherThread extends Thread {
 	private Deque<Integer> stack;
 	
 	public DispatcherThread(int size, int numTasks, int minPerDispatch, int maxPerDispatch,
-			int exactDispatch, boolean shuffle) {
+			int exactDispatch, boolean shuffle, int startIndex, int endIndex) {
 		this.size = size;
 		this.minPerDispatch = minPerDispatch;
 		this.maxPerDispatch = maxPerDispatch;
@@ -34,12 +34,18 @@ public class DispatcherThread extends Thread {
 		Preconditions.checkArgument(minPerDispatch >= 1, "min per dispatch must be >= 1");
 		Preconditions.checkArgument(size >= 1, "size must be >= 1");
 		Preconditions.checkArgument(numTasks >= 1, "num sites must be >= 1");
+		Preconditions.checkState(startIndex >= 0 && startIndex < numTasks,
+				"Start index must be >= 0 and less than the number of tasks.");
+		Preconditions.checkState(endIndex > 0 && endIndex <= numTasks && endIndex > startIndex,
+				"End index must be > 0, greater than startIndex, and less than or equal to the number of tasks.");
 		
 		debug("starting with "+size+" processes and "+numTasks+" sites." +
 				" minPerDispatch="+minPerDispatch+", maxPerDispatch="+maxPerDispatch);
+		if (startIndex > 0 || endIndex < numTasks)
+			debug("startIndex="+startIndex+", endIndex="+endIndex);
 		
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		for (int i=0; i<numTasks; i++)
+		for (int i=startIndex; i<endIndex; i++)
 			list.add(i);
 		
 		if (shuffle) {

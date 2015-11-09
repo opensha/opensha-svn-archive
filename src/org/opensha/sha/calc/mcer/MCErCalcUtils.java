@@ -24,6 +24,12 @@ public class MCErCalcUtils {
 		sa *= HazardCurveComputation.CONVERSION_TO_G; // convert to cm/sec^2
 		return (period/MCErCalcUtils.twoPi)*sa;
 	}
+	
+	public static double psuedoVelToSA(double psv, double period) {
+		double sa = MCErCalcUtils.twoPi*psv/period;
+		sa /= HazardCurveComputation.CONVERSION_TO_G; // convert to g
+		return sa;
+	}
 
 	private static final double twoPi = 2d*Math.PI;
 

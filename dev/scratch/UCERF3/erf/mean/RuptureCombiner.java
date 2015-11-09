@@ -853,7 +853,7 @@ public class RuptureCombiner {
 		Preconditions.checkState((float)val1 == (float)val2, message+" ("+(float)val1+" != "+(float)val2+")");
 	}
 	
-	private static class SubsetSolution extends FaultSystemSolution {
+	public static class SubsetSolution extends FaultSystemSolution {
 		public SubsetSolution(FaultSystemSolution sol, List<Integer> rups) {
 			super(new SubsetRupSet(sol.getRupSet(), rups), getSubArray(sol.getRateForAllRups(), rups));
 			setRupMagDists(getSubArray(sol.getRupMagDists(), rups));

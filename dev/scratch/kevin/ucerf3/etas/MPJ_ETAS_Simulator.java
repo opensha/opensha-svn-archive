@@ -44,6 +44,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ApplyLongTermRatesInSamplingParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
@@ -86,6 +87,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private boolean includeSpontEvents = true;
 	private boolean includeIndirectTriggering = true;
 	private double gridSeisDiscr = 0.1;
+	private boolean applyLongTermRates = ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT;
 	
 	private boolean timeIndep = false;
 	
@@ -95,7 +97,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private ETAS_EqkRupture triggerRup;
 	
 	private U3ETAS_ProbabilityModelOptions probModel = U3ETAS_ProbabilityModelParam.DEFAULT;
-	private double maxCharFactor = U3ETAS_MaxCharFactorParam.DEFAULT_VALUE;
+	private boolean imposeGR = false;
 	
 	private static final int START_YEAR_DEFAULT = 2014;
 	private int startYear = START_YEAR_DEFAULT;
@@ -125,11 +127,13 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		timeIndep = cmd.hasOption("indep");
 		
-		if (cmd.hasOption("max-char-factor"))
-			maxCharFactor = Double.parseDouble(cmd.getOptionValue("max-char-factor"));
+		imposeGR = cmd.hasOption("impose-gr");
 		
 		if (cmd.hasOption("prob-model"))
 			probModel = U3ETAS_ProbabilityModelOptions.valueOf(cmd.getOptionValue("prob-model"));
+		
+		if (cmd.hasOption("apply-long-term-rates"))
+			applyLongTermRates = Boolean.parseBoolean(cmd.getOptionValue("apply-long-term-rates"));
 		
 		binaryOutput = cmd.hasOption("binary");
 		
@@ -466,8 +470,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 					randSeed = System.currentTimeMillis();
 
 				ETAS_ParameterList params = new ETAS_ParameterList();
-				params.setMaxCharFactor(maxCharFactor);
+				params.setImposeGR(imposeGR);
 				params.setU3ETAS_ProbModel(probModel);
+				params.setApplyLongTermRates(applyLongTermRates);
 				
 				if (rank == 0) {
 					synchronized (MPJ_ETAS_Simulator.class) {
@@ -709,14 +714,19 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		probModel.setRequired(false);
 		ops.addOption(probModel);
 		
-//		Option imposeGROption = new Option("gr", "impose-gr", false, "Impose G-R.");
-//		imposeGROption.setRequired(false);
-//		ops.addOption(imposeGROption);
+		Option imposeGROption = new Option("gr", "impose-gr", false, "Impose G-R.");
+		imposeGROption.setRequired(false);
+		ops.addOption(imposeGROption);
 		
-		Option maxCharOption = new Option("mc", "max-char-factor", true, "Max characteristic factor allowed"
-				+ " on a fault section. Default: "+U3ETAS_MaxCharFactorParam.DEFAULT_VALUE);
-		maxCharOption.setRequired(false);
-		ops.addOption(maxCharOption);
+//		Option maxCharOption = new Option("mc", "max-char-factor", true, "Max characteristic factor allowed"
+//				+ " on a fault section. Default: "+U3ETAS_MaxCharFactorParam.DEFAULT_VALUE);
+//		maxCharOption.setRequired(false);
+//		ops.addOption(maxCharOption);
+		
+		Option applyLongTermOption = new Option("ltr", "apply-long-term-rates", true, "Flag to apply/disable long"
+				+ " term rates (true/false). Default: "+ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT);
+		applyLongTermOption.setRequired(false);
+		ops.addOption(applyLongTermOption);
 		
 		Option binaryOption = new Option("b", "binary", false, "Enables binary output. Default is ASCII.");
 		binaryOption.setRequired(false);
