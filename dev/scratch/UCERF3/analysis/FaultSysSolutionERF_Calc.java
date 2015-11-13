@@ -687,6 +687,58 @@ public class FaultSysSolutionERF_Calc {
 
 	
 	/**
+	 * Same as calcNucleationRateAboveMagForAllSects but for participation rates
+	 * @param erf
+	 * @param min, max, and num (MFD discretization values)
+	 * @return
+	 */
+	public static SummedMagFreqDist[] calcParticipationMFDForAllSects(FaultSystemSolutionERF erf, double min,double max,int num) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		
+		SummedMagFreqDist[] mfdArray = new SummedMagFreqDist[rupSet.getNumSections()];
+		for(int i=0;i<mfdArray.length;i++) {
+			mfdArray[i] = new SummedMagFreqDist(min,max,num);
+		}
+		double duration = erf.getTimeSpan().getDuration();
+		
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			SummedMagFreqDist srcMFD = ERF_Calculator.getTotalMFD_ForSource(erf.getSource(s), duration, min, max, num, true);
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			for(int sectIndex : rupSet.getSectionsIndicesForRup(fssRupIndex)) {
+				for(int i=0;i<num;i++)
+					mfdArray[sectIndex].add(i,srcMFD.getY(i));
+			}
+		}
+		return mfdArray;
+	}
+	
+	/**
+	 * Calculates participation rate above the given magnitude for all sections
+	 * @param erf
+	 * @param minMag
+	 * @return
+	 */
+	public static double[] calcParticipationRateForAllSects(FaultSystemSolutionERF erf, double minMag) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		double[] rates = new double[rupSet.getNumSections()];
+		double duration = erf.getTimeSpan().getDuration();
+
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			for (ProbEqkRupture rup : erf.getSource(s)) {
+				if (rup.getMag() >= minMag) {
+					double rate = rup.getMeanAnnualRate(duration);
+					for(int sectIndex : rupSet.getSectionsIndicesForRup(fssRupIndex))
+						rates[sectIndex] += rate;
+				}
+			}
+		}
+		return rates;
+	}
+
+	
+	/**
 	 * This computes fault section nuclation MFD, accounting for any applied time dependence, aleatory mag-area 
 	 * uncertainty, and smaller ruptures set to zero in the ERF (which is how this differs from 
 	 * InversionFaultSystemSolution.calcNucleationRateForAllSects(*)), and assuming a uniform distribution

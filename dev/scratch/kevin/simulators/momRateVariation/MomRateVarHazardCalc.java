@@ -16,6 +16,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.UncertainArbDiscDataset;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
@@ -171,7 +172,9 @@ public class MomRateVarHazardCalc {
 //				hazardMinMag, years, momRates);
 		
 		double[] durations = { 1d, 5d, 10d, 15d, 30d, 50d, 100d };
-		doEventRateCalc(events, years, momRates, 7d, durations);
+//		doEventRateCalc(events, years, momRates, 7d, durations);
+		
+		doMomRateCalc(events, years, momRates, durations, windowLen);
 	}
 
 	private static void doHazardCalc(File outputDir, List<EQSIM_Event> events,
@@ -501,6 +504,129 @@ public class MomRateVarHazardCalc {
 				ret.set(Math.pow(10d, hist.getX(i)), hist.getY(i));
 		
 		return ret;
+	}
+	
+	private static void doMomRateCalc(List<EQSIM_Event> events, double[] years,
+			double[] moRates, double[] durations, int durationBefore) {
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		int colorIndex = 0;
+		
+		for (double duration : durations) {
+			DiscretizedFunc hist = calcMomRatesForMomRates(events, years, moRates, duration);
+			hist.setName((int)duration+"yr");
+			funcs.add(hist);
+			if (colorIndex == colors.size())
+				colorIndex = 0;
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get(colorIndex++)));
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SHADED_UNCERTAIN_TRANS, 2f, colors.get(colorIndex++)));
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "Moment Rate Before/After",
+				"Moment Rate for "+durationBefore+"yrs Before", "Moment Rate Following");
+		spec.setLegendVisible(true);
+		GraphWindow gw = new GraphWindow(spec);
+		gw.setXLog(true);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		
+		List<DiscretizedFunc> gainFuncs = Lists.newArrayList();
+		for (int i=0; i<durations.length; i++) {
+			DiscretizedFunc countFunc = funcs.get(i);
+			DiscretizedFunc gainFunc = new ArbitrarilyDiscretizedFunc();
+			gainFunc.setName(countFunc.getName());
+			
+			for (Point2D pt : countFunc) {
+				double gain = pt.getY()/pt.getX();
+				gainFunc.set(pt.getX(), gain);
+			}
+			
+			gainFuncs.add(gainFunc);
+		}
+		
+		spec = new PlotSpec(gainFuncs, chars, "Event Rate Gain vs Moment Rates",
+				"Moment Rate for "+durationBefore+"yrs Before", "Moment Rate Gain Following");
+		spec.setLegendVisible(true);
+		gw = new GraphWindow(spec);
+		gw.setXLog(true);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+	}
+	
+	private static UncertainArbDiscDataset calcMomRatesForMomRates(
+			List<EQSIM_Event> events, double[] years, double[] moRates, double durationYears) {
+		Preconditions.checkArgument(moRates.length == years.length);
+		
+		double maxMoRate = StatUtils.max(moRates);
+		double minMoRate = StatUtils.min(moRates);
+		Preconditions.checkState(minMoRate > 0d, "Cannot have mo rate of zero");
+		
+		// bin in Log10 space
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(
+				Math.log10(minMoRate), Math.log10(maxMoRate), 0.1);
+		List<List<Double>> momRateAfters = Lists.newArrayList();
+		for (int i=0; i<hist.size(); i++)
+			momRateAfters.add(new ArrayList<Double>());
+		
+		int startEventIndex = 0;
+		
+		for (int i=0; i<years.length; i++) {
+			double moRate = moRates[i];
+			int xIndex = hist.getClosestXIndex(Math.log10(moRate));
+			
+			double startYear = years[i];
+			double endYear = startYear + durationYears;
+			
+			double momentAfter = 0d;
+			
+			for (int j=startEventIndex; j<events.size(); j++) {
+				EQSIM_Event e = events.get(j);
+				double t = e.getTimeInYears();
+				if (t < startYear) {
+					startEventIndex = j;
+					continue;
+				}
+				if (t > endYear)
+					break;
+				for (EventRecord rec : e)
+					momentAfter += rec.getMoment();
+			}
+//			hist.add(xIndex, momentAfter/durationYears);
+			momRateAfters.get(xIndex).add(momentAfter/durationYears);
+		}
+//		
+//		for (int i=0; i<hist.size(); i++)
+//			if (binCounts[i] > 0)
+//				hist.set(i, hist.getY(i)/(double)binCounts[i]);
+//		
+//		// now go back to linear space
+//		ArbitrarilyDiscretizedFunc ret = new ArbitrarilyDiscretizedFunc();
+//		for (int i=0; i<hist.size(); i++)
+//			if (binCounts[i] >= 10)
+//				ret.set(Math.pow(10d, hist.getX(i)), hist.getY(i));
+//		
+//		return ret;
+		ArbitrarilyDiscretizedFunc meanFunc = new ArbitrarilyDiscretizedFunc();
+		ArbitrarilyDiscretizedFunc lowerFunc = new ArbitrarilyDiscretizedFunc();
+		ArbitrarilyDiscretizedFunc upperFunc = new ArbitrarilyDiscretizedFunc();
+		
+		for (int i=0; i<hist.size(); i++) {
+			double x = Math.pow(10d, hist.getX(i));
+			List<Double> vals = momRateAfters.get(i);
+			if (vals.size() < 10)
+				continue;
+			
+			double[] valsArray = Doubles.toArray(vals);
+			
+			double mean = StatUtils.mean(valsArray);
+			double stdDev = Math.sqrt(StatUtils.variance(valsArray));
+			
+			meanFunc.set(x, mean);
+			lowerFunc.set(x, mean - stdDev);
+			upperFunc.set(x, mean + stdDev);
+		}
+		
+		return new UncertainArbDiscDataset(meanFunc, lowerFunc, upperFunc);
 	}
 
 }

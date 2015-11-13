@@ -684,6 +684,29 @@ public class ETAS_CatalogIO {
 
 		System.out.println("Converted "+entries.size()+" catalogs");
 	}
+	
+	private static void mergeBinary(File outputFile, double minDuration, File... inputFiles)
+			throws ZipException, IOException {
+		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
+		
+		int skipped = 0;
+		
+		for (File inputFile : inputFiles) {
+			List<List<ETAS_EqkRupture>> subCatalogs = loadCatalogs(inputFile);
+			for (List<ETAS_EqkRupture> catalog : subCatalogs) {
+				double duration = ETAS_MultiSimAnalysisTools.calcDurationYears(catalog);
+				if (duration < minDuration)
+					skipped++;
+				else
+					catalogs.add(catalog);
+			}
+		}
+		
+		System.out.println("Writing "+catalogs.size()+" catalogs (skipped "+skipped+")");
+		Preconditions.checkState(!catalogs.isEmpty());
+		
+		writeCatalogsBinary(outputFile, catalogs);
+	}
 
 	public static void main(String[] args) throws ZipException, IOException {
 		if (args.length == 2 || args.length == 3) {
@@ -707,15 +730,28 @@ public class ETAS_CatalogIO {
 		//		File resultFile = new File("/tmp/asdf/results/sim_1/simulatedEvents.txt");
 		//		writeEventDataToFile(resultFile, loadCatalog(resultFile));
 
-		File resultsDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2015_08_21-spontaneous-full_td-grCorr/results/");
-		for (File subDir : resultsDir.listFiles()) {
-			if (!subDir.getName().startsWith("sim_"))
-				continue;
-			System.out.println(subDir.getName());
-			File eventFile = new File(subDir, "simulatedEvents.txt");
-			writeEventDataToFile(eventFile, loadCatalog(eventFile));
-		}
+//		File resultsDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2015_08_21-spontaneous-full_td-grCorr/results/");
+//		for (File subDir : resultsDir.listFiles()) {
+//			if (!subDir.getName().startsWith("sim_"))
+//				continue;
+//			System.out.println(subDir.getName());
+//			File eventFile = new File(subDir, "simulatedEvents.txt");
+//			writeEventDataToFile(eventFile, loadCatalog(eventFile));
+//		}
+		
+//		File binFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR/results_m4.bin");
+//		List<List<ETAS_EqkRupture>> catalogs = loadCatalogsBinary(binFile, 5d);
+//		for (int i=0; i<5; i++)
+//			writeEventDataToFile(new File(binFile.getParentFile(), "catalog_"+i+"_m5.txt"), catalogs.get(i));
+		
+		File baseDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
+		mergeBinary(new File(new File(baseDir, "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR-combined"), "results_m4.bin"),
+				950, new File[] {
+						new File(new File(baseDir, "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4.bin"),
+						new File(new File(baseDir, "2015_11_11-spontaneous-1000yr-400more-full_td-noApplyLTR"), "results_m4.bin")
+				});
 
 		//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 		//				+ "2015_08_07-mojave_m7-poisson-grCorr/results_m4.zip");

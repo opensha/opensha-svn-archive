@@ -3,6 +3,7 @@ package scratch.UCERF3.erf.ETAS.ETAS_Params;
 import java.util.Iterator;
 
 import org.dom4j.Element;
+import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -85,7 +86,13 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 		while (it.hasNext()) {
 			Element el = it.next();
 			String name = el.attributeValue("name");
-			Parameter<?> param = params.getParameter(name);
+			Parameter<?> param;
+			try {
+				param = params.getParameter(name);
+			} catch (ParameterException e) {
+				System.err.println("WARNING: Parameter no longer exists in ETAS Parameter List: "+name);
+				continue;
+			}
 			Preconditions.checkNotNull(param);
 			boolean success = param.setValueFromXMLMetadata(el);
 			if (!success)

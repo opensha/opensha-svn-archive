@@ -53,8 +53,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		double[] maxCharFactors = { 10 };
 		boolean applyLongTermRates = false;
 		
-		String nameAdd = null;
-//		String nameAdd = "launch-debug";
+//		String nameAdd = null;
+		String nameAdd = "400more";
 		
 		boolean histCatalog;
 		String queue;
@@ -64,8 +64,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			queue = null;
 			startYear = 2012;
 			histCatalog = true;
-			numSims = 100;
-			nodes = 15;
+			numSims = 400;
+			nodes = 60;
 			mins = 24*60;
 			Preconditions.checkState(!smallTest);
 			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.opensha.commons.data.CSVFile;
@@ -18,6 +19,7 @@ import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.ServerPrefUtils;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
@@ -166,16 +168,16 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 	}
 	
 	public static void main(String[] args) {
-		STREC_DataWrapper garcia = new STREC_DataWrapper(
-				new File("/scratch/opensha/strec/anaconda2/bin/getstrec_bulk.py"));
-//		STREC_DataWrapper garcia = new STREC_DataWrapper();
+//		STREC_DataWrapper strec = new STREC_DataWrapper(
+//				new File("/scratch/opensha/strec/anaconda2/bin/getstrec_bulk.py"));
+		STREC_DataWrapper strec = new STREC_DataWrapper();
 		
 		LocationList locs = new LocationList();
 		
 		locs.add(new Location(28.2305, 84.7314, 8.22));
 		locs.add(new Location(35, -118, 7d));
 		locs.add(new Location(35, -50, 7d));
-		for (int i=0; i<10; i++) {
+		for (int i=0; i<1000; i++) {
 			double lat = 180d*Math.random()-90d;
 			double lon = 360d*Math.random()-180d;
 			double depth = 20d*Math.random();
@@ -183,9 +185,12 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 		}
 		
 		try {
-			List<String> vals = garcia.getValues(locs);
+			Stopwatch watch = Stopwatch.createStarted();
+			List<String> vals = strec.getValues(locs);
+			watch.stop();
 			for (int i=0; i<locs.size(); i++)
 				System.out.println(locs.get(i)+": "+vals.get(i));
+			System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+" s");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
