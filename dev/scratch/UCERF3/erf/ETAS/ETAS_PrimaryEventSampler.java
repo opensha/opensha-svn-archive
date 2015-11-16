@@ -103,6 +103,7 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
+	final static double MAX_CHAR_FACTOR = 15;
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr=true;	// don't set here (set by constructor)
@@ -804,12 +805,11 @@ public class ETAS_PrimaryEventSampler {
 	private HashMap<Integer,Float> getCubesAndFractForFaultSection_BoatRamp(int sectionIndex, ArrayList<ArrayList<Integer>> cubesForSectionList, 
 			ArrayList<ArrayList<Float>> cubeDistsForSectionList) {
 		
-		double charFactor = charFactorForSectArray[sectionIndex];
 		double numCubes = (double)cubesForSectionList.get(sectionIndex).size();
 		
 		HashMap<Integer,Float> wtMap = new HashMap<Integer,Float>();
 		
-		if(applyGR_Corr || charFactor<=1.0) {	// distribute evenly among cubes
+		if(applyGR_Corr || charFactorForSectArray[sectionIndex]<=1.0) {	// distribute evenly among cubes
 			float wt = 1f/(float)numCubes;
 			for(int i=0; i<cubesForSectionList.get(sectionIndex).size();i++) {
 				int cubeIndex = cubesForSectionList.get(sectionIndex).get(i);
@@ -818,6 +818,7 @@ public class ETAS_PrimaryEventSampler {
 			return wtMap;
 		}
 		
+		double charFactor = charFactorForSectArray[sectionIndex]*grCorrFactorForSectArray[sectionIndex];
 		double distThresh = 10f; // where it goes from ramp to water level
 		double totalRate = longTermSupraSeisMFD_OnSectArray[sectionIndex].getTotalIncrRate();
 		double cubeRateBeyondDistThresh = totalRate/(charFactor*numCubes);
@@ -2439,7 +2440,7 @@ System.exit(0);
 		makeLongTermSectMFDs();
 		
 		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
-		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary, CharFactorMoRate,supraRate,MoRate,SectName\n");
+		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,CharFactorMoRate,subRate,supraRate,minSupraMag,MoRate,SectName\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 		
@@ -2494,6 +2495,7 @@ System.exit(0);
 			double moRate = rupSet.getFaultSectionData(sectIndex).calcMomentRate(true);
 			double minSupraMag = ETAS_Utils.getMinMagSupra(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex));
 			double supraRate = longTermSupraSeisMFD_OnSectArray[sectIndex].getCumRate(minSupraMag);
+			double subRate = longTermSubSeisMFD_OnSectList.get(sectIndex).getCumRate(2.55);
 			
 			charValSupraRatesVsMomentRateData.set(moRate,valSupraRates);
 			charValSupraRatesVsSupraRateData.set(supraRate,valSupraRates);
@@ -2519,7 +2521,7 @@ System.exit(0);
 			charValSupraRatesDistSupraRateWted.set(valSupraRates,supraRate);
 
 			//System.out.println(sectIndex+"\t"+(float)val+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-			fileWriter.write(sectIndex+","+(float)valSupraRates+","+(float)valNumPrimary+","+(float)valMoRate+","+supraRate+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
+			fileWriter.write(sectIndex+","+(float)valSupraRates+","+(float)valNumPrimary+","+(float)valMoRate+","+subRate+","+supraRate+","+minSupraMag+","+moRate+","+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName()+"\n");
 
 		}
 		fileWriter.close();
@@ -4339,10 +4341,15 @@ System.exit(0);
 				double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 				charFactorForSectArray[sectIndex]=1.0/val;
 				
-				if(applyGR_Corr)
+				if(applyGR_Corr) {
 					grCorrFactorForSectArray[sectIndex]=val;
-				else
-					grCorrFactorForSectArray[sectIndex]=1.0;
+				}
+				else {
+					if(charFactorForSectArray[sectIndex]>MAX_CHAR_FACTOR)	// make it equal to the max value
+						grCorrFactorForSectArray[sectIndex]=MAX_CHAR_FACTOR/charFactorForSectArray[sectIndex];
+					else
+						grCorrFactorForSectArray[sectIndex]=1.0;
+				}
 
 				if(val<minCorr) {
 					minCorr=val;
@@ -5605,14 +5612,15 @@ System.exit(0);
 //		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
 //		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
 
-	
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave_fltOnly", 6.35, true);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave_fltOnly", true);
+		// move to max bulge point near subsect 13:
+//		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44-0.234,-118.34+0.573,1.), 0.29,"crossSectData_Bulge_mojave", false);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor10_PoissonNew");
+		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor15_PoissonNew");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
@@ -5621,12 +5629,12 @@ System.exit(0);
 
 		
 		// Sections bulge plot
-		try {
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
 		
 //		// San Andreas (Mojave S), Subsection 4

@@ -804,9 +804,11 @@ public class ETAS_Simulator {
 				double meanMag = erf.getSolution().getRupSet().getMagForRup(fssIndex);
 				if(meanMag<minMag || meanMag>maxMag)
 					continue;
-				double probAboveM7 = erf.getSource(s).computeTotalProbAbove(7.0);
-				if(probAboveM7 > 0.0)
-				System.out.println(+s+"\t"+fssIndex+"\t"+probAboveM7+"\t"+meanMag+"\t"+erf.getSource(s).getName());
+				double prob = erf.getSource(s).computeTotalProb();
+				System.out.println(+s+"\t"+fssIndex+"\t"+prob+"\t"+meanMag+"\t"+erf.getSource(s).getName());
+//				double probAboveM7 = erf.getSource(s).computeTotalProbAbove(7.0);
+//				if(probAboveM7 > 0.0)
+//					System.out.println(+s+"\t"+fssIndex+"\t"+probAboveM7+"\t"+meanMag+"\t"+erf.getSource(s).getName());
 			}
 		}
 	}
@@ -1142,14 +1144,14 @@ public class ETAS_Simulator {
 		MOJAVE_M7pt4("MojaveM7.4", 193830),		// SourceIndex=193816	fssIndex=193830	Inversion Src #193830; 18 SECTIONS BETWEEN San Andreas (San Bernardino N), Subsection 2 AND San Andreas (Mojave S), Subsection 0	mag=7.391156552897243
 		MOJAVE_M7pt8("MojaveM7.8", 18366),
 		MOJAVE_M7("MojaveM7", 193821),		// 193807	Inversion Src #193821; 9 SECTIONS BETWEEN San Andreas (San Bernardino N), Subsection 2 AND San Andreas (Mojave S), Subsection 9: writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(), 1846, 1946); & the other write method here
-		MOJAVE_M7_ALT("MojaveM7_Alt", 195766),		// to test whether end has spike in expected MFD
-		MOJAVE_M6pt3_FSS("MojaveM6.3_FSS", 195759),	// unzipper case		
-		MOJAVE_M6pt3_ptSrc("MojaveM6.3_PtSrc", new Location(34.42295,-117.80177,5.8), 6.3),	// original test for Kevin
+		MOJAVE_M7_ALT("MojaveM7_Alt", 195766),		// Inversion Src #195766; 9 SECTIONS BETWEEN San Andreas (Mojave S), Subsection 4 AND San Andreas (Mojave S), Subsection 12 (away from branching faults, but has a MFD spike near 6.3 at one end)
+		MOJAVE_M6pt3_FSS("MojaveM6.3_FSS", 195759),	// 		subsections 11 and 12
+		MOJAVE_M6pt3_ptSrc("MojaveM6.3_PtSrc", new Location(34.42295,-117.80177,5.8), 6.3),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
 		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
 		MOJAVE_M5p5_SECT1850("Mojave_M5.5_Sect1850", new Location(34.354,-117.639,6.5500), 5.5), // Location at center of San Andreas (Mojave S), Subsection 13	34.35453627367332, -117.63914790390031, 6.550000190734863
 		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
 		MOJAVE_M5p5_5kmAway("MojaveM5.5_5kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 5.0, 0.0)), 5.5),	//
-		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	//
+		MOJAVE_M5("MojaveM5", new Location(34.42295,-117.80177,5.8), 5.0),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
 		N_PALM_SPRINGS_1986("N Palm Springs M6.0", new Location(34.02,-116.76,10.0), 6.0),		// original provided by Kevin
 		MOJAVE_OLD("Mojave M7.05", 197792),		// original provided by Kevin
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
@@ -1341,8 +1343,12 @@ public class ETAS_Simulator {
 		
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
 //		System.exit(0);
+		
+//		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
+//		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M5p5_SECT1850;
+
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
@@ -1366,7 +1372,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_new_1";	// to increment runs
+		simulationName += "_1yr_MaxCF15_1";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1444170206879l;
@@ -1397,6 +1403,8 @@ public class ETAS_Simulator {
 //		for(Location loc:griddedRegion.getBorder()) {
 //			System.out.println(loc.getLongitude()+"\t"+loc.getLatitude());
 //		}
+		
+
 		
 //		BETTER MOJAVE SCENARIO:
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(), 1850, 7.0, 7.2);
