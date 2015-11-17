@@ -1347,10 +1347,22 @@ public class ETAS_MultiSimAnalysisTools {
 		// this is for map plotting
 		CPT logRatioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
 		CPT diffCPT = FaultBasedMapGen.getLogRatioCPT(); // will be rescaled
-		List<LocationList> faults = Lists.newArrayList();
-		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList())
-			faults.add(sect.getFaultTrace());
 		Region region = new CaliforniaRegions.RELM_TESTING();
+		
+		// filter out results outside of RELM region
+		List<Integer> sectsToInclude = Lists.newArrayList();
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+			for (Location loc : sect.getFaultTrace()) {
+				if (region.contains(loc)) {
+					sectsToInclude.add(sect.getSectionId());
+					break;
+				}
+			}
+		}
+		
+		List<LocationList> faults = Lists.newArrayList();
+		for (int sectIndex : sectsToInclude)
+			faults.add(rupSet.getFaultSectionData(sectIndex).getFaultTrace());
 		
 		for (double minMag : minMags) {
 			// each "MFD" will only have one value, for this minimum mag
@@ -1375,6 +1387,20 @@ public class ETAS_MultiSimAnalysisTools {
 				}
 			}
 			
+			// now filter out sections outside the region
+			double[] filteredCatalogVals = new double[sectsToInclude.size()];
+			double[] filteredSubSectVals = new double[sectsToInclude.size()];
+			for (int i=0; i<filteredCatalogVals.length; i++) {
+				int s = sectsToInclude.get(i);
+				filteredCatalogVals[i] = catalogVals[s];
+				filteredSubSectVals[i] = subSectVals[s];
+			}
+			if (minMag == minMags[0])
+				System.out.println("Filtered out "+(catalogVals.length-filteredCatalogVals.length)
+						+" sects outside of region");
+			catalogVals = filteredCatalogVals;
+			subSectVals = filteredSubSectVals;
+			
 			String title = "Sub Section Participation";
 			String prefix = "all_eqs_sect_partic";
 			if (minMag > 0) {
@@ -1389,8 +1415,8 @@ public class ETAS_MultiSimAnalysisTools {
 			double[] ratio = ratio(catalogVals, subSectVals);
 			double[] diff = diff(catalogVals, subSectVals);
 			
-			for (int i=0; i<rupSet.getNumSections(); i++) {
-				FaultSectionPrefData sect = rupSet.getFaultSectionData(i);
+			for (int i=0; i<catalogVals.length; i++) {
+				FaultSectionPrefData sect = rupSet.getFaultSectionData(sectsToInclude.get(i));
 				
 				csv.addLine(i+"", sect.getSectionName(), catalogVals[i]+"", subSectVals[i]+"",
 						ratio[i]+"", diff[i]+"");
@@ -1808,10 +1834,10 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean plotGenerations = false;
 		boolean plotGriddedNucleation = false;
 		boolean writeTimeFromPrevSupra = false;
-		boolean plotSectScatter = false;
+		boolean plotSectScatter = true;
 		boolean plotGridScatter = false;
-		boolean plotStationarity = true;
-		boolean plotSubSectRecurrence = true;
+		boolean plotStationarity = false;
+		boolean plotSubSectRecurrence = false;
 		boolean writeCatsForViz = false;
 		
 //		boolean plotMFDs = true;
@@ -2228,7 +2254,7 @@ public class ETAS_MultiSimAnalysisTools {
 						1850 // Mojave S 13
 				};
 				for (int sectIndex : sectIndexes)
-					plotSubSectRecurrenceHist(primaryCatalogs, fss.getRupSet(), sectIndex, outputDir);
+					plotSubSectRecurrenceHist(catalogs, fss.getRupSet(), sectIndex, outputDir);
 			}
 			
 			if (writeCatsForViz) {
