@@ -102,9 +102,16 @@ public class ETAS_CatalogIO {
 			// SimpleDateFormat is NOT synchronized and maintains an internal calendar
 			sb.append(catDateFormat.format(rup.getOriginTimeCal().getTime())).append("\t");
 		}
-		sb.append(hypoLoc.getLatitude()).append("\t");
-		sb.append(hypoLoc.getLongitude()).append("\t");
-		sb.append(hypoLoc.getDepth()).append("\t");
+		if(hypoLoc != null) {
+			sb.append(hypoLoc.getLatitude()).append("\t");
+			sb.append(hypoLoc.getLongitude()).append("\t");
+			sb.append(hypoLoc.getDepth()).append("\t");			
+		}
+		else {
+			sb.append("null").append("\t");
+			sb.append("null").append("\t");
+			sb.append("null").append("\t");
+		}
 		sb.append(rup.getMag()).append("\t");
 		sb.append(rup.getID()).append("\t");
 		sb.append(rup.getParentID()).append("\t");

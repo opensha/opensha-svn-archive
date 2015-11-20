@@ -1147,6 +1147,7 @@ public class ETAS_Simulator {
 		MOJAVE_M7_ALT("MojaveM7_Alt", 195766),		// Inversion Src #195766; 9 SECTIONS BETWEEN San Andreas (Mojave S), Subsection 4 AND San Andreas (Mojave S), Subsection 12 (away from branching faults, but has a MFD spike near 6.3 at one end)
 		MOJAVE_M6pt3_FSS("MojaveM6.3_FSS", 195759),	// 		subsections 11 and 12
 		MOJAVE_M6pt3_ptSrc("MojaveM6.3_PtSrc", new Location(34.42295,-117.80177,5.8), 6.3),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
+		MOJAVE_M7pt5_ptSrc("MojaveM7.5_PtSrc", new Location(34.42295,-117.80177,5.8), 7.5),	// 
 		MOJAVE_M5p5("MojaveM5.5", new Location(34.42295,-117.80177,5.8), 5.5),	// on Mojave subsection 10 (id=1847), and very close to subsection 11 (id=1848)
 		MOJAVE_M5p5_SECT1850("Mojave_M5.5_Sect1850", new Location(34.354,-117.639,6.5500), 5.5), // Location at center of San Andreas (Mojave S), Subsection 13	34.35453627367332, -117.63914790390031, 6.550000190734863
 		MOJAVE_M5p5_2kmAway("MojaveM5.5_2kmAway", LocationUtils.location(new Location(34.42295,-117.80177,5.8), new LocationVector((295.037-270.0), 2.0, 0.0)), 5.5),	//
@@ -1348,7 +1349,7 @@ public class ETAS_Simulator {
 //		System.exit(0);
 
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
+		TestScenario scenario = TestScenario.MOJAVE_M7pt5_ptSrc;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();

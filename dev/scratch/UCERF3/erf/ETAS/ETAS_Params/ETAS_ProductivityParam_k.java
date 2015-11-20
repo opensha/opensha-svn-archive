@@ -37,7 +37,7 @@ public class ETAS_ProductivityParam_k extends DoubleParameter {
 	private static final String UNITS = "(days)^(p-1)";
 	protected final static Double MIN = new Double(3.79E-4*Math.pow(365.25,0.07));
 	protected final static Double MAX = new Double(4.97E-3*Math.pow(365.25,0.07));
-	public final static Double DEFAULT_VALUE = new Double(2.84E-03*Math.pow(365.25,0.07));
+	public final static Double DEFAULT_VALUE = new Double(2.84E-03/Math.pow(365.25,0.07));
 
 	/**
 	 * This sets the default value as given.

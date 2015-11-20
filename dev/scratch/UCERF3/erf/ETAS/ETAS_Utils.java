@@ -2,6 +2,8 @@ package scratch.UCERF3.erf.ETAS;
 
 
 import java.awt.Color;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,9 +15,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.PriorityQueue;
 
+import javax.swing.JOptionPane;
+
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -23,11 +30,21 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.param.Parameter;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.AbstractNthRupERF;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupOrigTimeComparator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
@@ -43,8 +60,12 @@ import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinTimeParam_c;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ProductivityParam_k;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_TemporalDecayParam_p;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
 /**
@@ -855,7 +876,9 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		writeTriggerStatsToFiles();
+		runMagTimeCatalogSimulation(50);
+		
+//		writeTriggerStatsToFiles();
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
 //		System.out.println(func);
@@ -1427,6 +1450,345 @@ public class ETAS_Utils {
 
 		return result;
 	}
+	
+	
+	
+	public static void runMagTimeCatalogSimulation(int numCatalogs) {
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		
+//		String simulationName = "testMagTimeCatalogSimulation_U3MFD";
+//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+
+		String simulationName = "testMagTimeCatalogSimulation_GRMFD";
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.35, 59);
+		mfd.scaleToCumRate(5.05, 10.0);
+		
+		double startTimeYear=2012;
+		double durationYears=1000;
+		
+//		ObsEqkRupList histCat = null;
+		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear);
+		
+		try {
+			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, durationYears, numCatalogs);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+	
+	
+	
+	public static void magTimeCatalogSimulation(File resultsDir, IncrementalMagFreqDist mfd, List<? extends ObsEqkRupture> histQkList, String simulationName, 
+			ETAS_ParameterList etasParams, double startYear, double numYears, int numCatalogs)
+					throws IOException {
+		
+		boolean D = false;
+		
+		ETAS_Utils etas_utils = new ETAS_Utils(System.currentTimeMillis());
+
+		// directory for saving results
+		if(!resultsDir.exists()) resultsDir.mkdir();
+		
+		// set file for writing simulation info & write some preliminary stuff to it
+		FileWriter info_fr = new FileWriter(new File(resultsDir, "infoString.txt"));	// TODO this is closed below; why the warning?
+
+		info_fr.write(simulationName+"\n");
+		if(histQkList == null)
+			info_fr.write("\nhistQkList.size()=null"+"\n");
+		else
+			info_fr.write("\nnumCatalogs="+numCatalogs+"\n");
+		
+		info_fr.write("\nETAS Paramteres:\n\n");
+		info_fr.write("\nETAS Paramteres:\n\n");
+		if(D) System.out.println("\nETAS Paramteres:\n\n");
+		for(Parameter param : etasParams) {
+			info_fr.write("\t"+param.getName()+" = "+param.getValue()+"\n");
+			if(D) System.out.println("\t"+param.getName()+" = "+param.getValue());
+		}
+		
+		info_fr.flush();	// this writes the above out now in case of crash
+		
+		// Make the list of observed ruptures, plus scenario if that was included
+		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
+		
+		if(histQkList != null) {
+			int id=0;
+			for(ObsEqkRupture qk : histQkList) {
+				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(qk);
+				etasRup.setID(id);
+				obsEqkRuptureList.add(etasRup);
+				id+=1;
+			}
+			if(D) {
+				System.out.println("histQkList.size()="+histQkList.size());
+				System.out.println("obsEqkRuptureList.size()="+obsEqkRuptureList.size());
+			}
+		}
+		
+		
+		// get simulation timespan info
+		long simStartTimeMillis = (long)((startYear-1970d)*(double)ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		long simEndTimeMillis = (long)((startYear+numYears-1970d)*(double)ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		
+		// Make the MFD x-axis index sampler
+		IntegerPDF_FunctionSampler mfdMagIndexSampler = new IntegerPDF_FunctionSampler(mfd.size());
+		for(int i=0;i<mfd.size();i++)
+			mfdMagIndexSampler.set(i,mfd.getY(i));
+		
+		double binWidthYears = 50;
+		int numBins = (int)Math.round(numYears/binWidthYears);
+		HistogramFunction histOfAveNumVsTime = new HistogramFunction(binWidthYears/2, numYears-binWidthYears/2,numBins);
+		
+		ArbIncrementalMagFreqDist allEventsMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
+		ArbIncrementalMagFreqDist spontaneousMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
+
+		
+		for(int catIndex=0; catIndex<numCatalogs; catIndex++) {
+			
+			System.out.print(catIndex+", ");
+			
+			System.gc();
+			
+//			FileWriter simulatedEventsFileWriter = new FileWriter(new File(resultsDir, "simulatedEvents"+catIndex+".txt"));
+//			ETAS_CatalogIO.writeEventHeaderToFile(simulatedEventsFileWriter);
+
+			// this will store the simulated aftershocks & spontaneous events (in order of occurrence)
+			ObsEqkRupOrigTimeComparator oigTimeComparator = new ObsEqkRupOrigTimeComparator();	// this will keep the event in order of origin time
+			PriorityQueue<ETAS_EqkRupture>  simulatedRupsQueue = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);
+
+			// Make list of primary aftershocks for given list of obs quakes 
+			if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
+			PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);	
+			int testParID=0;	// this will be used to test IDs
+			int eventID = obsEqkRuptureList.size();	// start IDs after input events
+			for(ETAS_EqkRupture parRup: obsEqkRuptureList) {
+				int parID = parRup.getID();
+				if(parID != testParID) 
+					throw new RuntimeException("problem with ID");
+				long rupOT = parRup.getOriginTime();
+				double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
+				double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+				// get a list of random primary event times, in units of days since main shock
+				double[] randomAftShockTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), parRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+				if(randomAftShockTimes.length>0) {
+					for(int i=0; i<randomAftShockTimes.length;i++) {
+						long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
+						ETAS_EqkRupture newRup = new ETAS_EqkRupture(parRup, eventID, ot);
+						newRup.setParentID(parID);	// TODO don't need this if it's set from parent rup in above constructor
+						newRup.setGeneration(1);	// TODO shouldn't need this either since it's 1 plus that of parent (also set in costructor)
+						eventsToProcess.add(newRup);
+						eventID +=1;
+					}
+				}
+				testParID += 1;				
+			}
+			if (D) System.out.println("The "+obsEqkRuptureList.size()+" input events produced "+eventsToProcess.size()+" primary aftershocks");
+			info_fr.write("\nThe "+obsEqkRuptureList.size()+" input observed events produced "+eventsToProcess.size()+" primary aftershocks\n");
+			info_fr.flush();
+
+			// make the list of spontaneous events, filling in only event IDs and origin times for now
+			if (D) System.out.println("Making spontaneous events and times of primary aftershocks...");
+			double fractionNonTriggered=etasParams.getFractSpont();	// one minus branching ratio TODO fix this; this is not what branching ratio is
+			double expectedNum = mfd.getTotalIncrRate()*fractionNonTriggered*numYears;
+			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
+			for(int r=0;r<numSpontEvents;r++) {
+				ETAS_EqkRupture rup = new ETAS_EqkRupture();
+				double ot = simStartTimeMillis+etas_utils.getRandomDouble()*(simEndTimeMillis-simStartTimeMillis);	// random time over time span
+				rup.setOriginTime((long)ot);
+				rup.setID(eventID);
+				rup.setGeneration(0);
+				eventsToProcess.add(rup);
+				eventID += 1;
+			}
+			String spEvStringInfo = "Spontaneous Events:\n\n\tAssumed fraction non-triggered = "+fractionNonTriggered+
+					"\n\texpectedNum="+expectedNum+"\n\tnumSampled="+numSpontEvents+"\n";
+			if(D) System.out.println(spEvStringInfo);
+			info_fr.write("\n"+spEvStringInfo);
+			info_fr.flush();
+
+			CalcProgressBar progressBar;
+			try {
+				progressBar = new CalcProgressBar("Primary aftershocks to process", "junk");
+				progressBar.showProgress(true);
+			} catch (Throwable t) {
+				// headless, don't show it
+				progressBar = null;
+			}
+
+			if (D) System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")...\n");
+
+			long st = System.currentTimeMillis();
+
+			int numSimulatedEvents = 0;
+
+			info_fr.flush();	// this writes the above out now in case of crash
+
+			while(eventsToProcess.size()>0) {
+
+				if (progressBar != null) progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
+
+				ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
+
+				double mag = mfd.getX(mfdMagIndexSampler.getRandomInt());
+				rup.setMag(mag);	
+
+				double year = (double)((rup.getOriginTime()-simStartTimeMillis)/ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+				if(mag>=5.0)
+					histOfAveNumVsTime.add(year, 1.0);
+
+				allEventsMagProbDist.addResampledMagRate(mag, 1.0, true);
+				if(rup.getGeneration() == 0)
+					spontaneousMagProbDist.addResampledMagRate(mag, 1.0, true);
+
+				// add the rupture to the list
+				simulatedRupsQueue.add(rup);	
+				numSimulatedEvents += 1;
+
+//				ETAS_CatalogIO.writeEventToFile(simulatedEventsFileWriter, rup);
+
+				long rupOT = rup.getOriginTime();
+
+				int parID = rup.getID();	// rupture is now the parent
+				int gen = rup.getGeneration()+1;
+				double startDay = 0;	// starting at origin time since we're within the timespan
+				double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+				double[] eventTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
+
+				if(eventTimes.length>0) {
+					for(int i=0; i<eventTimes.length;i++) {
+						long ot = rupOT +  (long)(eventTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);
+						ETAS_EqkRupture newRup = new ETAS_EqkRupture(rup, eventID, ot);
+						newRup.setGeneration(gen);	// TODO have set in above constructor?
+						newRup.setParentID(parID);	// TODO have set in above constructor?
+						eventsToProcess.add(newRup);
+						eventID +=1;
+					}
+				}		
+
+			}
+
+			if (progressBar != null) progressBar.showProgress(false);
+
+			if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");
+			info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n\n");
+
+			int[] numInEachGeneration = ETAS_SimAnalysisTools.getNumAftershocksForEachGeneration(simulatedRupsQueue, 10);
+			String numInfo = "Total num ruptures: "+simulatedRupsQueue.size()+"\n";
+			numInfo += "Num spontaneous: "+numInEachGeneration[0]+"\n";
+			numInfo += "Num 1st Gen: "+numInEachGeneration[1]+"\n";
+			numInfo += "Num 2nd Gen: "+numInEachGeneration[2]+"\n";
+			numInfo += "Num 3rd Gen: "+numInEachGeneration[3]+"\n";
+			numInfo += "Num 4th Gen: "+numInEachGeneration[4]+"\n";
+			numInfo += "Num 5th Gen: "+numInEachGeneration[5]+"\n";
+			numInfo += "Num 6th Gen: "+numInEachGeneration[6]+"\n";
+			numInfo += "Num 7th Gen: "+numInEachGeneration[7]+"\n";
+			numInfo += "Num 8th Gen: "+numInEachGeneration[8]+"\n";
+			numInfo += "Num 9th Gen: "+numInEachGeneration[9]+"\n";
+			numInfo += "Num 10th Gen: "+numInEachGeneration[10]+"\n";
+
+			if(D) System.out.println(numInfo);
+			info_fr.write(numInfo+"\n");
+//			simulatedEventsFileWriter.close();
+
+//			if(D) {
+//				ETAS_SimAnalysisTools.plotRateVsLogTimeForPrimaryAshocks(simulationName, new File(resultsDir,"logRateDecayPDF_ForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
+//						etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
+//			}
+
+		}
+		
+		info_fr.close();
+	
+		
+		// Plot average num M≥5 versus time
+		histOfAveNumVsTime.scale(1.0/(double)(binWidthYears*numCatalogs)); 
+		GraphWindow numVsTimeGraph = new GraphWindow(histOfAveNumVsTime, "Ave histOfAveNumVsTime",new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE)); 
+		numVsTimeGraph.setX_AxisLabel("Year");
+		numVsTimeGraph.setY_AxisLabel("N(M≥5)");
+		numVsTimeGraph.setPlotLabelFontSize(18);
+		numVsTimeGraph.setAxisLabelFontSize(16);
+		numVsTimeGraph.setTickLabelFontSize(14);
+			
+		// plot MFDs
+		allEventsMagProbDist.scale(1.0/(double)(numYears*numCatalogs));
+		allEventsMagProbDist.setName("All Simulated Events MFD");
+		allEventsMagProbDist.setInfo("Total Num = "+allEventsMagProbDist.calcSumOfY_Vals());
+		spontaneousMagProbDist.scale(1.0/(double)(numYears*numCatalogs));
+		spontaneousMagProbDist.setName("Spontaneous Simulated Events MFD");
+		spontaneousMagProbDist.setInfo("Total Num = "+spontaneousMagProbDist.calcSumOfY_Vals());
+		mfd.setName("Target MFD");
+		mfd.setInfo("Total Num = "+mfd.calcSumOfY_Vals());
+		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
+		magProbDists.add(allEventsMagProbDist);
+		magProbDists.add(spontaneousMagProbDist);
+		magProbDists.add(mfd);
+		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.RED));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLUE));
+		plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
+		// Plot these MFDs
+		GraphWindow incrMFDsGraph = new GraphWindow(magProbDists, "MFDs",plotChars); 
+		incrMFDsGraph.setX_AxisLabel("Mag");
+		incrMFDsGraph.setY_AxisLabel("Number");
+		incrMFDsGraph.setY_AxisRange(1e-5, 1e3);
+		incrMFDsGraph.setX_AxisRange(2.5d, 8.5d);
+		incrMFDsGraph.setYLog(true);
+		incrMFDsGraph.setPlotLabelFontSize(18);
+		incrMFDsGraph.setAxisLabelFontSize(16);
+		incrMFDsGraph.setTickLabelFontSize(14);
+
+		ArrayList<EvenlyDiscretizedFunc> cumMagProbDists = new ArrayList<EvenlyDiscretizedFunc>();
+		cumMagProbDists.add(allEventsMagProbDist.getCumRateDistWithOffset());
+		cumMagProbDists.add(spontaneousMagProbDist.getCumRateDistWithOffset());
+		cumMagProbDists.add(mfd.getCumRateDistWithOffset());
+
+		ArrayList<PlotCurveCharacterstics> plotCharsCum = new ArrayList<PlotCurveCharacterstics>();
+		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		plotCharsCum.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+
+		// Plot these MFDs
+		GraphWindow cumMFDsGraph = new GraphWindow(cumMagProbDists, "Cumulative MFDs",plotCharsCum); 
+		cumMFDsGraph.setX_AxisLabel("Mag");
+		cumMFDsGraph.setY_AxisLabel("Number");
+		cumMFDsGraph.setY_AxisRange(1e-4, 1e4);
+		cumMFDsGraph.setX_AxisRange(2.5d, 8.5d);
+		cumMFDsGraph.setYLog(true);
+		cumMFDsGraph.setPlotLabelFontSize(18);
+		cumMFDsGraph.setAxisLabelFontSize(16);
+		cumMFDsGraph.setTickLabelFontSize(14);			
+		
+		String pathName = new File(resultsDir,"numVsTimeGraph.pdf").getAbsolutePath();
+		numVsTimeGraph.saveAsPDF(pathName);
+		
+		pathName = new File(resultsDir,"incrMFDsGraph.pdf").getAbsolutePath();
+		incrMFDsGraph.saveAsPDF(pathName);
+		
+		pathName = new File(resultsDir,"cumMFDsGraph.pdf").getAbsolutePath();
+		cumMFDsGraph.saveAsPDF(pathName);
+
+		pathName = new File(resultsDir,"numVsTimeGraph.txt").getAbsolutePath();
+		numVsTimeGraph.saveAsTXT(pathName);
+		
+		pathName = new File(resultsDir,"incrMFDsGraph.txt").getAbsolutePath();
+		incrMFDsGraph.saveAsTXT(pathName);
+		
+		pathName = new File(resultsDir,"cumMFDsGraph.txt").getAbsolutePath();
+		cumMFDsGraph.saveAsTXT(pathName);
+
+		if(D)
+			ETAS_SimAnalysisTools.writeMemoryUse("Memory at end of simultation");
+		
+	}
+
 
 }
 
