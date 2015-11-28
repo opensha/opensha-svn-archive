@@ -58,7 +58,12 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	public U3ETAS_ProbabilityModelOptions getU3ETAS_ProbModel() {return probModelParam.getValue();}
 	
 	
-	public void set_d_MinDist(double minDist) { dParam.setValue(minDist);}
+	public void set_k(double k) {kParam.setValue(k);}
+	public void setFractSpont(double fractSpont) {fractSpontParam.setValue(fractSpont);}
+	public void set_p(double p) {pParam.setValue(p);}
+	public void set_c(double c) {cParam.setValue(c);}
+	public void set_q(double q) {qParam.setValue(q);}
+	public void get_d(double d) {dParam.setValue(d);}
 	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
 	public void setApplyLongTermRates(boolean value) { applyLongTermRatesParam.setValue(value);}
 	public void setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions value) { probModelParam.setValue(value); }

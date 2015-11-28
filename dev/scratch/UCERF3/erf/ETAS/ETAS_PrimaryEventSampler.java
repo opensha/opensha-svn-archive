@@ -103,7 +103,7 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	final static double MAX_CHAR_FACTOR = 15;
+	final static double MAX_CHAR_FACTOR = 1e6;
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr=true;	// don't set here (set by constructor)

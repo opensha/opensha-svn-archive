@@ -50,6 +50,8 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -876,7 +878,9 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		runMagTimeCatalogSimulation(50);
+//		plotExpectedNumPrimaryVsTime();
+		
+		runMagTimeCatalogSimulation();
 		
 //		writeTriggerStatsToFiles();
 		
@@ -1451,30 +1455,155 @@ public class ETAS_Utils {
 		return result;
 	}
 	
+	public static void plotExpectedNumPrimaryVsTime() {
+		
+		double magMin=2.5;
+		double log_tMin=-4; 
+		double log_tMax=10;
+		double log_tDelta=0.01;
+		
+		double magMain=7.8;
+		
+		// Jeanne's params in her Table S2
+		double c=1.78E-05*365.25;
+		double k=2.84E-03*Math.pow(365.25,0.07);
+		double p=1.07;
+		HistogramFunction jeanneDefault = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
+		double totNum = jeanneDefault.calcSumOfY_Vals();
+		double sum=0;
+		for(int i=jeanneDefault.size()-1;i>=0;i--) {
+			sum += jeanneDefault.getY(i);
+			jeanneDefault.set(i,sum);
+		}
+		jeanneDefault.setName("Jeanne's Table S2 Params");
+		
+		jeanneDefault.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
+				"\nTest Num = "+(float)getExpectedNumEvents(k, p, magMain, magMin, c, 0.0, Math.pow(10, log_tMax)));
+		
+//		// TEST the slope
+//		int index1 = jeanneDefault.getClosestXIndex(4.0);
+//		double xWidthLinear1 = Math.pow(10.0, jeanneDefault.getX(index1)+log_tDelta/2.0)-Math.pow(10.0, jeanneDefault.getX(index1)-log_tDelta/2.0);
+//		double rate1 = jeanneDefault.getY(index1)/xWidthLinear1;
+//		int index2 = jeanneDefault.getClosestXIndex(3.0);
+//		double xWidthLinear2 = Math.pow(10.0, jeanneDefault.getX(index2)+log_tDelta/2.0)-Math.pow(10.0, jeanneDefault.getX(index2)-log_tDelta/2.0);
+//		double rate2 = jeanneDefault.getY(index2)/xWidthLinear2;
+//		double slope = Math.log10(rate1/rate2);
+//		System.out.println("slope="+(float)slope);
+		
+		// Jeanne's alt params; c=2.00*10^-5, p=1.08, k=2.69*10^-3
+		c=2.00E-05*365.25;
+		k=2.69E-03*Math.pow(365.25,0.08);
+		p=1.08;
+		HistogramFunction jeanneAlt = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
+		totNum = jeanneAlt.calcSumOfY_Vals();
+		sum=0;
+		for(int i=jeanneAlt.size()-1;i>=0;i--) {
+			sum += jeanneAlt.getY(i);
+			jeanneAlt.set(i,sum);
+		}
+		jeanneAlt.setName("Jeanne's Alt Params");
+		jeanneAlt.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
+				"\nTest Num = "+(float)getExpectedNumEvents(k, p, magMain, magMin, c, 0.0, Math.pow(10, log_tMax)));
+
+
+		// Karen's params
+		c=0.095;
+		k=0.008;
+		p=1.34;
+		HistogramFunction KarenParams = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
+		totNum = KarenParams.calcSumOfY_Vals();
+		sum=0;
+		for(int i=KarenParams.size()-1;i>=0;i--) {
+			sum += KarenParams.getY(i);
+			KarenParams.set(i,sum);
+		}
+		KarenParams.setName("Karen's Params");
+		KarenParams.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
+				"\nTest Num = "+(float)getExpectedNumEvents(k, p, magMain, magMin, c, 0.0, Math.pow(10, log_tMax)));
+
+			
+		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+		funcList.add(jeanneDefault);
+		funcList.add(jeanneAlt);
+		funcList.add(KarenParams);
+		ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
+		GraphWindow numVsTimeGraph = new GraphWindow(funcList, "Num Primay Events Yet To Occur for M = "+magMain,curveCharList); 
+		numVsTimeGraph.setX_AxisLabel("Log10 Days");
+		numVsTimeGraph.setY_AxisLabel("Num Yet To Occur");
+		numVsTimeGraph.setX_AxisRange(-4, 7);
+		numVsTimeGraph.setYLog(true);
+		numVsTimeGraph.setPlotLabelFontSize(18);
+		numVsTimeGraph.setAxisLabelFontSize(16);
+		numVsTimeGraph.setTickLabelFontSize(14);
+		
+		String pathName = new File("numPrimaryEventsRemainingVsTime_M7pt8.pdf").getAbsolutePath();
+		try {
+			numVsTimeGraph.saveAsPDF(pathName);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
+	}
 	
 	
-	public static void runMagTimeCatalogSimulation(int numCatalogs) {
+	
+	public static void runMagTimeCatalogSimulation() {
+		
+//		System.out.println("Jeanne's Min k: "+ETAS_ProductivityParam_k.MIN);
+//		System.out.println("Jeanne's Max k: "+ETAS_ProductivityParam_k.MAX);
+//		System.exit(0);
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 		
-//		String simulationName = "testMagTimeCatalogSimulation_U3MFD";
+//		// Jeanne's altParams:	c=2.00*10^-5, p=1.08, k=2.69*10^-3
+//		etasParams.set_c(2.00e-5*365.25);
+//		etasParams.set_p(1.08);
+//		etasParams.set_k(2.69e-3*Math.pow(365.25,0.08));
+//		etasParams.setFractSpont(0.23);
+
+		
+//		// Felzer params from Hardebeck et al. (2008) Appendix
+//		System.out.println(ETAS_ProductivityParam_k.MIN);
+//		System.out.println(ETAS_ProductivityParam_k.MAX);	// need to increase this one to allow Karen's value
+//		etasParams.set_c(0.095);
+//		etasParams.set_p(1.34);
+//		etasParams.set_k(0.008);
+		
+//		// Jeanne's default paramets with fract spontaneous changed (computed as n from Equation (14) with T=5000)
+//		etasParams.setFractSpont(0.2);
+
+		
+//		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_HistCat_U3MFD";
 //		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
 //		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
 //		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 
-		String simulationName = "testMagTimeCatalogSimulation_GRMFD";
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.35, 59);
-		mfd.scaleToCumRate(5.05, 10.0);
-		
+		String simulationName = "MagTimeCatalogSimulation_JeanneParams_18yrs_5000_HistCat";
+//		String simulationName = "MagTimeCatalogSimulation_FelzerAltParams_18yrs_1000_HistCat";
+		double mMin = 2.55;
+		double mMax = 7.85;
+		int numMag = (int)Math.round((mMax-mMin)/0.1)+1;
+		double cumRateAtM5 = 10.0;
+		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1.0, 1.0, mMin, mMax, numMag);
+		mfd.scaleToCumRate(5.05, cumRateAtM5);
+				
 		double startTimeYear=2012;
-		double durationYears=1000;
+		double durationYears=18;
+		double numYearsBinWidth=1.0;
+		
+		int numCatalogs = 5000;
 		
 //		ObsEqkRupList histCat = null;
 		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear);
 		
 		try {
-			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, durationYears, numCatalogs);
+			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, 
+					durationYears, numCatalogs, numYearsBinWidth);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1487,12 +1616,14 @@ public class ETAS_Utils {
 	
 	
 	public static void magTimeCatalogSimulation(File resultsDir, IncrementalMagFreqDist mfd, List<? extends ObsEqkRupture> histQkList, String simulationName, 
-			ETAS_ParameterList etasParams, double startYear, double numYears, int numCatalogs)
+			ETAS_ParameterList etasParams, double startYear, double numYears, int numCatalogs, double binWidthYears)
 					throws IOException {
 		
 		boolean D = false;
 		
 		ETAS_Utils etas_utils = new ETAS_Utils(System.currentTimeMillis());
+		
+// System.out.println("1906 Expect: "+getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 7.8, 2.5, etasParams.get_c(), 40177d, 40177d+1000*365.25));
 
 		// directory for saving results
 		if(!resultsDir.exists()) resultsDir.mkdir();
@@ -1543,17 +1674,33 @@ public class ETAS_Utils {
 		for(int i=0;i<mfd.size();i++)
 			mfdMagIndexSampler.set(i,mfd.getY(i));
 		
-		double binWidthYears = 50;
+//		double binWidthYears = 50;
 		int numBins = (int)Math.round(numYears/binWidthYears);
-		HistogramFunction histOfAveNumVsTime = new HistogramFunction(binWidthYears/2, numYears-binWidthYears/2,numBins);
+		HistogramFunction[] histOfAveNumVsTimeArray=null;
+		if(!Double.isNaN(binWidthYears)) {
+			histOfAveNumVsTimeArray = new HistogramFunction[numCatalogs];
+		}
 		
 		ArbIncrementalMagFreqDist allEventsMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
 		ArbIncrementalMagFreqDist spontaneousMagProbDist = new ArbIncrementalMagFreqDist(2.05,8.95, 70);
-
 		
+		CalcProgressBar progressBar=null;
+		try {
+			progressBar = new CalcProgressBar("Num simulations to process ", "junk");
+			progressBar.showProgress(true);
+		} catch (Throwable t) {
+			// headless, don't show it
+			progressBar = null;
+		}
+
+
 		for(int catIndex=0; catIndex<numCatalogs; catIndex++) {
 			
-			System.out.print(catIndex+", ");
+			if (progressBar != null) progressBar.updateProgress(catIndex, numCatalogs);
+//			System.out.print(catIndex+", ");
+
+			if(histOfAveNumVsTimeArray != null)
+				histOfAveNumVsTimeArray[catIndex] = new HistogramFunction(binWidthYears/2, numYears-binWidthYears/2,numBins);
 			
 			System.gc();
 			
@@ -1613,16 +1760,7 @@ public class ETAS_Utils {
 			if(D) System.out.println(spEvStringInfo);
 			info_fr.write("\n"+spEvStringInfo);
 			info_fr.flush();
-
-			CalcProgressBar progressBar;
-			try {
-				progressBar = new CalcProgressBar("Primary aftershocks to process", "junk");
-				progressBar.showProgress(true);
-			} catch (Throwable t) {
-				// headless, don't show it
-				progressBar = null;
-			}
-
+			
 			if (D) System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")...\n");
 
 			long st = System.currentTimeMillis();
@@ -1633,16 +1771,15 @@ public class ETAS_Utils {
 
 			while(eventsToProcess.size()>0) {
 
-				if (progressBar != null) progressBar.updateProgress(numSimulatedEvents, eventsToProcess.size()+numSimulatedEvents);
-
 				ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 
 				double mag = mfd.getX(mfdMagIndexSampler.getRandomInt());
+				
 				rup.setMag(mag);	
 
 				double year = (double)((rup.getOriginTime()-simStartTimeMillis)/ProbabilityModelsCalc.MILLISEC_PER_YEAR);
-				if(mag>=5.0)
-					histOfAveNumVsTime.add(year, 1.0);
+				if(mag>=5.0 && histOfAveNumVsTimeArray !=null)
+					histOfAveNumVsTimeArray[catIndex].add(year, 1.0);
 
 				allEventsMagProbDist.addResampledMagRate(mag, 1.0, true);
 				if(rup.getGeneration() == 0)
@@ -1674,9 +1811,7 @@ public class ETAS_Utils {
 				}		
 
 			}
-
-			if (progressBar != null) progressBar.showProgress(false);
-
+			
 			if(D) System.out.println("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n");
 			info_fr.write("\nLooping over events took "+(System.currentTimeMillis()-st)/1000+" secs\n\n");
 
@@ -1699,28 +1834,64 @@ public class ETAS_Utils {
 //			simulatedEventsFileWriter.close();
 
 //			if(D) {
-//				ETAS_SimAnalysisTools.plotRateVsLogTimeForPrimaryAshocks(simulationName, new File(resultsDir,"logRateDecayPDF_ForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
-//						etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
+			if(catIndex==0)
+				ETAS_SimAnalysisTools.plotRateVsLogTimeForPrimaryAshocks(simulationName, new File(resultsDir,"logRateDecayPDF_ForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
+						etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
 //			}
 
 		}
 		
+		if (progressBar != null) progressBar.showProgress(false);
+
+		
 		info_fr.close();
 	
-		
-		// Plot average num M≥5 versus time
-		histOfAveNumVsTime.scale(1.0/(double)(binWidthYears*numCatalogs)); 
-		GraphWindow numVsTimeGraph = new GraphWindow(histOfAveNumVsTime, "Ave histOfAveNumVsTime",new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE)); 
-		numVsTimeGraph.setX_AxisLabel("Year");
-		numVsTimeGraph.setY_AxisLabel("N(M≥5)");
-		numVsTimeGraph.setPlotLabelFontSize(18);
-		numVsTimeGraph.setAxisLabelFontSize(16);
-		numVsTimeGraph.setTickLabelFontSize(14);
+		if(histOfAveNumVsTimeArray != null) {
+			HistogramFunction meanAveNumVsTime = new HistogramFunction(binWidthYears/2, numYears-binWidthYears/2,numBins);
+			HistogramFunction meanPlus2stdomAveNumVsTime = new HistogramFunction(binWidthYears/2, numYears-binWidthYears/2,numBins);
+			HistogramFunction meanMinus2stdomAveNumVsTime = new HistogramFunction(binWidthYears/2, numYears-binWidthYears/2,numBins);
+
+			for(int i=0;i<meanAveNumVsTime.size();i++) {
+				double[] vals = new double[numCatalogs];
+				for(int c=0;c<numCatalogs;c++) {
+					vals[c] = histOfAveNumVsTimeArray[c].getY(i)/binWidthYears;
+				}
+				
+				double mean = StatUtils.mean(vals);
+				double stdom = Math.sqrt(StatUtils.variance(vals)/numCatalogs);
+				meanAveNumVsTime.set(i,mean);
+				meanPlus2stdomAveNumVsTime.set(i,mean+2*stdom);
+				meanMinus2stdomAveNumVsTime.set(i,mean-2*stdom);
+			}
+			
+			// Plot average num M≥5 versus time
+			ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+			funcList.add(meanAveNumVsTime);
+			funcList.add(meanPlus2stdomAveNumVsTime);
+			funcList.add(meanMinus2stdomAveNumVsTime);
+			ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
+			curveCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE));
+			curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+			curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+			GraphWindow numVsTimeGraph = new GraphWindow(funcList, "Ave histOfAveNumVsTime",curveCharList); 
+			numVsTimeGraph.setX_AxisLabel("Year");
+			numVsTimeGraph.setY_AxisLabel("N(M≥5)");
+			numVsTimeGraph.setPlotLabelFontSize(18);
+			numVsTimeGraph.setAxisLabelFontSize(16);
+			numVsTimeGraph.setTickLabelFontSize(14);
+			
+			String pathName = new File(resultsDir,"numVsTimeGraph.pdf").getAbsolutePath();
+			numVsTimeGraph.saveAsPDF(pathName);
+
+			pathName = new File(resultsDir,"numVsTimeGraph.txt").getAbsolutePath();
+			numVsTimeGraph.saveAsTXT(pathName);
+		}
 			
 		// plot MFDs
 		allEventsMagProbDist.scale(1.0/(double)(numYears*numCatalogs));
 		allEventsMagProbDist.setName("All Simulated Events MFD");
-		allEventsMagProbDist.setInfo("Total Num = "+allEventsMagProbDist.calcSumOfY_Vals());
+		double totNumSim = allEventsMagProbDist.calcSumOfY_Vals();
+		allEventsMagProbDist.setInfo("Total Num = "+totNumSim+"; numSim/numExpected = "+((double)totNumSim/(double)mfd.calcSumOfY_Vals()));
 		spontaneousMagProbDist.scale(1.0/(double)(numYears*numCatalogs));
 		spontaneousMagProbDist.setName("Spontaneous Simulated Events MFD");
 		spontaneousMagProbDist.setInfo("Total Num = "+spontaneousMagProbDist.calcSumOfY_Vals());
@@ -1765,19 +1936,13 @@ public class ETAS_Utils {
 		cumMFDsGraph.setPlotLabelFontSize(18);
 		cumMFDsGraph.setAxisLabelFontSize(16);
 		cumMFDsGraph.setTickLabelFontSize(14);			
-		
-		String pathName = new File(resultsDir,"numVsTimeGraph.pdf").getAbsolutePath();
-		numVsTimeGraph.saveAsPDF(pathName);
-		
-		pathName = new File(resultsDir,"incrMFDsGraph.pdf").getAbsolutePath();
+				
+		String pathName = new File(resultsDir,"incrMFDsGraph.pdf").getAbsolutePath();
 		incrMFDsGraph.saveAsPDF(pathName);
 		
 		pathName = new File(resultsDir,"cumMFDsGraph.pdf").getAbsolutePath();
 		cumMFDsGraph.saveAsPDF(pathName);
 
-		pathName = new File(resultsDir,"numVsTimeGraph.txt").getAbsolutePath();
-		numVsTimeGraph.saveAsTXT(pathName);
-		
 		pathName = new File(resultsDir,"incrMFDsGraph.txt").getAbsolutePath();
 		incrMFDsGraph.saveAsTXT(pathName);
 		
@@ -1788,7 +1953,5 @@ public class ETAS_Utils {
 			ETAS_SimAnalysisTools.writeMemoryUse("Memory at end of simultation");
 		
 	}
-
-
 }
 
