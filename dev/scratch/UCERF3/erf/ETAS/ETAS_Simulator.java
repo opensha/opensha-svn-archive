@@ -1,5 +1,6 @@
 package scratch.UCERF3.erf.ETAS;
 
+import java.awt.Color;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.io.File;
@@ -20,8 +21,10 @@ import javax.swing.JOptionPane;
 import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_TESTING_GRIDDED;
 import org.opensha.commons.eq.MagUtils;
@@ -33,6 +36,9 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
@@ -89,6 +95,7 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
+import scratch.UCERF3.data.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
@@ -1007,8 +1014,103 @@ public class ETAS_Simulator {
 //		return histQkList;
 	}
 	
+	/**
+	 * This returns a list of observed ruptures that has been filtered for state wide completeness according to
+	 * UCERF3.data.U3_EqkCatalogStatewideCompleteness
+	 * @param startTimeYear
+	 * @return
+	 */
+	public static ObsEqkRupList getHistCatalogFiltedForStatewideCompleteness(double startTimeYear) {
+		ObsEqkRupList qkList = getHistCatalog(startTimeYear);
+		U3_EqkCatalogStatewideCompleteness yrMagCompleteFunc = new U3_EqkCatalogStatewideCompleteness();
+		ObsEqkRupList filteredQkList = new ObsEqkRupList();
+		for(ObsEqkRupture rup:qkList) {
+			double year = rup.getOriginTime()/ProbabilityModelsCalc.MILLISEC_PER_YEAR+1970;
+			double yearThresh = yrMagCompleteFunc.getClosestYtoX(rup.getMag());
+			if(year>=yearThresh)
+				filteredQkList.add(rup);
+		}
+		return filteredQkList;
+	}
 
 	
+	public static void plotCatalogMagVsTime(ObsEqkRupList obsQkList) {
+		DefaultXY_DataSet yearVsMagXYdata = new DefaultXY_DataSet();
+		for(ObsEqkRupture rup:obsQkList) {
+			double otYear = rup.getOriginTime()/ProbabilityModelsCalc.MILLISEC_PER_YEAR+1970;
+			yearVsMagXYdata.set(rup.getMag(),otYear);
+		}
+		
+		U3_EqkCatalogStatewideCompleteness yrMagCompleteFunc = new U3_EqkCatalogStatewideCompleteness();
+		DefaultXY_DataSet yearVsMagCompleteXYdata = new DefaultXY_DataSet();
+		double deltaMagOver2 = yrMagCompleteFunc.getDelta()/2.0;
+		for(int i=0;i<yrMagCompleteFunc.size();i++) {
+			yearVsMagCompleteXYdata.set(yrMagCompleteFunc.getX(i)-deltaMagOver2,yrMagCompleteFunc.getY(i));
+			yearVsMagCompleteXYdata.set(yrMagCompleteFunc.getX(i)+deltaMagOver2,yrMagCompleteFunc.getY(i));
+		}
+
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
+		funcList.add(yearVsMagXYdata);
+		funcList.add(yearVsMagCompleteXYdata);
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 1f, Color.RED));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		GraphWindow graph = new GraphWindow(funcList, "Mag vs Time", plotCharList); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Year");
+		graph.setY_AxisRange(1750, 2015);
+
+	}
+	
+	
+	public static void plotFilteredCatalogMagFreqDist(ObsEqkRupList obsQkList,IncrementalMagFreqDist yrCompleteForMagFunc, SummedMagFreqDist targetMFD) {
+		SummedMagFreqDist mfd = new SummedMagFreqDist(2.55,8.45,60);
+		for(ObsEqkRupture rup:obsQkList) {
+			double yrs = 2012.0 - yrCompleteForMagFunc.getClosestYtoX(rup.getMag());
+			mfd.addResampledMagRate(rup.getMag(), 1.0/yrs, true);
+		}
+		mfd.setName("Catalog MFD");
+		mfd.setInfo("Total Rate = "+mfd.getTotalIncrRate());
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
+		funcList.add(mfd);
+		funcList.add(mfd.getCumRateDistWithOffset());
+		funcList.get(1).setName("Cumulative Catalog MFD");
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLUE));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
+		
+		double expNumAftershockRatio=Double.NaN;
+		if(targetMFD != null) {
+			
+			// compute ratio of expected num aftershocks
+			double maxMag = targetMFD.getMaxMagWithNonZeroRate();
+			double sumObs=0;
+			double sumTarget=0;
+			for(double mag=2.55;mag< maxMag+mfd.getDelta()/2.0; mag += mfd.getDelta()) {
+				sumObs += mfd.getY(mag)*Math.pow(10, mag);
+				sumTarget += targetMFD.getY(mag)*Math.pow(10, mag);
+			}
+			expNumAftershockRatio=sumObs/sumTarget;			
+			targetMFD.setName("Target MFD");
+			targetMFD.setInfo("Total Rate = "+targetMFD.getTotalIncrRate());
+			funcList.add(targetMFD);
+			funcList.add(targetMFD.getCumRateDistWithOffset());
+			funcList.get(3).setName("Cumulative Target MFD");
+			plotCharList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));			
+			plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));			
+		}
+		mfd.setInfo(mfd.getInfo()+"\n"+"expNumAftershockRatio = "+(float)expNumAftershockRatio);
+
+		GraphWindow graph = new GraphWindow(funcList, "MFDs; expNumAftershockRatio = "+(float)expNumAftershockRatio, plotCharList); 
+		graph.setX_AxisLabel("Mag");
+		graph.setY_AxisLabel("Rate (per year)");
+		graph.setYLog(true);
+		graph.setY_AxisRange(1e-5,1e4);;
+
+	}
+
 	
 	
 	/**

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.util.ComparablePairing;
 
 import com.google.common.base.Joiner;
@@ -63,6 +64,18 @@ public class IntegerPDF_FunctionSampler extends EvenlyDiscretizedFunc {
 		cumDistVals = new double[values.length];
 		for(int i=0;i<values.length;i++)
 			set(i, values[i]);
+	}
+
+	
+	/**
+	 * 
+	 * @param xyDataSet - contains the Y values for the sampler
+	 */
+	public IntegerPDF_FunctionSampler(XY_DataSet xyDataSet) {
+		super(0.0, xyDataSet.size(), 1.0);
+		cumDistVals = new double[xyDataSet.size()];
+		for(int i=0;i<xyDataSet.size();i++)
+			set(i, xyDataSet.getY(i));
 	}
 
 	

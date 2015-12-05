@@ -20,6 +20,7 @@ import java.util.PriorityQueue;
 import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.TimeSpan;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.geo.GriddedRegion;
@@ -58,6 +59,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
+import scratch.UCERF3.data.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
@@ -846,8 +848,26 @@ public class ETAS_Utils {
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
 		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		
+//		System.out.println("2.5\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 2.5, 2.5, etasParams.get_c(), 0d, 1e10));
+//		System.out.println("5.0\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 5.0, 2.5, etasParams.get_c(), 0d, 1e10));
+//		System.out.println("7.8\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 7.8, 2.5, etasParams.get_c(), 0d, 1e10));
+		
+		// Felzer Params:
+		etasParams.set_c(0.095);
+		etasParams.set_p(1.34);
+		etasParams.set_k(0.008);
+
+//		System.out.println("2.5\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 2.5, 2.5, etasParams.get_c(), 0d, 1e10));
+//		System.out.println("5.0\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 5.0, 2.5, etasParams.get_c(), 0d, 1e10));
+//		System.out.println("7.8\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 7.8, 2.5, etasParams.get_c(), 0d, 1e10));
+//		System.exit(0);
+		
+		String Prefix = "Felzer";
+		
 		double numDays[] = {7.0,365.25, 365250.0};	// 1 week, 1 year, and 1000 years
-		String filenames[] = {"ETAS_TriggerStats_1week.txt","ETAS_TriggerStats_1year.txt","ETAS_TriggerStats_1000year.txt"};
+		String filenames[] = {Prefix+"ETAS_TriggerStats_1week.txt",Prefix+"ETAS_TriggerStats_1year.txt",Prefix+"ETAS_TriggerStats_1000year.txt"};
 		
 		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
 //		GraphWindow graph = new GraphWindow(grDist, "grDist"); 
@@ -862,7 +882,7 @@ public class ETAS_Utils {
 				for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5) {
 					int numRandomSamples = (int) Math.pow(10000.0, 1+(8-mainMag)/8);
 					System.out.println("Working on mag "+mainMag+"; numDays="+numDays[i]+"; "+numRandomSamples);
-					String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, grDist, k_DEFAULT, p_DEFAULT, magMin_DEFAULT, c_DEFAULT, numDays[i], 15, numRandomSamples);
+					String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, grDist, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), numDays[i], 15, numRandomSamples);
 //					System.out.println(line);
 					fw.write(line);
 				}
@@ -876,11 +896,191 @@ public class ETAS_Utils {
 	
 	
 	
+	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
+			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
+		
+		double deltaTimeMillis = (double)(forecastEndTime-forecastStartTime)/(double)numTimeSamples;
+		EvenlyDiscretizedFunc rateVsEpochTimeFunc = new EvenlyDiscretizedFunc((double)forecastStartTime+deltaTimeMillis/2.0,(double)forecastEndTime-deltaTimeMillis/2.0,numTimeSamples);
+		double totalRatePerYear = mfd.getCumRate(2.45);
+		int firstMagIndex = mfd.getXIndex(2.45);
+		for(int i=0;i<rateVsEpochTimeFunc.size();i++) {
+			// compute time over which we have observations
+			double histDurationDays = (rateVsEpochTimeFunc.getX(i)-(double)histCatStartTime)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+			// loop over magnitudes
+			double rate=0;
+			for(int m=firstMagIndex;m<mfd.size();m++) {
+				if(mfd.getY(m)>1e-10) {	// skip low rate bins
+					double mag = mfd.getX(m);
+					rate += getExpectedNumEvents(k, p, mag, magMin, c, 0.0, histDurationDays)*mfd.getY(m);
+				}
+			}
+			rateVsEpochTimeFunc.set(i,(totalRatePerYear-rate));
+		}
+		return rateVsEpochTimeFunc;
+	}
+	
+	
+	
+	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, IncrementalMagFreqDist yrCompleteForMagFunc, long forecastStartTime, 
+			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
+		
+		double deltaTimeMillis = (double)(forecastEndTime-forecastStartTime)/(double)numTimeSamples;
+		EvenlyDiscretizedFunc rateVsEpochTimeFunc = new EvenlyDiscretizedFunc((double)forecastStartTime+deltaTimeMillis/2.0,(double)forecastEndTime-deltaTimeMillis/2.0,numTimeSamples);
+		double totalRatePerYear = mfd.getCumRate(2.55);
+		int firstMagIndex = mfd.getXIndex(2.55);
+		for(int i=0;i<rateVsEpochTimeFunc.size();i++) {
+			double rate=0;
+			for(int m=firstMagIndex;m<mfd.size();m++) {
+				if(mfd.getY(m)>1e-10) {	// skip low rate bins
+					double mag = mfd.getX(m);
+					double magCompleteTimeMillis = (yrCompleteForMagFunc.getY(mag)-1970)*ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+					double histDurationDays = (rateVsEpochTimeFunc.getX(i)-magCompleteTimeMillis)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;					
+					rate += getExpectedNumEvents(k, p, mag, magMin, c, 0.0, histDurationDays)*mfd.getY(m);
+				}
+			}
+			rateVsEpochTimeFunc.set(i,(totalRatePerYear-rate));
+		}
+		return rateVsEpochTimeFunc;
+	}
+
+	
+	
+	public static EvenlyDiscretizedFunc getSpontanousEventRateFunctionOLD(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
+			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
+		
+		EvenlyDiscretizedFunc rateVsEpochTimeFunc = new EvenlyDiscretizedFunc((double)forecastStartTime,(double)forecastEndTime,numTimeSamples);
+		double totalRatePerYear = mfd.calcSumOfY_Vals();
+		double meanAftRate=0;
+		for(int i=0;i<rateVsEpochTimeFunc.size();i++) {
+			// compute time over which we have observations
+			double histDurationDays = (rateVsEpochTimeFunc.getX(i)-(double)histCatStartTime)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+			// loop over magnitudes
+			double rate=0;
+			for(int m=0;m<mfd.size();m++) {
+				if(mfd.getY(m)>1e-10) {	// skip low rate bins
+					double mag = mfd.getX(m);
+					rate += getExpectedNumEvents(k, p, mag, magMin, c, 0.0, histDurationDays)*mfd.getY(m);
+				}
+			}
+			meanAftRate+=rate;
+			rateVsEpochTimeFunc.set(i,(totalRatePerYear-rate));
+		}
+		meanAftRate /= (double)numTimeSamples;
+//System.out.println("n="+maenAftRate/totalRatePerYear);
+		return rateVsEpochTimeFunc;
+	}
+	
+	/**
+	 * 
+	 * @param rateFunc - x-axisis epoch time (doubles) and the y-axis is the yearly rate at that time
+	 * @return
+	 */
+	public long[] getRandomSpontanousEventTimes(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
+			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
+		
+		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunction(mfd, histCatStartTime, forecastStartTime, 
+				forecastEndTime, numTimeSamples, k, p, magMin, c);
+		
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(rateFunc);
+		
+		double meanRatePerYear = 0;
+		for(int i=0;i<rateFunc.size();i++) {
+			meanRatePerYear+= rateFunc.getY(i)/rateFunc.size();	// fact that it should be only half the first and last bin doesn't seem to matter
+		}
+		
+		double numYears = (rateFunc.getMaxX()-rateFunc.getMinX()+rateFunc.getDelta())/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+		int numEvents = getPoissonRandomNumber(meanRatePerYear*numYears);
+		long[] eventTimesMillis = new long[numEvents];
+		for(int i=0;i<numEvents;i++) {
+			int randIndex = sampler.getRandomInt(getRandomDouble());
+			double time = rateFunc.getX(randIndex) + (getRandomDouble()-0.5)*rateFunc.getDelta();	// latter term randomizes within the bin
+			eventTimesMillis[i] = (long)time;
+		}
+		
+		return eventTimesMillis;		
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @param rateFunc - x-axisis epoch time (doubles) and the y-axis is the yearly rate at that time
+	 * @return
+	 */
+	public long[] getRandomSpontanousEventTimes(IncrementalMagFreqDist mfd, IncrementalMagFreqDist yrCompleteForMagFunc, long forecastStartTime, 
+			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
+		
+		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunction(mfd, yrCompleteForMagFunc, forecastStartTime, 
+				forecastEndTime, numTimeSamples, k, p, magMin, c);
+		
+		IntegerPDF_FunctionSampler sampler = new IntegerPDF_FunctionSampler(rateFunc);
+		
+		double meanRatePerYear = 0;
+		for(int i=0;i<rateFunc.size();i++) {
+			meanRatePerYear+= rateFunc.getY(i)/rateFunc.size();	// fact that it should be only half the first and last bin doesn't seem to matter
+		}
+		
+		double numYears = (rateFunc.getMaxX()-rateFunc.getMinX()+rateFunc.getDelta())/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+		int numEvents = getPoissonRandomNumber(meanRatePerYear*numYears);
+		long[] eventTimesMillis = new long[numEvents];
+		for(int i=0;i<numEvents;i++) {
+			int randIndex = sampler.getRandomInt(getRandomDouble());
+			double time = rateFunc.getX(randIndex) + (getRandomDouble()-0.5)*rateFunc.getDelta();	// latter term randomizes within the bin
+			eventTimesMillis[i] = (long)time;
+		}
+		
+		return eventTimesMillis;		
+	}
+
+	
+	public long[] getRandomSpontanousEventTimesOLD(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
+			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
+		
+		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunctionOLD(mfd, histCatStartTime, forecastStartTime, 
+				forecastEndTime, numTimeSamples, k, p, magMin, c);
+		
+		double meanRatePerYear = 0;
+		ArbitrarilyDiscretizedFunc inverseFunc = new ArbitrarilyDiscretizedFunc();
+		for(int i=0;i<rateFunc.size();i++) {
+			inverseFunc.set(rateFunc.getY(i), rateFunc.getX(i));
+			meanRatePerYear+= rateFunc.getY(i)/rateFunc.size();	// fact that it should be only half the first and last bin doesn't seem to matter
+		}
+		
+		GraphWindow rateFuncGraph = new GraphWindow(rateFunc, "rateFunc"); 
+		GraphWindow inverseFuncGraph = new GraphWindow(inverseFunc, "inverseFunc"); 
+
+		
+		double numYears = (rateFunc.getMaxX()-rateFunc.getMinX())/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+// System.out.print("\texpNum="+(meanRatePerYear*numYears));
+		int numEvents = getPoissonRandomNumber(meanRatePerYear*numYears);
+		long[] eventTimesMillis = new long[numEvents];
+		double xMin = inverseFunc.getMinX();
+		double xMax = inverseFunc.getMaxX();
+		for(int i=0;i<numEvents;i++) {
+			double randX = xMin + getRandomDouble()*(xMax-xMin);
+			eventTimesMillis[i] = (long)inverseFunc.getInterpolatedY(randX);
+		}
+		
+		return eventTimesMillis;		
+	}
+
+	
 	public static void main(String[] args) {
 		
 //		plotExpectedNumPrimaryVsTime();
 		
-		runMagTimeCatalogSimulation();
+//		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalog(2012));
+//		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012));
+		
+		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_HistCat_U3MFD_correctSpont";
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
+				new U3_EqkCatalogStatewideCompleteness(), mfd);
+		
+//		runMagTimeCatalogSimulation();
 		
 //		writeTriggerStatsToFiles();
 		
@@ -1468,17 +1668,29 @@ public class ETAS_Utils {
 		double c=1.78E-05*365.25;
 		double k=2.84E-03*Math.pow(365.25,0.07);
 		double p=1.07;
-		HistogramFunction jeanneDefault = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
-		double totNum = jeanneDefault.calcSumOfY_Vals();
+		// this is really num in each bin until converted below
+		HistogramFunction jeanneDefaultNumPerBin = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
+		double totNum = jeanneDefaultNumPerBin.calcSumOfY_Vals();
+		HistogramFunction jeanneDefaultNumOccurred = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
 		double sum=0;
-		for(int i=jeanneDefault.size()-1;i>=0;i--) {
-			sum += jeanneDefault.getY(i);
-			jeanneDefault.set(i,sum);
+		for(int i=0;i<jeanneDefaultNumPerBin.size();i++) {
+			sum += jeanneDefaultNumPerBin.getY(i);
+			jeanneDefaultNumOccurred.set(i,sum);
 		}
-		jeanneDefault.setName("Jeanne's Table S2 Params");
-		
-		jeanneDefault.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
+		HistogramFunction jeanneDefaultNumRemaining = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
+		sum=0;
+		for(int i=jeanneDefaultNumPerBin.size()-1;i>=0;i--) {
+			sum += jeanneDefaultNumPerBin.getY(i);
+			jeanneDefaultNumRemaining.set(i,sum);
+		}
+		jeanneDefaultNumRemaining.setName("Num Remaining to occur for Jeanne's Table S2 Params");
+		jeanneDefaultNumRemaining.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
 				"\nTest Num = "+(float)getExpectedNumEvents(k, p, magMain, magMin, c, 0.0, Math.pow(10, log_tMax)));
+		jeanneDefaultNumOccurred.setName("Num that have occurred for Jeanne's Table S2 Params");
+		jeanneDefaultNumOccurred.setInfo("");
+		jeanneDefaultNumPerBin.setName("Num per bin for Jeanne's Table S2 Params");
+		jeanneDefaultNumPerBin.setInfo("");
+
 		
 //		// TEST the slope
 //		int index1 = jeanneDefault.getClosestXIndex(4.0);
@@ -1494,52 +1706,87 @@ public class ETAS_Utils {
 		c=2.00E-05*365.25;
 		k=2.69E-03*Math.pow(365.25,0.08);
 		p=1.08;
-		HistogramFunction jeanneAlt = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
-		totNum = jeanneAlt.calcSumOfY_Vals();
+		// this is really num in each bin until converted below
+		HistogramFunction jeanneAltNumPerBin = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
+		totNum = jeanneAltNumPerBin.calcSumOfY_Vals();
+		HistogramFunction jeanneAltNumOccurred = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
 		sum=0;
-		for(int i=jeanneAlt.size()-1;i>=0;i--) {
-			sum += jeanneAlt.getY(i);
-			jeanneAlt.set(i,sum);
+		for(int i=0;i<jeanneAltNumPerBin.size();i++) {
+			sum += jeanneAltNumPerBin.getY(i);
+			jeanneAltNumOccurred.set(i,sum);
 		}
-		jeanneAlt.setName("Jeanne's Alt Params");
-		jeanneAlt.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
+		HistogramFunction jeanneAltNumRemaining = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
+		sum=0;
+		for(int i=jeanneAltNumPerBin.size()-1;i>=0;i--) {
+			sum += jeanneAltNumPerBin.getY(i);
+			jeanneAltNumRemaining.set(i,sum);
+		}
+		jeanneAltNumRemaining.setName("Num Remaining to occur for Jeanne's Alt Params");
+		jeanneAltNumRemaining.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
 				"\nTest Num = "+(float)getExpectedNumEvents(k, p, magMain, magMin, c, 0.0, Math.pow(10, log_tMax)));
+		jeanneAltNumOccurred.setName("Num that have occurred for Jeanne's Alt Params");
+		jeanneAltNumOccurred.setInfo("");
+		jeanneAltNumPerBin.setName("Num per bin for Jeanne's Alt Params");
+		jeanneAltNumPerBin.setInfo("");
 
 
 		// Karen's params
 		c=0.095;
 		k=0.008;
 		p=1.34;
-		HistogramFunction KarenParams = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
-		totNum = KarenParams.calcSumOfY_Vals();
+		// this is really num in each bin until converted below
+		HistogramFunction karenParamsNumPerBin = getNumWithLogTimeFunc(k, p, magMain, magMin, c, log_tMin, log_tMax, log_tDelta);
+		totNum = karenParamsNumPerBin.calcSumOfY_Vals();
+		HistogramFunction karenParamsNumOccurred = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
 		sum=0;
-		for(int i=KarenParams.size()-1;i>=0;i--) {
-			sum += KarenParams.getY(i);
-			KarenParams.set(i,sum);
+		for(int i=0;i<karenParamsNumPerBin.size();i++) {
+			sum += karenParamsNumPerBin.getY(i);
+			karenParamsNumOccurred.set(i,sum);
 		}
-		KarenParams.setName("Karen's Params");
-		KarenParams.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
+		HistogramFunction karenParamsNumRemaining = new HistogramFunction(log_tMin+log_tDelta/2, log_tMax-log_tDelta/2, (int)Math.round((log_tMax-log_tMin)/log_tDelta));
+		sum=0;
+		for(int i=karenParamsNumPerBin.size()-1;i>=0;i--) {
+			sum += karenParamsNumPerBin.getY(i);
+			karenParamsNumRemaining.set(i,sum);
+		}
+		karenParamsNumRemaining.setName("Num Remaining to occur for Karen's Params");
+		karenParamsNumRemaining.setInfo("c="+(float)c+"\tk="+(float)k+"\tp="+(float)p+"\nTotal Num = "+(float)totNum+
 				"\nTest Num = "+(float)getExpectedNumEvents(k, p, magMain, magMin, c, 0.0, Math.pow(10, log_tMax)));
-
+		karenParamsNumOccurred.setName("Num that have occurred for Karen's Params");
+		karenParamsNumOccurred.setInfo("");
+		karenParamsNumPerBin.setName("Num per bin for Karen's Params");
+		karenParamsNumPerBin.setInfo("");
 			
 		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
-		funcList.add(jeanneDefault);
-		funcList.add(jeanneAlt);
-		funcList.add(KarenParams);
+		funcList.add(jeanneDefaultNumRemaining);
+		funcList.add(jeanneAltNumRemaining);
+		funcList.add(karenParamsNumRemaining);
+		funcList.add(jeanneDefaultNumOccurred);
+		funcList.add(jeanneAltNumOccurred);
+		funcList.add(karenParamsNumOccurred);
+		funcList.add(jeanneDefaultNumPerBin);
+		funcList.add(jeanneAltNumPerBin);
+		funcList.add(karenParamsNumPerBin);
 		ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
 		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GREEN));
-		GraphWindow numVsTimeGraph = new GraphWindow(funcList, "Num Primay Events Yet To Occur for M = "+magMain,curveCharList); 
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED, 2f, Color.BLACK));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED, 2f, Color.BLUE));
+		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.DOTTED_AND_DASHED, 2f, Color.GREEN));
+		GraphWindow numVsTimeGraph = new GraphWindow(funcList, "Num Primay With Time for M = "+magMain,curveCharList); 
 		numVsTimeGraph.setX_AxisLabel("Log10 Days");
-		numVsTimeGraph.setY_AxisLabel("Num Yet To Occur");
+		numVsTimeGraph.setY_AxisLabel("Num Per Bin, Yet To Occur, or Have Occurred");
 		numVsTimeGraph.setX_AxisRange(-4, 7);
 		numVsTimeGraph.setYLog(true);
 		numVsTimeGraph.setPlotLabelFontSize(18);
 		numVsTimeGraph.setAxisLabelFontSize(16);
 		numVsTimeGraph.setTickLabelFontSize(14);
 		
-		String pathName = new File("numPrimaryEventsRemainingVsTime_M7pt8.pdf").getAbsolutePath();
+		String pathName = new File("numPrimaryEventsVsTime_M7pt8.pdf").getAbsolutePath();
 		try {
 			numVsTimeGraph.saveAsPDF(pathName);
 		} catch (IOException e) {
@@ -1552,6 +1799,9 @@ public class ETAS_Utils {
 	
 	
 	public static void runMagTimeCatalogSimulation() {
+		
+//		U3_EqkCatalogStatewideCompleteness test = new U3_EqkCatalogStatewideCompleteness();
+//		System.exit(0);
 		
 //		System.out.println("Jeanne's Min k: "+ETAS_ProductivityParam_k.MIN);
 //		System.out.println("Jeanne's Max k: "+ETAS_ProductivityParam_k.MAX);
@@ -1573,33 +1823,80 @@ public class ETAS_Utils {
 //		etasParams.set_p(1.34);
 //		etasParams.set_k(0.008);
 		
-//		// Jeanne's default paramets with fract spontaneous changed (computed as n from Equation (14) with T=5000)
-//		etasParams.setFractSpont(0.2);
+		// Jeanne's default paramets with fract spontaneous changed (computed as n from Equation (14) with T=5000)
+//		etasParams.setFractSpont(1.0-0.642);
 
 		
-//		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_HistCat_U3MFD";
-//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
-//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-//		erf.updateForecast();
-//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_HistCat_U3MFD_correctSpont";
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 
-		String simulationName = "MagTimeCatalogSimulation_JeanneParams_18yrs_5000_HistCat";
-//		String simulationName = "MagTimeCatalogSimulation_FelzerAltParams_18yrs_1000_HistCat";
-		double mMin = 2.55;
-		double mMax = 7.85;
-		int numMag = (int)Math.round((mMax-mMin)/0.1)+1;
-		double cumRateAtM5 = 10.0;
-		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1.0, 1.0, mMin, mMax, numMag);
-		mfd.scaleToCumRate(5.05, cumRateAtM5);
+//		String simulationName = "MagTimeCatalogSimulation_JeanneParams_18yrs_5000_NoHistCat_correctSpont";
+////		String simulationName = "MagTimeCatalogSimulation_FelzerAltParams_18yrs_1000_HistCat";
+//		double mMin = 2.55;
+//		double mMax = 7.85;
+//		int numMag = (int)Math.round((mMax-mMin)/0.1)+1;
+//		double cumRateAtM5 = 10.0;
+//		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(1.0, 1.0, mMin, mMax, numMag);
+//		mfd.scaleToCumRate(5.05, cumRateAtM5);
 				
 		double startTimeYear=2012;
-		double durationYears=18;
+		double durationYears=30;
 		double numYearsBinWidth=1.0;
+		
+//		
+//		long forecastStartTime = (long) ((startTimeYear-1970d)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+////		long histCatStartTime = forecastStartTime;
+//		long histCatStartTime = (long) ((1990d-1970d)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+//		long forecastEndTime =  (long) ((startTimeYear+durationYears-1970d)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+//		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunction(mfd, histCatStartTime, forecastStartTime, 
+//				forecastEndTime, 1000, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c());
+//		double mean =0;
+//		for(int i=0;i<rateFunc.size();i++) {
+//				mean += rateFunc.getY(i)/(double)rateFunc.size();
+//		}
+//		double n = 1.0 - mean/mfd.calcSumOfY_Vals();
+//		rateFunc.setInfo("n="+(float)n+"\nexpNumSpont="+(mean*durationYears));
+//		System.out.println("n="+(float)n+"\nexpNumSpont="+(mean*durationYears));
+//		
+//		int numForHist = 1000;
+//		ETAS_Utils etasUtils = new ETAS_Utils();
+//		double deltaHistMillis = (double)(forecastEndTime-forecastStartTime)/(double)numForHist;
+//		double deltaHistYears = deltaHistMillis/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+//		System.out.println("deltaHistYears="+deltaHistYears);
+//		HistogramFunction rateVsEpochTimeHist = new HistogramFunction((double)forecastStartTime+deltaHistMillis/2.0,(double)forecastEndTime-deltaHistMillis/2.0,numForHist);
+//		int numSamples = 1000;
+//		double meanNum=0;
+//		for(int i=0;i<numSamples;i++) {
+//			System.out.println("Working on "+i);
+//			long[] eventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, histCatStartTime, forecastStartTime, 
+//					forecastEndTime, 10000, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c());
+//			meanNum += eventTimes.length;
+//			for(long time:eventTimes)
+//				rateVsEpochTimeHist.add((double)time, 1.0/(deltaHistYears*(double)numSamples));
+//		}
+//		meanNum /= numSamples;
+//		System.out.println("meanNum="+meanNum);
+//		
+//		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+//		funcList.add(rateVsEpochTimeHist);
+//		funcList.add(rateFunc);
+//		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+//		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+//		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+//		GraphWindow numVsTimeGraph = new GraphWindow(funcList, "Ave histOfAveNumVsTime",plotCharList); 
+//		numVsTimeGraph.setX_AxisLabel("Epoch");
+//		numVsTimeGraph.setY_AxisLabel("SpontanousRate");
+
+		
+		
 		
 		int numCatalogs = 5000;
 		
 //		ObsEqkRupList histCat = null;
-		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear);
+		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
 		
 		try {
 			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, 
@@ -1743,23 +2040,49 @@ public class ETAS_Utils {
 
 			// make the list of spontaneous events, filling in only event IDs and origin times for now
 			if (D) System.out.println("Making spontaneous events and times of primary aftershocks...");
-			double fractionNonTriggered=etasParams.getFractSpont();	// one minus branching ratio TODO fix this; this is not what branching ratio is
-			double expectedNum = mfd.getTotalIncrRate()*fractionNonTriggered*numYears;
-			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
-			for(int r=0;r<numSpontEvents;r++) {
+			
+//			// Approximate Way:
+//			double fractionNonTriggered=etasParams.getFractSpont();	// one minus branching ratio TODO fix this; this is not what branching ratio is
+//			double expectedNum = mfd.getTotalIncrRate()*fractionNonTriggered*numYears;
+//			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
+//			for(int r=0;r<numSpontEvents;r++) {
+//				ETAS_EqkRupture rup = new ETAS_EqkRupture();
+//				double ot = simStartTimeMillis+etas_utils.getRandomDouble()*(simEndTimeMillis-simStartTimeMillis);	// random time over time span
+//				rup.setOriginTime((long)ot);
+//				rup.setID(eventID);
+//				rup.setGeneration(0);
+//				eventsToProcess.add(rup);
+//				eventID += 1;
+//			}
+//			String spEvStringInfo = "Spontaneous Events:\n\n\tAssumed fraction non-triggered = "+fractionNonTriggered+
+//					"\n\texpectedNum="+expectedNum+"\n\tnumSampled="+numSpontEvents+"\n";
+//			if(D) System.out.println(spEvStringInfo);
+//			info_fr.write("\n"+spEvStringInfo);
+//			info_fr.flush();
+			
+			// More Accurate Way:
+			ETAS_Utils etasUtils = new ETAS_Utils();
+			long histCatStartTime = simStartTimeMillis;
+			long[] spontEventTimes;
+			if(histQkList==null)
+				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
+						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+			else
+				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, new U3_EqkCatalogStatewideCompleteness(), simStartTimeMillis, 
+						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+
+			for(int r=0;r<spontEventTimes.length;r++) {
 				ETAS_EqkRupture rup = new ETAS_EqkRupture();
-				double ot = simStartTimeMillis+etas_utils.getRandomDouble()*(simEndTimeMillis-simStartTimeMillis);	// random time over time span
-				rup.setOriginTime((long)ot);
+				rup.setOriginTime(spontEventTimes[r]);
 				rup.setID(eventID);
 				rup.setGeneration(0);
 				eventsToProcess.add(rup);
 				eventID += 1;
 			}
-			String spEvStringInfo = "Spontaneous Events:\n\n\tAssumed fraction non-triggered = "+fractionNonTriggered+
-					"\n\texpectedNum="+expectedNum+"\n\tnumSampled="+numSpontEvents+"\n";
-			if(D) System.out.println(spEvStringInfo);
-			info_fr.write("\n"+spEvStringInfo);
-			info_fr.flush();
+			
+			
+			
+			
 			
 			if (D) System.out.println("Looping over eventsToProcess (initial num = "+eventsToProcess.size()+")...\n");
 

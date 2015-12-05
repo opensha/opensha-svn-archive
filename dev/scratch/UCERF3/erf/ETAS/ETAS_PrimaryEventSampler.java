@@ -5620,7 +5620,7 @@ System.exit(0);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44-0.234,-118.34+0.573,1.), 0.29,"crossSectData_Bulge_mojave", false);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor15_PoissonNew");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor15_PoissonNew");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
@@ -5629,12 +5629,12 @@ System.exit(0);
 
 		
 		// Sections bulge plot
-//		try {
-////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections"), "Test", true);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections_113015"), "Test", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		
 //		// San Andreas (Mojave S), Subsection 4
