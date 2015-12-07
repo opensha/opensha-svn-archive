@@ -901,8 +901,8 @@ public class ETAS_Utils {
 		
 		double deltaTimeMillis = (double)(forecastEndTime-forecastStartTime)/(double)numTimeSamples;
 		EvenlyDiscretizedFunc rateVsEpochTimeFunc = new EvenlyDiscretizedFunc((double)forecastStartTime+deltaTimeMillis/2.0,(double)forecastEndTime-deltaTimeMillis/2.0,numTimeSamples);
-		double totalRatePerYear = mfd.getCumRate(2.45);
-		int firstMagIndex = mfd.getXIndex(2.45);
+		double totalRatePerYear = mfd.getCumRate(2.55);
+		int firstMagIndex = mfd.getXIndex(2.55);
 		for(int i=0;i<rateVsEpochTimeFunc.size();i++) {
 			// compute time over which we have observations
 			double histDurationDays = (rateVsEpochTimeFunc.getX(i)-(double)histCatStartTime)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -1069,18 +1069,17 @@ public class ETAS_Utils {
 		
 //		plotExpectedNumPrimaryVsTime();
 		
-//		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalog(2012));
-//		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012));
+//		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalog(2012), "CatalogVsTime");
+//		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012), "FilteredCatalogVsTime");
+//		
+//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+//		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
+//				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
-		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_HistCat_U3MFD_correctSpont";
-		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		erf.updateForecast();
-		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
-		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
-				new U3_EqkCatalogStatewideCompleteness(), mfd);
-		
-//		runMagTimeCatalogSimulation();
+		runMagTimeCatalogSimulation();
 		
 //		writeTriggerStatsToFiles();
 		
@@ -1827,7 +1826,7 @@ public class ETAS_Utils {
 //		etasParams.setFractSpont(1.0-0.642);
 
 		
-		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_HistCat_U3MFD_correctSpont";
+		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_FullHistCat_U3MFD_correctSpont";
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
@@ -1896,7 +1895,8 @@ public class ETAS_Utils {
 		int numCatalogs = 5000;
 		
 //		ObsEqkRupList histCat = null;
-		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
+//		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
+		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear);
 		
 		try {
 			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, 

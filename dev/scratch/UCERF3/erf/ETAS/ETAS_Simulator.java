@@ -297,7 +297,7 @@ public class ETAS_Simulator {
 		// get simulation timespan info
 		long simStartTimeMillis = erf.getTimeSpan().getStartTimeCalendar().getTimeInMillis();
 		long simEndTimeMillis = erf.getTimeSpan().getEndTimeCalendar().getTimeInMillis();
-		double simDuration = erf.getTimeSpan().getDuration();
+		double simDurationYrs = erf.getTimeSpan().getDuration();
 		
 		if(D) System.out.println("Updating forecast in testETAS_Simulation");
 		// set to yearly probabilities for simulation forecast (in case input was not a 1-year forecast)
@@ -422,24 +422,67 @@ public class ETAS_Simulator {
 		// make the list of spontaneous events, filling in only event IDs and origin times for now
 		if(includeSpontEvents) {
 			if (D) System.out.println("Making spontaneous events and times of primary aftershocks...");
-			double fractionNonTriggered=etasParams.getFractSpont();	// one minus branching ratio TODO fix this; this is not what branching ratio is
-			double expectedNum = origTotRate*simDuration*fractionNonTriggered;
-			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
-			for(int r=0;r<numSpontEvents;r++) {
+			
+//			// OLD WAY
+//			double fractionNonTriggered=etasParams.getFractSpont();	// one minus branching ratio TODO fix this; this is not what branching ratio is
+//			double expectedNum = origTotRate*simDuration*fractionNonTriggered;
+//			int numSpontEvents = etas_utils.getPoissonRandomNumber(expectedNum);
+//			for(int r=0;r<numSpontEvents;r++) {
+//				ETAS_EqkRupture rup = new ETAS_EqkRupture();
+//				double ot = simStartTimeMillis+etas_utils.getRandomDouble()*(simEndTimeMillis-simStartTimeMillis);	// random time over time span
+//				rup.setOriginTime((long)ot);
+//				rup.setID(eventID);
+//				rup.setGeneration(0);
+//				eventsToProcess.add(rup);
+//				eventID += 1;
+//			}
+//			String spEvStringInfo = "Spontaneous Events:\n\n\tAssumed fraction non-triggered = "+fractionNonTriggered+
+//					"\n\texpectedNum="+expectedNum+"\n\tnumSampled="+numSpontEvents+"\n";
+//			if(D) System.out.println(spEvStringInfo);
+//			info_fr.write("\n"+spEvStringInfo);
+//			info_fr.flush();
+			
+			
+			// NEW WAY (time-dep rate of spont events)
+			long histCatStartTime = simStartTimeMillis;
+			long[] spontEventTimes;
+			SummedMagFreqDist mfd = etas_PrimEventSampler.getLongTermTotalERF_MFD();
+			if(histQkList==null)
+				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
+						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+			else
+				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, new U3_EqkCatalogStatewideCompleteness(), simStartTimeMillis, 
+						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+
+			for(int r=0;r<spontEventTimes.length;r++) {
 				ETAS_EqkRupture rup = new ETAS_EqkRupture();
-				double ot = simStartTimeMillis+etas_utils.getRandomDouble()*(simEndTimeMillis-simStartTimeMillis);	// random time over time span
-				rup.setOriginTime((long)ot);
+				rup.setOriginTime(spontEventTimes[r]);
 				rup.setID(eventID);
 				rup.setGeneration(0);
 				eventsToProcess.add(rup);
 				eventID += 1;
 			}
-			String spEvStringInfo = "Spontaneous Events:\n\n\tAssumed fraction non-triggered = "+fractionNonTriggered+
-					"\n\texpectedNum="+expectedNum+"\n\tnumSampled="+numSpontEvents+"\n";
+			double fractionNonTriggered = (double)spontEventTimes.length/(origTotRate*simDurationYrs);
+			String spEvStringInfo = "Spontaneous Events:\n\n\tFraction non-triggered = "+fractionNonTriggered+
+					"\t(sample num over total expected num)"+"\n\tnumSpontEventsSampled="+spontEventTimes.length+"\n";
 			if(D) System.out.println(spEvStringInfo);
 			info_fr.write("\n"+spEvStringInfo);
 			info_fr.flush();
+
+			
+			
+			
+			
+			
 		}
+		
+
+		
+		
+		
+		
+		
+		
 
 		// If scenarioRup != null, generate  diagnostics if in debug mode!
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList=null;
@@ -1034,7 +1077,7 @@ public class ETAS_Simulator {
 	}
 
 	
-	public static void plotCatalogMagVsTime(ObsEqkRupList obsQkList) {
+	public static void plotCatalogMagVsTime(ObsEqkRupList obsQkList, String fileName) {
 		DefaultXY_DataSet yearVsMagXYdata = new DefaultXY_DataSet();
 		for(ObsEqkRupture rup:obsQkList) {
 			double otYear = rup.getOriginTime()/ProbabilityModelsCalc.MILLISEC_PER_YEAR+1970;
@@ -1056,15 +1099,24 @@ public class ETAS_Simulator {
 		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
 		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 1f, Color.RED));
 		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-		GraphWindow graph = new GraphWindow(funcList, "Mag vs Time", plotCharList); 
+		GraphWindow graph = new GraphWindow(funcList, "Year vs Mag", plotCharList); 
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Year");
 		graph.setY_AxisRange(1750, 2015);
+		
+		if(fileName != null) {
+			try {
+				graph.saveAsPDF(fileName+".pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 	}
 	
 	
-	public static void plotFilteredCatalogMagFreqDist(ObsEqkRupList obsQkList,IncrementalMagFreqDist yrCompleteForMagFunc, SummedMagFreqDist targetMFD) {
+	public static void plotFilteredCatalogMagFreqDist(ObsEqkRupList obsQkList,IncrementalMagFreqDist yrCompleteForMagFunc, 
+			SummedMagFreqDist targetMFD, String fileName) {
 		SummedMagFreqDist mfd = new SummedMagFreqDist(2.55,8.45,60);
 		for(ObsEqkRupture rup:obsQkList) {
 			double yrs = 2012.0 - yrCompleteForMagFunc.getClosestYtoX(rup.getMag());
@@ -1107,7 +1159,16 @@ public class ETAS_Simulator {
 		graph.setX_AxisLabel("Mag");
 		graph.setY_AxisLabel("Rate (per year)");
 		graph.setYLog(true);
-		graph.setY_AxisRange(1e-5,1e4);;
+		graph.setY_AxisRange(1e-5,1e4);
+		
+		if(fileName != null) {
+			try {
+				graph.saveAsPDF(fileName+".pdf");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 
 	}
 
@@ -1451,7 +1512,7 @@ public class ETAS_Simulator {
 //		System.exit(0);
 
 
-		TestScenario scenario = TestScenario.MOJAVE_M7pt5_ptSrc;
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
@@ -1488,6 +1549,7 @@ public class ETAS_Simulator {
 		
 		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
+//		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		

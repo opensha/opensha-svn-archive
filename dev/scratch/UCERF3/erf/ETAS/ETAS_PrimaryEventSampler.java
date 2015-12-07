@@ -103,7 +103,7 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	final static double MAX_CHAR_FACTOR = 1e6;
+	final static double MAX_CHAR_FACTOR = 15;
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr=true;	// don't set here (set by constructor)
@@ -145,6 +145,7 @@ public class ETAS_PrimaryEventSampler {
 	ArrayList<HashMap<Integer,Float>> srcNuclRateOnSectList;
 	SummedMagFreqDist[] longTermSupraSeisMFD_OnSectArray;
 	List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList;
+	SummedMagFreqDist longTermTotalERF_MFD;
 
 	
 	// this stores the rates of erf ruptures that go unassigned (outside the region here)
@@ -4277,6 +4278,8 @@ System.exit(0);
 			erf.updateForecast();
 			// get what we need
 			longTermSupraSeisMFD_OnSectArray = FaultSysSolutionERF_Calc.calcNucleationMFDForAllSects(fssERF, 2.55, 8.95, 65);
+			longTermTotalERF_MFD = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);		
+
 			
 			// set it back and test param values
 			erf.getParameter(ProbabilityModelParam.NAME).setValue(probModel);
@@ -5564,6 +5567,10 @@ System.exit(0);
 				totRate+=rate;
 			}
 			System.out.println("\ttotRate="+totRate);
+	}
+	
+	public SummedMagFreqDist getLongTermTotalERF_MFD() {
+		return longTermTotalERF_MFD;
 	}
 
 	
