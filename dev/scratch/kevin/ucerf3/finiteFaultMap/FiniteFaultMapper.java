@@ -34,6 +34,12 @@ import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.kevin.ucerf3.finiteFaultMap.JeanneFileLoader.LocComparator;
 
+/**
+ * This class maps Jeanne's Finite Fault surfaces to the closest UCERF3 ruptures. It has been validated in SCEC-VDO to provide
+ * correct mappings for FM3.1 and FM3.2 when filterLastEventParents=true and matchLastEventExactly=true
+ * @author kevin
+ *
+ */
 public class FiniteFaultMapper {
 	
 	private static final boolean D = true;

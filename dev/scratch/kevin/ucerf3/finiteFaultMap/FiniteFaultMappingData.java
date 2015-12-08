@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,12 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.utils.FaultSystemIO;
 
+/**
+ * Data structure for saving/loading finite fault mapping data
+ * 
+ * @author kevin
+ *
+ */
 public class FiniteFaultMappingData implements XMLSaveable {
 	
 	private List<ObsEqkRupture> rups;

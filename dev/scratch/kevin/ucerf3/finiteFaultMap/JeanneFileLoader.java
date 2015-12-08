@@ -31,6 +31,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+/**
+ * Loads in Jeanne's UCERF3 rupture surfaces and maps to ObsEqkRupture objects. It attempts to load surfaces as an evenly
+ * gridded surface but must load some arbitrarily gridded surfaces for strange ruptures.
+ * @author kevin
+ *
+ */
 public class JeanneFileLoader {
 	
 	private static final boolean D = true;
