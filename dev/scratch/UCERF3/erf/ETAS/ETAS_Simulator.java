@@ -190,7 +190,7 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = true;
+		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = false;
 		
 		// Overide to Poisson if needed
 		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
