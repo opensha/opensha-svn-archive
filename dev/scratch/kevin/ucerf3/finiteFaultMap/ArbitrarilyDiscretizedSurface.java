@@ -3,11 +3,13 @@ package scratch.kevin.ucerf3.finiteFaultMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.cache.CacheEnabledSurface;
@@ -24,7 +26,9 @@ import com.google.common.base.Preconditions;
  * @author kevin
  *
  */
-class ArbitrarilyDiscretizedSurface implements RuptureSurface, CacheEnabledSurface, Iterable<Location> {
+class ArbitrarilyDiscretizedSurface implements RuptureSurface, CacheEnabledSurface, Iterable<Location>, XMLSaveable {
+	
+	public static String XML_METADATA_NAME = "ArbitrarilyDiscretizedSurface";
 	
 	private LocationList locs, lowerEdge;
 	private FaultTrace upperEdge;
@@ -292,6 +296,23 @@ class ArbitrarilyDiscretizedSurface implements RuptureSurface, CacheEnabledSurfa
 	
 	public int size() {
 		return locs.size();
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		el.addAttribute("dip", getAveDip()+"");
+		locs.toXMLMetadata(el);
+		
+		return root;
+	}
+	
+	public static ArbitrarilyDiscretizedSurface fromXMLMetadata(Element el) {
+		double dip = Double.parseDouble(el.attributeValue("dip"));
+		LocationList locs = LocationList.fromXMLMetadata(el.element(LocationList.XML_METADATA_NAME));
+		
+		return new ArbitrarilyDiscretizedSurface(locs, dip);
 	}
 
 }

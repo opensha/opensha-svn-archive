@@ -59,9 +59,9 @@ public class FiniteFaultMapper {
 	private Location[] centers;
 	private double[] lengths;
 	
-	private static final boolean filter_last_event_parents = true;
+	private boolean filterLastEventParents = true;
 	
-	private static final boolean match_last_event_exactly = true;
+	private boolean matchLastEventExactly = true;
 	
 	private static final boolean use_sq_dist = true;
 	
@@ -71,8 +71,10 @@ public class FiniteFaultMapper {
 	private List<FaultSectionPrefData> sectsWithDate;
 	private List<Long> dates;
 	
-	public FiniteFaultMapper(FaultSystemRupSet rupSet) {
+	public FiniteFaultMapper(FaultSystemRupSet rupSet, boolean filterLastEventParents, boolean matchLastEventExactly) {
 		this.rupSet = rupSet;
+		this.filterLastEventParents = filterLastEventParents;
+		this.matchLastEventExactly = matchLastEventExactly;
 		surfs = new RuptureSurface[rupSet.getNumRuptures()];
 		centers = new Location[rupSet.getNumRuptures()];
 		lengths = new double[rupSet.getNumRuptures()];
@@ -171,7 +173,7 @@ public class FiniteFaultMapper {
 		if (D) System.out.println("Loading cadidate for "+JeanneFileLoader.getRupStr(rup)+". Len="+length+". Center: "+center);
 		
 		HashSet<Integer> parentIDs = null;
-		if (filter_last_event_parents) {
+		if (filterLastEventParents) {
 			parentIDs = getViableParentIDs(rup.getOriginTime());
 			if (parentIDs.isEmpty()) {
 				System.out.println("No viable parents for M"+rup.getMag()+" at "+rup.getOriginTimeCal().getTime());
@@ -352,7 +354,7 @@ public class FiniteFaultMapper {
 		
 		int rupIndex = candidates.get(pairing.getData());
 		
-		if (match_last_event_exactly) {
+		if (matchLastEventExactly) {
 			if (D) System.out.println("Adjusting to match date of last event data exactly");
 			List<FaultSectionPrefData> subSectsWithData = Lists.newArrayList();
 			
@@ -511,7 +513,7 @@ public class FiniteFaultMapper {
 				+ "UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_"
 				+ "FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
-		FiniteFaultMapper mapper = new FiniteFaultMapper(rupSet);
+		FiniteFaultMapper mapper = new FiniteFaultMapper(rupSet, true, true);
 		
 		for (ObsEqkRupture rup : finiteRups)
 			mapper.getMappedRup(rup);

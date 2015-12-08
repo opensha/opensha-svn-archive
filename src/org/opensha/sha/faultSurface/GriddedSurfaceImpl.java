@@ -19,12 +19,10 @@
 
 package org.opensha.sha.faultSurface;
 
-import java.util.Iterator;
-import java.util.ListIterator;
-
-import org.opensha.commons.data.Container2DImpl;
+import org.dom4j.Element;
 import org.opensha.commons.geo.Location;
-import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.metadata.XMLSaveable;
+import org.opensha.commons.util.XMLUtils;
 
 
 /**
@@ -37,8 +35,9 @@ import org.opensha.commons.geo.LocationList;
  * @version 1.0
  */
 
-public class GriddedSurfaceImpl extends AbstractEvenlyGriddedSurface {
+public class GriddedSurfaceImpl extends AbstractEvenlyGriddedSurface implements XMLSaveable {
 
+	public static String XML_METADATA_NAME = "GriddedSurfaceImpl";
 
 	/**
 	 * 
@@ -92,6 +91,43 @@ public class GriddedSurfaceImpl extends AbstractEvenlyGriddedSurface {
 	@Override
 	protected AbstractEvenlyGriddedSurface getNewInstance() {
 		return new GriddedSurfaceImpl(numRows, numCols, getGridSpacingAlongStrike());
+	}
+
+	@Override
+	public Element toXMLMetadata(Element root) {
+		Element el = root.addElement(XML_METADATA_NAME);
+		
+		el.addAttribute("rows", getNumRows()+"");
+		el.addAttribute("cols", getNumCols()+"");
+		el.addAttribute("gridSpacing", getAveGridSpacing()+"");
+		
+		for (int row=0; row<getNumRows(); row++) {
+			for (int col=0; col<getNumCols(); col++) {
+				Element pointEl = el.addElement("Point");
+				pointEl.addAttribute("row", row+"");
+				pointEl.addAttribute("col", col+"");
+				getLocation(row, col).toXMLMetadata(pointEl);
+			}
+		}
+		
+		return root;
+	}
+	
+	public static GriddedSurfaceImpl fromXMLMetadata(Element el) {
+		int rows = Integer.parseInt(el.attributeValue("rows"));
+		int cols = Integer.parseInt(el.attributeValue("cols"));
+		double gridSpacing = Double.parseDouble(el.attributeValue("gridSpacing"));
+		
+		GriddedSurfaceImpl surf = new GriddedSurfaceImpl(rows, cols, gridSpacing);
+		
+		for (Element pointEl : XMLUtils.getSubElementsList(el, "Point")) {
+			int row = Integer.parseInt(pointEl.attributeValue("row"));
+			int col = Integer.parseInt(pointEl.attributeValue("col"));
+			Location loc = Location.fromXMLMetadata(pointEl.element(Location.XML_METADATA_NAME));
+			surf.set(row, col, loc);
+		}
+		
+		return surf;
 	}
 
 }

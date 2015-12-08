@@ -1802,7 +1802,9 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			double targetProb = 1-Math.exp(-sectPartRateTimeDep[sectIndex]*duration);
 			String name = rupSet.getFaultSectionData(sectIndex).getName();
-			csv.addLine(sectIndex+"", mean+"", numVals+"", standDev+"",stdevOfMean+"", meanFiltered+"", numValsFiltered+"", standDevFiltered+"",stdevOfMeanFiltered+"", (1.0/targertPartRateArray[sectIndex])+"", probOneOrMoreWithinDuration+"", targetProb+"",name);
+			csv.addLine(sectIndex+"", mean+"", numVals+"", standDev+"",stdevOfMean+"", meanFiltered+"", numValsFiltered+"",
+					standDevFiltered+"",stdevOfMeanFiltered+"", (1.0/targertPartRateArray[sectIndex])+"",
+					probOneOrMoreWithinDuration+"", targetProb+"",name);
 
 		}
 		System.out.print("\n");

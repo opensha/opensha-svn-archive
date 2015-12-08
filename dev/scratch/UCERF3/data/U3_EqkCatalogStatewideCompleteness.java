@@ -16,8 +16,8 @@ public class U3_EqkCatalogStatewideCompleteness extends IncrementalMagFreqDist  
     	super(2.55,8.45,60);
     	setTolerance(delta/1000000);
     	
-    	double[] magThresh = {2.5,4.0,5.1,5.6,6.0,6.9,7.1,7.2,7.4,8.0, 9.0};
-    	double[] yearThresh = {2007,1997,1957,1942,1932,1910,1885,1870,1865,1850};
+    	double[] magThresh = {	2.5,	4.0,	5.1,	5.6,	6.0,	6.9,	7.1,	7.2,	7.4,	8.0,	9.0};
+    	double[] yearThresh = {	2007,	1997,	1957,	1942,	1932,	1910,	1885,	1870,	1865,	1850};
     	int yearIndex = 0;
     	int magIndex = 1;
     	double mag=magThresh[magIndex];
