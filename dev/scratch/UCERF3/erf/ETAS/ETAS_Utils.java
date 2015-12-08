@@ -59,7 +59,6 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.analysis.GMT_CA_Maps;
-import scratch.UCERF3.data.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
@@ -70,6 +69,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_TemporalDecayParam_p;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.utils.U3_EqkCatalogStatewideCompleteness;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
 /**
@@ -921,7 +921,7 @@ public class ETAS_Utils {
 	
 	
 	
-	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, IncrementalMagFreqDist yrCompleteForMagFunc, long forecastStartTime, 
+	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, EvenlyDiscretizedFunc yrCompleteForMagFunc, long forecastStartTime, 
 			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
 		
 		double deltaTimeMillis = (double)(forecastEndTime-forecastStartTime)/(double)numTimeSamples;
@@ -983,7 +983,7 @@ public class ETAS_Utils {
 	 * @param rateFunc - x-axisis epoch time (doubles) and the y-axis is the yearly rate at that time
 	 * @return
 	 */
-	public long[] getRandomSpontanousEventTimes(IncrementalMagFreqDist mfd, IncrementalMagFreqDist yrCompleteForMagFunc, long forecastStartTime, 
+	public long[] getRandomSpontanousEventTimes(IncrementalMagFreqDist mfd, EvenlyDiscretizedFunc yrCompleteForMagFunc, long forecastStartTime, 
 			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
 		
 		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunction(mfd, yrCompleteForMagFunc, forecastStartTime, 
@@ -2012,7 +2012,8 @@ public class ETAS_Utils {
 				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
 						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 			else
-				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, new U3_EqkCatalogStatewideCompleteness(), simStartTimeMillis, 
+				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(
+						mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
 						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 
 			for(int r=0;r<spontEventTimes.length;r++) {

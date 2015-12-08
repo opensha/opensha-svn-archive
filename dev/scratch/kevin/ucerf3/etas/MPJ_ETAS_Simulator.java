@@ -474,11 +474,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				params.setU3ETAS_ProbModel(probModel);
 				params.setApplyLongTermRates(applyLongTermRates);
 				
-				// Felzer params from Hardebeck et al. (2008) Appendix
-				params.set_c(0.095);
-				params.set_p(1.34);
-				params.set_k(0.008);
-				
 				if (rank == 0) {
 					synchronized (MPJ_ETAS_Simulator.class) {
 						File metadataFile = new File(outputDir, "metadata.xml");

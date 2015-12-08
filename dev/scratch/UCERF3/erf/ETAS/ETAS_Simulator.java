@@ -95,7 +95,6 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
-import scratch.UCERF3.data.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
@@ -110,6 +109,7 @@ import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 
 public class ETAS_Simulator {
@@ -478,7 +478,8 @@ public class ETAS_Simulator {
 				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
 						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 			else
-				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, new U3_EqkCatalogStatewideCompleteness(), simStartTimeMillis, 
+				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(
+						mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
 						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 
 			for(int r=0;r<spontEventTimes.length;r++) {
@@ -1060,12 +1061,9 @@ public class ETAS_Simulator {
 		System.out.println("Total simulation took "+timeMin+" min");
 
 	}
-
-	
-	
 	
 	public static ObsEqkRupList getHistCatalog(double startTimeYear) {
-		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt");
+		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/ofr2013-1165_EarthquakeCat.txt");
 		ObsEqkRupList histQkList=null;
 		try {
 			histQkList = UCERF3_CatalogParser.loadCatalog(file);
@@ -1092,15 +1090,13 @@ public class ETAS_Simulator {
 	 */
 	public static ObsEqkRupList getHistCatalogFiltedForStatewideCompleteness(double startTimeYear) {
 		ObsEqkRupList qkList = getHistCatalog(startTimeYear);
-		U3_EqkCatalogStatewideCompleteness yrMagCompleteFunc = new U3_EqkCatalogStatewideCompleteness();
-		ObsEqkRupList filteredQkList = new ObsEqkRupList();
-		for(ObsEqkRupture rup:qkList) {
-			double year = rup.getOriginTime()/ProbabilityModelsCalc.MILLISEC_PER_YEAR+1970;
-			double yearThresh = yrMagCompleteFunc.getClosestYtoX(rup.getMag());
-			if(year>=yearThresh)
-				filteredQkList.add(rup);
+		U3_EqkCatalogStatewideCompleteness magComplete;
+		try {
+			magComplete = U3_EqkCatalogStatewideCompleteness.load();
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
 		}
-		return filteredQkList;
+		return magComplete.getFilteredCatalog(qkList);
 	}
 
 	
@@ -1111,7 +1107,13 @@ public class ETAS_Simulator {
 			yearVsMagXYdata.set(rup.getMag(),otYear);
 		}
 		
-		U3_EqkCatalogStatewideCompleteness yrMagCompleteFunc = new U3_EqkCatalogStatewideCompleteness();
+		U3_EqkCatalogStatewideCompleteness magComplete;
+		try {
+			magComplete = U3_EqkCatalogStatewideCompleteness.load();
+		} catch (IOException e1) {
+			throw ExceptionUtils.asRuntimeException(e1);
+		}
+		EvenlyDiscretizedFunc yrMagCompleteFunc = magComplete.getEvenlyDiscretizedMagYearFunc();
 		DefaultXY_DataSet yearVsMagCompleteXYdata = new DefaultXY_DataSet();
 		double deltaMagOver2 = yrMagCompleteFunc.getDelta()/2.0;
 		for(int i=0;i<yrMagCompleteFunc.size();i++) {

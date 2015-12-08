@@ -505,7 +505,7 @@ public class FiniteFaultMapper {
 	public static void main(String[] args) throws IOException, DocumentException {
 		File finiteFile = new File("/home/kevin/OpenSHA/UCERF3/historical_finite_fault_mapping/UCERF3_finite.dat");
 		ObsEqkRupList inputRups = UCERF3_CatalogParser.loadCatalog(
-				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt"));
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/ofr2013-1165_EarthquakeCat.txt"));
 		for (ObsEqkRupture rup : inputRups) {
 			if (rup.getHypocenterLocation().getDepth() > 24 && rup.getMag() >= 4)
 				System.out.println(rup.getHypocenterLocation()+", mag="+rup.getMag());
