@@ -1,4 +1,4 @@
-package scratch.kevin.ucerf3.finiteFaultMap;
+package scratch.UCERF3.utils.finiteFaultMap;
 
 import java.io.File;
 import java.io.IOException;
