@@ -945,30 +945,6 @@ public class ETAS_Utils {
 
 	
 	
-	public static EvenlyDiscretizedFunc getSpontanousEventRateFunctionOLD(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
-			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
-		
-		EvenlyDiscretizedFunc rateVsEpochTimeFunc = new EvenlyDiscretizedFunc((double)forecastStartTime,(double)forecastEndTime,numTimeSamples);
-		double totalRatePerYear = mfd.calcSumOfY_Vals();
-		double meanAftRate=0;
-		for(int i=0;i<rateVsEpochTimeFunc.size();i++) {
-			// compute time over which we have observations
-			double histDurationDays = (rateVsEpochTimeFunc.getX(i)-(double)histCatStartTime)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
-			// loop over magnitudes
-			double rate=0;
-			for(int m=0;m<mfd.size();m++) {
-				if(mfd.getY(m)>1e-10) {	// skip low rate bins
-					double mag = mfd.getX(m);
-					rate += getExpectedNumEvents(k, p, mag, magMin, c, 0.0, histDurationDays)*mfd.getY(m);
-				}
-			}
-			meanAftRate+=rate;
-			rateVsEpochTimeFunc.set(i,(totalRatePerYear-rate));
-		}
-		meanAftRate /= (double)numTimeSamples;
-//System.out.println("n="+maenAftRate/totalRatePerYear);
-		return rateVsEpochTimeFunc;
-	}
 	
 	/**
 	 * 
@@ -1027,38 +1003,6 @@ public class ETAS_Utils {
 			int randIndex = sampler.getRandomInt(getRandomDouble());
 			double time = rateFunc.getX(randIndex) + (getRandomDouble()-0.5)*rateFunc.getDelta();	// latter term randomizes within the bin
 			eventTimesMillis[i] = (long)time;
-		}
-		
-		return eventTimesMillis;		
-	}
-
-	
-	public long[] getRandomSpontanousEventTimesOLD(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
-			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
-		
-		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunctionOLD(mfd, histCatStartTime, forecastStartTime, 
-				forecastEndTime, numTimeSamples, k, p, magMin, c);
-		
-		double meanRatePerYear = 0;
-		ArbitrarilyDiscretizedFunc inverseFunc = new ArbitrarilyDiscretizedFunc();
-		for(int i=0;i<rateFunc.size();i++) {
-			inverseFunc.set(rateFunc.getY(i), rateFunc.getX(i));
-			meanRatePerYear+= rateFunc.getY(i)/rateFunc.size();	// fact that it should be only half the first and last bin doesn't seem to matter
-		}
-		
-		GraphWindow rateFuncGraph = new GraphWindow(rateFunc, "rateFunc"); 
-		GraphWindow inverseFuncGraph = new GraphWindow(inverseFunc, "inverseFunc"); 
-
-		
-		double numYears = (rateFunc.getMaxX()-rateFunc.getMinX())/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
-// System.out.print("\texpNum="+(meanRatePerYear*numYears));
-		int numEvents = getPoissonRandomNumber(meanRatePerYear*numYears);
-		long[] eventTimesMillis = new long[numEvents];
-		double xMin = inverseFunc.getMinX();
-		double xMax = inverseFunc.getMaxX();
-		for(int i=0;i<numEvents;i++) {
-			double randX = xMin + getRandomDouble()*(xMax-xMin);
-			eventTimesMillis[i] = (long)inverseFunc.getInterpolatedY(randX);
 		}
 		
 		return eventTimesMillis;		

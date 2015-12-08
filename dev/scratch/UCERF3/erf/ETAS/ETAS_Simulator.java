@@ -190,6 +190,8 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
+		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = true;
+		
 		// Overide to Poisson if needed
 		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
@@ -363,6 +365,31 @@ public class ETAS_Simulator {
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 		info_fr.flush();
+		
+		
+		// Apply corrections to gridded seis rates if desired
+		if(APPLY_GR_CORR_TO_GRIDDED_SEIS) {
+			double[] gridSeisGRcorrArray = etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
+			nthRup=0;
+			for(int s=0;s<erf.getNumSources();s++) {
+				if(s<numFaultSysSources) {
+					nthRup+=erf.getSource(s).getNumRuptures();
+				}
+				else {
+					for(ProbEqkRupture rup:erf.getSource(s)) {
+						if (nthRup >= spontaneousRupSampler.size())
+							throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
+						double newVal = spontaneousRupSampler.getY(nthRup)*gridSeisGRcorrArray[s-numFaultSysSources];
+						spontaneousRupSampler.set(nthRup, newVal);
+						nthRup+=1;
+					}				
+				}
+			}			
+		}
+
+		
+		
+		
 		
 		
 		// Make list of primary aftershocks for given list of obs quakes 
@@ -1536,9 +1563,10 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_1yr_MaxCF15_1";	// to increment runs
+		simulationName += "_1yr_MaxCF10_4";	// to increment runs
 
-		Long seed = null;
+//		Long seed = null;
+		Long seed = 1449590752534l;
 //		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
