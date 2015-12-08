@@ -11,6 +11,8 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.faultSurface.CompoundSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -55,6 +57,8 @@ public class SubsetSolutionGenerator {
 		int numSAF = 0;
 		int numPartiallySAFSoCal = 0;
 		int numOnlySAFSoCal = 0;
+		int longestSAF = -1;
+		double longestSAFLength = 0d;
 		rupLoop:
 		for (int rupIndex = 0; rupIndex<rupSet.getNumRuptures(); rupIndex++) {
 			for (int parent : rupSet.getParentSectionsForRup(rupIndex)) {
@@ -75,6 +79,11 @@ public class SubsetSolutionGenerator {
 			}
 			if (only)
 				numOnlySAFSoCal++;
+			double len = rupSet.getLengthForRup(rupIndex)/1000d;
+			if (len > longestSAFLength) {
+				longestSAFLength = len;
+				longestSAF = rupIndex;
+			}
 		}
 		
 		System.out.println(numSAF+"/"+rupSet.getNumRuptures()+" ruputures are only on SAF");
@@ -85,6 +94,42 @@ public class SubsetSolutionGenerator {
 		System.out.println("Subset sol has "+subsetSol.getRupSet().getNumRuptures()+" ruptures");
 		
 		FaultSystemIO.writeSol(subsetSol, new File(outputDir, "saf_subset_sol.zip"));
+		
+		CompoundSurface surf = (CompoundSurface) rupSet.getSurfaceForRupupture(longestSAF, 1d, false);
+		System.out.println();
+		System.out.println("Longest Rupture:");
+		System.out.println("\tLength: "+longestSAFLength+" (km)");
+		System.out.println("\tAve Width: "+surf.getAveWidth()+" (km)");
+		double minTopDepth = Double.POSITIVE_INFINITY;
+		double maxBotDepth = 0;
+		double maxWidth = 0;
+		double minWidth = Double.POSITIVE_INFINITY;
+		for (RuptureSurface subSurf : surf.getSurfaceList()) {
+			minTopDepth = Math.min(minTopDepth, subSurf.getAveRupTopDepth());
+			maxBotDepth = Math.max(maxBotDepth, subSurf.getAveRupTopDepth()+subSurf.getAveWidth());
+			maxWidth = Math.max(maxWidth, subSurf.getAveWidth());
+			minWidth = Math.min(minWidth, subSurf.getAveWidth());
+		}
+		System.out.println("\tMax Width: "+maxWidth+" (km)");
+		System.out.println("\tMin Width: "+minWidth+" (km)");
+		System.out.println("\tMin Top Depth: "+minTopDepth+" (km)");
+		System.out.println("\tMax Bot Depth: "+maxBotDepth+" (km)");
+		System.out.println("\tFirst loc: "+surf.getFirstLocOnUpperEdge());
+		System.out.println("\tLast loc: "+surf.getLastLocOnUpperEdge());
+		
+		System.out.println();
+		System.out.println("UCERF3 Surface Point Counts");
+		double[] gridSpacings = { 0.1, 0.2 };
+		
+		for (double gridSpacing : gridSpacings) {
+			long count = 0;
+			
+			for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+				count += sect.getStirlingGriddedSurface(gridSpacing).size();
+			}
+			
+			System.out.println((int)(gridSpacing*1000d)+"m: "+count);
+		}
 	}
 
 }

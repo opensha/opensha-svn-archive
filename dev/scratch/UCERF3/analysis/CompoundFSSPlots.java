@@ -3865,7 +3865,8 @@ public abstract class CompoundFSSPlots implements Serializable {
 			MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.HIGH_VALUES, null};
 //		private static MagDependentAperiodicityOptions[] covs = {MagDependentAperiodicityOptions.MID_VALUES, null};
 		
-		private static final double[] durations = { 1d };
+//		private static final double[] durations = { 1d };
+		private static final double[] durations = { 30d };
 		
 		// duration, branch: prob[rupIndex]
 		private Table<Double, LogicTreeBranch, Map<MagDependentAperiodicityOptions, double[]>> probsTable;

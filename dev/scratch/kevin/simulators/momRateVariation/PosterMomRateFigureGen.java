@@ -26,15 +26,20 @@ public class PosterMomRateFigureGen {
 	public static void main(String[] args) throws IOException {
 		int windowLen = 25;
 		int length = 3000;
+//		int length = 900;
 		
 		File inputDir = new File("/home/kevin/Simulators/time_series");
 		File outputDir = new File(inputDir, "ts_figures");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
-		String[] prefixes = {"actual", "random", "ucerf3_mid"};
-		boolean[] yAxisLabels = {false, true, false};
-		String[] names = {"RSQSim", "RSQSim Poisson", "UCERF3-TD"};
-		Color[] colors = {Color.RED, Color.BLUE, new Color(64, 128, 64)};
+//		String[] prefixes = {"actual", "random", "ucerf3_mid"};
+//		boolean[] yAxisLabels = {false, true, false};
+//		String[] names = {"RSQSim", "RSQSim Poisson", "UCERF3-TD"};
+//		Color[] colors = {Color.RED, Color.BLUE, new Color(64, 128, 64)};
+		String[] prefixes = {"actual", "random", "ucerf3_mid", "ucerf3_etas"};
+		boolean[] yAxisLabels = {false, true, false, false};
+		String[] names = {"RSQSim", "RSQSim Poisson", "UCERF3-TD", "UCERF3-ETAS"};
+		Color[] colors = {Color.RED, Color.BLUE, new Color(64, 128, 64), Color.CYAN};
 		
 		Range xRange = new Range(0, length);
 		Range yRange = new Range(1e18, 1e20);
@@ -44,7 +49,7 @@ public class PosterMomRateFigureGen {
 		for (int i=0; i<prefixes.length; i++) {
 			String prefix = prefixes[i];
 			File file = new File(inputDir, prefix+"_"+windowLen+"yr.bin");
-			Preconditions.checkState(file.exists());
+			Preconditions.checkState(file.exists(), "File doesn't exist: %s", file.getName());
 			
 			double[] mySeries = MatrixIO.doubleArrayFromFile(file);
 			System.out.println(file.getName()+" length: "+mySeries.length);

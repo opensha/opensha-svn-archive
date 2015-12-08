@@ -86,6 +86,8 @@ public class JeanneFileLoader {
 			}
 			if (D) System.out.println("Match: "+getRupStr(rup));
 			if (D) System.out.println("***********************************");
+//			if (id.equals("187203261406"))
+//				System.exit(0);
 		}
 		
 		return matches;
@@ -152,7 +154,7 @@ public class JeanneFileLoader {
 				break;
 			double magDelta = Math.abs(estMag - rup.getMag());
 			if (D) System.out.println("\tCandidate: "+getRupStr(rup)+" (Time delta="+delta+", Mag delta: "+magDelta+")");
-			if (delta < 100000 && magDelta < 0.5)
+			if (delta < 100000 && magDelta < 0.5 && !id.equals("187203261406"))
 				return rup;
 			if (magDelta < closestMag) {
 				closestMag = magDelta;

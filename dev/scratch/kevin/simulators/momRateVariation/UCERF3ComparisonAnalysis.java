@@ -45,6 +45,7 @@ import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.kevin.markov.EmpiricalMarkovChain;
@@ -90,7 +91,7 @@ public class UCERF3ComparisonAnalysis {
 		return elems;
 	}
 	
-	private static class UCERF3EventRecord extends EventRecord {
+	static class UCERF3EventRecord extends EventRecord {
 		
 		private List<RectangularElement> rupElems;
 
@@ -310,6 +311,8 @@ public class UCERF3ComparisonAnalysis {
 		return events;
 	}
 	
+	private static Random r = new Random();
+	
 	/**
 	 * Chooses a random time between events
 	 * @param events
@@ -317,7 +320,7 @@ public class UCERF3ComparisonAnalysis {
 	 */
 	private static double getRandomTimeBetween(List<EQSIM_Event> events) {
 		// random int between 1 and size-1
-		int randIndex = new Random().nextInt(events.size()-1)+1;
+		int randIndex = r.nextInt(events.size()-1)+1;
 		double t0 = events.get(randIndex-1).getTime();
 		double t1 = events.get(randIndex).getTime();
 		
@@ -327,14 +330,13 @@ public class UCERF3ComparisonAnalysis {
 		return delta;
 	}
 	
-	private static List<EQSIM_Event> stitch(List<List<EQSIM_Event>> eventsList) {
+	static List<EQSIM_Event> stitch(List<List<EQSIM_Event>> eventsList) {
 		List<EQSIM_Event> stitched = Lists.newArrayList();
 		
 		double timeSecs = 0;
 		
-		int id = 0;
-		
 		for (int i=0; i<eventsList.size(); i++) {
+			int id = i*1000000;
 			// move forward in time one random recurrence interval then stitch in new catalog
 			if (i > 0)
 				timeSecs += getRandomTimeBetween(stitched);
@@ -342,8 +344,11 @@ public class UCERF3ComparisonAnalysis {
 			List<EQSIM_Event> events = eventsList.get(i);
 //			Preconditions.checkState(events.get(0).getTime() == 0d, "Bad start time: %s", events.get(0).getTime());
 			
+			// start time of sub catalogs is not zero
+			double subStartTime = events.get(0).getTime();
+			
 			for (EQSIM_Event e : events)
-				stitched.add(e.cloneNewTime(timeSecs+e.getTime(), id++));
+				stitched.add(e.cloneNewTime(timeSecs+e.getTime()-subStartTime, id++));
 			
 			timeSecs = stitched.get(stitched.size()-1).getTime();
 		}
@@ -455,16 +460,16 @@ public class UCERF3ComparisonAnalysis {
 		File fssFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		
-//		File mainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_07_30-MID_VALUES");
-//		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.MID_VALUES;
+		File mainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_07_30-MID_VALUES");
+		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.MID_VALUES;
 //		int[] batches = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 		
 //		File mainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_08_05-HIGH_VALUES");
 //		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.HIGH_VALUES;
 //		int[] batches = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		
-		File mainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_08_05-LOW_VALUES");
-		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.LOW_VALUES;
+//		File mainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_08_05-LOW_VALUES");
+//		MagDependentAperiodicityOptions cov = MagDependentAperiodicityOptions.LOW_VALUES;
 		
 		int startYear = 2014;
 		

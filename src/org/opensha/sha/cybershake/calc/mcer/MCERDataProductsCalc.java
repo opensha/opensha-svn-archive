@@ -122,6 +122,8 @@ public class MCERDataProductsCalc {
 	private static boolean directAverage = false;
 	private WeightProvider avgWeightProv;
 	
+	private boolean includeNEHRP = false;
+	
 	static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
 	static final String all_periods = "0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,"
 				+"0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0";
@@ -130,7 +132,7 @@ public class MCERDataProductsCalc {
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
 			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
-		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, null, comp, periods, outputDir, false, null);
+		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, null, comp, periods, outputDir, false, null, false);
 	}
 	
 	public MCERDataProductsCalc(CommandLine cmd) throws IOException, DocumentException, InvocationTargetException {
@@ -170,18 +172,21 @@ public class MCERDataProductsCalc {
 					"GMPE cache dir does not exist and could not be created");
 		}
 		
+		boolean includeNEHRP = cmd.hasOption("nehrp-mcer");
+		
 		init(Cybershake_OpenSHA_DBApplication.db, erf, attenRels, gmpeERF, comp, periods, outputDir,
-				cmd.hasOption("weight-average"), gmpeCacheDir);
+				cmd.hasOption("weight-average"), gmpeCacheDir, includeNEHRP);
 	}
 	
 	private void init(DBAccess db, ERF erf, List<AttenuationRelationship> gmpes, ERF gmpeERF,
 			CyberShakeComponent comp, List<Double> periods, File outputDir, boolean weightAverage,
-			File gmpeCacheDir) throws IOException {
+			File gmpeCacheDir, boolean includeNEHRP) throws IOException {
 		this.db = db;
 		this.comp = comp;
 		this.periods = periods;
 		this.gmpes = gmpes;
 		this.outputDir = outputDir;
+		this.includeNEHRP = includeNEHRP;
 		
 		runs2db = new Runs2DB(db);
 		sites2db = new CybershakeSiteInfo2DB(db);
@@ -479,7 +484,15 @@ public class MCERDataProductsCalc {
 		double vs30 = site.getParameter(Double.class, Vs30_Param.NAME).getValue();
 		// gmpeProb just used for x values here
 		DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(gmpeCombinedProbSpectrum, vs30, csSite.createLocation());
-		DiscretizedFunc asceProb = null; // not used
+		DiscretizedFunc asceProb = null;
+		if (includeNEHRP) {
+			try {
+				asceProb = MCEr_USGS_ComparisonFetcher.getMCEr(site, gmpeCombinedProbSpectrum);
+			} catch (Exception e) {
+				System.err.println("Error fetching USGS NEHRP MCEr:");
+				e.printStackTrace();
+			}
+		}
 		
 		DiscretizedFunc weightAverageProb = null;
 		DiscretizedFunc weightAverageDet = null;
@@ -605,7 +618,8 @@ public class MCERDataProductsCalc {
 		csProb.setName("CyberShake Prob");
 		gmpeProb.setName("GMPE Prob");
 		if (asceProb != null)
-			asceProb.setName("ASCE 7-10 Ch 11.4");
+//			asceProb.setName("ASCE 7-10 Ch 11.4");
+			asceProb.setName("ASCE 7-16 MCEr");
 
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -613,6 +627,11 @@ public class MCERDataProductsCalc {
 		if (asceDeterm != null) {
 			funcs.add(asceDeterm);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.DARK_GRAY));
+		}
+
+		if (asceProb != null) {
+			funcs.add(asceProb);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
 		}
 
 		funcs.add(gmpeProb);
@@ -693,10 +712,10 @@ public class MCERDataProductsCalc {
 		funcs = Lists.newArrayList();
 		chars = Lists.newArrayList();
 
-		if (asceDeterm != null) {
-			funcs.add(asceDeterm);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.DARK_GRAY));
-		}
+//		if (asceDeterm != null) {
+//			funcs.add(asceDeterm);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.DARK_GRAY));
+//		}
 
 		if (asceProb != null) {
 			funcs.add(asceProb);
@@ -889,6 +908,11 @@ public class MCERDataProductsCalc {
 		weightingOption.setRequired(false);
 		ops.addOption(weightingOption);
 		
+		Option usgsOption = new Option("nehrp", "nehrp-mcer", false,
+				"Fetch and add 2015 NEHRP MCEr spectrum to plots");
+		usgsOption.setRequired(false);
+		ops.addOption(usgsOption);
+		
 		Option attenRelFiles = new Option("af", "atten-rel-file", true,
 				"XML Attenuation Relationship description file(s) for " + 
 				"comparison. Multiple files should be comma separated");
@@ -929,9 +953,11 @@ public class MCERDataProductsCalc {
 //			String argStr = "--run-id 3873,3880"; // STNI,SBSM 1 hz
 //			String argStr = "--run-id 3883"; // s603 1 hz
 //			String argStr = "--run-id 3875,3878,3877"; // LAPD,PAS,COO 1 hz
-			String argStr = "--run-id 3876,3877,3868,3875,3879,3878,3882,3883,3884,3885,3880,3869,3873,3861";
+//			String argStr = "--run-id 3876,3877,3868,3875,3879,3878,3882,3883,3884,3885,3880,3869,3873,3861";
+			String argStr = "--run-id 4282,4283,4284,4285,4286,4287,4289,4290,4291,4292,4293,4294,4295,4296";
 			argStr += " --component RotD100";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
+			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products_stochastic";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products_gmpeUCERF3";
 //			argStr += " --output-dir /tmp/mcer_data_products";
 			argStr += " --erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF.xml";
@@ -946,6 +972,7 @@ public class MCERDataProductsCalc {
 //			argStr += " --gmpe-cache-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2/";
 			
 			argStr += " --weight-average";
+			argStr += " --nehrp-mcer";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
 		

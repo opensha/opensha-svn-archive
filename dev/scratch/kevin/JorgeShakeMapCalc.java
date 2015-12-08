@@ -33,11 +33,14 @@ import org.opensha.sha.imr.mod.ModAttenuationRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
+import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo2pt5kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 import org.opensha.sha.mapping.GMT_MapGeneratorForShakeMaps;
+import org.opensha.sha.util.component.ComponentConverter;
+import org.opensha.sha.util.component.ComponentTranslation;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -53,12 +56,14 @@ public class JorgeShakeMapCalc {
 		int fssIndex = 227088;
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/jorge_shakemap/");
 		File vs30File = new File(mainDir, "thompson_hyb_tj.xyz");
-		boolean directivity = true;
-		File resultsDir;
+		boolean directivity = false;
+		boolean rotd100 = true;
+		String dirName = "results";
 		if (directivity)
-			resultsDir = new File(mainDir, "results_directivity");
-		else
-			resultsDir = new File(mainDir, "results");
+			dirName += "_directivity";
+		if (rotd100)
+			dirName += "_rotd100";
+		File resultsDir = new File(mainDir, dirName);
 		Preconditions.checkState(resultsDir.exists() || resultsDir.mkdir());
 		// -1 = PGV
 		// 0 = PGA
@@ -120,19 +125,24 @@ public class JorgeShakeMapCalc {
 		
 		List<Site> sites = loadSites(vs30File);
 		
-		MinMaxAveTracker latTrack = new MinMaxAveTracker();
-		MinMaxAveTracker lonTrack = new MinMaxAveTracker();
-		for (Site site : sites) {
-			Location loc = site.getLocation();
-			latTrack.addValue(loc.getLatitude());
-			lonTrack.addValue(loc.getLongitude());
-		}
-		Region reg = new Region(new Location(latTrack.getMax(), lonTrack.getMax()),
-				new Location(latTrack.getMin(), lonTrack.getMin()));
+//		MinMaxAveTracker latTrack = new MinMaxAveTracker();
+//		MinMaxAveTracker lonTrack = new MinMaxAveTracker();
+//		for (Site site : sites) {
+//			Location loc = site.getLocation();
+//			latTrack.addValue(loc.getLatitude());
+//			lonTrack.addValue(loc.getLongitude());
+//		}
+//		Region reg = new Region(new Location(latTrack.getMax(), lonTrack.getMax()),
+//				new Location(latTrack.getMin(), lonTrack.getMin()));
+		Region reg = new Region(new Location(33.35, -117.8), new Location(32.2, -116.6));
 		
 		System.out.println("Loaded "+sites.size()+" sites");
 		
 		CPT cpt = GMT_CPT_Files.SHAKEMAP.instance();
+		
+		ComponentTranslation trans = null;
+		if (rotd100)
+			trans = ComponentConverter.getConverter(Component.RotD50, Component.RotD100);
 		
 		for (AttenRelRef ref : refs) {
 			AttenuationRelationship imr;
@@ -178,6 +188,10 @@ public class JorgeShakeMapCalc {
 					prefix += "_directivity";
 					label += " w/ Directivity";
 				}
+				if (rotd100) {
+					prefix += "_rotd100";
+					label += ", RotD100";
+				}
 				
 				System.out.println("Calculating: "+prefix);
 				
@@ -185,6 +199,11 @@ public class JorgeShakeMapCalc {
 				GeoDataSet xyz = calc.getScenarioShakeMapData(
 						Lists.newArrayList(imr), Lists.newArrayList(1d), sites, rup, false, 0.5);
 				xyz.exp();
+				if (trans != null && period > 0) {
+					double factor = trans.getScalingFactor(period);
+					System.out.println("Scaling by factor of "+factor+" to RotD100");
+					xyz.scale(factor);
+				}
 				File xyzFile = new File(resultsDir, prefix+".txt");
 				System.out.println("Writing: "+xyzFile.getName());
 				AbstractGeoDataSet.writeXYZFile(xyz, xyzFile);

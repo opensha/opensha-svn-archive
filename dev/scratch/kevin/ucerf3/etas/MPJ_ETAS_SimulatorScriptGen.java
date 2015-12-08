@@ -54,7 +54,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean applyLongTermRates = false;
 		
 //		String nameAdd = null;
-		String nameAdd = "400more";
+//		String nameAdd = "400more";
+//		String nameAdd = "newMC10";
+		String nameAdd = "FelzerParams-mc20";
 		
 		boolean histCatalog;
 		String queue;
@@ -64,8 +66,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			queue = null;
 			startYear = 2012;
 			histCatalog = true;
-			numSims = 400;
-			nodes = 60;
+			numSims = 200;
+			nodes = 25;
 			mins = 24*60;
 			Preconditions.checkState(!smallTest);
 			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
@@ -59,12 +61,20 @@ public class ComcatAccessor {
 		return eventToObsRup(events.get(0));
 	}
 	
-	private static void printJSON(JSONObject json) {
+	public static void printJSON(JSONObject json) {
 		printJSON(json, "");
 	}
 	private static void printJSON(JSONObject json, String prefix) {
 		for (Object key : json.keySet()) {
 			Object val = json.get(key);
+			if (val.toString().startsWith("[{")) {
+				String str = val.toString();
+				try {
+					val = new JSONParser().parse(str.substring(1, str.length()-1));
+				} catch (ParseException e) {
+//					e.printStackTrace();
+				}
+			}
 			if (val instanceof JSONObject) {
 				System.out.println(prefix+key+":");
 				String prefix2 = prefix;

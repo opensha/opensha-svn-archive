@@ -1,13 +1,17 @@
 package org.opensha.sha.cybershake.calc.mcer;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.Interpolate;
 import org.opensha.sha.calc.mcer.AbstractMCErDeterministicCalc;
@@ -81,7 +85,7 @@ public class CyberShakeWeightProvider implements WeightProvider {
 				+" is not supplied CS or GMPE");
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		double[] periods = { 1d, 1.5d, 2d, 3d, 4d, 5d, 7.5d, 10d };
 		
 		ArbitrarilyDiscretizedFunc csFunc = new ArbitrarilyDiscretizedFunc();
@@ -95,14 +99,38 @@ public class CyberShakeWeightProvider implements WeightProvider {
 		List<ArbitrarilyDiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
+		csFunc.setName("CyberShake");
 		funcs.add(csFunc);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		
+		gmpeFunc.setName("GMPE");
 		funcs.add(gmpeFunc);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		
-		GraphWindow gw = new GraphWindow(funcs, "Weights", chars);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		PlotSpec spec = new PlotSpec(funcs, chars, "Weights", "Period (s)", "Weight");
+		spec.setLegendVisible(true);
+		
+//		GraphWindow gw = new GraphWindow(spec);
+//		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
+		//			gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+
+		gp.drawGraphPanel(spec);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.setVisible(true);
+
+		gp.validate();
+		gp.repaint();
+
+		File file = new File("/tmp/mcer_weights");
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 	}
 
 }

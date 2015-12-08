@@ -1349,12 +1349,13 @@ public class ETAS_MultiSimAnalysisTools {
 		CPT logRatioCPT = FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
 		CPT diffCPT = FaultBasedMapGen.getLogRatioCPT(); // will be rescaled
 		Region region = new CaliforniaRegions.RELM_TESTING();
+		boolean regionFilter = false;
 		
 		// filter out results outside of RELM region
 		List<Integer> sectsToInclude = Lists.newArrayList();
 		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
 			for (Location loc : sect.getFaultTrace()) {
-				if (region.contains(loc)) {
+				if (!regionFilter || region.contains(loc)) {
 					sectsToInclude.add(sect.getSectionId());
 					break;
 				}
@@ -2127,35 +2128,35 @@ public class ETAS_MultiSimAnalysisTools {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-		boolean plotMFDs = false;
-		boolean plotExpectedComparison = false;
-		boolean plotSectRates = false;
-		boolean plotTemporalDecay = false;
-		boolean plotDistanceDecay = false;
-		boolean plotMaxMagHist = false;
-		boolean plotGenerations = false;
-		boolean plotGriddedNucleation = false;
-		boolean writeTimeFromPrevSupra = false;
-		boolean plotSectScatter = true;
-		boolean plotGridScatter = false;
-		boolean plotStationarity = false;
-		boolean plotSubSectRecurrence = false;
-		boolean writeCatsForViz = false;
-		
-//		boolean plotMFDs = true;
-//		boolean plotExpectedComparison = true;
-//		boolean plotSectRates = true;
-//		boolean plotTemporalDecay = true;
-//		boolean plotDistanceDecay = true;
-//		boolean plotMaxMagHist = true;
-//		boolean plotGenerations = true;
-//		boolean plotGriddedNucleation = true;
-//		boolean writeTimeFromPrevSupra = true;
+//		boolean plotMFDs = false;
+//		boolean plotExpectedComparison = false;
+//		boolean plotSectRates = false;
+//		boolean plotTemporalDecay = false;
+//		boolean plotDistanceDecay = false;
+//		boolean plotMaxMagHist = false;
+//		boolean plotGenerations = false;
+//		boolean plotGriddedNucleation = false;
+//		boolean writeTimeFromPrevSupra = false;
 //		boolean plotSectScatter = true;
-//		boolean plotGridScatter = true;
-//		boolean plotStationarity = true;
-//		boolean plotSubSectRecurrence = true;
+//		boolean plotGridScatter = false;
+//		boolean plotStationarity = false;
+//		boolean plotSubSectRecurrence = false;
 //		boolean writeCatsForViz = false;
+		
+		boolean plotMFDs = true;
+		boolean plotExpectedComparison = true;
+		boolean plotSectRates = true;
+		boolean plotTemporalDecay = true;
+		boolean plotDistanceDecay = true;
+		boolean plotMaxMagHist = true;
+		boolean plotGenerations = true;
+		boolean plotGriddedNucleation = true;
+		boolean writeTimeFromPrevSupra = true;
+		boolean plotSectScatter = true;
+		boolean plotGridScatter = true;
+		boolean plotStationarity = true;
+		boolean plotSubSectRecurrence = true;
+		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
 		boolean useActualDurations = false;
@@ -2182,15 +2183,32 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		boolean skipEmpty = true;
 //		double minDurationForInclusion = 0d;
-		double minDurationForInclusion = 0.5d;
+//		double minDurationForInclusion = 0.5d;
+		double minDurationForInclusion = 990;
 		
 		List<String> names = Lists.newArrayList();
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
 		names.add("1000yr Full TD, NoLTR");
-		resultsZipFiles.add(new File(mainDir, "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR-combined/results_m4.bin"));
+		resultsZipFiles.add(new File(mainDir, "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin"));
 		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_11_28-spontaneous-1000yr-FelzerParams-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_11_18-spontaneous-1000yr-newMC10-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_11_16-spontaneous-1000yr-newMC15-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR-combined/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("100yr Full TD, CF=10");
 //		resultsZipFiles.add(new File(mainDir, "2015_10_15-spontaneous-100yr-full_td-maxChar10.0/results.zip"));

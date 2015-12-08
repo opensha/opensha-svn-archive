@@ -292,7 +292,7 @@ public class CyberShakeMCErMapGenerator {
 		String studyName = "study_15_4";
 		
 		CyberShakeComponent component = CyberShakeComponent.RotD100;
-		double period = 5d;
+		double period = 10d;
 		
 		boolean weightAverage = true;
 
@@ -305,12 +305,13 @@ public class CyberShakeMCErMapGenerator {
 		for (AttenuationRelationship gmpe : gmpes)
 			gmpe.setParamDefaults();
 		
-//		ERF gmpeERF = null;
-		MeanUCERF3 gmpeERF = new MeanUCERF3();
-		gmpeERF.setMeanParams(0d, true, 0d, MeanUCERF3.RAKE_BASIS_NONE);
-		gmpeERF.updateForecast();
-		
-		File gmpeCacheDir = new File("/home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2");
+		ERF gmpeERF = null;
+//		MeanUCERF3 gmpeERF = new MeanUCERF3();
+//		gmpeERF.setMeanParams(0d, true, 0d, MeanUCERF3.RAKE_BASIS_NONE);
+//		gmpeERF.updateForecast();
+//		
+//		File gmpeCacheDir = new File("/home/kevin/CyberShake/MCER/gmpe_cache_gen/2015_09_29-ucerf3_full_ngaw2");
+		File gmpeCacheDir = null;
 		
 		String outputName = studyName+"_"+component.name().toLowerCase();
 		

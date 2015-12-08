@@ -195,7 +195,7 @@ public class LastEventData {
 	}
 	
 	public static GregorianCalendar calcDate(GregorianCalendar intervalBasis, double openInterval) {
-			GregorianCalendar eventDate = (GregorianCalendar)intervalBasis.clone();
+		GregorianCalendar eventDate = (GregorianCalendar)intervalBasis.clone();
 		
 		// go back years
 		int years = (int)openInterval;
@@ -209,6 +209,8 @@ public class LastEventData {
 		int days = (int)(fractYears*365d);
 		if (days > 0)
 			eventDate.add(Calendar.DAY_OF_YEAR, -days);
+		
+		System.out.println("Mappd to date: "+eventDate.getTime());
 		
 		return eventDate;
 	}

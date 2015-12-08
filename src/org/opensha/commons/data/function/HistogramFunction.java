@@ -223,7 +223,7 @@ public class HistogramFunction extends EvenlyDiscretizedFunc {
 		Preconditions.checkState(maxValue <= maxX + halfDelta);
 		Preconditions.checkState(maxValue >= maxX - halfDelta);
 		
-		System.out.println("minX: "+minX+", maxX: "+maxX+", num: "+numBins);
+//		System.out.println("minX: "+minX+", maxX: "+maxX+", num: "+numBins);
 		
 		return new HistogramFunction(minX, numBins, delta);
 	}

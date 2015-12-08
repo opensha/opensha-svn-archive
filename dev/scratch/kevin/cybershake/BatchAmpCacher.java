@@ -30,7 +30,8 @@ public class BatchAmpCacher {
 		if (args.length == 1 && args[0].equals("TEST_ECLIPSE")) {
 			cacheDir = new File("/home/kevin/CyberShake/MCER/.amps_cache/");
 			datasetID = 57;
-			imTypeIDs = new int[] { 151, 146, 142, 136 };
+//			imTypeIDs = new int[] { 151, 146, 142, 136 };
+			imTypeIDs = new int[] { 151, 146, 144, 142, 138, 136 };
 			killTimerMins = 1;
 		} else if (args.length == 3 || args.length == 4) {
 			cacheDir = new File(args[0]);

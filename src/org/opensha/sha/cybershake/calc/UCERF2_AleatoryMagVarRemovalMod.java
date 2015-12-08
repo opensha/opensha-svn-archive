@@ -3,6 +3,7 @@ package org.opensha.sha.cybershake.calc;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.util.ClassUtils;
@@ -12,8 +13,13 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_TypeB_EqkSource;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UnsegmentedSource;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 
 public class UCERF2_AleatoryMagVarRemovalMod implements RuptureProbabilityModifier {
 	
@@ -105,8 +111,10 @@ public class UCERF2_AleatoryMagVarRemovalMod implements RuptureProbabilityModifi
 		return true;
 	}
 	
-	private static void writeDiagnostics(File file, ERF erf, UCERF2_AleatoryMagVarRemovalMod mod) throws IOException {
+	private static void writeDiagnostics(File plotDir, ERF erf, UCERF2_AleatoryMagVarRemovalMod mod) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(false);
+		CSVFile<String> summaryCSV = new CSVFile<String>(true);
+		summaryCSV.addLine("Source ID", "Source Name", "Orig Max Mag", "Mod Max Mag");
 		
 		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
 			ProbEqkSource source = erf.getSource(sourceID);
@@ -131,9 +139,73 @@ public class UCERF2_AleatoryMagVarRemovalMod implements RuptureProbabilityModifi
 				csv.addLine("");
 				csv.addLine("", "", "", "SUM:", sumOrig+"", sumMod+"");
 			}
+			double origMaxMag = 0d;
+			double modMaxMag = 0d;
+			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+				ProbEqkRupture rup = source.getRupture(rupID);
+				origMaxMag = Math.max(origMaxMag, rup.getMag());
+				if (mod.getModifiedProb(sourceID, rupID, rup.getProbability()) > 0)
+					modMaxMag = Math.max(modMaxMag, rup.getMag());
+			}
+			summaryCSV.addLine(sourceID+"", source.getName(), origMaxMag+"", modMaxMag+"");
 			csv.addLine("");
 		}
-		csv.writeToFile(file);
+		csv.writeToFile(new File(plotDir, "diagnostics.csv"));
+		summaryCSV.writeToFile(new File(plotDir, "diagnostics_summary.csv"));
+	}
+	
+	private static void writeMagAreaDiagnostics(File outputFile, ERF erf, UCERF2_AleatoryMagVarRemovalMod mod) throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		
+		ScalingRelationships[] scalars =  { ScalingRelationships.AVE_UCERF2, ScalingRelationships.MEAN_UCERF3,
+				ScalingRelationships.ELLSWORTH_B, ScalingRelationships.HANKS_BAKUN_08, ScalingRelationships.SHAW_2009_MOD };
+		
+		List<String> header = Lists.newArrayList("Source ID", "Rupture ID", "Type", "Area (km^2)",
+				"Length (km)", "DDW (km)", "UCERF2 Mod Mag");
+		
+		for (ScalingRelationships scalar : scalars)
+			header.add(scalar.getShortName());
+		
+		csv.addLine(header);
+		
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource source = erf.getSource(sourceID);
+			boolean aleatory = mod.isAleatory(source);
+			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+				ProbEqkRupture rup = source.getRupture(rupID);
+				double origProb = rup.getProbability();
+				double modProb = mod.getModifiedProb(sourceID, rupID, origProb);
+				double mag = rup.getMag();
+				RuptureSurface surf = rup.getRuptureSurface();
+				double area = surf.getArea(); // convert to M^2
+				double len = surf.getAveLength(); // convert to M
+				double ddw = surf.getAveWidth();
+				
+				String type;
+				if (aleatory) {
+					if (modProb == origProb)
+						type = "REGULAR";
+					else if (modProb == 0)
+						type = "ALEATORY";
+					else
+						type = "MEDIAN";
+				} else {
+					type = "REGULAR";
+				}
+				
+				List<String> line = Lists.newArrayList(sourceID+"", rupID+"", type, area+"", len+"", ddw+"", mag+"");
+				
+				for (ScalingRelationships scalar : scalars) {
+					double scalarMag = scalar.getMag(area * 1000000, ddw * 1000); // in S-I units
+					
+					line.add(scalarMag+"");
+				}
+				
+				csv.addLine(line);
+			}
+		}
+		
+		csv.writeToFile(outputFile);
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -142,6 +214,10 @@ public class UCERF2_AleatoryMagVarRemovalMod implements RuptureProbabilityModifi
 		
 		File plotDir = new File("/home/kevin/CyberShake/ucerf3/aleatory_test_ucerf2");
 		
-		writeDiagnostics(new File(plotDir, "diagnostics.csv"), erf, mod);
+		writeDiagnostics(plotDir, erf, mod);
+		writeMagAreaDiagnostics(new File(plotDir, "mag_area_diagnostics.csv"), erf, mod);
+		erf.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, false);
+		erf.updateForecast();
+		writeMagAreaDiagnostics(new File(plotDir, "mag_area_diagnostics_origddw.csv"), erf, mod);
 	}
 }

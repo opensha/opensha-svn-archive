@@ -60,13 +60,18 @@ public class GriddedSurfaceUtils {
 
 		// get locations to iterate over depending on dip
 		ListIterator<Location> it;
-		if(surface.getAveDip() > 89) {
-			it = surface.getColumnIterator(0);
-			if (surface.getLocation(0,0).getDepth() < SEIS_DEPTH)
-				projectToDepth = true;
-		}
-		else
+		try {
+			if(surface.getAveDip() > 89) {
+				it = surface.getColumnIterator(0);
+				if (surface.getLocation(0,0).getDepth() < SEIS_DEPTH)
+					projectToDepth = true;
+			} else {
+				it = surface.getLocationsIterator();
+			}
+		} catch (RuntimeException e) {
+			// some surfaces can't compute dip, just loop over full surface
 			it = surface.getLocationsIterator();
+		}
 
 		while( it.hasNext() ){
 

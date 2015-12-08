@@ -4,10 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
@@ -70,9 +74,16 @@ public class UCERF3_CatalogParser {
 	 */
 	public static void main(String[] args) throws IOException {
 		File file = new File("/home/kevin/OpenSHA/UCERF3/UCERF3CatalogVersion1.txt");
+		double momPast100 = 0d;
+		Region reg = new CaliforniaRegions.RELM_SOCAL();
 		for (ObsEqkRupture rup : loadCatalog(file)) {
-			System.out.println(rup);
+//			System.out.println(rup);
+			int year = rup.getOriginTimeCal().get(Calendar.YEAR);
+			if (year > 1912 && reg.contains(rup.getHypocenterLocation()))
+				momPast100 += MagUtils.magToMoment(rup.getMag());
 		}
+		System.out.println("Total Moment Past 100 yr: "+momPast100);
+		System.out.println("As rate: "+(momPast100)/100d);
 	}
 
 }

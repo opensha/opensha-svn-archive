@@ -25,6 +25,10 @@ public class MCErCalcUtils {
 		return (period/MCErCalcUtils.twoPi)*sa;
 	}
 	
+	public static void main(String[] args) {
+		System.out.println(saToPsuedoVel(1.075, 1d));
+	}
+	
 	public static double psuedoVelToSA(double psv, double period) {
 		double sa = MCErCalcUtils.twoPi*psv/period;
 		sa /= HazardCurveComputation.CONVERSION_TO_G; // convert to g

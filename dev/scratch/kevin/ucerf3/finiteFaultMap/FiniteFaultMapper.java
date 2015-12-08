@@ -2,8 +2,12 @@ package scratch.kevin.ucerf3.finiteFaultMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.math3.stat.StatUtils;
@@ -23,8 +27,10 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.kevin.ucerf3.finiteFaultMap.JeanneFileLoader.LocComparator;
 
@@ -34,16 +40,36 @@ public class FiniteFaultMapper {
 	
 	private FaultSystemRupSet rupSet;
 	
-	private double maxLengthDiff = 75d;
-	private double maxCenterDist = 75d;
-	private double maxAnyDist = 50d;
-	private int numSurfLocsToCheck = 500;
+	// max difference in fault length allowed
+	private static final double maxLengthDiff = 50d;
+	// max difference in rupture center
+	private static final double maxCenterDist = 30d;
+	// maximum distance between any 2 points on the surfaces
+	private static final double maxAnyDist = 50d;
+	// maximum median distance
+	private static final double maxMedianDist = 100d;
+	// must have at least one point within this threshold
+	private static final double minDistThresh = 5d;
 	
-	private double surfSpacing = 5d;
+	
+	private static final int numSurfLocsToCheck = 500;
+	private static final double surfSpacing = 5d;
 	
 	private RuptureSurface[] surfs;
 	private Location[] centers;
 	private double[] lengths;
+	
+	private static final boolean filter_last_event_parents = true;
+	
+	private static final boolean match_last_event_exactly = true;
+	
+	private static final boolean use_sq_dist = true;
+	
+	private Map<Integer, List<FaultSectionPrefData>> parentSectsMap;
+	
+	// sorted with most recent first
+	private List<FaultSectionPrefData> sectsWithDate;
+	private List<Long> dates;
 	
 	public FiniteFaultMapper(FaultSystemRupSet rupSet) {
 		this.rupSet = rupSet;
@@ -55,6 +81,16 @@ public class FiniteFaultMapper {
 			lengths[i] = rupSet.getLengthForRup(i)/1000d; // convert to km
 			surfs[i] = rupSet.getSurfaceForRupupture(i, surfSpacing, false);
 			centers[i] = calcCenter(surfs[i]);
+		}
+		
+		parentSectsMap = Maps.newHashMap();
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+			List<FaultSectionPrefData> sects = parentSectsMap.get(sect.getParentSectionId());
+			if (sects == null) {
+				sects = Lists.newArrayList();
+				parentSectsMap.put(sect.getParentSectionId(), sects);
+			}
+			sects.add(sect);
 		}
 	}
 	
@@ -76,6 +112,52 @@ public class FiniteFaultMapper {
 		return new Location(lat, lon, depth);
 	}
 	
+	private void initSectsWithDate() {
+		sectsWithDate = Lists.newArrayList();
+		dates = Lists.newArrayList();
+		
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+			long date = sect.getDateOfLastEvent();
+			if (date == Long.MIN_VALUE)
+				continue;
+			sectsWithDate.add(sect);
+			dates.add(date);
+		}
+		
+		// now sort by epoch time decreasing
+		List<ComparablePairing<Long, FaultSectionPrefData>> comps = ComparablePairing.build(dates, sectsWithDate);
+		Collections.sort(comps);
+		Collections.reverse(comps);
+		
+		sectsWithDate = Lists.newArrayList();
+		dates = Lists.newArrayList();
+		
+		for (ComparablePairing<Long, FaultSectionPrefData> comp : comps) {
+			sectsWithDate.add(comp.getData());
+			dates.add(comp.getComparable());
+		}
+	}
+	
+	private HashSet<Integer> getViableParentIDs(long eventDate) {
+		if (sectsWithDate == null)
+			initSectsWithDate();
+		
+		// pad event date by a year since last event dates are rounded
+		eventDate -= ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+		
+		HashSet<Integer> parentIDs = new HashSet<Integer>();
+		
+		for (int i=0; i<sectsWithDate.size(); i++) {
+			long sectDate = dates.get(i);
+			if (sectDate < eventDate)
+				break;
+			
+			parentIDs.add(sectsWithDate.get(i).getParentSectionId());
+		}
+		
+		return parentIDs;
+	}
+	
 	public int getMappedRup(ObsEqkRupture rup) {
 		Stopwatch watch = null;
 		if (D) watch = Stopwatch.createStarted();
@@ -84,9 +166,22 @@ public class FiniteFaultMapper {
 		double length = surf.getAveLength();
 		Location center = calcCenter(surf);
 		
+		if (D) System.out.println("**********************************");
+		
 		if (D) System.out.println("Loading cadidate for "+JeanneFileLoader.getRupStr(rup)+". Len="+length+". Center: "+center);
 		
+		HashSet<Integer> parentIDs = null;
+		if (filter_last_event_parents) {
+			parentIDs = getViableParentIDs(rup.getOriginTime());
+			if (parentIDs.isEmpty()) {
+				System.out.println("No viable parents for M"+rup.getMag()+" at "+rup.getOriginTimeCal().getTime());
+				return -1;
+			}
+		}
+		
 		List<Integer> candidates = Lists.newArrayList();
+		int numFilteredParents = 0;
+		rupLoop:
 		for (int i=0; i<rupSet.getNumRuptures(); i++) {
 			// check length within possible range
 			double lengthDiff = Math.abs(lengths[i] - length);
@@ -96,10 +191,18 @@ public class FiniteFaultMapper {
 			double hDist = LocationUtils.horzDistance(center, centers[i]);
 			if (hDist > maxCenterDist)
 				continue;
+			if (parentIDs != null) {
+				for (int parentID : rupSet.getParentSectionsForRup(i)) {
+					if (!parentIDs.contains(parentID)) {
+						numFilteredParents++;
+						continue rupLoop;
+					}
+				}
+			}
 			candidates.add(i);
 		}
 		
-		if (D) System.out.println("Found "+candidates.size()+" candidates");
+		if (D) System.out.println("Found "+candidates.size()+" candidates ("+numFilteredParents+" filtered due to parents)");
 		
 		List<Location> surfLocs = Lists.newArrayList();
 		if (surf instanceof EvenlyGriddedSurface) {
@@ -130,6 +233,7 @@ public class FiniteFaultMapper {
 		if (D) System.out.println("Checking distance of "+surfLocsToCheck.size()+"/"+surfLocs.size()+" surf pts");
 		
 		List<Double> means = Lists.newArrayList();
+		List<Double> squaredMeans = Lists.newArrayList();
 		List<Double> medians = Lists.newArrayList();
 		List<double[]> allDists = Lists.newArrayList();
 		List<Integer> sortIndexes = Lists.newArrayList(); // will be used to map back to candidate index
@@ -137,32 +241,80 @@ public class FiniteFaultMapper {
 		candidateLoop:
 		for (int i=0; i<candidates.size(); i++) {
 			int rupIndex = candidates.get(i);
-			double[] distances = new double[surfLocsToCheck.size()];
+			RuptureSurface candidate = surfs[rupIndex];
+			double[] surfToCandidateDistances = new double[surfLocsToCheck.size()];
 			for (int j=0; j<surfLocsToCheck.size(); j++) {
-				distances[j] = surfs[rupIndex].getDistanceRup(surfLocsToCheck.get(j));
-				if (distances[j] > maxAnyDist) {
+				surfToCandidateDistances[j] = candidate.getDistanceRup(surfLocsToCheck.get(j));
+				if (surfToCandidateDistances[j] > maxAnyDist) {
 					means.add(Double.POSITIVE_INFINITY);
+					squaredMeans.add(Double.POSITIVE_INFINITY);
 					medians.add(Double.POSITIVE_INFINITY);
 					allDists.add(null);
 					sortIndexes.add(i);
 					continue candidateLoop;
 				}
 			}
-			means.add(StatUtils.mean(distances));
-			medians.add(DataUtils.median(distances));
-			allDists.add(distances);
+			
+			// now candidate to surf distances
+			List<Location> candidateDistsToCheck;
+			List<Location> candidateUpperEdge = candidate.getEvenlyDiscritizedUpperEdge();
+			if (candidateUpperEdge.size() < numSurfLocsToCheck) {
+				candidateDistsToCheck = candidateUpperEdge;
+			} else {
+				candidateDistsToCheck = Lists.newArrayList();
+				int mod = (int)((double)candidateUpperEdge.size()/(double)numSurfLocsToCheck);
+				for (int j=0; j<candidateUpperEdge.size(); j++)
+					if (j % mod == 0)
+						surfLocsToCheck.add(candidateUpperEdge.get(j));
+			}
+			double[] candidateToSurfDistances = new double[candidateDistsToCheck.size()];
+			for (int j=0; j<candidateDistsToCheck.size(); j++) {
+				candidateToSurfDistances[j] = surf.getDistanceRup(candidateDistsToCheck.get(j));
+				if (candidateToSurfDistances[j] > maxAnyDist) {
+					means.add(Double.POSITIVE_INFINITY);
+					squaredMeans.add(Double.POSITIVE_INFINITY);
+					medians.add(Double.POSITIVE_INFINITY);
+					allDists.add(null);
+					sortIndexes.add(i);
+					continue candidateLoop;
+				}
+			}
+			double[] combDists = new double[surfToCandidateDistances.length+candidateToSurfDistances.length];
+			System.arraycopy(surfToCandidateDistances, 0, combDists, 0, surfToCandidateDistances.length);
+			System.arraycopy(candidateToSurfDistances, 0, combDists, surfToCandidateDistances.length, candidateToSurfDistances.length);
+			
+			double median = DataUtils.median(combDists);
+			
+			if (StatUtils.min(combDists) > minDistThresh || median > maxMedianDist) {
+				means.add(Double.POSITIVE_INFINITY);
+				squaredMeans.add(Double.POSITIVE_INFINITY);
+				medians.add(Double.POSITIVE_INFINITY);
+				allDists.add(null);
+				sortIndexes.add(i);
+				continue candidateLoop;
+			}
+			
+			means.add(0.5*StatUtils.mean(surfToCandidateDistances) + 0.5*StatUtils.mean(candidateToSurfDistances));
+			squaredMeans.add(0.5*sq_mean(surfToCandidateDistances) + 0.5*sq_mean(candidateToSurfDistances));
+			medians.add(median);
+			allDists.add(combDists);
 			sortIndexes.add(i);
 		}
 		
-		List<ComparablePairing<Double, Integer>> pairings = ComparablePairing.build(means, sortIndexes);
+		List<ComparablePairing<Double, Integer>> pairings;
+		if (use_sq_dist)
+			pairings = ComparablePairing.build(squaredMeans, sortIndexes);
+		else
+			pairings = ComparablePairing.build(means, sortIndexes);
 		Collections.sort(pairings);
 		
-		for (int i=0; i<50 && i<pairings.size() && D; i++) {
+		for (int i=0; i<5 && i<pairings.size() && D; i++) {
 			ComparablePairing<Double, Integer> pairing = pairings.get(i);
 			if (Double.isInfinite(pairing.getComparable()))
 				 break;
 			int index = pairing.getData();
 			double mean = means.get(index);
+			double sqMean = squaredMeans.get(index);
 			double median = medians.get(index);
 			double[] dists = allDists.get(index);
 			double min = StatUtils.min(dists);
@@ -180,7 +332,7 @@ public class FiniteFaultMapper {
 			
 			String parStr = Joiner.on("; ").join(parents);
 			
-			System.out.println("Match "+i+". Mean="+(float)mean+". Median="+(float)median
+			if (D) System.out.println("Match "+i+". Mean="+(float)mean+". Sq Mean="+(float)sqMean+". Median="+(float)median
 					+". Range=["+(float)min+" "+(float)max+"]. Mag="+rupSet.getMagForRup(rupIndex)
 					+". Len="+lengths[rupIndex]+". Center: "+centers[rupIndex]+". Parents: "+parStr);
 		}
@@ -200,7 +352,146 @@ public class FiniteFaultMapper {
 		
 		int rupIndex = candidates.get(pairing.getData());
 		
+		if (match_last_event_exactly) {
+			if (D) System.out.println("Adjusting to match date of last event data exactly");
+			List<FaultSectionPrefData> subSectsWithData = Lists.newArrayList();
+			
+			long closestDateToEvent = -1;
+			long closestDelta = Long.MAX_VALUE;
+			
+			List<FaultSectionPrefData> sectsForRup = rupSet.getFaultSectionDataForRupture(rupIndex);
+			
+			for (FaultSectionPrefData sect : sectsForRup) {
+				if (sect.getDateOfLastEvent() != Long.MIN_VALUE) {
+					long delta = rup.getOriginTime() - sect.getDateOfLastEvent();
+					if (delta < 0l)
+						delta = -delta;
+					if (delta < closestDelta) {
+						closestDateToEvent = sect.getDateOfLastEvent();
+						closestDelta = delta;
+					}
+				}
+			}
+			
+			for (FaultSectionPrefData sect : sectsForRup)
+				if (sect.getDateOfLastEvent() >= closestDateToEvent)
+					subSectsWithData.add(sect);
+			
+			if (D) System.out.println("Removing "+(sectsForRup.size() - subSectsWithData.size())
+					+" sects without data (or with earlier date). Date: "+new Date(closestDateToEvent));
+			
+			HashSet<Integer> sectsToInclude = new HashSet<Integer>();
+			for (FaultSectionPrefData sect : subSectsWithData)
+				sectsToInclude.add(sect.getSectionId());
+			
+			// now look for others that were excluded, but only if the rupture isn't completely masked
+			if (closestDelta < 2l*ProbabilityModelsCalc.MILLISEC_PER_YEAR) {
+				List<String> newNames = Lists.newArrayList();
+				for (FaultSectionPrefData sect : subSectsWithData) {
+					// now look at others on same parent
+					for (FaultSectionPrefData oSect : parentSectsMap.get(sect.getParentSectionId())) {
+						if (sectsToInclude.contains(oSect.getSectionId()))
+							continue;
+						if (oSect.getDateOfLastEvent() == closestDateToEvent) {
+							sectsToInclude.add(oSect.getSectionId());
+							newNames.add(oSect.getName());
+						}
+					}
+				}
+				
+				if (D) System.out.println("Adding "+(sectsToInclude.size() - subSectsWithData.size())
+						+" sects that match date but were excluded: "+j.join(newNames));
+			} else {
+				System.out.println("Not adding any more as rupture is masked in last event data");
+			}
+			if (sectsToInclude.size() < 2) {
+				if (D) System.out.println("Too few subsections, skipping");
+				rupIndex = -1;
+			} else {
+				rupIndex = getRuptureForSects(sectsToInclude);
+			}
+		}
+		
+		if (rupIndex >= 0) {
+			// check for smaller aftershocks being mapped to full main shock surfaces
+			
+			// no abs, this is just for detecting aftershocks that get mapped to larger'
+			double fssMag = rupSet.getMagForRup(rupIndex);
+			double magDelta = fssMag - rup.getMag();
+			if (fssMag > 7d && magDelta > 0.5) {
+				if (D) System.out.println("Throwing out match as this is likely a smaller aftershock. Mag Delta: "
+						+fssMag+" - "+rup.getMag()+" = "+magDelta);
+				rupIndex = -1;
+			}
+		}
+		
+		if (D) System.out.println("**********************************");
+		
 		return rupIndex;
+	}
+	
+	private Map<String, Integer> sectHashes = null;
+	
+	private int getRuptureForSects(HashSet<Integer> sects) {
+		if (sectHashes == null) {
+			sectHashes = Maps.newHashMap();
+			for (int i=0; i<rupSet.getNumRuptures(); i++)
+				sectHashes.put(getSectsKey(rupSet.getSectionsIndicesForRup(i)), i);
+		}
+		
+		String key = getSectsKey(sects);
+		Integer rupIndex = sectHashes.get(key);
+		
+		if (rupIndex == null) {
+			if (D) System.out.println("Rupture doesn't exist, trying subsets");
+			HashSet<Integer> parents = new HashSet<Integer>();
+			for (int sect : sects)
+				parents.add(rupSet.getFaultSectionData(sect).getParentSectionId());
+			
+			HashSet<Integer> candidateRups = new HashSet<Integer>();
+			for (int parentID : parents)
+				candidateRups.addAll(rupSet.getRupturesForParentSection(parentID));
+			
+			int mostSects = 0;
+			int matchIndex = -1;
+			candidateLoop:
+			for (int rup : candidateRups) {
+				List<Integer> oSects = rupSet.getSectionsIndicesForRup(rup);
+				if (oSects.size() > sects.size() || oSects.size() <= mostSects)
+					continue;
+				for (int sectIndex : oSects)
+					if (!sects.contains(sectIndex))
+						continue candidateLoop;
+				mostSects = oSects.size();
+				matchIndex = rup;
+			}
+			Preconditions.checkState(matchIndex > 0, "No subset match either!");
+			List<String> excludedNames = Lists.newArrayList();
+			HashSet<Integer> newSects = new HashSet<Integer>(rupSet.getSectionsIndicesForRup(matchIndex));
+			for (int sect : sects)
+				if (!newSects.contains(sect))
+					excludedNames.add(rupSet.getFaultSectionData(sect).getName());
+			if (D) System.out.println("Found match by removing: "+j.join(excludedNames));
+			rupIndex = matchIndex;
+		}
+		Preconditions.checkNotNull(rupIndex, "No match for rupture: "+key);
+		return rupIndex;
+	}
+	
+	private static final Joiner j = Joiner.on(",");
+	
+	private static String getSectsKey(Collection<Integer> sects) {
+		List<Integer> sorted = Lists.newArrayList(sects);
+		Collections.sort(sorted);
+		return j.join(sorted);
+	}
+	
+	private static double sq_mean(double[] array) {
+		double mean = 0;
+		for (double val : array)
+			mean += val*val;
+		mean /= array.length;
+		return mean;
 	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
@@ -211,9 +502,9 @@ public class FiniteFaultMapper {
 			if (rup.getHypocenterLocation().getDepth() > 24 && rup.getMag() >= 4)
 				System.out.println(rup.getHypocenterLocation()+", mag="+rup.getMag());
 		}
-		System.exit(0);
+		
 		List<ObsEqkRupture> finiteRups = JeanneFileLoader.loadFiniteRups(finiteFile, inputRups);
-		finiteRups = finiteRups.subList(0, 1);
+//		finiteRups = finiteRups.subList(0, 1);
 		System.out.println("Loaded "+finiteRups.size()+" finite rups");
 		
 		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(new File("/home/kevin/workspace/OpenSHA/dev/scratch/"
@@ -222,9 +513,8 @@ public class FiniteFaultMapper {
 		
 		FiniteFaultMapper mapper = new FiniteFaultMapper(rupSet);
 		
-		for (ObsEqkRupture rup : finiteRups) {
+		for (ObsEqkRupture rup : finiteRups)
 			mapper.getMappedRup(rup);
-		}
 	}
 
 }

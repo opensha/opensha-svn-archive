@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.dom4j.DocumentException;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.TimeSpan;
@@ -18,11 +21,14 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.UncertainArbDiscDataset;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.CaliforniaRegions.RELM_SOCAL;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -56,6 +62,9 @@ import org.opensha.sha.util.SiteTranslator;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.erf.SimulatorFaultSystemSolution;
@@ -67,18 +76,40 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 public class MomRateVarHazardCalc {
+	
+	private static enum CatalogTypes {
+		RSQSIM,
+		UCERF3_TD,
+		UCERF3_ETAS
+	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, DocumentException {
 		File outputDir = new File("/tmp/mom_rate_hazard");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		// don't use idens in loading, but rather
 		List<RuptureIdentifier> loadIdens = Lists.newArrayList();
 		// only so cal ruptures
-		loadIdens.add(new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
+		Region region = new CaliforniaRegions.RELM_SOCAL();
+//		Region region = new CaliforniaRegions.RELM_TESTING();
+		loadIdens.add(new RegionIden(region));
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, loadIdens, false);
 		List<EQSIM_Event> events = loader.getEvents();
 		List<RectangularElement> elements = loader.getElements();
+		
+		// UCERF3
+		File u3MainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_07_30-MID_VALUES");
+		FaultSystemSolution u3Sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		File u3EtasCatalogs = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+				+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin");
+		Map<Integer, RectangularElement> u3Elems = UCERF3ComparisonAnalysis.loadElements(u3Sol.getRupSet());
+		
+		CatalogTypes[] types = CatalogTypes.values();
+		boolean[] poissons = { false, true }; // must always be false first, will shuffle in place
+		
+		double[] durations = { 1d, 5d, 10d, 15d, 30d, 50d, 100d };
 		
 //		int windowLen = 75;
 //		int windowLen = 25;
@@ -93,57 +124,127 @@ public class MomRateVarHazardCalc {
 		else
 			taper = SimulatorMomRateVarCalc.buildHanningTaper(windowLen);
 		
-		double startYear = events.get(0).getTimeInYears() + windowLen;
-		double endYear = events.get(events.size()-1).getTimeInYears();
-		
-		List<Double> yearsList = Lists.newArrayList();
-		for (double year=startYear+windowLen; year<endYear-windowLen; year+=1d)
-			yearsList.add(year);
-		double[] years = Doubles.toArray(yearsList);
-		double[] momRates;
-		
-		String beforeStr = "";
-		if (before)
-			beforeStr = "_before";
-		File momRateFile = new File(outputDir,
-				"mom_rates"+"_taper"+windowLen+"yr"+beforeStr+"_"+years.length+"yrs.bin");
-		if (momRateFile.exists()) {
-			momRates = MatrixIO.doubleArrayFromFile(momRateFile);
-			Preconditions.checkState(momRates.length == years.length);
-		} else {
-			momRates = SimulatorMomRateVarCalc.calcTaperedMomRates(events, years, taper);
-			MatrixIO.doubleArrayToFile(momRates, momRateFile);
-		}
-		if (before) {
-			int startIndex = 0;
-			ArbitrarilyDiscretizedFunc origFunc = new ArbitrarilyDiscretizedFunc();
-			ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
-			for (int i=0; i<years.length; i++) {
-				double endTime = years[i];
-				double startTime = endTime-windowLen;
-				
-				if (i < 1000)
-					origFunc.set(endTime, momRates[i]);
-				
-				momRates[i] = 0;
-				
-				for (int j=startIndex; j<events.size(); j++) {
-					EQSIM_Event e = events.get(j);
-					double t = e.getTimeInYears();
-					if (t < startTime) {
-						startIndex = j;
-						continue;
+		for (CatalogTypes type : types) {
+			List<EQSIM_Event> myEvents;
+			List<List<EQSIM_Event>> eventLists;
+			switch (type) {
+			case RSQSIM:
+				myEvents = events;
+				break;
+			case UCERF3_TD:
+				eventLists = UCERF3ComparisonAnalysis.loadUCERF3Catalogs(
+						u3MainDir, u3Sol, region, u3Elems, 0);
+				myEvents = UCERF3ComparisonAnalysis.stitch(eventLists);
+				double maxDelta = 0d;
+				int maxDeltaIndex = -1;
+				for (int i=1; i<myEvents.size(); i++) {
+					EQSIM_Event e0 = myEvents.get(i-1);
+					EQSIM_Event e1 = myEvents.get(i);
+					double delta = e1.getTimeInYears() - e0.getTimeInYears();
+					if (delta > maxDelta) {
+						maxDelta = delta;
+						maxDeltaIndex = i;
 					}
-					if (t > endTime)
-						break;
-					for (EventRecord rec : e)
-						momRates[i] += rec.getMoment();
+					if (delta > 100) {
+						System.out.println("100 yr delta found");
+						System.out.println("\tDelta="+delta);
+						System.out.println("\tindexBefore="+e0.getID());
+						System.out.println("\tindexAfter="+e1.getID());
+					}
 				}
 				
-				momRates[i] /= windowLen;
-				if (i < 1000)
-					newFunc.set(endTime, momRates[i]);
+				System.out.println("Max U3 delta of "+maxDelta+" found at index="+maxDeltaIndex
+						+", t="+myEvents.get(maxDeltaIndex).getTimeInYears());
+				break;
+			case UCERF3_ETAS:
+				List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(u3EtasCatalogs);
+				eventLists = UCERF3_ETASComparisons.loadUCERF3EtasCatalogs(catalogs, u3Sol, region, u3Elems);
+				myEvents = UCERF3ComparisonAnalysis.stitch(eventLists);
+				break;
+
+			default:
+				throw new IllegalStateException();
 			}
+			for (boolean poisson : poissons) {
+				double startYear = myEvents.get(0).getTimeInYears() + windowLen;
+				double endYear = myEvents.get(myEvents.size()-1).getTimeInYears();
+				
+				String prefix = type.name();
+				if (poisson)
+					prefix += "_POISSON";
+				
+				System.out.println("Working on "+prefix);
+				
+				if (poisson) {
+					List<EQSIM_Event> poissonEvents = Lists.newArrayList();
+					double startSecs = myEvents.get(0).getTime();
+					double endSecs = myEvents.get(myEvents.size()-1).getTime();
+					double durationSecs = endSecs - startSecs;
+					for (EQSIM_Event e : myEvents) {
+						double timeSeconds = startSecs + Math.random()*(durationSecs);
+						poissonEvents.add(e.cloneNewTime(timeSeconds, e.getID()));
+					}
+					Collections.sort(poissonEvents);
+					myEvents = poissonEvents;
+				}
+				
+				File myDir = new File(outputDir, prefix);
+				Preconditions.checkState(myDir.exists() || myDir.mkdir());
+				
+				List<Double> yearsList = Lists.newArrayList();
+				for (double year=startYear+windowLen; year<endYear-windowLen; year+=1d)
+					yearsList.add(year);
+				double[] years = Doubles.toArray(yearsList);
+				double[] momRates;
+				
+//				String beforeStr = "";
+//				if (before)
+//					beforeStr = "_before";
+//				File momRateFile = new File(myDir,
+//						"mom_rates"+"_taper"+windowLen+"yr"+beforeStr+"_"+years.length+"yrs.bin");
+//				if (momRateFile.exists()) {
+//					momRates = MatrixIO.doubleArrayFromFile(momRateFile);
+//					Preconditions.checkState(momRates.length == years.length);
+//				} else {
+					momRates = SimulatorMomRateVarCalc.calcTaperedMomRates(myEvents, years, taper);
+//					MatrixIO.doubleArrayToFile(momRates, momRateFile);
+//				}
+				doMomRateCalc(myDir, events, years, momRates, durations, windowLen);
+				doEventRateCalc(myDir, myEvents, years, momRates, 7d, durations);
+			}
+		}
+		
+		
+//		if (before) {
+//			int startIndex = 0;
+//			ArbitrarilyDiscretizedFunc origFunc = new ArbitrarilyDiscretizedFunc();
+//			ArbitrarilyDiscretizedFunc newFunc = new ArbitrarilyDiscretizedFunc();
+//			for (int i=0; i<years.length; i++) {
+//				double endTime = years[i];
+//				double startTime = endTime-windowLen;
+//				
+//				if (i < 1000)
+//					origFunc.set(endTime, momRates[i]);
+//				
+//				momRates[i] = 0;
+//				
+//				for (int j=startIndex; j<events.size(); j++) {
+//					EQSIM_Event e = events.get(j);
+//					double t = e.getTimeInYears();
+//					if (t < startTime) {
+//						startIndex = j;
+//						continue;
+//					}
+//					if (t > endTime)
+//						break;
+//					for (EventRecord rec : e)
+//						momRates[i] += rec.getMoment();
+//				}
+//				
+//				momRates[i] /= windowLen;
+//				if (i < 1000)
+//					newFunc.set(endTime, momRates[i]);
+//			}
 //			List<PlotElement> funcs = Lists.newArrayList();
 //			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 //			funcs.add(origFunc);
@@ -164,17 +265,15 @@ public class MomRateVarHazardCalc {
 //			funcs.add(xy);
 //			chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 5f, Color.RED));
 //			new GraphWindow(funcs, "Test", chars);
-		}
+//		}
 		
 //		double[] hazard_durations = { 5d, 30d, 50d, 75d };
 //		double hazardMinMag = 5.5d;
 //		doHazardCalc(outputDir, events, elements, hazard_durations,
 //				hazardMinMag, years, momRates);
-		
-		double[] durations = { 1d, 5d, 10d, 15d, 30d, 50d, 100d };
+	
 //		doEventRateCalc(events, years, momRates, 7d, durations);
 		
-		doMomRateCalc(events, years, momRates, durations, windowLen);
 	}
 
 	private static void doHazardCalc(File outputDir, List<EQSIM_Event> events,
@@ -398,8 +497,8 @@ public class MomRateVarHazardCalc {
 		return func;
 	}
 	
-	private static void doEventRateCalc(List<EQSIM_Event> events, double[] years,
-			double[] moRates, double minMag, double[] durations) {
+	private static void doEventRateCalc(File outputDir, List<EQSIM_Event> events, double[] years,
+			double[] moRates, double minMag, double[] durations) throws IOException {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
@@ -418,9 +517,17 @@ public class MomRateVarHazardCalc {
 		PlotSpec spec = new PlotSpec(funcs, chars, "Event Rates vs Moment Rates",
 				"Moment Rate Before", "Rate M>="+(double)minMag+" Following");
 		spec.setLegendVisible(true);
-		GraphWindow gw = new GraphWindow(spec);
-		gw.setXLog(true);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		gp.drawGraphPanel(spec, true, false);
+		gp.getCartPanel().setSize(1000, 800);
+		File outputFile = new File(outputDir, "event_rate_following");
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		
 		// now gain func
 		int countAbove = 0;
@@ -450,9 +557,11 @@ public class MomRateVarHazardCalc {
 		spec = new PlotSpec(gainFuncs, chars, "Event Rate Gain vs Moment Rates",
 				"Moment Rate Before", "Rate Gain M>="+(double)minMag+" Following");
 		spec.setLegendVisible(true);
-		gw = new GraphWindow(spec);
-		gw.setXLog(true);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		gp.drawGraphPanel(spec, true, false);
+		gp.getCartPanel().setSize(1000, 800);
+		outputFile = new File(outputDir, "event_rate_gain");
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 	}
 	
 	private static ArbitrarilyDiscretizedFunc calcEventRatesForMomRates(
@@ -506,8 +615,8 @@ public class MomRateVarHazardCalc {
 		return ret;
 	}
 	
-	private static void doMomRateCalc(List<EQSIM_Event> events, double[] years,
-			double[] moRates, double[] durations, int durationBefore) {
+	private static void doMomRateCalc(File outputDir, List<EQSIM_Event> events, double[] years,
+			double[] moRates, double[] durations, int durationBefore) throws IOException {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
@@ -527,9 +636,19 @@ public class MomRateVarHazardCalc {
 		PlotSpec spec = new PlotSpec(funcs, chars, "Moment Rate Before/After",
 				"Moment Rate for "+durationBefore+"yrs Before", "Moment Rate Following");
 		spec.setLegendVisible(true);
-		GraphWindow gw = new GraphWindow(spec);
-		gw.setXLog(true);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		gp.drawGraphPanel(spec, true, false);
+		gp.getCartPanel().setSize(1000, 800);
+		File outputFile = new File(outputDir, "mom_rate_following");
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		
+		double meanMoRate = StatUtils.mean(moRates);
 		
 		List<DiscretizedFunc> gainFuncs = Lists.newArrayList();
 		for (int i=0; i<durations.length; i++) {
@@ -538,19 +657,78 @@ public class MomRateVarHazardCalc {
 			gainFunc.setName(countFunc.getName());
 			
 			for (Point2D pt : countFunc) {
-				double gain = pt.getY()/pt.getX();
+//				double gain = pt.getY()/pt.getX();
+				double gain = pt.getY()/meanMoRate;
 				gainFunc.set(pt.getX(), gain);
 			}
 			
 			gainFuncs.add(gainFunc);
 		}
 		
-		spec = new PlotSpec(gainFuncs, chars, "Event Rate Gain vs Moment Rates",
+		spec = new PlotSpec(gainFuncs, chars, "Moment Rate Gain vs Moment Rates",
 				"Moment Rate for "+durationBefore+"yrs Before", "Moment Rate Gain Following");
 		spec.setLegendVisible(true);
-		gw = new GraphWindow(spec);
-		gw.setXLog(true);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+		gp.drawGraphPanel(spec, true, false);
+		gp.getCartPanel().setSize(1000, 800);
+		outputFile = new File(outputDir, "mom_rate_gain");
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		
+		// now histogram
+		double minLogMoRate = Math.log10(StatUtils.min(moRates));
+		double maxLogMoRate = Math.log10(StatUtils.max(moRates));
+		HistogramFunction momRateHist = HistogramFunction.getEncompassingHistogram(minLogMoRate, maxLogMoRate, 0.1);
+		HistogramFunction momRateAfterLowHist =
+				new HistogramFunction(momRateHist.getMinX(), momRateHist.getMaxX(), momRateHist.size());
+		double lowerLimit = StatUtils.percentile(moRates, 25);
+		
+		double overallMean = 0d;
+		double afterLowMean = 0d;
+		for (int i=0; i<moRates.length; i++) {
+			momRateHist.add(Math.log10(moRates[i]), 1d);
+			overallMean += moRates[i];
+			if (moRates[i] < lowerLimit && (i+100)<moRates.length) {
+				momRateAfterLowHist.add(Math.log10(moRates[i+100]), 1d);
+				afterLowMean += moRates[i+100];
+			}
+		}
+		overallMean /= momRateHist.calcSumOfY_Vals();
+		afterLowMean /= momRateAfterLowHist.calcSumOfY_Vals();
+		double fract = momRateAfterLowHist.calcSumOfY_Vals()/momRateHist.calcSumOfY_Vals();
+		momRateAfterLowHist.normalizeBySumOfY_Vals();
+		System.out.println("Fraction below "+lowerLimit+": "+fract);
+		momRateAfterLowHist.scale(fract);
+		momRateHist.normalizeBySumOfY_Vals();
+		DecimalFormat meanDF = new DecimalFormat("0.##E0");
+		momRateHist.setName("All Years (mean="+meanDF.format(overallMean)+")");
+		momRateAfterLowHist.setName("100yrs After Bottom 25% (mean="+meanDF.format(afterLowMean)+")");
+		
+		funcs = Lists.newArrayList();
+		chars = Lists.newArrayList();
+		
+		funcs.add(momRateHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		
+		spec = new PlotSpec(funcs, chars, "Moment Rate Histogram",
+				"Log10(Moment Rate)", "Density");
+		spec.setLegendVisible(false);
+		gp.drawGraphPanel(spec, false, false);
+		gp.getCartPanel().setSize(1000, 800);
+		outputFile = new File(outputDir, "mom_rate_hist");
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
+		
+		funcs.add(momRateAfterLowHist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.RED));
+		
+		spec = new PlotSpec(funcs, chars, "Moment Rate Histogram",
+				"Log10(Moment Rate)", "Density");
+		spec.setLegendVisible(true);
+		gp.drawGraphPanel(spec, false, false);
+		gp.getCartPanel().setSize(1000, 800);
+		outputFile = new File(outputDir, "mom_rate_hist_after_low");
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 	}
 	
 	private static UncertainArbDiscDataset calcMomRatesForMomRates(
@@ -559,6 +737,12 @@ public class MomRateVarHazardCalc {
 		
 		double maxMoRate = StatUtils.max(moRates);
 		double minMoRate = StatUtils.min(moRates);
+//		for (int i=0; i<years.length; i++) {
+//			if (moRates[i] == minMoRate) {
+//				System.out.println("Minimum of "+minMoRate+" at bin "+i+"/"+years.length+", t="+years[i]);
+//				break;
+//			}
+//		}
 		Preconditions.checkState(minMoRate > 0d, "Cannot have mo rate of zero");
 		
 		// bin in Log10 space
@@ -613,7 +797,7 @@ public class MomRateVarHazardCalc {
 		for (int i=0; i<hist.size(); i++) {
 			double x = Math.pow(10d, hist.getX(i));
 			List<Double> vals = momRateAfters.get(i);
-			if (vals.size() < 10)
+			if (vals.size() < 100)
 				continue;
 			
 			double[] valsArray = Doubles.toArray(vals);

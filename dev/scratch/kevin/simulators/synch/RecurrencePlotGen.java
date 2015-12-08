@@ -821,6 +821,11 @@ public class RecurrencePlotGen {
 //		String[] ucerf3DirNames = null;
 //		MagDependentAperiodicityOptions[] ucerf3ForCombo = ucerf3Comparisons;
 		
+		File[] etasCatalogs = {
+				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
+		};
+		
 		
 		HashSet<MagDependentAperiodicityOptions> ucerf3ForComboSet = new HashSet<MagDependentAperiodicityOptions>();
 		if (ucerf3ForCombo != null)
@@ -878,14 +883,27 @@ public class RecurrencePlotGen {
 		Map<Integer, RectangularElement> ucerf3Elems = null;
 		int ucerf3StartYear = 2014;
 		int numUCERF3Catalogs = 5;
-		if (ucerf3Comparisons != null && ucerf3Comparisons.length > 0) {
+		int totNumUCERF3 = 0;
+		if (ucerf3Comparisons == null)
+			ucerf3Comparisons = new MagDependentAperiodicityOptions[0];
+		totNumUCERF3 = ucerf3Comparisons.length;
+		if (etasCatalogs != null && etasCatalogs.length > 0)
+			totNumUCERF3 += etasCatalogs.length;
+		if (totNumUCERF3 > 0) {
 			ucerf3Catalogs = Lists.newArrayList();
 			ucerf3Sol = FaultSystemIO.loadSol(new File("/home/kevin/workspace/OpenSHA/dev/scratch/"
 					+ "UCERF3/data/scratch/InversionSolutions/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 			ucerf3Elems = UCERF3ComparisonAnalysis.loadElements(ucerf3Sol.getRupSet());
-			for (int i=0; i<ucerf3Comparisons.length; i++) {
-				if (ucerf3Comparisons[i] == null) {
+			for (int i=0; i<totNumUCERF3; i++) {
+				if (i >= ucerf3Comparisons.length) {
+					// etas
+//					File catFile = etasCatalogs[i-ucerf3Comparisons.length];
+//					List<List<EQSIM_Event>> myCatalogs = UCERF3ComparisonAnalysis.loadUCERF3Catalogs(
+//							ucerf3Dir, ucerf3Sol, null, ucerf3Elems, ucerf3StartYear);
+//					
+//					ucerf3Catalogs.add(myCatalogs);
+				} else if (ucerf3Comparisons[i] == null) {
 					// poisson
 					List<List<EQSIM_Event>> myCatalogs = Lists.newArrayList();
 					int num;
