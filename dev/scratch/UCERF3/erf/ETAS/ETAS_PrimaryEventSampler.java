@@ -875,7 +875,7 @@ public class ETAS_PrimaryEventSampler {
 double minCharFactor = minRate/cubeRateBeyondDistThresh;
 double maxCharFactor = maxRate/cubeRateBeyondDistThresh;
 
-System.out.println(sectionIndex+"\t"+charFactor+"\t"+maxCharFactor+"\t"+(maxCharFactor/charFactor)+"\t"+minCharFactor+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totalRate);
+// System.out.println(sectionIndex+"\t"+charFactor+"\t"+maxCharFactor+"\t"+(maxCharFactor/charFactor)+"\t"+minCharFactor+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totalRate);
 
 		if(totWt<0.9999 || totWt>1.0001) {
 			System.out.println("getCubesAndFractForFaultSection_BoatRamp returned null for: "+sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\tcharFactor="+charFactor
@@ -1664,8 +1664,11 @@ System.exit(0);
 		double halfCubeWidth = 1.24;	// TODO remove hard coding
 		double frac;
 		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
-		if(!pointSurface)
-			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
+		if(!pointSurface) {
+			System.out.println("*****\nWarning: finite rupture not a FSS rupture, so no ERT applied; need to fix this at some point\n*******");
+			return 1;
+//			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
+		}
 		double parMag = parentRup.getMag();
 		if(parMag<4.0)
 			return 1.0;
