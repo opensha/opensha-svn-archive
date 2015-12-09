@@ -125,7 +125,7 @@ public class U3_EqkCatalogStatewideCompleteness {
 				break;
 			double mag = Double.parseDouble(magStr);
 			
-			System.out.println("Adding: "+startYear+" => "+mag);
+//			System.out.println("Adding: "+startYear+" => "+mag);
 			data.add(startYear, mag);
 		}
 		

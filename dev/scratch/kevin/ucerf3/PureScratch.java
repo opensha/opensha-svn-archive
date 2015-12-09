@@ -191,6 +191,18 @@ public class PureScratch {
 		for (String name : names)
 			System.out.println(parentsInBox.get(name)+". "+name);
 	}
+	
+	private static void test4() throws IOException, DocumentException {
+		FaultSystemSolution sol_31 = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemSolution sol_32 = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		System.out.println("FM3.1: "+sol_31.getRupSet().getNumRuptures());
+		System.out.println("FM3.2: "+sol_32.getRupSet().getNumRuptures());
+	}
 
 	/**
 	 * @param args
@@ -199,7 +211,8 @@ public class PureScratch {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 //		test1();
-		test3();
+//		test3();
+		test4();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
