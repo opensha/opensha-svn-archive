@@ -1665,7 +1665,7 @@ System.exit(0);
 		double frac;
 		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
 		if(!pointSurface) {
-			System.out.println("*****\nWarning: finite rupture not a FSS rupture, so no ERT applied; need to fix this at some point\n*******");
+			System.out.println("*****\nWarning: finite rupture not a FSS rupture, so no ERT applied; need to fix this at some point\n*******"); // TODO
 			return 1;
 //			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
 		}
