@@ -4109,10 +4109,10 @@ public class ProbabilityModelsCalc {
 //		
 //		erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(2014d-1850d);	
 
-		erf.getTimeSpan().setStartTime(1910);
-		System.out.println("startYear: "+erf.getTimeSpan().getStartTimeYear());
-		erf.eraseDatesOfLastEventAfterStartTime();
-		erf.getTimeSpan().setDuration(100);
+//		erf.getTimeSpan().setStartTime(1910);
+//		System.out.println("startYear: "+erf.getTimeSpan().getStartTimeYear());
+//		erf.eraseDatesOfLastEventAfterStartTime();
+//		erf.getTimeSpan().setDuration(100);
 
 		erf.updateForecast();
 		
@@ -4121,14 +4121,14 @@ public class ProbabilityModelsCalc {
 		
 //		testCalc.plotRatioHistOfRupCondProbs();
 
-//		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 20000d, "March10_testMaxRI_2");
+		testCalc.testER_Simulation(timeSinceLastFileName, null, erf, 20000d, "TestRun_120915");
 
-		try {
-			testCalc.testER_NextXyrSimulation(new File("TestSim_8"), null, 10, true, null);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			testCalc.testER_NextXyrSimulation(new File("TestSim_8"), null, 10, true, null);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		
 //		testCalc.testER_SimulationOnParentSection(timeSinceLastFileName, null, erf,60000000d, "CerroP",172);

@@ -1565,7 +1565,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_1yr_MaxCF10_4";	// to increment runs
+		simulationName += "_1yr_MaxCF15_2";	// to increment runs
 
 //		Long seed = null;
 		Long seed = 1449590752534l;
