@@ -1223,6 +1223,9 @@ public class ProbabilityModelsCalc {
 	 */
 	public void testER_Simulation(String inputDateOfLastFileName, String outputDateOfLastFileName, FaultSystemSolutionERF erf, double numYears, String dirNameSuffix) {
 		
+		
+		int testSectionIndex = 1946;
+		
 		boolean aveRecurIntervals = erf.aveRecurIntervalsInU3_BPTcalc;
 		boolean aveNormTimeSinceLast = erf.aveNormTimeSinceLastInU3_BPTcalc;
 		
@@ -1316,6 +1319,7 @@ public class ProbabilityModelsCalc {
 		// initialize some things
 		ArrayList<Double> normalizedRupRecurIntervals = new ArrayList<Double>();
 		ArrayList<Double> normalizedSectRecurIntervals = new ArrayList<Double>();
+		ArrayList<Double> normalizedSectRecurIntervalsForTestSect = new ArrayList<Double>();
 		ArrayList<ArrayList<Double>> normalizedRupRecurIntervalsMagDepList = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> normalizedSectRecurIntervalsMagDepList = new ArrayList<ArrayList<Double>>();
 		for(int i=0;i<numAperValues;i++) {
@@ -1640,6 +1644,8 @@ public class ProbabilityModelsCalc {
 					if(timeOfLastMillis != Long.MIN_VALUE) {
 						double normYrsSinceLast = ((eventTimeMillis-timeOfLastMillis)/MILLISEC_PER_YEAR)*longTermPartRateForSectArray[sect];
 						normalizedSectRecurIntervals.add(normYrsSinceLast);
+						if(sect == testSectionIndex)
+							normalizedSectRecurIntervalsForTestSect.add(normYrsSinceLast);;
 						if(numAperValues>0)
 							normalizedSectRecurIntervalsMagDepList.get(getAperIndexForRupMag(rupMag)).add(normYrsSinceLast);
 						
@@ -1890,6 +1896,17 @@ public class ProbabilityModelsCalc {
 		GraphWindow graph2_b = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcList2, "Normalized Section RIs; "+plotLabelString);
 		infoString += "\n\nSect "+funcList2.get(0).getName()+":";
 		infoString += "\n"+funcList2.get(0).getInfo();
+		
+		
+		
+		// make normalized sect recurrence interval plot for test section
+		String sectName = erf.getSolution().getRupSet().getFaultSectionData(testSectionIndex).getName();
+		ArrayList<EvenlyDiscretizedFunc> funcListTestSect = ProbModelsPlottingUtils.getNormRI_DistributionWithFits(normalizedSectRecurIntervalsForTestSect, aper);
+		GraphWindow graphTestSect = ProbModelsPlottingUtils.plotNormRI_DistributionWithFits(funcListTestSect, "Normalized Section RIs for "+sectName);
+		infoString += "\n\nTestSect "+funcListTestSect.get(0).getName()+":";
+		infoString += "\n"+funcListTestSect.get(0).getInfo();
+
+		
 		
 		// now mag-dep:
 		if(numAperValues >1) {
@@ -2253,6 +2270,8 @@ public class ProbabilityModelsCalc {
 			grapha_a.saveAsTXT(dirNameForSavingFiles+"/normalizedRupRecurIntervalsPlot.txt");
 			graph2_b.saveAsPDF(dirNameForSavingFiles+"/normalizedSectRecurIntervals.pdf");
 			graph2_b.saveAsTXT(dirNameForSavingFiles+"/normalizedSectRecurIntervalsPlot.txt");
+			graphTestSect.saveAsPDF(dirNameForSavingFiles+"/normalizedRecurIntervalsForTestSect.pdf");
+			graphTestSect.saveAsTXT(dirNameForSavingFiles+"/normalizedRecurIntervalsForTestSect.txt");
 			graphTotalRateVsTime.saveAsPDF(dirNameForSavingFiles+"/totalRateVsTime.pdf");
 			graph.saveAsPDF(dirNameForSavingFiles+"/magFreqDists.pdf");
 			graph2.saveAsPDF(dirNameForSavingFiles+"/obsVsImposedSectionPartRates.pdf");
@@ -4089,6 +4108,8 @@ public class ProbabilityModelsCalc {
 		String fileName="dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip";
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fileName);
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.EXCLUDE);
+		
+		
 
 		
 //		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
@@ -4115,6 +4136,24 @@ public class ProbabilityModelsCalc {
 //		erf.getTimeSpan().setDuration(100);
 
 		erf.updateForecast();
+		
+		
+		
+//		// Write section info for Pitman canyon paleo site
+//		Location loc = new Location(34.2544,-117.4340, 0.0);
+//		double minDist = Double.MAX_VALUE;
+//		int minIndex=-1;
+//		int index = 0;
+//		for(FaultSectionPrefData data : erf.getSolution().getRupSet().getFaultSectionDataList()) {
+//			double dist = data.getStirlingGriddedSurface(1.0).getDistanceJB(loc);
+//			if(dist<minDist) {
+//				minDist = dist;
+//				minIndex = index;
+//			}
+//			index+=1;
+//		}
+//		System.out.println("Pitman Canyon section: "+minIndex+"\t"+erf.getSolution().getRupSet().getFaultSectionData(minIndex).getName());
+//		System.exit(-1);
 		
 		// TODO This could be obtained from the ERF, but the ERF would have to use the ProbabilityModelsCalc constructor that takes the ERF 
 		ProbabilityModelsCalc testCalc = new ProbabilityModelsCalc(erf);
