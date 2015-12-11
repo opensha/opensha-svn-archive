@@ -1942,7 +1942,9 @@ public class ETAS_MultiSimAnalysisTools {
 			hist.add(interval, 1d);
 		
 		hist.normalizeBySumOfY_Vals();
-		Range yRange = new Range(0d, hist.getMaxY()*1.1);
+		hist.scale(1.0/hist.getDelta());	// make into a density
+//		Range yRange = new Range(0d, hist.getMaxY()*1.1);
+		Range yRange = new Range(0d, 0.016);
 		
 		List<XY_DataSet> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -1997,6 +1999,103 @@ public class ETAS_MultiSimAnalysisTools {
 
 
 
+
+	public static void plotNormRecurrenceIntForAllSubSectHist(List<List<ETAS_EqkRupture>> catalogs,
+			FaultSystemSolutionERF_ETAS erf, File outputDir) throws IOException {
+		
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		
+		// compute the long-term rate of each section
+		double[] longTermRateOfFltSysRup = erf.getLongTermRateOfFltSysRupInERF();
+		double[] longTermPartRateForSectArray = new double[rupSet.getNumSections()];
+		for(int r=0; r<rupSet.getNumRuptures(); r++) {
+			List<Integer> sectIndices = rupSet.getSectionsIndicesForRup(r);
+			for(int s=0;s<sectIndices.size();s++) {
+				int sectID = sectIndices.get(s);
+				longTermPartRateForSectArray[sectID] += longTermRateOfFltSysRup[r];
+			}
+		}
+		
+		List<Double> intervals = Lists.newArrayList();
+		double maxValue = 0d;
+		double sum = 0d;
+				
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			double[] prevTime = new double[rupSet.getNumSections()];
+			for(int i=0;i<rupSet.getNumSections();i++)
+				prevTime[i] = -1;
+			
+			for (ETAS_EqkRupture rup : catalog) {
+				if (rup.getFSSIndex() < 0)
+					continue;
+				double myTime = calcEventTimeYears(catalog, rup);
+				for(int sectID:rupSet.getSectionsIndicesForRup(rup.getFSSIndex())) {
+					if (prevTime[sectID] >= 0) {
+						double interval = (myTime - prevTime[sectID])*longTermPartRateForSectArray[sectID];
+						intervals.add(interval);
+						maxValue = Math.max(maxValue, interval);
+						sum += interval;
+					}
+					prevTime[sectID] = myTime;
+				}
+			}
+		}
+		double mean = sum/intervals.size();
+		
+		String info = "Num Catalogs = "+catalogs.size()+"\n";
+		info += "meanNormRI = "+(float)mean+"\n";
+		info += "intervals.size() = "+intervals.size()+"\n";
+
+		// Compute mean that does not include quick re-ruptures (within first 10% of ave RI)
+		double meanFiltered=0;
+		int numFiltered = 0;
+		for(double ri:intervals) {
+			if(ri > 0.1) {
+				meanFiltered+=ri;
+				numFiltered+=1;
+			}
+		}
+		meanFiltered /= (double)numFiltered;
+
+		info += "meanFiltered = "+(float)meanFiltered+"\t(RIs within first 10% of ave RI excluded)\n";
+		info += "numFiltered = "+numFiltered+"\n";
+		
+		System.out.println(info);
+
+		HistogramFunction hist = HistogramFunction.getEncompassingHistogram(0d, maxValue, 0.1);
+		hist.setName("Histogram");
+		hist.setInfo(info);
+		
+		for (double interval : intervals)
+			hist.add(interval, 1d);
+		
+		hist.normalizeBySumOfY_Vals();
+		hist.scale(1.0/hist.getDelta());	// make into a density
+		Range yRange = new Range(0d, 2.6);
+		Range xRange = new Range(0d, 5.0);
+		
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(hist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		String prefix = "all_sub_sect__norm_recurrence_int_hist";
+		
+				
+		PlotSpec spec = new PlotSpec(funcs, chars, "Norm Recurrence Intervals for All Sections",
+				"Normalized RI", "Density");
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		setFontSizes(gp);
+		
+		gp.drawGraphPanel(spec, false, false, xRange, yRange);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
 
 
 
@@ -2101,19 +2200,21 @@ public class ETAS_MultiSimAnalysisTools {
 			if(!outputDir.exists())
 				outputDir.mkdir();
 			
+			plotNormRecurrenceIntForAllSubSectHist(catalogs, erf, outputDir);
+			
 //			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
-			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d);
+//			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d);
 			
-			int[] sectIndexArray = {1850,1922};
-			
-			for(int sectIndex:sectIndexArray) {
-				plotSubSectRecurrenceHist(catalogs, rupSet, sectIndex, outputDir);
-				double sectPartRate = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 5.0)[sectIndex];
-				double probOneOrMore = 1-Math.exp(-sectPartRate*10);
-				System.out.println("Model Prob one or more in 10 years ="+(float)probOneOrMore);
-				
-				plotSubSectMagFreqDist(catalogs, erf, sectIndex, outputDir);				
-			}			
+//			int[] sectIndexArray = {1850,1922,1946};
+//			
+//			for(int sectIndex:sectIndexArray) {
+//				plotSubSectRecurrenceHist(catalogs, rupSet, sectIndex, outputDir);
+//				double sectPartRate = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 5.0)[sectIndex];
+//				double probOneOrMore = 1-Math.exp(-sectPartRate*10);
+//				System.out.println("Model Prob one or more in 10 years ="+(float)probOneOrMore);
+//				
+//				plotSubSectMagFreqDist(catalogs, erf, sectIndex, outputDir);				
+//			}			
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
