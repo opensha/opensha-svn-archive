@@ -1,6 +1,7 @@
 package scratch.UCERF3.utils.finiteFaultMap;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -17,6 +18,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.metadata.XMLSaveable;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.LogPrintStream;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupOrigTimeComparator;
@@ -32,6 +34,7 @@ import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 /**
@@ -119,31 +122,40 @@ public class FiniteFaultMappingData implements XMLSaveable {
 		return root;
 	}
 	
-	public static void loadRuptureSurfaces(File xmlFile, List<? extends ObsEqkRupture> ruptures,
+	public static void loadRuptureSurfaces(File xmlFile, ObsEqkRupList ruptures,
 			FaultModels fm, FaultSystemRupSet rupSet) throws MalformedURLException, DocumentException {
 		loadRuptureSurfaces(XMLUtils.loadDocument(xmlFile), ruptures, fm, rupSet);
 	}
 	
-	public static void loadRuptureSurfaces(InputStream is, List<? extends ObsEqkRupture> ruptures,
+	public static void loadRuptureSurfaces(InputStream is, ObsEqkRupList ruptures,
 			FaultModels fm, FaultSystemRupSet rupSet) throws DocumentException {
 		loadRuptureSurfaces(XMLUtils.loadDocument(is), ruptures, fm, rupSet);
 	}
 	
-	public static void loadRuptureSurfaces(Document doc, List<? extends ObsEqkRupture> ruptures,
+	public static void loadRuptureSurfaces(Document doc, ObsEqkRupList ruptures,
 			FaultModels fm, FaultSystemRupSet rupSet) {
 		FiniteFaultMappingData data = load(doc, ruptures);
 		
 		int count = 0;
 		int numMapped = 0;
 		
-		for (ObsEqkRupture rup : ruptures) {
+		for (int i=0; i<ruptures.size(); i++) {
+			ObsEqkRupture rup = ruptures.get(i);
 			if (!data.hasMapping(rup))
 				continue;
 			count++;
 			RuptureSurface surf = data.getSurface(rup, fm, rupSet);
-			if (surf instanceof CompoundSurface)
-				numMapped++;
 			rup.setRuptureSurface(surf);
+			if (surf instanceof CompoundSurface) {
+				// set FSS index
+				int obsRupIndex = data.rupIndexMap.get(rup);
+				int rupIndex = data.mappedRupIndexes.get(obsRupIndex).get(fm);
+				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
+				etasRup.setFSSIndex(rupIndex);
+				ruptures.set(i, etasRup);
+				
+				numMapped++;
+			}
 		}
 		System.out.println("Loaded finite fault surfaces for "+count+" ruptures ("+numMapped+" are FaultSystemRupSet ruptures)");
 	}
@@ -210,10 +222,16 @@ public class FiniteFaultMappingData implements XMLSaveable {
 	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
+		File outputDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog");
+		File logFile = new File(outputDir, "finite_fault_mappings_log.txt");
+		FileWriter log_fw = new FileWriter(logFile);
+		System.setOut(new LogPrintStream(System.out, log_fw));
+		System.setErr(new LogPrintStream(System.err, log_fw));
+		
 		File finiteFile = new File("/home/kevin/OpenSHA/UCERF3/historical_finite_fault_mapping/UCERF3_finite.dat");
 		ObsEqkRupList inputRups = UCERF3_CatalogParser.loadCatalog(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/ofr2013-1165_EarthquakeCat.txt"));
-		File outputFile = new File("/tmp/finite_fault_mappings.xml");
+		File outputFile = new File(outputDir, "finite_fault_mappings.xml");
 		
 		FaultSystemRupSet rupSet31 = FaultSystemIO.loadRupSet(new File("/home/kevin/workspace/OpenSHA/dev/scratch/"
 				+ "UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_"
@@ -222,10 +240,10 @@ public class FiniteFaultMappingData implements XMLSaveable {
 				+ "UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_"
 				+ "FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
 		
-		if (outputFile.exists()) {
-			loadRuptureSurfaces(outputFile, inputRups, FaultModels.FM3_1, rupSet31);
-			System.exit(0);
-		}
+//		if (outputFile.exists()) {
+//			loadRuptureSurfaces(outputFile, inputRups, FaultModels.FM3_1, rupSet31);
+//			System.exit(0);
+//		}
 		
 		for (ObsEqkRupture rup : inputRups) {
 			if (rup.getHypocenterLocation().getDepth() > 24 && rup.getMag() >= 4)
@@ -267,6 +285,8 @@ public class FiniteFaultMappingData implements XMLSaveable {
 		Document doc = XMLUtils.createDocumentWithRoot();
 		data.toXMLMetadata(doc.getRootElement());
 		XMLUtils.writeDocumentToFile(outputFile, doc);
+		
+		log_fw.close();
 	}
 
 }

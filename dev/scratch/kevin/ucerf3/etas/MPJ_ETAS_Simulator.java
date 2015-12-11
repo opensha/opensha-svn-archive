@@ -37,6 +37,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.faultSurface.PointSurface;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -184,7 +185,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
 				etasRup.setID(Integer.parseInt(rup.getEventId()));
 				histQkList.add(etasRup);
-				if (rup.getRuptureSurface() != null)
+				if (rup.getRuptureSurface() != null && !(rup.getRuptureSurface() instanceof PointSurface))
 					numWithSurfaces++;
 			}
 			if (rank == 0)

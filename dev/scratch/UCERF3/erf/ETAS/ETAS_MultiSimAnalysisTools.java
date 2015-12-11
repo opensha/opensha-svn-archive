@@ -1101,7 +1101,8 @@ public class ETAS_MultiSimAnalysisTools {
 	private static final double MILLIS_PER_YEAR = 365.25*24*60*60*1000;
 	
 	private static void plotCubeNucleationRates(List<List<ETAS_EqkRupture>> catalogs, double duration,
-			File outputDir, String name, String prefix, double[] mags) throws IOException, GMT_MapException {
+			File outputDir, String name, String prefix, double[] mags)
+					throws IOException, GMT_MapException {
 		double discr = 0.02;
 		GriddedRegion reg = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(),
 				discr, GriddedRegion.ANCHOR_0_0);
@@ -1123,6 +1124,7 @@ public class ETAS_MultiSimAnalysisTools {
 				continue;
 			maxDuration = Math.max(myDuration, maxDuration);
 			double rateEach = 1d/(catalogs.size()*myDuration);
+			
 			for (ETAS_EqkRupture rup : catalog) {
 				double mag = rup.getMag();
 				Location loc = rup.getHypocenterLocation();
@@ -1171,6 +1173,40 @@ public class ETAS_MultiSimAnalysisTools {
 					FaultBasedMapGen.buildMap(cpt.rescale(minZ, maxZ), null, null,
 							xyzs[i], discr, plotReg, false, label));
 		}
+	}
+	
+	private static List<List<ETAS_EqkRupture>> getOnlyAftershocksFromHistorical(List<List<ETAS_EqkRupture>> catalogs) {
+		List<List<ETAS_EqkRupture>> ret = Lists.newArrayList();
+		
+		long countHist = 0l;
+		long countAll = 0l;
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+//			HashSet<Integer> eventIDs = new HashSet<Integer>();
+			// detect if an event is an aftershock from a historical event by the fact that
+			// it will have a parent whose ID is less than the minimum ID in the catalog
+			int minIndex = Integer.MAX_VALUE;
+			for (ETAS_EqkRupture rup : catalog)
+				if (rup.getID() < minIndex)
+					minIndex = rup.getID();
+			
+			List<ETAS_EqkRupture> hist = Lists.newArrayList();
+			
+			for (ETAS_EqkRupture rup : catalog) {
+				if (rup.getParentID() >= 0 && rup.getParentID() < minIndex)
+					hist.add(rup);
+			}
+			
+			ret.add(hist);
+			countHist += hist.size();
+			countAll += catalog.size();
+		}
+		
+		double percent = 100d*((double)countHist/(double)countAll);
+		
+		System.out.println(countHist+"/"+countAll+" ("+(float)percent+" %) are historical aftershocks");
+		
+		return ret;
 	}
 	
 	private static void writeTimeFromPrevSupraHist(List<List<ETAS_EqkRupture>> catalogs, File outputDir) throws IOException {
@@ -2285,17 +2321,25 @@ public class ETAS_MultiSimAnalysisTools {
 		FaultSystemSolution fss = FaultSystemIO.loadSol(fssFile);
 		
 		boolean skipEmpty = true;
-//		double minDurationForInclusion = 0d;
+		double minDurationForInclusion = 0d;
 //		double minDurationForInclusion = 0.5d;
-		double minDurationForInclusion = 990;
+//		double minDurationForInclusion = 990;
 		
 		List<String> names = Lists.newArrayList();
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-		names.add("1000yr Full TD, NoLTR");
-		resultsZipFiles.add(new File(mainDir, "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin"));
+		names.add("30yr Full TD, NoLTR");
+		resultsZipFiles.add(new File(mainDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR/results_m4.bin"));
 		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("1000yr Full TD, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2015_11_28-spontaneous-1000yr-FelzerParams-full_td-noApplyLTR/results_m4.bin"));
@@ -2562,7 +2606,7 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			
 			FaultSystemSolutionERF erf = null;
-			if (triggerParentID < 0 && (duration >= 100d || catalogs.size() > 1000)) {
+			if (triggerParentID < 0 && (duration >= 100d || catalogs.size() >= 1000)) {
 				System.out.println("Creating ERF for comparisons");
 				erf = new FaultSystemSolutionERF(fss);
 				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
@@ -2653,6 +2697,11 @@ public class ETAS_MultiSimAnalysisTools {
 				double[] mags = { 2.5, 6.7, 7.8 };
 				plotCubeNucleationRates(childrenCatalogs, duration, outputDir, name, fullFileName+"_gridded_nucl", mags);
 				plotCubeNucleationRates(primaryCatalogs, duration, outputDir, name, subsetFileName+"_gridded_nucl", mags);
+				if (scenario == null && (duration > 1d || duration < 0)) {
+					List<List<ETAS_EqkRupture>> histCats = getOnlyAftershocksFromHistorical(childrenCatalogs);
+					plotCubeNucleationRates(histCats, duration, outputDir, name,
+							fullFileName+"_gridded_nucl_historical", mags);
+				}
 			}
 			
 			if (plotSectScatter && erf != null) {

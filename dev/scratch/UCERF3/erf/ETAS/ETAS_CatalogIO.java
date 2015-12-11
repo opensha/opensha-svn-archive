@@ -754,10 +754,10 @@ public class ETAS_CatalogIO {
 //			writeEventDataToFile(new File(binFile.getParentFile(), "catalog_"+i+"_m5.txt"), catalogs.get(i));
 		
 		File baseDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
-		mergeBinary(new File(new File(baseDir, "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR-combined"), "results_m4.bin"),
+		mergeBinary(new File(new File(baseDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4.bin"),
 				950, new File[] {
-						new File(new File(baseDir, "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4.bin"),
-						new File(new File(baseDir, "2015_11_11-spontaneous-1000yr-400more-full_td-noApplyLTR"), "results_m4.bin")
+						new File(new File(baseDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4_first200.bin"),
+						new File(new File(baseDir, "2015_12_09-spontaneous-1000yr-300more-full_td-noApplyLTR"), "results_m4.bin")
 				});
 
 		//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"

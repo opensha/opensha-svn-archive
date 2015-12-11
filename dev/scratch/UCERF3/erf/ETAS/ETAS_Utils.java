@@ -1840,7 +1840,7 @@ public class ETAS_Utils {
 		
 //		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
-		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear);
+		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear, erf.getSolution().getRupSet());
 		
 		try {
 			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, 

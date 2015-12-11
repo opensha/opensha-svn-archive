@@ -95,6 +95,7 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
@@ -111,6 +112,7 @@ import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.UCERF3.utils.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.finiteFaultMap.FiniteFaultMappingData;
 
 public class ETAS_Simulator {
 	
@@ -267,7 +269,12 @@ public class ETAS_Simulator {
 			for(ObsEqkRupture qk : histQkList) {
 				Location hyp = qk.getHypocenterLocation();
 				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {	//TODO remove hard-coded 24.0 (get from depth dist)
-					ETAS_EqkRupture etasRup = new ETAS_EqkRupture(qk);
+					ETAS_EqkRupture etasRup;
+					if (qk instanceof ETAS_EqkRupture)
+						// keep original, may have FSS Index set
+						etasRup = (ETAS_EqkRupture)qk;
+					else
+						etasRup = new ETAS_EqkRupture(qk);
 					etasRup.setID(id);
 					obsEqkRuptureList.add(etasRup);
 					id+=1;
@@ -1062,7 +1069,7 @@ public class ETAS_Simulator {
 
 	}
 	
-	public static ObsEqkRupList getHistCatalog(double startTimeYear) {
+	public static ObsEqkRupList getHistCatalog(double startTimeYear, FaultSystemRupSet rupSet) {
 		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/ofr2013-1165_EarthquakeCat.txt");
 		ObsEqkRupList histQkList=null;
 		try {
@@ -1077,9 +1084,19 @@ public class ETAS_Simulator {
 //		}
 //		GraphWindow graph = new GraphWindow(func, "Hypocenter Depth Histogram");
 		double timeInMillis = (startTimeYear-1970)*ProbabilityModelsCalc.MILLISEC_PER_YEAR;
-		return histQkList.getRupsBefore((long)timeInMillis);
+		histQkList = histQkList.getRupsBefore((long)timeInMillis);
 		
-//		return histQkList;
+		// load in rupture surfaces. Note: this must happen before mag complete filtering, surface loading needs all ruptures
+		Preconditions.checkState(rupSet.getNumRuptures() == 253706, "Hardcoded to FM3.1 but this rup set isn't FM3.1");
+		try {
+			FiniteFaultMappingData.loadRuptureSurfaces(
+					UCERF3_DataUtils.locateResourceAsStream("EarthquakeCatalog", "finite_fault_mappings.xml"),
+					histQkList, FaultModels.FM3_1, rupSet);
+		} catch (DocumentException e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
+		
+		return histQkList;
 	}
 	
 	/**
@@ -1088,8 +1105,10 @@ public class ETAS_Simulator {
 	 * @param startTimeYear
 	 * @return
 	 */
-	public static ObsEqkRupList getHistCatalogFiltedForStatewideCompleteness(double startTimeYear) {
-		ObsEqkRupList qkList = getHistCatalog(startTimeYear);
+	public static ObsEqkRupList getHistCatalogFiltedForStatewideCompleteness(double startTimeYear, FaultSystemRupSet rupSet) {
+		ObsEqkRupList qkList = getHistCatalog(startTimeYear, rupSet);
+		
+		// filter by mag complete
 		U3_EqkCatalogStatewideCompleteness magComplete;
 		try {
 			magComplete = U3_EqkCatalogStatewideCompleteness.load();
