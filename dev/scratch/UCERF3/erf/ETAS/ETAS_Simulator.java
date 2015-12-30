@@ -1547,7 +1547,7 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-//		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);
 //		writeLocationAtCenterOfSectionSurf(erf, 1850);
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -1558,6 +1558,8 @@ public class ETAS_Simulator {
 		
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
+		
+		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
 		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
@@ -1600,7 +1602,7 @@ public class ETAS_Simulator {
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
 //		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
 
-		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
+//		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		
 		
 		

@@ -436,6 +436,7 @@ public class ETAS_CatalogIO {
 		Preconditions.checkState(numCatalogs > 0, "Bad num catalogs: %s", numCatalogs);
 
 		for (int i=0; i<numCatalogs; i++) {
+System.out.print("; cat "+i);
 			catalogs.add(loadCatalogBinary(in, minMag));
 			if ((i+1) % 1000 == 0)
 				System.out.println("Loaded "+(i+1)+"/"+numCatalogs+" catalogs (and counting)...");

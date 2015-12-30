@@ -2444,7 +2444,7 @@ System.exit(0);
 		makeLongTermSectMFDs();
 		
 		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
-		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,CharFactorMoRate,subRate,supraRate,minSupraMag,MoRate,SectName\n");
+		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,CharFactorMoRate,subRate,supraRate,minSupraMag,MoRate,SectName,SubSect\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 		
@@ -2683,6 +2683,8 @@ System.exit(0);
 		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, display, false, title);
 		
 	}
+	
+	
 	
 	
 	
@@ -5666,7 +5668,7 @@ System.exit(0);
 				applyGR_Corr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 		
 //		etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
-		etas_PrimEventSampler.plotGR_CorrFactorsForGriddedSeis("GR_CorrFactorsForGriddedSeis");
+//		etas_PrimEventSampler.plotGR_CorrFactorsForGriddedSeis("GR_CorrFactorsForGriddedSeis");
 		
 		// Surprise valley subsection subseis rates
 //		etas_PrimEventSampler.writeTotSubSeisRateForSections(2446, 2461);
@@ -5691,14 +5693,13 @@ System.exit(0);
 //		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
 
 		
-//		// Sections bulge plot
-//		try {
-////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections_113015"), "Test", true);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
+		// Sections bulge plot
+		try {
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections_122815"), "Test", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 //		// San Andreas (Mojave S), Subsection 4
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1841, 5.0);

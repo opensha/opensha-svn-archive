@@ -1942,11 +1942,10 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	/**
-	 * This will return a catalog that contains only ruptures that are direct children of the given parent ID,
-	 * the parent rupture and any further generations are excluded
+	 * This will return a catalog that contains only ruptures that are of the given generation
 	 * 
 	 * @param catalog
-	 * @param parentID
+	 * @param generation
 	 * @return
 	 */
 	public static List<ETAS_EqkRupture> getByGeneration(List<ETAS_EqkRupture> catalog, int generation) {
