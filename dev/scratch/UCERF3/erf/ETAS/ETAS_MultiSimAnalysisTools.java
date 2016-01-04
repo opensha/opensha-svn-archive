@@ -27,6 +27,7 @@ import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -2336,6 +2337,91 @@ public class ETAS_MultiSimAnalysisTools {
 //		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
+	/**
+	 * This plots the cumulative number of occurrences with time for the specified section to
+	 * see if there is any increase in rate.
+	 * @param catalogs
+	 * @param erf
+	 * @param sectIndex
+	 * @param outputDir
+	 * @throws IOException
+	 */
+	public static void plotCumNumWithTimeForSection(List<List<ETAS_EqkRupture>> catalogs,
+			FaultSystemSolutionERF_ETAS erf, int sectIndex, File outputDir) throws IOException {
+		
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		HashSet<Integer> ruptures = new HashSet<Integer>(rupSet.getRupturesForSection(sectIndex));
+		
+		ArbitrarilyDiscretizedFunc cumNumWithTimeFunc = new ArbitrarilyDiscretizedFunc();
+		ArbitrarilyDiscretizedFunc comparisonLineFunc = new ArbitrarilyDiscretizedFunc();
+		ArbitrarilyDiscretizedFunc tempFunc = new ArbitrarilyDiscretizedFunc();
+				
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			for (ETAS_EqkRupture rup : catalog) {
+				if (rup.getFSSIndex() < 0 || !ruptures.contains(rup.getFSSIndex()))
+					continue;
+				tempFunc.set(calcEventTimeYears(catalog, rup),1.0);
+			}
+		}
+				
+		double cumVal=0;
+		double numSimulations = catalogs.size();
+		for(int i=0;i<tempFunc.size();i++) {
+			cumVal+=1.0/numSimulations;
+			cumNumWithTimeFunc.set(tempFunc.getX(i),cumVal);
+		}
+		cumNumWithTimeFunc.setName("cumNumWithTimeFunc");
+
+		
+		comparisonLineFunc.set(cumNumWithTimeFunc.get(0));
+		comparisonLineFunc.set(cumNumWithTimeFunc.get(cumNumWithTimeFunc.size()-1));
+		comparisonLineFunc.setName("comparisonLineFunc");
+		
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		funcs.add(cumNumWithTimeFunc);
+		funcs.add(comparisonLineFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
+		
+		String prefix = "sub_sect_cumNumWithTime_"+sectIndex;
+		
+		
+		GraphWindow plotGraph = new GraphWindow(funcs, rupSet.getFaultSectionData(sectIndex).getName(),chars); 
+		plotGraph.setX_AxisLabel("Time (years)");
+		plotGraph.setY_AxisLabel("Cum Num");
+//		plotGraph.setY_AxisRange(1e-7, 1e-1);
+//		plotGraph.setX_AxisRange(2.5d, 8.5d);
+//		plotGraph.setYLog(true);
+		plotGraph.setPlotLabelFontSize(18);
+		plotGraph.setAxisLabelFontSize(22);
+		plotGraph.setTickLabelFontSize(20);
+
+		try {
+			plotGraph.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+			plotGraph.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		
+//		PlotSpec spec = new PlotSpec(funcs, chars, rupSet.getFaultSectionData(sectIndex).getName()+" MFDs",
+//				"Magnitude", "Rate (per yr)");
+//		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+//		
+//		setFontSizes(gp);
+//		
+//		gp.drawGraphPanel(spec, false, false, null, null);
+//		gp.setYLog(true);
+//		gp.getCartPanel().setSize(1000, 800);
+//		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+//		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+//		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+	}
+
+	
 	private static ETAS_ParameterList loadEtasParamsFromMetadata(Element root)
 			throws DocumentException, MalformedURLException {
 		Element paramsEl = root.element(ETAS_ParameterList.XML_METADATA_NAME);
@@ -2354,12 +2440,12 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			String dir = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/NoScenarioSimulations/";
 			
-//			String simName = "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR_results_m4";
+			String simName = "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_09-spontaneous-30yr-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_14-spontaneous-1000yr-mc10-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_14-spontaneous-30yr-mc10-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR_results_m4";
-			String simName = "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR_results_m4";
+//			String simName = "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR_results_m4";
 
 			
 			System.out.println("Reading catalogs");
@@ -2372,7 +2458,7 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			// DO THIS ONE FOR 30-YEAR SIMULATIONS
 //			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
-			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d);
+//			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d);
 			
 			// DO THIS ONE FOR 1000-YEAR SIMULATIONS
 //			try {
@@ -2383,18 +2469,21 @@ public class ETAS_MultiSimAnalysisTools {
 //				e.printStackTrace();
 //			} 
 			
-//			int[] sectIndexArray = {1850,1922,1946};
+			
+			
+			int[] sectIndexArray = {1906,1850,1922,1946};
 //			int[] sectIndexArray = {1906,1850};
 //			
-//			for(int sectIndex:sectIndexArray) {
-//				plotSubSectRecurrenceHist(catalogs, rupSet, sectIndex, outputDir);
-//				double sectPartRate = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 5.0)[sectIndex];
-//				double probOneOrMore = 1-Math.exp(-sectPartRate*duration);
-//				System.out.println("Model Prob one or more in "+duration+" years ="+(float)probOneOrMore);
-//				System.out.println("Model exp num in "+duration+" years ="+(float)(sectPartRate*duration));
-//				
-//				plotSubSectMagFreqDist(catalogs, erf, sectIndex, outputDir);				
-//			}			
+			for(int sectIndex:sectIndexArray) {
+				plotSubSectRecurrenceHist(catalogs, rupSet, sectIndex, outputDir);
+				double sectPartRate = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 5.0)[sectIndex];
+				double probOneOrMore = 1-Math.exp(-sectPartRate*duration);
+				System.out.println("Model Prob one or more in "+duration+" years ="+(float)probOneOrMore);
+				System.out.println("Model exp num in "+duration+" years ="+(float)(sectPartRate*duration));
+				
+				plotSubSectMagFreqDist(catalogs, erf, sectIndex, outputDir);
+				plotCumNumWithTimeForSection(catalogs, erf, sectIndex, outputDir);
+			}			
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

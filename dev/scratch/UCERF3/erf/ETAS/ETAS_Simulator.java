@@ -192,7 +192,7 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = false;
+		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = true;
 		
 		// Overide to Poisson if needed
 		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
@@ -375,6 +375,7 @@ public class ETAS_Simulator {
 		
 		
 		// Apply corrections to gridded seis rates if desired
+//		double oldTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
 		if(APPLY_GR_CORR_TO_GRIDDED_SEIS) {
 			double[] gridSeisGRcorrArray = etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
 			nthRup=0;
@@ -393,7 +394,9 @@ public class ETAS_Simulator {
 				}
 			}			
 		}
-
+//		double newTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
+//		System.out.println("oldTotalRate="+oldTotalRate+"newTotalRate="+newTotalRate+"newTotalRate="+(newTotalRate/oldTotalRate));
+//		System.exit(-1);
 		
 		
 		
@@ -1559,7 +1562,7 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
 		
-		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
+//		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
 		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
@@ -1586,7 +1589,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_1yr_MaxCF15_2";	// to increment runs
+		simulationName += "_1yr_MaxCF10_2";	// to increment runs
 
 //		Long seed = null;
 		Long seed = 1449590752534l;
@@ -1598,11 +1601,11 @@ public class ETAS_Simulator {
 		double startTimeYear=2014;
 		double durationYears=1;
 		
-		ObsEqkRupList histCat = null;
+//		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
-//		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
+		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
 
-//		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
+		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		
 		
 		
