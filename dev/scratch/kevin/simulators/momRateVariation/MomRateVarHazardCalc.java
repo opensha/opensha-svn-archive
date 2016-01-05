@@ -84,7 +84,7 @@ public class MomRateVarHazardCalc {
 	}
 
 	public static void main(String[] args) throws IOException, DocumentException {
-		File outputDir = new File("/tmp/mom_rate_hazard");
+		File outputDir = new File("/home/kevin/Simulators/mom_rate_hazard");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		// don't use idens in loading, but rather
@@ -701,7 +701,8 @@ public class MomRateVarHazardCalc {
 		momRateHist.normalizeBySumOfY_Vals();
 		DecimalFormat meanDF = new DecimalFormat("0.##E0");
 		momRateHist.setName("All Years (mean="+meanDF.format(overallMean)+")");
-		momRateAfterLowHist.setName("100yrs After Bottom 25% (mean="+meanDF.format(afterLowMean)+")");
+		double gain = afterLowMean / overallMean;
+		momRateAfterLowHist.setName("100yrs After Bottom 25% (gain="+new DecimalFormat("0.00").format(gain)+")");
 		
 		funcs = Lists.newArrayList();
 		chars = Lists.newArrayList();
