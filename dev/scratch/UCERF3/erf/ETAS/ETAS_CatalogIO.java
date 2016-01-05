@@ -620,6 +620,11 @@ public class ETAS_CatalogIO {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
 		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 		
 	}
 
