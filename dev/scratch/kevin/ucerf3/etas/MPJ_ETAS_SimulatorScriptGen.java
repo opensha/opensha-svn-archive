@@ -30,7 +30,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
-		double duration = 30;
+		double duration = 10000;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -55,9 +55,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		double[] maxCharFactors = { 10 };
 		boolean applyLongTermRates = false;
 		
-		String nameAdd = null;
-//		String nameAdd = "300more";
-//		String nameAdd = "newMC10";
+//		String nameAdd = null;
+//		String nameAdd = "4000more";
+		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";
 		
 		boolean histCatalog;
@@ -68,11 +68,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			queue = null;
 			startYear = 2012;
 			histCatalog = true;
-//			numSims = 200;
-//			nodes = 25;
-			numSims = 1000;
+//			numSims = 500;
+//			nodes = 60;
+//			numSims = 5000;
+//			nodes = 60;
+//			mins = 24*60;
+			numSims = 50;
 			nodes = 25;
-			mins = 24*60;
+			mins = 47*60;
 			Preconditions.checkState(!smallTest);
 			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);
 		} else {

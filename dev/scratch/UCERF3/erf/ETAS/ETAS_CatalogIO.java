@@ -3,6 +3,7 @@ package scratch.UCERF3.erf.ETAS;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
@@ -28,6 +30,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileNameComparator;
 
 import com.google.common.base.Preconditions;
@@ -395,7 +398,7 @@ public class ETAS_CatalogIO {
 			is = new BufferedInputStream(is);
 		DataInputStream in = new DataInputStream(is);
 
-		List<ETAS_EqkRupture> catalog = loadCatalogBinary(in, minMag);
+		List<ETAS_EqkRupture> catalog = doLoadCatalogBinary(in, minMag);
 
 		in.close();
 
@@ -436,8 +439,7 @@ public class ETAS_CatalogIO {
 		Preconditions.checkState(numCatalogs > 0, "Bad num catalogs: %s", numCatalogs);
 
 		for (int i=0; i<numCatalogs; i++) {
-System.out.print("; cat "+i);
-			catalogs.add(loadCatalogBinary(in, minMag));
+			catalogs.add(doLoadCatalogBinary(in, minMag));
 			if ((i+1) % 1000 == 0)
 				System.out.println("Loaded "+(i+1)+"/"+numCatalogs+" catalogs (and counting)...");
 		}
@@ -448,7 +450,7 @@ System.out.print("; cat "+i);
 		return catalogs;
 	}
 
-	private static List<ETAS_EqkRupture> loadCatalogBinary(DataInputStream in, double minMag) throws IOException {
+	private static List<ETAS_EqkRupture> doLoadCatalogBinary(DataInput in, double minMag) throws IOException {
 		short version = in.readShort();
 
 		Preconditions.checkState(version == 1, "Unknown binary file version: "+version);
@@ -567,6 +569,58 @@ System.out.print("; cat "+i);
 		Preconditions.checkState(expected.getHypocenterLocation().equals(actual.getHypocenterLocation()));
 		Preconditions.checkState(expected.getFSSIndex() == actual.getFSSIndex());
 		Preconditions.checkState(expected.getGridNodeIndex() == actual.getGridNodeIndex());
+	}
+	
+	public static Iterable<List<ETAS_EqkRupture>> getBinaryCatalogsIterable(final File binFile, final double minMag) {
+		return new Iterable<List<ETAS_EqkRupture>>() {
+			
+			@Override
+			public Iterator<List<ETAS_EqkRupture>> iterator() {
+				try {
+					return new BinarayCatalogsListIterator(binFile, minMag);
+				} catch (IOException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+			}
+		};
+	}
+	
+	private static class BinarayCatalogsListIterator implements Iterator<List<ETAS_EqkRupture>> {
+		
+		private double minMag;
+		
+		private int numCatalogs;
+		private int index;
+		
+		private DataInputStream in;
+		
+		private BinarayCatalogsListIterator(File binFile, double minMag) throws IOException {
+			this.minMag = minMag;
+			
+			InputStream is = getIS(binFile);
+			in = new DataInputStream(is);
+
+			numCatalogs = in.readInt();
+			index = 0;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return index < numCatalogs;
+		}
+
+		@Override
+		public List<ETAS_EqkRupture> next() {
+			Preconditions.checkState(hasNext(), "No more catalogs to load!");
+			try {
+				List<ETAS_EqkRupture> catalog = doLoadCatalogBinary(in, minMag);
+				index++;
+				return catalog;
+			} catch (IOException e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+		}
+		
 	}
 
 	public static void consolidateResultsDirBinary(File resultsDir, File outputFile, double minMag)
@@ -754,11 +808,18 @@ System.out.print("; cat "+i);
 //		for (int i=0; i<5; i++)
 //			writeEventDataToFile(new File(binFile.getParentFile(), "catalog_"+i+"_m5.txt"), catalogs.get(i));
 		
+		File testFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+				+ "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR/results_m4_first200.bin");
+		for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(testFile, 0d))
+			System.out.println("Catalog has "+catalog.size()+" ruptures");
+		System.exit(0);
+		
 		File baseDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		mergeBinary(new File(new File(baseDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4.bin"),
 				950, new File[] {
 						new File(new File(baseDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4_first200.bin"),
-						new File(new File(baseDir, "2015_12_09-spontaneous-1000yr-300more-full_td-noApplyLTR"), "results_m4.bin")
+						new File(new File(baseDir, "2015_12_09-spontaneous-1000yr-300more-full_td-noApplyLTR"), "results_m4_200.bin"),
+						new File(new File(baseDir, "2015_12_09-spontaneous-1000yr-300more-full_td-noApplyLTR"), "results_m4_100.bin")
 				});
 
 		//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"

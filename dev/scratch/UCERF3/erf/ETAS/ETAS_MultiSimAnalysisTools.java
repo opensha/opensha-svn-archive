@@ -2566,9 +2566,25 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-		names.add("30yr Full TD, NoLTR");
-		resultsZipFiles.add(new File(mainDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR/results_m4.bin"));
+		names.add("1000yr Full TD, MC=10, NoLTR");
+		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
 		scenarios.add(null);
+		
+//		names.add("30yr Full TD, MC=10, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("1000yr Full TD, MC=10, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_14-spontaneous-1000yr-mc10-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("30yr Full TD, MC=10, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_14-spontaneous-30yr-mc10-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("30yr Full TD, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("1000yr Full TD, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR/results_m4.bin"));
