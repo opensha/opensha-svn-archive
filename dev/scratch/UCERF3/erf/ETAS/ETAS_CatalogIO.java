@@ -615,6 +615,8 @@ public class ETAS_CatalogIO {
 			try {
 				List<ETAS_EqkRupture> catalog = doLoadCatalogBinary(in, minMag);
 				index++;
+				if (!hasNext())
+					in.close();
 				return catalog;
 			} catch (IOException e) {
 				throw ExceptionUtils.asRuntimeException(e);
