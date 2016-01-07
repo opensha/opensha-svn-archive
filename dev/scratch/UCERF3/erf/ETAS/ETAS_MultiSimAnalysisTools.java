@@ -1429,7 +1429,7 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 	}
 	
-	private static void plotSectParticScatter(List<List<ETAS_EqkRupture>> catalogs, double duration,
+	private static void plotSectParticScatter(Iterable<List<ETAS_EqkRupture>> catalogs, double duration,
 			FaultSystemSolutionERF erf, File outputDir) throws IOException, GMT_MapException, RuntimeException {
 		double[] minMags = { 0d };
 		
@@ -1456,6 +1456,10 @@ public class ETAS_MultiSimAnalysisTools {
 		for (int sectIndex : sectsToInclude)
 			faults.add(rupSet.getFaultSectionData(sectIndex).getFaultTrace());
 		
+		// if we ever find a case where the parent of a rupture doesn't exist,
+		// then this catalog has been filtered somehow and this will be set to false
+		boolean completeCatalogs = true;
+		
 		for (double minMag : minMags) {
 			// each "MFD" will only have one value, for this minimum mag
 			double[] subSectVals = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, minMag);
@@ -1464,12 +1468,28 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			int[] totalNumForSection = new int[rupSet.getNumSections()];
 			double[] fractTriggeredForSection = new double[rupSet.getNumSections()];
+			// triggered by a supra anywhere in the parent chain
+			double[] fractTriggeredBySupraForSection = new double[rupSet.getNumSections()];
+			
+			int catalogCount = 0;
 			
 			for (List<ETAS_EqkRupture> catalog : catalogs) {
 				if (duration < 0)
 					// detect duration from catalog
 					duration = calcDurationYears(catalog);
-				double rateEach = 1d/(catalogs.size()*duration);
+//				double rateEach = 1d/(catalogs.size()*duration);
+				double rateEach = 1d/duration; // normalize by catalog count later
+				catalogCount++;
+				
+				HashMap<Integer,ETAS_EqkRupture> idToRupMap = new HashMap<Integer,ETAS_EqkRupture>();
+				int minIndex = Integer.MAX_VALUE;
+				if (completeCatalogs) {
+					for (ETAS_EqkRupture rup : catalog) {
+						idToRupMap.put(rup.getID(),rup);
+						if (rup.getID() < minIndex)
+							minIndex = rup.getID();
+					}
+				}
 				
 				for (ETAS_EqkRupture rup : catalog) {
 					int rupIndex = rup.getFSSIndex();
@@ -1480,25 +1500,63 @@ public class ETAS_MultiSimAnalysisTools {
 					for (int sectIndex : rupSet.getSectionsIndicesForRup(rupIndex)) {
 						catalogVals[sectIndex] += rateEach;
 						totalNumForSection[sectIndex] += 1;
-						if(rup.getGeneration()>0)	// it's triggered
+						if(rup.getGeneration()>0) {
+							// it's triggered
 							fractTriggeredForSection[sectIndex] += 1;
+							if (completeCatalogs) {
+								// only can do this if catalogs are complete (not filtered)
+								boolean supra = false;
+								ETAS_EqkRupture myRup = rup;
+								while (myRup.getParentID() >= 0) {
+									if (myRup.getParentID() < minIndex) {
+										// historical earthquake. TODO: set to supra?
+										break;
+									}
+									myRup = idToRupMap.get(myRup.getParentID());
+									if (myRup == null) {
+										// not a complete catalog, bail
+										completeCatalogs = false;
+										break;
+									}
+									if (myRup.getFSSIndex() >= 0) {
+										// it has a supra parent!
+										supra = true;
+										break;
+									}
+								}
+								if (supra)
+									fractTriggeredBySupraForSection[sectIndex] += 1;
+							}
+						}
 					}
 				}
 			}
 			
+			// now normalize by number of catalogs
+			for (int i=0; i<catalogVals.length; i++)
+				catalogVals[i] /= (double)catalogCount;
+			
+			if (!completeCatalogs)
+				System.out.println("Cannot compute fract triggered by supra as catalog has been magnitude filtered");
+			
 			for (int sectIndex=0; sectIndex<rupSet.getNumSections();sectIndex++) {
 				fractTriggeredForSection[sectIndex] /= (double)totalNumForSection[sectIndex];
+				if (completeCatalogs)
+					fractTriggeredBySupraForSection[sectIndex] /= (double)totalNumForSection[sectIndex];
 			}
 			
 			// now filter out sections outside the region
 			double[] filteredCatalogVals = new double[sectsToInclude.size()];
 			double[] filteredSubSectVals = new double[sectsToInclude.size()];
 			double[] filteredFractTriggeredForSection = new double[sectsToInclude.size()];
+			double[] filteredFractTriggeredBySupraForSection = new double[sectsToInclude.size()];
 			for (int i=0; i<filteredCatalogVals.length; i++) {
 				int s = sectsToInclude.get(i);
 				filteredCatalogVals[i] = catalogVals[s];
 				filteredSubSectVals[i] = subSectVals[s];
 				filteredFractTriggeredForSection[i] = fractTriggeredForSection[s];
+				if (completeCatalogs)
+					filteredFractTriggeredBySupraForSection[i] = fractTriggeredBySupraForSection[s];
 			}
 			if (minMag == minMags[0])
 				System.out.println("Filtered out "+(catalogVals.length-filteredCatalogVals.length)
@@ -1506,6 +1564,7 @@ public class ETAS_MultiSimAnalysisTools {
 			catalogVals = filteredCatalogVals;
 			subSectVals = filteredSubSectVals;
 			fractTriggeredForSection = filteredFractTriggeredForSection;
+			fractTriggeredBySupraForSection = filteredFractTriggeredBySupraForSection;
 			
 			String title = "Sub Section Participation";
 			String prefix = "all_eqs_sect_partic";
@@ -1515,8 +1574,11 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			
 			CSVFile<String> csv = new CSVFile<String>(true);
-			csv.addLine("Sect Index", "Sect Name", "Simulation Rate", "Long Term Rate",
-					"Ratio", "Difference", "FractionTriggered");
+			List<String> header = Lists.newArrayList("Sect Index", "Sect Name", "Simulation Rate",
+					"Long Term Rate", "Ratio", "Difference", "FractionTriggered");
+			if (completeCatalogs)
+				header.add("Fraction Triggered By Supra");
+			csv.addLine(header);
 			
 			double[] ratio = ratio(catalogVals, subSectVals);
 			double[] diff = diff(catalogVals, subSectVals);
@@ -1526,8 +1588,11 @@ public class ETAS_MultiSimAnalysisTools {
 //	continue;
 				FaultSectionPrefData sect = rupSet.getFaultSectionData(sectsToInclude.get(i));
 				String sectName = sect.getSectionName().replace(",", "_");
-				csv.addLine(i+"", sectName, catalogVals[i]+"", subSectVals[i]+"",
+				List<String> line = Lists.newArrayList(i+"", sectName, catalogVals[i]+"", subSectVals[i]+"",
 						ratio[i]+"", diff[i]+"", fractTriggeredForSection[i]+"");
+				if (completeCatalogs)
+					line.add(fractTriggeredBySupraForSection[i]+"");
+				csv.addLine(line);
 			}
 			csv.writeToFile(new File(outputDir, prefix+".csv"));
 			
@@ -2498,41 +2563,41 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-		nedsAnalysis();
-		System.exit(-1);
+//		nedsAnalysis();
+//		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-//		boolean plotMFDs = false;
-//		boolean plotExpectedComparison = false;
-//		boolean plotSectRates = false;
-//		boolean plotTemporalDecay = false;
-//		boolean plotDistanceDecay = false;
-//		boolean plotMaxMagHist = false;
-//		boolean plotGenerations = false;
-//		boolean plotGriddedNucleation = false;
-//		boolean writeTimeFromPrevSupra = false;
-//		boolean plotSectScatter = true;
-//		boolean plotGridScatter = false;
-//		boolean plotStationarity = false;
-//		boolean plotSubSectRecurrence = false;
-//		boolean writeCatsForViz = false;
-		
-		boolean plotMFDs = true;
-		boolean plotExpectedComparison = true;
-		boolean plotSectRates = true;
-		boolean plotTemporalDecay = true;
-		boolean plotDistanceDecay = true;
-		boolean plotMaxMagHist = true;
-		boolean plotGenerations = true;
-		boolean plotGriddedNucleation = true;
-		boolean writeTimeFromPrevSupra = true;
+		boolean plotMFDs = false;
+		boolean plotExpectedComparison = false;
+		boolean plotSectRates = false;
+		boolean plotTemporalDecay = false;
+		boolean plotDistanceDecay = false;
+		boolean plotMaxMagHist = false;
+		boolean plotGenerations = false;
+		boolean plotGriddedNucleation = false;
+		boolean writeTimeFromPrevSupra = false;
 		boolean plotSectScatter = true;
-		boolean plotGridScatter = true;
-		boolean plotStationarity = true;
-		boolean plotSubSectRecurrence = true;
+		boolean plotGridScatter = false;
+		boolean plotStationarity = false;
+		boolean plotSubSectRecurrence = false;
 		boolean writeCatsForViz = false;
+		
+//		boolean plotMFDs = true;
+//		boolean plotExpectedComparison = true;
+//		boolean plotSectRates = true;
+//		boolean plotTemporalDecay = true;
+//		boolean plotDistanceDecay = true;
+//		boolean plotMaxMagHist = true;
+//		boolean plotGenerations = true;
+//		boolean plotGriddedNucleation = true;
+//		boolean writeTimeFromPrevSupra = true;
+//		boolean plotSectScatter = true;
+//		boolean plotGridScatter = true;
+//		boolean plotStationarity = true;
+//		boolean plotSubSectRecurrence = true;
+//		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
 		boolean useActualDurations = false;
@@ -2566,13 +2631,13 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-		names.add("1000yr Full TD, MC=10, NoLTR");
-		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
-		scenarios.add(null);
-		
-//		names.add("30yr Full TD, MC=10, NoLTR");
-//		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
+//		names.add("1000yr Full TD, MC=10, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
 //		scenarios.add(null);
+		
+		names.add("30yr Full TD, MC=10, NoLTR");
+		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
+		scenarios.add(null);
 		
 //		names.add("1000yr Full TD, MC=10, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2015_12_14-spontaneous-1000yr-mc10-full_td-noApplyLTR/results_m4.bin"));
@@ -2684,7 +2749,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		for (int n=0; n<names.size(); n++) {
 			String name = names.get(n);
-			File resultsZipFile = resultsZipFiles.get(n);
+			File resultsFile = resultsZipFiles.get(n);
 			TestScenario scenario = scenarios.get(n);
 			
 			if (scenario != null && scenario.getFSS_Index() >= 0)
@@ -2697,7 +2762,7 @@ public class ETAS_MultiSimAnalysisTools {
 			else
 				triggerParentID = 0;
 			
-			System.out.println("Loading "+name+" from "+resultsZipFile.getAbsolutePath());
+			System.out.println("Loading "+name+" from "+resultsFile.getAbsolutePath());
 			
 			System.gc();
 			
@@ -2709,11 +2774,11 @@ public class ETAS_MultiSimAnalysisTools {
 			else
 				surf = fss.getRupSet().getSurfaceForRupupture(scenario.getFSS_Index(), 1d, false);
 			
-			File parentDir = resultsZipFile.getParentFile();
+			File parentDir = resultsFile.getParentFile();
 			
-			File outputDir = new File(resultsZipFile.getParentFile(), plotDirName);
+			File outputDir = new File(resultsFile.getParentFile(), plotDirName);
 			
-			File metadataFile = new File(resultsZipFile.getParentFile(), "metadata.xml");
+			File metadataFile = new File(resultsFile.getParentFile(), "metadata.xml");
 			Element metadataRootEl = null;
 			ETAS_ParameterList params;
 			if (metadataFile.exists()) {
@@ -2757,7 +2822,7 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			// load the catalogs
 			Stopwatch timer = Stopwatch.createStarted();
-			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogs(resultsZipFile, minLoadMag, true);
+			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogs(resultsFile, minLoadMag, true);
 			timer.stop();
 			long secs = timer.elapsed(TimeUnit.SECONDS);
 			if (secs > 60)
@@ -2959,7 +3024,15 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			if (plotSectScatter && erf != null) {
 				System.out.println("Plotting section participation scatter");
-				plotSectParticScatter(catalogs, duration, erf, outputDir);
+				File fullResultsFile = new File(resultsFile.getParentFile(), "results.bin");
+				if (fullResultsFile.exists() && resultsFile.getName().endsWith(".bin")
+						&& resultsFile.getName().startsWith("results_m")) {
+					System.out.println("Iterating over full results from "+fullResultsFile.getAbsolutePath());
+					plotSectParticScatter(ETAS_CatalogIO.getBinaryCatalogsIterable(fullResultsFile, 0d),
+							duration, erf, outputDir);
+				} else {
+					plotSectParticScatter(catalogs, duration, erf, outputDir);
+				}
 			}
 			
 			if (plotGridScatter && erf != null) {
