@@ -191,9 +191,12 @@ public class CB_2014 implements NGAW2_GMM {
 			mean = max(mean, pgaMean);
 		}
 		
-		double stdDev = calcStdDev(coeffs, Mw, vs30, pgaRock);
+		double alpha = calcAlpha(coeffs, vs30, pgaRock);
+		double phiSq = calcPhiSq(coeffs, Mw, alpha);
+		double tauSq = calcTauSq(coeffs, Mw, alpha);
+		double stdDev = calcStdDev(phiSq, tauSq);
 
-		return new DefaultGroundMotion(mean, stdDev);
+		return new DefaultGroundMotion(mean, stdDev, Math.sqrt(phiSq), Math.sqrt(tauSq));
 	}
 	
 	// Mean ground motion model
@@ -305,34 +308,41 @@ public class CB_2014 implements NGAW2_GMM {
 	private static final double calcStdDev(Coeffs c, double Mw,
 			double vs30, double pgaRock) {
 
+		double alpha = calcAlpha(c, vs30, pgaRock);
+		
+		double tauSq = calcTauSq(c, Mw, alpha);
+				
+		double phiSq = calcPhiSq(c, Mw, alpha);
+		
+		return calcStdDev(phiSq, tauSq);
+	}
+	
+	private static final double calcStdDev(double phiSq, double tauSq) {
+		// total model -- Equation 32
+		return sqrt(phiSq + tauSq);
+		// @formatter:on
+	}
+
+	private static double calcAlpha(Coeffs c, double vs30, double pgaRock) {
 		//  -- Equation 31
 		double vsk1 = vs30 / c.k1;
 		double alpha = (vs30 < c.k1) ? c.k2 * pgaRock * 
 			(1 / (pgaRock + C * pow(vsk1, N)) - 1 / (pgaRock + C)) : 0.0;
-		
-		// Magnitude dependence -- Equations 29 & 30
-		double tau_lnYB, tau_lnPGAB, phi_lnY, phi_lnPGAB;
+		return alpha;
+	}
+
+	private static double calcPhiSq(Coeffs c, double Mw, double alpha) {
+		double phi_lnY, phi_lnPGAB;
 		if (Mw <= 4.5) {
-			tau_lnYB = c.tau1;
 			phi_lnY = c.phi1;
-			tau_lnPGAB = c.tau_lo_PGA;
 			phi_lnPGAB = c.phi_lo_PGA;
 		} else if (Mw < 5.5) {
-			tau_lnYB = stdMagDep(c.tau1, c.tau2, Mw);
 			phi_lnY = stdMagDep(c.phi1, c.phi2, Mw);
-			tau_lnPGAB = stdMagDep(c.tau_lo_PGA, c.tau_hi_PGA, Mw);
 			phi_lnPGAB = stdMagDep(c.phi_lo_PGA, c.phi_hi_PGA, Mw);
 		} else {
-			tau_lnYB = c.tau2;
 			phi_lnY = c.phi2;
-			tau_lnPGAB = c.tau_hi_PGA;
 			phi_lnPGAB = c.phi_hi_PGA;
 		}
-		
-		// intra-event std dev -- Equation 27
-		double alphaTau = alpha * tau_lnPGAB;
-		double tauSq = tau_lnYB * tau_lnYB + alphaTau * alphaTau + 
-			2.0 * alpha * c.rho * tau_lnYB * tau_lnPGAB;
 		
 		// inter-event std dev -- Equation 28
 		double phi_lnYB = sqrt(phi_lnY * phi_lnY - PHI_LNAF_SQ);
@@ -342,10 +352,28 @@ public class CB_2014 implements NGAW2_GMM {
 		// phi_lnaf terms in eqn. 30 cancel when expanded leaving phi_lnY only
 		double phiSq = phi_lnY * phi_lnY + aPhi_lnPGAB * aPhi_lnPGAB +
 			2.0 * c.rho * phi_lnYB * aPhi_lnPGAB;
+		return phiSq;
+	}
+
+	private static double calcTauSq(Coeffs c, double Mw, double alpha) {
+		// Magnitude dependence -- Equations 29 & 30
+		double tau_lnYB, tau_lnPGAB;
+		if (Mw <= 4.5) {
+			tau_lnYB = c.tau1;
+			tau_lnPGAB = c.tau_lo_PGA;
+		} else if (Mw < 5.5) {
+			tau_lnYB = stdMagDep(c.tau1, c.tau2, Mw);
+			tau_lnPGAB = stdMagDep(c.tau_lo_PGA, c.tau_hi_PGA, Mw);
+		} else {
+			tau_lnYB = c.tau2;
+			tau_lnPGAB = c.tau_hi_PGA;
+		}
 		
-		// total model -- Equation 32
-		return sqrt(phiSq + tauSq);
-		// @formatter:on
+		// intra-event std dev -- Equation 27
+		double alphaTau = alpha * tau_lnPGAB;
+		double tauSq = tau_lnYB * tau_lnYB + alphaTau * alphaTau + 
+			2.0 * alpha * c.rho * tau_lnYB * tau_lnPGAB;
+		return tauSq;
 	}
 
 	private static final double stdMagDep(double lo, double hi, double Mw) {

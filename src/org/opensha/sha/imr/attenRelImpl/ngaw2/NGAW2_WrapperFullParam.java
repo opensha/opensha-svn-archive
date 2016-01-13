@@ -35,6 +35,7 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.OtherParams.ComponentParam;
+import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceX_Parameter;
@@ -57,13 +58,15 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 	private NGAW2_GMM gmpe;
 	private ScalarGroundMotion gm;
 	
+	private boolean supportsPhiTau;
 	
 	// params not in parent class
 	private DistanceX_Parameter distanceXParam;
 	
-	public NGAW2_WrapperFullParam(String shortName, NGAW2_GMM gmpe) {
+	public NGAW2_WrapperFullParam(String shortName, NGAW2_GMM gmpe, boolean supportsPhiTau) {
 		this.shortName = shortName;
 		this.gmpe = gmpe;
+		this.supportsPhiTau = supportsPhiTau;
 		
 		initSupportedIntensityMeasureParams();
 		initSiteParams();
@@ -87,7 +90,15 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 	@Override
 	public double getStdDev() {
 		ScalarGroundMotion gm = getGroundMotion();
-		return gm.stdDev();
+		String stdType = stdDevTypeParam.getValue();
+		if (stdType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
+			return gm.stdDev();
+		else if (stdType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))
+			return gm.tau();
+		else if (stdType.equals(StdDevTypeParam.STD_DEV_TYPE_INTRA))
+			return gm.phi();
+		else
+			throw new IllegalStateException("Unsupported Std Dev Type: "+stdType);
 	}
 
 	@Override
@@ -352,6 +363,17 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		componentParam.addParameterChangeListener(this);
 		otherParams.addParameter(componentParam);
 		
+		// the stdDevType Parameter
+		StringConstraint stdDevTypeConstraint = new StringConstraint();
+		stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_TOTAL);
+		if (supportsPhiTau) {
+			stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTER);
+			stdDevTypeConstraint.addString(StdDevTypeParam.STD_DEV_TYPE_INTRA);
+		}
+		stdDevTypeConstraint.setNonEditable();
+		stdDevTypeParam = new StdDevTypeParam(stdDevTypeConstraint);
+		otherParams.addParameter(stdDevTypeParam); 
+		
 		StringConstraint options = new StringConstraint();
 		options.addString(gmpe.get_TRT().toString());
 		tectonicRegionTypeParam.setConstraint(options);
@@ -391,11 +413,11 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		meanIndependentParams.addParameter(focalDepthParam);
 		meanIndependentParams.addParameter(componentParam);
 
-
 		// params that the stdDev depends upon
 		stdDevIndependentParams.clear();
 		stdDevIndependentParams.addParameterList(meanIndependentParams);
 		stdDevIndependentParams.addParameter(vs30_TypeParam);
+		stdDevIndependentParams.addParameter(stdDevTypeParam);
 
 		// params that the exceed. prob. depends upon
 		exceedProbIndependentParams.clear();

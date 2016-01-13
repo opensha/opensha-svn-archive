@@ -332,7 +332,7 @@ public class ASK_2014 implements NGAW2_GMM {
 		// total std dev
 		double stdDev = sqrt(phiSq + tau * tau);
 		
-		return new DefaultGroundMotion(mean, stdDev);
+		return new DefaultGroundMotion(mean, stdDev, Math.sqrt(phiSq), tau);
 
 	}
 	

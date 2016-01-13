@@ -155,9 +155,11 @@ public class BSSA_2014 implements NGAW2_GMM {
 		coeffs.set(imt);
 		double pgaRock = calcPGArock(coeffsPGA, Mw, rJB, style);
 		double mean = calcMean(coeffs, Mw, rJB, vs30, z1p0, style, pgaRock);
-		double stdDev = calcStdDev(coeffs, Mw, rJB, vs30);
+		double phi = calcPhi(coeffs, Mw, rJB, vs30);
+		double tau = calcTau(coeffs, Mw);
+		double stdDev = calcStdDev(phi, tau);
 
-		return new DefaultGroundMotion(mean, stdDev);
+		return new DefaultGroundMotion(mean, stdDev, phi, tau);
 	}
 
 	// Mean ground motion model
@@ -239,11 +241,26 @@ public class BSSA_2014 implements NGAW2_GMM {
 	// Aleatory uncertainty model
 	private static final double calcStdDev(Coeffs c, double Mw, double rJB,
 			double vs30) {
+		double tau = calcTau(c, Mw);
+		
+		double phiMRV = calcPhi(c, Mw, rJB, vs30);
 
+		return calcStdDev(phiMRV, tau);
+	}
+	
+	private static final double calcStdDev(double phiMRV, double tau) {
+		// Total model -- Equation 13
+		return sqrt(phiMRV * phiMRV + tau * tau);
+	}
+
+	private static double calcTau(Coeffs c, double Mw) {
 		// Inter-event Term -- Equation 14
 		double tau = (Mw >= 5.5) ? c.tau2 : (Mw <= 4.5) ? c.tau1 : c.tau1 +
 			(c.tau2 - c.tau1) * (Mw - 4.5);
-		
+		return tau;
+	}
+
+	private static double calcPhi(Coeffs c, double Mw, double rJB, double vs30) {
 		// Intra-event Term -- Equations 15, 16, 17
 		double phiM = (Mw >= 5.5) ? c.phi2 : (Mw <= 4.5) ? c.phi1
 			: c.phi1 + (c.phi2 - c.phi1) * (Mw - 4.5);
@@ -261,9 +278,7 @@ public class BSSA_2014 implements NGAW2_GMM {
 		} else if (vs30 < V2) {
 			phiMRV -= c.dPhiV * (log(V2 / vs30) / log(V2 / V1));
 		}
-
-		// Total model -- Equation 13
-		return sqrt(phiMRV * phiMRV + tau * tau);
+		return phiMRV;
 	}
 	
 	// can be useful for debugging
