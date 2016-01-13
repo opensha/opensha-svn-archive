@@ -66,6 +66,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	// if set to true, points and such will be written to files here and not to the Points table
 	private boolean fileBased = false;
 	private File erfDir = null;
+	private boolean gZipFiles = false;
 	
 	/**
 	 * Mapping of ERF ID to <Source ID, Rupture ID, Probability>
@@ -76,9 +77,10 @@ public  class ERF2DB implements ERF2DBAPI{
 		this.dbaccess = dbaccess;
 	}
 	
-	public void setFileBased(File erfDir) {
+	public void setFileBased(File erfDir, boolean gZipFiles) {
 		this.erfDir = erfDir;
 		fileBased = erfDir != null;
+		this.gZipFiles = gZipFiles;
 	}
 
 	/**
@@ -323,6 +325,8 @@ public  class ERF2DB implements ERF2DBAPI{
 			double surfaceEndLat, double surfaceEndLon,double surfaceEndDepth, 
 			int numRows, int numCols, int numPoints) {
 		//		generate the SQL to be inserted in the ERF_Metadata table
+		if (sourceName.length() > 100)
+			sourceName = sourceName.substring(0, 100);
 		String sql = "INSERT into Ruptures" +
 		"(ERF_ID,Source_ID,Rupture_ID,Source_Name,Source_Type,Mag,Prob,"+
 		"Grid_Spacing,Num_Rows,Num_Columns,Num_Points,Start_Lat,Start_Lon,"+
@@ -853,7 +857,7 @@ public  class ERF2DB implements ERF2DBAPI{
 			if (!erfDir.exists())
 				Preconditions.checkState(erfDir.mkdir(), "couldn't create: "+erfDir.getPath());
 			try {
-				ERF_Rupture_File_Writer.writeRuptureFile(rupture, sourceID, rupID, erfDir);
+				ERF_Rupture_File_Writer.writeRuptureFile(rupture, sourceID, rupID, erfDir, gZipFiles);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -928,6 +932,8 @@ public  class ERF2DB implements ERF2DBAPI{
 			Object paramValue = param.getValue();
 			if(paramValue instanceof String)
 				paramValue = ((String)paramValue).replaceAll("'", "");
+			if (paramValue == null)
+				paramValue = "(null)";
 			String paramType = param.getType();
 			paramType = paramType.replaceAll("Parameter", "");
 			insertERFParams(erfId, param.getName(), paramValue.toString(), paramType,param.getUnits());

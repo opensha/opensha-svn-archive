@@ -339,7 +339,11 @@ public class HardCodedInterpDiffMapCreator {
 //			Double customMax = 0.6;
 			
 //			String prefix = "study_15_4";
-			String prefix = "study_14_2";
+//			String prefix = "study_14_2";
+//			String prefix = "study_14_2_cvm_s426";
+//			String prefix = "study_14_2_cvm_s426";
+//			String prefix = "study_13_4_cvm_s4";
+			String prefix = "study_13_4_cvm_h119";
 			String compPrefix = prefix+"_vs_14_2";
 			File downloadDir = new File("/tmp/cs_maps");
 			
@@ -358,8 +362,8 @@ public class HardCodedInterpDiffMapCreator {
 			/* the main dataset(s) that we're plotting */
 			
 			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(57);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(57);
 			
 			// CVM-S4i26, AWP CPU
 //			int velModelID = 5;
@@ -380,9 +384,21 @@ public class HardCodedInterpDiffMapCreator {
 //			int velModelID = 5;
 //			List<Integer> datasetIDs = Lists.newArrayList(12);
 			
+			// CVM-S4
+//			int velModelID = 1;
+//			List<Integer> datasetIDs = Lists.newArrayList(20);
+			
+			// CVM-H 11.9
+//			int velModelID = 2; // actually 4, but this is just for the basemap. Use older CVM H as that's what we have calculated
+//			List<Integer> datasetIDs = Lists.newArrayList(26);
+			
+			// CVM-S4i26
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(29);
+			
 			// comparison dataset for ratio maps
-			List<Integer> compDatasetIDs = Lists.newArrayList(35);
-//			List<Integer> compDatasetIDs = null;
+//			List<Integer> compDatasetIDs = Lists.newArrayList(35);
+			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;
@@ -424,8 +440,9 @@ public class HardCodedInterpDiffMapCreator {
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.IDRISS_2014.instance(null);
+			boolean downloadBasemap = true;
 			// GMPE params
-//			baseMapIMR.setParamDefaults();
+			baseMapIMR.setParamDefaults();
 			if (baseMapIMR != null)
 				setTruncation(baseMapIMR, 3.0);
 			// always leave false, used for previous study
@@ -446,6 +463,8 @@ public class HardCodedInterpDiffMapCreator {
 				
 				FileUtils.downloadURL(addr+"interpolated_marks.150.png", new File(downloadDir, prefix+"_marks.png"));
 				FileUtils.downloadURL(addr+"interpolated.150.png", new File(downloadDir, prefix+".png"));
+				if (downloadBasemap && baseMapIMR != null)
+					FileUtils.downloadURL(addr+"basemap.150.png", new File(downloadDir, baseMapIMR.getShortName()+".png"));
 			}
 			
 			if (compDatasetIDs != null && !compDatasetIDs.isEmpty()) {
