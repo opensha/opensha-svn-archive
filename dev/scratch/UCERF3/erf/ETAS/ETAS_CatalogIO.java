@@ -34,6 +34,7 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileNameComparator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
@@ -629,35 +630,42 @@ public class ETAS_CatalogIO {
 		}
 		
 	}
-
+	
 	public static void consolidateResultsDirBinary(File resultsDir, File outputFile, double minMag)
 			throws IOException {
-		File[] subDirs = resultsDir.listFiles();
-		Arrays.sort(subDirs, new FileNameComparator());
+		consolidateResultsDirBinary(new File[] {resultsDir}, outputFile, minMag);
+	}
 
+	public static void consolidateResultsDirBinary(File[] resultsDirs, File outputFile, double minMag)
+			throws IOException {
 		List<File> eventsFiles = Lists.newArrayList();
 
-		for (File subDir : subDirs) {
-			if (!subDir.isDirectory() || !subDir.getName().startsWith("sim_"))
-				continue;
-
-			// check ASCII first
-			File asciiFile = new File(subDir, "simulatedEvents.txt");
-			if (asciiFile.exists()) {
-				eventsFiles.add(asciiFile);
-				continue;
-			}
+		for (File resultsDir : resultsDirs) {
+			File[] subDirs = resultsDir.listFiles();
+			Arrays.sort(subDirs, new FileNameComparator());
 			
-			// then try to just copy over binary data
-			File binaryFile = new File(subDir, "simulatedEvents.bin");
-			if (binaryFile.exists() && binaryFile.length() > 0l) {
-				eventsFiles.add(binaryFile);
-				continue;
-			}
-			File binaryGZipFile = new File(subDir, "simulatedEvents.bin.gz");
-			if (binaryGZipFile.exists() && binaryGZipFile.length() > 0l) {
-				eventsFiles.add(binaryGZipFile);
-				continue;
+			for (File subDir : subDirs) {
+				if (!subDir.isDirectory() || !subDir.getName().startsWith("sim_"))
+					continue;
+
+				// check ASCII first
+				File asciiFile = new File(subDir, "simulatedEvents.txt");
+				if (asciiFile.exists()) {
+					eventsFiles.add(asciiFile);
+					continue;
+				}
+				
+				// then try to just copy over binary data
+				File binaryFile = new File(subDir, "simulatedEvents.bin");
+				if (binaryFile.exists() && binaryFile.length() > 0l) {
+					eventsFiles.add(binaryFile);
+					continue;
+				}
+				File binaryGZipFile = new File(subDir, "simulatedEvents.bin.gz");
+				if (binaryGZipFile.exists() && binaryGZipFile.length() > 0l) {
+					eventsFiles.add(binaryGZipFile);
+					continue;
+				}
 			}
 		}
 
@@ -780,15 +788,28 @@ public class ETAS_CatalogIO {
 	public static void main(String[] args) throws ZipException, IOException {
 		if (args.length == 2 || args.length == 3) {
 			// we're consolidating a results dir
-			File resultsDir = new File(args[0]);
+			File[] resultsDirs;
+			if (args[0].contains(",")) {
+				List<File> dirs = Lists.newArrayList();
+				for (String dir : Splitter.on(",").split(args[0])) {
+					if (dir.isEmpty())
+						continue;
+					File d = new File(dir);
+					Preconditions.checkState(d.exists());
+					dirs.add(d);
+				}
+				resultsDirs = dirs.toArray(new File[0]);
+			} else {
+				resultsDirs = new File[] { new File(args[0]) };
+			}
 			File outputFile = new File(args[1]);
 			double minMag = -10;
 			if (args.length == 3)
 				minMag = Double.parseDouble(args[2]);
-			if (resultsDir.getName().endsWith(".zip"))
-				zipToBin(resultsDir, outputFile, minMag);
+			if (resultsDirs.length == 0 && resultsDirs[0].getName().endsWith(".zip"))
+				zipToBin(resultsDirs[0], outputFile, minMag);
 			else
-				consolidateResultsDirBinary(resultsDir, outputFile, minMag);
+				consolidateResultsDirBinary(resultsDirs, outputFile, minMag);
 			System.exit(0);
 		}
 		//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
@@ -815,18 +836,17 @@ public class ETAS_CatalogIO {
 //		for (int i=0; i<5; i++)
 //			writeEventDataToFile(new File(binFile.getParentFile(), "catalog_"+i+"_m5.txt"), catalogs.get(i));
 		
-		File testFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR/results_m4_first200.bin");
-		for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(testFile, 0d))
-			System.out.println("Catalog has "+catalog.size()+" ruptures");
-		System.exit(0);
+//		File testFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR/results_m4_first200.bin");
+//		for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(testFile, 0d))
+//			System.out.println("Catalog has "+catalog.size()+" ruptures");
+//		System.exit(0);
 		
 		File baseDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
-		mergeBinary(new File(new File(baseDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4.bin"),
+		mergeBinary(new File(new File(baseDir, "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR"), "results_m4.bin"),
 				950, new File[] {
-						new File(new File(baseDir, "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR"), "results_m4_first200.bin"),
-						new File(new File(baseDir, "2015_12_09-spontaneous-1000yr-300more-full_td-noApplyLTR"), "results_m4_200.bin"),
-						new File(new File(baseDir, "2015_12_09-spontaneous-1000yr-300more-full_td-noApplyLTR"), "results_m4_100.bin")
+						new File(new File(baseDir, "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR"), "results_first50_m4.bin"),
+						new File(new File(baseDir, "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR"), "results_second50_m4.bin")
 				});
 
 		//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"

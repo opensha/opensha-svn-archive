@@ -1429,7 +1429,7 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 	}
 	
-	private static void plotSectParticScatter(Iterable<List<ETAS_EqkRupture>> catalogs, double duration,
+	public static void plotSectParticScatter(Iterable<List<ETAS_EqkRupture>> catalogs, double duration,
 			FaultSystemSolutionERF erf, File outputDir) throws IOException, GMT_MapException, RuntimeException {
 		double[] minMags = { 0d };
 		
@@ -1470,6 +1470,8 @@ public class ETAS_MultiSimAnalysisTools {
 			double[] fractTriggeredForSection = new double[rupSet.getNumSections()];
 			// triggered by a supra anywhere in the parent chain
 			double[] fractTriggeredBySupraForSection = new double[rupSet.getNumSections()];
+			double[] fractTriggeredBySubForSection = new double[rupSet.getNumSections()];
+			double[] fractTriggeredByHistForSection = new double[rupSet.getNumSections()];
 			
 			int catalogCount = 0;
 			
@@ -1506,10 +1508,12 @@ public class ETAS_MultiSimAnalysisTools {
 							if (completeCatalogs) {
 								// only can do this if catalogs are complete (not filtered)
 								boolean supra = false;
+								boolean hist = false;
 								ETAS_EqkRupture myRup = rup;
 								while (myRup.getParentID() >= 0) {
 									if (myRup.getParentID() < minIndex) {
-										// historical earthquake. TODO: set to supra?
+										// historical earthquake.
+										hist = true;
 										break;
 									}
 									myRup = idToRupMap.get(myRup.getParentID());
@@ -1526,6 +1530,10 @@ public class ETAS_MultiSimAnalysisTools {
 								}
 								if (supra)
 									fractTriggeredBySupraForSection[sectIndex] += 1;
+								else if (hist)
+									fractTriggeredByHistForSection[sectIndex] += 1;
+								else
+									fractTriggeredBySubForSection[sectIndex] += 1;
 							}
 						}
 					}
@@ -1541,8 +1549,11 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			for (int sectIndex=0; sectIndex<rupSet.getNumSections();sectIndex++) {
 				fractTriggeredForSection[sectIndex] /= (double)totalNumForSection[sectIndex];
-				if (completeCatalogs)
+				if (completeCatalogs) {
 					fractTriggeredBySupraForSection[sectIndex] /= (double)totalNumForSection[sectIndex];
+					fractTriggeredBySubForSection[sectIndex] /= (double)totalNumForSection[sectIndex];
+					fractTriggeredByHistForSection[sectIndex] /= (double)totalNumForSection[sectIndex];
+				}
 			}
 			
 			// now filter out sections outside the region
@@ -1550,13 +1561,18 @@ public class ETAS_MultiSimAnalysisTools {
 			double[] filteredSubSectVals = new double[sectsToInclude.size()];
 			double[] filteredFractTriggeredForSection = new double[sectsToInclude.size()];
 			double[] filteredFractTriggeredBySupraForSection = new double[sectsToInclude.size()];
+			double[] filteredFractTriggeredBySubForSection = new double[sectsToInclude.size()];
+			double[] filteredFractTriggeredByHistForSection = new double[sectsToInclude.size()];
 			for (int i=0; i<filteredCatalogVals.length; i++) {
 				int s = sectsToInclude.get(i);
 				filteredCatalogVals[i] = catalogVals[s];
 				filteredSubSectVals[i] = subSectVals[s];
 				filteredFractTriggeredForSection[i] = fractTriggeredForSection[s];
-				if (completeCatalogs)
+				if (completeCatalogs) {
 					filteredFractTriggeredBySupraForSection[i] = fractTriggeredBySupraForSection[s];
+					filteredFractTriggeredBySubForSection[i] = fractTriggeredBySubForSection[s];
+					filteredFractTriggeredByHistForSection[i] = fractTriggeredByHistForSection[s];
+				}
 			}
 			if (minMag == minMags[0])
 				System.out.println("Filtered out "+(catalogVals.length-filteredCatalogVals.length)
@@ -1565,6 +1581,8 @@ public class ETAS_MultiSimAnalysisTools {
 			subSectVals = filteredSubSectVals;
 			fractTriggeredForSection = filteredFractTriggeredForSection;
 			fractTriggeredBySupraForSection = filteredFractTriggeredBySupraForSection;
+			fractTriggeredBySubForSection = filteredFractTriggeredBySubForSection;
+			fractTriggeredByHistForSection = filteredFractTriggeredByHistForSection;
 			
 			String title = "Sub Section Participation";
 			String prefix = "all_eqs_sect_partic";
@@ -1575,9 +1593,12 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			CSVFile<String> csv = new CSVFile<String>(true);
 			List<String> header = Lists.newArrayList("Sect Index", "Sect Name", "Simulation Rate",
-					"Long Term Rate", "Ratio", "Difference", "FractionTriggered");
-			if (completeCatalogs)
-				header.add("Fraction Triggered By Supra");
+					"Long Term Rate", "Ratio", "Difference", "Fraction Triggered");
+			if (completeCatalogs) {
+				header.add("Fraction Triggered By Supra-Seismo");
+				header.add("Fraction Triggered By Sub-Seismo");
+				header.add("Fraction Triggered By Historical");
+			}
 			csv.addLine(header);
 			
 			double[] ratio = ratio(catalogVals, subSectVals);
@@ -1590,8 +1611,11 @@ public class ETAS_MultiSimAnalysisTools {
 				String sectName = sect.getSectionName().replace(",", "_");
 				List<String> line = Lists.newArrayList(i+"", sectName, catalogVals[i]+"", subSectVals[i]+"",
 						ratio[i]+"", diff[i]+"", fractTriggeredForSection[i]+"");
-				if (completeCatalogs)
+				if (completeCatalogs) {
 					line.add(fractTriggeredBySupraForSection[i]+"");
+					line.add(fractTriggeredBySubForSection[i]+"");
+					line.add(fractTriggeredByHistForSection[i]+"");
+				}
 				csv.addLine(line);
 			}
 			csv.writeToFile(new File(outputDir, prefix+".csv"));
@@ -1801,10 +1825,19 @@ public class ETAS_MultiSimAnalysisTools {
 		double delta;
 		if (duration <= 200d)
 			delta = 10d;
+		else if (duration > 5000d)
+			delta = 200d;
+		else if (duration > 1000d)
+			delta = 100d;
 		else
 			delta = 50d;
 		
-		HistogramFunction xVals = HistogramFunction.getEncompassingHistogram(0d, duration*0.98, delta);
+		double histDuration;
+		if (duration > 5000)
+			histDuration = duration * 0.995;
+		else
+			histDuration = duration * 0.98;
+		HistogramFunction xVals = HistogramFunction.getEncompassingHistogram(0d, histDuration, delta);
 		Preconditions.checkState(xVals.size() > 1);
 		
 //		double binRateEach = 1d/(catalogs.size()*delta);
@@ -1819,6 +1852,12 @@ public class ETAS_MultiSimAnalysisTools {
 				double rupTimeYears = calcEventTimeYears(catalog, rup);
 				
 				int xIndex = xVals.getXIndex(rupTimeYears);
+				if (xIndex < 0) {
+					System.out.println("What? bad x index: "+xIndex);
+					System.out.println("Rup time: "+rupTimeYears);
+					System.out.println("Catalog Start Time: "+calcEventTimeYears(catalog, catalog.get(0)));
+					System.out.println("Hist first bin: "+xVals.getMinX()+" (delta="+delta+")");
+				}
 				Preconditions.checkState(xIndex >= 0);
 				
 				if (rup.getMag() >= 5d)
@@ -2600,7 +2639,7 @@ public class ETAS_MultiSimAnalysisTools {
 //		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
-		boolean useActualDurations = false;
+		boolean useActualDurations = true;
 		
 //		File resultDir = new File(mainDir, "2015_08_20-spontaneous-full_td");
 //		File myOutput = new File(resultDir, "output_stats");
@@ -2630,6 +2669,10 @@ public class ETAS_MultiSimAnalysisTools {
 		List<String> names = Lists.newArrayList();
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
+		
+//		names.add("10000yr Full TD, MC=10, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("1000yr Full TD, MC=10, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
@@ -2858,6 +2901,7 @@ public class ETAS_MultiSimAnalysisTools {
 			if (skippedDuration > 0)
 				System.out.println("Removed "+skippedDuration+" catalgos that were too short");
 			System.out.println("Actual duration: "+durationTrack);
+			double meanDuration = durationTrack.getAverage();
 			if (duration > 0 && DataUtils.getPercentDiff(duration, durationTrack.getMin()) > 2d)
 				System.out.println("WARNING: at least 1 simulation doesn't match expected duration");
 			
@@ -2924,7 +2968,7 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			
 			FaultSystemSolutionERF erf = null;
-			if (triggerParentID < 0 && (duration >= 100d || catalogs.size() >= 1000)) {
+			if (triggerParentID < 0 && (meanDuration >= 100d || catalogs.size() >= 1000)) {
 				System.out.println("Creating ERF for comparisons");
 				erf = new FaultSystemSolutionERF(fss);
 				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
