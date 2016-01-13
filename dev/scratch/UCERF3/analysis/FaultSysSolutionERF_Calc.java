@@ -2050,7 +2050,7 @@ public class FaultSysSolutionERF_Calc {
 			int ss1 = Integer.parseInt(o1.substring(ss1_index));
 			int ss2 = Integer.parseInt(o2.substring(ss2_index));
 			Preconditions.checkState(ss1 >= 0 && ss2 >= 0);
-			return Integer.compare(ss1, ss2);
+			return new Integer(ss1).compareTo(ss2);
 		}
 		
 	}
