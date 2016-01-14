@@ -813,9 +813,12 @@ extends JFrame implements ParameterChangeListener {
 			incrRateGraphPanel.removeChartAndMetadata();
 			cumRateGraphPanel.removeChartAndMetadata();
 			momentRateGraphPanel.removeChartAndMetadata();
-			incrRatePlotPanel.removeAll();
-			cumRatePlotPanel.removeAll();
-			momentRatePlotPanel.removeAll();
+			// these should not be called as it will hide further plots from being displayed
+			// alternatively you could call add() again later, but it is easier to simply not remove.
+			// this is more consistant with the look and feel when launching the application anyway.
+//			incrRatePlotPanel.removeAll();
+//			cumRatePlotPanel.removeAll();
+//			momentRatePlotPanel.removeAll();
 
 			//panel.removeAll();
 			incrRateFunctionList.clear();
