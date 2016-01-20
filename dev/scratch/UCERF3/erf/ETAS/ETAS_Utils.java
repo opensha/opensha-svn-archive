@@ -722,6 +722,9 @@ public class ETAS_Utils {
 
 	}
 	
+	
+	
+	
 	/**
 	 * This lists the relative number of events in each generation expected from the given MFD
 	 * (relative to the number of primary events)
@@ -731,9 +734,9 @@ public class ETAS_Utils {
 	 * @param p
 	 * @param magMin
 	 * @param c
-	 * @param numDays - length of timespan following main shock
+	 * @param numGen
 	 */
-	public static String JUNK_wrong_listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
+	public static String listExpNumForEachGenerationInfTime(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, int numGen) {
 		
 		boolean debug = false;
 		
@@ -746,7 +749,7 @@ public class ETAS_Utils {
 		IncrementalMagFreqDist normMFD = mfd.deepClone();
 		normMFD.scale(1.0/mfd.getTotalIncrRate());
 
-		double expPrimary = getExpectedNumEvents(k, p, mainMag, magMin, c, 0.0, numDays);
+		double expPrimary = getExpectedNumEvents(k, p, mainMag, magMin, c, 0.0, 1e15);
 		numForGen[0] = expPrimary;
 		IncrementalMagFreqDist expPrimaryMFD = mfd.deepClone();
 		expPrimaryMFD.scale(expPrimary/mfd.getTotalIncrRate());
@@ -758,7 +761,7 @@ public class ETAS_Utils {
 		for(int i=1; i<numGen;i++) {	// loop over generations
 			double expNum = 0;
 			for(int m=startMagIndex; m<=endMagIndex;m++) {
-				double expNumAtMag = numForLastGen*normMFD.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
+				double expNumAtMag = numForLastGen*normMFD.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, 1e15);
 				expNum += expNumAtMag;
 			}
 			numForGen[i] = expNum;
@@ -899,6 +902,36 @@ public class ETAS_Utils {
 	
 	
 	
+	public static void writeTriggerStatsToFilesInfTime() {
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		
+		
+		String filename = "ETAS_TriggerStats_InfTime.txt";
+		
+		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+//		GraphWindow graph = new GraphWindow(grDist, "grDist"); 
+		
+			FileWriter fw;
+			try {
+				fw = new FileWriter(new File(filename));
+				fw.write("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+				fw.write("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+				for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5) {
+					System.out.println("Working on mag "+mainMag);
+					String line = listExpNumForEachGenerationInfTime(mainMag, grDist, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), 15);
+					System.out.println(line);
+					fw.write(line);
+				}
+				fw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+	
+	
 	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
 			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
 		
@@ -1016,6 +1049,9 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
+		writeTriggerStatsToFilesInfTime();
+		System.exit(-1);
+		
 //		plotExpectedNumPrimaryVsTime();
 		
 //		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalog(2012), "CatalogVsTime");
@@ -1042,7 +1078,7 @@ public class ETAS_Utils {
 		
 //		runMagTimeCatalogSimulation();
 		
-//		writeTriggerStatsToFiles();
+		writeTriggerStatsToFiles();
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
 //		System.out.println(func);
