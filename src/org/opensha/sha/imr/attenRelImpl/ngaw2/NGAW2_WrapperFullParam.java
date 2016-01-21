@@ -193,9 +193,10 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		else
 			imt = IMT.parseIMT(im.getName());
 		
-		double rake = rakeParam.getValue();
+		Double rake = rakeParam.getValue();
 		// assert in range [-180 180]
-		FaultUtils.assertValidRake(rake);
+		if (rake != null)
+			FaultUtils.assertValidRake(rake);
 		FaultStyle style = getFaultStyle(rake);
 		
 		gmpe.set_IMT(imt);
@@ -229,7 +230,9 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		return gm;
 	}
 	
-	static FaultStyle getFaultStyle(double rake) {
+	static FaultStyle getFaultStyle(Double rake) {
+		if (rake == null)
+			return FaultStyle.UNKNOWN;
 		if (rake >= 135 || rake <= -135)
 			// right lateral
 			return FaultStyle.STRIKE_SLIP;
@@ -324,7 +327,7 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		rupWidthParam = new RupWidthParam(0d, 500d, 10d);
 		eqkRuptureParams.addParameter(rupWidthParam);
 		
-		rakeParam = new RakeParam();
+		rakeParam = new RakeParam(null, true);
 		eqkRuptureParams.addParameter(rakeParam);
 		
 		rupTopDepthParam = new RupTopDepthParam(0, 15, 0);
@@ -384,6 +387,16 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
 		clear();
+	}
+	
+	@Override
+	public void setIntensityMeasure(String intensityMeasureName) throws ParameterException {
+		super.setIntensityMeasure(intensityMeasureName);
+		clear();
+	}
+
+	public NGAW2_GMM getGMM() {
+		return gmpe;
 	}
 	
 	/**
