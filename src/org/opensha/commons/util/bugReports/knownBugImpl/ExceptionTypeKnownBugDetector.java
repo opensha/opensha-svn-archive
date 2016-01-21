@@ -10,17 +10,35 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 	private String message;
 	private boolean messageIsRegex = false;
 	
-	public ExceptionTypeKnownBugDetector(Class<? extends Throwable> exceptionClass, String desc) {
-		this(exceptionClass, null, desc);
+	private Class<?> throwingClass;
+	private String methodName;
+	
+	private boolean canIgnore;
+	
+	public ExceptionTypeKnownBugDetector(Class<? extends Throwable> exceptionClass, String desc, boolean canIgnore) {
+		this(exceptionClass, null, desc, canIgnore);
 	}
 	
 	public ExceptionTypeKnownBugDetector(
 			Class<? extends Throwable> exceptionClass,
 			String message,
-			String desc) {
+			String desc,
+			boolean canIgnore) {
+		this(exceptionClass, null, null, message, desc, canIgnore);
+	}
+	
+	public ExceptionTypeKnownBugDetector(Class<? extends Throwable> exceptionClass,
+			Class<?> throwingClass,
+			String methodName,
+			String message,
+			String desc,
+			boolean canIgnore) {
 		this.exceptionClass = exceptionClass;
+		this.throwingClass = throwingClass;
+		this.methodName = methodName;
 		this.desc = desc;
 		this.message = message;
+		this.canIgnore = canIgnore;
 	}
 	
 	public ExceptionTypeKnownBugDetector setMessageAsRegex() {
@@ -44,6 +62,20 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 			// if the exception type is a match, then return true if our message
 			// to match is null, or the message from the exception is not null and
 			// starts with our message.
+			
+			// check against throwing class/method name
+			if (throwingClass != null) {
+				String className = t.getStackTrace()[0].getClassName();
+				// use startswith because of potential subclasses
+				if (!className.startsWith(throwingClass.getName()))
+					return false;
+			}
+			if (methodName != null) {
+				String actualMethodName = t.getStackTrace()[0].getMethodName();
+				if (!methodName.equals(actualMethodName))
+					return false;
+			}
+			
 			if (message == null) {
 				return true;
 			} else if (t.getMessage() != null) {
@@ -59,6 +91,11 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 	@Override
 	public String getKnownBugDescription() {
 		return desc;
+	}
+
+	@Override
+	public boolean canIgnore() {
+		return canIgnore;
 	}
 
 }

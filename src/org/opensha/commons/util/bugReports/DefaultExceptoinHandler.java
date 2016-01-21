@@ -25,7 +25,11 @@ public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 			e.printStackTrace();
 			BugReport bug = new BugReport(e, null, appName, appVersion, app);
 			BugReportDialog dialog = new BugReportDialog(parent, bug, false);
-			dialog.setVisible(true);
+			if (!dialog.canIgnoreKnownBug())
+				// there are some stray swing exceptions that we wish to ignore. only show if not one of those
+				dialog.setVisible(true);
+			else
+				System.err.println("Ignoring bug as detected in uncaught handler and flagged as not critical");
 		} catch (Throwable e1) {
 			System.err.println("Error in exception handler!");
 			e1.printStackTrace();
