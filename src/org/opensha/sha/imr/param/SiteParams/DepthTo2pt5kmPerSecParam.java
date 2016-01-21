@@ -45,7 +45,12 @@ public class DepthTo2pt5kmPerSecParam extends WarningDoubleParameter {
 	 * @param defaultDepth
 	 */
 	public DepthTo2pt5kmPerSecParam(Double defaultDepth) {
+		this(defaultDepth, true);
+	}
+	
+	public DepthTo2pt5kmPerSecParam(Double defaultDepth, boolean allowsNull) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNullAllowed(allowsNull);
 		getConstraint().setNonEditable();
 		setInfo(INFO);
 		setDefaultValue(defaultDepth);
