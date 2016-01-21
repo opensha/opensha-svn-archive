@@ -1,6 +1,7 @@
 package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
@@ -29,7 +30,7 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	public static final String NAME = "Stewart 2014 Site Specific";
 	public static final String SHORT_NAME = "Stewart2014";
 	
-	private enum Params {
+	public enum Params {
 		F1("f1"),
 		F2("f2"),
 		F3("f3"),
@@ -59,6 +60,8 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	
 	private Parameter<Double> imt;
 	
+	private ParameterList referenceSiteParams;
+	
 	public StewartSiteSpecificMod() {
 		try {
 			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("./params.csv"));
@@ -73,6 +76,34 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		
 		paramList = new ParameterList();
 		paramList.addParameter(periodParamsParam);
+		
+		setReferenceSiteParams(getDefaultReferenceSiteParams());
+	}
+	
+	static ParameterList getDefaultReferenceSiteParams() {
+		ParameterList params = new ParameterList();
+		
+		Vs30_Param vs30 = new Vs30_Param(760);
+		vs30.setValueAsDefault();
+		params.addParameter(vs30);
+		
+		Vs30_TypeParam vs30Type = new Vs30_TypeParam();
+		vs30Type.setValue(Vs30_TypeParam.VS30_TYPE_INFERRED);
+		params.addParameter(vs30Type);
+		
+		DepthTo2pt5kmPerSecParam z25 = new DepthTo2pt5kmPerSecParam(null, true);
+		z25.setValueAsDefault();
+		params.addParameter(z25);
+		
+		DepthTo1pt0kmPerSecParam z10 = new DepthTo1pt0kmPerSecParam(null, true);
+		z10.setValueAsDefault();
+		params.addParameter(z10);
+		
+		return params;
+	}
+	
+	public void setReferenceSiteParams(ParameterList referenceSiteParams) {
+		this.referenceSiteParams = referenceSiteParams;
 	}
 
 	@Override
@@ -92,28 +123,28 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		// surround each with a try catch as certain IMRs may not have the given site parameter
 		try {
 			Parameter<Double> param = imr.getParameter(Vs30_Param.NAME);
-			param.setValue(760d);
+			param.setValue(referenceSiteParams.getParameter(Double.class, Vs30_Param.NAME).getValue());
 		} catch (ParameterException e) {
 			// do nothing - IMR does not have this parameter
 			if (D) System.out.println("IMR doesn't support Vs30");
 		}
 		try {
 			Parameter<String> param = imr.getParameter(Vs30_TypeParam.NAME);
-			param.setValue(Vs30_TypeParam.VS30_TYPE_INFERRED);
+			param.setValue(referenceSiteParams.getParameter(String.class, Vs30_TypeParam.NAME).getValue());
 		} catch (ParameterException e) {
 			// do nothing - IMR does not have this parameter
 			if (D) System.out.println("IMR doesn't support Vs30 Type");
 		}
 		try {
 			Parameter<Double> param = imr.getParameter(DepthTo2pt5kmPerSecParam.NAME);
-			param.setValue(null); // disable Z2500
+			param.setValue(referenceSiteParams.getParameter(Double.class, DepthTo2pt5kmPerSecParam.NAME).getValue()); // disable Z2500
 		} catch (ParameterException e) {
 			// do nothing - IMR does not have this parameter
 			if (D) System.out.println("IMR doesn't support Z2.5");
 		}
 		try {
 			Parameter<Double> param = imr.getParameter(DepthTo1pt0kmPerSecParam.NAME);
-			param.setValue(null);
+			param.setValue(referenceSiteParams.getParameter(Double.class, DepthTo1pt0kmPerSecParam.NAME).getValue());
 		} catch (ParameterException e) {
 			// do nothing - IMR does not have this parameter
 			if (D) System.out.println("IMR doesn't support Z1.0");
@@ -140,6 +171,11 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 			curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 		return curParamValues;
 	}
+	
+	public void setSiteAmpParams(double period, Map<Params, Double> values) {
+		for (Params param : values.keySet())
+			periodParams.set(period, param, values.get(param));
+	}
 
 	@Override
 	public void setIMRSiteParams(ScalarIMR imr, Site site) {
@@ -150,18 +186,25 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	@Override
 	public double getModMean(ScalarIMR imr) {
 		double u_lnX = imr.getMean();
+		if (D) System.out.println("Orig Mean: "+Math.exp(u_lnX));
 		
 		// now set to to PGA
+		System.out.println("Setting to PGA");
 		imr.setIntensityMeasure(PGA_Param.NAME);
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(PGA_Param.NAME));
 		double x_ref_ln = imr.getMean();
 		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+		if (D) System.out.println("Ref PGA: "+x_ref);
 		// set back to orig IMT
 		imr.setIntensityMeasure(imt);
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(imt.getName()));
 		
 		double[] params = getCurParams();
 		double f1 = params[periodParams.getParamIndex(Params.F1)];
 		double f2 = params[periodParams.getParamIndex(Params.F2)];
 		double f3 = params[periodParams.getParamIndex(Params.F3)];
+		
+		if (D) System.out.println("Calculating with f1="+f1+", f2="+f2+", f3="+f3);
 		
 		double ln_y = f1 + f2*Math.log((x_ref + f3)/f3);
 		double yMax = Math.log(params[periodParams.getParamIndex(Params.Ymax)]);
