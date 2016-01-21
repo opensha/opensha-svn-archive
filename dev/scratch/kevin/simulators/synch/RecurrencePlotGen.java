@@ -826,7 +826,8 @@ public class RecurrencePlotGen {
 		
 		File[] etasCatalogs = {
 				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
+//						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
+						+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin")
 		};
 		
 		
@@ -902,7 +903,7 @@ public class RecurrencePlotGen {
 				if (i >= ucerf3Comparisons.length) {
 					// etas
 					File catFile = etasCatalogs[i-ucerf3Comparisons.length];
-					List<List<ETAS_EqkRupture>> etasCats = ETAS_CatalogIO.loadCatalogsBinary(catFile);
+					List<List<ETAS_EqkRupture>> etasCats = ETAS_CatalogIO.loadCatalogsBinary(catFile, 6d);
 					List<List<EQSIM_Event>> myCatalogs = UCERF3_ETASComparisons.loadUCERF3EtasCatalogs(
 							etasCats, ucerf3Sol, null, ucerf3Elems);
 					
@@ -1205,8 +1206,11 @@ public class RecurrencePlotGen {
 						catalogPaths.add(fullPath);
 						catalogNames.add(name+" Catalog "+j);
 						
-//						if (j == 0 && ucerf3ForComboSet.contains(cov) || i >= ucerf3Comparisons.length) {
-						if (j == 0 && ucerf3ForComboSet.contains(cov)) {
+						// == here includes the first ETAS catalog if present 
+						if (j == 0 &&
+								(i < ucerf3Comparisons.length && ucerf3ForComboSet.contains(cov)
+										|| i == ucerf3Comparisons.length)) {
+//						if (j == 0 && ucerf3ForComboSet.contains(cov)) {
 							comboPlotPaths.add(fullPath);
 							comboPlotNames.add(name);
 						}
