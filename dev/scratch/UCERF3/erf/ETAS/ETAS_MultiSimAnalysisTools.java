@@ -59,6 +59,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
@@ -79,6 +80,8 @@ import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
+import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
@@ -2362,11 +2365,97 @@ public class ETAS_MultiSimAnalysisTools {
 
 
 
+	public static void plotSubSectNuclMagFreqDist(List<List<ETAS_EqkRupture>> catalogs,
+			FaultSystemSolutionERF_ETAS erf, int sectIndex, File outputDir) throws IOException {
+
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		HashSet<Integer> ruptures = new HashSet<Integer>(rupSet.getRupturesForSection(sectIndex));
+		FaultPolyMgr faultPolyMgr = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);	// this works for U3, but not generalized
+		Region subSectPoly = faultPolyMgr.getPoly(sectIndex);
+		
+		SummedMagFreqDist mfdSupra = new SummedMagFreqDist(2.55, 8.45, 60);
+		SummedMagFreqDist mfdSupra2 = new SummedMagFreqDist(2.55, 8.45, 60);
+		SummedMagFreqDist mfdSub = new SummedMagFreqDist(2.55, 8.45, 60);
+		
+		// get catalog duration from the first catalog
+		List<ETAS_EqkRupture> firstCatalog = catalogs.get(0);
+		double catalogDuration = calcEventTimeYears(firstCatalog, firstCatalog.get(firstCatalog.size()-1));
+		double normFactor = catalogDuration*catalogs.size();
+
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			for (ETAS_EqkRupture rup : catalog) {
+				// check whether it nucleates inside polygon
+				if(subSectPoly.contains(rup.getHypocenterLocation())) {
+					if(rup.getFSSIndex() < 0) {
+						int index = mfdSupra.getClosestXIndex(rup.getMag());
+						mfdSub.add(index, 1.0/normFactor);
+					}
+					else {
+						int index = mfdSupra.getClosestXIndex(rup.getMag());
+						mfdSupra.add(index, 1.0/normFactor);
+					}
+				}
+				
+				// set supraMFD based on nucleation spread over rup surface
+				if(rup.getFSSIndex() >= 0 && ruptures.contains(rup.getFSSIndex())) {
+					List<Integer>  sectionList = rupSet.getSectionsIndicesForRup(rup.getFSSIndex());
+					FaultSectionPrefData sectData = rupSet.getFaultSectionData(sectIndex);
+					double sectArea= sectData.getTraceLength()*sectData.getReducedDownDipWidth();
+					double rupArea=0;
+					for(int sectID:sectionList) {
+						sectData = rupSet.getFaultSectionData(sectID);
+						rupArea += sectData.getTraceLength()*sectData.getReducedDownDipWidth();
+					}
+					int index = mfdSupra.getClosestXIndex(rup.getMag());
+					mfdSupra2.add(index, sectArea/(normFactor*rupArea));
+	
+				}				
+			}
+		}
+		
+		mfdSupra.setName("Simulated Supra MFD for "+rupSet.getFaultSectionData(sectIndex).getName());
+		mfdSupra.setInfo("actually nucleated in section");
+		mfdSupra2.setName("Simulated Supra Alt MFD for "+rupSet.getFaultSectionData(sectIndex).getName());
+		mfdSupra2.setInfo("nucleation probability from section  and rupture area");
+		mfdSub.setName("Simulated SubSeis MFD for "+rupSet.getFaultSectionData(sectIndex).getName());
+
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		funcs.add(mfdSupra);
+		funcs.add(mfdSupra2);
+		funcs.add(mfdSub);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		String prefix = "sub_sect_nucl_mfd_"+sectIndex;
+		
+		GraphWindow plotGraph = new GraphWindow(funcs, rupSet.getFaultSectionData(sectIndex).getName()+" Nucl. MFDs",chars); 
+		plotGraph.setX_AxisLabel("Magnitude (M)");
+		plotGraph.setY_AxisLabel("Rate (per yr)");
+		plotGraph.setY_AxisRange(1e-7, 1e-1);
+//		plotGraph.setX_AxisRange(2.5d, 8.5d);
+		plotGraph.setYLog(true);
+		plotGraph.setPlotLabelFontSize(18);
+		plotGraph.setAxisLabelFontSize(22);
+		plotGraph.setTickLabelFontSize(20);
+
+		try {
+			plotGraph.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+			plotGraph.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+		
 
 
 
 
-	public static void plotSubSectMagFreqDist(List<List<ETAS_EqkRupture>> catalogs,
+	public static void plotSubSectPartMagFreqDist(List<List<ETAS_EqkRupture>> catalogs,
 			FaultSystemSolutionERF_ETAS erf, int sectIndex, File outputDir) throws IOException {
 		
 		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
@@ -2404,10 +2493,10 @@ public class ETAS_MultiSimAnalysisTools {
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
 
-		String prefix = "sub_sect_mfd_"+sectIndex;
+		String prefix = "sub_sect_part_mfd_"+sectIndex;
 		
 		
-		GraphWindow plotGraph = new GraphWindow(funcs, rupSet.getFaultSectionData(sectIndex).getName()+" MFDs",chars); 
+		GraphWindow plotGraph = new GraphWindow(funcs, rupSet.getFaultSectionData(sectIndex).getName()+" Part. MFDs",chars); 
 		plotGraph.setX_AxisLabel("Magnitude (M)");
 		plotGraph.setY_AxisLabel("Rate (per yr)");
 		plotGraph.setY_AxisRange(1e-7, 1e-1);
@@ -2585,7 +2674,8 @@ public class ETAS_MultiSimAnalysisTools {
 				System.out.println("Model Prob one or more in "+duration+" years ="+(float)probOneOrMore);
 				System.out.println("Model exp num in "+duration+" years ="+(float)(sectPartRate*duration));
 				
-				plotSubSectMagFreqDist(catalogs, erf, sectIndex, outputDir);
+				plotSubSectNuclMagFreqDist(catalogs, erf, sectIndex, outputDir);
+				plotSubSectPartMagFreqDist(catalogs, erf, sectIndex, outputDir);
 				plotCumNumWithTimeForSection(catalogs, erf, sectIndex, outputDir);
 			}			
 
@@ -2602,8 +2692,8 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-//		nedsAnalysis();
-//		System.exit(-1);
+		nedsAnalysis();
+		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
