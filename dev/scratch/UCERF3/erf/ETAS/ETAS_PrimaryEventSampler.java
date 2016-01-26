@@ -147,6 +147,7 @@ public class ETAS_PrimaryEventSampler {
 	ArrayList<HashMap<Integer,Float>> srcNuclRateOnSectList;
 	SummedMagFreqDist[] longTermSupraSeisMFD_OnSectArray;
 	List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList;
+	double[] totLongTermSubSeisRateOnSectArray;
 	SummedMagFreqDist longTermTotalERF_MFD;
 
 	
@@ -530,30 +531,55 @@ public class ETAS_PrimaryEventSampler {
 		for(int src=0; src<numFltSystSources; src++) {
 			int fltSysRupIndex = fssERF.getFltSysRupIndexForSource(src);
 			List<Integer> sectIndexList = rupSet.getSectionsIndicesForRup(fltSysRupIndex);
-			// this will store the normalized time since last event on each section:
-			double[] normTimeSinceOnSectArray = new double[sectIndexList.size()];	
+			
+			// Needed if weighting by susbseis rates
+			int numSubRates=0;
+			double aveSubRates=0;	// this will be used where there are no subseis ruptures
+			for(int sect:sectIndexList) {
+				if(totLongTermSubSeisRateOnSectArray[sect]>0) {
+					numSubRates+=1;
+					aveSubRates+=totLongTermSubSeisRateOnSectArray[sect];
+				}
+			}
+			if(aveSubRates==0)	// all were outside relm region; give all the same weight
+				aveSubRates=1;
+			else
+				aveSubRates /= numSubRates;
+			
+			
+			double[] relSectNuclRateArray = new double[sectIndexList.size()];	
 			double sum=0;
-			for(int s=0;s<normTimeSinceOnSectArray.length;s++) {
+			for(int s=0;s<relSectNuclRateArray.length;s++) {
 				int sectIndex = sectIndexList.get(s);
-				double sectArea = rupSet.getAreaForSection(sectIndex);
+				double sectWt1;
+				// WEIGHT BY AREA
+//				sectWt1 = rupSet.getAreaForSection(sectIndex);
+				
+				// WEIGHT BY SUBSEIS RATE
+				if(totLongTermSubSeisRateOnSectArray[sectIndex] != 0)
+					sectWt1 = totLongTermSubSeisRateOnSectArray[sectIndex];
+				else
+					sectWt1 = aveSubRates;
+				
+				
 				double normTS=Double.NaN;
 				if(sectNormTimeSince!=null)
 					normTS = sectNormTimeSince[sectIndex];
 				if(Double.isNaN(normTS)) 
-					normTimeSinceOnSectArray[s] = 1.0*sectArea;	// assume it's 1.0 if value unavailable
+					relSectNuclRateArray[s] = 1.0*sectWt1;	// assume it's 1.0 if value unavailable
 				else {
 					if(APPLY_ERT_FAULTS)
-						normTimeSinceOnSectArray[s]=normTS*sectArea;
+						relSectNuclRateArray[s]=normTS*sectWt1;
 					else
-						normTimeSinceOnSectArray[s]=1.0*sectArea;	// test
+						relSectNuclRateArray[s]=1.0*sectWt1;	// test
 				}
-				sum += normTimeSinceOnSectArray[s];	// this will be used to avoid dividing by zero later
+				sum += relSectNuclRateArray[s];	// this will be used to avoid dividing by zero later
 			}
-			for(int s=0;s<normTimeSinceOnSectArray.length;s++) {
+			for(int s=0;s<relSectNuclRateArray.length;s++) {
 				int sectIndex = sectIndexList.get(s);
 				double sectNuclRate;
 				if(sum>0) {
-					sectNuclRate = grCorrFactorForSectArray[sectIndex]*normTimeSinceOnSectArray[s]*sourceRates[src]/sum;
+					sectNuclRate = grCorrFactorForSectArray[sectIndex]*relSectNuclRateArray[s]*sourceRates[src]/sum;
 //System.out.println("RIGHTHERE: "+grCorrFactorForSectArray[sectIndex]);
 				}
 				else {
@@ -4268,6 +4294,14 @@ System.exit(0);
 			// here are the sub-seis MFDs
 			longTermSubSeisMFD_OnSectList = fssERF.getSolution().getSubSeismoOnFaultMFD_List();
 			
+			totLongTermSubSeisRateOnSectArray = new double[longTermSubSeisMFD_OnSectList.size()];
+			for(int s=0;s<totLongTermSubSeisRateOnSectArray.length;s++) {
+				if(longTermSubSeisMFD_OnSectList.get(s) != null)
+					totLongTermSubSeisRateOnSectArray[s] = longTermSubSeisMFD_OnSectList.get(s).getCumRate(2.55);
+				else
+					totLongTermSubSeisRateOnSectArray[s] = longTermSubSeisMFD_OnSectList.get(s).getCumRate(2.55);
+			}
+			
 			// can't get supra-seism MFDs from fault-system-solution becuase some rups are zeroed out and there may 
 			// be aleatory mag-area variability added in the ERF, so compute from ERF.
 			
@@ -5849,7 +5883,7 @@ System.exit(0);
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
-//		ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+		ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
 		
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -5885,7 +5919,7 @@ System.exit(0);
 		// Sections bulge plot
 //		try {
 ////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsCorr_012516"), "Test", true);
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsCorr_TestNewWt"), "Test", true);
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
@@ -5906,9 +5940,9 @@ System.exit(0);
 		// Surprise valley subsection subseis rates
 //		etas_PrimEventSampler.writeTotSubSeisRateForSections(2446, 2461);
 		
-		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
-		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
-		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
+//		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
+//		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
+//		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
 
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
@@ -5918,7 +5952,8 @@ System.exit(0);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44-0.234,-118.34+0.573,1.), 0.29,"crossSectData_Bulge_mojave", false);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_MaxCharFactor15_PoissonNew");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_Poisson_012616");
+		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson_GridSeisCorr_newWt");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
@@ -6606,6 +6641,138 @@ System.exit(0);
 
 		return "For Bulge at depth Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
+	
+	
+	
+	
+	
+	/**
+	 * TODO Move to utility class
+	 * @param depth
+	 * @param dirName
+	 * @return
+	 */
+	public String plotBulgeAtDepthAndAboveMagMap(double depth, double mag, String dirName) {
+		
+		GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.UCERF3_RATIOS.getFileName());
+		
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForCubes.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForCubes.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForCubes.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForCubes.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForCubes.getLatSpacing());	// assume lat and lon spacing are same
+		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
+//		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-3d);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,3d);
+		
+		
+		GriddedGeoDataSet bulgeData = new GriddedGeoDataSet(gridRegForCubes, true);
+		int depthIndex = getCubeDepthIndex(depth);
+		int numCubesAtDepth = bulgeData.size();
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+		
+		if(mfdForSrcArray == null) {
+			computeMFD_ForSrcArrays(2.05, 8.95, 70);
+		}
+
+		for(int i=0; i<numCubesAtDepth;i++) {
+			progressBar.updateProgress(i, numCubesAtDepth);
+			int cubeIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
+			if(getCubeMFD_GriddedSeisOnly(cubeIndex) == null) {
+				bulgeData.set(i, 1.0);
+				continue;
+			}
+			double rate1 = getCubeMFD_GriddedSeisOnly(cubeIndex).getCumRate(2.55)*Math.pow(10d, 2.5-mag);
+			if(rate1==0.0) {
+				bulgeData.set(i, 1.0);
+				continue;
+			}
+			SummedMagFreqDist supraMFD = getCubeMFD_SupraSeisOnly(cubeIndex);
+			int magIndex = supraMFD.getClosestXIndex(mag);
+			double rate2 = getCubeMFD_SupraSeisOnly(cubeIndex).getCumRate(magIndex);
+			bulgeData.set(i, rate2/rate1);
+		}
+		progressBar.showProgress(false);
+
+		String metadata = "Map from calling plotBulgeAtDepthAndAboveMagMap(*) method";
+		
+		try {
+				String url = mapGen.makeMapUsingServlet(bulgeData, "CharFactor at "+depth+" km depth and mag>="+mag, metadata, dirName);
+				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+				
+				File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+				if (!downloadDir.exists())
+					downloadDir.mkdir();
+				File zipFile = new File(downloadDir, "allFiles.zip");
+				// construct zip URL
+				String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+				FileUtils.downloadURL(zipURL, zipFile);
+				FileUtils.unzipFile(zipFile, downloadDir);
+
+//			System.out.println("GMT Plot Filename: "+name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		// make historgram
+		double delta = Math.log10(1.01);
+		double min = -4.0+delta/2;
+		double max = 4;
+		int num = (int)((max-min)/delta);
+		HistogramFunction hist = new HistogramFunction(min,num,delta);
+		for(int i=0;i<bulgeData.size();i++)
+			if(isCubeInsideFaultPolygon[i] == 1) {
+				if(bulgeData.get(i)>=hist.getMinX() &&  bulgeData.get(i)<=hist.getMaxX())
+					hist.add(bulgeData.get(i), 1.0);
+//				hist.add(Math.log10(bulgeData.get(i)), 1.0);
+			}
+		hist.normalizeBySumOfY_Vals();
+		hist.setName("Histogram of log10 Values");
+		HistogramFunction cumHist = hist.getCumulativeDistFunctionWithHalfBinOffset();
+		cumHist.setInfo("Cumulative distribution");
+		String info = "mean="+(float)hist.computeMean()+"\nmedian="+(float)cumHist.getFirstInterpolatedX(0.5)+"\nmode="+(float)hist.getMode()+"\n"+hist.toString();
+		hist.setInfo(info);
+		cumHist.setInfo(info);
+		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+		funcList.add(hist);
+		funcList.add(cumHist);
+		GraphWindow graph = new GraphWindow(funcList, "Histogram of log10 Bulge Values for Cubes with Faults"); 
+		graph.setX_AxisLabel("Log10(1.0/GRcorr)");
+		graph.setY_AxisLabel("Num or Fraction");
+		double maxX=3,minX=-3;
+//		if(bulgeData.getMaxZ()-bulgeData.getMinZ()< delta/10) {
+//			maxX=1;
+//			minX=-1;			
+//		}
+//		else {
+//			double absMax = Math.max(Math.abs(bulgeData.getMaxZ()), Math.abs(bulgeData.getMinZ()));
+//			maxX= absMax+delta/2.0;
+//			minX= -absMax-delta/2.0;
+//
+//		}
+		
+			
+		graph.setX_AxisRange(minX, maxX);
+		File file = new File( new File(GMT_CA_Maps.GMT_DIR, dirName), "histogramForCubesWithFaults.pdf");
+
+		try {
+			graph.saveAsPDF(file.getAbsolutePath());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return "For Bulge at depth Map: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+	}
+
 
 	
 	/**
