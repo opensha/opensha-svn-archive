@@ -87,6 +87,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private List<int[]> srcAtPointList;
 	private int[] isCubeInsideFaultPolygon;
 	
+	private double[] gridSeisCorrections;
+	
 	private String simulationName;
 	
 	private boolean includeSpontEvents = true;
@@ -266,6 +268,13 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		}
 		
 		metadataOnly = cmd.hasOption("metadata-only");
+		
+		if (cmd.hasOption("grid-seis-correction")) {
+			File cacheFile = new File(inputDir, "griddedSeisCorrectionCache");
+			if (rank == 0)
+				debug("Loading gridded seismicity correction cache file from "+cacheFile.getAbsolutePath());
+			gridSeisCorrections = MatrixIO.doubleArrayFromFile(cacheFile);
+		}
 	}
 	
 	/**
@@ -481,6 +490,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 				debug("Instantiationg ERF");
 				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration, startYear);
+				
+				if (gridSeisCorrections != null)
+					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false, gridSeisCorrections);
 
 				if (fssScenarioRupID >= 0) {
 					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
@@ -773,6 +785,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option metadataOnly = new Option("md", "metadata-only", false, "Write XML metadata file and exit.");
 		metadataOnly.setRequired(false);
 		ops.addOption(metadataOnly);
+		
+		Option gridSeisCorrectRates = new Option("gscorr", "grid-seis-correction", false, "Apply gridded seismicity correction"
+				+ " using file in cache directory");
+		gridSeisCorrectRates.setRequired(false);
+		ops.addOption(gridSeisCorrectRates);
 		
 		return ops;
 	}

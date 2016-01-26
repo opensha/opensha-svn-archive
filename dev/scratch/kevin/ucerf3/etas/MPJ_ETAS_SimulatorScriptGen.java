@@ -30,7 +30,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
-		double duration = 10000;
+		double duration = 1000;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -54,10 +54,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
 //		double[] maxCharFactors = { 10 };
 		boolean applyLongTermRates = false;
+		boolean gridSeisCorr = true;
 		
-//		String nameAdd = null;
+		String nameAdd = null;
 //		String nameAdd = "4000more";
-		String nameAdd = "mc10-applyGrGridded";
+//		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";
 		
 		boolean histCatalog;
@@ -68,14 +69,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			queue = null;
 			startYear = 2012;
 			histCatalog = true;
-//			numSims = 500;
-//			nodes = 60;
+			numSims = 500;
+			nodes = 60;
 //			numSims = 5000;
 //			nodes = 60;
-//			mins = 24*60;
-			numSims = 50;
-			nodes = 25;
-			mins = 47*60;
+			mins = 24*60;
+//			numSims = 50;
+//			nodes = 25;
+//			mins = 47*60;
 			Preconditions.checkState(!smallTest);
 			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);
 		} else {
@@ -180,8 +181,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					jobName += "-"+probModel.name().toLowerCase()+grStr;
 					if (timeIndep)
 						jobName += "-indep";
-					if (!applyLongTermRates)
-						jobName += "-noApplyLTR";
+					if (applyLongTermRates)
+						jobName += "-applyLTR";
+					if (gridSeisCorr)
+						jobName += "-gridSeisCorr";
 					
 					File localJobDir = new File(localDir, jobName);
 					if (!localJobDir.exists())
@@ -219,6 +222,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						argz += args_continue_newline+"--impose-gr";
 					
 					argz += args_continue_newline+"--apply-long-term-rates "+applyLongTermRates;
+					
+					if (gridSeisCorr)
+						argz += args_continue_newline+"--grid-seis-correction";
 					
 					if (timeIndep)
 						argz += args_continue_newline+"--indep";

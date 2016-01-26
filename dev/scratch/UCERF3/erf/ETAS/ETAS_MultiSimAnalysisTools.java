@@ -2698,35 +2698,35 @@ public class ETAS_MultiSimAnalysisTools {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-		boolean plotMFDs = false;
-		boolean plotExpectedComparison = false;
-		boolean plotSectRates = false;
-		boolean plotTemporalDecay = false;
-		boolean plotDistanceDecay = false;
-		boolean plotMaxMagHist = false;
-		boolean plotGenerations = false;
-		boolean plotGriddedNucleation = false;
-		boolean writeTimeFromPrevSupra = false;
-		boolean plotSectScatter = true;
-		boolean plotGridScatter = false;
-		boolean plotStationarity = false;
-		boolean plotSubSectRecurrence = false;
-		boolean writeCatsForViz = false;
-		
-//		boolean plotMFDs = true;
-//		boolean plotExpectedComparison = true;
-//		boolean plotSectRates = true;
-//		boolean plotTemporalDecay = true;
-//		boolean plotDistanceDecay = true;
-//		boolean plotMaxMagHist = true;
-//		boolean plotGenerations = true;
-//		boolean plotGriddedNucleation = true;
-//		boolean writeTimeFromPrevSupra = true;
+//		boolean plotMFDs = false;
+//		boolean plotExpectedComparison = false;
+//		boolean plotSectRates = false;
+//		boolean plotTemporalDecay = false;
+//		boolean plotDistanceDecay = false;
+//		boolean plotMaxMagHist = false;
+//		boolean plotGenerations = false;
+//		boolean plotGriddedNucleation = false;
+//		boolean writeTimeFromPrevSupra = false;
 //		boolean plotSectScatter = true;
-//		boolean plotGridScatter = true;
-//		boolean plotStationarity = true;
-//		boolean plotSubSectRecurrence = true;
+//		boolean plotGridScatter = false;
+//		boolean plotStationarity = false;
+//		boolean plotSubSectRecurrence = false;
 //		boolean writeCatsForViz = false;
+		
+		boolean plotMFDs = true;
+		boolean plotExpectedComparison = true;
+		boolean plotSectRates = true;
+		boolean plotTemporalDecay = true;
+		boolean plotDistanceDecay = true;
+		boolean plotMaxMagHist = true;
+		boolean plotGenerations = true;
+		boolean plotGriddedNucleation = true;
+		boolean writeTimeFromPrevSupra = true;
+		boolean plotSectScatter = true;
+		boolean plotGridScatter = true;
+		boolean plotStationarity = true;
+		boolean plotSubSectRecurrence = true;
+		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
 		boolean useActualDurations = true;
@@ -3057,13 +3057,17 @@ public class ETAS_MultiSimAnalysisTools {
 				subsetFileName = "spontaneous";
 			}
 			
-			FaultSystemSolutionERF erf = null;
+			FaultSystemSolutionERF_ETAS erf = null;
 			if (triggerParentID < 0 && (meanDuration >= 100d || catalogs.size() >= 1000)) {
 				System.out.println("Creating ERF for comparisons");
-				erf = new FaultSystemSolutionERF(fss);
+				erf = new FaultSystemSolutionERF_ETAS(fss);
 				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
 				erf.getTimeSpan().setDuration(1d);
+				if (resultsFile.getParentFile().getName().contains("gridSeisCorr")) {
+					System.out.println("Applying gridded seis correction");
+					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+				}
 				erf.updateForecast();
 			}
 			

@@ -2146,6 +2146,7 @@ public class FaultSysSolutionERF_Calc {
 		}
 		List<String> sectNames = Lists.newArrayList(namesSet);
 		Collections.sort(sectNames, new SubSectNameComparator());
+		Collections.sort(sectNames);
 		
 		long curMillis = System.currentTimeMillis();
 		
@@ -3283,10 +3284,19 @@ public class FaultSysSolutionERF_Calc {
 	public static void combineBranchSensHists(File dir) throws IOException, com.lowagie.text.DocumentException {
 		List<File> pdfFiles = Lists.newArrayList();
 		
+		List<String> classNames = Lists.newArrayList();
+		
 		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
 			if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
 				continue;
-			File pdfFile = new File(dir, ClassUtils.getClassNameWithoutPackage(clazz)+"_hists_small.pdf");
+			String name = ClassUtils.getClassNameWithoutPackage(clazz);
+			classNames.add(name);
+		}
+		
+		Collections.sort(classNames);
+		
+		for (String name : classNames) {
+			File pdfFile = new File(dir, name+"_hists_small.pdf");
 			Preconditions.checkState(pdfFile.exists(), "File doesn't exist: "+pdfFile.getAbsolutePath());
 			pdfFiles.add(pdfFile);
 		}
@@ -3806,10 +3816,13 @@ public class FaultSysSolutionERF_Calc {
 					}
 				} catch (RuntimeException e) {
 					System.out.println("Error on "+entry.getName());
-					if (!debug_zip_file_check)
+					if (!debug_zip_file_check) {
+						zip.close();
 						throw e;
+					}
 				}
 			}
+			zip.close();
 		}
 		
 		return maps;

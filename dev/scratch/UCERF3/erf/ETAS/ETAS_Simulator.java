@@ -1348,14 +1348,19 @@ public class ETAS_Simulator {
 	
 	
 	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio) {
-		GridSourceFileReader gridSources=null;
+		double[] gridSeisCorrValsArray;
 		try {
-			double[] gridSeisCorrValsArray = MatrixIO.doubleArrayFromFile(new File(ETAS_PrimaryEventSampler.defaultGriddedCorrFilename));
-			gridSources = (GridSourceFileReader)erf.getGridSourceProvider();
-			gridSources.scaleAllNodeMFDs(gridSeisCorrValsArray);
+			gridSeisCorrValsArray = MatrixIO.doubleArrayFromFile(new File(ETAS_PrimaryEventSampler.defaultGriddedCorrFilename));
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw ExceptionUtils.asRuntimeException(e);
 		}
+		correctGriddedSeismicityRatesInERF(erf, plotRateRatio, gridSeisCorrValsArray);
+	}
+	
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio,
+			double[] gridSeisCorrValsArray) {
+		GridSourceFileReader gridSources = (GridSourceFileReader)erf.getGridSourceProvider();
+		gridSources.scaleAllNodeMFDs(gridSeisCorrValsArray);
 		
 		double totalRate=0;
 		double[] nodeRateArray = new double[gridSources.size()];

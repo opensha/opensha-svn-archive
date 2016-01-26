@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
+import org.opensha.commons.util.FileNameComparator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -167,6 +170,7 @@ public class TestPDFCombine {
 					continue;
 				files.add(file);
 			}
+			Collections.sort(files, new FileNameComparator());
 			System.out.println("Doing "+prefix);
 			combine(files, new File(outputDir, prefix+"_combined.pdf"));
 		}
