@@ -17,6 +17,7 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.BSSA_2014_Wrapper;
 import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.StewartSiteSpecificMod.Params;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceJBParameter;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
@@ -37,6 +38,8 @@ public class SiteAmplificationAlgorithmTest {
 	private StewartSiteSpecificMod mod;
 	private BSSA_2014_Wrapper gmpeWrap;
 	
+	private static final double precision_fraction = 0.01; // 1%
+	
 	private CSVFile<String> csv;
 	
 	@Before
@@ -55,6 +58,7 @@ public class SiteAmplificationAlgorithmTest {
 		gmpeWrap.setParamDefaults();
 		gmpeWrap.setIntensityMeasure(SA_Param.NAME);
 		SA_Param.setPeriodInSA_Param(gmpeWrap.getIntensityMeasure(), period);
+//		gmpeWrap.setIntensityMeasure(PGA_Param.NAME);
 		mod.setIMT_IMT(gmpeWrap, gmpeWrap.getIntensityMeasure());
 		
 		for (int rowIndex=2; rowIndex<csv.getNumRows(); rowIndex++) {
@@ -120,8 +124,8 @@ public class SiteAmplificationAlgorithmTest {
 			double calcSa1Sigma = mod.getModStdDev(gmpeWrap);
 			System.out.println("File ref PGA: "+pgaMedian);
 			
-			assertEquals(sa1Median, calcSa1Median, 0.0001);
-			assertEquals(sa1Sigma, calcSa1Sigma, 0.0001);
+			assertEquals(sa1Median, calcSa1Median, sa1Median*precision_fraction);
+			assertEquals(sa1Sigma, calcSa1Sigma, sa1Sigma*precision_fraction);
 			
 			System.out.println("*********");
 		}

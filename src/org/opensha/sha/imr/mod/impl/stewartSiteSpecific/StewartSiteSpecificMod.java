@@ -26,6 +26,7 @@ import com.google.common.primitives.Doubles;
 public class StewartSiteSpecificMod extends AbstractAttenRelMod implements ParameterChangeListener {
 	
 	private static final boolean D = true;
+	private static final boolean DD = D && true;
 	
 	public static final String NAME = "Stewart 2014 Site Specific";
 	public static final String SHORT_NAME = "Stewart2014";
@@ -186,15 +187,21 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	@Override
 	public double getModMean(ScalarIMR imr) {
 		double u_lnX = imr.getMean();
-		if (D) System.out.println("Orig Mean: "+Math.exp(u_lnX));
+		if (DD) {
+			String imt = imr.getIntensityMeasure().getName();
+			if (imt.equals(SA_Param.NAME))
+				imt += " "+(float)+SA_Param.getPeriodInSA_Param(imr.getIntensityMeasure())+"s";
+			if (DD) System.out.println("Orig IMT: "+imt);
+		}
+		if (DD) System.out.println("Orig Mean, u_X="+Math.exp(u_lnX));
 		
 		// now set to to PGA
-		System.out.println("Setting to PGA");
+		if (DD) System.out.println("Setting to PGA");
 		imr.setIntensityMeasure(PGA_Param.NAME);
 		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(PGA_Param.NAME));
 		double x_ref_ln = imr.getMean();
 		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-		if (D) System.out.println("Ref PGA: "+x_ref);
+		if (DD) System.out.println("Ref PGA, x_ref="+x_ref);
 		// set back to orig IMT
 		imr.setIntensityMeasure(imt);
 		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(imt.getName()));
@@ -204,12 +211,15 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		double f2 = params[periodParams.getParamIndex(Params.F2)];
 		double f3 = params[periodParams.getParamIndex(Params.F3)];
 		
-		if (D) System.out.println("Calculating with f1="+f1+", f2="+f2+", f3="+f3);
+		if (DD) System.out.println("Calculating mean with f1="+f1+", f2="+f2+", f3="+f3);
 		
 		double ln_y = f1 + f2*Math.log((x_ref + f3)/f3);
+		if (DD) System.out.println("y="+Math.exp(ln_y));
 		double yMax = Math.log(params[periodParams.getParamIndex(Params.Ymax)]);
-		if (!Double.isNaN(yMax))
+		if (!Double.isNaN(yMax)) {
 			ln_y = Math.min(ln_y, yMax);
+			if (DD) System.out.println("new y (after yMax="+yMax+"): "+Math.exp(ln_y));
+		}
 		
 		Preconditions.checkState(Doubles.isFinite(ln_y));
 		
@@ -222,8 +232,10 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		String origIMRType = imrTypeParam.getValue();
 		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
 		double interStdDev = imr.getStdDev();
+		if (DD) System.out.println("Orig inter event, tau="+interStdDev);
 		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTRA);
 		double intraStdDev = imr.getStdDev();
+		if (DD) System.out.println("Orig intra event, phi="+intraStdDev);
 		imrTypeParam.setValue(origIMRType);
 		
 		double[] params = getCurParams();
@@ -233,18 +245,23 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		double phiS2S = params[periodParams.getParamIndex(Params.PHI_S2S)];
 		double phiLnY = params[periodParams.getParamIndex(Params.PHI_lnY)];
 		
+		if (DD) System.out.println("Calculating std dev with f2="+f2+", f3="+f3+", F="+F+", phiS2S="+phiS2S+", phiLnY="+phiLnY);
+		
 		// now set to to PGA
 		imr.setIntensityMeasure(PGA_Param.NAME);
 		double x_ref_ln = imr.getMean();
 		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+		if (DD) System.out.println("x_ref="+x_ref);
 		// set back to orig IMT
 		imr.setIntensityMeasure(imt);
 		
 		double term1 = Math.pow((f2*x_ref)/(x_ref+f3) + 1, 2);
 		
-		double phi_lnZ = Math.sqrt(term1 * (interStdDev*interStdDev - F*phiS2S*phiS2S) + phiLnY*phiLnY);
+		double phi_lnZ = Math.sqrt(term1 * (intraStdDev*intraStdDev - F*phiS2S*phiS2S) + phiLnY*phiLnY);
 		
-		return phi_lnZ + intraStdDev;
+		if (DD) System.out.println("phi_lnZ="+phi_lnZ);
+		
+		return Math.sqrt(phi_lnZ*phi_lnZ + interStdDev*interStdDev);
 	}
 
 	@Override

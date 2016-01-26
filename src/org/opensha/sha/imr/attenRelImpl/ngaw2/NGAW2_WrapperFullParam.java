@@ -91,6 +91,7 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 	public double getStdDev() {
 		ScalarGroundMotion gm = getGroundMotion();
 		String stdType = stdDevTypeParam.getValue();
+//		System.out.println("GET called with stdType: "+stdType);
 		if (stdType.equals(StdDevTypeParam.STD_DEV_TYPE_TOTAL))
 			return gm.stdDev();
 		else if (stdType.equals(StdDevTypeParam.STD_DEV_TYPE_INTER))

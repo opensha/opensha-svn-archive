@@ -151,6 +151,8 @@ public class BSSA_2014 implements NGAW2_GMM {
 	 */
 	public final ScalarGroundMotion calc(IMT imt, double Mw, double rJB,
 			double vs30, double z1p0, FaultStyle style) {
+		
+//		System.out.println("mw="+Mw+", rJB="+rJB+", vs30="+vs30+", z1p0="+z1p0+", fs="+style+", IMT="+imt);
 
 		coeffs.set(imt);
 		double pgaRock = calcPGArock(coeffsPGA, Mw, rJB, style);
@@ -158,6 +160,7 @@ public class BSSA_2014 implements NGAW2_GMM {
 		double phi = calcPhi(coeffs, Mw, rJB, vs30);
 		double tau = calcTau(coeffs, Mw);
 		double stdDev = calcStdDev(phi, tau);
+//		System.out.println("Mean="+mean+", phi="+phi+", tau="+tau+", stdDev="+stdDev);
 
 		return new DefaultGroundMotion(mean, stdDev, phi, tau);
 	}
