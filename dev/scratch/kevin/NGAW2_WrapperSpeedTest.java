@@ -39,7 +39,7 @@ public class NGAW2_WrapperSpeedTest {
 		ASK_2014 directGMPE = new ASK_2014();
 		ASK_2014 paramGMPE = new ASK_2014();
 		AttenuationRelationship directWrapper = new NGAW2_Wrapper("TestDirect", directGMPE);
-		AttenuationRelationship paramWrapper = new NGAW2_WrapperFullParam("TestParam", paramGMPE);
+		AttenuationRelationship paramWrapper = new NGAW2_WrapperFullParam("TestParam", paramGMPE, true);
 		
 		directWrapper.setParamDefaults();
 		paramWrapper.setParamDefaults();

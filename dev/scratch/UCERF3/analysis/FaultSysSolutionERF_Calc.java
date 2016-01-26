@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -2034,6 +2035,26 @@ public class FaultSysSolutionERF_Calc {
 		return map;
 	}
 	
+	private static class SubSectNameComparator implements Comparator<String> {
+		private final String key = "Subsection ";
+		private final int len = key.length();
+
+		@Override
+		public int compare(String o1, String o2) {
+			int ss1_index = o1.indexOf(key)+len;
+			int ss2_index = o2.indexOf(key)+len;
+			int ret = o1.substring(0, ss1_index).compareTo(o2.substring(0, ss2_index));
+			if (ret != 0)
+				return ret;
+			// this means same parent section
+			int ss1 = Integer.parseInt(o1.substring(ss1_index));
+			int ss2 = Integer.parseInt(o2.substring(ss2_index));
+			Preconditions.checkState(ss1 >= 0 && ss2 >= 0);
+			return new Integer(ss1).compareTo(ss2);
+		}
+		
+	}
+	
 	private static void writeTimeDependenceCSV(FaultSystemSolutionERF erf, File outputFile, boolean parent)
 			throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
@@ -2124,6 +2145,7 @@ public class FaultSysSolutionERF_Calc {
 			}
 		}
 		List<String> sectNames = Lists.newArrayList(namesSet);
+		Collections.sort(sectNames, new SubSectNameComparator());
 		Collections.sort(sectNames);
 		
 		long curMillis = System.currentTimeMillis();
@@ -3262,10 +3284,19 @@ public class FaultSysSolutionERF_Calc {
 	public static void combineBranchSensHists(File dir) throws IOException, com.lowagie.text.DocumentException {
 		List<File> pdfFiles = Lists.newArrayList();
 		
+		List<String> classNames = Lists.newArrayList();
+		
 		for (Class<? extends LogicTreeBranchNode<?>> clazz : LogicTreeBranch.getLogicTreeNodeClasses()) {
 			if (clazz.equals(InversionModels.class) || clazz.equals(MomentRateFixes.class))
 				continue;
-			File pdfFile = new File(dir, ClassUtils.getClassNameWithoutPackage(clazz)+"_hists_small.pdf");
+			String name = ClassUtils.getClassNameWithoutPackage(clazz);
+			classNames.add(name);
+		}
+		
+		Collections.sort(classNames);
+		
+		for (String name : classNames) {
+			File pdfFile = new File(dir, name+"_hists_small.pdf");
 			Preconditions.checkState(pdfFile.exists(), "File doesn't exist: "+pdfFile.getAbsolutePath());
 			pdfFiles.add(pdfFile);
 		}
@@ -3767,7 +3798,12 @@ public class FaultSysSolutionERF_Calc {
 							pBPT = Double.parseDouble(csv.get(row, colStart+3));
 							pGain = Double.parseDouble(csv.get(row, colStart+4));
 							implGain = Double.parseDouble(csv.get(row, colStart+5));
-							vals[row-1] = new SectProbGainResults(recurrInt, openInt, pPois, pBPT, pGain, implGain);
+							int index;
+							if (parents)
+								index = row-1;
+							else
+								index = Integer.parseInt(csv.get(row, 1));
+							vals[index] = new SectProbGainResults(recurrInt, openInt, pPois, pBPT, pGain, implGain);
 						}
 						
 						Map<LogicTreeBranch, SectProbGainResults[]> branchVals = table.get(cov, aveType);
@@ -3780,10 +3816,13 @@ public class FaultSysSolutionERF_Calc {
 					}
 				} catch (RuntimeException e) {
 					System.out.println("Error on "+entry.getName());
-					if (!debug_zip_file_check)
+					if (!debug_zip_file_check) {
+						zip.close();
 						throw e;
+					}
 				}
 			}
+			zip.close();
 		}
 		
 		return maps;
@@ -3922,7 +3961,8 @@ public class FaultSysSolutionERF_Calc {
 						pBPT = Double.parseDouble(csv.get(row, colStart));
 						pPois = Double.parseDouble(csv.get(row, colStart+1));
 						pGain = pBPT/pPois;
-						vals[row-1] = new SectProbGainResults(recurrInt, openInt, pPois, pBPT, pGain, implGain);
+						int index = row-1; // faults, indexing not important
+						vals[index] = new SectProbGainResults(recurrInt, openInt, pPois, pBPT, pGain, implGain);
 //						System.out.println(csv.get(row, 0)+": pBPT="+pBPT+"\tpPois="+pPois);
 					}
 //					System.exit(0);
@@ -3971,20 +4011,20 @@ public class FaultSysSolutionERF_Calc {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
-//		double[] minMags = { 0d, 6.7d, 7.7d };
-//		int[] csvMagRangeIndexes = { 4, 0, 2 };
-//		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
-//		double[] durations = { 5d, 30d };
-//		File[] csvDirs = { new File(dirPrefix+"-5yr"), new File(dirPrefix+"-30yr")};
-//		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-5yr"), new File(dirPrefix+"-main-30yr")};
+		double[] minMags = { 0d, 6.7d, 7.7d };
+		int[] csvMagRangeIndexes = { 4, 0, 2 };
+		int[] csvFaultMagRangeIndexes = { 0, 1, 3 };
+		double[] durations = { 5d, 30d };
+		File[] csvDirs = { new File(dirPrefix+"-5yr"), new File(dirPrefix+"-30yr")};
+		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-5yr"), new File(dirPrefix+"-main-30yr")};
 		
 		// just 6.7, 30yr
-		double[] minMags = { 6.7d };
-		int[] csvMagRangeIndexes = { 0 };
-		int[] csvFaultMagRangeIndexes = { 1 };
-		double[] durations = { 30d };
-		File[] csvDirs = { new File(dirPrefix+"-30yr")};
-		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-30yr")};
+//		double[] minMags = { 6.7d };
+//		int[] csvMagRangeIndexes = { 0 };
+//		int[] csvFaultMagRangeIndexes = { 1 };
+//		double[] durations = { 30d };
+//		File[] csvDirs = { new File(dirPrefix+"-30yr")};
+//		File[] csvMainFaultDirs = { new File(dirPrefix+"-main-30yr")};
 		
 		Preconditions.checkState(aveTypes.size() >= 1);
 		String[] csvZipNames = new String[aveTypes.size()];
@@ -5414,55 +5454,55 @@ public class FaultSysSolutionERF_Calc {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		File invDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/");
-		
-		List<FaultSectionPrefData> subSects_3_1 = FaultSystemIO.loadRupSet(new File(invDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"))
-				.getFaultSectionDataList();
-		List<FaultSectionPrefData> subSects_3_2 = FaultSystemIO.loadRupSet(new File(invDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"))
-				.getFaultSectionDataList();
-		File pressReleaseDir = new File("/home/kevin/OpenSHA/UCERF3/press_release/");
-		File outputFile = new File(pressReleaseDir, "ucerf3_timedep_30yr_probs.kml");
-		Document fm3_1Doc = getFactSheetKML(
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_min.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_max.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-						Lists.newArrayList(CSVFile.readFile(new File(pressReleaseDir,
-								"FM3_1_30yr_sub_sect_probs_u3_td_p2.5.csv"), true),
-								CSVFile.readFile(new File(pressReleaseDir,
-										"FM3_1_30yr_sub_sect_probs_u3_td_p97.5.csv"), true)),
-										new double[] { 2.5d, 97.5d },
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true),
-				subSects_3_1, "Fault Model 3.1");
-		Document fm3_2Doc = getFactSheetKML(
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_min.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_max.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-						Lists.newArrayList(CSVFile.readFile(new File(pressReleaseDir,
-								"FM3_2_30yr_sub_sect_probs_u3_td_p2.5.csv"), true),
-								CSVFile.readFile(new File(pressReleaseDir,
-										"FM3_2_30yr_sub_sect_probs_u3_td_p97.5.csv"), true)),
-										new double[] { 2.5d, 97.5d },
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
-				subSects_3_2, "Fault Model 3.2");
-		writeFactSheetKMZ(outputFile, fm3_1Doc, fm3_2Doc);
-		
-		
-		// now the table
-		calcFactSheetSubSectTableVals(
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true),
-				subSects_3_1,
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
-				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
-				subSects_3_2);
-		
-		System.exit(0);
+//		File invDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/");
+//		
+//		List<FaultSectionPrefData> subSects_3_1 = FaultSystemIO.loadRupSet(new File(invDir,
+//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"))
+//				.getFaultSectionDataList();
+//		List<FaultSectionPrefData> subSects_3_2 = FaultSystemIO.loadRupSet(new File(invDir,
+//				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"))
+//				.getFaultSectionDataList();
+//		File pressReleaseDir = new File("/home/kevin/OpenSHA/UCERF3/press_release/");
+//		File outputFile = new File(pressReleaseDir, "ucerf3_timedep_30yr_probs.kml");
+//		Document fm3_1Doc = getFactSheetKML(
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_min.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_max.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+//						Lists.newArrayList(CSVFile.readFile(new File(pressReleaseDir,
+//								"FM3_1_30yr_sub_sect_probs_u3_td_p2.5.csv"), true),
+//								CSVFile.readFile(new File(pressReleaseDir,
+//										"FM3_1_30yr_sub_sect_probs_u3_td_p97.5.csv"), true)),
+//										new double[] { 2.5d, 97.5d },
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+//				subSects_3_1, "Fault Model 3.1");
+//		Document fm3_2Doc = getFactSheetKML(
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_min.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_max.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+//						Lists.newArrayList(CSVFile.readFile(new File(pressReleaseDir,
+//								"FM3_2_30yr_sub_sect_probs_u3_td_p2.5.csv"), true),
+//								CSVFile.readFile(new File(pressReleaseDir,
+//										"FM3_2_30yr_sub_sect_probs_u3_td_p97.5.csv"), true)),
+//										new double[] { 2.5d, 97.5d },
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+//				subSects_3_2, "Fault Model 3.2");
+//		writeFactSheetKMZ(outputFile, fm3_1Doc, fm3_2Doc);
+//		
+//		
+//		// now the table
+//		calcFactSheetSubSectTableVals(
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_1_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+//				subSects_3_1,
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_td_mean.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_sub_sect_probs_u3_poisson_mean.csv"), true),
+//				CSVFile.readFile(new File(pressReleaseDir, "FM3_2_30yr_parent_sect_probs_u3_td_mean.csv"), true),
+//				subSects_3_2);
+//		
+//		System.exit(0);
 		
 //		makeNucleationRateMapForU3pt3(7.0, true, 0.12);
 		

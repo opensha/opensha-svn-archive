@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -89,6 +90,7 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
+import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
@@ -100,6 +102,7 @@ import org.opensha.sha.cybershake.db.CybershakeVelocityModel;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
+import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
@@ -123,6 +126,7 @@ import org.opensha.sha.util.component.ComponentTranslation;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 
 
@@ -853,7 +857,22 @@ public class HazardCurvePlotter {
 				System.out.println("Curve not found in DB, and no-add option supplied!");
 				return -1;
 			}
+		} else if (cmd.hasOption("benchmark-test-recalc")) {
+			System.out.println("Force calculating a curve for benchmark purposes");
+			Stopwatch watch = Stopwatch.createStarted();
+			// calculate a curve just for speed benchmarking, even though we won't use it
+			ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
+			ArrayList<Double> imVals = new ArrayList<Double>();
+			for (int i=0; i<func.size(); i++)
+				imVals.add(func.getX(i));
+			
+			if (curveCalc == null)
+				curveCalc = new HazardCurveComputation(db);
+			curveCalc.computeHazardCurve(imVals, run, im);
+			watch.stop();
+			System.out.println("Curve took "+watch.elapsed(TimeUnit.SECONDS)+" s");
 		}
+		
 		return curveID;
 	}
 	
@@ -1716,6 +1735,11 @@ public class HazardCurvePlotter {
 		Option sgtSymbols = new Option("sgtsym", "sgt-colors", false, "Enables SGT specific symbols");
 		ops.addOption(sgtSymbols);
 		
+		Option benchRecalc = new Option("benchmark", "benchmark-test-recalc", false,
+				"Forces recalculation of hazard curves to test calculation speed. Newly recalculated curves are not kept and "
+				+ "the original curves are plotted.");
+		ops.addOption(benchRecalc);
+		
 		return ops;
 	}
 	
@@ -1732,6 +1756,16 @@ public class HazardCurvePlotter {
 		pw.flush();
 		System.exit(2);
 	}
+	
+	private static void printTime(Stopwatch watch) {
+		long seconds = watch.elapsed(TimeUnit.SECONDS);
+		double mins = seconds/60d;
+		
+		if (mins > 1d)
+			System.out.println("Took "+(float)mins+" mins");
+		else
+			System.out.println("Took "+seconds+" seconds");
+	}
 
 	public static void main(String args[]) throws DocumentException, InvocationTargetException {
 //		String confDir = "src/org/opensha/sha/cybershake/conf/";
@@ -1742,6 +1776,7 @@ public class HazardCurvePlotter {
 //				+confDir+"ba2008.xml,"+confDir+"cy2008.xml,"+confDir+"as2008.xml"
 //				, "--plot-chars-file", confDir+"tomPlot.xml"};
 //		args = newArgs;
+		Stopwatch watch = Stopwatch.createStarted();
 		try {
 			Options options = createOptions();
 			
@@ -1792,10 +1827,13 @@ public class HazardCurvePlotter {
 			}
 			
 			System.out.println("Done!");
+			watch.stop();
+			printTime(watch);
 			System.exit(0);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			watch.stop();
+			printTime(watch);
 			System.exit(1);
 		}
 	}

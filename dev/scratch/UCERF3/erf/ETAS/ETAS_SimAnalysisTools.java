@@ -1358,6 +1358,11 @@ public class ETAS_SimAnalysisTools {
 		double minMag = incrMFD.getMinMagWithNonZeroRate();
 		double maxMagWithNonZeroRate = incrMFD.getMaxMagWithNonZeroRate();
 		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/incrMFD.getDelta()) + 1;
+//System.out.println("HERE IT IS minMag="+minMag);
+//System.out.println("maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+//System.out.println("numMag="+numMag);
+//System.out.println(incrMFD);
+
 		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
 		gr.scaleToIncrRate(3.05, incrMFD.getY(3.05));
 		gr.setName("Perfect GR");
@@ -1937,11 +1942,10 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	/**
-	 * This will return a catalog that contains only ruptures that are direct children of the given parent ID,
-	 * the parent rupture and any further generations are excluded
+	 * This will return a catalog that contains only ruptures that are of the given generation
 	 * 
 	 * @param catalog
-	 * @param parentID
+	 * @param generation
 	 * @return
 	 */
 	public static List<ETAS_EqkRupture> getByGeneration(List<ETAS_EqkRupture> catalog, int generation) {

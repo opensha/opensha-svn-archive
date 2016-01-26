@@ -1,5 +1,6 @@
 package org.opensha.commons.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.text.DateFormat;
@@ -25,23 +26,26 @@ public class ServerPrefUtils {
 	static final String OPENSHA_SERVER_PRODUCTION_HOST = "opensha.usc.edu";
 	
 	/**
-	 * Hostname for all production services
+	 * Hostname for all development services
 	 */
-	static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
+	static final String OPENSHA_SERVER_DEV_HOST = "zero.usc.edu";
 	
-	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
+//	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
+	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/var/lib/tomcat/webapps/";
+	
+	static final File GMT_DATA_DIR = new File("/tmp/gmtData");
 	
 	/**
 	 * This is the path to the WEB-INF dir for production OpenSHA servlets
 	 */
-	static final String OPENSHA_TOMCAT_PRODUCTION_DIR =
-		OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA/WEB-INF/";
+	static final File OPENSHA_TOMCAT_PRODUCTION_DIR =
+		new File(OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA/WEB-INF/");
 	
 	/**
 	 * This is the path to the WEB-INF dir for development OpenSHA servlets
 	 */
-	static final String OPENSHA_TOMCAT_DEV_DIR =
-		OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA_dev/WEB-INF/";
+	static final File OPENSHA_TOMCAT_DEV_DIR =
+		new File(OPENSHA_TOMCAT_WEBAPPS_DIR+"/OpenSHA_dev/WEB-INF/");
 	
 	/**
 	 * This is the URL to the production OpenSHA servlets.

@@ -53,6 +53,7 @@ import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.PointSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -103,7 +104,7 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	final static double MAX_CHAR_FACTOR = 15;
+	final static double MAX_CHAR_FACTOR = 1e3;
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
 	boolean applyGR_Corr=true;	// don't set here (set by constructor)
@@ -114,6 +115,7 @@ public class ETAS_PrimaryEventSampler {
 	
 	String defaultSectDistForCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectDistForCubeCache";
 	String defaultSectInCubeCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/sectInCubeCache";
+	public static final String defaultGriddedCorrFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/griddedSeisCorrectionCache";
 	
 	String defaultCubeInsidePolyCacheFilename="dev/scratch/UCERF3/data/scratch/InversionSolutions/cubeInsidePolyCache";
 	
@@ -636,13 +638,15 @@ public class ETAS_PrimaryEventSampler {
 	
 	public void addRuptureToProcess(ETAS_EqkRupture rup) {
 		int parLocIndex = getParLocIndexForLocation(rup.getParentTriggerLoc());
-		if(eventListForParLocIndexMap.keySet().contains(parLocIndex)) {
-			eventListForParLocIndexMap.get(parLocIndex).add(rup);
-		}
-		else {
-			ArrayList<ETAS_EqkRupture> list = new ArrayList<ETAS_EqkRupture>();
-			list.add(rup);
-			eventListForParLocIndexMap.put(parLocIndex, list);
+		if(parLocIndex !=-1) {
+			if(eventListForParLocIndexMap.keySet().contains(parLocIndex)) {
+				eventListForParLocIndexMap.get(parLocIndex).add(rup);
+			}
+			else {
+				ArrayList<ETAS_EqkRupture> list = new ArrayList<ETAS_EqkRupture>();
+				list.add(rup);
+				eventListForParLocIndexMap.put(parLocIndex, list);
+			}
 		}
 	}
 	
@@ -875,7 +879,7 @@ public class ETAS_PrimaryEventSampler {
 double minCharFactor = minRate/cubeRateBeyondDistThresh;
 double maxCharFactor = maxRate/cubeRateBeyondDistThresh;
 
-System.out.println(sectionIndex+"\t"+charFactor+"\t"+maxCharFactor+"\t"+(maxCharFactor/charFactor)+"\t"+minCharFactor+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totalRate);
+// System.out.println(sectionIndex+"\t"+charFactor+"\t"+maxCharFactor+"\t"+(maxCharFactor/charFactor)+"\t"+minCharFactor+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totalRate);
 
 		if(totWt<0.9999 || totWt>1.0001) {
 			System.out.println("getCubesAndFractForFaultSection_BoatRamp returned null for: "+sectionIndex+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\tcharFactor="+charFactor
@@ -1195,6 +1199,8 @@ System.exit(0);
 			locList2.add(new Location(loc.getLatitude()-0.005,loc.getLongitude()-0.005,loc.getDepth()));
 			for(Location transLoc : locList2) {
 				int parLocIndex = getParLocIndexForLocation(transLoc);
+				if(parLocIndex == -1)
+					continue;
 				IntegerPDF_FunctionSampler sampler = getCubeSampler(parLocIndex);
 				
 				for(int i=0;i <numCubes;i++) {
@@ -1664,8 +1670,11 @@ System.exit(0);
 		double halfCubeWidth = 1.24;	// TODO remove hard coding
 		double frac;
 		boolean pointSurface = parentRup.getRuptureSurface() instanceof PointSurface;
-		if(!pointSurface)
-			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
+		if(!pointSurface) {
+			if (D) System.out.println("*****\nWarning: finite rupture not a FSS rupture, so no ERT applied; need to fix this at some point\n*******");
+			return 1;
+//			throw new RuntimeException("non PointSurface case not yet supported");	// otherwise we need to know the point from which triggering occurrs?
+		}
 		double parMag = parentRup.getMag();
 		if(parMag<4.0)
 			return 1.0;
@@ -2441,7 +2450,7 @@ System.exit(0);
 		makeLongTermSectMFDs();
 		
 		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
-		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,CharFactorMoRate,subRate,supraRate,minSupraMag,MoRate,SectName\n");
+		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,CharFactorMoRate,subRate,supraRate,minSupraMag,MoRate,SectName,SubSect\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
 		
@@ -2680,6 +2689,8 @@ System.exit(0);
 		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, origGriddedRegion, resultsDir, name, display, false, title);
 		
 	}
+	
+	
 	
 	
 	
@@ -4340,6 +4351,9 @@ System.exit(0);
 					throw new RuntimeException("Problem");
 				}
 
+//				if(Double.isInfinite(longTermSubSeisMFD_OnSectList.get(sectIndex).getMinMagWithNonZeroRate()))
+//					System.out.println(rupSet.getFaultSectionData(sectIndex).getName());
+					
 				//					double val = ETAS_Utils.getScalingFactorToImposeGR_numPrimary(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 				double val = ETAS_Utils.getScalingFactorToImposeGR_supraRates(longTermSupraSeisMFD_OnSectArray[sectIndex], longTermSubSeisMFD_OnSectList.get(sectIndex), false);
 				charFactorForSectArray[sectIndex]=1.0/val;
@@ -4446,7 +4460,11 @@ System.exit(0);
 	
 	public int getParLocIndexForLocation(Location loc) {
 		int iReg = gridRegForParentLocs.indexForLocation(loc);
+		if(iReg==-1)
+			return -1;
 		int iDep = getParDepthIndex(loc.getDepth());
+		if(iDep==-1)
+			return -1;
 		return getParLocIndexForRegAndDepIndices(iReg,iDep);
 	}
 
@@ -4455,7 +4473,11 @@ System.exit(0);
 	}	
 	
 	private int getParDepthIndex(double depth) {
-		return (int)Math.round(depth/depthDiscr);
+		int depthIndex = (int)Math.round(depth/depthDiscr);
+		if(depthIndex<numParDepths)
+			return depthIndex;
+		else
+			return -1;
 	}
 	
 	private double getParDepth(int parDepthIndex) {
@@ -4658,7 +4680,57 @@ System.exit(0);
 
 			}
 		}
-		System.out.println("Starting testSubseisOnFaultMFDs()");
+		System.out.println("Done with testSubseisOnFaultMFDs()");
+	}
+	
+	
+	/**
+	 * This returns the factor by which gridded seismicity rates should be multiplied if
+	 * one wants to interpred GR corrections as modifying subseimogenic rates rather than supr-
+	 * seismogenic rates
+	 */
+	public double[] getGR_CorrFactorsForGriddedSeis() {
+		double[] corrFactorArray = new double[origGriddedRegion.getNodeCount()];
+		
+		double minVal=Double.MAX_VALUE;
+		double maxVal=-Double.MAX_VALUE;
+		for(int i=0;i<origGriddedRegion.getNodeCount();i++) {
+			int srcID = numFltSystSources+i;
+			SummedMagFreqDist gridMFD_SubSeisOnly = mfdForSrcSubSeisOnlyArray[srcID];
+			if(gridMFD_SubSeisOnly != null) {
+				Map<Integer, Double> sectOnGridCellMap = faultPolyMgr.getSectionFracsOnNode(i);
+				double newRate = 0;
+				double oldRate = 0;
+				for(int sectID:sectOnGridCellMap.keySet()) {
+					double sectRateOnGridCell = sectOnGridCellMap.get(sectID)*longTermSubSeisMFD_OnSectList.get(sectID).getCumRate(2.55);
+					newRate += sectRateOnGridCell/grCorrFactorForSectArray[sectID];
+//if(grCorrFactorForSectArray[sectID] != 1.0)
+//	System.out.println("NON ZERO: "+grCorrFactorForSectArray[sectID]);
+					oldRate += sectRateOnGridCell;
+				}
+				if(mfdForTrulyOffOnlyArray[srcID] != null) {
+					double trulyOffRateOnGridCell = mfdForTrulyOffOnlyArray[srcID].getCumRate(2.55);
+					newRate += trulyOffRateOnGridCell;
+					oldRate += trulyOffRateOnGridCell;
+				}
+				double testRate=mfdForSrcArray[srcID].getCumRate(2.55);
+				double fractDiff = Math.abs(oldRate/testRate-1.0);
+				if(fractDiff>1e-5)
+					System.out.println("getGR_CorrFactorsForGriddedSeis()  Sig M2.5 rate diff at srcID="+srcID+"\toldRate="+oldRate+"\testRate="+testRate+
+							"\t"+origGriddedRegion.getLocation(srcID-numFltSystSources));
+				corrFactorArray[i]=newRate/oldRate;
+			}
+			else {
+				corrFactorArray[i]=1.0;				
+			}
+			if(minVal>corrFactorArray[i])
+				minVal=corrFactorArray[i];
+			if(maxVal<corrFactorArray[i])
+				maxVal=corrFactorArray[i];
+		}
+//		System.out.println("minVal="+minVal+"\nmaxVal="+maxVal);
+		
+		return corrFactorArray;
 	}
 
 	
@@ -5156,7 +5228,7 @@ System.exit(0);
 		
 		// this is the target MFD
 		IncrementalMagFreqDist mfd2 = ((FaultSystemSolutionERF)erf).getSolution().getSubSeismoOnFaultMFD_List().get(sectIndex);
-		mfd2.setName("Subseis MFD from erf.getSolution().getSubSeismoOnFaultMFD_List().get(sectIndex)");
+		mfd2.setName("Subseis MFD from erf.getSolution().getSubSeismoOnFaultMFD_List().get(sectIndex) for "+sectIndex+"; "+rupSet.getFaultSectionData(sectIndex).getName());
 
 		// Now we will make this from the source MFDs
 		if(mfdForSrcArray == null) {
@@ -5572,6 +5644,200 @@ System.exit(0);
 	public SummedMagFreqDist getLongTermTotalERF_MFD() {
 		return longTermTotalERF_MFD;
 	}
+	
+	
+	/**
+	 * 
+	 * @param numYears
+	 * @param etasParams
+	 * @param multFactForAllGen
+	 * @param dirName - set as null if no plot wanted
+	 * @return
+	 */
+	public IntegerPDF_FunctionSampler getExpectedAfterShockRateInCubesFromSupraRates(double numYears, ETAS_ParameterList etasParams, double multFactForAllGen, String dirName) {
+		ProbabilityModelOptions probModel = (ProbabilityModelOptions)erf.getParameter(ProbabilityModelParam.NAME).getValue();
+		if(probModel != ProbabilityModelOptions.POISSON)
+			throw new RuntimeException("ERF must be Poisson");
+		
+		double duration = fssERF.getTimeSpan().getDuration();
+		
+		// first compute the number of aftershocks spawned from each parent location
+		double[] aftRateForEachParLocArray = new double[gridRegForParentLocs.getNodeCount()];
+		CalcProgressBar progressBar = new CalcProgressBar("Looping over all points", "junk");
+		progressBar.showProgress(true);
+
+		for(int srcID=0;srcID<fssERF.getNumFaultSystemSources();srcID++) {
+			progressBar.updateProgress(srcID, fssERF.getNumFaultSystemSources());
+			ProbEqkSource src = fssERF.getSource(srcID);
+			if(src.getNumRuptures()>1)
+				throw new RuntimeException("More than one rup per source not yet supported");
+			ProbEqkRupture rup = src.getRupture(0);
+			double rupRate = rup.getMeanAnnualRate(duration);
+			int fssRupIndex=fssERF.getFltSysRupIndexForSource(srcID);
+			double numAftershocks = multFactForAllGen*ETAS_Utils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), 0d, numYears*365.25);
+
+			RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(fssRupIndex, fssERF, 1d);
+			LocationList locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();
+
+			// this puts no aftershocks on the creeping sections
+//			LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+			
+			double numSurfacePoints = locList.size();
+			for(Location loc:locList) {
+				int parLocIndex = getParLocIndexForLocation(loc);
+				if(parLocIndex>=0 && parLocIndex<aftRateForEachParLocArray.length) {
+					aftRateForEachParLocArray[parLocIndex] += rupRate*numAftershocks/numSurfacePoints;
+					if(parLocIndex==aftRateForEachParLocArray.length-1)
+						System.out.println("Bogus Point for Loc "+loc);
+				}
+			}
+		}
+			
+		// now compute the aftershock rate in each cube
+		IntegerPDF_FunctionSampler aftRateInEachCubeSampler = new IntegerPDF_FunctionSampler(numCubes);
+		for(int parLocIndex=0;parLocIndex<aftRateForEachParLocArray.length;parLocIndex++) {
+			progressBar.updateProgress(parLocIndex, aftRateForEachParLocArray.length);
+			double aftRate = aftRateForEachParLocArray[parLocIndex];
+			if(aftRate>0) {
+				IntegerPDF_FunctionSampler probInEachCubeSampler = getCubeSamplerWithOnlyDistDecay(parLocIndex);
+				for(int cubeIndex=0;cubeIndex<aftRateInEachCubeSampler.size();cubeIndex++) {
+					double cubeRate = probInEachCubeSampler.getY(cubeIndex)*aftRate;
+					double prevRate = aftRateInEachCubeSampler.getY(cubeIndex);
+					aftRateInEachCubeSampler.set(cubeIndex, prevRate+cubeRate);
+				}
+			}
+		}
+		
+		progressBar.showProgress(false);
+		
+		if(dirName != null) {
+			// make map
+			GMT_MapGenerator mapGen = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+			
+			CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+			cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+			cptParam.getValue().setBelowMinColor(Color.WHITE);
+			
+			mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,gridRegForCubes.getMinGridLat());
+			mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,gridRegForCubes.getMaxGridLat());
+			mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,gridRegForCubes.getMinGridLon());
+			mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,gridRegForCubes.getMaxGridLon());
+			mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, gridRegForCubes.getLatSpacing());	// assume lat and lon spacing are same
+
+			GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(gridRegForCubes, true);
+			double depth = 7d;
+			int depthIndex = getCubeDepthIndex(depth);
+			int numCubesAtDepth = xyzDataSet.size();
+			progressBar = new CalcProgressBar("Looping over all points", "junk");
+			progressBar.showProgress(true);
+			
+			for(int i=0; i<numCubesAtDepth;i++) {
+				progressBar.updateProgress(i, numCubesAtDepth);
+				int samplerIndex = getCubeIndexForRegAndDepIndices(i, depthIndex);
+				xyzDataSet.set(i, aftRateInEachCubeSampler.getY(samplerIndex));
+//				Location loc = xyzDataSet.getLocation(i);
+//				System.out.println(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+xyzDataSet.get(i));
+			}
+			progressBar.showProgress(false);
+			
+			mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
+//			mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
+			mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+//			double maxZ = Math.ceil(Math.log10(xyzDataSet.getMaxZ()))+0.5;
+//			mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,maxZ-5);
+//			mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,maxZ);
+			
+			mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-7d);
+			mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,-1d);			
+
+
+			String metadata = "Map from calling getExpectedAfterShockRateInCubesFromSupraRates(*) method";
+			
+			try {
+					String url = mapGen.makeMapUsingServlet(xyzDataSet, "M≥2.5 Rates at "+depth+" km depth", metadata, dirName);
+					metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
+					ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
+					
+					File downloadDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
+					if (!downloadDir.exists())
+						downloadDir.mkdir();
+					File zipFile = new File(downloadDir, "allFiles.zip");
+					// construct zip URL
+					String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+					FileUtils.downloadURL(zipURL, zipFile);
+					FileUtils.unzipFile(zipFile, downloadDir);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return aftRateInEachCubeSampler;
+	}
+	
+	
+	public void getExpectedAfterShockRateInGridCellsFromSupraRates(double numYears, ETAS_ParameterList etasParams, double multFactForAllGen, String dirNameForCubeRates) {
+
+		IntegerPDF_FunctionSampler sampler = getExpectedAfterShockRateInCubesFromSupraRates(numYears, etasParams, multFactForAllGen, dirNameForCubeRates);
+		
+		GriddedGeoDataSet ratesFromAshocks = new GriddedGeoDataSet(origGriddedRegion, true);	// true makes X latitude
+		double[] zVals = new double[origGriddedRegion.getNodeCount()];
+		for(int cubeIndex=0;cubeIndex<sampler.size();cubeIndex++) {
+			Location loc = getCubeLocationForIndex(cubeIndex);
+			int regIndex = origGriddedRegion.indexForLocation(loc);
+			if(regIndex != -1)
+				zVals[regIndex] += sampler.getY(cubeIndex);
+		}
+		for(int i=0;i<origGriddedRegion.getNodeCount();i++)
+			ratesFromAshocks.set(i, zVals[i]);
+		
+		GriddedGeoDataSet origCellRates = ERF_Calculator.getNucleationRatesInRegion(erf, origGriddedRegion, 0d, 10d);
+		
+		GriddedGeoDataSet newCellRates = new GriddedGeoDataSet(origGriddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet rateRatios = new GriddedGeoDataSet(origGriddedRegion, true);	// true makes X latitude
+		double[] griddedSeisCorr = new double[rateRatios.size()];
+		for(int i=0;i<origGriddedRegion.getNodeCount();i++) {
+			if(ratesFromAshocks.get(i) > origCellRates.get(i))
+				newCellRates.set(i, ratesFromAshocks.get(i));
+			else
+				newCellRates.set(i, origCellRates.get(i));
+			rateRatios.set(i, newCellRates.get(i)/origCellRates.get(i));
+			griddedSeisCorr[i] = rateRatios.get(i);
+		}
+
+		
+		GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		//override default scale
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -3.5);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 1.5);
+				
+		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		cptParam.getValue().setBelowMinColor(Color.WHITE);
+
+		try {
+			// make plots
+			GMT_CA_Maps.makeMap(ratesFromAshocks, "Aft Nucleation Rate", "test", "ExpAfterShockRateFromSupraMap", gmt_MapGenerator);
+			GMT_CA_Maps.makeMap(origCellRates, "Orig Nucleation Rate", "test", "OrigRateMap", gmt_MapGenerator);
+			GMT_CA_Maps.makeMap(newCellRates, "Orig Nucleation Rate", "test", "NewRateMap", gmt_MapGenerator);
+			cptParam.setValue(GMT_CPT_Files.UCERF3_RATIOS.getFileName());
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, 0d);
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, Math.ceil(rateRatios.getMaxZ()));
+			gmt_MapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, false);
+			System.out.println("Max Ratio = "+rateRatios.getMaxZ());
+			GMT_CA_Maps.makeMap(rateRatios, "New vs Old Ratio", "test", "NewVsOrigRateRatioMap", gmt_MapGenerator);
+			
+			// now make cache file
+			MatrixIO.doubleArrayToFile(griddedSeisCorr, new File(defaultGriddedCorrFilename));
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 
 	
 
@@ -5583,6 +5849,7 @@ System.exit(0);
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
+//		ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
 		
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -5612,12 +5879,36 @@ System.exit(0);
 				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
 				applyGR_Corr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
 		
+//		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats_012516"));
+
+		
+		// Sections bulge plot
+//		try {
+////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsCorr_012516"), "Test", true);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+
+		
+//		ETAS_Simulator.plotERF_RatesMap(erf, "OrigRatesMap");
+		
+		// this makes the file for adding aftershocks to gridded seis rates where needed
+//		long startTime = System.currentTimeMillis();
+////		etas_PrimEventSampler.getExpectedAfterShockRateInCubesFromSupraRates(10d, new ETAS_ParameterList(), 2.0, "ExpectedAfterShockRateInCubesFromSupraRatesAt7kmDepth");
+//		etas_PrimEventSampler.getExpectedAfterShockRateInGridCellsFromSupraRates(10d, new ETAS_ParameterList(), 2.0, "ExpectedAfterShockRateInCubesFromSupraRatesAt7kmDepth");
+//		long runtimeSec = (System.currentTimeMillis()-startTime)/1000;
+//		System.out.println("runtimeSec="+runtimeSec);
+		
+//		etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
+//		etas_PrimEventSampler.plotGR_CorrFactorsForGriddedSeis("GR_CorrFactorsForGriddedSeis");
+		
 		// Surprise valley subsection subseis rates
 //		etas_PrimEventSampler.writeTotSubSeisRateForSections(2446, 2461);
 		
-//		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
-//		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
-//		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
+		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
+		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
+		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
 
 //		etas_PrimEventSampler.writeRatesCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Rates_mojave", 6.35, false);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44,-118.34,1.), 0.29,"crossSectData_Bulge_mojave", false);
@@ -5632,17 +5923,6 @@ System.exit(0);
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
 
-//		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats"));
-
-		
-		// Sections bulge plot
-		try {
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSections_113015"), "Test", true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
 		
 //		// San Andreas (Mojave S), Subsection 4
 //		etas_PrimEventSampler.getCubesAndFractForFaultSection_BoatRamp(1841, 5.0);
@@ -5670,7 +5950,8 @@ System.exit(0);
 //		etas_PrimEventSampler.tempTestBulgeforCubesInSectPolygon(336);
 //		etas_PrimEventSampler.testTotalSubSeisOnFaultMFD();
 //		etas_PrimEventSampler.tempTestBulgeInCube();
-//		etas_PrimEventSampler.testSubSeisMFD_ForSect(2094);
+//		etas_PrimEventSampler.testSubSeisMFD_ForSect(2094);	// San Diego Trough south, Subsection 37
+//		etas_PrimEventSampler.testSubSeisMFD_ForSect(1880);
 
 
 		
@@ -6499,57 +6780,38 @@ System.exit(0);
 	 * @param dirName
 	 * @return
 	 */
-	public String plotOrigERF_RatesMap(String dirName) {
+	public String plotGR_CorrFactorsForGriddedSeis(String dirName) {
 		
 		GMT_MapGenerator mapGen = new GMT_MapGenerator();
+		CPTParameter cptParam = (CPTParameter )mapGen.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.UCERF3_RATIOS.getFileName());
+		
 		mapGen.setParameter(GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME, false);
 		mapGen.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
-		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,31.5);		// -R-125.4/-113.0/31.5/43.0
-		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,43.0);
-		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,-125.4);
-		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,-113.0);
+		mapGen.setParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME,origGriddedRegion.getMinGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME,origGriddedRegion.getMaxGridLat());
+		mapGen.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME,origGriddedRegion.getMinGridLon());
+		mapGen.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME,origGriddedRegion.getMaxGridLon());
+		mapGen.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, origGriddedRegion.getLatSpacing());	// assume lat and lon spacing are same
 		mapGen.setParameter(GMT_MapGenerator.LOG_PLOT_NAME,true);
 //		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA);
 		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME,GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-2.);
-		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,1.);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME,-2d);
+		mapGen.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME,2d);
 
+		double[] data = getGR_CorrFactorsForGriddedSeis();
+		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(origGriddedRegion, true);
+		if(data.length != xyzDataSet.size())
+			throw new RuntimeException("data.length != xyzDataSet.size()");
 
-		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
-		GriddedGeoDataSet xyzDataSet = new GriddedGeoDataSet(mapGriddedRegion, true);
+		// set values
+		for(int i=0; i<xyzDataSet.size();i++) 
+			xyzDataSet.set(i, data[i]);
 		
-		// initialize values to zero
-		for(int i=0; i<xyzDataSet.size();i++) xyzDataSet.set(i, 0);
-		
-		double duration = erf.getTimeSpan().getDuration();
-		CalcProgressBar progressBar = new CalcProgressBar("Looping random samples", "junk");
-		progressBar.showProgress(true);
-		int iSrc=0;
-		int numSrc = erf.getNumSources();
-		for(ProbEqkSource src : erf) {
-			iSrc += 1;
-			progressBar.updateProgress(iSrc, numSrc);
-			for(ProbEqkRupture rup : src) {
-				LocationList locList = rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
-				double ptRate = rup.getMeanAnnualRate(duration)/locList.size();
-				for(Location loc:locList) {
-					int locIndex = mapGriddedRegion.indexForLocation(loc);
-					if(locIndex>=0) {
-						double oldRate = xyzDataSet.get(locIndex);
-						xyzDataSet.set(locIndex, ptRate+oldRate);					
-					}
-				}
-			}
-		}
-		progressBar.showProgress(false);
-		
-		if(D) 
-			System.out.println("OrigERF_RatesMap: min="+xyzDataSet.getMinZ()+"; max="+xyzDataSet.getMaxZ());
-		
-		String metadata = "Map from calling plotOrigERF_RatesMap() method";
+		String metadata = "Map of getGR_CorrFactorsForGriddedSeis() values";
 		
 		try {
-				String url = mapGen.makeMapUsingServlet(xyzDataSet, "OrigERF_RatesMap", metadata, dirName);
+				String url = mapGen.makeMapUsingServlet(xyzDataSet, "GR_CorrValsForGriddedSeisMap", metadata, dirName);
 				metadata += GMT_MapGuiBean.getClickHereHTML(mapGen.getGMTFilesWebAddress());
 				ImageViewerWindow imgView = new ImageViewerWindow(url,metadata, true);		
 				
@@ -6566,9 +6828,13 @@ System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return "For OrigERF_RatesMap: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
+		return "For GR_CorrValsForGriddedSeisMap: "+mapGen.getGMTFilesWebAddress()+" (deleted at midnight)";
 	}
-
+	
+	
+	
+	
+	
 	/**
 	 * 
 	 * @param label - plot label

@@ -102,7 +102,7 @@ public class LaHabraProbCalc {
 			histQkList = fetchComcat(reg);
 		} else {
 			System.out.println("Loading UCERF3 file");
-			File file = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt");
+			File file = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/ofr2013-1165_EarthquakeCat.txt");
 			histQkList = UCERF3_CatalogParser.loadCatalog(file);
 		}
 		histQkList = histQkList.getRupsAboveMag(5d).getRupsInside(reg);

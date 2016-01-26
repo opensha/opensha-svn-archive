@@ -23,6 +23,7 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -32,6 +33,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractNthRupERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -40,6 +42,7 @@ import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupOrigTimeComparator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.CompoundSurface;
@@ -58,8 +61,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
+import scratch.UCERF3.analysis.FaultBasedMapGen;
+import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
-import scratch.UCERF3.data.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_DistanceDecayParam_q;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_MinDistanceParam_d;
@@ -70,6 +74,8 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_TemporalDecayParam_p;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
+import scratch.UCERF3.utils.U3_EqkCatalogStatewideCompleteness;
 import scratch.ned.ETAS_Tests.PrimaryAftershock;
 
 /**
@@ -496,6 +502,14 @@ public class ETAS_Utils {
 	}
 
 	
+	public double[] getRandomEventTimesTEMP(double k, double p, double magMain, double magMin, double c, double tMinDays, double tMaxDays) {
+		int numAft = 10000; // hard coded
+		double[] eventTimes = new double[numAft];
+		for(int i=0;i<numAft;i++)
+			eventTimes[i] = this.getRandomTimeOfEvent(c, p, tMinDays, tMaxDays);
+		return eventTimes;
+	}
+
 	
 	/**
 	 * This returns the expected number of primary aftershocks as a function of time using
@@ -717,6 +731,9 @@ public class ETAS_Utils {
 
 	}
 	
+	
+	
+	
 	/**
 	 * This lists the relative number of events in each generation expected from the given MFD
 	 * (relative to the number of primary events)
@@ -726,9 +743,9 @@ public class ETAS_Utils {
 	 * @param p
 	 * @param magMin
 	 * @param c
-	 * @param numDays - length of timespan following main shock
+	 * @param numGen
 	 */
-	public static String JUNK_wrong_listExpNumForEachGeneration(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays, int numGen) {
+	public static String listExpNumForEachGenerationInfTime(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, int numGen) {
 		
 		boolean debug = false;
 		
@@ -741,7 +758,7 @@ public class ETAS_Utils {
 		IncrementalMagFreqDist normMFD = mfd.deepClone();
 		normMFD.scale(1.0/mfd.getTotalIncrRate());
 
-		double expPrimary = getExpectedNumEvents(k, p, mainMag, magMin, c, 0.0, numDays);
+		double expPrimary = getExpectedNumEvents(k, p, mainMag, magMin, c, 0.0, 1e15);
 		numForGen[0] = expPrimary;
 		IncrementalMagFreqDist expPrimaryMFD = mfd.deepClone();
 		expPrimaryMFD.scale(expPrimary/mfd.getTotalIncrRate());
@@ -753,7 +770,7 @@ public class ETAS_Utils {
 		for(int i=1; i<numGen;i++) {	// loop over generations
 			double expNum = 0;
 			for(int m=startMagIndex; m<=endMagIndex;m++) {
-				double expNumAtMag = numForLastGen*normMFD.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
+				double expNumAtMag = numForLastGen*normMFD.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, 1e15);
 				expNum += expNumAtMag;
 			}
 			numForGen[i] = expNum;
@@ -825,53 +842,50 @@ public class ETAS_Utils {
 	}
 
 	
-	public static void tempCriticality(IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays) {
-		// normalize MFD to PDF between M 2.5 and max mag
-		int startMagIndex = mfd.getClosestXIndex(2.55);
-		int endMagIndex = mfd.getXIndex(mfd.getMaxMagWithNonZeroRate());
-		double sum=0;
-		for(int m=startMagIndex; m<=endMagIndex;m++) {
-			sum += mfd.getY(m);
-		}
-		mfd.scale(1.0/sum);
+	public static double getBranchingRatio(IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, double numDays) {
 
-		double criticality = 0;
+		int startMagIndex = mfd.getClosestXIndex(magMin+mfd.getDelta()/2.0);
+		int endMagIndex = mfd.getXIndex(mfd.getMaxMagWithNonZeroRate());
+		
+		double cumRate = mfd.getCumRate(startMagIndex);
+
+		double branchRatio = 0;
 		for(int m=startMagIndex; m<=endMagIndex;m++) {
-			criticality += mfd.getY(m)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
+			branchRatio += (mfd.getY(m)/cumRate)*getExpectedNumEvents(k, p, mfd.getX(m), magMin, c, 0.0, numDays);
 		}
 		
-		System.out.println("criticality = "+criticality);
+//		System.out.println("branchRatio = "+branchRatio);
+		return branchRatio;
 
 	}
 	
-	public static void writeTriggerStatsToFiles() {
+	public static void writeTriggerStatsToFiles(IncrementalMagFreqDist mfd) {
 		
 		ETAS_Utils etasUtils = new ETAS_Utils();
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
-		
-//		System.out.println("2.5\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 2.5, 2.5, etasParams.get_c(), 0d, 1e10));
-//		System.out.println("5.0\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 5.0, 2.5, etasParams.get_c(), 0d, 1e10));
-//		System.out.println("7.8\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 7.8, 2.5, etasParams.get_c(), 0d, 1e10));
-		
+		String Prefix = "";
+
 		// Felzer Params:
-		etasParams.set_c(0.095);
-		etasParams.set_p(1.34);
-		etasParams.set_k(0.008);
+//		etasParams.set_c(0.095);
+//		etasParams.set_p(1.34);
+//		etasParams.set_k(0.008);
+//		Prefix = "Felzer";
 
 //		System.out.println("2.5\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 2.5, 2.5, etasParams.get_c(), 0d, 1e10));
 //		System.out.println("5.0\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 5.0, 2.5, etasParams.get_c(), 0d, 1e10));
 //		System.out.println("7.8\t"+etasUtils.getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 7.8, 2.5, etasParams.get_c(), 0d, 1e10));
 //		System.exit(0);
 		
-		String Prefix = "Felzer";
 		
-		double numDays[] = {7.0,365.25, 365250.0};	// 1 week, 1 year, and 1000 years
-		String filenames[] = {Prefix+"ETAS_TriggerStats_1week.txt",Prefix+"ETAS_TriggerStats_1year.txt",Prefix+"ETAS_TriggerStats_1000year.txt"};
+		double numDays[] = {3.0, 7.0,365.25, 365.25*10, 365.25*100, 365.25*1000};	// 1 week, 1 year, and 1000 years
+		String filenames[] = {Prefix+"ETAS_TriggerStats_3days.txt",
+				Prefix+"ETAS_TriggerStats_1week.txt",
+				Prefix+"ETAS_TriggerStats_1year.txt",
+				Prefix+"ETAS_TriggerStats_10year.txt",
+				Prefix+"ETAS_TriggerStats_100year.txt",
+				Prefix+"ETAS_TriggerStats_1000year.txt"};
 		
-		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
-//		GraphWindow graph = new GraphWindow(grDist, "grDist"); 
-
 		
 		for(int i=0;i<numDays.length;i++) {
 			FileWriter fw;
@@ -882,7 +896,7 @@ public class ETAS_Utils {
 				for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5) {
 					int numRandomSamples = (int) Math.pow(10000.0, 1+(8-mainMag)/8);
 					System.out.println("Working on mag "+mainMag+"; numDays="+numDays[i]+"; "+numRandomSamples);
-					String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, grDist, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), numDays[i], 15, numRandomSamples);
+					String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), numDays[i], 15, numRandomSamples);
 //					System.out.println(line);
 					fw.write(line);
 				}
@@ -894,6 +908,33 @@ public class ETAS_Utils {
 		}
 	}
 	
+	
+	
+	public static void writeTriggerStatsToFilesInfTime(IncrementalMagFreqDist mfd) {
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		
+		
+		String filename = "ETAS_TriggerStats_InfTime.txt";
+		
+			FileWriter fw;
+			try {
+				fw = new FileWriter(new File(filename));
+				fw.write("mag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+				fw.write("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+				for(double mainMag=2.5;mainMag<8.1;mainMag+=0.5) {
+					System.out.println("Working on mag "+mainMag);
+					String line = listExpNumForEachGenerationInfTime(mainMag, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), 15);
+					System.out.println(line);
+					fw.write(line);
+				}
+				fw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
 	
 	
 	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
@@ -921,7 +962,7 @@ public class ETAS_Utils {
 	
 	
 	
-	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, IncrementalMagFreqDist yrCompleteForMagFunc, long forecastStartTime, 
+	public static EvenlyDiscretizedFunc getSpontanousEventRateFunction(IncrementalMagFreqDist mfd, EvenlyDiscretizedFunc yrCompleteForMagFunc, long forecastStartTime, 
 			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
 		
 		double deltaTimeMillis = (double)(forecastEndTime-forecastStartTime)/(double)numTimeSamples;
@@ -945,30 +986,6 @@ public class ETAS_Utils {
 
 	
 	
-	public static EvenlyDiscretizedFunc getSpontanousEventRateFunctionOLD(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
-			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
-		
-		EvenlyDiscretizedFunc rateVsEpochTimeFunc = new EvenlyDiscretizedFunc((double)forecastStartTime,(double)forecastEndTime,numTimeSamples);
-		double totalRatePerYear = mfd.calcSumOfY_Vals();
-		double meanAftRate=0;
-		for(int i=0;i<rateVsEpochTimeFunc.size();i++) {
-			// compute time over which we have observations
-			double histDurationDays = (rateVsEpochTimeFunc.getX(i)-(double)histCatStartTime)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
-			// loop over magnitudes
-			double rate=0;
-			for(int m=0;m<mfd.size();m++) {
-				if(mfd.getY(m)>1e-10) {	// skip low rate bins
-					double mag = mfd.getX(m);
-					rate += getExpectedNumEvents(k, p, mag, magMin, c, 0.0, histDurationDays)*mfd.getY(m);
-				}
-			}
-			meanAftRate+=rate;
-			rateVsEpochTimeFunc.set(i,(totalRatePerYear-rate));
-		}
-		meanAftRate /= (double)numTimeSamples;
-//System.out.println("n="+maenAftRate/totalRatePerYear);
-		return rateVsEpochTimeFunc;
-	}
 	
 	/**
 	 * 
@@ -987,6 +1004,8 @@ public class ETAS_Utils {
 		for(int i=0;i<rateFunc.size();i++) {
 			meanRatePerYear+= rateFunc.getY(i)/rateFunc.size();	// fact that it should be only half the first and last bin doesn't seem to matter
 		}
+		if(meanRatePerYear<0.0)
+			throw new RuntimeException("meanRatePerYear is negative: "+meanRatePerYear+"\nrateFunc:"+rateFunc);
 		
 		double numYears = (rateFunc.getMaxX()-rateFunc.getMinX()+rateFunc.getDelta())/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
 		int numEvents = getPoissonRandomNumber(meanRatePerYear*numYears);
@@ -1007,7 +1026,7 @@ public class ETAS_Utils {
 	 * @param rateFunc - x-axisis epoch time (doubles) and the y-axis is the yearly rate at that time
 	 * @return
 	 */
-	public long[] getRandomSpontanousEventTimes(IncrementalMagFreqDist mfd, IncrementalMagFreqDist yrCompleteForMagFunc, long forecastStartTime, 
+	public long[] getRandomSpontanousEventTimes(IncrementalMagFreqDist mfd, EvenlyDiscretizedFunc yrCompleteForMagFunc, long forecastStartTime, 
 			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
 		
 		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunction(mfd, yrCompleteForMagFunc, forecastStartTime, 
@@ -1033,55 +1052,41 @@ public class ETAS_Utils {
 	}
 
 	
-	public long[] getRandomSpontanousEventTimesOLD(IncrementalMagFreqDist mfd, long histCatStartTime, long forecastStartTime, 
-			long forecastEndTime, int numTimeSamples, double k, double p, double magMin, double c) {
-		
-		EvenlyDiscretizedFunc rateFunc = getSpontanousEventRateFunctionOLD(mfd, histCatStartTime, forecastStartTime, 
-				forecastEndTime, numTimeSamples, k, p, magMin, c);
-		
-		double meanRatePerYear = 0;
-		ArbitrarilyDiscretizedFunc inverseFunc = new ArbitrarilyDiscretizedFunc();
-		for(int i=0;i<rateFunc.size();i++) {
-			inverseFunc.set(rateFunc.getY(i), rateFunc.getX(i));
-			meanRatePerYear+= rateFunc.getY(i)/rateFunc.size();	// fact that it should be only half the first and last bin doesn't seem to matter
-		}
-		
-		GraphWindow rateFuncGraph = new GraphWindow(rateFunc, "rateFunc"); 
-		GraphWindow inverseFuncGraph = new GraphWindow(inverseFunc, "inverseFunc"); 
-
-		
-		double numYears = (rateFunc.getMaxX()-rateFunc.getMinX())/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
-// System.out.print("\texpNum="+(meanRatePerYear*numYears));
-		int numEvents = getPoissonRandomNumber(meanRatePerYear*numYears);
-		long[] eventTimesMillis = new long[numEvents];
-		double xMin = inverseFunc.getMinX();
-		double xMax = inverseFunc.getMaxX();
-		for(int i=0;i<numEvents;i++) {
-			double randX = xMin + getRandomDouble()*(xMax-xMin);
-			eventTimesMillis[i] = (long)inverseFunc.getInterpolatedY(randX);
-		}
-		
-		return eventTimesMillis;		
-	}
-
-	
 	public static void main(String[] args) {
+		
 		
 //		plotExpectedNumPrimaryVsTime();
 		
 //		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalog(2012), "CatalogVsTime");
 //		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012), "FilteredCatalogVsTime");
 //		
-//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
-//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-//		erf.updateForecast();
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		
+		
+//		// plot fraction subseis triggered by supra
+		try {
+			plotFractionSubseisTriggeredBySupra(new File(GMT_CA_Maps.GMT_DIR, "FractionSubseisTriggeredBySupra"), "Test", true, erf, new ETAS_ParameterList());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+
+//		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
+//		GraphWindow graph = new GraphWindow(grDist, "grDist"); 
+
+
+		
 //		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 //		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
 //				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
-		runMagTimeCatalogSimulation();
+//		runMagTimeCatalogSimulation();
 		
-//		writeTriggerStatsToFiles();
+//		writeTriggerStatsToFiles(mfd);
+//		writeTriggerStatsToFilesInfTime(mfd);
+
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
 //		System.out.println(func);
@@ -1434,6 +1439,13 @@ public class ETAS_Utils {
 			double thresh = 0.9;
 			minMagSupra=subSeisMFD.getMaxMagWithNonZeroRate();
 			int indexForMinMagSupra = subSeisMFD.getXIndex(minMagSupra);
+//			if(indexForMinMagSupra==-1) {
+//				System.out.println("indexForMinMagSupra");
+//				System.out.println("minMag="+minMag);
+//				System.out.println("minMagSupra="+minMagSupra);
+//				System.out.println("supraSeisMFD:\n"+supraSeisMFD);
+//				System.out.println("subSeisMFD:\n"+subSeisMFD);
+//			}
 			double testVal = subSeisMFD.getY(indexForMinMagSupra)/(subSeisMFD.getY(minMag)*Math.pow(10, minMag-minMagSupra));
 			while(testVal<thresh && indexForMinMagSupra>0) {
 				indexForMinMagSupra-=1;
@@ -1595,6 +1607,114 @@ public class ETAS_Utils {
 
 		return result;
 	}
+	
+	
+	
+	
+	/**
+	 * This returns the fraction of subseismogenic ruptures that are triggered by supraseismogenic ruptures
+	 * for each subsection.  This depends on the time frame over which aftershocks are allowed to occure, 
+	 * currently set as 10 years.  The input ERF should be poissonian, which is not checked.  This only includes
+	 * primary aftershocks and so it is an under estimate.
+	 * 
+	 * The point of this method is to show that supraseismogenic ruptures of strongly characteristic sections
+	 * can produced more direct aftershocks than there are events associated with the polygon in the long-term model
+	 * 
+	 * @param supraSeisMFD
+	 * @param subSeisMFD
+	 * @return
+	 */
+	public static double[] getFractSubseisTriggeredBySupra(FaultSystemSolutionERF fssERF, ETAS_ParameterList etasParams) {
+		
+		double maxDays = 365.25*10.0;
+		
+		List<? extends IncrementalMagFreqDist> subSeisMFD_list = fssERF.getSolution().getSubSeismoOnFaultMFD_List();
+		double duration = fssERF.getTimeSpan().getDuration();
+		
+		double[] sectionArea = new double[subSeisMFD_list.size()];
+		for(int s=0;s<subSeisMFD_list.size();s++) {
+			FaultSectionPrefData sectData = fssERF.getSolution().getRupSet().getFaultSectionData(s);
+			sectionArea[s]= sectData.getTraceLength()*sectData.getReducedDownDipWidth();
+		}
+		
+		double[] resultArray = new double[subSeisMFD_list.size()];
+		double[] primaryFromSupraArray = new double[subSeisMFD_list.size()];
+		double[] sectPartArray = new double[subSeisMFD_list.size()];
+		double[] sectNuclArray = new double[subSeisMFD_list.size()];
+		for(int s=0;s<fssERF.getNumFaultSystemSources();s++) {
+			int fssRupIndex = fssERF.getFltSysRupIndexForSource(s);
+			List<Integer>  sectionList = fssERF.getSolution().getRupSet().getSectionsIndicesForRup(fssRupIndex);
+			double rupArea=0;
+			for(int sectID:sectionList)
+				rupArea += sectionArea[sectID];
+			for(ProbEqkRupture rup:fssERF.getSource(s)) {
+				double rate = rup.getMeanAnnualRate(duration);
+				double numAft = getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), rup.getMag(), 2.5, etasParams.get_c(), 0.0, maxDays);
+				for(int sectID:sectionList) {
+					primaryFromSupraArray[sectID] += rate*numAft*sectionArea[sectID]/rupArea;
+					sectPartArray[sectID] += rate;
+					sectNuclArray[sectID] += rate*sectionArea[sectID]/rupArea;
+				}
+			}
+		}
+		
+//int tempSect=1850;
+//System.out.println(fssERF.getSolution().getRupSet().getFaultSectionData(tempSect).getName());
+//System.out.println("SectPartRate="+sectPartArray[tempSect]);
+//System.out.println("SectTrigFromSupraRate="+resultArray[tempSect]);
+//System.out.println("SectSubSeisNuclRate="+subSeisMFD_list.get(tempSect).getCumRate(2.55));
+//System.out.println("Exp Num For M 6.3="+getExpectedNumEvents(etasParams.get_k(), etasParams.get_p(), 6.3, 2.5, etasParams.get_c(), 0.0, maxDays));
+		
+		SummedMagFreqDist[] longTermSupraSeisMFD_OnSectArray = FaultSysSolutionERF_Calc.calcNucleationMFDForAllSects(fssERF, 2.55, 8.95, 65);
+
+
+System.out.println("sectID\tratePrimaryFromSupraArray\tfractSubseisFromSupra\tsectPartArray\tsectNuclArray\tpartOverNuclRatio\tname");
+
+		for(int sectID=0;sectID<resultArray.length;sectID++) {
+			if(subSeisMFD_list.get(sectID) != null)
+				resultArray[sectID] = primaryFromSupraArray[sectID]/subSeisMFD_list.get(sectID).getCumRate(2.55);
+			else
+				resultArray[sectID] =1;
+			
+			double minSupraMag = getMinMagSupra(longTermSupraSeisMFD_OnSectArray[sectID], subSeisMFD_list.get(sectID));
+			double impliedCharFactor = sectNuclArray[sectID]/(primaryFromSupraArray[sectID]*Math.pow(10, 2.5-minSupraMag));
+			
+System.out.println(sectID+"\t"+primaryFromSupraArray[sectID]+"\t"+resultArray[sectID]+"\t"+sectPartArray[sectID]+"\t"+sectNuclArray[sectID]+"\t"+
+				sectPartArray[sectID]/sectNuclArray[sectID]+"\t"+impliedCharFactor+"\t"+fssERF.getSolution().getRupSet().getFaultSectionData(sectID).getName());
+		}
+
+		return resultArray;
+	}
+
+	
+	/**
+	 * 
+	 */
+	public static void plotFractionSubseisTriggeredBySupra(File resultsDir, String nameSuffix, boolean display, FaultSystemSolutionERF fssERF, ETAS_ParameterList etasParams) 
+			throws GMT_MapException, RuntimeException, IOException {
+
+		if(!resultsDir.exists())
+			resultsDir.mkdir();
+		
+		List<FaultSectionPrefData> faults = fssERF.getSolution().getRupSet().getFaultSectionDataList();
+		double[] values = ETAS_Utils.getFractSubseisTriggeredBySupra(fssERF, etasParams);
+		for(int i=0;i<values.length;i++)
+			values[i]=Math.log10(values[i]);
+//		
+//		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FractionSubseisTriggeredBySupra.csv"));
+//		fileWriter.write("SectID,FractionSubseisTriggeredBySupra,SectName\n");
+
+		String name = "FractionSubseisTriggeredBySupra_"+nameSuffix;
+		String title = "Log10(FractionSubseisTriggeredBySupra)";
+		CPT cpt= FaultBasedMapGen.getLogRatioCPT().rescale(-2, 2);
+		
+		FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), values, fssERF.getGridSourceProvider().getGriddedRegion(), resultsDir, name, display, false, title);
+		
+	}
+
+	
+
+	
 	
 	
 	public static double getScalingFactorToImposeGR_MoRates(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, boolean debug) {
@@ -1826,12 +1946,40 @@ public class ETAS_Utils {
 //		etasParams.setFractSpont(1.0-0.642);
 
 		
-		String simulationName = "MagTimeCatalogSimulation_JeanneParams_30yrs_5000_FullHistCat_U3MFD_correctSpont";
+		String simulationName = "MagTimeCatalogSimulation_1000yrs_100_NoHistCat_U3MFD";
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
 		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
-
+		
+		SummedMagFreqDist mfd_lowCF = new SummedMagFreqDist(2.55, 8.45, 60);
+		SummedMagFreqDist mfd_highCF = new SummedMagFreqDist(2.55, 8.45, 60);
+		double scaleFactor = 0.35;
+		double magThresh = 6.3;
+		for(int i=0;i<mfd.size();i++) {
+			if(mfd.getX(i)<magThresh) {
+				mfd_lowCF.add(i, mfd.getY(i)*(1.0-scaleFactor));
+				mfd_highCF.add(i, mfd.getY(i)*(scaleFactor));
+			}
+			else {
+				mfd_lowCF.add(i, mfd.getY(i)*(scaleFactor));
+				mfd_highCF.add(i, mfd.getY(i)*(1.0-scaleFactor));				
+			}
+		}
+		
+		// make total truly off-fault MFD
+		SummedMagFreqDist trulyOffMFD = new SummedMagFreqDist(2.55, 8.45, 60);
+		GridSourceProvider gridProvider = erf.getGridSourceProvider();
+		for(int n=0;n<gridProvider.getGriddedRegion().getNodeCount();n++) {
+			ProbEqkSource src = erf.getGridSourceProvider().getSourceTrulyOffOnly(n, 1.0, false, BackgroundRupType.POINT);
+			if(src != null) {
+				for(ProbEqkRupture rup : src) {
+					trulyOffMFD.add(rup.getMag(), rup.getMeanAnnualRate(1.0));
+				}			
+			}
+		}
+		System.out.println(trulyOffMFD);
+		
 //		String simulationName = "MagTimeCatalogSimulation_JeanneParams_18yrs_5000_NoHistCat_correctSpont";
 ////		String simulationName = "MagTimeCatalogSimulation_FelzerAltParams_18yrs_1000_HistCat";
 //		double mMin = 2.55;
@@ -1842,8 +1990,16 @@ public class ETAS_Utils {
 //		mfd.scaleToCumRate(5.05, cumRateAtM5);
 				
 		double startTimeYear=2012;
-		double durationYears=30;
-		double numYearsBinWidth=1.0;
+		double durationYears=1000;
+		double numYearsBinWidth=25.0;
+		
+		System.out.println("mfd BR = "+getBranchingRatio(mfd, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c(), 365.25*durationYears));
+		System.out.println("mfd_lowCF BR = "+getBranchingRatio(mfd_lowCF, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c(), 365.25*durationYears));
+		System.out.println("mfd_highCF BR = "+getBranchingRatio(mfd_highCF, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c(), 365.25*durationYears));
+		System.out.println("trulyOffMFD BR = "+getBranchingRatio(trulyOffMFD, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c(), 365.25*durationYears));
+//		System.exit(2);
+
+
 		
 //		
 //		long forecastStartTime = (long) ((startTimeYear-1970d)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
@@ -1892,15 +2048,29 @@ public class ETAS_Utils {
 		
 		
 		
-		int numCatalogs = 5000;
+		int numCatalogs = 100;
 		
-//		ObsEqkRupList histCat = null;
+		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
-		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear);
+//		ObsEqkRupList histCat = ETAS_Simulator.getHistCatalog(startTimeYear, erf.getSolution().getRupSet());
 		
 		try {
-			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, 
-					durationYears, numCatalogs, numYearsBinWidth);
+//			magTimeCatalogSimulation(new File(simulationName), mfd, histCat, simulationName, etasParams, startTimeYear, 
+//					durationYears, numCatalogs, numYearsBinWidth, mfd);
+			
+//			mfd.scaleToCumRate(2.55, mfd_lowCF.getCumRate(2.55));;
+//			magTimeCatalogSimulation(new File(simulationName+"_lowCF"), mfd_lowCF, histCat, simulationName, etasParams, startTimeYear, 
+//					durationYears, numCatalogs, numYearsBinWidth, mfd);
+			
+//			mfd.scaleToCumRate(2.55, mfd_highCF.getCumRate(2.55));;
+//			magTimeCatalogSimulation(new File(simulationName+"_highCF"), mfd_highCF, histCat, simulationName, etasParams, startTimeYear, 
+//					durationYears, numCatalogs, numYearsBinWidth, mfd);
+			
+			mfd.scaleToCumRate(2.55, trulyOffMFD.getCumRate(2.55));;
+			magTimeCatalogSimulation(new File(simulationName+"_trulyOffMFD"), trulyOffMFD, histCat, simulationName, etasParams, startTimeYear, 
+					durationYears, numCatalogs, numYearsBinWidth, mfd);
+			
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1913,7 +2083,7 @@ public class ETAS_Utils {
 	
 	
 	public static void magTimeCatalogSimulation(File resultsDir, IncrementalMagFreqDist mfd, List<? extends ObsEqkRupture> histQkList, String simulationName, 
-			ETAS_ParameterList etasParams, double startYear, double numYears, int numCatalogs, double binWidthYears)
+			ETAS_ParameterList etasParams, double startYear, double numYears, int numCatalogs, double binWidthYears,IncrementalMagFreqDist mfdForSpontEvents)
 					throws IOException {
 		
 		boolean D = false;
@@ -2065,10 +2235,11 @@ public class ETAS_Utils {
 			long histCatStartTime = simStartTimeMillis;
 			long[] spontEventTimes;
 			if(histQkList==null)
-				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
+				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfdForSpontEvents, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
 						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 			else
-				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(mfd, new U3_EqkCatalogStatewideCompleteness(), simStartTimeMillis, 
+				spontEventTimes = etasUtils.getRandomSpontanousEventTimes(
+						mfdForSpontEvents, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
 						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 
 			for(int r=0;r<spontEventTimes.length;r++) {
@@ -2091,8 +2262,21 @@ public class ETAS_Utils {
 			int numSimulatedEvents = 0;
 
 			info_fr.flush();	// this writes the above out now in case of crash
+			
+			
+			CalcProgressBar progressBar2=null;
+			try {
+				progressBar2 = new CalcProgressBar("Num events to process ", "junk");
+				progressBar2.showProgress(true);
+			} catch (Throwable t) {
+				// headless, don't show it
+				progressBar2 = null;
+			}
+
 
 			while(eventsToProcess.size()>0) {
+				
+				progressBar2.updateProgress(simulatedRupsQueue.size(), simulatedRupsQueue.size()+eventsToProcess.size());
 
 				ETAS_EqkRupture rup = eventsToProcess.poll();	//Retrieves and removes the head of this queue, or returns null if this queue is empty.
 
@@ -2161,6 +2345,8 @@ public class ETAS_Utils {
 				ETAS_SimAnalysisTools.plotRateVsLogTimeForPrimaryAshocks(simulationName, new File(resultsDir,"logRateDecayPDF_ForAllPrimaryEvents.pdf").getAbsolutePath(), simulatedRupsQueue,
 						etasParams.get_k(), etasParams.get_p(), etasParams.get_c());
 //			}
+			
+			if (progressBar2 != null) progressBar2.showProgress(false);
 
 		}
 		

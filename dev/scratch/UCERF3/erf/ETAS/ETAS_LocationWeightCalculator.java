@@ -457,7 +457,7 @@ public class ETAS_LocationWeightCalculator {
 	public Location getRandomLoc(double parDepth) {
 		if(locationArray == null)
 			initRandomLocData();
-		int randInt = randLocSampler[getParDepthIndex(parDepth)].getRandomInt();
+		int randInt = randLocSampler[getParDepthIndex(parDepth)].getRandomInt(etas_utils.getRandomDouble());
 		return locationArray[randInt];
 	}
 		

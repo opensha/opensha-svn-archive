@@ -33,6 +33,7 @@ import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.text.FlowView;
 import javax.swing.event.HyperlinkListener;
 
 import org.opensha.commons.util.ApplicationVersion;
@@ -64,6 +65,8 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 	private JButton technicalButton = new JButton("View Techical Details");
 	private JTextField emailField = new JTextField("", 100);
 	
+	private boolean canIgnore = false;
+	
 	// this is a list of known bugs
 	private static ArrayList<KnownBugDetector> knownBugDetectors;
 	
@@ -76,37 +79,41 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 				" decimal commas. For example, to specify the longitude and latitude" +
 				" of downtown Los Angeles, CA, USA, here is the correct number representation:" +
 				"<br><br>Latitude: 34.053 Longitude: -118.243" +
-				"<br><br>If you still think that this is a bug, you may submit a report by clicking below."));
+				"<br><br>If you still think that this is a bug, you may submit a report by clicking below.", false));
 		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.rmi.ConnectException.class,
 				"<b>This is most likely a firewall issue!</b> Either your computer cannot connect" +
 				" to our server, or our server is temporarily down. Make sure that you have an" +
 				" internet connection and that your firewall allows connections to ports 40000-40500" +
 				" on opensha.usc.edu. If you are still having problems, try back later, as the server" +
-				" might just be down."));
+				" might just be down.", false));
 		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.net.ConnectException.class,
 				"<b>This is most likely a firewall issue!</b> Either your computer cannot connect" +
 				" to our server, or our server is temporarily down. Make sure that you have an " +
 				"internet connection and that your firewall allows connections to port 8080 on" +
 				" opensha.usc.edu. If you are still having problems, try back later, as the server" +
-				" might just be down."));
+				" might just be down.", false));
 		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.lang.IllegalStateException.class,
 				"Buffers have not been created",
 				"<b>This is a known Java bug and not related to OpenSHA.</b> It applies to versions" +
 				" of Java above 6 update 18 on Windows when changing display resolutions or running" +
 				" a full screen media player.<br>For more information on this bug, <a href=" +
-				"\"http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6933331\">Click Here</a>"));
+				"\"http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6933331\">Click Here</a>", false));
 		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.lang.IllegalArgumentException.class,
 				"Value \\(-?\\d+\\.?\\d*\\) is out of range.",
 				"<b>This problem might be due to an incorrectly formatted Longitude value!</b>" +
 				" Currently OpenSHA only supports longitude values in the range (-180,180). If" +
-				" this isn't the problem, please submit a bug report below.")
+				" this isn't the problem, please submit a bug report below.", false)
 				.setMessageAsRegex());
 		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(java.lang.OutOfMemoryError.class,
 				"<b>You ran out of memory!</b>" +
 				" Java requires that you specify the maximum amount of memory needed before running" +
 				" an application. If this limit is too high, however, the application won't start. If"+
 				" you are running via web start from our website, you will need to download the jar files"+
-				" and run manually. For example, to run with 4GB of memory: java -Xmx4G -jar [jar-file-name]"));
+				" and run manually. For example, to run with 4GB of memory: java -Xmx4G -jar [jar-file-name]", false));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(NullPointerException.class, FlowView.class, "layoutRow",
+				null, "<b>This is an inconsequential Java Bug<b>"+
+				" No further action is required as this in an internal Java Swing bug that won't affect"+
+				" the operation of this application. No bug report is necessary.", true));
 	}
 	
 	private boolean fatal;
@@ -200,6 +207,11 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 				return knownBug;
 		}
 		return null;
+	}
+	
+	public boolean canIgnoreKnownBug() {
+		KnownBugDetector known = getApplicableKnownBug();
+		return known != null && known.canIgnore();
 	}
 	
 	public JPanel getCenterPanel() {

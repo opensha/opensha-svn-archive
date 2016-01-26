@@ -40,7 +40,12 @@ public class RakeParam extends DoubleParameter {
 	 * This also leaves the parameter as non editable.
 	 */
 	public RakeParam(double defaultRake) {
+		this(defaultRake, false);
+	}
+	
+	public RakeParam(Double defaultRake, boolean nullAllowed) {
 		super(NAME, new DoubleConstraint(MIN, MAX), UNITS);
+		getConstraint().setNullAllowed(nullAllowed);
 		getConstraint().setNonEditable();
 	    setInfo(INFO);
 	    setDefaultValue(defaultRake);

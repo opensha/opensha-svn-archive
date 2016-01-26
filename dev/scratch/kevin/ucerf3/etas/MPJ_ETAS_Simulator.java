@@ -37,9 +37,11 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.faultSurface.PointSurface;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
@@ -51,10 +53,13 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelParam;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
+import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.U3_EqkCatalogStatewideCompleteness;
+import scratch.UCERF3.utils.finiteFaultMap.FiniteFaultMappingData;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -81,6 +86,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private List<float[]> fractionSrcAtPointList;
 	private List<int[]> srcAtPointList;
 	private int[] isCubeInsideFaultPolygon;
+	
+	private double[] gridSeisCorrections;
 	
 	private String simulationName;
 	
@@ -153,14 +160,26 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		
 		fssScenarioRupID = -1;
 		
+		FaultSystemRupSet rupSet = sols[0].getRupSet();
+		
 		histQkList = Lists.newArrayList();
 		if (cmd.hasOption("trigger-catalog")) {
 			// load in historical catalog
 			File catFile = new File(cmd.getOptionValue("trigger-catalog"));
 			Preconditions.checkArgument(catFile.exists(), "Catalog file doesn't exist: "+catFile.getAbsolutePath());
 			ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(catFile);
+			if (cmd.hasOption("rupture-surfaces")) {
+				// add rupture surfaces
+				FaultModels fm = getFaultModel(sols[0]);
+				File surfsFile = new File(cmd.getOptionValue("rupture-surfaces"));
+				Preconditions.checkArgument(surfsFile.exists(), "Rupture surfaces file doesn't exist: "+surfsFile.getAbsolutePath());
+				FiniteFaultMappingData.loadRuptureSurfaces(surfsFile, loadedRups, fm, rupSet);
+			}
+			// filter for historical completeness
+			loadedRups = U3_EqkCatalogStatewideCompleteness.load().getFilteredCatalog(loadedRups);
 			if (rank == 0)
 				debug("Loaded "+loadedRups.size()+" rups from catalog");
+			int numWithSurfaces = 0;
 			for (ObsEqkRupture rup : loadedRups) {
 				if (rup.getOriginTime() > ot)
 					// skip all ruptures that occur after simulation start
@@ -168,9 +187,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
 				etasRup.setID(Integer.parseInt(rup.getEventId()));
 				histQkList.add(etasRup);
+				if (rup.getRuptureSurface() != null && !(rup.getRuptureSurface() instanceof PointSurface))
+					numWithSurfaces++;
 			}
 			if (rank == 0)
-				debug("Seeding sim with "+histQkList.size()+" catalog ruptures");
+				debug("Seeding sim with "+histQkList.size()+" catalog ruptures ("+numWithSurfaces+" with surfaces)");
 		}
 		
 		Location triggerHypo = null;
@@ -191,8 +212,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 //			int fssRupID=197792;
 			fssScenarioRupID = Integer.parseInt(cmd.getOptionValue("trigger-rupture-id"));
 //			int srcID = erf.getSrcIndexForFltSysRup(fssRupID);
-			
-			FaultSystemRupSet rupSet = sols[0].getRupSet();
 
 //			ProbEqkRupture rupFromERF = erf.getSource(srcID).getRupture(0);
 //			mainshockRup.setAveRake(rupFromERF.getAveRake());
@@ -249,6 +268,30 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		}
 		
 		metadataOnly = cmd.hasOption("metadata-only");
+		
+		if (cmd.hasOption("grid-seis-correction")) {
+			File cacheFile = new File(inputDir, "griddedSeisCorrectionCache");
+			if (rank == 0)
+				debug("Loading gridded seismicity correction cache file from "+cacheFile.getAbsolutePath());
+			gridSeisCorrections = MatrixIO.doubleArrayFromFile(cacheFile);
+		}
+	}
+	
+	/**
+	 * A little kludgy, but determines FaultModel by rupture count
+	 * @param sol
+	 * @return
+	 */
+	private static FaultModels getFaultModel(FaultSystemSolution sol) {
+		int numRups = sol.getRupSet().getNumRuptures();
+		if (sol instanceof InversionFaultSystemSolution)
+			return ((InversionFaultSystemSolution)sol).getLogicTreeBranch().getValue(FaultModels.class);
+		else if (numRups == 253706)
+			return FaultModels.FM3_1;
+		else if (numRups == 305709)
+			return FaultModels.FM3_2;
+		else
+			throw new IllegalStateException("Don't know Fault Model for solution with "+numRups+" ruptures");
 	}
 
 	@Override
@@ -447,6 +490,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 				debug("Instantiationg ERF");
 				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration, startYear);
+				
+				if (gridSeisCorrections != null)
+					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false, gridSeisCorrections);
 
 				if (fssScenarioRupID >= 0) {
 					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
@@ -473,11 +519,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				params.setImposeGR(imposeGR);
 				params.setU3ETAS_ProbModel(probModel);
 				params.setApplyLongTermRates(applyLongTermRates);
-				
-				// Felzer params from Hardebeck et al. (2008) Appendix
-				params.set_c(0.095);
-				params.set_p(1.34);
-				params.set_k(0.008);
 				
 				if (rank == 0) {
 					synchronized (MPJ_ETAS_Simulator.class) {
@@ -688,6 +729,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		triggerCat.setRequired(false);
 		ops.addOption(triggerCat);
 		
+		Option rupSurfaces = new Option("rs", "rupture-surfaces", true, "Trigger catalog rupture surfaces");
+		triggerCat.setRequired(false);
+		ops.addOption(rupSurfaces);
+		
 		Option startYear = new Option("y", "start-year", true, "Start year for simulation (Default: "+START_YEAR_DEFAULT+")");
 		startYear.setRequired(false);
 		ops.addOption(startYear);
@@ -740,6 +785,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option metadataOnly = new Option("md", "metadata-only", false, "Write XML metadata file and exit.");
 		metadataOnly.setRequired(false);
 		ops.addOption(metadataOnly);
+		
+		Option gridSeisCorrectRates = new Option("gscorr", "grid-seis-correction", false, "Apply gridded seismicity correction"
+				+ " using file in cache directory");
+		gridSeisCorrectRates.setRequired(false);
+		ops.addOption(gridSeisCorrectRates);
 		
 		return ops;
 	}

@@ -48,6 +48,8 @@ import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
@@ -55,6 +57,7 @@ import scratch.kevin.simulators.SynchIdens;
 import scratch.kevin.simulators.SynchIdens.SynchFaults;
 import scratch.kevin.simulators.momRateVariation.SimulatorMomRateVarCalc;
 import scratch.kevin.simulators.momRateVariation.UCERF3ComparisonAnalysis;
+import scratch.kevin.simulators.momRateVariation.UCERF3_ETASComparisons;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -823,7 +826,8 @@ public class RecurrencePlotGen {
 		
 		File[] etasCatalogs = {
 				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
+//						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
+						+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin")
 		};
 		
 		
@@ -835,9 +839,9 @@ public class RecurrencePlotGen {
 		double distSpacing = 10d;
 		boolean normalize = true;
 		
-		boolean plotRecurrence = false;
+		boolean plotRecurrence = true;
 		boolean doMomRateComparison = false;
-		boolean doCalcMetrics = true;
+		boolean doCalcMetrics = false;
 		boolean plotSpecialPosterFigs = false;
 		EvenlyDiscretizedFunc threshFuncXVals = new EvenlyDiscretizedFunc(0.1, 10, 0.1);
 		
@@ -898,11 +902,12 @@ public class RecurrencePlotGen {
 			for (int i=0; i<totNumUCERF3; i++) {
 				if (i >= ucerf3Comparisons.length) {
 					// etas
-//					File catFile = etasCatalogs[i-ucerf3Comparisons.length];
-//					List<List<EQSIM_Event>> myCatalogs = UCERF3ComparisonAnalysis.loadUCERF3Catalogs(
-//							ucerf3Dir, ucerf3Sol, null, ucerf3Elems, ucerf3StartYear);
-//					
-//					ucerf3Catalogs.add(myCatalogs);
+					File catFile = etasCatalogs[i-ucerf3Comparisons.length];
+					List<List<ETAS_EqkRupture>> etasCats = ETAS_CatalogIO.loadCatalogsBinary(catFile, 6d);
+					List<List<EQSIM_Event>> myCatalogs = UCERF3_ETASComparisons.loadUCERF3EtasCatalogs(
+							etasCats, ucerf3Sol, null, ucerf3Elems);
+					
+					ucerf3Catalogs.add(myCatalogs);
 				} else if (ucerf3Comparisons[i] == null) {
 					// poisson
 					List<List<EQSIM_Event>> myCatalogs = Lists.newArrayList();
@@ -1080,17 +1085,27 @@ public class RecurrencePlotGen {
 				for (int i=0; i<ucerf3Catalogs.size(); i++) {
 					List<List<EQSIM_Event>> catalogs = ucerf3Catalogs.get(i);
 					
-					MagDependentAperiodicityOptions cov = ucerf3Comparisons[i];
+					MagDependentAperiodicityOptions cov;
+					if (i < ucerf3Comparisons.length)
+						cov = ucerf3Comparisons[i];
+					else
+						cov = null;
 					String name;
 					if (cov == null)
-						name = "UCERF3 Poisson";
+						if (i >= ucerf3Comparisons.length)
+							name = "UCERF3 ETAS";
+						else
+							name = "UCERF3 Poisson";
 					else
 						name = "UCERF3 "+cov.name().replaceAll("_", " ")
 							.replaceAll("VALUES", "COV");
 					
 					File subDir;
 					if (cov == null)
-						subDir = new File(outputDir, "ucerf3_poisson");
+						if (i >= ucerf3Comparisons.length)
+							subDir = new File(outputDir, "ucerf3_etas");
+						else
+							subDir = new File(outputDir, "ucerf3_poisson");
 					else
 						subDir = new File(outputDir, "ucerf3_"+cov.name());
 					Preconditions.checkState(subDir.exists() || subDir.mkdir());
@@ -1103,7 +1118,7 @@ public class RecurrencePlotGen {
 					List<EQSIM_Event> preEvents = null;
 					int skipStates = 0;
 					
-					if (cov != null) {
+					if (cov != null || i>= ucerf3Comparisons.length) {
 						preEvents = UCERF3ComparisonAnalysis.getFakePreEvents(
 								ucerf3Sol.getRupSet(), ucerf3Idens, ucerf3Elems, ucerf3StartYear);
 						double oiBefore = preEvents.get(preEvents.size()-1).getTimeInYears();
@@ -1191,7 +1206,11 @@ public class RecurrencePlotGen {
 						catalogPaths.add(fullPath);
 						catalogNames.add(name+" Catalog "+j);
 						
-						if (j == 0 && ucerf3ForComboSet.contains(cov)) {
+						// == here includes the first ETAS catalog if present 
+						if (j == 0 &&
+								(i < ucerf3Comparisons.length && ucerf3ForComboSet.contains(cov)
+										|| i == ucerf3Comparisons.length)) {
+//						if (j == 0 && ucerf3ForComboSet.contains(cov)) {
 							comboPlotPaths.add(fullPath);
 							comboPlotNames.add(name);
 						}

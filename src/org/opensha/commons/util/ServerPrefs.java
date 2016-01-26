@@ -19,6 +19,7 @@
 
 package org.opensha.commons.util;
 
+import java.io.File;
 import java.util.NoSuchElementException;
 
 /**
@@ -39,6 +40,7 @@ public enum ServerPrefs {
 	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVER_DEV_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_DEV_DIR,
+			ServerPrefUtils.GMT_DATA_DIR,
 			DevStatus.DEVELOPMENT),
 	/**
 	 * Preferences for stable production releases
@@ -46,17 +48,20 @@ public enum ServerPrefs {
 	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVER_PRODUCTION_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_PRODUCTION_DIR,
+			ServerPrefUtils.GMT_DATA_DIR,
 			DevStatus.PRODUCTION);
 	
 	private String hostName;
 	private String servletURL;
-	private String tomcatDir;
+	private File tomcatDir;
+	private File gmtDataDir;
 	private DevStatus buildType;
 	
-	private ServerPrefs(String hostName, String servletURL, String tomcatDir, DevStatus buildType) {
+	private ServerPrefs(String hostName, String servletURL, File tomcatDir, File gmtDataDir, DevStatus buildType) {
 		this.hostName = hostName;
 		this.servletURL = servletURL;
 		this.tomcatDir = tomcatDir;
+		this.gmtDataDir = gmtDataDir;
 		this.buildType = buildType;
 	}
 
@@ -73,8 +78,16 @@ public enum ServerPrefs {
 	 * 
 	 * @return path to the WEB-INF dir for this tomcat configuration
 	 */
-	public String getTomcatDir() {
+	public File getTomcatDir() {
 		return tomcatDir;
+	}
+	
+	/**
+	 * 
+	 * @return path to the temporary gmt data directory for this server
+	 */
+	public File getGMTDataDir() {
+		return gmtDataDir;
 	}
 
 	/**

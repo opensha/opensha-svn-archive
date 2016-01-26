@@ -20,4 +20,18 @@ public interface ScalarGroundMotion {
 	 */
 	public double stdDev();
 	
+	/**
+	 * Intra-event standard deviation if model supported.
+	 * @return Intra-event standard deviation
+	 * @throws UnsupportedOperationException if not supported
+	 */
+	public double phi();
+	
+	/**
+	 * Inter-event standard deviation if model supported.
+	 * @return Inter-event standard deviation
+	 * @throws UnsupportedOperationException if not supported
+	 */
+	public double tau();
+	
 }

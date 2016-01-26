@@ -175,9 +175,24 @@ public class CY_2014 implements NGAW2_GMM {
 		double soilNonLin = calcSoilNonLin(coeffs, vs30);
 		
 		double mean = calcMean(coeffs, vs30, z1p0, soilNonLin, saRef);
-		double stdDev = calcStdDev(coeffs, Mw, vsInferred, soilNonLin, saRef);
+		
+		// Aleatory uncertainty model -- Equation 3.9
 
-		return new DefaultGroundMotion(mean, stdDev);
+		// Response Term - linear vs. non-linear
+		double NL0sq = calcNLOsq(coeffs, soilNonLin, saRef);
+
+		// Magnitude thresholds
+		double mTest = min(max(Mw, 5.0), 6.5) - 5.0;
+
+		// Inter-event Term
+		double tauSq = calcTauSq(coeffs, NL0sq, mTest);
+
+		// Intra-event term
+		double phiSq = calcPhiSq(coeffs, vsInf, NL0sq, mTest);
+						
+		double stdDev = sqrt(tauSq + phiSq);
+
+		return new DefaultGroundMotion(mean, stdDev, Math.sqrt(phiSq), Math.sqrt(tauSq));
 	}
 
 	// Seismic Source Scaling -- Equation 11
@@ -267,26 +282,24 @@ public class CY_2014 implements NGAW2_GMM {
 		return z1p0 * 1000.0 - exp(-7.15 / 4 * log((vsPow4 + A) / B));
 	}
 
-	// Aleatory uncertainty model -- Equation 3.9
-	private static final double calcStdDev(Coeffs c, double Mw, boolean vsInf,
-			double snl, double saRef) {
-
-		// Response Term - linear vs. non-linear
+	private static double calcNLOsq(Coeffs c, double snl, double saRef) {
 		double NL0 = snl * saRef / (saRef + c.phi4);
+		double NL0sq = (1 + NL0) * (1 + NL0);
+		return NL0sq;
+	}
 
-		// Magnitude thresholds
-		double mTest = min(max(Mw, 5.0), 6.5) - 5.0;
-
-		// Inter-event Term
+	private static double calcTauSq(Coeffs c, double NL0sq, double mTest) {
 		double tau = c.tau1 + (c.tau2 - c.tau1) / 1.5 * mTest;
+		double tauSq = tau * tau * NL0sq;
+		return tauSq;
+	}
 
-		// Intra-event term
+	private static double calcPhiSq(Coeffs c, boolean vsInf, double NL0sq, double mTest) {
 		double sigmaNL0 = c.sigma1 + (c.sigma2 - c.sigma1) / 1.5 * mTest;
 		double vsTerm = vsInf ? c.sigma3 : 0.7;
-		double NL0sq = (1 + NL0) * (1 + NL0);
 		sigmaNL0 *= sqrt(vsTerm + NL0sq);
-
-		return sqrt(tau * tau * NL0sq + sigmaNL0 * sigmaNL0);
+		double phiSq = sigmaNL0 * sigmaNL0;
+		return phiSq;
 	}
 	
 	public static void main(String[] args) {

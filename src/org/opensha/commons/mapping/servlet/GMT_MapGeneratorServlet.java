@@ -41,6 +41,9 @@ import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.ServerPrefUtils;
+
+import com.google.common.base.Preconditions;
 
 
 
@@ -79,18 +82,9 @@ import org.opensha.commons.util.RunScript;
 
 public class GMT_MapGeneratorServlet
 extends HttpServlet {
-
-	/*			opensha.usc.edu paths and URLs			*/
-	private static final String OPENSHA_GMT_URL_PATH = "http://opensha.usc.edu/";
-	public static final String OPENSHA_FILE_PATH = "/scratch/opensha/";
 	
-	/*			gravity.usc.edu paths and URLs			*/
-	private static final String GRAVITY_GMT_URL_PATH = "http://gravity.usc.edu/gmtWS/";
-	private static final String GRAVITY_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/gmtWS/";
-	
-	private static final String GMT_URL_PATH = OPENSHA_GMT_URL_PATH;
-	public final static String FILE_PATH = OPENSHA_FILE_PATH;
-	public final static String GMT_DATA_DIR = "gmtData/";
+	public static final String GMT_URL_PATH = "http://"+ServerPrefUtils.SERVER_PREFS.getHostName()+"/";
+	public static final File GMT_DATA_DIR = ServerPrefUtils.SERVER_PREFS.getGMTDataDir();
 	private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
 	
 	private GMT_MapGenerator gmt = new GMT_MapGenerator();
@@ -104,12 +98,10 @@ extends HttpServlet {
 				getOutputStream());
 
 		try {
-			//all the user gmt stuff will be stored in this directory
-			File mainDir = new File(FILE_PATH + GMT_DATA_DIR);
 			//create the main directory if it does not exist already
-			if (!mainDir.isDirectory()) {
-				(new File(FILE_PATH + GMT_DATA_DIR)).mkdir();
-			}
+			if (!GMT_DATA_DIR.exists())
+				GMT_DATA_DIR.mkdir();
+			Preconditions.checkState(GMT_DATA_DIR.exists());
 
 			// get an input stream from the applet
 			ObjectInputStream inputFromApplet = new ObjectInputStream(request.
@@ -149,14 +141,13 @@ extends HttpServlet {
 	
 	private static String getPlotDirName(String plotDirName) {
 		if (plotDirName != null) {
-			File f = new File(FILE_PATH + GMT_DATA_DIR + plotDirName);
+			File f = new File(GMT_DATA_DIR, plotDirName);
 			int fileCounter = 1;
 			String modPlotDirName = plotDirName;
 			//checking if the directory already exists then add
 			while (f.exists()) {
 				modPlotDirName = plotDirName + fileCounter;
-				String tempDirName = FILE_PATH + GMT_DATA_DIR + modPlotDirName;
-				f = new File(tempDirName);
+				f = new File(GMT_DATA_DIR, modPlotDirName);
 				++fileCounter;
 			}
 			return modPlotDirName;
@@ -166,18 +157,14 @@ extends HttpServlet {
 		}
 	}
 	
-	private static String getPlotDirPath(String plotDirName) {
-		return FILE_PATH + GMT_DATA_DIR + plotDirName;
-	}
-	
 	public static String createMap(SecureMapGenerator gmt, GMT_Map map, String plotDirName, String metadata,
 			String metadataFileName) throws IOException, GMT_MapException {
 		//Name of the directory in which we are storing all the gmt data for the user
 		plotDirName = getPlotDirName(plotDirName);
-		String newDir = getPlotDirPath(plotDirName);
+		File newDir = new File(GMT_DATA_DIR, plotDirName);
 
 		//create a gmt directory for each user in which all his gmt files will be stored
-		(new File(newDir)).mkdir();
+		Preconditions.checkState(newDir.exists() || newDir.mkdir());
 		//reading the gmtScript file that user sent as the attachment and create
 		//a new gmt script inside the directory created for the user.
 		//The new gmt script file created also has one minor modification
@@ -185,9 +172,9 @@ extends HttpServlet {
 		//that it should pick all the gmt related files from the directory created for the user.
 		//reading the gmt script file sent by user as the attachment
 
-		String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
+		File gmtScriptFile = new File(newDir, GMT_SCRIPT_FILE);
 		
-		ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
+		ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir.getAbsolutePath());
 
 		System.out.println("Writing file and data for map: "+plotDirName);
 		//creating a new gmt script for the user and writing it ot the directory created for the user
@@ -223,7 +210,7 @@ extends HttpServlet {
 
 		System.out.println("Zipping results for map: "+plotDirName);
 		//create the Zip file for all the files generated
-		FileUtils.createZipFile(newDir);
+		FileUtils.createZipFile(newDir.getAbsolutePath());
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
 		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +

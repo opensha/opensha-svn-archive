@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.zip.ZipException;
 
@@ -27,7 +28,9 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_TESTING_GRIDDED;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.BorderType;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -39,14 +42,18 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
+import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.impl.BooleanParameter;
+import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.FileParameter;
 import org.opensha.commons.param.impl.LocationParameter;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractNthRupERF;
@@ -95,7 +102,7 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.FaultSystemSolutionCalc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
-import scratch.UCERF3.data.U3_EqkCatalogStatewideCompleteness;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
@@ -103,14 +110,20 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
+import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
+import scratch.UCERF3.griddedSeismicity.GridSourceFileReader;
+import scratch.UCERF3.griddedSeismicity.GriddedSeisUtils;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
+import scratch.UCERF3.utils.U3_EqkCatalogStatewideCompleteness;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.finiteFaultMap.FiniteFaultMappingData;
 
 public class ETAS_Simulator {
 	
@@ -190,13 +203,15 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
+		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = false;
+		
 		// Overide to Poisson if needed
 		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 			erf.updateForecast();
 		}
 		
-		boolean generateDiagnostics = true;	// to be able to turn off even if in debug mode
+		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -265,7 +280,12 @@ public class ETAS_Simulator {
 			for(ObsEqkRupture qk : histQkList) {
 				Location hyp = qk.getHypocenterLocation();
 				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {	//TODO remove hard-coded 24.0 (get from depth dist)
-					ETAS_EqkRupture etasRup = new ETAS_EqkRupture(qk);
+					ETAS_EqkRupture etasRup;
+					if (qk instanceof ETAS_EqkRupture)
+						// keep original, may have FSS Index set
+						etasRup = (ETAS_EqkRupture)qk;
+					else
+						etasRup = new ETAS_EqkRupture(qk);
 					etasRup.setID(id);
 					obsEqkRuptureList.add(etasRup);
 					id+=1;
@@ -365,6 +385,34 @@ public class ETAS_Simulator {
 		info_fr.flush();
 		
 		
+		// Apply corrections to gridded seis rates if desired
+//		double oldTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
+		if(APPLY_GR_CORR_TO_GRIDDED_SEIS && etasParams.getImposeGR()) {
+			double[] gridSeisGRcorrArray = etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
+			nthRup=0;
+			for(int s=0;s<erf.getNumSources();s++) {
+				if(s<numFaultSysSources) {
+					nthRup+=erf.getSource(s).getNumRuptures();
+				}
+				else {
+					for(ProbEqkRupture rup:erf.getSource(s)) {
+						if (nthRup >= spontaneousRupSampler.size())
+							throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
+						double newVal = spontaneousRupSampler.getY(nthRup)*gridSeisGRcorrArray[s-numFaultSysSources];
+						spontaneousRupSampler.set(nthRup, newVal);
+						nthRup+=1;
+					}				
+				}
+			}			
+		}
+//		double newTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
+//		System.out.println("oldTotalRate="+oldTotalRate+"newTotalRate="+newTotalRate+"newTotalRate="+(newTotalRate/oldTotalRate));
+//		System.exit(-1);
+		
+		
+		
+		
+		
 		// Make list of primary aftershocks for given list of obs quakes 
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
@@ -451,7 +499,8 @@ public class ETAS_Simulator {
 				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
 						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 			else
-				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, new U3_EqkCatalogStatewideCompleteness(), simStartTimeMillis, 
+				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(
+						mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
 						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
 
 			for(int r=0;r<spontEventTimes.length;r++) {
@@ -468,20 +517,7 @@ public class ETAS_Simulator {
 			if(D) System.out.println(spEvStringInfo);
 			info_fr.write("\n"+spEvStringInfo);
 			info_fr.flush();
-
-			
-			
-			
-			
-			
 		}
-		
-
-		
-		
-		
-		
-		
 		
 
 		// If scenarioRup != null, generate  diagnostics if in debug mode!
@@ -964,6 +1000,7 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
+		correctGriddedSeismicityRatesInERF(erf, false);
 		
 		if(simulationName == null) {
 			String imposeGR_string;
@@ -1033,12 +1070,9 @@ public class ETAS_Simulator {
 		System.out.println("Total simulation took "+timeMin+" min");
 
 	}
-
 	
-	
-	
-	public static ObsEqkRupList getHistCatalog(double startTimeYear) {
-		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/ofr2013-1165_EarthquakeCat.txt");
+	public static ObsEqkRupList getHistCatalog(double startTimeYear, FaultSystemRupSet rupSet) {
+		File file = new File("/Users/field/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/ofr2013-1165_EarthquakeCat.txt");
 		ObsEqkRupList histQkList=null;
 		try {
 			histQkList = UCERF3_CatalogParser.loadCatalog(file);
@@ -1052,9 +1086,19 @@ public class ETAS_Simulator {
 //		}
 //		GraphWindow graph = new GraphWindow(func, "Hypocenter Depth Histogram");
 		double timeInMillis = (startTimeYear-1970)*ProbabilityModelsCalc.MILLISEC_PER_YEAR;
-		return histQkList.getRupsBefore((long)timeInMillis);
+		histQkList = histQkList.getRupsBefore((long)timeInMillis);
 		
-//		return histQkList;
+		// load in rupture surfaces. Note: this must happen before mag complete filtering, surface loading needs all ruptures
+		Preconditions.checkState(rupSet.getNumRuptures() == 253706, "Hardcoded to FM3.1 but this rup set isn't FM3.1");
+		try {
+			FiniteFaultMappingData.loadRuptureSurfaces(
+					UCERF3_DataUtils.locateResourceAsStream("EarthquakeCatalog", "finite_fault_mappings.xml"),
+					histQkList, FaultModels.FM3_1, rupSet);
+		} catch (DocumentException e1) {
+			ExceptionUtils.throwAsRuntimeException(e1);
+		}
+		
+		return histQkList;
 	}
 	
 	/**
@@ -1063,17 +1107,17 @@ public class ETAS_Simulator {
 	 * @param startTimeYear
 	 * @return
 	 */
-	public static ObsEqkRupList getHistCatalogFiltedForStatewideCompleteness(double startTimeYear) {
-		ObsEqkRupList qkList = getHistCatalog(startTimeYear);
-		U3_EqkCatalogStatewideCompleteness yrMagCompleteFunc = new U3_EqkCatalogStatewideCompleteness();
-		ObsEqkRupList filteredQkList = new ObsEqkRupList();
-		for(ObsEqkRupture rup:qkList) {
-			double year = rup.getOriginTime()/ProbabilityModelsCalc.MILLISEC_PER_YEAR+1970;
-			double yearThresh = yrMagCompleteFunc.getClosestYtoX(rup.getMag());
-			if(year>=yearThresh)
-				filteredQkList.add(rup);
+	public static ObsEqkRupList getHistCatalogFiltedForStatewideCompleteness(double startTimeYear, FaultSystemRupSet rupSet) {
+		ObsEqkRupList qkList = getHistCatalog(startTimeYear, rupSet);
+		
+		// filter by mag complete
+		U3_EqkCatalogStatewideCompleteness magComplete;
+		try {
+			magComplete = U3_EqkCatalogStatewideCompleteness.load();
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
 		}
-		return filteredQkList;
+		return magComplete.getFilteredCatalog(qkList);
 	}
 
 	
@@ -1084,7 +1128,13 @@ public class ETAS_Simulator {
 			yearVsMagXYdata.set(rup.getMag(),otYear);
 		}
 		
-		U3_EqkCatalogStatewideCompleteness yrMagCompleteFunc = new U3_EqkCatalogStatewideCompleteness();
+		U3_EqkCatalogStatewideCompleteness magComplete;
+		try {
+			magComplete = U3_EqkCatalogStatewideCompleteness.load();
+		} catch (IOException e1) {
+			throw ExceptionUtils.asRuntimeException(e1);
+		}
+		EvenlyDiscretizedFunc yrMagCompleteFunc = magComplete.getEvenlyDiscretizedMagYearFunc();
 		DefaultXY_DataSet yearVsMagCompleteXYdata = new DefaultXY_DataSet();
 		double deltaMagOver2 = yrMagCompleteFunc.getDelta()/2.0;
 		for(int i=0;i<yrMagCompleteFunc.size();i++) {
@@ -1297,6 +1347,83 @@ public class ETAS_Simulator {
 	}
 	
 	
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio) {
+		double[] gridSeisCorrValsArray;
+		try {
+			gridSeisCorrValsArray = MatrixIO.doubleArrayFromFile(new File(ETAS_PrimaryEventSampler.defaultGriddedCorrFilename));
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		correctGriddedSeismicityRatesInERF(erf, plotRateRatio, gridSeisCorrValsArray);
+	}
+	
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio,
+			double[] gridSeisCorrValsArray) {
+		GridSourceFileReader gridSources = (GridSourceFileReader)erf.getGridSourceProvider();
+		gridSources.scaleAllNodeMFDs(gridSeisCorrValsArray);
+		
+		double totalRate=0;
+		double[] nodeRateArray = new double[gridSources.size()];
+		for(int i=0;i<nodeRateArray.length;i++) {
+			nodeRateArray[i] = gridSources.getNodeMFD(i).getCumRate(2.55);
+			totalRate+=nodeRateArray[i];
+		}
+				
+		double[] nodeRatePDF = new double[gridSources.size()];
+		for(int i=0;i<nodeRateArray.length;i++) {
+			nodeRatePDF[i] = nodeRateArray[i]/totalRate;
+		}
+
+		GriddedSeisUtils griddedSeisUtils = new GriddedSeisUtils(erf.getSolution().getRupSet().getFaultSectionDataList(), nodeRatePDF, InversionTargetMFDs.FAULT_BUFFER);
+		
+		List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList = erf.getSolution().getSubSeismoOnFaultMFD_List();
+		
+		double[] oldRateArray = new double[longTermSubSeisMFD_OnSectList.size()];
+		double[] newRateArray = new double[longTermSubSeisMFD_OnSectList.size()];
+		double[] ratioArray = new double[longTermSubSeisMFD_OnSectList.size()];
+
+		for(int sectIndex=0; sectIndex<longTermSubSeisMFD_OnSectList.size(); sectIndex++) {
+			
+			oldRateArray[sectIndex] = longTermSubSeisMFD_OnSectList.get(sectIndex).getCumRate(2.55);
+			newRateArray[sectIndex] = totalRate*griddedSeisUtils.pdfValForSection(sectIndex);
+			if(oldRateArray[sectIndex] > 0.0)
+				ratioArray[sectIndex] = newRateArray[sectIndex]/oldRateArray[sectIndex];
+			else
+				ratioArray[sectIndex] = 1.0;
+			
+			System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			
+			longTermSubSeisMFD_OnSectList.get(sectIndex).scale(ratioArray[sectIndex]);
+						
+		}
+		
+		if(plotRateRatio) {
+			List<FaultSectionPrefData> faults = erf.getSolution().getRupSet().getFaultSectionDataList();
+			String name = "SubSeisRateChange";
+			String title = "SubSeisRateChange";
+			CPT cpt= FaultBasedMapGen.getLinearRatioCPT().rescale(0, 10);
+			
+			try {
+				File file = new File("SubSeisRateChange");
+				if(!file.exists())
+					file.mkdir();
+				FaultBasedMapGen.makeFaultPlot(cpt, FaultBasedMapGen.getTraces(faults), ratioArray, gridSources.getGriddedRegion(), file, name, true, false, title);
+			} catch (GMT_MapException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}
+		
+		
+
+	}
+	
 	
 	/**
 	 * Test scenarios
@@ -1330,7 +1457,8 @@ public class ETAS_Simulator {
 		CUSTOM("Custom (will prompt)", new Location(34, -118), 5d), // will prompt when built, these are just defaults
 		NAPA("Napa 6.0", 93902, null, 6d), // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
 		PARKFIELD("Parkfield M6", 30473), // Parkfield M6 fault based rup
-		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0); // Bombay Beach M6 in location of 2009 M4.8
+		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0), // Bombay Beach M6 in location of 2009 M4.8
+		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0); // Central Valley - farthest from faults
 
 				
 		private String name;
@@ -1493,13 +1621,60 @@ public class ETAS_Simulator {
 
 	}
 	
+	/**
+	 * 
+	 * @param label - plot label
+	 * @param local - whether GMT map is made locally or on server
+	 * @param dirName
+	 * @return
+	 */
+	public static void plotERF_RatesMap(FaultSystemSolutionERF_ETAS erf, String dirName) {
+		
+		CaliforniaRegions.RELM_TESTING_GRIDDED mapGriddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
+		GriddedGeoDataSet xyzDataSet = ERF_Calculator.getNucleationRatesInRegion(erf, mapGriddedRegion, 0d, 10d);
+		
+		if(D) 
+			System.out.println("OrigERF_RatesMap: min="+xyzDataSet.getMinZ()+"; max="+xyzDataSet.getMaxZ());
+		
+		String metadata = "Map from calling plotOrigERF_RatesMap() method";
+		
+		GMT_MapGenerator gmt_MapGenerator = GMT_CA_Maps.getDefaultGMT_MapGenerator();
+		
+		//override default scale
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, -3.5);
+		gmt_MapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, 1.5);
+		CPTParameter cptParam = (CPTParameter )gmt_MapGenerator.getAdjustableParamsList().getParameter(GMT_MapGenerator.CPT_PARAM_NAME);
+		cptParam.setValue(GMT_CPT_Files.MAX_SPECTRUM.getFileName());
+		cptParam.getValue().setBelowMinColor(Color.WHITE);
+
+		try {
+			GMT_CA_Maps.makeMap(xyzDataSet, "OrigERF_RatesMap", metadata, dirName, gmt_MapGenerator);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+
+
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		
-//		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);	
+//		plotERF_RatesMap(erf, "testBeforeCorr");
+//		correctGriddedSeismicityRatesInERF(erf, true);
+//		plotERF_RatesMap(erf, "testAfterCorr");
+		
+		
+		
+//		System.out.println(erf.getGridSourceProvider().getClass());
+//		System.out.println(erf.getGridSourceProvider().getGriddedRegion().getClass());
+//		System.out.println(erf.getSolution().getClass());
 //		writeLocationAtCenterOfSectionSurf(erf, 1850);
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -1510,10 +1685,12 @@ public class ETAS_Simulator {
 		
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
+		
+//		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
-//		TestScenario scenario = null;
+//		TestScenario scenario = TestScenario.CENTRAL_VALLEY_M3;
+		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);	
@@ -1536,20 +1713,21 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_1yr_MaxCF15_1";	// to increment runs
+		simulationName += "_10yr_NewCorr_3";	// to increment runs
 
-		Long seed = null;
+//		Long seed = null;
+		Long seed = 1449590752534l;
 //		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
-//		double startTimeYear=2012;
-//		double durationYears=100;
-		double startTimeYear=2014;
-		double durationYears=1;
+		double startTimeYear=2012;
+		double durationYears=10;
+//		double startTimeYear=2014;
+//		double durationYears=10;
 		
-		ObsEqkRupList histCat = null;
+//		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
-//		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear);
+		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		

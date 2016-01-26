@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipException;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.stat.StatUtils;
@@ -22,6 +23,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.geo.RegionUtils;
@@ -50,6 +52,7 @@ import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -57,14 +60,21 @@ import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.kevin.cybershake.ucerf3.CSDownsampledSolCreator;
 
 public class PureScratch {
@@ -191,6 +201,78 @@ public class PureScratch {
 		for (String name : names)
 			System.out.println(parentsInBox.get(name)+". "+name);
 	}
+	
+	private static void test4() throws IOException, DocumentException {
+		FaultSystemSolution sol_31 = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemSolution sol_32 = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+			+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		System.out.println("FM3.1: "+sol_31.getRupSet().getNumRuptures());
+		System.out.println("FM3.2: "+sol_32.getRupSet().getNumRuptures());
+	}
+	
+	private static void test5() throws IOException {
+		ArrayList<FaultSectionPrefData> subSects = new DeformationModelFetcher(
+				FaultModels.FM3_1, DeformationModels.GEOLOGIC,
+				UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, 0.1d).getSubSectionList();
+		LastEventData.populateSubSects(subSects, LastEventData.load());
+		
+		List<LocationList> fmTraces = Lists.newArrayList();
+		for (int i=0; i<subSects.size(); i++) {
+			fmTraces.add(subSects.get(i).getFaultTrace());
+			if (subSects.get(i).getName().contains("Baker"))
+				System.out.println(i+". "+subSects.get(i).getName());
+//			fmSubSectIndexMap.put(fm, subSects.get(i).getName(), i);
+		}
+	}
+	
+	private static void test6() throws ZipException, IOException, DocumentException {
+		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+			System.out.println(sect.getSectionId()+". "+sect.getName());
+			if (sect.getSectionId() > 50)
+				break;
+		}
+		
+		Map<String, List<Integer>> parentCounts = Maps.newHashMap();
+		
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+			String parentName = sect.getParentSectionName();
+			List<Integer> indexes = parentCounts.get(parentName);
+			if (indexes == null) {
+				indexes = Lists.newArrayList();
+				parentCounts.put(parentName, indexes);
+			}
+			indexes.add(sect.getSectionId());
+		}
+		
+		List<String> over10s = Lists.newArrayList();
+		for (String parentName : parentCounts.keySet()) {
+			if (parentCounts.get(parentName).size() > 10)
+				over10s.add(parentName);
+		}
+		Collections.sort(over10s);
+		System.out.println(over10s.size()+"/"+parentCounts.size()+" sections are affected:");
+		for (String name : over10s)
+			System.out.println("\t"+name);
+	}
+	
+	private static void test7() throws IOException {
+		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(
+				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_first50_m4.bin"));
+				+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_second50_m4.bin"));
+		MinMaxAveTracker track = new MinMaxAveTracker();
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			track.addValue(ETAS_MultiSimAnalysisTools.calcDurationYears(catalog));
+		System.out.println(track);
+	}
 
 	/**
 	 * @param args
@@ -199,7 +281,11 @@ public class PureScratch {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 //		test1();
-		test3();
+//		test3();
+//		test4();
+//		test5();
+//		test6();
+		test7();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

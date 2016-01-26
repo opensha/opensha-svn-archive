@@ -21,6 +21,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class MPJ_ETAS_SimulatorScriptGen {
+	
+	private static final String args_continue_newline = " \\\n\t";
 
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
@@ -52,11 +54,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
 //		double[] maxCharFactors = { 10 };
 		boolean applyLongTermRates = false;
+		boolean gridSeisCorr = true;
 		
-//		String nameAdd = null;
-//		String nameAdd = "400more";
-//		String nameAdd = "newMC10";
-		String nameAdd = "FelzerParams-mc20";
+		String nameAdd = null;
+//		String nameAdd = "4000more";
+//		String nameAdd = "mc10-applyGrGridded";
+//		String nameAdd = "FelzerParams-mc20";
 		
 		boolean histCatalog;
 		String queue;
@@ -66,9 +69,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			queue = null;
 			startYear = 2012;
 			histCatalog = true;
-			numSims = 200;
-			nodes = 25;
+			numSims = 500;
+			nodes = 60;
+//			numSims = 5000;
+//			nodes = 60;
 			mins = 24*60;
+//			numSims = 50;
+//			nodes = 25;
+//			mins = 47*60;
 			Preconditions.checkState(!smallTest);
 			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);
 		} else {
@@ -97,7 +105,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 		boolean timeIndep = false;
 		
-		boolean binary = numSims > 1000 || duration > 200;
+		boolean binary = numSims >= 1000 || duration > 200;
 		
 		int memGigs;
 		int ppn;
@@ -133,8 +141,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		}
 		
 		File histCatalogFile = null;
-		if (histCatalog)
+		File rupSurfacesFile = null;
+		if (histCatalog) {
 			histCatalogFile = new File(remoteDir, "ofr2013-1165_EarthquakeCat.txt");
+			rupSurfacesFile = new File(remoteDir, "finite_fault_mappings.xml");
+		}
 		
 		mpjWrite.setAutoMemDetect(false);
 		
@@ -170,8 +181,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					jobName += "-"+probModel.name().toLowerCase()+grStr;
 					if (timeIndep)
 						jobName += "-indep";
-					if (!applyLongTermRates)
-						jobName += "-noApplyLTR";
+					if (applyLongTermRates)
+						jobName += "-applyLTR";
+					if (gridSeisCorr)
+						jobName += "-gridSeisCorr";
 					
 					File localJobDir = new File(localDir, jobName);
 					if (!localJobDir.exists())
@@ -189,44 +202,52 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					String argz;
 					
 					if (exactDispatch) {
-						argz = "--min-dispatch "+threads+" --max-dispatch "+threads+" --exact-dispatch "+threads;
+						argz = args_continue_newline+"--min-dispatch "+threads
+								+" --max-dispatch "+threads+" --exact-dispatch "+threads;
 					} else {
-						argz = "--min-dispatch 1 --max-dispatch "+threads;
+						argz = args_continue_newline+"--min-dispatch 1 --max-dispatch "+threads;
 					}
 					
-					argz += " --threads "+threads
-							+" --num "+numSims+" --sol-file "+remoteSolFile.getAbsolutePath();
+					argz += args_continue_newline+"--threads "+threads
+							+args_continue_newline+"--num "+numSims
+							+args_continue_newline+"--sol-file "+remoteSolFile.getAbsolutePath();
 					
-					argz += " --duration "+(float)duration+" --start-year "+startYear;
+					argz += args_continue_newline+"--duration "+(float)duration;
+					argz += args_continue_newline+"--start-year "+startYear;
 					
-					argz += " --prob-model "+probModel.name();
+					argz += args_continue_newline+"--prob-model "+probModel.name();
 					
 //					argz += " --max-char-factor "+maxCharFactor;
 					if (grCorr)
-						argz += " --impose-gr";
+						argz += args_continue_newline+"--impose-gr";
 					
-					argz += " --apply-long-term-rates "+applyLongTermRates;
+					argz += args_continue_newline+"--apply-long-term-rates "+applyLongTermRates;
+					
+					if (gridSeisCorr)
+						argz += args_continue_newline+"--grid-seis-correction";
 					
 					if (timeIndep)
-						argz += " --indep";
+						argz += args_continue_newline+"--indep";
 					
 					if (binary)
-						argz += " --binary";
+						argz += args_continue_newline+"--binary";
 					
 					if (scenario != null) {
 						if (scenario.getFSS_Index() >= 0)
-							argz += " --trigger-rupture-id "+scenario.getFSS_Index();
+							argz += args_continue_newline+"--trigger-rupture-id "+scenario.getFSS_Index();
 						Location loc = scenario.getLocation();
 						if (loc != null)
-							argz += " --trigger-loc "+(float)loc.getLatitude()
+							argz += args_continue_newline+"--trigger-loc "+(float)loc.getLatitude()
 								+","+(float)loc.getLongitude()+","+(float)loc.getDepth();
 						if (scenario.getMagnitude() > 0)
-							argz += " --trigger-mag "+(float)scenario.getMagnitude();
+							argz += args_continue_newline+"--trigger-mag "+(float)scenario.getMagnitude();
 					}
 					if (histCatalogFile != null)
-						argz += " --trigger-catalog "+histCatalogFile.getAbsolutePath();
+						argz += args_continue_newline+"--trigger-catalog "+histCatalogFile.getAbsolutePath();
+					if (rupSurfacesFile != null)
+						argz += args_continue_newline+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
 					
-					argz += " "+cacheDir.getAbsolutePath()+" "+remoteJobDir.getAbsolutePath();
+					argz += args_continue_newline+cacheDir.getAbsolutePath()+args_continue_newline+remoteJobDir.getAbsolutePath();
 					
 					List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
 					

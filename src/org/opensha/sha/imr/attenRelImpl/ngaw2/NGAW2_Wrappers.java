@@ -11,7 +11,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public ASK_2014_Wrapper(ParameterChangeWarningListener l) {
-			super(ASK_2014.SHORT_NAME, new ASK_2014());
+			super(ASK_2014.SHORT_NAME, new ASK_2014(), true);
 			this.listener = l;
 		}
 		
@@ -23,7 +23,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public BSSA_2014_Wrapper(ParameterChangeWarningListener l) {
-			super(BSSA_2014.SHORT_NAME, new BSSA_2014());
+			super(BSSA_2014.SHORT_NAME, new BSSA_2014(), true);
 			this.listener = l;
 		}
 		
@@ -35,7 +35,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public CB_2014_Wrapper(ParameterChangeWarningListener l) {
-			super(CB_2014.SHORT_NAME, new CB_2014());
+			super(CB_2014.SHORT_NAME, new CB_2014(), true);
 			this.listener = l;
 		}
 		
@@ -47,7 +47,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public CY_2014_Wrapper(ParameterChangeWarningListener l) {
-			super(CY_2014.SHORT_NAME, new CY_2014());
+			super(CY_2014.SHORT_NAME, new CY_2014(), true);
 			this.listener = l;
 		}
 		
@@ -59,7 +59,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public GK_2014_Wrapper(ParameterChangeWarningListener l) {
-			super(GK_2014.SHORT_NAME, new GK_2014());
+			super(GK_2014.SHORT_NAME, new GK_2014(), false);
 			this.listener = l;
 		}
 		
@@ -71,7 +71,7 @@ public class NGAW2_Wrappers {
 		}
 
 		public Idriss_2014_Wrapper(ParameterChangeWarningListener l) {
-			super(Idriss_2014.SHORT_NAME, new Idriss_2014());
+			super(Idriss_2014.SHORT_NAME, new Idriss_2014(), false);
 			this.listener = l;
 		}
 		

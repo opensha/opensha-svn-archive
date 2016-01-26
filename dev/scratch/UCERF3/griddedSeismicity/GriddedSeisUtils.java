@@ -31,6 +31,20 @@ public class GriddedSeisUtils {
 		this.pdf = pdf.getPDF();
 	}
 	
+	
+	/**
+	 * Create an instance of this ustility class.
+	 * @param fsrs
+	 * @param pdf - double array here
+	 */
+	public GriddedSeisUtils(List<FaultSectionPrefData> fltSectPrefDataList, 
+			double[] pdf, double buf) {
+		polyMgr = FaultPolyMgr.create(fltSectPrefDataList, buf);
+		this.pdf = pdf;
+	}
+	
+
+	
 	/**
 	 * Returns a reference to the internal polygon manager.
 	 * @return
