@@ -990,7 +990,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add("PS2PDF_PATH='" + PS2PDF_PATH + "'\n\n");
 
 		// command line to convert xyz file to grd file
-		commandLine = "${GMT_PATH}xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+		commandLine = "${GMT_PATH}xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -:";
 		gmtCommandLines.add(commandLine+"\n");
 
 		// get color scale limits
@@ -1018,12 +1018,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// set some defaults
 		if(blackBackgroundParam.getValue()) {
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
-			commandLine+=" BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY 14p FONT_LABEL 18p PS_PAGE_COLOR 0/0/0 PS_PAGE_ORIENTATION portrait PS_MEDIA letter";
+			commandLine+=" MAP_DEFAULT_PEN 255/255/255 FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i";
 		}
 		else {
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
-			commandLine+=" BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY 14p FONT_LABEL 18p PS_PAGE_COLOR 255/255/255 PS_PAGE_ORIENTATION portrait PS_MEDIA letter";
+			commandLine+=" MAP_DEFAULT_PEN 0/0/0 FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i";
 		}
 		gmtCommandLines.add(commandLine+"\n");
 
@@ -1051,7 +1051,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			String hiResFile = fileName+"HiResData.grd";
 			rmFiles.add(hiResFile);
 			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-			resolution + "c -nl "+region;
+			resolution + "s -nl "+region;
 			gmtCommandLines.add(commandLine+"\n");
 			String intenFile = fileName+"Inten.grd";
 			commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
@@ -1069,9 +1069,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		}
 		
 //		if(blackBackgroundParam.getValue())
-//			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN 255/255/255 FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 //		else
-//			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN 0/0/0 FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 //
 //		gmtCommandLines.add(commandLine+"\n");
 
@@ -1346,7 +1346,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				// simple gridded data
 				gmtCommandLines.add("# convert xyz file to grd file");
 				commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
-								region +" -D/degree/degree/amp/=/=/=  -: -H0";
+								region +" -D/degree/degree/amp/=/=/=  -:";
 				gmtCommandLines.add(commandLine);
 			} else {
 				// scatter data that must be interpolated
@@ -1391,9 +1391,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT paper/font defaults");
 		if(map.isBlackBackground())
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY 14p FONT_LABEL 18p PS_PAGE_COLOR 0/0/0 PS_PAGE_ORIENTATION portrait PS_MEDIA letter";
 		else
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY 14p FONT_LABEL 18p PS_PAGE_COLOR 255/255/255 PS_PAGE_ORIENTATION portrait PS_MEDIA letter";
 		gmtCommandLines.add(commandLine+"\n");
 		
 		boolean doContour = map.getGriddedData() != null && map.getContourIncrement() > 0;
@@ -1457,7 +1457,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				rmFiles.add(hiResFile);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
 				commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-				topoFile.resolution() + "c -nl "+region;
+				topoFile.resolution() + "s -nl "+region;
 				gmtCommandLines.add(commandLine);
 				
 				if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()) {
@@ -1522,9 +1522,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
 		if(map.isBlackBackground())
-			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN 255/255/255 FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		else
-			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN 0/0/0 FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 		gmtCommandLines.add(commandLine);
 
 		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, cptFile, psFileName);

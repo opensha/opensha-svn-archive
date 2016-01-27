@@ -195,7 +195,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			rmFiles.add(baseGRD);
 			gmtCommandLines.add("# convert xyz file to grd file");
 			commandLine = "${GMT_PATH}xyz2grd "+ basemapXYZName +" -G"+ baseGRD+ " -I"+mapGridSpacing+
-							region +" -D/degree/degree/amp/=/=/=  -: -H0";
+							region +" -D/degree/degree/amp/=/=/=  -:";
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
@@ -377,9 +377,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			pageColor = "255/255/255";
 			frameColor = "0/0/0";
 		}
-		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR" +
-				" "+pageColor+" PAGE_ORIENTATION portrait PAPER_MEDIA csmap BASEMAP_FRAME_RGB "+frameColor +
-				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND "+frameColor;
+		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY 14p FONT_LABEL 18p PS_PAGE_COLOR" +
+				" "+pageColor+" PS_PAGE_ORIENTATION portrait PS_MEDIA csmap MAP_DEFAULT_PEN "+frameColor +
+				" FORMAT_GEO_MAP -D FRAME_WIDTH 0.1i COLOR_FOREGROUND "+frameColor;
 		gmtCommandLines.add(commandLine+"\n");
 		
 		String interpPlotGRD;
