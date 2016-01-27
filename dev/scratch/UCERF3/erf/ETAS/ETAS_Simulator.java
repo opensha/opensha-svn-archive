@@ -1354,12 +1354,12 @@ public class ETAS_Simulator {
 		} catch (IOException e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
-		correctGriddedSeismicityRatesInERF(erf, plotRateRatio, gridSeisCorrValsArray);
+		correctGriddedSeismicityRatesInERF(erf.getSolution(), plotRateRatio, gridSeisCorrValsArray);
 	}
 	
-	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio,
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolution sol, boolean plotRateRatio,
 			double[] gridSeisCorrValsArray) {
-		GridSourceFileReader gridSources = (GridSourceFileReader)erf.getGridSourceProvider();
+		GridSourceFileReader gridSources = (GridSourceFileReader)sol.getGridSourceProvider();
 		gridSources.scaleAllNodeMFDs(gridSeisCorrValsArray);
 		
 		double totalRate=0;
@@ -1374,9 +1374,9 @@ public class ETAS_Simulator {
 			nodeRatePDF[i] = nodeRateArray[i]/totalRate;
 		}
 
-		GriddedSeisUtils griddedSeisUtils = new GriddedSeisUtils(erf.getSolution().getRupSet().getFaultSectionDataList(), nodeRatePDF, InversionTargetMFDs.FAULT_BUFFER);
+		GriddedSeisUtils griddedSeisUtils = new GriddedSeisUtils(sol.getRupSet().getFaultSectionDataList(), nodeRatePDF, InversionTargetMFDs.FAULT_BUFFER);
 		
-		List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList = erf.getSolution().getSubSeismoOnFaultMFD_List();
+		List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList = sol.getSubSeismoOnFaultMFD_List();
 		
 		double[] oldRateArray = new double[longTermSubSeisMFD_OnSectList.size()];
 		double[] newRateArray = new double[longTermSubSeisMFD_OnSectList.size()];
@@ -1391,14 +1391,14 @@ public class ETAS_Simulator {
 			else
 				ratioArray[sectIndex] = 1.0;
 			
-			System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+sol.getRupSet().getFaultSectionData(sectIndex).getName());
 			
 			longTermSubSeisMFD_OnSectList.get(sectIndex).scale(ratioArray[sectIndex]);
 						
 		}
 		
 		if(plotRateRatio) {
-			List<FaultSectionPrefData> faults = erf.getSolution().getRupSet().getFaultSectionDataList();
+			List<FaultSectionPrefData> faults = sol.getRupSet().getFaultSectionDataList();
 			String name = "SubSeisRateChange";
 			String title = "SubSeisRateChange";
 			CPT cpt= FaultBasedMapGen.getLinearRatioCPT().rescale(0, 10);

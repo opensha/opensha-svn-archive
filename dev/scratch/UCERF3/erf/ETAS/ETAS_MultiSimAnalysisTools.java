@@ -2692,8 +2692,8 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-		nedsAnalysis();
-		System.exit(-1);
+//		nedsAnalysis();
+//		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
@@ -2760,6 +2760,10 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
+		names.add("1000yr Full TD");
+		resultsZipFiles.add(new File(mainDir, "2016_01_25-spontaneous-1000yr-full_td-gridSeisCorr/results_m4.bin"));
+		scenarios.add(null);
+		
 //		names.add("10000yr Full TD, MC=10, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
 //		scenarios.add(null);
@@ -2768,9 +2772,9 @@ public class ETAS_MultiSimAnalysisTools {
 //		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
 //		scenarios.add(null);
 		
-		names.add("30yr Full TD, MC=10, NoLTR");
-		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
-		scenarios.add(null);
+//		names.add("30yr Full TD, MC=10, NoLTR");
+//		resultsZipFiles.add(new File(mainDir, "2015_12_15-spontaneous-30yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("1000yr Full TD, MC=10, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2015_12_14-spontaneous-1000yr-mc10-full_td-noApplyLTR/results_m4.bin"));

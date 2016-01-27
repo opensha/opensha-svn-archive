@@ -56,7 +56,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean applyLongTermRates = false;
 		boolean gridSeisCorr = true;
 		
-		String nameAdd = null;
+//		String nameAdd = null;
+		String nameAdd = "newNuclWt";
 //		String nameAdd = "4000more";
 //		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";

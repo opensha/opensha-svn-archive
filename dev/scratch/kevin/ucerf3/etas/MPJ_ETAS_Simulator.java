@@ -274,6 +274,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			if (rank == 0)
 				debug("Loading gridded seismicity correction cache file from "+cacheFile.getAbsolutePath());
 			gridSeisCorrections = MatrixIO.doubleArrayFromFile(cacheFile);
+			
+			for (int i=0; i<sols.length; i++)
+				ETAS_Simulator.correctGriddedSeismicityRatesInERF(sols[i], false, gridSeisCorrections);
 		}
 	}
 	
@@ -490,9 +493,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 				debug("Instantiationg ERF");
 				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration, startYear);
-				
-				if (gridSeisCorrections != null)
-					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false, gridSeisCorrections);
 
 				if (fssScenarioRupID >= 0) {
 					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
