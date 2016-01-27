@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
@@ -72,7 +73,10 @@ public class TestSiteDataProviders_Operational {
 			// just to make sure that the server gives the save values individually as it does in a list
 			Object serverSingleVal = prov.getValue(locs.get(i));
 			
-			System.out.println("Got val: " + serverSingleVal);
+			Location loc = locs.get(i);
+			
+			System.out.println(prov.getShortName()+" for "+(float)loc.getLatitude()+","+(float)loc.getLongitude()
+					+": " + serverSingleVal);
 			
 			assertEquals(serverSingleVal, serverGroupVal);
 			if (prov.isValueValid(serverSingleVal))
@@ -114,6 +118,20 @@ public class TestSiteDataProviders_Operational {
 	@Test
 	public void testCVM4_1_0() throws Throwable {
 		CVM4BasinDepth prov = new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+		
+		testProvTimed(prov, TIMEOUT_TIME);
+	}
+	
+	@Test
+	public void testCVM4i26_2_5() throws Throwable {
+		CVM4i26BasinDepth prov = new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+		
+		testProvTimed(prov, TIMEOUT_TIME);
+	}
+	
+	@Test
+	public void testCVM4i26_1_0() throws Throwable {
+		CVM4i26BasinDepth prov = new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
 		
 		testProvTimed(prov, TIMEOUT_TIME);
 	}

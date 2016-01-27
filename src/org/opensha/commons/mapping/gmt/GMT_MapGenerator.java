@@ -102,17 +102,19 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	protected String SCALE_LABEL; // what's used to label the color scale
 
 	/*				opensha.usc.edu paths				*/
-	public static final String OPENSHA_GMT_PATH="/usr/local/GMT4.2.1/bin/";
+//	public static final String OPENSHA_GMT_PATH="/usr/local/GMT4.2.1/bin/";
+	public static final String OPENSHA_GMT_PATH="/usr/bin/gmt "; // needs the space after
 	public static final String OPENSHA_GS_PATH="/usr/bin/gs";
 	public static final String OPENSHA_PS2PDF_PATH = "/usr/bin/ps2pdf";
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
 	public static final String OPENSHA_GMT_DATA_PATH =
 			ServerPrefUtils.SERVER_PREFS.getDataDir().getAbsolutePath()+File.separator+"gmt"+File.separator;
 	public static final String OPENSHA_SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "GMT_MapGeneratorServlet";
-	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
+	public static final String OPENSHA_JAVA_PATH = "/usr/bin/java";
 	public static final String OPENSHA_CLASSPATH = ServerPrefUtils.SERVER_PREFS.getTomcatDir().getAbsolutePath()
 			+File.separator+"classes";
-	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
+//	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
+	public static final String OPENSHA_NETCDF_LIB_PATH=null; // libraries are in /usr/lib64/ so hopefully not needed
 
 	// this is the path where general data (e.g., topography) are found:
 	public static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
