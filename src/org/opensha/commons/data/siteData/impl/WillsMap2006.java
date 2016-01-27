@@ -52,7 +52,9 @@ public class WillsMap2006 extends AbstractSiteData<Double> {
 	public static final String NAME = "CGS/Wills Site Classification Map (2006)";
 	public static final String SHORT_NAME = "Wills2006";
 	
-	public static final String SERVER_BIN_FILE = "/export/opensha/data/siteData/wills2006.bin";
+	public static final String SERVER_BIN_FILE = 
+			ServerPrefUtils.SERVER_PREFS.getDataDir().getAbsolutePath()
+				+File.separator+"siteData"+File.separator+"wills2006.bin";
 	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
 	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/Wills2006";

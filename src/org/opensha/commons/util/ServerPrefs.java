@@ -40,7 +40,8 @@ public enum ServerPrefs {
 	DEV_PREFS(ServerPrefUtils.OPENSHA_SERVER_DEV_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_DEV_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_DEV_DIR,
-			ServerPrefUtils.GMT_DATA_DIR,
+			ServerPrefUtils.DATA_DIR,
+			ServerPrefUtils.TEMP_DIR,
 			DevStatus.DEVELOPMENT),
 	/**
 	 * Preferences for stable production releases
@@ -48,20 +49,24 @@ public enum ServerPrefs {
 	PRODUCTION_PREFS(ServerPrefUtils.OPENSHA_SERVER_PRODUCTION_HOST,
 			ServerPrefUtils.OPENSHA_SERVLET_PRODUCTION_URL,
 			ServerPrefUtils.OPENSHA_TOMCAT_PRODUCTION_DIR,
-			ServerPrefUtils.GMT_DATA_DIR,
+			ServerPrefUtils.DATA_DIR,
+			ServerPrefUtils.TEMP_DIR,
 			DevStatus.PRODUCTION);
 	
 	private String hostName;
 	private String servletURL;
 	private File tomcatDir;
-	private File gmtDataDir;
+	private File dataDir;
+	private File tempDir;
 	private DevStatus buildType;
 	
-	private ServerPrefs(String hostName, String servletURL, File tomcatDir, File gmtDataDir, DevStatus buildType) {
+	private ServerPrefs(String hostName, String servletURL, File tomcatDir, File dataDir,
+			File tempDir, DevStatus buildType) {
 		this.hostName = hostName;
 		this.servletURL = servletURL;
 		this.tomcatDir = tomcatDir;
-		this.gmtDataDir = gmtDataDir;
+		this.dataDir = dataDir;
+		this.tempDir = tempDir;
 		this.buildType = buildType;
 	}
 
@@ -84,10 +89,18 @@ public enum ServerPrefs {
 	
 	/**
 	 * 
-	 * @return path to the temporary gmt data directory for this server
+	 * @return path to the temporary storage (can be /scrach, /tmp, or similar)
 	 */
-	public File getGMTDataDir() {
-		return gmtDataDir;
+	public File getTempDir() {
+		return tempDir;
+	}
+	
+	/**
+	 * 
+	 * @return path to the data storage directory on this server
+	 */
+	public File getDataDir() {
+		return dataDir;
 	}
 
 	/**
