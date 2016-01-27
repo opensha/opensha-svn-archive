@@ -1051,7 +1051,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			String hiResFile = fileName+"HiResData.grd";
 			rmFiles.add(hiResFile);
 			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-			resolution + "c -Q "+region;
+			resolution + "c -nl "+region;
 			gmtCommandLines.add(commandLine+"\n");
 			String intenFile = fileName+"Inten.grd";
 			commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
@@ -1457,7 +1457,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				rmFiles.add(hiResFile);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
 				commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-				topoFile.resolution() + "c -Q "+region;
+				topoFile.resolution() + "c -nl "+region;
 				gmtCommandLines.add(commandLine);
 				
 				if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()) {

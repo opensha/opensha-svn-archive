@@ -238,7 +238,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				commandLine = "${GMT_PATH}grdsample "+interpUnsampledGRD+" -G"+interpSampledGRD
 								+" -I"+mapGridSpacing+region;
 				if (!bicubic)
-					commandLine += "-Q";
+					commandLine += "-nl";
 				gmtCommandLines.add(commandLine+"\n");
 			}
 			
@@ -268,7 +268,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 					commandLine = "${GMT_PATH}grdsample "+interpRatioUnsampledGRD+" -G"+interpRatioSampledGRD
 									+" -I"+mapGridSpacing+region;
 					if (!bicubic)
-						commandLine += "-Q";
+						commandLine += "-nl";
 					gmtCommandLines.add(commandLine+"\n");
 				}
 			}
@@ -502,7 +502,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				rmFiles.add(topoResGRD);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
 				commandLine="${GMT_PATH}grdsample "+grdFile+" -G"+topoResGRD+" -I" +
-				topoFile.resolution() + "c -Q "+region;
+				topoFile.resolution() + "c -nl "+region;
 				gmtCommandLines.add(commandLine);
 				grdFile = topoResGRD;
 //				if (mapType != InterpDiffMapType.DIFF && mapType != InterpDiffMapType.RATIO)
