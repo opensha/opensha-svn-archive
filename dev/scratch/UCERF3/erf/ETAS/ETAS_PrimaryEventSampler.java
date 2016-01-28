@@ -553,13 +553,13 @@ public class ETAS_PrimaryEventSampler {
 				int sectIndex = sectIndexList.get(s);
 				double sectWt1;
 				// WEIGHT BY AREA
-//				sectWt1 = rupSet.getAreaForSection(sectIndex);
+				sectWt1 = rupSet.getAreaForSection(sectIndex);
 				
 				// WEIGHT BY SUBSEIS RATE
-				if(totLongTermSubSeisRateOnSectArray[sectIndex] != 0)
-					sectWt1 = totLongTermSubSeisRateOnSectArray[sectIndex];
-				else
-					sectWt1 = aveSubRates;
+//				if(totLongTermSubSeisRateOnSectArray[sectIndex] != 0)
+//					sectWt1 = totLongTermSubSeisRateOnSectArray[sectIndex];
+//				else
+//					sectWt1 = aveSubRates;
 				
 				
 				double normTS=Double.NaN;
@@ -5883,7 +5883,7 @@ System.exit(0);
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
-		ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+//		ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
 		
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -5953,7 +5953,7 @@ System.exit(0);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
 //		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_Poisson_012616");
-		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson_GridSeisCorr_newWt");
+		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson_newWt");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
@@ -6740,6 +6740,7 @@ System.exit(0);
 		cumHist.setInfo("Cumulative distribution");
 		String info = "mean="+(float)hist.computeMean()+"\nmedian="+(float)cumHist.getFirstInterpolatedX(0.5)+"\nmode="+(float)hist.getMode()+"\n"+hist.toString();
 		hist.setInfo(info);
+		info = "mean="+(float)hist.computeMean()+"\nmedian="+(float)cumHist.getFirstInterpolatedX(0.5)+"\nmode="+(float)hist.getMode()+"\n"+cumHist.toString();
 		cumHist.setInfo(info);
 		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
 		funcList.add(hist);
