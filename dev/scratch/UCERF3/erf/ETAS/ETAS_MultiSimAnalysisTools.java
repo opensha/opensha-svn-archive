@@ -2761,8 +2761,12 @@ public class ETAS_MultiSimAnalysisTools {
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
 		names.add("1000yr Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_01_25-spontaneous-1000yr-full_td-gridSeisCorr/results_m4.bin"));
+		resultsZipFiles.add(new File(mainDir, "2016_01_27-spontaneous-1000yr-newNuclWt-full_td-gridSeisCorr/results_m4.bin"));
 		scenarios.add(null);
+		
+//		names.add("1000yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_01_25-spontaneous-1000yr-full_td-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("10000yr Full TD, MC=10, NoLTR");
 //		resultsZipFiles.add(new File(mainDir, "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin"));
@@ -3061,16 +3065,17 @@ public class ETAS_MultiSimAnalysisTools {
 				subsetFileName = "spontaneous";
 			}
 			
-			FaultSystemSolutionERF_ETAS erf = null;
+			FaultSystemSolutionERF erf = null;
 			if (triggerParentID < 0 && (meanDuration >= 100d || catalogs.size() >= 1000)) {
 				System.out.println("Creating ERF for comparisons");
-				erf = new FaultSystemSolutionERF_ETAS(fss);
+				erf = new FaultSystemSolutionERF(fss);
 				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
 				erf.getTimeSpan().setDuration(1d);
 				if (resultsFile.getParentFile().getName().contains("gridSeisCorr")) {
 					System.out.println("Applying gridded seis correction");
 					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+					System.out.println("DONE applying gridded seis correction");					
 				}
 				erf.updateForecast();
 			}

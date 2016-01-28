@@ -1347,7 +1347,7 @@ public class ETAS_Simulator {
 	}
 	
 	
-	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio) {
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF erf, boolean plotRateRatio) {
 		double[] gridSeisCorrValsArray;
 		try {
 			gridSeisCorrValsArray = MatrixIO.doubleArrayFromFile(new File(ETAS_PrimaryEventSampler.defaultGriddedCorrFilename));
