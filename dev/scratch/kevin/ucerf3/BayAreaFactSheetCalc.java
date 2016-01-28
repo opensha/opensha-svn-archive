@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipException;
 
+import org.dom4j.DocumentException;
 import org.opensha.commons.calc.FractileCurveCalculator;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
@@ -21,7 +22,15 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeOptions;
+import org.opensha.sha.earthquake.param.BPTAveragingTypeParam;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
+import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -32,12 +41,14 @@ import com.google.common.collect.Table;
 
 import scratch.UCERF3.CompoundFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class BayAreaFactSheetCalc {
 	
@@ -59,8 +70,12 @@ public class BayAreaFactSheetCalc {
 	private static final double delta = 0.1d;
 	private static final int num = (int) ((maxX - minX) / delta + 1);
 
-	public static void main(String[] args) throws ZipException, IOException {
+	public static void main(String[] args) throws ZipException, IOException, DocumentException {
 		File outputDir = new File("/home/kevin/OpenSHA/UCERF3/bay_area_fact_sheet");
+		boolean do_branch_averaged = true;
+		if (do_branch_averaged)
+			outputDir = new File(outputDir, "branch_averaged");
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		File logFile = new File(outputDir, "log.txt");
 		FileWriter fw = new FileWriter(logFile);
 		
@@ -68,6 +83,16 @@ public class BayAreaFactSheetCalc {
 		
 		File compoundFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip");
+		Map<FaultModels, FaultSystemSolution> baSols = null;
+		if (do_branch_averaged) {
+			baSols = Maps.newHashMap();
+			baSols.put(FaultModels.FM3_1, FaultSystemIO.loadSol(new File(
+					"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip")));
+			baSols.put(FaultModels.FM3_2, FaultSystemIO.loadSol(new File(
+					"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip")));
+		}
 		
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
 		
@@ -168,9 +193,48 @@ public class BayAreaFactSheetCalc {
 						+Joiner.on("\n\t\t").join(parentNamesExcluded));
 				
 				rupturesTable.put(fm, "Other Faults", rupturesExcluded);
+			} else if (do_branch_averaged) {
+				// only do each FM once for BA
+				continue;
 			}
 			
 			double[] mags = cfss.getMags(branch);
+			
+			Map<MagDependentAperiodicityOptions, double[]> baProbs = null;
+			if (do_branch_averaged) {
+				FaultSystemSolution sol = baSols.get(branch.getValue(FaultModels.class));
+				mags = sol.getRupSet().getMagForAllRups();
+				
+				FaultSystemSolutionERF baERF = new FaultSystemSolutionERF(sol);
+				baERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+				baProbs = Maps.newHashMap();
+				
+				for (MagDependentAperiodicityOptions cov : probsMap.keySet()) {
+					if (cov == null) {
+						baERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+					} else {
+						baERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+						baERF.setParameter(MagDependentAperiodicityParam.NAME, cov);
+						baERF.setParameter(HistoricOpenIntervalParam.NAME,
+								(double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
+						baERF.setParameter(BPTAveragingTypeParam.NAME,
+								BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE);
+					}
+					baERF.getTimeSpan().setDuration(30d);
+					baERF.updateForecast();
+					
+					double[] probs = new double[mags.length];
+					for (int i=0; i<probs.length; i++) {
+						int srcIndex = baERF.getSrcIndexForFltSysRup(i);
+						if (srcIndex < 0) {
+							System.out.println("No source for "+branch.getValue(FaultModels.class).name()+" rupture "+i);
+							continue;
+						}
+						probs[i] = baERF.getSource(srcIndex).computeTotalProb();
+					}
+					baProbs.put(cov, probs);
+				}
+			}
 			
 			// now register probabilities
 			for (String faultName : rupturesTable.columnKeySet()) {
@@ -179,7 +243,11 @@ public class BayAreaFactSheetCalc {
 				Map<MagDependentAperiodicityOptions, EvenlyDiscretizedFunc> probFuncs = Maps.newHashMap();
 				
 				for (MagDependentAperiodicityOptions cov : probsMap.keySet()) {
-					double[] erfProbs = probsMap.get(cov).getProbabilities(branch);
+					double[] erfProbs;
+					if (do_branch_averaged)
+						erfProbs = baProbs.get(cov);
+					else
+						erfProbs = probsMap.get(cov).getProbabilities(branch);
 					Preconditions.checkState(erfProbs.length == mags.length);
 					EvenlyDiscretizedFunc probFunc = getProbs(ruptures, mags, erfProbs);
 					if (xVals == null)
@@ -195,6 +263,11 @@ public class BayAreaFactSheetCalc {
 			
 			branchIndex++;
 		}
+		
+		if (do_branch_averaged)
+			Preconditions.checkState(branchFaultProbsTable.rowKeySet().size() == 2);
+		else
+			Preconditions.checkState(branchFaultProbsTable.rowKeySet().size() == cfss.getBranches().size());
 		
 		// -1 -> mean
 		// -2 -> time dep gain
@@ -258,8 +331,12 @@ public class BayAreaFactSheetCalc {
 			XY_DataSetList indepDatas = new XY_DataSetList();
 			List<Double> indepWeights = Lists.newArrayList();
 			
-			for (LogicTreeBranch branch : cfss.getBranches()) {
-				double branchWeight = weightProv.getWeight(branch);
+			for (LogicTreeBranch branch : branchFaultProbsTable.rowKeySet()) {
+				double branchWeight;
+				if (do_branch_averaged)
+					branchWeight = 0.5;
+				else
+					branchWeight = weightProv.getWeight(branch);
 				for (MagDependentAperiodicityOptions cov : probsMap.keySet()) {
 					if (!branchFaultProbsTable.containsRow(branch))
 						continue;
