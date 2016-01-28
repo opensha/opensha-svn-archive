@@ -202,6 +202,7 @@ public class BayAreaFactSheetCalc {
 			
 			Map<MagDependentAperiodicityOptions, double[]> baProbs = null;
 			if (do_branch_averaged) {
+				// get rupture probabilities for each rupture for each time dependent branch
 				FaultSystemSolution sol = baSols.get(branch.getValue(FaultModels.class));
 				mags = sol.getRupSet().getMagForAllRups();
 				
