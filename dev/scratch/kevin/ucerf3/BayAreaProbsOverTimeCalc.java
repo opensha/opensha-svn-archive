@@ -1,16 +1,19 @@
 package scratch.kevin.ucerf3;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.dom4j.DocumentException;
+import org.jfree.data.Range;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
@@ -42,7 +45,6 @@ public class BayAreaProbsOverTimeCalc {
 			double minMag, int numMag, double deltaMag, double duration) {
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-		
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
 		erf.setParameter(HistoricOpenIntervalParam.NAME,
 				(double)(FaultSystemSolutionERF.START_TIME_DEFAULT-1875));
@@ -118,92 +120,185 @@ public class BayAreaProbsOverTimeCalc {
 		}
 		
 	}
+	
+	private static void writeCSV(EvenlyDiscretizedFunc[] avgFuncs, double[] mags, File outputFile) throws IOException {
+		CSVFile<String> csv = new CSVFile<String>(true);
+		List<String> header = Lists.newArrayList("Year");
+		for (double mag : mags)
+			header.add("Prob M≥"+(float)mag);
+		csv.addLine(header);
+		for (int i=0; i<avgFuncs[0].size(); i++) {
+			List<String> line = Lists.newArrayList("");
+			for (int j=0; j<mags.length; j++)
+				line.add("");
+			csv.addLine(line);
+		}
+		
+		for (int i=0; i<avgFuncs.length; i++) {
+			EvenlyDiscretizedFunc avgFunc = avgFuncs[i];
+			
+			for (int y=0; y<avgFunc.size(); y++) {
+				int year = (int)avgFunc.getX(y);
+				int row = y+1;
+				int col = i+1;
+				if (i == 0)
+					csv.set(row, 0, year+"");
+				csv.set(row, col, avgFunc.getY(y)+"");
+			}
+		}
+		
+		csv.writeToFile(outputFile);
+	}
+	
+	public static EvenlyDiscretizedFunc[] loadCSV(File csvFile) throws IOException {
+		CSVFile<String> csv = CSVFile.readFile(csvFile, true);
+		
+		int startYear = Integer.parseInt(csv.get(1, 0));
+		int nextYear = Integer.parseInt(csv.get(2, 0));
+		double yearDelta = nextYear - startYear;
+		int numYears = csv.getNumRows()-1;
+		
+		EvenlyDiscretizedFunc[] ret = new EvenlyDiscretizedFunc[csv.getNumCols()-1];
+		
+		for (int i=0; i<ret.length; i++)
+			ret[i] = new EvenlyDiscretizedFunc(startYear, numYears, yearDelta);
+		
+		for (int row=1; row<csv.getNumRows(); row++) {
+			double year = Double.parseDouble(csv.get(row, 0));
+			
+			int yearIndex = row-1;
+			double yearTest = ret[0].getX(yearIndex);
+			Preconditions.checkState(yearTest == year, "Year mismatch! %s != %s", yearTest, year);
+			
+			for (int col=1; col<csv.getNumCols(); col++) {
+				int magIndex = col-1;
+				ret[magIndex].set(yearIndex, Double.parseDouble(csv.get(row, col)));
+			}
+		}
+		
+		return ret;
+	}
 
 	public static void main(String[] args) throws IOException, DocumentException, InterruptedException {
 		double minMag = 6.7d;
 		int numMag = 14;
 		double deltaMag = 0.1;
 		EvenlyDiscretizedFunc magsFunc = new EvenlyDiscretizedFunc(minMag, numMag, deltaMag);
+		double[] mags = new double[magsFunc.size()];
+		for (int i=0; i<magsFunc.size(); i++)
+			mags[i] = magsFunc.getX(i);
 		
-		File outputFile = new File("/home/kevin/OpenSHA/UCERF3/bay_area_fact_sheet/probs_over_time");
+		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/bay_area_fact_sheet/");
 		
 		Region reg = new CaliforniaRegions.SF_BOX();
 		int startYear = 1850;
-//		int endYear = 2014;
-//		int yearDelta = 1;
-		int endYear = 2010;
+		int endYear = 2014;
 		int yearDelta = 1;
+//		int endYear = 2010;
+//		int yearDelta = 20;
 		double duration = 30;
 		
-		File fssDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions");
+		File outputDir = new File(mainDir, "probs_over_time_start"+startYear+"_every"+yearDelta+"_end"+endYear);
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
+		
+		File csvFile = new File(outputDir, "table.csv");
+		
+		EvenlyDiscretizedFunc[] avgResults;
+		if (csvFile.exists()) {
+			System.out.println("Loading from CSV");
+			avgResults = loadCSV(csvFile);
+		} else {
+			System.out.println("Calculating CSV");
+			File fssDir = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions");
 
-		FaultSystemSolution fm31Sol = FaultSystemIO.loadSol(new File(fssDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-		FaultSystemSolution fm32Sol = FaultSystemIO.loadSol(new File(fssDir,
-				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
-		
-//		EvenlyDiscretizedFunc[] results31 = calc(fm31Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
-//		EvenlyDiscretizedFunc[] results32 = calc(fm32Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
-		
-		CalcThread calc31 = new CalcThread(fm31Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
-		CalcThread calc32 = new CalcThread(fm32Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
-		
-		List<CalcThread> tasks = Lists.newArrayList();
-		tasks.add(calc31);
-		tasks.add(calc32);
-		
-		new ThreadedTaskComputer(tasks).computeThreaded(2);
-		
-		EvenlyDiscretizedFunc[] results31 = calc31.result;
-		EvenlyDiscretizedFunc[] results32 = calc32.result;
-		
-		CSVFile<String> csv = new CSVFile<String>(true);
-		List<String> header = Lists.newArrayList("Year");
-		for (int i=0; i<magsFunc.size(); i++)
-			header.add("Prob M≥"+(float)magsFunc.getX(i));
-		csv.addLine(header);
-		for (int year=startYear; year<=endYear; year++) {
-			List<String> line = Lists.newArrayList("");
-			for (int i=0; i<magsFunc.size(); i++)
-				line.add("");
-			csv.addLine(line);
+			FaultSystemSolution fm31Sol = FaultSystemIO.loadSol(new File(fssDir,
+					"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+			FaultSystemSolution fm32Sol = FaultSystemIO.loadSol(new File(fssDir,
+					"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
+			
+//			EvenlyDiscretizedFunc[] results31 = calc(fm31Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
+//			EvenlyDiscretizedFunc[] results32 = calc(fm32Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
+			
+			CalcThread calc31 = new CalcThread(fm31Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
+			CalcThread calc32 = new CalcThread(fm32Sol, reg, startYear, endYear, yearDelta, minMag, numMag, deltaMag, duration);
+			
+			List<CalcThread> tasks = Lists.newArrayList();
+			tasks.add(calc31);
+			tasks.add(calc32);
+			
+			new ThreadedTaskComputer(tasks).computeThreaded(2);
+			
+			EvenlyDiscretizedFunc[] results31 = calc31.result;
+			EvenlyDiscretizedFunc[] results32 = calc32.result;
+			
+			avgResults = new EvenlyDiscretizedFunc[results31.length];
+			for (int i=0; i<results31.length; i++) {
+				EvenlyDiscretizedFunc result31 = results31[i];
+				EvenlyDiscretizedFunc result32 = results32[i];
+				avgResults[i] = new EvenlyDiscretizedFunc(result31.getMinX(), result31.getMaxX(), result31.size());
+				
+				for (int y=0; y<result31.size(); y++) {
+					double avgVal = result31.getY(y)*0.5 + result32.getY(y)*0.5;
+					avgResults[i].set(y, avgVal);
+				}
+			}
+			
+			System.out.println("Writing CSV");
+			writeCSV(avgResults, mags, csvFile);
 		}
 		
+		System.out.println("Plotting");
+		
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<DiscretizedFunc> gainFuncs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(magsFunc.getMinX(), magsFunc.getMaxX());
-		for (int i=0; i<results31.length; i++) {
-			EvenlyDiscretizedFunc result31 = results31[i];
-			EvenlyDiscretizedFunc result32 = results32[i];
-			EvenlyDiscretizedFunc avgFunc = new EvenlyDiscretizedFunc(result31.getMinX(), result31.getMaxX(), result31.size());
-			
-			for (int y=0; y<result31.size(); y++) {
-				int year = (int)result31.getX(y);
-				int row = y+1;
-				int col = i+1;
-				if (i == 0)
-					csv.set(row, 0, year+"");
-				double avgVal = result31.getY(y)*0.5 + result32.getY(y)*0.5;
-				avgFunc.set(y, avgVal);
-				csv.set(row, col, avgVal+"");
-			}
+		for (int i=0; i<avgResults.length; i++) {
+			EvenlyDiscretizedFunc avgFunc = avgResults[i];
 			
 			float mag = (float)magsFunc.getX(i);
 			avgFunc.setName("M≥"+mag);
 			
+			EvenlyDiscretizedFunc gainFunc = new EvenlyDiscretizedFunc(avgFunc.getMinX(), avgFunc.getMaxX(), avgFunc.size());
+			for (int j=0; j<avgFunc.size(); j++)
+				gainFunc.set(j, avgFunc.getY(j)/avgFunc.getY(0));
+			gainFunc.setName(avgFunc.getName());
+			
 			funcs.add(avgFunc);
+			gainFuncs.add(gainFunc);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, cpt.getColor(mag)));
 		}
 		
-		csv.writeToFile(new File(outputFile.getAbsoluteFile()+".csv"));
-		
 		PlotSpec spec = new PlotSpec(funcs, chars, "SF Probabilities Over Time", "Year", "Probability");
 		spec.setLegendVisible(true);
-		GraphWindow gw = new GraphWindow(spec);
-		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
-		gw.setYLog(true);
-		gw.saveAsPNG(outputFile.getAbsoluteFile()+".png");
-		gw.saveAsPDF(outputFile.getAbsoluteFile()+".pdf");
+		
+		int width = 1000;
+		int height = 800;
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		// log plot
+		gp.drawGraphPanel(spec, false, true, new Range(startYear, endYear), new Range(1e-3,1));
+		gp.getCartPanel().setSize(width, height);
+		gp.saveAsPNG(new File(outputDir, "probs_log.png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, "probs_log.pdf").getAbsolutePath());
+		// now linear
+		gp.drawGraphPanel(spec, false, false, new Range(startYear, endYear), new Range(0,1));
+		gp.getCartPanel().setSize(width, height);
+		gp.saveAsPNG(new File(outputDir, "probs_linear.png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, "probs_linear.pdf").getAbsolutePath());
+		
+		PlotSpec gainSpec = new PlotSpec(gainFuncs, chars, "SF Probability Gains Over Time",
+				"Year", "Probability Gain (ref="+startYear+")");
+		gainSpec.setLegendVisible(true);
+		gp.drawGraphPanel(gainSpec, false, false, new Range(startYear, endYear), null);
+		gp.getCartPanel().setSize(width, height);
+		gp.saveAsPNG(new File(outputDir, "gain.png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, "gain.pdf").getAbsolutePath());
 	}
 
 }
