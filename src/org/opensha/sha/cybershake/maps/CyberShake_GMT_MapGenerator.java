@@ -377,9 +377,9 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			pageColor = "white";
 			frameColor = "white";
 		}
-		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR" +
+		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,"+frameColor+" FONT_LABEL=18p PS_PAGE_COLOR" +
 				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN=+"+frameColor +
-				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor;
+				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor+" MAP_FRAME_PEN=1p";
 		gmtCommandLines.add(commandLine+"\n");
 		
 		String interpPlotGRD;

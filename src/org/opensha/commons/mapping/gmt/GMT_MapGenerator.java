@@ -1018,12 +1018,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// set some defaults
 		if(blackBackgroundParam.getValue()) {
-			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
-			commandLine+=" MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,white FONT_LABEL=18p PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
+			commandLine+=" MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i MAP_FRAME_PEN=1p";
 		}
 		else {
-			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
-			commandLine+=" MAP_DEFAULT_PEN=+black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,black FONT_LABEL=18p PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
+			commandLine+=" MAP_DEFAULT_PEN=+black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i MAP_FRAME_PEN=1p";
 		}
 		gmtCommandLines.add(commandLine+"\n");
 
@@ -1391,9 +1391,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT paper/font defaults");
 		if(map.isBlackBackground())
-			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,white FONT_LABEL=18p PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
 		else
-			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,black FONT_LABEL=18p PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
 		gmtCommandLines.add(commandLine+"\n");
 		
 		boolean doContour = map.getGriddedData() != null && map.getContourIncrement() > 0;
@@ -1522,9 +1522,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
 		if(map.isBlackBackground())
-			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255 MAP_FRAME_PEN=1p";
 		else
-			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255 MAP_FRAME_PEN=1p";
 		gmtCommandLines.add(commandLine);
 
 		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, cptFile, psFileName);
