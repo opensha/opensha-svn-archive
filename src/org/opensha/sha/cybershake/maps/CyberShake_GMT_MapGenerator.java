@@ -371,15 +371,15 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		// set some defaults
 		String pageColor, frameColor;
 		if (map.isBlackBackground()) {
-			pageColor = "0/0/0";
-			frameColor = "255/255/255";
+			pageColor = "black";
+			frameColor = "white";
 		} else {
-			pageColor = "255/255/255";
-			frameColor = "0/0/0";
+			pageColor = "white";
+			frameColor = "white";
 		}
 		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR" +
-				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN="+frameColor +
-				" FORMAT_GEO_MAP=-D FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor;
+				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN=+"+frameColor +
+				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor;
 		gmtCommandLines.add(commandLine+"\n");
 		
 		String interpPlotGRD;

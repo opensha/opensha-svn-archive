@@ -1019,11 +1019,11 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		if(blackBackgroundParam.getValue()) {
 			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
-			commandLine+=" MAP_DEFAULT_PEN=255/255/255 FORMAT_GEO_MAP=-D FRAME_WIDTH=0.1i";
+			commandLine+=" MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i";
 		}
 		else {
 			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p FONT_LABEL=18p PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
-			commandLine+=" MAP_DEFAULT_PEN=0/0/0 FORMAT_GEO_MAP=-D FRAME_WIDTH=0.1i";
+			commandLine+=" MAP_DEFAULT_PEN=+black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i";
 		}
 		gmtCommandLines.add(commandLine+"\n");
 
@@ -1522,9 +1522,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
 		if(map.isBlackBackground())
-			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=255/255/255 FORMAT_GEO_MAP=-D FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255";
 		else
-			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=0/0/0 FORMAT_GEO_MAP=-D FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255";
 		gmtCommandLines.add(commandLine);
 
 		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, cptFile, psFileName);
