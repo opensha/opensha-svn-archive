@@ -33,8 +33,8 @@ public class ServerPrefUtils {
 //	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
 	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/var/lib/tomcat/webapps/";
 	
-	static final File TEMP_DIR = new File("/tmp/");
 	static final File DATA_DIR = new File("/export/opensha-00/data/");
+	static final File TEMP_DIR = new File("/export/opensha-00/tmp/");
 	
 	/**
 	 * This is the path to the WEB-INF dir for production OpenSHA servlets
