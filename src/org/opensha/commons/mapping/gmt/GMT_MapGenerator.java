@@ -503,7 +503,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		CoastAttributes coast = null;
 		if (coastParam.getValue().equals(COAST_DRAW)) {
-			coast = new CoastAttributes(Color.GRAY, 5.0);
+			coast = new CoastAttributes(Color.GRAY, 1);
 		} else if (coastParam.getValue().equals(COAST_FILL)) {
 			coast = new CoastAttributes();
 		}
@@ -1077,7 +1077,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add coast and fill if desired
 		if(coast.equals(COAST_FILL)) {
-			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -Na >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1p,17/73/71 -P -S17/73/71 -Dh -Na >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else if(coast.equals(COAST_DRAW)) {
@@ -1687,12 +1687,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			}
 			String lineColor = "";
 			if (coastAt.getLineColor() != null) {
-				lineColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
+				lineColor = "-W" + coastAt.getLineSize() + "p," + getGMTColorString(coastAt.getLineColor());
 			}
 			
 			gmtCommandLines.add("# Draw coastline");
 			gmtCommandLines.add("${GMT_PATH}pscoast "+region + proj + " -K -O " + lineColor + 
-						" -P " + fillColor + " -Dh -Na/"+coastAt.getLineSize()+"/"
+						" -P " + fillColor + " -Dh -Na/"+coastAt.getLineSize()+"p,"
 						+getGMTColorString(coastAt.getLineColor())+" >> " + psFile+"\n");
 		}
 	}
