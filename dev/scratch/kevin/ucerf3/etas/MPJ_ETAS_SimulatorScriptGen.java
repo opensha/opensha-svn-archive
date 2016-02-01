@@ -30,7 +30,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
-		double duration = 1000;
+//		double duration = 1000;
+		double duration = 30;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -56,8 +57,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean applyLongTermRates = false;
 		boolean gridSeisCorr = true;
 		
-		String nameAdd = null;
-//		String nameAdd = "newNuclWt";
+//		String nameAdd = null;
+		String nameAdd = "newNuclWt";
 //		String nameAdd = "4000more";
 //		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";
@@ -70,10 +71,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			queue = null;
 			startYear = 2012;
 			histCatalog = true;
-			numSims = 500;
-			nodes = 60;
-//			numSims = 5000;
+//			numSims = 500;
 //			nodes = 60;
+			numSims = 5000;
+			nodes = 60;
 			mins = 24*60;
 //			numSims = 50;
 //			nodes = 25;

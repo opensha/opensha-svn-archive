@@ -2760,9 +2760,21 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
-		names.add("1000yr Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_01_27-spontaneous-1000yr-newNuclWt-full_td-gridSeisCorr/results_m4.bin"));
+//		names.add("30yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_01_31-spontaneous-30yr-full_td-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
+		
+		names.add("30yr Full TD");
+		resultsZipFiles.add(new File(mainDir, "2016_01_31-spontaneous-30yr-newNuclWt-full_td-gridSeisCorr/results_m4.bin"));
 		scenarios.add(null);
+		
+//		names.add("1000yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_01_28-spontaneous-1000yr-full_td-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
+//		
+//		names.add("1000yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_01_27-spontaneous-1000yr-newNuclWt-full_td-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("1000yr Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2016_01_25-spontaneous-1000yr-full_td-gridSeisCorr/results_m4.bin"));

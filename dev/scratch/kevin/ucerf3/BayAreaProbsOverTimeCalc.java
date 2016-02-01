@@ -190,7 +190,18 @@ public class BayAreaProbsOverTimeCalc {
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/bay_area_fact_sheet/");
 		
-		Region reg = new CaliforniaRegions.SF_BOX();
+		boolean laComparison = true;
+		
+		String regName;
+		Region reg;
+		if (laComparison) {
+			reg = new CaliforniaRegions.LA_BOX();
+			mainDir = new File(mainDir, "la_compare");
+			regName = "LA";
+		} else {
+			reg = new CaliforniaRegions.SF_BOX();
+			regName = "SF";
+		}
 		int startYear = 1850;
 		int endYear = 2014;
 		int yearDelta = 1;
@@ -269,7 +280,7 @@ public class BayAreaProbsOverTimeCalc {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, cpt.getColor(mag)));
 		}
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, "SF Probabilities Over Time", "Year", "Probability");
+		PlotSpec spec = new PlotSpec(funcs, chars, regName+" Probabilities Over Time", "Year", "Probability");
 		spec.setLegendVisible(true);
 		
 		int width = 1000;
@@ -292,7 +303,7 @@ public class BayAreaProbsOverTimeCalc {
 		gp.saveAsPNG(new File(outputDir, "probs_linear.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "probs_linear.pdf").getAbsolutePath());
 		
-		PlotSpec gainSpec = new PlotSpec(gainFuncs, chars, "SF Probability Gains Over Time",
+		PlotSpec gainSpec = new PlotSpec(gainFuncs, chars, regName+" Probability Gains Over Time",
 				"Year", "Probability Gain (ref="+startYear+")");
 		gainSpec.setLegendVisible(true);
 		gp.drawGraphPanel(gainSpec, false, false, new Range(startYear, endYear), null);
