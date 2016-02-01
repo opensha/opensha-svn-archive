@@ -83,7 +83,7 @@ import com.google.common.base.Preconditions;
 public class GMT_MapGeneratorServlet
 extends HttpServlet {
 	
-	public static final String GMT_URL_PATH = "http://"+ServerPrefUtils.SERVER_PREFS.getHostName()+"/";
+	public static final String GMT_URL_PATH = "http://"+ServerPrefUtils.SERVER_PREFS.getHostName()+"/gmtData/";
 	public static final File GMT_DATA_DIR = new File(ServerPrefUtils.SERVER_PREFS.getTempDir(), "gmtData");
 	private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
 	
@@ -213,8 +213,7 @@ extends HttpServlet {
 		FileUtils.createZipFile(newDir.getAbsolutePath());
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
-		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-		plotDirName + SystemUtils.FILE_SEPARATOR;
+		String mapImagePath = GMT_URL_PATH+plotDirName + SystemUtils.FILE_SEPARATOR;
 		
 		System.out.println("DONE. Map URL for '"+plotDirName+"': "+mapImagePath);
 		
