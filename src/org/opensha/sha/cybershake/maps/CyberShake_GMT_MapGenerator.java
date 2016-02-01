@@ -369,16 +369,18 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		gmtCommandLines.add("# Set GMT paper/font defaults");
 		// set some defaults
-		String pageColor, frameColor;
+		String pageColor, frameColor, mapPenColor;
 		if (map.isBlackBackground()) {
 			pageColor = "black";
 			frameColor = "white";
+			mapPenColor = "+"+frameColor;
 		} else {
 			pageColor = "white";
-			frameColor = "white";
+			frameColor = "black";
+			mapPenColor = frameColor;
 		}
-		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,"+frameColor+" FONT_LABEL=18p PS_PAGE_COLOR" +
-				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN=+"+frameColor +
+		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,"+frameColor+" FONT_LABEL=18p,"+frameColor+" PS_PAGE_COLOR" +
+				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN="+mapPenColor +
 				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor+" MAP_FRAME_PEN=1p";
 		gmtCommandLines.add(commandLine+"\n");
 		
