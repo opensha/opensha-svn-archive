@@ -903,9 +903,9 @@ System.out.println("numRupRejected="+numRupRejected);
 			String verticalScaling = "-JZ"+z_axis_length+"i";
 			// temporarily switching background color to 0/0/0 from 180/180/180 because anything
 			// that's not pure white comes out as pure black
-			gmtScriptLines.add("${GMT_PATH}gmtset PAGE_COLOR 255/255/255");
-			gmtScriptLines.add("${GMT_PATH}gmtset X_ORIGIN 1.0i");
-			gmtScriptLines.add("${GMT_PATH}gmtset Y_ORIGIN 2.0i");
+			gmtScriptLines.add("${GMT_PATH}gmtset PAGE_COLOR=255/255/255");
+			gmtScriptLines.add("${GMT_PATH}gmtset X_ORIGIN=1.0i");
+			gmtScriptLines.add("${GMT_PATH}gmtset Y_ORIGIN=2.0i");
 			gmtScriptLines.add("");
 			String img_ps_file = "DisaggregationPlot.ps";
 
