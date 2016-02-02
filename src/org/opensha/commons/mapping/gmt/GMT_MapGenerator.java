@@ -1064,7 +1064,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add highways if desired
 		if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W1p,125/125/125 -: " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
