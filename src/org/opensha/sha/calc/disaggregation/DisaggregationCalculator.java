@@ -1025,17 +1025,17 @@ System.out.println("numRupRejected="+numRupRejected);
 			if (D) System.out.println(13);
 
 
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
-			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.0 0.75 13,12 0.0 CB e<-2\" > temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"0.9 0.75 13,12 0.0 CB -2<e<-1\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"1.8 0.75 13,12 0.0 CB -1<e<-0.5\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"2.7 0.75 13,12 0.0 CB -0.5<e<0\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"3.6 0.75 13,12 0.0 CB 0<e<0.5\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"4.5 0.75 13,12 0.0 CB 0.5<e<1\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"5.4 0.75 13,12 0.0 CB 1<e<2\" >> temp_label");
+			gmtScriptLines.add("${COMMAND_PATH}echo " + "\"6.3 0.75 13,12 0.0 CB 2<e\" >> temp_label");
 			// on gravity we used -X-2.45, but for some reason that puts stuff to the right
 			// on opensha.usc.edu
-			gmtScriptLines.add("${GMT_PATH}pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
+			gmtScriptLines.add("${GMT_PATH}pstext temp_label -F+f+a+j -R0/8.5/0/11 -N -Jx1i -X-6.1 -P -O >> " + img_ps_file);
 			gmtScriptLines.add("");
 			gmtScriptLines.add("${COMMAND_PATH}echo \"converting postscript\"");
 //			gmtScriptLines.add("${COMMAND_PATH}cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
