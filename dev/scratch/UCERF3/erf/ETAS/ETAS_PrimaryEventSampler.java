@@ -2511,9 +2511,10 @@ System.exit(0);
 	 * @throws RuntimeException
 	 * @throws IOException
 	 */
-	public void plotImpliedBulgeForSubSections(File resultsDir, String nameSuffix, boolean display) 
+	public void plotImpliedBulgeForSubSections(String dirName, String nameSuffix, boolean display) 
 			throws GMT_MapException, RuntimeException, IOException {
 
+		File resultsDir = new File(GMT_CA_Maps.GMT_DIR, dirName);
 		if(!resultsDir.exists())
 			resultsDir.mkdir();
 		
@@ -2523,7 +2524,7 @@ System.exit(0);
 		// Make sure long-term MFDs are created
 		makeLongTermSectMFDs();
 		
-		FileWriter fileWriter = new FileWriter(new File(resultsDir, "FaultSubsectionCharFactorData.csv"));
+		FileWriter fileWriter = new FileWriter(new File(resultsDir, dirName+".csv"));
 		fileWriter.write("SectID,CharFactorSupraRates,CharFactorNumPrimary,CharFactorMoRate,subRate,supraRate,minSupraMag,MoRate,SectName,SubSect\n");
 
 		// System.out.println("GR Correction Factors:\nsectID\t1.0/GRcorr\tsectName");
@@ -5947,6 +5948,8 @@ System.exit(0);
 	public static void main(String[] args) {
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		etasParams.setApplyGridSeisCorr(false);
+		etasParams.setApplySubSeisForSupraNucl(false);;
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
@@ -5987,7 +5990,12 @@ System.exit(0);
 		// Sections bulge plot
 		try {
 //			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsCorr_GridSeisCorr_supraNuclWt"), "Test", true);
+			String dirName = "ImpliedCharFactorForSubSections";
+			if(etasParams.getApplyGridSeisCorr())
+				dirName += "_gridSeisCorr";
+			if(etasParams.getApplySubSeisForSupraNucl())
+				dirName += "_SubSeisForSupraNucl";
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(dirName, "Test", true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
