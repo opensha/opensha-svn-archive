@@ -1669,7 +1669,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// add highways if desired
 		if (map.getHighwayFile() != null) {
 			gmtCommandLines.add("# Add highways to plot");
-			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W5/125/125/125 -: "
+			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W1p,125/125/125 -: "
 						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFile+"\n");
 		}
 	}
