@@ -54,11 +54,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean[] grCorrs = { false };
 //		double[] maxCharFactors = { U3ETAS_MaxCharFactorParam.DEFAULT_VALUE };
 //		double[] maxCharFactors = { 10 };
-		boolean applyLongTermRates = false;
+//		boolean applyLongTermRates = false;
 		boolean gridSeisCorr = true;
+		boolean applySubSeisForSupraNucl = true;
 		
-//		String nameAdd = null;
-		String nameAdd = "newNuclWt";
+		String nameAdd = null;
+//		String nameAdd = "newNuclWt";
 //		String nameAdd = "4000more";
 //		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";
@@ -183,8 +184,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					jobName += "-"+probModel.name().toLowerCase()+grStr;
 					if (timeIndep)
 						jobName += "-indep";
-					if (applyLongTermRates)
-						jobName += "-applyLTR";
+//					if (applyLongTermRates)
+//						jobName += "-applyLTR";
+					if (applySubSeisForSupraNucl)
+						jobName += "subSeisSupraNucl";
 					if (gridSeisCorr)
 						jobName += "-gridSeisCorr";
 					
@@ -223,7 +226,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					if (grCorr)
 						argz += args_continue_newline+"--impose-gr";
 					
-					argz += args_continue_newline+"--apply-long-term-rates "+applyLongTermRates;
+//					argz += args_continue_newline+"--apply-long-term-rates "+applyLongTermRates;
+					argz += args_continue_newline+"--apply-sub-seis-for-supra-nucl "+applySubSeisForSupraNucl;
 					
 					if (gridSeisCorr)
 						argz += args_continue_newline+"--grid-seis-correction";
