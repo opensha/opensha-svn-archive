@@ -203,8 +203,6 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = false;
-		
 		// Overide to Poisson if needed
 		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
@@ -347,6 +345,7 @@ public class ETAS_Simulator {
 		info_fr.flush();
 		
 		
+		// TODO This loop is redundant with that above; combine
 		if(D) System.out.println("Computing original spontaneousRupSampler & sourceRates[s]");
 		st = System.currentTimeMillis();
 		double sourceRates[] = new double[erf.getNumSources()];
@@ -385,32 +384,6 @@ public class ETAS_Simulator {
 		info_fr.flush();
 		
 		
-		// Apply corrections to gridded seis rates if desired
-//		double oldTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
-		if(APPLY_GR_CORR_TO_GRIDDED_SEIS && etasParams.getImposeGR()) {
-			double[] gridSeisGRcorrArray = etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
-			nthRup=0;
-			for(int s=0;s<erf.getNumSources();s++) {
-				if(s<numFaultSysSources) {
-					nthRup+=erf.getSource(s).getNumRuptures();
-				}
-				else {
-					for(ProbEqkRupture rup:erf.getSource(s)) {
-						if (nthRup >= spontaneousRupSampler.size())
-							throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
-						double newVal = spontaneousRupSampler.getY(nthRup)*gridSeisGRcorrArray[s-numFaultSysSources];
-						spontaneousRupSampler.set(nthRup, newVal);
-						nthRup+=1;
-					}				
-				}
-			}			
-		}
-//		double newTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
-//		System.out.println("oldTotalRate="+oldTotalRate+"newTotalRate="+newTotalRate+"newTotalRate="+(newTotalRate/oldTotalRate));
-//		System.exit(-1);
-		
-		
-		
 		
 		
 		// Make list of primary aftershocks for given list of obs quakes 
@@ -430,6 +403,7 @@ public class ETAS_Simulator {
 			double[] randomAftShockTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), parRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
 			if(parRup.getID() == scenarioRupID)
 				numPrimaryAshockForScenario = randomAftShockTimes.length;
+			LocationList locList = null;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
@@ -443,8 +417,10 @@ public class ETAS_Simulator {
 //						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup);
 						
 						// for no creep/aseis reduction:
-						RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(parRup.getFSSIndex(), fssERF, 0.05);
-						LocationList locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();
+						if(locList==null) {	// make reusable location list
+							RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(parRup.getFSSIndex(), fssERF, 0.05);
+							locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();							
+						}
 						Location tempLoc = locList.get(etas_utils.getRandomInt(locList.size()-1));
 						
 						if(tempLoc.getDepth()>etas_PrimEventSampler.maxDepth) {
@@ -633,9 +609,8 @@ public class ETAS_Simulator {
 			}
 			
 			// break out if we failed to set the rupture
-			if(!succeededInSettingRupture)
+			if(!succeededInSettingRupture) // TODO shouldn't following chunk of code be in the else statement directly above?
 				continue;
-			
 			nthRup = rup.getNthERF_Index();
 			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
 			int fltSysRupIndex = -1;
@@ -661,7 +636,7 @@ public class ETAS_Simulator {
 				double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 //				double[] eventTimes = etas_utils.getDefaultRandomEventTimes(rup.getMag(), startDay, endDay);
 				double[] eventTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-
+				LocationList locList = null;
 				if(eventTimes.length>0) {
 					for(int i=0; i<eventTimes.length;i++) {
 						long ot = rupOT +  (long)(eventTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);
@@ -671,8 +646,23 @@ public class ETAS_Simulator {
 						if(rup.getFSSIndex()==-1)
 							newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup));
 						else {
-							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup);
-							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// add fuzziness to parent location
+							// this produces too few aftershocks on highly creeping faults:
+//							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup);
+							
+							// for no creep/aseis reduction:
+							if(locList==null) {	// make reusable location list
+								RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(rup.getFSSIndex(), fssERF, 0.05);
+								locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();							
+							}
+							Location tempLoc = locList.get(etas_utils.getRandomInt(locList.size()-1));
+							
+							if(tempLoc.getDepth()>etas_PrimEventSampler.maxDepth) {
+								Location newLoc = new Location(tempLoc.getLatitude(),tempLoc.getLongitude(), etas_PrimEventSampler.maxDepth);
+								tempLoc=newLoc;
+							}
+
+							// now add some randomness for numerical stability:
+							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));
 						}
 						etas_PrimEventSampler.addRuptureToProcess(newRup);
 						eventsToProcess.add(newRup);
