@@ -1129,7 +1129,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg " + 
 					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+JPG_FILE_NAME+" -\n");
 			gmtCommandLines.add("${COMMAND_PATH}cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=png16m " + 
-					" -sOutputFile="+PNG_FILE_NAME+" -\n");
+					"-dTextAlphaBits=4 -sOutputFile="+PNG_FILE_NAME+" -\n");
 
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + JPG_FILE_NAME + " " + JPG_FILE_NAME+"\n");
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + PNG_FILE_NAME + " " + PNG_FILE_NAME+"\n");
@@ -1561,7 +1561,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+" -sDEVICE=jpeg " + 
 					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+jpgFileName+" -");
 			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+" -sDEVICE=png16m " + 
-					" -sOutputFile="+pngFileName+" -");
+					"-dTextAlphaBits=4 -sOutputFile="+pngFileName+" -");
 
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + jpgFileName + " " + jpgFileName);
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + pngFileName + " " + pngFileName);
