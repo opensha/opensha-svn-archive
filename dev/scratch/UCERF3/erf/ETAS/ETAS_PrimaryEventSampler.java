@@ -104,11 +104,9 @@ import com.google.common.collect.Maps;
  */
 public class ETAS_PrimaryEventSampler {
 	
-	final static boolean WT_SUPRA_SEIS_NUCL_BY_SUB_SEIS_RATES = true;
-	final static double MAX_CHAR_FACTOR = 1e3;
+	final static double MAX_CHAR_FACTOR = 1e10;
 	boolean APPLY_ERT_FAULTS;	// this tells whether to apply elastic-rebound triggereing (ERT), where likelihood of section triggering is proportional to normalized time since last
 	boolean APPLY_ERT_GRIDDED=true;	// this tells whether to apply elastic-rebound triggereing (ERT) for gridded seismicity
-	boolean applyGR_Corr=true;	// don't set here (set by constructor)
 	
 	final static boolean D=ETAS_Simulator.D;
 	
@@ -182,15 +180,23 @@ public class ETAS_PrimaryEventSampler {
 
 	// ETAS distance decay params
 	double etasDistDecay, etasMinDist;
+	boolean includeERF_Rates=false;
+	boolean applyGR_Corr;
+	U3ETAS_ProbabilityModelOptions probModel;
+	boolean wtSupraNuclBySubSeisRates;
+
+	
+	boolean includeSpatialDecay;
+	
 	ETAS_LocationWeightCalculator etas_LocWeightCalc;
 	
 	SummedMagFreqDist[] mfdForSrcArray;
 	SummedMagFreqDist[] mfdForSrcSubSeisOnlyArray;
 	SummedMagFreqDist[] mfdForTrulyOffOnlyArray;
 	
-	boolean includeERF_Rates, includeSpatialDecay;
 	
 	ETAS_Utils etas_utils;
+	ETAS_ParameterList etasParams;
 	
 	public static final double DEFAULT_MAX_DEPTH = 24;
 	public static final double DEFAULT_DEPTH_DISCR = 2.0;
@@ -214,13 +220,12 @@ public class ETAS_PrimaryEventSampler {
 	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
-			double pointSrcDiscr, String outputFileNameWithPath, boolean includeERF_Rates, ETAS_Utils etas_utils,
-			double etasDistDecay_q, double etasMinDist_d, boolean applyGR_Corr, U3ETAS_ProbabilityModelOptions probModel, 
+			double pointSrcDiscr, String outputFileNameWithPath, ETAS_ParameterList etasParams, ETAS_Utils etas_utils,
 			List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
-				pointSrcDiscr, outputFileNameWithPath, etasDistDecay_q, etasMinDist_d, includeERF_Rates, true, etas_utils,
-				applyGR_Corr, probModel, inputSectDistForCubeList, inputSectInCubeList, inputIsCubeInsideFaultPolygon);
+				pointSrcDiscr, outputFileNameWithPath, etasParams, true, etas_utils, inputSectDistForCubeList, 
+				inputSectInCubeList, inputIsCubeInsideFaultPolygon);
 	}
 
 	
@@ -251,10 +256,22 @@ public class ETAS_PrimaryEventSampler {
 	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
-			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
-			double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
-			U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
+			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, ETAS_ParameterList etasParams, 
+			boolean includeSpatialDecay, ETAS_Utils etas_utils, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
 			int[] inputIsCubeInsideFaultPolygon) {
+//		public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
+//				double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
+//				double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
+//				U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
+//				int[] inputIsCubeInsideFaultPolygon) {
+		
+		this.etasParams = etasParams;
+
+		this.etasDistDecay=etasParams.get_q();
+		this.etasMinDist=etasParams.get_d();
+		this.applyGR_Corr = etasParams.getImposeGR();
+		this.probModel = etasParams.getU3ETAS_ProbModel();
+		this.wtSupraNuclBySubSeisRates=etasParams.getApplySubSeisForSupraNucl();
 		
 		if(probModel == U3ETAS_ProbabilityModelOptions.FULL_TD) {
 			APPLY_ERT_FAULTS = true;
@@ -265,7 +282,10 @@ public class ETAS_PrimaryEventSampler {
 			APPLY_ERT_GRIDDED = false;
 		}
 		
-		this.applyGR_Corr = applyGR_Corr;
+
+		
+		this.includeSpatialDecay=includeSpatialDecay;
+
 			
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -343,12 +363,6 @@ public class ETAS_PrimaryEventSampler {
 		
 		if(D)  ETAS_SimAnalysisTools.writeMemoryUse("Memory before making data");
 		
-		this.etasDistDecay=distDecay;
-		this.etasMinDist=minDist;
-		
-		this.includeERF_Rates=includeERF_Rates;
-		this.includeSpatialDecay=includeSpatialDecay;
-
 		latForCubeCenter = new double[numCubes];
 		lonForCubeCenter = new double[numCubes];
 		depthForCubeCenter = new double[numCubes];
@@ -557,7 +571,7 @@ public class ETAS_PrimaryEventSampler {
 				int sectIndex = sectIndexList.get(s);
 				double sectWt1;
 				
-				if(WT_SUPRA_SEIS_NUCL_BY_SUB_SEIS_RATES) {
+				if(wtSupraNuclBySubSeisRates) {
 					// WEIGHT BY SUBSEIS RATE
 					if(totLongTermSubSeisRateOnSectArray[sectIndex] != 0)
 						sectWt1 = totLongTermSubSeisRateOnSectArray[sectIndex];
@@ -4356,7 +4370,7 @@ System.exit(0);
 			erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 			erf.updateForecast();
 			// get what we need
-			if(WT_SUPRA_SEIS_NUCL_BY_SUB_SEIS_RATES) {
+			if(wtSupraNuclBySubSeisRates) {
 				longTermSupraSeisMFD_OnSectArray = calcNucleationMFDForAllSectsWtedBySubSeisRates(2.55, 8.95, 65);
 			}
 			else {
@@ -5932,10 +5946,14 @@ System.exit(0);
 	 */
 	public static void main(String[] args) {
 		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014d,1d);
-//		ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+		
+		if(etasParams.getApplyGridSeisCorr())
+			ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
 		
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
@@ -5947,9 +5965,7 @@ System.exit(0);
 		// Overide to Poisson if needed
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
-		boolean includeEqkRates = false;
 		double gridSeisDiscr = 0.1;
-		boolean applyGR_Corr = false;
 		
 		if(D) System.out.println("Making ETAS_PrimaryEventSampler");
 		// first make array of rates for each source
@@ -5962,19 +5978,19 @@ System.exit(0);
 		}
 		
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
-				gridSeisDiscr,null, includeEqkRates, new ETAS_Utils(), ETAS_Utils.distDecay_DEFAULT, ETAS_Utils.minDist_DEFAULT,
-				applyGR_Corr, U3ETAS_ProbabilityModelOptions.POISSON,null,null,null);
+				gridSeisDiscr,null, etasParams, new ETAS_Utils(),null,null,null);
 		
+				
 //		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats_012516"));
 
 		
 		// Sections bulge plot
-//		try {
-////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsCorr_TestNewWt"), "Test", true);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+			etas_PrimEventSampler.plotImpliedBulgeForSubSections(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsCorr_GridSeisCorr_supraNuclWt"), "Test", true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		
 //		ETAS_Simulator.plotERF_RatesMap(erf, "OrigRatesMap");
@@ -6005,7 +6021,7 @@ System.exit(0);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
 //		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_Poisson_012616");
-		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson_newWt");
+//		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson_newWt");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");

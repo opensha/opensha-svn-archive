@@ -2633,8 +2633,11 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			String dir = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/NoScenarioSimulations/";
 			
-			String simName = "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR_results_m4";
+//			String simName = "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_09-spontaneous-30yr-full_td-noApplyLTR_results_m4";
+//			String simName = "2016_01_28-spontaneous-1000yr-full_td-gridSeisCorr_results_m4";
+			String simName = "2016_01_31-spontaneous-30yr-full_td-gridSeisCorr_results_m4";
+			
 //			String simName = "2015_12_14-spontaneous-1000yr-mc10-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_14-spontaneous-30yr-mc10-full_td-noApplyLTR_results_m4";
 //			String simName = "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR_results_m4";
@@ -2647,11 +2650,11 @@ public class ETAS_MultiSimAnalysisTools {
 			if(!outputDir.exists())
 				outputDir.mkdir();
 			
-//			plotNormRecurrenceIntForAllSubSectHist(catalogs, erf, outputDir);
+			plotNormRecurrenceIntForAllSubSectHist(catalogs, erf, outputDir);
 			
 			// DO THIS ONE FOR 30-YEAR SIMULATIONS
-//			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
-//			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d);
+			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
+			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d);
 			
 			// DO THIS ONE FOR 1000-YEAR SIMULATIONS
 //			try {
@@ -2692,8 +2695,8 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-//		nedsAnalysis();
-//		System.exit(-1);
+		nedsAnalysis();
+		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;

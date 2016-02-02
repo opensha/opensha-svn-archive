@@ -376,8 +376,7 @@ public class ETAS_Simulator {
 		
 		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
-				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
+				gridSeisDiscr,null, etasParams, etas_utils, fractionSrcInCubeList, srcInCubeList, 
 				inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
@@ -1685,7 +1684,6 @@ public class ETAS_Simulator {
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);	
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
-		params.setApplyLongTermRates(false);
 		
 		String simulationName;
 		String imposeGR_string;
