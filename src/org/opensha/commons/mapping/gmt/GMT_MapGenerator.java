@@ -1064,7 +1064,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add highways if desired
 		if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
@@ -1669,7 +1669,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// add highways if desired
 		if (map.getHighwayFile() != null) {
 			gmtCommandLines.add("# Add highways to plot");
-			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W5/125/125/125 -: -Ms "
+			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W5/125/125/125 -: "
 						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFile+"\n");
 		}
 	}
@@ -1721,7 +1721,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			}
 			gmtCommandLines.add("END");
 			gmtCommandLines.add("${GMT_PATH}psxy " + polyFile + " " + region + proj
-								+" -K -O -M >> " + psFile);
+								+" -K -O >> " + psFile);
 //			rmFiles.add(polyFile);
 		}
 	}

@@ -874,7 +874,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
 				// plot the rupture surface points
 				commandLine = GMT_PATH+"psxy "+ EQK_RUP_XYZ_FILE_NAME + region +
-				projWdth +" -K -O -M >> " + PS_FILE_NAME;
+				projWdth +" -K -O >> " + PS_FILE_NAME;
 				gmtLines.add(commandLine+"\n");
 				gmtLines.add(COMMAND_PATH+"rm "+EQK_RUP_XYZ_FILE_NAME+"\n");
 			}
