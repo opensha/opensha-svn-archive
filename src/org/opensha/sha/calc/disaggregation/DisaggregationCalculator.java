@@ -924,14 +924,14 @@ System.out.println("numRupRejected="+numRupRejected);
 			if (D) System.out.println(5);
 			String region = "-R"+min_dist+"/"+max_dist+"/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
 			String projection = "-JX"+x_axis_length+"i/"+y_axis_length+"i";
-			String viewAngle = "-E150/30";
+			String viewAngle = "-p150/30";
 			String boxPenWidth = "-W0.5p";  // pen width for drawing boxes
 			String verticalScaling = "-JZ"+z_axis_length+"i";
 			// temporarily switching background color to 0/0/0 from 180/180/180 because anything
 			// that's not pure white comes out as pure black
-			gmtScriptLines.add("${GMT_PATH}gmtset PAGE_COLOR=255/255/255");
-			gmtScriptLines.add("${GMT_PATH}gmtset X_ORIGIN=1.0i");
-			gmtScriptLines.add("${GMT_PATH}gmtset Y_ORIGIN=2.0i");
+			gmtScriptLines.add("${GMT_PATH}gmtset PS_PAGE_COLOR=255/255/255");
+			gmtScriptLines.add("${GMT_PATH}gmtset MAP_ORIGIN_X=1.0i");
+			gmtScriptLines.add("${GMT_PATH}gmtset MAP_ORIGIN_Y=2.0i");
 			gmtScriptLines.add("");
 			String img_ps_file = "DisaggregationPlot.ps";
 
@@ -962,7 +962,7 @@ System.out.println("numRupRejected="+numRupRejected);
 
 			//creating the GMT_Script for the plot
 			gmtScriptLines.add("${GMT_PATH}psxyz temp_segments -P "+
-					region+" -M  " +projection +"  "+verticalScaling+" -K -G0/0/0 "+
+					region+"  " +projection +"  "+verticalScaling+" -K -G0/0/0 "+
 					viewAngle + "  "+boxPenWidth+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
 
 			float contribution, base, top;

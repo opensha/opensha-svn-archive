@@ -140,8 +140,7 @@ extends HttpServlet {
 			FileUtils.createZipFile(newDir.getAbsolutePath());
 			//URL path to folder where all GMT related files and map data file for this
 			//calculations reside.
-			String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-			currentMilliSec + SystemUtils.FILE_SEPARATOR;
+			String mapImagePath = GMT_URL_PATH+currentMilliSec+SystemUtils.FILE_SEPARATOR;
 			System.out.println("DisaggregationPlotServlet: sending image path to application");
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);
