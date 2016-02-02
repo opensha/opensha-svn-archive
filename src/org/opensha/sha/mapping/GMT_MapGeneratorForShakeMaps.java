@@ -622,6 +622,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			int cols = surface.getNumCols();
 			if(D) System.out.println(C+" rows, cols: "+rows+", "+cols);
 			int c, r;
+			
+			double penWidth = 2;
 
 			if(rupPlot.equals(RUP_PLOT_PARAM_PERIMETER)) {
 				//  This draws separate segments between each neighboring point
@@ -644,7 +646,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 						Color color = new Color(shade, shade, shade);
 						poly.setPenColor(color);
-						poly.setPenWidth(8);
+						poly.setPenWidth(penWidth);
 						map.addPolys(poly);
 						lastLoc = loc;
 					}
@@ -657,7 +659,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 						Color color = new Color(shade, shade, shade);
 						poly.setPenColor(color);
-						poly.setPenWidth(8);
+						poly.setPenWidth(penWidth);
 						map.addPolys(poly);
 						lastLoc = loc;
 					}
@@ -670,7 +672,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 						Color color = new Color(shade, shade, shade);
 						poly.setPenColor(color);
-						poly.setPenWidth(8);
+						poly.setPenWidth(penWidth);
 						map.addPolys(poly);
 						lastLoc = loc;
 					}
@@ -684,7 +686,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 					PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 					Color color = new Color(shade, shade, shade);
 					poly.setPenColor(color);
-					poly.setPenWidth(8);
+					poly.setPenWidth(penWidth);
 					map.addPolys(poly);
 					lastLoc = loc;
 				}
@@ -722,7 +724,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				Point2D pt = new Point2D.Double(hypo.getLongitude(), hypo.getLatitude());
 				Symbol symbol = Symbol.STAR;
 				double width = 0.4;
-				double penWidth = 8;
 				Color penColor = Color.BLACK;
 				Color fillColor = null;
 				PSXYSymbol hypoSym = new PSXYSymbol(pt, symbol, width, penWidth, penColor, fillColor);

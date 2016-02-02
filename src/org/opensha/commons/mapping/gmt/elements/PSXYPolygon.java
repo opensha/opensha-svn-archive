@@ -21,6 +21,7 @@ package org.opensha.commons.mapping.gmt.elements;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -32,7 +33,7 @@ public class PSXYPolygon extends PSXYElement {
 	 */
 	private static final long serialVersionUID = 1l;
 	
-	private ArrayList<Point2D> points = new ArrayList<Point2D>();
+	private List<Point2D> points = new ArrayList<Point2D>();
 	
 	/**
 	 * Constructor for a simple line
@@ -50,7 +51,7 @@ public class PSXYPolygon extends PSXYElement {
 		points.add(new Point2D.Double(loc2.getLongitude(), loc2.getLatitude()));
 	}
 	
-	public PSXYPolygon(ArrayList<Point2D> points) {
+	public PSXYPolygon(List<Point2D> points) {
 		this.points = points;
 	}
 	
@@ -64,7 +65,7 @@ public class PSXYPolygon extends PSXYElement {
 		
 	}
 	
-	public ArrayList<Point2D> getPoints() {
+	public List<Point2D> getPoints() {
 		return points;
 	}
 	

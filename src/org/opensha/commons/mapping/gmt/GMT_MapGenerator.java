@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -1109,7 +1110,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		double kmScaleXoffset = plotWdth/4; 
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
-		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
+		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+"+l -O >> " + PS_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");
 
 		// boolean to switch between purely using convert for the ps conversion, 
@@ -1535,7 +1536,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		gmtCommandLines.add("# Map frame and KM scale label");
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
-		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + psFileName;
+		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+"+l -O >> " + psFileName;
 		gmtCommandLines.add(commandLine);
 		
 		gmtCommandLines.add("");
@@ -1773,8 +1774,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("END");
 			String symbolFile = "symbol_set.xy";
 			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
-			ArrayList<PSXYSymbol> symbols = symSet.getSymbols();
-			ArrayList<Double> vals = symSet.getVals();
+			List<PSXYSymbol> symbols = symSet.getSymbols();
+			List<Double> vals = symSet.getVals();
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
 				double val = vals.get(i);

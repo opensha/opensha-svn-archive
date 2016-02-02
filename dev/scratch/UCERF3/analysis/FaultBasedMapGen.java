@@ -1033,12 +1033,13 @@ public class FaultBasedMapGen {
 		map.setRescaleCPT(false);
 		map.setCustomScaleMin((double)cpt.getMinValue());
 		map.setCustomScaleMax((double)cpt.getMaxValue());
-		map.setCoast(new CoastAttributes(Color.BLACK, 2));
+		map.setCoast(new CoastAttributes(Color.BLACK, 0.5));
 		map.setCustomLabel(label);
 		map.setUseGMTSmoothing(false);
 		map.setTopoResolution(null);
 		
-		double thickness = 8;
+//		double thickness = 8;
+		double thickness = 2;
 		
 		if (faults != null) {
 			Preconditions.checkState(faults.size() == values.length, "faults and values are different lengths!");
