@@ -1315,6 +1315,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		}
 		double gridSeisDiscr = 0.1;
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		ETAS_Utils etas_utils = new ETAS_Utils();
 		File fractionSrcAtPointListFile = new File(cacheDir, "fractSectInCubeCache");
 		File srcAtPointListFile = new File(cacheDir, "sectInCubeCache");
@@ -1329,8 +1330,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		List<int[]> srcAtPointList = MatrixIO.intArraysListFromFile(srcAtPointListFile);
 		int[] isCubeInsideFaultPolygon = MatrixIO.intArrayFromFile(isCubeInsideFaultPolygonFile);
 		ETAS_PrimaryEventSampler sampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
-				gridSeisDiscr, null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), U3ETAS_ProbabilityModelOptions.FULL_TD, fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon);
+				gridSeisDiscr, null, etasParams, etas_utils, fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon);
 		
 		ETAS_EqkRupture rupture = scenario.getRupture(ot, sol.getRupSet(), fm);
 		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
