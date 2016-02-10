@@ -1,11 +1,12 @@
 <cruisecontrol>
 	<!-- Commonly used directories -->
-	<property name="projectdir" value="/scratch/opensha/build/trunk"/>
-	<property name="tomcatprojectdir" value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF"/>
-	<property name="tomcatdistdir" value="/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF"/>
+	<property name="projectdir" value="/export/opensha-00/build/trunk"/>
+	<property name="tomcatprojectdir" value="/usr/share/tomcat/webapps/OpenSHA_dev/WEB-INF"/>
+	<property name="tomcatdistdir" value="/usr/share/tomcat/webapps/OpenSHA/WEB-INF"/>
 	<property name="testdir" value="${projectdir}/junit/logs"/>
 	<property name="logdir" value="logs/${project.name}"/>
-	<property name="ant.bin" value="/usr/local/ant/default/bin/ant"/>
+	<property name="ant.bin" value="/usr/bin/ant"/>
+	<property name="cruisedir" value="/usr/local/cruise/default/binaryrelease"/>
 	
 	<property name="returnaddress" value="noreply@opensha.usc.edu"/>
 
@@ -47,12 +48,12 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<always address="pmpowers@usgs.gov" />
+				<!--<always address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -98,12 +99,12 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@usgs.gov" />
+				<!--<failure address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -160,8 +161,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
@@ -213,12 +214,12 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@usgs.gov" />
+				<!--<failure address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -267,8 +268,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
@@ -279,7 +280,7 @@
 
 	</project>
 	
-	<!-- This runs every night to build applications -->
+	<!-- This runs manually to build release applications -->
 	<project name="OpenSHA-DistManualAppBuild" buildafterfailed="false" forceOnly="true" forceBuildNewProject="false">
 	
 		<listeners>
@@ -296,7 +297,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant uselogger="true" time="0300" antscript="${ant.bin}"
+			<ant uselogger="true" time="0400" antscript="${ant.bin}"
 						buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 						target="svn.update.app.dist.build" />
 		</schedule>
@@ -318,12 +319,11 @@
 						reportsuccess="always"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@usgs.gov" />
 			</htmlemail>
 
 		</publishers>
