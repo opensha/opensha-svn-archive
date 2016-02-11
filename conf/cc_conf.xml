@@ -7,6 +7,8 @@
 	<property name="logdir" value="logs/${project.name}"/>
 	<property name="ant.bin" value="/usr/bin/ant"/>
 	<property name="cruisedir" value="/usr/local/cruise/default/binaryrelease"/>
+	<property name="ant.log.jar" value="${cruisedir}/lib/cruisecontrol-antprogresslogger.jar"/>
+	
 	
 	<property name="returnaddress" value="noreply@opensha.usc.edu"/>
 
@@ -27,7 +29,7 @@
 		</bootstrappers>
 
 		<schedule interval="300">
-			<ant uselogger="true" antscript="${ant.bin}"
+			<ant uselogger="true" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="svn.build.run.common.tests" />
 		</schedule>
@@ -77,7 +79,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant uselogger="true" time="0000" antscript="${ant.bin}"
+			<ant uselogger="true" time="0000" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="svn.update.app.build" />
 		</schedule>
@@ -134,11 +136,11 @@
 			<!-- bundle in composite tag to execute both -->
 			<composite>
 				<!-- This test runs hourly, making sure the system is operational (servlets, DB) -->
-				<ant uselogger="true" antscript="${ant.bin}"
+				<ant uselogger="true" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 							buildfile="${projectdir}/ant/cc-build-test.xml"
 							target="run.operational.tests" />
 				<!-- Now test released applications making sure the system is operational (servlets, DB) -->
-				<ant uselogger="true" antscript="${ant.bin}"
+				<ant uselogger="true" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 							buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 							target="run.operational.tests" />
 			</composite>
@@ -192,7 +194,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, updating the coverage site with daily tests -->
-			<ant uselogger="true" time="0145" antscript="${ant.bin}"
+			<ant uselogger="true" time="0145" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="svn.build.run.daily.coverage" />
 		</schedule>
@@ -246,7 +248,7 @@
 		<schedule>
 			<!-- This test runs nightly, updating pref data at 1 am, with a timeout
 					of 20 minutes (1200 seconds)  -->
-			<ant uselogger="true" time="0100" antscript="${ant.bin}" timeout="1200"
+			<ant uselogger="true" time="0100" antscript="${ant.bin}" timeout="1200" progressLoggerLib="${ant.log.jar}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="pref.fault.data.update" />
 		</schedule>
@@ -297,7 +299,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant uselogger="true" time="0400" antscript="${ant.bin}"
+			<ant uselogger="true" time="0400" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 						target="svn.update.app.dist.build" />
 		</schedule>
