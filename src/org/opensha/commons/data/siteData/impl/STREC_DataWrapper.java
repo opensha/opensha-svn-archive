@@ -25,7 +25,7 @@ import com.google.common.io.Files;
 
 public class STREC_DataWrapper extends AbstractSiteData<String> {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	private File pythonScript;
 	private SiteDataServletAccessor<String> accessor;
