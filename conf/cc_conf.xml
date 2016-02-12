@@ -11,7 +11,7 @@
 	
 	<dashboard url="http://localhost:8080/dashboard"/>;
 	
-	<property name="returnaddress" value="noreply@opensha.usc.edu"/>
+	<property name="returnaddress" value="noreply@zero.usc.edu"/>
 
 	<!-- This runs based on modifications to the repository. It compiles the code and runs common tests. -->
 	<project name="OpenSHA-continuous" buildafterfailed="false" requiremodification="true">
