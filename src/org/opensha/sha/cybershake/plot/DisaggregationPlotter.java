@@ -17,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ClassUtils;
@@ -29,6 +30,7 @@ import org.opensha.sha.calc.params.MaxDistanceParam;
 import org.opensha.sha.calc.params.NonSupportedTRT_OptionsParam;
 import org.opensha.sha.calc.params.PtSrcDistanceCorrectionParam;
 import org.opensha.sha.calc.params.SetTRTinIMR_FromSourceParam;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -42,6 +44,7 @@ import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeIMR;
 import org.opensha.sha.cybershake.openshaAPIs.CyberShakeUCERFWrapper_ERF;
 import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
+import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import com.google.common.base.Preconditions;
@@ -55,6 +58,7 @@ public class DisaggregationPlotter {
 	private HazardCurve2DB curve2db;
 	private PeakAmplitudesFromDB amps2db;
 	private SiteInfo2DB site2db;
+	private HazardCurveComputation curveCalc;
 	
 	private CybershakeRun run;
 	private ArrayList<CybershakeIM> ims;
@@ -217,7 +221,25 @@ public class DisaggregationPlotter {
 			System.out.println("IMR Metadata: "+imr.getAllParamMetadata());
 			
 			int curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
-			DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
+			System.out.println("Curve ID: "+curveID);
+			DiscretizedFunc curve;
+			if (curveID < 0) {
+				// need to calculate it
+				if (curveCalc == null)
+					curveCalc = new HazardCurveComputation(db);
+				
+				ArbitrarilyDiscretizedFunc func = new IMT_Info().getDefaultHazardCurve(SA_Param.NAME);
+				ArrayList<Double> imVals = new ArrayList<Double>();
+				for (int i=0; i<func.size(); i++)
+					imVals.add(func.getX(i));
+				
+				System.out.println("Calculating Hazard Curve for "+im.getVal()+" s SA, "+im.getComponent());
+				curve = curveCalc.computeHazardCurve(imVals, run, im);
+			} else {
+				// already in the database
+				System.out.println("Fetching precalculated curve from the database");
+				curve = curve2db.getHazardCurve(curveID);
+			}
 			
 			imlToProbsMap = new HashMap<Double, Double>();
 			// convert prob values to IMLs
@@ -302,7 +324,11 @@ public class DisaggregationPlotter {
 					else
 						prob = curve.getInterpolatedY_inLogXLogYDomain(iml);
 					
-					Date date = curve2db.getDateForCurve(curveID);
+					Date date;
+					if (curveID < 0)
+						date = new Date(); // now
+					else
+						date = curve2db.getDateForCurve(curveID);
 					String dateStr = HazardCurvePlotter.dateFormat.format(date);
 					String periodStr = "SA_" + HazardCurvePlotter.getPeriodStr(im.getVal()) + "sec";
 					String outFileName = csSite.short_name + "_ERF" + run.getERFID() + "_Run" + run.getRunID();
