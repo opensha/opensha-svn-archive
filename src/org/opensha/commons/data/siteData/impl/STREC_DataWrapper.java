@@ -89,7 +89,9 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 		File tempDir = null;
 		ArrayList<String> ret = null;
 		try {
-			tempDir = Files.createTempDir();
+//			tempDir = Files.createTempDir();
+			tempDir = new File("/tmp/opensha_"+System.currentTimeMillis());
+			tempDir.mkdir();
 			
 			if (D) System.out.println("Temp dir: "+tempDir.getAbsolutePath());
 			
