@@ -9,6 +9,7 @@
 	<property name="cruisedir" value="/usr/local/cruise/default/binaryrelease"/>
 	<property name="ant.log.jar" value="${cruisedir}/lib/cruisecontrol-antprogresslogger.jar"/>
 	
+	<dashboard url="http://localhost:8080/dashboard">;
 	
 	<property name="returnaddress" value="noreply@opensha.usc.edu"/>
 
