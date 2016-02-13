@@ -5949,7 +5949,8 @@ System.exit(0);
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 		etasParams.setApplyGridSeisCorr(false);
-		etasParams.setApplySubSeisForSupraNucl(false);;
+		etasParams.setApplySubSeisForSupraNucl(false);
+//		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
