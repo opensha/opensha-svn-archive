@@ -1054,6 +1054,16 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
+//		// Branching ratio for U3ETAS model (regional MFD)
+//		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		double durationDays = 5e9*365.25;	// approx age of earth
+//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+//		System.out.println("mfd BR = "+getBranchingRatio(mfd, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c(), durationDays));
+//		System.exit(-1);
+		
 		
 //		plotExpectedNumPrimaryVsTime();
 		

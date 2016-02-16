@@ -5948,9 +5948,10 @@ System.exit(0);
 	public static void main(String[] args) {
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
-		etasParams.setApplyGridSeisCorr(false);
-		etasParams.setApplySubSeisForSupraNucl(false);
-//		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
+		etasParams.setApplyGridSeisCorr(true);
+		etasParams.setApplySubSeisForSupraNucl(true);
+		etasParams.setImposeGR(false);;
+		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
 		
@@ -5988,18 +5989,18 @@ System.exit(0);
 //		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats_012516"));
 
 		
-		// Sections bulge plot
-		try {
-//			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
-			String dirName = "ImpliedCharFactorForSubSections";
-			if(etasParams.getApplyGridSeisCorr())
-				dirName += "_gridSeisCorr";
-			if(etasParams.getApplySubSeisForSupraNucl())
-				dirName += "_SubSeisForSupraNucl";
-			etas_PrimEventSampler.plotImpliedBulgeForSubSections(dirName, "Test", true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		// Sections bulge plot
+//		try {
+////			etas_PrimEventSampler.plotImpliedBulgeForSubSectionsHackTestMoRate(new File(GMT_CA_Maps.GMT_DIR, "ImpliedCharFactorForSubSectionsMoRateTest"), "Test", true);
+//			String dirName = "ImpliedCharFactorForSubSections";
+//			if(etasParams.getApplyGridSeisCorr())
+//				dirName += "_gridSeisCorr";
+//			if(etasParams.getApplySubSeisForSupraNucl())
+//				dirName += "_SubSeisForSupraNucl";
+//			etas_PrimEventSampler.plotImpliedBulgeForSubSections(dirName, "Test", true);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		
 //		ETAS_Simulator.plotERF_RatesMap(erf, "OrigRatesMap");
@@ -6030,7 +6031,7 @@ System.exit(0);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
 //		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_Poisson_012616");
-//		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson_newWt");
+		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
