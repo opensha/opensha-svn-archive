@@ -259,11 +259,6 @@ public class ETAS_PrimaryEventSampler {
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, ETAS_ParameterList etasParams, 
 			boolean includeSpatialDecay, ETAS_Utils etas_utils, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
 			int[] inputIsCubeInsideFaultPolygon) {
-//		public ETAS_PrimaryEventSampler(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
-//				double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, double distDecay, 
-//				double minDist, boolean includeERF_Rates, boolean includeSpatialDecay, ETAS_Utils etas_utils, boolean applyGR_Corr,
-//				U3ETAS_ProbabilityModelOptions probModel, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
-//				int[] inputIsCubeInsideFaultPolygon) {
 		
 		this.etasParams = etasParams;
 
@@ -282,10 +277,12 @@ public class ETAS_PrimaryEventSampler {
 			APPLY_ERT_GRIDDED = false;
 		}
 		
+//		// TEST for just ERT effect with no time dep probabilities
+//		APPLY_ERT_FAULTS = true;
+//		APPLY_ERT_GRIDDED = true;
 
 		
 		this.includeSpatialDecay=includeSpatialDecay;
-
 			
 		origGriddedRegion = griddedRegion;
 		cubeLatLonSpacing = pointSrcDiscr/numPtSrcSubPts;	// TODO pointSrcDiscr from griddedRegion?
@@ -1517,7 +1514,7 @@ System.exit(0);
 			if(APPLY_ERT_GRIDDED)
 				fracSupra = getERT_MinFracSupra(rupture, getCubeLocationForIndex(i));
 			
-//			// TEST for just ERT effect with no time dep probabilities
+			// TEST for just ERT effect with no time dep probabilities
 //			fracSupra=1.0;
 //			List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(rupture.getFSSIndex());
 //			int[] sectInCubeArray = sectInCubeList.get(i);
@@ -1803,7 +1800,7 @@ System.exit(0);
 				int[] sectInCubeArray = sectInCubeList.get(i);
 				
 				
-//				// TEST for just ERT effect with no time dep probabilities
+				// TEST for just ERT effect with no time dep probabilities
 //				fracSupra=1.0;
 //				List<FaultSectionPrefData> fltDataList = rupSet.getFaultSectionDataForRupture(parentRup.getFSSIndex());
 //				for(FaultSectionPrefData fltData : fltDataList) {
@@ -5950,7 +5947,7 @@ System.exit(0);
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 		etasParams.setApplyGridSeisCorr(true);
 		etasParams.setApplySubSeisForSupraNucl(true);
-		etasParams.setImposeGR(false);;
+		etasParams.setImposeGR(true);;
 		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
@@ -6030,8 +6027,8 @@ System.exit(0);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44-0.234,-118.34+0.573,1.), 0.29,"crossSectData_Bulge_mojave", false);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_Poisson_012616");
-		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poisson");
+		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7kmAndAboveM6pt5_PoissonGRcorrAlt");
+//		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_PoissonGRcorr");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
@@ -6561,8 +6558,8 @@ System.exit(0);
 			aveGRcorr+=rate*val;
 			totRateSupra+=rate;
 		}
-		throw new RuntimeException("This method is now wrong in that it does not account for nuclation rate being potentially dependent on subseis rates");
-//		return aveGRcorr/totRateSupra;
+//		throw new RuntimeException("This method is now wrong in that it does not account for nuclation rate being potentially dependent on subseis rates");
+		return aveGRcorr/totRateSupra;
 	}
 	
 	

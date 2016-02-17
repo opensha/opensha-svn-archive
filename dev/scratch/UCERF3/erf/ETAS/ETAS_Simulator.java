@@ -210,6 +210,7 @@ public class ETAS_Simulator {
 		}
 		
 		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
+		boolean generateDiagnosticsForScenario = false;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -510,7 +511,7 @@ public class ETAS_Simulator {
 			System.out.println("Expected number of primary events for Scenario: "+expNum);
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 
-			if(D && generateDiagnostics) {
+			if(D && generateDiagnosticsForScenario) {
 				System.out.println("Computing Scenario Diagnostics");
 				long timeMillis =System.currentTimeMillis();
 				expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
@@ -789,7 +790,7 @@ public class ETAS_Simulator {
 			ETAS_SimAnalysisTools.plotDistDecayDensityOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayDensityForScenario.pdf").getAbsolutePath(), 
 					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), scenarioRup);
 			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForScenario = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
-			if(generateDiagnostics == true)
+			if(generateDiagnosticsForScenario == true)
 				obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
 			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForScenario);
 			
@@ -798,7 +799,7 @@ public class ETAS_Simulator {
 			
 			double expPrimNumAtMainMag = Double.NaN;
 			double expPrimNumAtMainMagMinusOne = Double.NaN;
-			if(generateDiagnostics && expectedPrimaryMFDsForScenarioList.get(1) != null) {
+			if(generateDiagnosticsForScenario && expectedPrimaryMFDsForScenarioList.get(1) != null) {
 				expPrimNumAtMainMag = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag());
 				expPrimNumAtMainMagMinusOne = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag()-1.0);				
 			}
@@ -1655,6 +1656,9 @@ public class ETAS_Simulator {
 	public static void main(String[] args) {
 		
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);	
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+
 //		plotERF_RatesMap(erf, "testBeforeCorr");
 //		correctGriddedSeismicityRatesInERF(erf, true);
 //		plotERF_RatesMap(erf, "testAfterCorr");
@@ -1678,12 +1682,14 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
-//		TestScenario scenario = TestScenario.CENTRAL_VALLEY_M3;
-		TestScenario scenario = null;
+		TestScenario scenario = TestScenario.MOJAVE_M5;
+//		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(false);	
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setImposeGR(true);	
+		params.setApplyGridSeisCorr(true);
+		params.setApplySubSeisForSupraNucl(true);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		String simulationName;
 		String imposeGR_string;
@@ -1701,21 +1707,21 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_10yr_NewCorr_3";	// to increment runs
+		simulationName += "_10yr_withOutERT_Test";	// to increment runs
 
-//		Long seed = null;
-		Long seed = 1449590752534l;
+		Long seed = null;
+//		Long seed = 1449590752534l;
 //		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
-		double startTimeYear=2012;
-		double durationYears=10;
-//		double startTimeYear=2014;
+//		double startTimeYear=2012;
 //		double durationYears=10;
+		double startTimeYear=2014;
+		double durationYears=10;
 		
-//		ObsEqkRupList histCat = null;
+		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
-		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
+//		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
 		
