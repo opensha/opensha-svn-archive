@@ -210,7 +210,7 @@ public class ETAS_Simulator {
 		}
 		
 		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
-		boolean generateDiagnosticsForScenario = false;	// to be able to turn off even if in debug mode
+		boolean generateDiagnosticsForScenario = true;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -1448,6 +1448,7 @@ public class ETAS_Simulator {
 		NAPA("Napa 6.0", 93902, null, 6d), // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
 		PARKFIELD("Parkfield M6", 30473), // Parkfield M6 fault based rup
 		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0), // Bombay Beach M6 in location of 2009 M4.8
+		ROBINSON_CREEK_Subsect0_M5("Robinson Creek M5", new Location(38.22137, -119.24255, 7.15), 5.0),
 		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0); // Central Valley - farthest from faults
 
 				
@@ -1647,6 +1648,52 @@ public class ETAS_Simulator {
 	}
 
 
+	/**
+	 * This shows that El Mayor Cucapah reset Laguna Salada subsections 0-12 (leaving 13 and 14) according to UCERF3 rules.
+	 * @param erf
+	 */
+	private static void plotElMayorAndLagunaSalada(FaultSystemSolutionERF_ETAS erf) {
+		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(2012,erf.getSolution().getRupSet());
+		// this shows that the ID for El Mayor is 4552
+//		for(int i=0;i<histCat.size();i++)
+//			if(histCat.get(i).getMag()>7) {
+//				double year = ((double)histCat.get(i).getOriginTime())/(365.25*24*3600*1000)+1970.0;
+//				System.out.println(i+"\t"+histCat.get(i).getMag()+"\t"+year);
+//			}
+//		System.exit(-1);
+
+		LocationList locListForElMayor = histCat.get(4552).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		DefaultXY_DataSet elMayorXYdata = new DefaultXY_DataSet();
+		for(Location loc:locListForElMayor)
+			elMayorXYdata.set(loc.getLongitude(), loc.getLatitude());
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
+		funcList.add(elMayorXYdata);
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.BOLD_CROSS, 1f, Color.RED));
+
+		FaultSystemRupSet rupSet = ((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+		FaultPolyMgr faultPolyMgr = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);	// this works for U3, but not generalized
+
+		for(int i=1042;i<=1056;i++) {
+			DefaultXY_DataSet lagunaSaladaPolygonsXYdata = new DefaultXY_DataSet();
+			FaultSectionPrefData fltData = rupSet.getFaultSectionData(i);
+			System.out.println(fltData.getName());
+			Region polyReg = faultPolyMgr.getPoly(i);
+			for(Location loc : polyReg.getBorder()) {
+				lagunaSaladaPolygonsXYdata.set(loc.getLongitude(), loc.getLatitude());
+			}
+			funcList.add(lagunaSaladaPolygonsXYdata);
+			plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		}
+		
+		GraphWindow graph = new GraphWindow(funcList, "El Mayor and Laguna Salada", plotCharList); 
+		graph.setX_AxisLabel("Longitude");
+		graph.setY_AxisLabel("Latitude");
+
+
+		
+	}
 
 	
 
@@ -1655,9 +1702,11 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);	
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		erf.updateForecast();
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+		
+//		plotElMayorAndLagunaSalada(erf);
 
 //		plotERF_RatesMap(erf, "testBeforeCorr");
 //		correctGriddedSeismicityRatesInERF(erf, true);
@@ -1668,7 +1717,8 @@ public class ETAS_Simulator {
 //		System.out.println(erf.getGridSourceProvider().getClass());
 //		System.out.println(erf.getGridSourceProvider().getGriddedRegion().getClass());
 //		System.out.println(erf.getSolution().getClass());
-//		writeLocationAtCenterOfSectionSurf(erf, 1850);
+//		writeLocationAtCenterOfSectionSurf(erf, 1850);	// Mojave
+//		writeLocationAtCenterOfSectionSurf(erf, 1717);	// Robinson Creek Subsection 0
 //		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
 //		System.out.println(erf.getSolution().getClass());
 //		System.exit(0);
@@ -1682,14 +1732,14 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
-		TestScenario scenario = TestScenario.MOJAVE_M5;
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(true);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		String imposeGR_string;
@@ -1707,7 +1757,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_10yr_withOutERT_Test";	// to increment runs
+		simulationName += "_10yr_Test";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1449590752534l;
@@ -1724,6 +1774,7 @@ public class ETAS_Simulator {
 //		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
+		
 		
 		
 		

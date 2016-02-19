@@ -1776,6 +1776,35 @@ public class ETAS_MultiSimAnalysisTools {
 			for (int i=0; i<catalogVals.length; i++)
 				catalogVals[i] /= (double)catalogCount;
 			
+			
+			
+			// Compute the standard deviation of the mean
+			double[] catalogValsStdom = new double[rupSet.getNumSections()];
+			for (List<ETAS_EqkRupture> catalog : catalogs) {
+				// reset time of last event on section
+				double[] gotOneOnSectForCat = new double[rupSet.getNumSections()];
+				for (ETAS_EqkRupture rup : catalog) {
+					int rupIndex = rup.getFSSIndex();
+					if (rupIndex < 0 || rup.getMag() < minMag)
+						continue;
+					double eventTime = calcEventTimeYears(catalog, rup);
+					for (int sectIndex : rupSet.getSectionsIndicesForRup(rupIndex)) {
+						if(eventTime<durationForProb) {	// if happened within durationForProb
+							gotOneOnSectForCat[sectIndex] = 1;
+						}
+					}
+				}
+				for(int s=0;s<gotOneOnSectForCat.length;s++) {
+					catalogValsStdom[s] += Math.pow(gotOneOnSectForCat[s]-catalogVals[s], 2d); // square the diff from mean
+				}
+			}
+			// convert to stdom by dividing by N (assumes N is large); stdev is divided by sqrt(N-1), and divide by sqrt(N) again fro stdom
+			for(int s=0;s<catalogValsStdom.length;s++) {
+				catalogValsStdom[s] /= (double)catalogCount; 
+			}
+			
+
+			
 			if (!completeCatalogs)
 				System.out.println("Cannot compute fract triggered by supra as catalog has been magnitude filtered");
 			
@@ -1825,7 +1854,7 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			CSVFile<String> csv = new CSVFile<String>(true);
 			List<String> header = Lists.newArrayList("SectIndex", "SectName", "Simulation Prob1orMore",
-					"ExpectedProb1orMore", "Ratio", "Difference", "FractTriggered");
+					"ExpectedProb1orMore", "Ratio", "Difference", "FractTriggered", "SimProb1orMoreStdom", "StdomNormDiff");
 			if (completeCatalogs) {
 				header.add("FractTrigBySupraSeis");
 				header.add("FractTrigBySubSeism");
@@ -1836,13 +1865,24 @@ public class ETAS_MultiSimAnalysisTools {
 			double[] ratio = ratio(catalogVals, subSectExpVals);
 			double[] diff = diff(catalogVals, subSectExpVals);
 			
+			// this is now just mean corrected difference (normalizing by stdom wasn't helpful)
+			double[] stdomNormDiff = new double[ratio.length];
+			double meanRatio=0d;
+			for(int i=0;i<ratio.length;i++)
+				meanRatio += ratio[i]/ratio.length;
+			System.out.println("meanRatio="+meanRatio);
+			for(int i=0;i<ratio.length;i++)
+				stdomNormDiff[i] = (catalogVals[i]-meanRatio*subSectExpVals[i]);///catalogValsStdom[i];
+
+			
 			for (int i=0; i<catalogVals.length; i++) {
 //if(i>=1268 && i<=1282)	// filter out Mendocino off shore subsect
 //	continue;
 				FaultSectionPrefData sect = rupSet.getFaultSectionData(sectsToInclude.get(i));
 				String sectName = sect.getSectionName().replace(",", "_");
 				List<String> line = Lists.newArrayList(i+"", sectName, catalogVals[i]+"", subSectExpVals[i]+"",
-						ratio[i]+"", diff[i]+"", fractTriggeredForSection[i]+"");
+						ratio[i]+"", diff[i]+"", fractTriggeredForSection[i]+"", catalogValsStdom[i]+""
+						, stdomNormDiff[i]+"");
 				if (completeCatalogs) {
 					line.add(fractTriggeredBySupraForSection[i]+"");
 					line.add(fractTriggeredBySubForSection[i]+"");
@@ -1861,6 +1901,9 @@ public class ETAS_MultiSimAnalysisTools {
 			double maxDiff = Math.max(Math.abs(StatUtils.min(diff)), Math.abs(StatUtils.max(diff)));
 			FaultBasedMapGen.makeFaultPlot(diffCPT.rescale(-maxDiff, maxDiff), faults, diff, region,
 					outputDir, prefix+"_diff", false, false, title+" Diff");
+			FaultBasedMapGen.makeFaultPlot(diffCPT.rescale(-maxDiff/2, maxDiff/2), faults, stdomNormDiff, region,
+					outputDir, prefix+"_meanCorrectedDiff", false, false, title+" MeanCorrectedDiff");
+
 		}
 	}
 	
@@ -3009,7 +3052,7 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			
 			// DO THIS ONE FOR 30-YEAR SIMULATIONS
-			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
+//			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
 //			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d); // JUNK THIS
 //			writeProbOfOneOrMoreEventsOnSectionStats(catalogs, erf, outputDir); // THIS NOW JUNK TOO
 			try {
@@ -3028,14 +3071,14 @@ public class ETAS_MultiSimAnalysisTools {
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 			erf.updateForecast();
 			try {
-//				plotBinnedSectParticRateVsExpRate(catalogs, -1.0, erf, outputDir, "binned_sect_partic");
+				plotBinnedSectParticRateVsExpRate(catalogs, -1.0, erf, outputDir, "binned_sect_partic");
 //				plotSectParticScatter(catalogs, -1.0, erf, outputDir);
 				
-				int numSubCat = 5;
-				int numInCat = catalogs.size()/numSubCat;
-				for(int i=0;i<numSubCat;i++) {
-					plotBinnedSectParticRateVsExpRate(catalogs.subList(i*numInCat, (i+1)*numInCat-1), -1.0, erf, outputDir, "binned_sect_partic"+i);
-				}
+//				int numSubCat = 5;
+//				int numInCat = catalogs.size()/numSubCat;
+//				for(int i=0;i<numSubCat;i++) {
+//					plotBinnedSectParticRateVsExpRate(catalogs.subList(i*numInCat, (i+1)*numInCat-1), -1.0, erf, outputDir, "binned_sect_partic"+i);
+//				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
