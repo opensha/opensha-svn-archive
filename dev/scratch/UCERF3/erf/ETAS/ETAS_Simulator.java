@@ -470,7 +470,9 @@ public class ETAS_Simulator {
 			// NEW WAY (time-dep rate of spont events)
 			long histCatStartTime = simStartTimeMillis;
 			long[] spontEventTimes;
-			SummedMagFreqDist mfd = etas_PrimEventSampler.getLongTermTotalERF_MFD();
+			IncrementalMagFreqDist mfd = etas_PrimEventSampler.getLongTermTotalERF_MFD().deepClone();
+			// Apply scale factor
+			mfd.scale(etasParams.getTotalRateScaleFactor());
 			if(histQkList==null)
 				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
 						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
@@ -1732,13 +1734,14 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_FSS;
+		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(true);	
+		params.setImposeGR(false);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
+		params.setTotalRateScaleFactor(1.14);
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
