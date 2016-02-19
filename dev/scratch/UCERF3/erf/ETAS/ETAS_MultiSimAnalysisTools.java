@@ -53,8 +53,10 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.DataUtils;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
@@ -83,6 +85,7 @@ import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
 import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.RELM_RegionUtils;
 import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
@@ -3113,8 +3116,8 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-		nedsAnalysis();
-		System.exit(-1);
+//		nedsAnalysis();
+//		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
@@ -3181,13 +3184,29 @@ public class ETAS_MultiSimAnalysisTools {
 		List<File> resultsZipFiles = Lists.newArrayList();
 		List<TestScenario> scenarios = Lists.newArrayList();
 		
+		names.add("30yr Full TD");
+		resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+		scenarios.add(null);
+		
+//		names.add("1000yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("1000yr No ERT");
+//		resultsZipFiles.add(new File(mainDir, "2016_02_11-spontaneous-1000yr-no_ert-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
+		
+//		names.add("10000yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_02_04-spontaneous-10000yr-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
+		
 //		names.add("30yr Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2016_01_31-spontaneous-30yr-full_td-gridSeisCorr/results_m4.bin"));
 //		scenarios.add(null);
 		
-		names.add("30yr Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_01_31-spontaneous-30yr-newNuclWt-full_td-gridSeisCorr/results_m4.bin"));
-		scenarios.add(null);
+//		names.add("30yr Full TD");
+//		resultsZipFiles.add(new File(mainDir, "2016_01_31-spontaneous-30yr-newNuclWt-full_td-gridSeisCorr/results_m4.bin"));
+//		scenarios.add(null);
 		
 //		names.add("1000yr Full TD");
 //		resultsZipFiles.add(new File(mainDir, "2016_01_28-spontaneous-1000yr-full_td-gridSeisCorr/results_m4.bin"));
@@ -3368,16 +3387,17 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			
 			Long ot;
-			double duration;
+			double inputDuration;
 			if (metadataRootEl != null) {
 				Element paramsEl = metadataRootEl.element(MPJ_ETAS_Simulator.OTHER_PARAMS_EL_NAME);
 				ot = Long.parseLong(paramsEl.attributeValue("ot"));
-				duration = Double.parseDouble(paramsEl.attributeValue("duration"));
+				inputDuration = Double.parseDouble(paramsEl.attributeValue("duration"));
 			} else {
 				System.out.println("WARNING: Assuming 1 year 2014");
 				ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
-				duration = 1d;
+				inputDuration = 1d;
 			}
+			double duration = inputDuration;
 			if (useActualDurations)
 				duration = -1;
 			
@@ -3505,12 +3525,23 @@ public class ETAS_MultiSimAnalysisTools {
 				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
 				erf.getTimeSpan().setDuration(1d);
-				if (resultsFile.getParentFile().getName().contains("gridSeisCorr")) {
-					System.out.println("Applying gridded seis correction");
-					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
-					System.out.println("DONE applying gridded seis correction");					
-				}
 				erf.updateForecast();
+			}
+			
+			boolean gridSeisCorr = resultsFile.getParentFile().getName().contains("gridSeisCorr")
+					|| (params != null && params.getApplyGridSeisCorr());
+			
+			if (gridSeisCorr) {
+				System.out.println("applying gridded seis comparison");
+				double[] gridSeisCorrValsArray;
+				try {
+					gridSeisCorrValsArray = MatrixIO.doubleArrayFromFile(
+							new File(ETAS_PrimaryEventSampler.defaultGriddedCorrFilename));
+				} catch (IOException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+				ETAS_Simulator.D = false;
+				ETAS_Simulator.correctGriddedSeismicityRatesInERF(fss, false, gridSeisCorrValsArray);
 			}
 			
 			if (plotMFDs) {
@@ -3620,7 +3651,7 @@ public class ETAS_MultiSimAnalysisTools {
 				plotGriddedNucleationScatter(catalogs, duration, erf, outputDir);
 			}
 			
-			if (plotStationarity && (duration > 1d || duration < 0) && triggerParentID < 0) {
+			if (plotStationarity && (duration > 1d || duration < 0) && triggerParentID < 0 && catalogs.size() >= 500) {
 				System.out.println("Plotting stationarity");
 				plotStationarity(catalogs, duration, outputDir);
 			}
@@ -3645,7 +3676,7 @@ public class ETAS_MultiSimAnalysisTools {
 				writeTimeFromPrevSupraHist(catalogs, outputDir);
 			}
 			
-			writeHTML(parentDir, scenario, name, catalogs, duration);
+			writeHTML(parentDir, scenario, name, params, catalogs, inputDuration, durationTrack);
 		}
 	}
 
@@ -3662,7 +3693,9 @@ public class ETAS_MultiSimAnalysisTools {
 	private static final int html_w_px = 800;
 	
 	private static void writeHTML(File outputDir, TestScenario scenario, String scenName,
-			List<List<ETAS_EqkRupture>> catalogs, double duration) throws IOException {
+			ETAS_ParameterList params, List<List<ETAS_EqkRupture>> catalogs,
+			double inputDuration, MinMaxAveTracker durationTrack)
+					throws IOException {
 		System.out.println("Writing HTML");
 		
 		FileWriter fw = new FileWriter(new File(outputDir, "HEADER.html"));
@@ -3673,6 +3706,7 @@ public class ETAS_MultiSimAnalysisTools {
 		fw.write("<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:"+html_w_px+";\">\n");
 		if (scenario != null) {
 			fw.write("<h2>Scenario Information</h2>\n");
+			fw.write("<b>Name:</b> "+scenario.name()+"<br>\n");
 			fw.write("<b>Magnitude:</b> "+scenario.getMagnitude()+"<br>\n");
 			fw.write("<b>Supra-seismogenic? </b> "+(scenario.getFSS_Index()>=0)+"<br>\n");
 			fw.write("<br>\n");
@@ -3680,8 +3714,16 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		fw.write("<h2>Simulation Information</h2>\n");
 		fw.write("<b>Num Catalogs:</b> "+catalogs.size()+"<br>\n");
-		fw.write("<b>Simulation Duration:</b> "+duration+" years<br>\n");
+		fw.write("<b>Simulation Input Duration:</b> "+(float)inputDuration+" years<br>\n");
+		fw.write("<b>Actual Duration:</b> min="+(float)durationTrack.getMin()
+		+", max="+(float)durationTrack.getMax()+", avg="+(float)durationTrack.getAverage()+" years<br>\n");
 		fw.write("<br>\n");
+		if (params != null) {
+			fw.write("<h3>ETAS Parameters</h3>\n");
+			for (Parameter<?> param : params)
+				fw.write("<b>"+param.getName()+":</b> "+param.getValue()+"<br>\n");
+			fw.write("<br>\n");
+		}
 		
 		File plotDir = new File(outputDir, plotDirName);
 		if (plotDir.exists()) {

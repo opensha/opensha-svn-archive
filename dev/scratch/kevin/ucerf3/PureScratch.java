@@ -2,6 +2,7 @@ package scratch.kevin.ucerf3;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,10 +45,15 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2.MeanUCERF2;
+import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
+import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -75,6 +81,7 @@ import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.finiteFaultMap.FiniteFaultMappingData;
 import scratch.kevin.cybershake.ucerf3.CSDownsampledSolCreator;
 
 public class PureScratch {
@@ -273,19 +280,41 @@ public class PureScratch {
 			track.addValue(ETAS_MultiSimAnalysisTools.calcDurationYears(catalog));
 		System.out.println(track);
 	}
+	
+	public static void test8() throws Exception {
+		ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/"
+						+ "ofr2013-1165_EarthquakeCat.txt"));
+		File xmlFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/"
+				+ "finite_fault_mappings.xml");
+		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FiniteFaultMappingData.loadRuptureSurfaces(xmlFile, loadedRups, FaultModels.FM3_1, rupSet);
+		for (ObsEqkRupture rup : loadedRups) {
+			if (rup.getEventId().equals("14607652")) {
+				System.out.println("Writing!");
+				FileWriter fw = new FileWriter("/tmp/el_mayor.txt");
+				for (Location loc : rup.getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface())
+					fw.write(loc.getLatitude()+" "+loc.getLongitude()+" "+loc.getDepth()+"\n");
+				fw.close();
+				return;
+			}
+		}
+	}
 
 	/**
 	 * @param args
-	 * @throws IOException 
-	 * @throws DocumentException 
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws IOException, DocumentException {
+	public static void main(String[] args) throws Exception {
 //		test1();
 //		test3();
 //		test4();
 //		test5();
 //		test6();
-		test7();
+//		test7();
+		test8();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

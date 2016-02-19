@@ -101,6 +101,9 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	public static ETAS_ParameterList fromXMLMetadata(Element paramsEl) {
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		
+		// if xml file doesn't have this parameter, it should be false, so make sure it's initiated false
+		params.setApplyGridSeisCorr(false);
+		
 		Iterator<Element> it = paramsEl.elementIterator();
 		while (it.hasNext()) {
 			Element el = it.next();

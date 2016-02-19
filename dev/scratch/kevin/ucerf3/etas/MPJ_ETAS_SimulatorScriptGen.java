@@ -30,6 +30,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
+//		double duration = 10000;
 //		double duration = 1000;
 		double duration = 30;
 		
@@ -58,7 +59,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean gridSeisCorr = true;
 		boolean applySubSeisForSupraNucl = true;
 		
-		String nameAdd = null;
+//		String nameAdd = null;
+		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
 //		String nameAdd = "4000more";
 //		String nameAdd = "mc10-applyGrGridded";
@@ -77,8 +79,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			numSims = 5000;
 			nodes = 60;
 			mins = 24*60;
-//			numSims = 50;
-//			nodes = 25;
+//			numSims = 100;
+//			nodes = 50;
 //			mins = 47*60;
 			Preconditions.checkState(!smallTest);
 			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);
@@ -187,7 +189,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //					if (applyLongTermRates)
 //						jobName += "-applyLTR";
 					if (applySubSeisForSupraNucl)
-						jobName += "subSeisSupraNucl";
+						jobName += "-subSeisSupraNucl";
 					if (gridSeisCorr)
 						jobName += "-gridSeisCorr";
 					

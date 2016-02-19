@@ -1383,7 +1383,7 @@ public class ETAS_Simulator {
 			else
 				ratioArray[sectIndex] = 1.0;
 			
-			System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+sol.getRupSet().getFaultSectionData(sectIndex).getName());
+			if (D) System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+sol.getRupSet().getFaultSectionData(sectIndex).getName());
 			
 			longTermSubSeisMFD_OnSectList.get(sectIndex).scale(ratioArray[sectIndex]);
 						
