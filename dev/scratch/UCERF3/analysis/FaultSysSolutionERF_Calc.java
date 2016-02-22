@@ -772,6 +772,49 @@ public class FaultSysSolutionERF_Calc {
 	}
 	
 
+	
+	/**
+	 * This computes fault section nuclation MFD, accounting for any applied time dependence, aleatory mag-area 
+	 * uncertainty, and smaller ruptures set to zero in the ERF (which is how this differs from 
+	 * InversionFaultSystemSolution.calcNucleationRateForAllSects(*)), and assuming a uniform distribution
+	 * of nucleations over the rupture surface.
+	 * @param erf
+	 * @param min, max, and num (MFD discretization values)
+	 * @return
+	 */
+	public static double[] tempCalcParticipationRateForAllSects(FaultSystemSolutionERF erf) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		
+		double[] rateArraySmall = new double[rupSet.getNumSections()];
+		double[] rateArray = new double[rupSet.getNumSections()];
+		int[] maxNumSectInRupForSect = new int[rupSet.getNumSections()];
+		double duration = erf.getTimeSpan().getDuration();
+		
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			List<Integer> setIndexList = rupSet.getSectionsIndicesForRup(fssRupIndex);
+//			if(setIndexList.size()>2)
+//				continue;
+			double rate = erf.getSource(s).computeTotalEquivMeanAnnualRate(duration);
+			for(int sectIndex : setIndexList) {
+				rateArray[sectIndex] += rate;
+				if(setIndexList.size()<=2)
+					rateArraySmall[sectIndex] += rate;
+				if(setIndexList.size() > maxNumSectInRupForSect[sectIndex])
+					maxNumSectInRupForSect[sectIndex] = setIndexList.size();
+			}
+		}
+		
+		for(int s=0; s<rateArray.length;s++) {
+			if(maxNumSectInRupForSect[s]>4)
+				rateArray[s] = rateArraySmall[s]/rateArray[s];
+			else
+				rateArray[s] = Double.NaN;
+		}
+
+		return rateArray;
+	}
+
 
 	
 	/**
