@@ -1717,6 +1717,10 @@ public class ETAS_Simulator {
 //		correctGriddedSeismicityRatesInERF(erf, true);
 //		plotERF_RatesMap(erf, "testAfterCorr");
 		
+		double[] vals = FaultSysSolutionERF_Calc.tempCalcParticipationRateForAllSects(erf);
+		for(int s=0;s<vals.length;s++)
+			System.out.println(s+"\t"+vals[s]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(s).getName());
+		System.exit(0);
 		
 		
 //		System.out.println(erf.getGridSourceProvider().getClass());

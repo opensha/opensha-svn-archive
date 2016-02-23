@@ -787,29 +787,37 @@ public class FaultSysSolutionERF_Calc {
 		
 		double[] rateArraySmall = new double[rupSet.getNumSections()];
 		double[] rateArray = new double[rupSet.getNumSections()];
+		double[] maxMagArray = new double[rupSet.getNumSections()];
+		double[] minMagArray = new double[rupSet.getNumSections()];
 		int[] maxNumSectInRupForSect = new int[rupSet.getNumSections()];
 		double duration = erf.getTimeSpan().getDuration();
 		
 		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
 			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			double mag = erf.getSource(s).getRupture(0).getMag();
 			List<Integer> setIndexList = rupSet.getSectionsIndicesForRup(fssRupIndex);
 //			if(setIndexList.size()>2)
 //				continue;
 			double rate = erf.getSource(s).computeTotalEquivMeanAnnualRate(duration);
 			for(int sectIndex : setIndexList) {
 				rateArray[sectIndex] += rate;
-				if(setIndexList.size()<=2)
+				if(setIndexList.size()<=3)
 					rateArraySmall[sectIndex] += rate;
 				if(setIndexList.size() > maxNumSectInRupForSect[sectIndex])
 					maxNumSectInRupForSect[sectIndex] = setIndexList.size();
+				if(maxMagArray[sectIndex]<mag)
+					maxMagArray[sectIndex]=mag;
+				if(minMagArray[sectIndex]>mag)
+					minMagArray[sectIndex]=mag;
 			}
 		}
 		
 		for(int s=0; s<rateArray.length;s++) {
-			if(maxNumSectInRupForSect[s]>4)
-				rateArray[s] = rateArraySmall[s]/rateArray[s];
-			else
-				rateArray[s] = Double.NaN;
+			rateArray[s] = rateArraySmall[s]/(rateArray[s]/(maxMagArray[s]-minMagArray[s]));
+//			if(maxNumSectInRupForSect[s]>4)
+//				rateArray[s] = rateArraySmall[s]/rateArray[s];
+//			else
+//				rateArray[s] = Double.NaN;
 		}
 
 		return rateArray;

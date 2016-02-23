@@ -5947,7 +5947,7 @@ System.exit(0);
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 		etasParams.setApplyGridSeisCorr(true);
 		etasParams.setApplySubSeisForSupraNucl(true);
-		etasParams.setImposeGR(true);;
+		etasParams.setImposeGR(false);;
 		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		CaliforniaRegions.RELM_TESTING_GRIDDED griddedRegion = RELM_RegionUtils.getGriddedRegionInstance();
@@ -6015,6 +6015,9 @@ System.exit(0);
 		// Surprise valley subsection subseis rates
 //		etas_PrimEventSampler.writeTotSubSeisRateForSections(2446, 2461);
 		
+//		etas_PrimEventSampler.plotMFDsForSubSect(560); //  Mojave S Subsect 14
+//		etas_PrimEventSampler.plotMFDsForSubSect(1851); //  Mojave S Subsect 14
+//		etas_PrimEventSampler.plotMFDsForSubSect(1835); //  Mojave N Subsect 3
 //		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
 //		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
 //		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
@@ -6027,7 +6030,7 @@ System.exit(0);
 //		etas_PrimEventSampler.writeBulgeCrossSectionData(new Location(34.44-0.234,-118.34+0.573,1.), 0.29,"crossSectData_Bulge_mojave", false);
 
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_MaxCharFactor10_FullTD");
-		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7kmAndAboveM6pt5_PoissonGRcorrAlt");
+//		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7kmAndAboveM6pt5_PoissonGRcorrAlt");
 //		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_PoissonGRcorr");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_MaxCharFactor10_Poisson");
 //		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_MaxCharFactor10_Poisson");
@@ -6057,7 +6060,7 @@ System.exit(0);
 //		etas_PrimEventSampler.testAltSubseisOnFaultMFD_Representations();
 //		etas_PrimEventSampler.testFaultPolyMgr();
 //		etas_PrimEventSampler.tempListSubsectsThatCoverGridCell(5172);
-//		etas_PrimEventSampler.tempTestBulgeforCubesInSectPolygon(336);
+		etas_PrimEventSampler.tempTestBulgeforCubesInSectPolygon(1850);
 //		etas_PrimEventSampler.testTotalSubSeisOnFaultMFD();
 //		etas_PrimEventSampler.tempTestBulgeInCube();
 //		etas_PrimEventSampler.testSubSeisMFD_ForSect(2094);	// San Diego Trough south, Subsection 37
