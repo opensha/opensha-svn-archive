@@ -30,9 +30,27 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
+		
 //		double duration = 10000;
+//		int numSims = 100;
+//		int hours = 24;
+//		int nodes = 50;
+		
 //		double duration = 1000;
-		double duration = 30;
+//		int numSims = 5000;
+//		int hours = 24;
+//		int nodes = 60;
+		
+//		double duration = 30;
+//		int numSims = 5000;
+//		int hours = 24;
+//		int nodes = 60;
+		
+		// for scenarios
+		double duration = 10;
+		int numSims = 10000;
+		int hours = 24;
+		int nodes = 60;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -41,15 +59,19 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
-//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
-//				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7, TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
+				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
-		TestScenario[] scenarios = { null };
+//		TestScenario[] scenarios = { null };
+		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+//		double totRateScaleFactor = 1.14;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };
@@ -59,50 +81,28 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean gridSeisCorr = true;
 		boolean applySubSeisForSupraNucl = true;
 		
-//		String nameAdd = null;
-		String nameAdd = "scaleMFD1p14";
+		String nameAdd = null;
+//		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
 //		String nameAdd = "4000more";
 //		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";
 		
-		boolean histCatalog;
-		String queue;
-		int startYear, numSims, nodes, mins;
-		if (duration > 1) {
-			// long simulation
-			queue = null;
-			startYear = 2012;
-			histCatalog = true;
-//			numSims = 500;
-//			nodes = 60;
-			numSims = 5000;
-			nodes = 60;
-			mins = 24*60;
-//			numSims = 100;
-//			nodes = 50;
-//			mins = 47*60;
-			Preconditions.checkState(!smallTest);
-			Preconditions.checkState(scenarios.length == 1 && scenarios[0] == null);
-		} else {
-			histCatalog = false;
-			startYear = 2014;
-			if (smallTest) {
-				queue = "development";
-				numSims = 200;
-				nodes = 10;
-				mins = 2*60;
-				if (nameAdd == null)
-					nameAdd = "";
-				else
-					nameAdd += "-";
-				nameAdd += "quick_test";
-			} else {
-				queue = null;
-				numSims = 10000;
-				nodes = 40;
-				mins = 18*60;
-			}
+		boolean histCatalog = true;
+		int startYear = 2012;
+		String queue = null;
+		int mins = hours*60;
+		
+		if (smallTest) {
+			queue = "development";
+			numSims = 200;
+			nodes = 10;
+			mins = 2*60;
+			if (nameAdd == null)
+				nameAdd = "";
+			else
+				nameAdd += "-";
+			nameAdd += "quick_test";
 		}
 		
 		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
@@ -192,6 +192,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						jobName += "-subSeisSupraNucl";
 					if (gridSeisCorr)
 						jobName += "-gridSeisCorr";
+					if (totRateScaleFactor != 1)
+						jobName += "-scale"+(float)totRateScaleFactor;
 					
 					File localJobDir = new File(localDir, jobName);
 					if (!localJobDir.exists())
@@ -233,6 +235,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					
 					if (gridSeisCorr)
 						argz += args_continue_newline+"--grid-seis-correction";
+					
+					argz += args_continue_newline+"--tot-rate-scale-factor "+totRateScaleFactor;
 					
 					if (timeIndep)
 						argz += args_continue_newline+"--indep";

@@ -52,6 +52,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ApplySubSeisRatesForSupraNucle
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelParam;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_TotalRateScaleFactorParam;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -97,6 +98,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private double gridSeisDiscr = 0.1;
 //	private boolean applyLongTermRates = ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT;
 	private boolean applySubSeisForSupraNucl = U3ETAS_ApplySubSeisRatesForSupraNucleationRatesParam.DEFAULT;
+	private double totRateScaleFactor = U3ETAS_TotalRateScaleFactorParam.DEFAULT_VALUE;
 	
 	private boolean timeIndep = false;
 	
@@ -147,6 +149,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		if (cmd.hasOption("apply-sub-seis-for-supra-nucl"))
 			applySubSeisForSupraNucl = Boolean.parseBoolean(cmd.getOptionValue("apply-sub-seis-for-supra-nucl"));
 		
+		if (cmd.hasOption("tot-rate-scale-factor"))
+			totRateScaleFactor = Double.parseDouble(cmd.getOptionValue("tot-rate-scale-factor"));
+		
 		binaryOutput = cmd.hasOption("binary");
 		
 		File solFile = new File(cmd.getOptionValue("sol-file"));
@@ -161,7 +166,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			startYear = Integer.parseInt(cmd.getOptionValue("start-year"));
 		if (rank == 0)
 			debug("Start year: "+startYear);
-		ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
 		
 		fssScenarioRupID = -1;
 		
@@ -526,6 +531,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				// already applied if applicable, setting here for metadata
 				params.setApplyGridSeisCorr(gridSeisCorrections != null);
 				params.setApplySubSeisForSupraNucl(applySubSeisForSupraNucl);
+				params.setTotalRateScaleFactor(totRateScaleFactor);
 				
 				if (rank == 0) {
 					synchronized (MPJ_ETAS_Simulator.class) {
@@ -803,6 +809,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				+ " using file in cache directory");
 		gridSeisCorrectRates.setRequired(false);
 		ops.addOption(gridSeisCorrectRates);
+		
+		Option totRateScaleFactor = new Option("scale", "tot-rate-scale-factor", true,
+				"Total rate scale factor. Default: "+U3ETAS_TotalRateScaleFactorParam.DEFAULT_VALUE);
+		totRateScaleFactor.setRequired(false);
+		ops.addOption(totRateScaleFactor);
 		
 		return ops;
 	}

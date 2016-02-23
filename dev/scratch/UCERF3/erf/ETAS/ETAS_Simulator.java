@@ -275,7 +275,8 @@ public class ETAS_Simulator {
 		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		
 		if(histQkList != null) {
-			int id=0;
+			// now start at 1, zero is reserved for scenarios if included
+			int id=1;
 			for(ObsEqkRupture qk : histQkList) {
 				Location hyp = qk.getHypocenterLocation();
 				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {	//TODO remove hard-coded 24.0 (get from depth dist)
@@ -298,7 +299,9 @@ public class ETAS_Simulator {
 		int scenarioRupID = -1;
 		double numPrimaryAshockForScenario = 0;
 		if(scenarioRup != null) {
-			scenarioRupID = obsEqkRuptureList.size();
+//			scenarioRupID = obsEqkRuptureList.size();
+			// zero is reserved for scenario rupture
+			scenarioRupID = 0;
 			scenarioRup.setID(scenarioRupID);
 			obsEqkRuptureList.add(scenarioRup);		
 			if(D) {
@@ -390,12 +393,12 @@ public class ETAS_Simulator {
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
 		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);	// not sure about the first field
-		int testParID=0;	// this will be used to test IDs
+//		int testParID=0;	// this will be used to test IDs
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
 		for(ETAS_EqkRupture parRup: obsEqkRuptureList) {
 			int parID = parRup.getID();
-			if(parID != testParID) 
-				throw new RuntimeException("problem with ID");
+//			if(parID != testParID) 
+//				throw new RuntimeException("problem with ID");
 			long rupOT = parRup.getOriginTime();
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -436,7 +439,7 @@ public class ETAS_Simulator {
 					eventID +=1;
 				}
 			}
-			testParID += 1;				
+//			testParID += 1;				
 		}
 		if (D) System.out.println("The "+obsEqkRuptureList.size()+" input events produced "+eventsToProcess.size()+" primary aftershocks");
 		info_fr.write("\nThe "+obsEqkRuptureList.size()+" input observed events produced "+eventsToProcess.size()+" primary aftershocks\n");

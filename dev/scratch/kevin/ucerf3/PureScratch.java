@@ -4,12 +4,16 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.zip.ZipException;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -72,6 +76,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -281,7 +286,7 @@ public class PureScratch {
 		System.out.println(track);
 	}
 	
-	public static void test8() throws Exception {
+	private static void test8() throws Exception {
 		ObsEqkRupList loadedRups = UCERF3_CatalogParser.loadCatalog(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/EarthquakeCatalog/"
 						+ "ofr2013-1165_EarthquakeCat.txt"));
@@ -302,6 +307,46 @@ public class PureScratch {
 			}
 		}
 	}
+	
+	private static void test9() {
+		SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss.SSS");
+		TimeZone utc = TimeZone.getTimeZone("UTC");
+		catDateFormat.setTimeZone(utc);
+		Date date = new Date();
+		System.out.println("Date object: "+date);
+		
+		System.out.println("UTC Formatted:");
+		System.out.println("\tyyyy\tMM\tdd\tHH\tmm\tss.SSS");
+		System.out.println("\t"+catDateFormat.format(date));
+		
+		int startYear = 2012;
+		long time = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1;
+		System.out.println("Start time: "+time);
+		long rupTime = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		System.out.println("Rup time: "+rupTime);
+		
+		GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+		cal.set(2012, 0, 1, 0, 0, 0);
+		time = cal.getTimeInMillis();
+		System.out.println("New cal test");
+		System.out.println("Cal millis: "+cal.getTimeInMillis());
+		System.out.println("Formatted:");
+		System.out.println("\tyyyy\tMM\tdd\tHH\tmm\tss.SSS");
+		System.out.println("\t"+catDateFormat.format(cal.getTime()));
+		
+		System.out.println();
+		for (startYear=1970; startYear<1980; startYear++) {
+//			time = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+			double inner = (startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+			time = Math.round(inner);
+//			time = (long)((long)startYear - 1970l) * (long)ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+			boolean equal = inner == time;
+			
+			System.out.println(startYear+" epoch="+time+", inner double to be rounded: "+inner+". Equal? "+equal);
+//			System.out.println(time);
+			System.out.println("\t"+catDateFormat.format(new Date(time)));
+		}
+	}
 
 	/**
 	 * @param args
@@ -314,7 +359,8 @@ public class PureScratch {
 //		test5();
 //		test6();
 //		test7();
-		test8();
+//		test8();
+		test9();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

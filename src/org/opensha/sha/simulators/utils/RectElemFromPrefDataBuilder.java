@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public class RectElemFromPrefDataBuilder {
 		List<String> sectionNamesList = new ArrayList<String>();
 
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedComparator());
+		Collections.sort(allFaultSectionPrefData, new SubSectNameComparator());
 
 		/*		  
 				  // write sections IDs and names
@@ -314,6 +315,19 @@ public class RectElemFromPrefDataBuilder {
 		 */
 		
 		return rectElementsList;
+	}
+	
+	private static class SubSectNameComparator implements Comparator<FaultSectionPrefData> {
+		
+		private NamedComparator nameComp = new NamedComparator();
+
+		@Override
+		public int compare(FaultSectionPrefData o1, FaultSectionPrefData o2) {
+			if (o1.getParentSectionId() != o2.getParentSectionId())
+				return nameComp.compare(o1, o2);
+			return new Integer(o1.getSectionId()).compareTo(o2.getSectionId());
+		}
+		
 	}
 	
 	public static void main(String[] args) throws IOException {
