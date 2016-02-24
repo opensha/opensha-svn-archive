@@ -332,6 +332,14 @@ public class WG02_FortranWrappedERF_EpistemicList extends AbstractEpistemicListE
 			bw.write("set -o errexit\n");
 			bw.write("\n");
 			bw.write("cd "+WG02_CODE_PATH+"\n");
+			bw.write("\n");
+			bw.write("if [[ -e "+INPUT_FILE_NAME_1+"]];then\n");
+			bw.write("\trm "+INPUT_FILE_NAME_1+"\n");
+			bw.write("fi\n");
+			bw.write("if [[ -e "+INPUT_FILE_NAME_2+"]];then\n");
+			bw.write("\trm "+INPUT_FILE_NAME_2+"\n");
+			bw.write("fi\n");
+			bw.write("\n");
 			bw.write(wg02_Command+"\n");
 			bw.write("mv "+INPUT_FILE_NAME_1+" "+WG02_CODE_PATH+dirName+"/.\n");
 			bw.write("mv "+INPUT_FILE_NAME_2+" "+WG02_CODE_PATH+dirName+"/.\n");
