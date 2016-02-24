@@ -864,7 +864,7 @@ public class ETAS_Utils {
 		ETAS_Utils etasUtils = new ETAS_Utils();
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
-		String Prefix = "";
+		String prefix = "";
 
 		// Felzer Params:
 //		etasParams.set_c(0.095);
@@ -878,13 +878,14 @@ public class ETAS_Utils {
 //		System.exit(0);
 		
 		
-		double numDays[] = {3.0, 7.0,365.25, 365.25*10, 365.25*100, 365.25*1000};	// 1 week, 1 year, and 1000 years
-		String filenames[] = {Prefix+"ETAS_TriggerStats_3days.txt",
-				Prefix+"ETAS_TriggerStats_1week.txt",
-				Prefix+"ETAS_TriggerStats_1year.txt",
-				Prefix+"ETAS_TriggerStats_10year.txt",
-				Prefix+"ETAS_TriggerStats_100year.txt",
-				Prefix+"ETAS_TriggerStats_1000year.txt"};
+		double numDays[] = {1.0, 3.0, 7.0,365.25, 365.25*10, 365.25*100, 365.25*1000};	// 1 week, 1 year, and 1000 years
+		String filenames[] = {prefix+"ETAS_TriggerStats_1day.txt",
+				prefix+"ETAS_TriggerStats_3days.txt",
+				prefix+"ETAS_TriggerStats_1week.txt",
+				prefix+"ETAS_TriggerStats_1year.txt",
+				prefix+"ETAS_TriggerStats_10year.txt",
+				prefix+"ETAS_TriggerStats_100year.txt",
+				prefix+"ETAS_TriggerStats_1000year.txt"};
 		
 		
 		for(int i=0;i<numDays.length;i++) {
@@ -1076,11 +1077,11 @@ public class ETAS_Utils {
 		
 		
 //		// plot fraction subseis triggered by supra
-		try {
-			plotFractionSubseisTriggeredBySupra(new File(GMT_CA_Maps.GMT_DIR, "FractionSubseisTriggeredBySupra"), "Test", true, erf, new ETAS_ParameterList());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			plotFractionSubseisTriggeredBySupra(new File(GMT_CA_Maps.GMT_DIR, "FractionSubseisTriggeredBySupra"), "Test", true, erf, new ETAS_ParameterList());
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
 
 //		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
@@ -1088,14 +1089,14 @@ public class ETAS_Utils {
 
 
 		
-//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 //		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
 //				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
 //		runMagTimeCatalogSimulation();
 		
-//		writeTriggerStatsToFiles(mfd);
-//		writeTriggerStatsToFilesInfTime(mfd);
+		writeTriggerStatsToFiles(mfd);
+		writeTriggerStatsToFilesInfTime(mfd);
 
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);
