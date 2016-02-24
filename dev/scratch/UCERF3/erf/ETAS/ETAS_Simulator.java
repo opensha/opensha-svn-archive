@@ -1453,6 +1453,8 @@ public class ETAS_Simulator {
 		NAPA("Napa 6.0", 93902, null, 6d), // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
 		PARKFIELD("Parkfield M6", 30473), // Parkfield M6 fault based rup
 		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0), // Bombay Beach M6 in location of 2009 M4.8
+		// From Felzer appendix: 2009   3 24 11 55 43.9300 33.3172 -115.728 5.96 4.96 7.00 2.00 0.09 0.01; Andy's paper says it's M 4.8
+		BOMBAY_BEACH_M4pt8("Bombay Beach M4.8", new Location(33.3172,-115.728, 5.96), 4.8), // Bombay Beach M6 in location of 2009 M4.8
 		ROBINSON_CREEK_Subsect0_M5("Robinson Creek M5", new Location(38.22137, -119.24255, 7.15), 5.0),
 		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0); // Central Valley - farthest from faults
 
@@ -1707,7 +1709,7 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
+//		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
 //		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
 		
@@ -1717,10 +1719,10 @@ public class ETAS_Simulator {
 //		correctGriddedSeismicityRatesInERF(erf, true);
 //		plotERF_RatesMap(erf, "testAfterCorr");
 		
-		double[] vals = FaultSysSolutionERF_Calc.tempCalcParticipationRateForAllSects(erf);
-		for(int s=0;s<vals.length;s++)
-			System.out.println(s+"\t"+vals[s]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(s).getName());
-		System.exit(0);
+//		double[] vals = FaultSysSolutionERF_Calc.tempCalcParticipationRateForAllSects(erf);
+//		for(int s=0;s<vals.length;s++)
+//			System.out.println(s+"\t"+vals[s]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(s).getName());
+//		System.exit(0);
 		
 		
 //		System.out.println(erf.getGridSourceProvider().getClass());
@@ -1741,7 +1743,7 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
-		TestScenario scenario = TestScenario.MOJAVE_M6pt3_ptSrc;
+		TestScenario scenario = TestScenario.BOMBAY_BEACH_M4pt8;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
@@ -1767,7 +1769,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_10yr_Test";	// to increment runs
+		simulationName += "_7day_Test";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1449590752534l;
@@ -1777,7 +1779,7 @@ public class ETAS_Simulator {
 //		double startTimeYear=2012;
 //		double durationYears=10;
 		double startTimeYear=2014;
-		double durationYears=10;
+		double durationYears=7d/365.25;
 		
 		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
