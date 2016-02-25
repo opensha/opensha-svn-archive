@@ -417,7 +417,7 @@ public class ETAS_CatalogIO {
 		return loadCatalogsBinary(getIS(file), minMag);
 	}
 
-	private static final int buffer_len = 655360;
+	public static final int buffer_len = 655360;
 
 	private static InputStream getIS(File file) throws IOException {
 		Preconditions.checkNotNull(file, "File cannot be null!");
@@ -575,18 +575,49 @@ public class ETAS_CatalogIO {
 		Preconditions.checkState(expected.getGridNodeIndex() == actual.getGridNodeIndex());
 	}
 	
-	public static Iterable<List<ETAS_EqkRupture>> getBinaryCatalogsIterable(final File binFile, final double minMag) {
-		return new Iterable<List<ETAS_EqkRupture>>() {
-			
-			@Override
-			public Iterator<List<ETAS_EqkRupture>> iterator() {
+	public static BinarayCatalogsIterable getBinaryCatalogsIterable(final File binFile, final double minMag) {
+		return new BinarayCatalogsIterable(binFile, minMag);
+	}
+	
+	public static class BinarayCatalogsIterable implements Iterable<List<ETAS_EqkRupture>> {
+		
+		private final File binFile;
+		private final double minMag;
+		
+		private int numCatalogs = -1;
+		
+		private BinarayCatalogsListIterator curIterator = null;
+		
+		private BinarayCatalogsIterable(final File binFile, final double minMag) {
+			this.binFile = binFile;
+			this.minMag = minMag;
+		}
+		
+		@Override
+		public Iterator<List<ETAS_EqkRupture>> iterator() {
+			BinarayCatalogsListIterator ret = getIterator();
+			curIterator = null; // clear out so that next call gets a new iterator
+			return ret;
+		}
+		
+		private BinarayCatalogsListIterator getIterator() {
+			if (curIterator == null) {
 				try {
-					return new BinarayCatalogsListIterator(binFile, minMag);
+					curIterator = new BinarayCatalogsListIterator(binFile, minMag);
+					numCatalogs = curIterator.numCatalogs;
 				} catch (IOException e) {
 					throw ExceptionUtils.asRuntimeException(e);
 				}
 			}
-		};
+			return curIterator;
+		}
+		
+		public int getNumCatalogs() {
+			if (numCatalogs < 0)
+				getIterator();
+			Preconditions.checkState(numCatalogs >= 0);
+			return numCatalogs;
+		}
 	}
 	
 	private static class BinarayCatalogsListIterator implements Iterator<List<ETAS_EqkRupture>> {
@@ -623,6 +654,9 @@ public class ETAS_CatalogIO {
 					in.close();
 				return catalog;
 			} catch (IOException e) {
+				try {
+					in.close();
+				} catch (IOException e1) {}
 				System.err.println("Error loading catalog "+index);
 				throw ExceptionUtils.asRuntimeException(e);
 			}

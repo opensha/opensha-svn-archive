@@ -3138,7 +3138,7 @@ public class ETAS_MultiSimAnalysisTools {
 //		boolean writeCatsForViz = false;
 		
 		boolean plotMFDs = true;
-		boolean plotExpectedComparison = true;
+		boolean plotExpectedComparison = false;
 		boolean plotSectRates = true;
 		boolean plotTemporalDecay = true;
 		boolean plotDistanceDecay = true;
@@ -3155,7 +3155,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean useDefaultETASParamsIfMissing = true;
 		boolean useActualDurations = true; // only applies to spontaneous runs
 		
-		int id_for_scenario = 9893;
+		int id_for_scenario = 0;
 		
 //		File resultDir = new File(mainDir, "2015_08_20-spontaneous-full_td");
 //		File myOutput = new File(resultDir, "output_stats");
@@ -3183,42 +3183,64 @@ public class ETAS_MultiSimAnalysisTools {
 //		double minDurationForInclusion = 0.5d;
 //		double minDurationForInclusion = 990;
 		
-		List<String> names = Lists.newArrayList();
 		List<File> resultsZipFiles = Lists.newArrayList();
-		List<TestScenario> scenarios = Lists.newArrayList();
 		
-		names.add("Mojave M5 Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M5);
+		if (args.length == 0) {
+			// manual run on the laptop
+			
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+//			id_for_scenario = 9893;
+//			
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5p5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+//			id_for_scenario = 9893;
+//			
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m6pt3_fss-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+//			id_for_scenario = 9893;
+//			
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m6pt3_ptsrc-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+//			id_for_scenario = 9893;
+			
+			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+			id_for_scenario = 9893;
+			
+//			names.add("30yr Full TD");
+//			resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+//			scenarios.add(null);
+			
+//			names.add("1000yr Full TD");
+//			resultsZipFiles.add(new File(mainDir, "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+//			scenarios.add(null);
+		} else {
+			// command line arguments
+			
+			for (String arg : args) {
+				File resultFile = new File(arg);
+				Preconditions.checkState(resultFile.exists()
+						&& (resultFile.getName().endsWith(".bin") || resultFile.getName().endsWith(".zip")));
+				
+				resultsZipFiles.add(resultFile);
+			}
+		}
 		
-		names.add("Mojave M5.5 Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5p5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M5p5);
-		
-		names.add("Mojave M6.3 Finite Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m6pt3_fss-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M6pt3_FSS);
-		
-		names.add("Mojave M6.3 Pt. Src. Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m6pt3_ptsrc-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M6pt3_ptSrc);
-		
-		names.add("Mojave M7 Full TD");
-		resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
-		scenarios.add(TestScenario.MOJAVE_M7);
-		
-//		names.add("30yr Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
-//		scenarios.add(null);
-		
-//		names.add("1000yr Full TD");
-//		resultsZipFiles.add(new File(mainDir, "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
-//		scenarios.add(null);
-		
-		for (int n=0; n<names.size(); n++) {
-			String name = names.get(n);
+		for (int n=0; n<resultsZipFiles.size(); n++) {
 			File resultsFile = resultsZipFiles.get(n);
-			TestScenario scenario = scenarios.get(n);
+//			TestScenario scenario = scenarios.get(n);
+			TestScenario scenario = null;
+			File directory = resultsFile.getParentFile();
+			System.out.println("Processing "+directory.getAbsolutePath());
+			String dirName = directory.getName().toLowerCase();
+			if (dirName.contains("spontaneous")) {
+				System.out.println("Detected spontaneous");
+			} else {
+				for (TestScenario test : TestScenario.values()) {
+					if (dirName.contains(test.name().toLowerCase())) {
+						scenario = test;
+						break;
+					}
+				}
+				Preconditions.checkState(scenario != null, "Couldn't detect scenario from dir name: "+dirName);
+				System.out.println("Detected scenario "+scenario.name());
+			}
 			
 			if (scenario != null && scenario.getFSS_Index() >= 0)
 				scenario.updateMag(fss.getRupSet().getMagForRup(scenario.getFSS_Index()));
@@ -3229,8 +3251,6 @@ public class ETAS_MultiSimAnalysisTools {
 				triggerParentID = -1;
 			else
 				triggerParentID = id_for_scenario;
-			
-			System.out.println("Loading "+name+" from "+resultsFile.getAbsolutePath());
 			
 			System.gc();
 			
@@ -3247,6 +3267,7 @@ public class ETAS_MultiSimAnalysisTools {
 			File outputDir = new File(resultsFile.getParentFile(), plotDirName);
 			
 			File metadataFile = new File(resultsFile.getParentFile(), "metadata.xml");
+			System.out.println("Metadatafile: "+metadataFile.getAbsolutePath());
 			Element metadataRootEl = null;
 			ETAS_ParameterList params;
 			if (metadataFile.exists()) {
@@ -3276,6 +3297,15 @@ public class ETAS_MultiSimAnalysisTools {
 			if (useActualDurations && scenario == null)
 				duration = -1;
 			
+			String name;
+			if (scenario == null)
+				name = "";
+			else
+				name = scenario+" ";
+			name += (int)inputDuration+"yr";
+			if (params != null)
+				name += " "+params.getU3ETAS_ProbModel();
+			
 			if (!outputDir.exists()) {
 				// see if old dirs exist;
 				File oldDir = new File(parentDir, "output_stats");
@@ -3290,6 +3320,7 @@ public class ETAS_MultiSimAnalysisTools {
 			Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 			
 			// load the catalogs
+			System.out.println("Loading "+name+" from "+resultsFile.getAbsolutePath());
 			Stopwatch timer = Stopwatch.createStarted();
 			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogs(resultsFile, minLoadMag, true);
 			timer.stop();

@@ -14,6 +14,7 @@ import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 
@@ -30,6 +31,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean stampede = true;
 		int threads = 2;
 		boolean smallTest = false;
+		
+		boolean writeConsolidate = true;
+		boolean bundleConsolidate = true;
 		
 //		double duration = 10000;
 //		int numSims = 100;
@@ -59,8 +63,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
-				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
+//				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
+		boolean includeSpontaneous = true;
+//		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
+//		boolean includeSpontaneous = false;
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = { null };
@@ -68,10 +76,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-//		double totRateScaleFactor = 1.14;
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
-		double totRateScaleFactor = 1.0;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		double totRateScaleFactor = 1.14;
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+//		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };
@@ -106,7 +114,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		}
 		
 		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
-//		String dateStr = "2015_10_15";
+//		String dateStr = "2016_02_22";
 		
 		boolean timeIndep = false;
 		
@@ -194,6 +202,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						jobName += "-gridSeisCorr";
 					if (totRateScaleFactor != 1)
 						jobName += "-scale"+(float)totRateScaleFactor;
+					if (!includeSpontaneous)
+						jobName += "-noSpont";
 					
 					File localJobDir = new File(localDir, jobName);
 					if (!localJobDir.exists())
@@ -258,13 +268,68 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						argz += args_continue_newline+"--trigger-catalog "+histCatalogFile.getAbsolutePath();
 					if (rupSurfacesFile != null)
 						argz += args_continue_newline+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
+					if (!includeSpontaneous)
+						argz += args_continue_newline+"--no-spontaneous";
 					
 					argz += args_continue_newline+cacheDir.getAbsolutePath()+args_continue_newline+remoteJobDir.getAbsolutePath();
 					
 					List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
 					
+					List<String> consolidationLines = null;
+					if (writeConsolidate) {
+						consolidationLines = Lists.newArrayList();
+						consolidationLines.add("# M4 consolidation");
+						File resultsDir = new File(remoteJobDir, "results");
+						File m4File = new File(remoteJobDir, "results_m4.bin");
+						consolidationLines.add(mpjWrite.buildCommand(ETAS_CatalogIO.class.getName(),
+								resultsDir.getAbsolutePath()+" "+m4File.getAbsolutePath()+" 4"));
+						consolidationLines.add("");
+						File resultsFile = new File(remoteJobDir, "results.bin");
+						if (scenario == null) {
+							if (!binary) {
+								// build binary results.bin file
+								consolidationLines.add("# create results.bin binary file");
+								consolidationLines.add(mpjWrite.buildCommand(ETAS_CatalogIO.class.getName(),
+										resultsDir.getAbsolutePath()+" "+resultsFile.getAbsolutePath()));
+							}
+						} else {
+							// descendents file
+							consolidationLines.add("# create descendents binary file");
+							File descendentsFile = new File(remoteJobDir, "results_descendents.bin");
+							consolidationLines.add(mpjWrite.buildCommand(ETAS_BinaryCatalogFilterDependents.class.getName(),
+									resultsFile.getAbsolutePath()+" "+descendentsFile.getAbsolutePath()+" 0"));
+						}
+						
+						if (bundleConsolidate) {
+							String lastLine = script.get(script.size()-1);
+							if (lastLine.startsWith("exit")) {
+								script.remove(script.size()-1);
+								script.addAll(consolidationLines);
+								script.add("");
+								script.add(lastLine);
+							} else {
+								script.add("");
+								script.addAll(consolidationLines);
+							}
+						}
+					}
+					
 					script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
 					pbsWrite.writeScript(pbsFile, script);
+					
+					if (writeConsolidate && !bundleConsolidate) {
+						// write consolidation script as well (separately)
+						script = Lists.newArrayList();
+						
+						script.add("#!/bin/bash");
+						script.add("");
+						script.add("JVM_MEM_MB="+memGigs*1024);
+						script.add("");
+						script.addAll(consolidationLines);
+						
+						pbsWrite.writeScript(new File(localJobDir, "consolidate_dev.pbs"), script, 60, 1, 16, "development");
+						pbsWrite.writeScript(new File(localJobDir, "consolidate_norm.pbs"), script, 60, 1, 16, "normal");
+					}
 				}
 			}
 		}
