@@ -1443,8 +1443,8 @@ public class ETAS_Simulator {
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
-		NEAR_SURPRISE_VALLEY_5p0("NearSurpriseValley5pt0", new Location(41.83975, -120.12356, 4.67500), 5.0),
-		NEAR_SURPRISE_VALLEY_5p5("NearSurpriseValley5pt5", new Location(41.83975, -120.12356, 4.67500), 5.5),
+		SURPRISE_VALLEY_5p0("SurpriseValley5pt0", new Location(41.83975, -120.12356, 4.6750), 5.0), // Locationat center of Surprise Valley 2011 CFM, Subsection 14	41.83975, -120.12356, 4.675
+		SURPRISE_VALLEY_5p5("SurpriseValley5pt5", new Location(41.83975, -120.12356, 4.6750), 5.5),	// found with writeLocationAtCenterOfSectionSurf(erf, 2460);  2nd highest Charfactor
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 6.0),	// on N edge of the Mojave scenario
@@ -1455,9 +1455,15 @@ public class ETAS_Simulator {
 		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0), // Bombay Beach M6 in location of 2009 M4.8
 		// From Felzer appendix: 2009   3 24 11 55 43.9300 33.3172 -115.728 5.96 4.96 7.00 2.00 0.09 0.01; Andy's paper says it's M 4.8
 		BOMBAY_BEACH_M4pt8("Bombay Beach M4.8", new Location(33.3172,-115.728, 5.96), 4.8), // Bombay Beach M6 in location of 2009 M4.8
-		ROBINSON_CREEK_Subsect0_M5("Robinson Creek M5", new Location(38.22137, -119.24255, 7.15), 5.0),
-		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0); // Central Valley - farthest from faults
-
+		ROBINSON_CREEK_M5p5("Robinson Creek M5pt5", new Location(38.22137, -119.24255, 7.15), 5.5),  // based on writeLocationAtCenterOfSectionSurf(erf, 1717);	// Robinson Creek Subsection 0; highest Charfactor
+		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0), // Central Valley - farthest from faults
+		ZAYANTE_VERGELES_M5p5("Zayante-Vergeles M5pt5", new Location(36.71779, -121.59369, 6.49000), 5.5), // writeLocationAtCenterOfSectionSurf(erf, 2605);	// Zayante-Vergeles 2011 CFM, Subsection 7; 36.71779, -121.59369, 6.49000; lowest char factor on more than one section
+		SAN_JACINTO_0_M5p5("San Jacinto (Borrego) M5pt5", new Location(33.1917, -116.17999, 7.41061), 5.5),	// San Jacinto (Borrego), Subsection 0	33.1917, -116.17999, 7.41061
+		MENDOCINO_12_M5p5("Mendocino M5pt5", new Location(40.38540, -125.01342, 6.0), 5.5),	// Mendocino, Subsection 12	40.38540, -125.01342, 6.0
+		SAF_PENINSULA_M5p5("SAF_PeninsulaM5pt5", new Location(37.72793, -122.54861, 7.0), 5.5),  // San Andreas (Peninsula) 2011 CFM, Subsection 12	37.72793, -122.54861, 7.0
+		SAF_PENINSULA_M6p3("SAF_PeninsulaM6pt3", 122568),  // Inversion Src #122568; 2 SECTIONS BETWEEN San Andreas (Peninsula) 2011 CFM, Subsection 12 AND San Andreas (Peninsula) 2011 CFM, Subsection 11
+		SAF_PENINSULA_M7("SAF_PeninsulaM7", 119367);  // Inversion Src #119367; 9 SECTIONS BETWEEN San Andreas (North Coast) 2011 CFM, Subsection 1 AND San Andreas (Peninsula) 2011 CFM, Subsection 9
+//	
 				
 		private String name;
 		private int fssIndex;
@@ -1725,13 +1731,14 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 		
-//		System.out.println(erf.getGridSourceProvider().getClass());
-//		System.out.println(erf.getGridSourceProvider().getGriddedRegion().getClass());
-//		System.out.println(erf.getSolution().getClass());
 //		writeLocationAtCenterOfSectionSurf(erf, 1850);	// Mojave
 //		writeLocationAtCenterOfSectionSurf(erf, 1717);	// Robinson Creek Subsection 0
-//		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
-//		System.out.println(erf.getSolution().getClass());
+//		writeLocationAtCenterOfSectionSurf(erf, 2460);	// Suprise Valley Subsection 14
+//		writeLocationAtCenterOfSectionSurf(erf, 2605);	// Zayante-Vergeles 2011 CFM, Subsection 7
+//		writeLocationAtCenterOfSectionSurf(erf, 2159);	// San Jacinto (Borrego), Subsection 0	33.19172092060858, -116.1799928635995, 7.4106132512450795
+//		writeLocationAtCenterOfSectionSurf(erf, 1259);	// Mendocino, Subsection 12	40.38540306568454, -125.01342272786124, 6.0
+//		writeLocationAtCenterOfSectionSurf(erf, 1940);	// San Andreas (Peninsula) 2011 CFM, Subsection 12	37.72792670654364, -122.54861017376626, 7.0
+//		writeInfoAboutSourcesThatUseSection(erf, 1940, 5d, 7.1);
 //		System.exit(0);
 		
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
@@ -1743,15 +1750,15 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
 
 
-		TestScenario scenario = TestScenario.BOMBAY_BEACH_M4pt8;
+		TestScenario scenario = TestScenario.SAF_PENINSULA_M7;
 //		TestScenario scenario = null;
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
-		params.setTotalRateScaleFactor(1.14);
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setTotalRateScaleFactor(1.);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		
 		String simulationName;
 		String imposeGR_string;
@@ -1769,7 +1776,7 @@ public class ETAS_Simulator {
 //		if(params.getImposeGR() == true)
 //			simulationName += "_grCorr";
 		
-		simulationName += "_7day_Test";	// to increment runs
+		simulationName += "_10year_Test";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1449590752534l;
@@ -1779,7 +1786,7 @@ public class ETAS_Simulator {
 //		double startTimeYear=2012;
 //		double durationYears=10;
 		double startTimeYear=2014;
-		double durationYears=7d/365.25;
+		double durationYears=10;
 		
 		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);

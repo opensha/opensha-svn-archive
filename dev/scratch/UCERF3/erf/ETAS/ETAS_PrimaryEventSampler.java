@@ -3529,7 +3529,7 @@ System.exit(0);
 		if(fssERF != null && mainshock.getFSSIndex() >=0) {
 			
 			int mainShockFSSindex = mainshock.getFSSIndex();
-			List<Integer> mainShockSectIncides = fssERF.getSolution().getRupSet().getSectionsIndicesForRup(mainShockFSSindex);
+			List<Integer> mainShockSectIndices = fssERF.getSolution().getRupSet().getSectionsIndicesForRup(mainShockFSSindex);
 			
 			double totFltSrcProb=0;
 			double fltSrcProbArray[] = new double[numFltSystSources];
@@ -3549,7 +3549,7 @@ System.exit(0);
 				int fssIndex = fssERF.getFltSysRupIndexForSource(srcIndex);
 				List<Integer> srcSectIndicides = fssERF.getSolution().getRupSet().getSectionsIndicesForRup(fssIndex);
 				List<Integer> common = new ArrayList<Integer>(srcSectIndicides);
-				common.retainAll(mainShockSectIncides);
+				common.retainAll(mainShockSectIndices);
 				int numCommon = common.size();
 //				double fractCommon1 = (double)numCommon/(double)mainShockSectIncides.size();	// more than half of the main shock
 				double fractCommon2 = (double)numCommon/(double)srcSectIndicides.size();	// more than half aftershock is on the main shock
@@ -3596,7 +3596,7 @@ System.exit(0);
 			}
 			
 			// now add main shock trace
-			for(int sect:mainShockSectIncides) {
+			for(int sect:mainShockSectIndices) {
 				tracesList.add(tracesList.get(sect));
 				valuesList.add(1.0);	
 			}
@@ -3643,9 +3643,151 @@ System.exit(0);
 		}
 		return info;
 	}
+	
+	
+	
 
 
-				
+	/**
+	 * This plots the primary triggered fault-based ruptures that 
+	 * 
+	 * TODO move this to ETAS_SimAnalysisTools
+	 */
+	public String plotMostLikelyTriggeredFSS_Event(ETAS_EqkRupture mainshock, double[] relSrcProbs, File resultsDir, 
+			int numToCheck, String nameSuffix) {
+		
+		double offsetAimuth;
+		Location firstLocOnMainTr;
+		Location lastLocOnMainTr;
+		List<Integer> mainShockSectIndices = null;
+		if(mainshock.getFSSIndex() >=0) {
+			mainShockSectIndices = fssERF.getSolution().getRupSet().getSectionsIndicesForRup(mainshock.getFSSIndex());
+			firstLocOnMainTr = mainshock.getRuptureSurface().getFirstLocOnUpperEdge();
+			lastLocOnMainTr = mainshock.getRuptureSurface().getLastLocOnUpperEdge();
+			offsetAimuth = LocationUtils.azimuth(firstLocOnMainTr, lastLocOnMainTr) + 90.; // direction to offset rupture traces			
+		}
+		// find closest subsection and use it
+		else {
+			Location loc = mainshock.getRuptureSurface().getFirstLocOnUpperEdge();
+			double minDist = 100000;
+			int sectIndex = -1;
+			for(FaultSectionPrefData fltData:rupSet.getFaultSectionDataList()) {
+				double dist = LocationUtils.distanceToSurfFast(loc, fltData.getStirlingGriddedSurface(1.0, false, true));
+				if(dist<minDist) {
+					minDist = dist;
+					sectIndex = fltData.getSectionId();
+				}
+			}
+			StirlingGriddedSurface surf = rupSet.getFaultSectionData(sectIndex).getStirlingGriddedSurface(1.0, false, true);
+			firstLocOnMainTr = surf.getFirstLocOnUpperEdge();
+			lastLocOnMainTr = surf.getLastLocOnUpperEdge();
+			offsetAimuth = LocationUtils.azimuth(firstLocOnMainTr, lastLocOnMainTr) + 90.; // direction to offset rupture traces					
+		}
+
+		String info = "";
+		if(fssERF != null) {
+						
+			double totFltSrcProb=0;
+			double fltSrcProbArray[] = new double[numFltSystSources];
+			for(int srcIndex=0; srcIndex<numFltSystSources; srcIndex++) {
+				totFltSrcProb += relSrcProbs[srcIndex];
+				fltSrcProbArray[srcIndex]=relSrcProbs[srcIndex];
+			}	
+			
+			int[] topValueIndices = ETAS_SimAnalysisTools.getIndicesForHighestValuesInArray(fltSrcProbArray, numToCheck);
+			
+			ArrayList<Integer> overlappingSrcIndexList = new ArrayList<Integer>();
+			ArrayList<Double> overlappingSrcProbList = new ArrayList<Double>();
+			
+			double totRelProb=0;
+			int num=0;
+			for(int srcIndex : topValueIndices) {
+				overlappingSrcIndexList.add(srcIndex);
+				double relProb = fltSrcProbArray[srcIndex]/totFltSrcProb;
+				overlappingSrcProbList.add(relProb);
+				totRelProb += relProb;
+				System.out.println(num+"\t"+relProb+"\t"+totRelProb+"\t"+srcIndex+"\t"+erf.getSource(srcIndex).getName());
+				num+=1;
+			}
+			System.out.println("totRelProb=\t"+totRelProb);
+
+
+			ArrayList<LocationList> tracesList= FaultBasedMapGen.getTraces(rupSet.getFaultSectionDataList());
+			ArrayList<Double> valuesList = new ArrayList<Double>();
+			for(int i=0;i<tracesList.size();i++)
+				valuesList.add(1e-14);	// add very low values for each section
+			
+			int numToInclude = overlappingSrcIndexList.size();
+			double maxTotWt = 1.01;
+			double totForNumIncluded=0;
+			for(int i=0;i<numToInclude ;i++) {
+				int srcIndex = overlappingSrcIndexList.get(i);
+				double relProb = overlappingSrcProbList.get(i);
+				totForNumIncluded+=relProb;
+				int fssIndex = fssERF.getFltSysRupIndexForSource(srcIndex);
+				List<Integer> srcSectIncides = fssERF.getSolution().getRupSet().getSectionsIndicesForRup(fssIndex);
+				LocationVector vect = new LocationVector(offsetAimuth, (i+1)*3.5,0.0);
+				for(int sectID:srcSectIncides) {
+					LocationList trace = tracesList.get(sectID);
+					LocationList movedTrace = new LocationList();
+					for(Location loc:trace) {
+						movedTrace.add(LocationUtils.location(loc, vect));
+					}
+					tracesList.add(movedTrace);
+					valuesList.add(relProb);
+				}
+				if(totForNumIncluded>maxTotWt)
+					break;
+			}
+			
+			// now add main shock trace
+			if(mainShockSectIndices != null) {
+				for(int sect:mainShockSectIndices) {
+					tracesList.add(tracesList.get(sect));
+					valuesList.add(1.0);	
+				}				
+			}
+			
+			// now add aximuth lines so we can see direction of offset
+			LocationVector vect = new LocationVector(offsetAimuth, 200.,0.0);
+			LocationList locList1 = new LocationList();
+			locList1.add(firstLocOnMainTr);
+			locList1.add(LocationUtils.location(firstLocOnMainTr, vect));
+			tracesList.add(locList1);
+			valuesList.add(2.0);	
+			LocationList locList2 = new LocationList();
+			locList2.add(lastLocOnMainTr);
+			locList2.add(LocationUtils.location(lastLocOnMainTr, vect));
+			tracesList.add(locList2);
+			valuesList.add(2.0);	
+			
+			double[] valuesArray = new double[valuesList.size()];
+			for(int i=0;i<valuesList.size();i++)
+				valuesArray[i] = valuesList.get(i);
+					
+			CPT cpt = FaultBasedMapGen.getParticipationCPT().rescale(-5, 0.001);
+			cpt.setBelowMinColor(Color.GRAY);
+			cpt.setAboveMaxColor(Color.BLACK);
+
+			// now log space
+			double[] values = FaultBasedMapGen.log10(valuesArray);
+			
+			String name = "MostLikelyFSS_Rups"+nameSuffix;
+			String title = "Log10(relProb); totProb="+(float)totForNumIncluded;
+			
+			try {
+				FaultBasedMapGen.makeFaultPlot(cpt, tracesList, values, origGriddedRegion, resultsDir, name, true, false, title);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
+
+		}
+		else {
+			throw new RuntimeException("erf must be instance of FaultSystemSolutionERF");
+		}
+		return info;
+	}
+			
 			
 	/**
 	 * This plots the relative probability that each subsection will participate
@@ -6208,6 +6350,7 @@ System.exit(0);
 		
 		// this is for the Poisson cases
 //		plotPrimayEventOverlap(rupture, relSrcProbs, subDirName, 10000, rupInfo);
+		plotMostLikelyTriggeredFSS_Event(rupture, relSrcProbs, subDirName, 20, rupInfo);
 
 		long st = System.currentTimeMillis();
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
