@@ -347,6 +347,14 @@ public class PureScratch {
 			System.out.println("\t"+catDateFormat.format(new Date(time)));
 		}
 	}
+	
+	private static void test10() throws ZipException, IOException, DocumentException {
+		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		int id = 193821;
+		System.out.println(Joiner.on(",").join(rupSet.getSectionsIndicesForRup(id)));
+	}
 
 	/**
 	 * @param args
@@ -360,7 +368,8 @@ public class PureScratch {
 //		test6();
 //		test7();
 //		test8();
-		test9();
+//		test9();
+		test10();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

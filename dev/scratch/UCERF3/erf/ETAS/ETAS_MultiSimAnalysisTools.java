@@ -850,6 +850,9 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		Map<Integer, List<Location>> locsForSectsMap = Maps.newHashMap();
 		
+		HashSet<Integer> debugSections = null;
+//		debugSections = new HashSet<Integer>(rupSet.getSectionsIndicesForRup(193821));
+		
 		double maxDuration = 0;
 		FaultPolyMgr faultPolyMgr = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);
 
@@ -910,6 +913,8 @@ public class ETAS_MultiSimAnalysisTools {
 				for (int i=0; i<minMags.length; i++)
 					if (rup.getMag() >= minMags[i])
 						triggerRatesList.get(i)[closestSectIndex] += fractionalRate;
+				if (debugSections != null && debugSections.contains(closestSectIndex))
+					System.out.println("Ruptured "+closestSectIndex+":\t"+ETAS_CatalogIO.getEventFileLine(rup));
 			}
 		}
 		
@@ -3178,14 +3183,14 @@ public class ETAS_MultiSimAnalysisTools {
 		
 //		boolean plotMFDs = false;
 //		boolean plotExpectedComparison = false;
-//		boolean plotSectRates = false;
+//		boolean plotSectRates = true;
 //		boolean plotTemporalDecay = false;
 //		boolean plotDistanceDecay = false;
 //		boolean plotMaxMagHist = false;
 //		boolean plotGenerations = false;
 //		boolean plotGriddedNucleation = false;
 //		boolean writeTimeFromPrevSupra = false;
-//		boolean plotSectScatter = true;
+//		boolean plotSectScatter = false;
 //		boolean plotGridScatter = false;
 //		boolean plotStationarity = false;
 //		boolean plotSubSectRecurrence = false;
@@ -3242,6 +3247,9 @@ public class ETAS_MultiSimAnalysisTools {
 		if (args.length == 0) {
 			// manual run on the laptop
 			
+			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
+			id_for_scenario = 9893;
+			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 //			id_for_scenario = 9893;
 //			
@@ -3254,8 +3262,8 @@ public class ETAS_MultiSimAnalysisTools {
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m6pt3_ptsrc-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 //			id_for_scenario = 9893;
 			
-			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
-			id_for_scenario = 9893;
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+//			id_for_scenario = 9893;
 			
 //			names.add("30yr Full TD");
 //			resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
@@ -3537,8 +3545,8 @@ public class ETAS_MultiSimAnalysisTools {
 				// sub section partic/trigger rates
 				System.out.println("Plotting Sub Sect Rates");
 				double[] minMags = { 0, 6.7, 7.8 };
-				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" "+fullName, fullFileName+"_sect");
+//				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
+//						name+" "+fullName, fullFileName+"_sect");
 				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
 						name+" "+subsetName, subsetFileName+"_sect");
 			}
