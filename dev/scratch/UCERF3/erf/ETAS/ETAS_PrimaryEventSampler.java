@@ -6124,6 +6124,9 @@ System.exit(0);
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, etasParams, new ETAS_Utils(),null,null,null);
 		
+		etas_PrimEventSampler.writePolygonsForSubSections("tempPoly1", 1944, 1947);
+		etas_PrimEventSampler.writePolygonsForSubSections("tempPoly2", 1845, 1851);
+		
 				
 //		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats_012516"));
 
@@ -6202,7 +6205,7 @@ System.exit(0);
 //		etas_PrimEventSampler.testAltSubseisOnFaultMFD_Representations();
 //		etas_PrimEventSampler.testFaultPolyMgr();
 //		etas_PrimEventSampler.tempListSubsectsThatCoverGridCell(5172);
-		etas_PrimEventSampler.tempTestBulgeforCubesInSectPolygon(1850);
+//		etas_PrimEventSampler.tempTestBulgeforCubesInSectPolygon(1850);
 //		etas_PrimEventSampler.testTotalSubSeisOnFaultMFD();
 //		etas_PrimEventSampler.tempTestBulgeInCube();
 //		etas_PrimEventSampler.testSubSeisMFD_ForSect(2094);	// San Diego Trough south, Subsection 37

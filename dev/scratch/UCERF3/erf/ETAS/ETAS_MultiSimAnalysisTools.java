@@ -851,6 +851,8 @@ public class ETAS_MultiSimAnalysisTools {
 		Map<Integer, List<Location>> locsForSectsMap = Maps.newHashMap();
 		
 		double maxDuration = 0;
+		FaultPolyMgr faultPolyMgr = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);
+
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			double myDuration;
 			if (duration < 0)
@@ -868,6 +870,7 @@ public class ETAS_MultiSimAnalysisTools {
 					continue;
 				int closestSectIndex = -1;
 				double closestDist = Double.POSITIVE_INFINITY;
+				boolean notYetFound = true;
 				
 				Location hypocenter = rup.getHypocenterLocation();
 				Preconditions.checkNotNull(hypocenter);
@@ -877,22 +880,30 @@ public class ETAS_MultiSimAnalysisTools {
 						if (rup.getMag() >= minMags[i])
 							particRatesList.get(i)[sectIndex] += fractionalRate;
 					
-					// now calculate distance
-					List<Location> surfLocs = locsForSectsMap.get(sectIndex);
-					if (surfLocs == null) {
-						// first time we have encountered this section
-						FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
-						surfLocs = sect.getStirlingGriddedSurface(1d, false, true).getEvenlyDiscritizedPerimeter();
-						locsForSectsMap.put(sectIndex, surfLocs);
+					// TODO This isn't quite right because more than one section polygon might contain the hypocenter; 
+					// this will end up taking the first one.  I believe the only way to do this right is to save 
+					// the info in the first place
+					if(notYetFound && faultPolyMgr.getPoly(sectIndex).contains(hypocenter)) {
+						closestSectIndex = sectIndex;
+						notYetFound=false;
 					}
 					
-					for (Location loc : surfLocs) {
-						double dist = LocationUtils.linearDistanceFast(hypocenter, loc);
-						if (dist < closestDist) {
-							closestDist = dist;
-							closestSectIndex = sectIndex;
-						}
-					}
+//					// now calculate distance
+//					List<Location> surfLocs = locsForSectsMap.get(sectIndex);
+//					if (surfLocs == null) {
+//						// first time we have encountered this section
+//						FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
+//						surfLocs = sect.getStirlingGriddedSurface(1d, false, true).getEvenlyDiscritizedPerimeter();
+//						locsForSectsMap.put(sectIndex, surfLocs);
+//					}
+//					
+//					for (Location loc : surfLocs) {
+//						double dist = LocationUtils.linearDistanceFast(hypocenter, loc);
+//						if (dist < closestDist) {
+//							closestDist = dist;
+//							closestSectIndex = sectIndex;
+//						}
+//					}
 				}
 				
 				Preconditions.checkState(closestSectIndex >= 0);
@@ -2991,6 +3002,49 @@ public class ETAS_MultiSimAnalysisTools {
 		return ETAS_ParameterList.fromXMLMetadata(paramsEl);
 	}
 	
+	public static void nedsAnalysis2() {
+
+		System.out.println("Making ERF");
+		double duration = 10;
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF( 2012d, duration);
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		String dir = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations";
+		
+		System.out.println("Reading catalogs");
+		List<List<ETAS_EqkRupture>> catalogs=null;
+		try {
+			catalogs = ETAS_CatalogIO.loadCatalogsBinary(new File(dir+"/results_m4.bin"));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		int triggerParentID = 9893;
+		List<List<ETAS_EqkRupture>> primaryCatalogs = Lists.newArrayList();
+		if (triggerParentID >= 0) {
+			for (List<ETAS_EqkRupture> catalog : catalogs)
+				primaryCatalogs.add(ETAS_SimAnalysisTools.getPrimaryAftershocks(catalog, triggerParentID));
+		} else {
+			for (List<ETAS_EqkRupture> catalog : catalogs)
+				primaryCatalogs.add(ETAS_SimAnalysisTools.getByGeneration(catalog, 0));
+		}
+		
+		System.out.println("catalogs.size()="+catalogs.size());
+//		System.exit(-1);
+		
+		File outputDir = new File(dir);
+		if(!outputDir.exists())
+			outputDir.mkdir();
+
+		double[] minMags = {0d};
+		try {
+			plotSectRates(primaryCatalogs, -1d, rupSet, minMags, outputDir, "test", "M7");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	
 	public static void nedsAnalysis() {
 		
@@ -3116,7 +3170,7 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-//		nedsAnalysis();
+//		nedsAnalysis2();
 //		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
