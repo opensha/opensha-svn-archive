@@ -40,9 +40,12 @@ import com.google.common.primitives.Doubles;
 class NewZealandParser {
 
 	private static final Splitter SPLIT = Splitter.on(" ").omitEmptyStrings();
-	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
-	private static final String gridPath = "data" + S + "backgroundGrid.txt";
-	private static final String faultPath = "data" + S + "FUN1111.DAT";
+//	private static final String S = StandardSystemProperty.FILE_SEPARATOR.value();
+//	private static final String gridPath = "data" + S + "backgroundGrid.txt";
+//	private static final String faultPath = "data" + S + "FUN1111.DAT";
+	// actually don't want to use the default separator here as this uses Resources.getResource
+	private static final String gridPath = "data/backgroundGrid.txt";
+	private static final String faultPath = "data/FUN1111.DAT";
 
 	private static final double M4_FLOOR = 0.0008;
 	
