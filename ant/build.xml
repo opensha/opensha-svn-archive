@@ -321,6 +321,16 @@
 		</copy>
 	</target>
 
+	<target name="resource.erfs.nz">
+		<!-- This is for the GEM ERFs...which we may or may not include in our regular apps. -->
+		<copy todir="${build}/scratch/stirling/data" overwrite="true">
+			<fileset dir="${dev}/scratch/stirling/data">
+				<include name="**/*.txt" />
+				<include name="**/*.DAT" />
+			</fileset>
+		</copy>
+	</target>
+
 	<target name="resource.erfs.aux">
 		<!-- This is for ERFs that we won't include in our regular apps because they require
 		too much data, but may be useful to someone. -->
@@ -409,6 +419,7 @@
 		<!--			ERF Resources				-->
 		<antcall target="resource.erfs.main" />
 		<antcall target="resource.erfs.gem" />
+		<antcall target="resource.erfs.nz" />
 		<antcall target="resource.cybershake" />
 
 		<antcall target="resource.hazard.apps.server" />
