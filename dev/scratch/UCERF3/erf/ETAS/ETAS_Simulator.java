@@ -1716,9 +1716,9 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-//		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
-//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-//		erf.updateForecast();
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
 		
 //		plotElMayorAndLagunaSalada(erf);
 
@@ -1748,8 +1748,8 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
 		
-//		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
-
+		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
+		System.exit(0);
 
 		TestScenario scenario = TestScenario.CENTRAL_VALLEY_M5p5;
 //		TestScenario scenario = null;

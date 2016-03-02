@@ -1922,6 +1922,12 @@ public class ETAS_MultiSimAnalysisTools {
 					outputDir, prefix+"_diff", false, false, title+" Diff");
 			FaultBasedMapGen.makeFaultPlot(diffCPT.rescale(-maxDiff/2, maxDiff/2), faults, stdomNormDiff, region,
 					outputDir, prefix+"_meanCorrectedDiff", false, false, title+" MeanCorrectedDiff");
+			for(int i=0;i<ratio.length;i++) {
+				if(subSectExpVals[i]<3e-3)
+					ratio[i]=1d;
+			}
+			FaultBasedMapGen.makeFaultPlot(logRatioCPT, faults, FaultBasedMapGen.log10(ratio), region,
+					outputDir, prefix+"_ratioFilteredProbGt0pt003", false, false, title+" Ratio");
 
 		}
 	}
@@ -3092,10 +3098,14 @@ public class ETAS_MultiSimAnalysisTools {
 //			String simName = "2016_01_28-spontaneous-1000yr-full_td-gridSeisCorr";
 //			String simName = "2016_01_27-spontaneous-1000yr-newNuclWt-full_td-gridSeisCorr";
 //			String simName = "2016_02_04-spontaneous-10000yr-full_td-subSeisSupraNucl-gridSeisCorr";
+//			String simName = "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr";
 			
 //			String simName = "2015_12_09-spontaneous-30yr-full_td-noApplyLTR";
 //			String simName = "2016_01_31-spontaneous-30yr-full_td-gridSeisCorr";
-			String simName = "2016_01_31-spontaneous-30yr-newNuclWt-full_td-gridSeisCorr";
+//			String simName = "2016_01_31-spontaneous-30yr-newNuclWt-full_td-gridSeisCorr";
+			String simName = "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr";
+
+			
 			
 //			String simName = "2015_12_15-spontaneous-1000yr-mc10-applyGrGridded-full_td-noApplyLTR";
 //			String simName = "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR";
@@ -3128,13 +3138,13 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			
 			// DO THIS ONE FOR 1000-YEAR SIMULATIONS
-//			plotNormRecurrenceIntForAllSubSectHist(catalogs, erf, outputDir);
+			plotNormRecurrenceIntForAllSubSectHist(catalogs, erf, outputDir);
 			// this not really necessary?:
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 			erf.updateForecast();
 			try {
-				plotBinnedSectParticRateVsExpRate(catalogs, -1.0, erf, outputDir, "binned_sect_partic");
-//				plotSectParticScatter(catalogs, -1.0, erf, outputDir);
+//				plotBinnedSectParticRateVsExpRate(catalogs, -1.0, erf, outputDir, "binned_sect_partic");
+				plotSectParticScatter(catalogs, -1.0, erf, outputDir);
 				
 //				int numSubCat = 5;
 //				int numInCat = catalogs.size()/numSubCat;
@@ -3175,8 +3185,8 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-//		nedsAnalysis2();
-//		System.exit(-1);
+		nedsAnalysis();
+		System.exit(-1);
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;

@@ -5657,7 +5657,7 @@ System.exit(0);
 					graph.setY_AxisLabel("Rate");
 					graph.setYLog(true);
 				}
-				break;
+				break;	// only need one of them
 			}
 		}
 		
@@ -5701,6 +5701,98 @@ System.exit(0);
 		}
 		
 		return grCorr;
+	}
+	
+	/**
+	 * This makes a plot of the lont-term total, total on-fault, and total off fault MFDs
+	 * TODO Move to utility class?
+	 */
+	public void plotExpectedLongTermMFDs() {
+		double minMag = 2.55;
+		double maxMag=8.95;
+		int numMag = 65;
+		SummedMagFreqDist totMFD_Supra = new SummedMagFreqDist(minMag, maxMag, numMag);
+		totMFD_Supra.setName("totMFD_Supra");
+		SummedMagFreqDist totMFD_Sub =  new SummedMagFreqDist(minMag, maxMag, numMag);
+		totMFD_Sub.setName("totMFD_Sub");
+		for(int s=0;s<rupSet.getNumSections();s++) {
+			if(longTermSubSeisMFD_OnSectList.get(s) != null) {
+				totMFD_Sub.addIncrementalMagFreqDist(longTermSubSeisMFD_OnSectList.get(s));
+				if(longTermSupraSeisMFD_OnSectArray[s] != null)
+					totMFD_Supra.addIncrementalMagFreqDist(longTermSupraSeisMFD_OnSectArray[s]);
+			}
+		}
+		SummedMagFreqDist totalTrulyOffFaultMFD = new SummedMagFreqDist(minMag, maxMag, numMag);
+		for(int src=fssERF.getNumFaultSystemSources();src<fssERF.getNumSources();src++)
+			if(mfdForTrulyOffOnlyArray[src] != null)
+				totalTrulyOffFaultMFD.addIncrementalMagFreqDist(mfdForTrulyOffOnlyArray[src]);
+		totalTrulyOffFaultMFD.setName("totalTrulyOffFaultMFD");
+		
+		SummedMagFreqDist totalModelMFD = new SummedMagFreqDist(minMag, maxMag, numMag);
+		totalModelMFD.addIncrementalMagFreqDist(totalTrulyOffFaultMFD);
+		totalModelMFD.addIncrementalMagFreqDist(totMFD_Sub);
+		totalModelMFD.addIncrementalMagFreqDist(totMFD_Supra);
+		totalModelMFD.setName("totalModelMFD");
+		
+		SummedMagFreqDist totalOnFaultMFD = new SummedMagFreqDist(minMag, maxMag, numMag);
+		totalOnFaultMFD.addIncrementalMagFreqDist(totMFD_Sub);
+		totalOnFaultMFD.addIncrementalMagFreqDist(totMFD_Supra);
+		
+
+		GutenbergRichterMagFreqDist gr1 = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMag+1d, numMag+10);	// add some so cum doesn't taper
+		gr1.scaleToIncrRate(minMag, totalOnFaultMFD.getY(minMag));
+		gr1.setName("GR Dist 1");
+
+		GutenbergRichterMagFreqDist gr2 = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMag+1d, numMag+10);
+		gr2.scaleToIncrRate(minMag, totalTrulyOffFaultMFD.getY(minMag));
+		gr2.setName("GR Dist 2");
+		
+		ArrayList<PlotCurveCharacterstics> plotCharsList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharsList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, Color.BLACK));
+		plotCharsList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, Color.RED));
+		plotCharsList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3, Color.BLUE));
+		plotCharsList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1, Color.RED));
+		plotCharsList.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1, Color.BLUE));
+
+		ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+		funcs.add(totalModelMFD);
+		funcs.add(totalOnFaultMFD);
+		funcs.add(totalTrulyOffFaultMFD);
+		funcs.add(gr1);
+		funcs.add(gr2);
+		GraphWindow graph = new GraphWindow(funcs, "Imcremental MFDs", plotCharsList); 
+		graph.setX_AxisLabel("Magnitude");
+		graph.setY_AxisLabel("Incremental Rate (per year)");
+		graph.setYLog(true);
+		graph.setAxisLabelFontSize(20);
+		graph.setPlotLabelFontSize(20);
+		graph.setTickLabelFontSize(18);
+		graph.setAxisRange(4, 8.5, 1e-5, 1e2);
+		
+		ArrayList<EvenlyDiscretizedFunc> funcsCum = new ArrayList<EvenlyDiscretizedFunc>();
+		funcsCum.add(totalModelMFD.getCumRateDistWithOffset());
+		funcsCum.add(totalOnFaultMFD.getCumRateDistWithOffset());
+		funcsCum.add(totalTrulyOffFaultMFD.getCumRateDistWithOffset());
+		funcsCum.add(gr1.getCumRateDistWithOffset());
+		funcsCum.add(gr2.getCumRateDistWithOffset());
+		GraphWindow graphCum = new GraphWindow(funcsCum, "Cumulative MFDs", plotCharsList); 
+		graphCum.setX_AxisLabel("Magnitude");
+		graphCum.setY_AxisLabel("Cumulative Rate (per year)");
+		graphCum.setYLog(true);
+		graphCum.setAxisLabelFontSize(20);
+		graphCum.setPlotLabelFontSize(20);
+		graphCum.setTickLabelFontSize(18);
+		graphCum.setAxisRange(4, 8.5, 1e-5, 1e2);
+		
+		try {
+			graph.saveAsPDF("LongTermMFDs_Incremental.pdf");
+			graph.saveAsTXT("LongTermMFDs_Incremental.txt");
+			graphCum.saveAsPDF("LongTermMFDs_Cumulative.pdf");
+			graphCum.saveAsTXT("LongTermMFDs_Cumulative.txt");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 
@@ -6087,7 +6179,7 @@ System.exit(0);
 	public static void main(String[] args) {
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
-		etasParams.setApplyGridSeisCorr(true);
+		etasParams.setApplyGridSeisCorr(false);
 		etasParams.setApplySubSeisForSupraNucl(true);
 		etasParams.setImposeGR(false);;
 		etasParams.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
@@ -6124,8 +6216,7 @@ System.exit(0);
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates, 
 				gridSeisDiscr,null, etasParams, new ETAS_Utils(),null,null,null);
 		
-		etas_PrimEventSampler.writePolygonsForSubSections("tempPoly1", 1944, 1947);
-		etas_PrimEventSampler.writePolygonsForSubSections("tempPoly2", 1845, 1851);
+		etas_PrimEventSampler.plotExpectedLongTermMFDs();
 		
 				
 //		etas_PrimEventSampler.plotCharFactorStats(new File(GMT_CA_Maps.GMT_DIR, "GRcorrStats_012516"));
