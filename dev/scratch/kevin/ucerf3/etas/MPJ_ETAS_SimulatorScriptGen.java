@@ -2,6 +2,7 @@ package scratch.kevin.ucerf3.etas;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +25,8 @@ import com.google.common.collect.Lists;
 public class MPJ_ETAS_SimulatorScriptGen {
 	
 	private static final String args_continue_newline = " \\\n\t";
+	
+	public static final DateFormat df = new SimpleDateFormat("yyyy_MM_dd");
 
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
@@ -45,16 +48,16 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int hours = 24;
 //		int nodes = 60;
 		
-//		double duration = 30;
-//		int numSims = 5000;
-//		int hours = 24;
-//		int nodes = 60;
-		
-		// for scenarios
-		double duration = 10;
-		int numSims = 10000;
+		double duration = 30;
+		int numSims = 5000;
 		int hours = 24;
 		int nodes = 60;
+		
+		// for scenarios
+//		double duration = 10;
+//		int numSims = 10000;
+//		int hours = 24;
+//		int nodes = 60;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -66,14 +69,16 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
 //				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
-		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M5p5, TestScenario.SURPRISE_VALLEY_5p0,
-					TestScenario.SAF_PENINSULA_M5p5, TestScenario.SAF_PENINSULA_M6p3, TestScenario.SAF_PENINSULA_M7};
-		boolean includeSpontaneous = true;
+//		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M5p5, TestScenario.SURPRISE_VALLEY_5p0,
+//					TestScenario.SAF_PENINSULA_M5p5, TestScenario.SAF_PENINSULA_M6p3, TestScenario.SAF_PENINSULA_M7};
+//		TestScenario[] scenarios = {TestScenario.SURPRISE_VALLEY_5p5, TestScenario.CENTRAL_VALLEY_M5p5};
+//		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
 //		boolean includeSpontaneous = false;
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
-//		TestScenario[] scenarios = { null };
+		TestScenario[] scenarios = { null };
+		boolean includeSpontaneous = true;
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
@@ -115,7 +120,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			nameAdd += "quick_test";
 		}
 		
-		String dateStr = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
+		String dateStr = df.format(new Date());
 //		String dateStr = "2016_02_22";
 		
 		boolean timeIndep = false;

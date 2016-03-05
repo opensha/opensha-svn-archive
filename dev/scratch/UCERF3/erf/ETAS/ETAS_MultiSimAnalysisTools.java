@@ -99,10 +99,11 @@ import com.google.common.primitives.Doubles;
 public class ETAS_MultiSimAnalysisTools {
 	
 	public static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag) {
-		return calcNumWithMagAbove(catalogs, targetMinMag, -1, -1);
+		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		return calcNumWithMagAbove(catalogs, ot, targetMinMag, -1, -1);
 	}
 	
-	public static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, double targetMinMag,
+	public static int calcNumWithMagAbove(List<List<ETAS_EqkRupture>> catalogs, long ot, double targetMinMag,
 			int triggerParentID, int maxDaysAfter) {
 		HashSet<Integer> triggerParentIDs = null;
 		if (triggerParentID >= 0) {
@@ -110,7 +111,6 @@ public class ETAS_MultiSimAnalysisTools {
 			triggerParentIDs.add(triggerParentID);
 		}
 		int num = 0;
-		long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
 		long maxEventTime;
 		if (maxDaysAfter > 0)
 			maxEventTime = ot + maxDaysAfter*ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -194,6 +194,8 @@ public class ETAS_MultiSimAnalysisTools {
 				// it's a full catalog
 				return 0;
 		}
+		if (Double.isInfinite(catMinMag))
+			throw new IllegalStateException("Empty catalogs!");
 		int numToTrim = 0;
 		while (catMinMag > (minMag + 0.5*mfdDelta)) {
 			minMag += mfdDelta;
@@ -269,10 +271,14 @@ public class ETAS_MultiSimAnalysisTools {
 	}
 	
 	private static void setFontSizes(HeadlessGraphPanel gp) {
+		setFontSizes(gp, 0);
+	}
+	
+	private static void setFontSizes(HeadlessGraphPanel gp, int addition) {
 		gp.setBackgroundColor(Color.WHITE);
-		gp.setTickLabelFontSize(22);
-		gp.setAxisLabelFontSize(24);
-		gp.setPlotLabelFontSize(24);
+		gp.setTickLabelFontSize(22+addition);
+		gp.setAxisLabelFontSize(24+addition);
+		gp.setPlotLabelFontSize(24+addition);
 	}
 	
 	private static ArbIncrementalMagFreqDist[] plotMFD(List<List<ETAS_EqkRupture>> catalogs, double duration,
@@ -391,6 +397,33 @@ public class ETAS_MultiSimAnalysisTools {
 		return subMFDs;
 	}
 	
+	private static EvenlyDiscretizedFunc[] calcFractAboveZero(ArbIncrementalMagFreqDist[] subMFDs) {
+		EvenlyDiscretizedFunc atFunc = new EvenlyDiscretizedFunc(
+				subMFDs[0].getMinX(), subMFDs[0].getMaxX(), subMFDs[0].size());
+		EvenlyDiscretizedFunc atOrAboveFunc = new EvenlyDiscretizedFunc(
+				atFunc.getMinX()-atFunc.getDelta()*0.5, atFunc.size(), atFunc.getDelta());
+		
+		double fractEach = 1d/subMFDs.length;
+		
+		for (int i=0; i<subMFDs.length; i++) {
+			ArbIncrementalMagFreqDist subMFD = subMFDs[i];
+			int maxMagIndex = -1;
+			for (int m=0; m<subMFD.size(); m++) {
+				if (subMFD.getY(m) > 0) {
+					atFunc.add(m, fractEach);
+					maxMagIndex = m;
+				}
+			}
+			for (int m=0; m<=maxMagIndex; m++)
+				atOrAboveFunc.add(m, fractEach);
+		}
+		
+		atFunc.setName("Fract With Mag");
+		atOrAboveFunc.setName("Fract With ≥ Mag");
+		
+		return new EvenlyDiscretizedFunc[] {atFunc, atOrAboveFunc};
+	}
+	
 	private static void plotFractWithMagAbove(List<List<ETAS_EqkRupture>> catalogs,
 			ArbIncrementalMagFreqDist[] subMFDs, TestScenario scenario,
 			File outputDir, String name, String prefix) throws IOException {
@@ -400,36 +433,37 @@ public class ETAS_MultiSimAnalysisTools {
 		Preconditions.checkArgument(subMFDs.length > 0);
 		Preconditions.checkArgument(subMFDs.length == catalogs.size());
 		
-		double minMag = subMFDs[0].getMinX();
-		int numMag = subMFDs[0].size();
+//		double minMag = subMFDs[0].getMinX();
+//		int numMag = subMFDs[0].size();
 		double delta = subMFDs[0].getDelta();
 		
-		EvenlyDiscretizedFunc atOrAboveFunc = new EvenlyDiscretizedFunc(minMag-delta*0.5, numMag, delta);
-		EvenlyDiscretizedFunc atFunc = new EvenlyDiscretizedFunc(minMag, numMag, delta);
+//		EvenlyDiscretizedFunc atOrAboveFunc = new EvenlyDiscretizedFunc(minMag-delta*0.5, numMag, delta);
+//		EvenlyDiscretizedFunc atFunc = new EvenlyDiscretizedFunc(minMag, numMag, delta);
+		EvenlyDiscretizedFunc[] myFuncs = calcFractAboveZero(subMFDs);
+		EvenlyDiscretizedFunc atFunc = myFuncs[0];
+		EvenlyDiscretizedFunc atOrAboveFunc = myFuncs[1];
 
 		double fractEach = 1d/subMFDs.length;
 		double minY = Math.min(fractEach, 1d/10000d);
 		
-		for (ArbIncrementalMagFreqDist subMFD : subMFDs) {
-			int maxIndex = -1;
-			for (int i=0; i<numMag; i++) {
-				if (subMFD.getY(i) > 0d) {
-					atFunc.add(i, fractEach);
-					maxIndex = i;
-				}
-			}
-			for (int i=0; i<=maxIndex; i++)
-				atOrAboveFunc.add(i, fractEach);
-		}
+//		for (ArbIncrementalMagFreqDist subMFD : subMFDs) {
+//			int maxIndex = -1;
+//			for (int i=0; i<numMag; i++) {
+//				if (subMFD.getY(i) > 0d) {
+//					atFunc.add(i, fractEach);
+//					maxIndex = i;
+//				}
+//			}
+//			for (int i=0; i<=maxIndex; i++)
+//				atOrAboveFunc.add(i, fractEach);
+//		}
 		
 		List<XY_DataSet> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		atFunc.setName("Fract With Mag");
 		funcs.add(atFunc);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
 		
-		atOrAboveFunc.setName("Fract With ≥Mag");
 		funcs.add(atOrAboveFunc);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 		
@@ -513,10 +547,129 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		return ret;
 	}
-
+	
+	private static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs,
+			File outputDir, String name, String prefix) throws IOException {
+		double minMag = mfdMinMag;
+		int numMag = mfdNumMag;
+		
+		// see if we need to adjust
+		int numToTrim = calcNumMagToTrim(catalogs);
+		if (numToTrim > 0)
+			System.out.println("Trimming "+numToTrim+" MFD bins");
+		for (int i=0; i<numToTrim; i++) {
+			minMag += mfdDelta;
+			numMag--;
+		}
+		
+		ArbIncrementalMagFreqDist[] subMagNums = new ArbIncrementalMagFreqDist[catalogs.size()];
+		EvenlyDiscretizedFunc[] cmlSubMagNums = new EvenlyDiscretizedFunc[catalogs.size()];
+		for (int i=0; i<catalogs.size(); i++)
+			subMagNums[i] = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
+		ArbIncrementalMagFreqDist primaryMFD = new ArbIncrementalMagFreqDist(minMag, numMag, mfdDelta);
+		
+		double primaryNumEach = 1d/catalogs.size();
+		
+		for (int i=0; i<catalogs.size(); i++) {
+			List<ETAS_EqkRupture> catalog = catalogs.get(i);
+			
+			for (ETAS_EqkRupture rup : catalog) {
+				subMagNums[i].addResampledMagRate(rup.getMag(), 1d, true);
+				int gen = rup.getGeneration();
+				Preconditions.checkState(gen != 0, "This catalog has spontaneous events!");
+				if (gen == 1)
+					primaryMFD.addResampledMagRate(rup.getMag(), primaryNumEach, true);
+			}
+			cmlSubMagNums[i] = subMagNums[i].getCumRateDistWithOffset();
+		}
+		
+		boolean[] cumulatives = { false, true };
+		
+		EvenlyDiscretizedFunc[] myFuncs = calcFractAboveZero(subMagNums);
+		EvenlyDiscretizedFunc atFunc = myFuncs[0];
+		EvenlyDiscretizedFunc atOrAboveFunc = myFuncs[1];
+		
+		for (boolean cumulative : cumulatives) {
+			EvenlyDiscretizedFunc[] mySubMagNums;
+			String yAxisLabel;
+			String myPrefix = prefix;
+			if (myPrefix == null || myPrefix.isEmpty())
+				myPrefix = "";
+			else
+				myPrefix += "_";
+			myPrefix += "mag_num_";
+			EvenlyDiscretizedFunc myAtFunc;
+			EvenlyDiscretizedFunc myPrimaryFunc;
+			if (cumulative) {
+//				myMFD = mfd.getCumRateDistWithOffset();
+				myPrimaryFunc = primaryMFD.getCumRateDistWithOffset();
+				myPrimaryFunc.setName("Primary");
+				mySubMagNums = cmlSubMagNums;
+				yAxisLabel = "Cumulative Number";
+				myPrefix += "cumulative";
+				myAtFunc = atOrAboveFunc;
+			} else {
+//				myMFD = mfd;
+				myPrimaryFunc = primaryMFD;
+				myPrimaryFunc.setName("Primary");
+				mySubMagNums = subMagNums;
+				yAxisLabel = "Incremental Number";
+				myPrefix += "incremental";
+				myAtFunc = atFunc;
+			}
+			
+			List<XY_DataSet> funcs = Lists.newArrayList();
+			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			
+			File csvFile = new File(outputDir,  myPrefix+".csv");
+			
+			double[] fractiles = {0.025, 0.975};
+			
+//			getFractilePlotFuncs(mySubMagNums, fractiles, true, funcs, chars, csvFile);
+			funcs.add(myPrimaryFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN.darker()));
+			
+			getFractilePlotFuncs(mySubMagNums, fractiles, funcs, chars, csvFile,
+					Color.BLACK, Color.BLUE, Color.CYAN, null, myAtFunc, myPrimaryFunc);
+			
+			funcs.add(myAtFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
+			
+			for (PlotCurveCharacterstics theChar : chars)
+				theChar.setLineWidth(theChar.getLineWidth()*2f);
+			
+			PlotSpec spec = new PlotSpec(funcs, chars, name, "Magnitude", yAxisLabel);
+			spec.setLegendVisible(true);
+			
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setUserBounds(myPrimaryFunc.getMinX(), subMagNums[0].getMaxX(), mfdMinY, mfdMaxY);
+			gp.setLegendFontSize(20);
+			
+			setFontSizes(gp, 10);
+			
+			gp.drawGraphPanel(spec, false, true);
+			gp.getCartPanel().setSize(1000, 800);
+			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
+			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
+			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
+		}
+	}
+	
 	private static void getFractilePlotFuncs(EvenlyDiscretizedFunc[] allFuncs, double[] fractiles,
 			boolean mode, List<XY_DataSet> funcs, List<PlotCurveCharacterstics> chars, File csvFile)
 			throws IOException {
+		Color fractileColor = Color.GREEN.darker();
+		Color medianColor = Color.BLUE;
+		Color modeColor = mode ? Color.CYAN : null;
+		Color sdomColor = Color.RED.darker();
+		getFractilePlotFuncs(allFuncs, fractiles, funcs, chars, csvFile,
+				fractileColor, medianColor, modeColor, sdomColor);
+	}
+
+	private static void getFractilePlotFuncs(EvenlyDiscretizedFunc[] allFuncs, double[] fractiles,
+			List<XY_DataSet> funcs, List<PlotCurveCharacterstics> chars, File csvFile,
+			Color fractileColor, Color medianColor, Color modeColor, Color sdomColor,
+			EvenlyDiscretizedFunc... otherCSVFuncs) throws IOException {
 		FractileCurveCalculator fractCalc = getFractileCalc(allFuncs);
 		List<AbstractXY_DataSet> fractileFuncs = Lists.newArrayList();
 		List<String> fractileNames = Lists.newArrayList();
@@ -548,13 +701,15 @@ public class ETAS_MultiSimAnalysisTools {
 				fractFunc.setName(null);
 //			fractFunc.setName((float)(fractile*100d)+"%"+nameAdd);
 			funcs.add(fractFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN.darker()));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, fractileColor));
 		}
 		
 		AbstractXY_DataSet median = fractCalc.getFractile(0.5);
 		median.setName("Median");
-		funcs.add(median);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		if (medianColor != null) {
+			funcs.add(median);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, medianColor));
+		}
 		
 		int numX = allFuncs[0].size();
 		
@@ -562,11 +717,11 @@ public class ETAS_MultiSimAnalysisTools {
 		AbstractXY_DataSet meanFunc = fractCalc.getMeanCurve();
 		
 		AbstractXY_DataSet modeFunc = null;
-		if (mode) {
+		if (modeColor != null) {
 			modeFunc = getCatalogMode(allFuncs, fractCalc);
 			modeFunc.setName("Mode");
 			funcs.add(modeFunc);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.CYAN));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, modeColor));
 		}
 		
 		double[] stdDevs = new double[numX];
@@ -590,10 +745,12 @@ public class ETAS_MultiSimAnalysisTools {
 			lower95_mean.set(n, mean - 1.98*sdoms[n]);
 			upper95_mean.set(n, mean + 1.98*sdoms[n]);
 		}
-		funcs.add(lower95_mean);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED.darker()));
-		funcs.add(upper95_mean);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED.darker()));
+		if (sdomColor != null) {
+			funcs.add(lower95_mean);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, sdomColor));
+			funcs.add(upper95_mean);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, sdomColor));
+		}
 		
 		meanFunc.setName("Mean");
 		funcs.add(meanFunc);
@@ -609,6 +766,11 @@ public class ETAS_MultiSimAnalysisTools {
 				header.add("Mode");
 			header.add("Lower 95% of Mean");
 			header.add("Upper 95% of Mean");
+			for (EvenlyDiscretizedFunc otherFunc : otherCSVFuncs) {
+				Preconditions.checkState(otherFunc.size() == meanFunc.size(), "Other func name mismatch");
+				Preconditions.checkNotNull(otherFunc.getName(), "Other func must be named for CSV header");
+				header.add(otherFunc.getName());
+			}
 			csv.addLine(header);
 			
 			// now mean and std dev
@@ -622,6 +784,8 @@ public class ETAS_MultiSimAnalysisTools {
 					line.add(modeFunc.getY(n)+"");
 				line.add(lower95_mean.getY(n)+"");
 				line.add(upper95_mean.getY(n)+"");
+				for (EvenlyDiscretizedFunc otherFunc : otherCSVFuncs)
+					line.add(otherFunc.getY(n)+"");
 				
 				csv.addLine(line);
 			}
@@ -872,7 +1036,6 @@ public class ETAS_MultiSimAnalysisTools {
 					// not supra-seismogenic
 					continue;
 				int closestSectIndex = -1;
-				double closestDist = Double.POSITIVE_INFINITY;
 				boolean notYetFound = true;
 				
 				Location hypocenter = rup.getHypocenterLocation();
@@ -909,7 +1072,32 @@ public class ETAS_MultiSimAnalysisTools {
 //					}
 				}
 				
-				Preconditions.checkState(closestSectIndex >= 0);
+				if (closestSectIndex  < 0) {
+					// fall back to distance calculation - polygon precision issues
+					double closestDist = Double.POSITIVE_INFINITY;
+					for (int sectIndex : rupSet.getSectionsIndicesForRup(rupIndex)) {
+						// now calculate distance
+						List<Location> surfLocs = locsForSectsMap.get(sectIndex);
+						if (surfLocs == null) {
+							// first time we have encountered this section
+							FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
+							surfLocs = sect.getStirlingGriddedSurface(1d, false, true).getEvenlyDiscritizedPerimeter();
+							locsForSectsMap.put(sectIndex, surfLocs);
+						}
+						
+						for (Location loc : surfLocs) {
+							double dist = LocationUtils.linearDistanceFast(hypocenter, loc);
+							if (dist < closestDist) {
+								closestDist = dist;
+								closestSectIndex = sectIndex;
+							}
+						}
+					}
+					Preconditions.checkState(closestDist < 0.1d,
+							"reverted to distance due to polygon issue but too far from perimeter: %s km", closestDist);
+				}
+				
+				Preconditions.checkState(closestSectIndex >= 0, "fssIndex=%s, hypo=%s", rup.getFSSIndex(), hypocenter);
 				for (int i=0; i<minMags.length; i++)
 					if (rup.getMag() >= minMags[i])
 						triggerRatesList.get(i)[closestSectIndex] += fractionalRate;
@@ -2034,11 +2222,101 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 
-	
-	
-	
-	
-	
+	public static void calcSupraAncestorStats(Iterable<List<ETAS_EqkRupture>> catalogs, File outputDir) throws IOException {
+		// total
+		long numSupra = 0;
+		
+		// sub counts
+		long numSupraSpontaneous = 0; // spontaneous
+		long numSupraTriggeredSupra = 0; // have at least one supra ancestor
+		long numSupraTriggeredHist = 0; // have a historical ancestor and no supra's in-between
+		long numSupraTriggeredOther = 0; // should be numSupra minus the total of the above, as a check
+		
+		long numSupraTriggeredSupraDirect = 0; // special one for directly triggered by a supra
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			HashMap<Integer,ETAS_EqkRupture> idToRupMap = new HashMap<Integer,ETAS_EqkRupture>();
+			int minIndex = Integer.MAX_VALUE;
+			for (ETAS_EqkRupture rup : catalog) {
+				idToRupMap.put(rup.getID(),rup);
+				if (rup.getID() < minIndex)
+					minIndex = rup.getID();
+			}
+			
+			for (ETAS_EqkRupture rup : catalog) {
+				if (rup.getFSSIndex() < 0)
+					// only consider supra
+					continue;
+				
+				numSupra++;
+				
+				if (rup.getParentID() < 0) {
+					// spontaneous
+					numSupraSpontaneous++;
+				} else {
+					// only can do this if catalogs are complete (not filtered)
+					boolean supra = false;
+					boolean hist = false;
+					ETAS_EqkRupture myRup = rup;
+					while (myRup.getParentID() >= 0) {
+						if (myRup.getParentID() < minIndex) {
+							// historical earthquake.
+							hist = true;
+							break;
+						}
+						myRup = idToRupMap.get(myRup.getParentID());
+						Preconditions.checkState(myRup != null,
+								"This isn't a complete catalog (was filtered), cannot track ancestors");
+						if (myRup.getFSSIndex() >= 0) {
+							// it has a supra parent!
+							supra = true;
+							// check if this is the first parent
+							if (rup.getParentID() == myRup.getID())
+								numSupraTriggeredSupraDirect++;
+							break;
+						}
+					}
+					if (supra)
+						numSupraTriggeredSupra++;
+					else if (hist)
+						numSupraTriggeredHist++;
+					else
+						numSupraTriggeredOther++;
+				}
+			}
+		}
+		
+		Preconditions.checkState(numSupraTriggeredOther ==
+				(numSupra - numSupraSpontaneous - numSupraTriggeredSupra - numSupraTriggeredHist));
+		
+		String text = "Supra-seismogenic rupture ancestors:\n";
+		text += "\tTotal num supra: "+numSupra+"\n";
+		text += "\tNum spontaneous supra: "+numSupraSpontaneous+"\n";
+		text += "\tNum with supra ancestor: "+numSupraTriggeredSupra
+				+" ("+numSupraTriggeredSupraDirect+" of which were direct supra triggers)\n";
+		text += "\tNum with hist (and no supra) ancestor: "+numSupraTriggeredHist+"\n";
+		text += "\tNum triggered other: "+numSupraTriggeredOther+"\n";
+		text += "\n";
+		double fractSupraSpontaneous = (double)numSupraSpontaneous/(double)numSupra;
+		double fractSupraTriggeredSupra = (double)numSupraTriggeredSupra/(double)numSupra;
+		double fractSupraTriggeredSupraDirect = (double)numSupraTriggeredSupraDirect/(double)numSupraTriggeredSupra;
+		double fractSupraTriggeredHist = (double)numSupraTriggeredHist/(double)numSupra;
+		double fractSupraTriggeredOther = (double)numSupraTriggeredOther/(double)numSupra;
+		text += "\tFractions: "+numSupra+"\n";
+		text += "\tFract spontaneous supra: "+fractSupraSpontaneous+"\n";
+		text += "\tFract with supra ancestor: "+fractSupraTriggeredSupra
+				+" ("+fractSupraTriggeredSupraDirect+" of which were direct supra triggers)\n";
+		text += "\tFract with hist (and no supra) ancestor: "+fractSupraTriggeredHist+"\n";
+		text += "\tFract triggered other: "+fractSupraTriggeredOther+"\n";
+		
+		System.out.println(text);
+		if (outputDir != null) {
+			File outputFile = new File(outputDir, "supra_ancestor_stats.txt");
+			FileWriter fw = new FileWriter(outputFile);
+			fw.write(text);
+			fw.close();
+		}
+	}
 	
 	private static double[] diff(double[] data1, double[] data2) {
 		double[] diff = new double[data1.length];
@@ -3290,6 +3568,11 @@ public class ETAS_MultiSimAnalysisTools {
 				Preconditions.checkState(resultFile.exists()
 						&& (resultFile.getName().endsWith(".bin") || resultFile.getName().endsWith(".zip")));
 				
+				if (resultFile.getParentFile().getName().startsWith("2016_02_19-mojave")) {
+					System.out.println("Changing scenario ID");
+					id_for_scenario = 9893;
+				}
+				
 				resultsZipFiles.add(resultFile);
 			}
 		}
@@ -3535,6 +3818,9 @@ public class ETAS_MultiSimAnalysisTools {
 					plotMFD(primaryCatalogs, duration, erf, outputDir, subsetName+" "+name, subsetFileName+"_events");
 				
 				plotFractWithMagAbove(childrenCatalogs, subMFDs, scenario, outputDir, name, fullFileName+"_fract_above_mag");
+				
+				if (scenario != null)
+					plotMagNum(childrenCatalogs, outputDir, name, "consolidated_aftershocks");
 			}
 			
 			if (plotExpectedComparison && triggerParentID >= 0) {

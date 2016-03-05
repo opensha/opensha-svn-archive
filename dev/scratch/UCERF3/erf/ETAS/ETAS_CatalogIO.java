@@ -734,6 +734,9 @@ public class ETAS_CatalogIO {
 				} else {
 					writeCatalogBinary(out, loadCatalog(eventsFile, minMag, true));
 				}
+			} catch (IOException e) {
+				System.err.println("FAILED on "+eventsFile.getAbsolutePath());
+				throw e;
 			} catch (RuntimeException e) {
 				System.err.println("FAILED on "+eventsFile.getAbsolutePath());
 				throw e;
