@@ -1285,7 +1285,7 @@ public class HazardCurvePlotter {
 			curve = this.unLogFunction(curve, logHazFunction);
 			curve = getScaledCurveForComponent(attenRel, im, curve);
 			curve.setName(attenRel.getShortName());
-			curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site));
+			curve.setInfo(this.getCurveParametersInfoAsString(attenRel, erf, site, maxSourceDistance));
 			System.out.println("done!");
 			curves.add(curve);
 			i++;
@@ -1310,11 +1310,13 @@ public class HazardCurvePlotter {
 		return infoString;
 	}
 	
-	public String getCurveParametersInfoAsString(AttenuationRelationship imr, AbstractERF erf, Site site) {
-		return this.getCurveParametersInfoAsHTML(imr, erf, site).replace("<br>", "\n");
+	public static String getCurveParametersInfoAsString(AttenuationRelationship imr, AbstractERF erf, Site site,
+			double maxSourceDistance) {
+		return getCurveParametersInfoAsHTML(imr, erf, site, maxSourceDistance).replace("<br>", "\n");
 	}
 
-	public String getCurveParametersInfoAsHTML(AttenuationRelationship imr, AbstractERF erf, Site site) {
+	public static String getCurveParametersInfoAsHTML(AttenuationRelationship imr, AbstractERF erf, Site site,
+			double maxSourceDistance) {
 		ListIterator<Parameter<?>> imrIt = imr.getOtherParamsIterator();
 		String imrMetadata = "IMR = " + imr.getName() + "; ";
 		while (imrIt.hasNext()) {

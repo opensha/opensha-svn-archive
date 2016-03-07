@@ -27,6 +27,7 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.util.XMLUtils;
@@ -52,6 +53,9 @@ public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 		hiResParam = new BooleanParameter("200m resolution", false);
 		hiResParam.addParameterChangeListener(this);
 		adjustableParams.addParameter(hiResParam);
+		
+		timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+		timeSpan.setDuration(1d);
 	}
 	
 	private AbstractERF getERF() {
