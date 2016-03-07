@@ -176,6 +176,7 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	public void setSiteAmpParams(double period, Map<Params, Double> values) {
 		for (Params param : values.keySet())
 			periodParams.set(period, param, values.get(param));
+		curParamValues = null;
 	}
 
 	@Override
@@ -228,14 +229,15 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 
 	@Override
 	public double getModStdDev(ScalarIMR imr) {
+		// get values for the IMT of interest
 		StringParameter imrTypeParam = (StringParameter) imr.getParameter(StdDevTypeParam.NAME);
 		String origIMRType = imrTypeParam.getValue();
 		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
-		double interStdDev = imr.getStdDev();
-		if (DD) System.out.println("Orig inter event, tau="+interStdDev);
+		double origTau = imr.getStdDev();
+		if (DD) System.out.println("Orig inter event, tau="+origTau);
 		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTRA);
-		double intraStdDev = imr.getStdDev();
-		if (DD) System.out.println("Orig intra event, phi="+intraStdDev);
+		double origPhi = imr.getStdDev();
+		if (DD) System.out.println("Orig intra event, phi="+origPhi);
 		imrTypeParam.setValue(origIMRType);
 		
 		double[] params = getCurParams();
@@ -247,8 +249,15 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		
 		if (DD) System.out.println("Calculating std dev with f2="+f2+", f3="+f3+", F="+F+", phiS2S="+phiS2S+", phiLnY="+phiLnY);
 		
-		// now set to to PGA
+		// now set to to PGA and get values
 		imr.setIntensityMeasure(PGA_Param.NAME);
+//		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
+//		double pgaTau = imr.getStdDev(); // NOT NEEDED
+//		if (DD) System.out.println("PGA inter event, tau="+pgaTau);
+//		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTRA);
+//		double pgaPhi = imr.getStdDev();  // NOT NEEDED
+//		if (DD) System.out.println("PGA intra event, phi="+pgaPhi);
+		imrTypeParam.setValue(origIMRType);
 		double x_ref_ln = imr.getMean();
 		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
 		if (DD) System.out.println("x_ref="+x_ref);
@@ -257,11 +266,15 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		
 		double term1 = Math.pow((f2*x_ref)/(x_ref+f3) + 1, 2);
 		
-		double phi_lnZ = Math.sqrt(term1 * (intraStdDev*intraStdDev - F*phiS2S*phiS2S) + phiLnY*phiLnY);
+		double phi_lnZ = Math.sqrt(term1 * (origPhi*origPhi - F*phiS2S*phiS2S) + phiLnY*phiLnY);
 		
 		if (DD) System.out.println("phi_lnZ="+phi_lnZ);
 		
-		return Math.sqrt(phi_lnZ*phi_lnZ + interStdDev*interStdDev);
+		double modStdDev = Math.sqrt(phi_lnZ*phi_lnZ + origTau*origTau);
+		
+		if (DD) System.out.println("modStdDev="+modStdDev);
+		
+		return modStdDev;
 	}
 
 	@Override

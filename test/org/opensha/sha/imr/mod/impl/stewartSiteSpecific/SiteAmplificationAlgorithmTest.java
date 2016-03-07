@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
@@ -35,10 +36,12 @@ import com.google.common.collect.Maps;
  */
 public class SiteAmplificationAlgorithmTest {
 	
+	private static final boolean DO_TEST = true;
+	
 	private StewartSiteSpecificMod mod;
 	private BSSA_2014_Wrapper gmpeWrap;
 	
-	private static final double precision_fraction = 0.01; // 1%
+	private static final double precision_fraction = 0.001; // 0.1%
 	
 	private CSVFile<String> csv;
 	
@@ -51,14 +54,25 @@ public class SiteAmplificationAlgorithmTest {
 	}
 
 	@Test
-	public void test() {
+	public void testSA() {
+		doTest(1);
+	}
+
+	@Test
+	public void testPGA() {
+		doTest(0);
+	}
+	
+	public void doTest(double period) {
 		ParameterList refParams = StewartSiteSpecificMod.getDefaultReferenceSiteParams();
-		double period = 1d;
 		
 		gmpeWrap.setParamDefaults();
-		gmpeWrap.setIntensityMeasure(SA_Param.NAME);
-		SA_Param.setPeriodInSA_Param(gmpeWrap.getIntensityMeasure(), period);
-//		gmpeWrap.setIntensityMeasure(PGA_Param.NAME);
+		if (period > 0) {
+			gmpeWrap.setIntensityMeasure(SA_Param.NAME);
+			SA_Param.setPeriodInSA_Param(gmpeWrap.getIntensityMeasure(), period);
+		} else {
+			gmpeWrap.setIntensityMeasure(PGA_Param.NAME);
+		}
 		mod.setIMT_IMT(gmpeWrap, gmpeWrap.getIntensityMeasure());
 		
 		for (int rowIndex=2; rowIndex<csv.getNumRows(); rowIndex++) {
@@ -118,17 +132,47 @@ public class SiteAmplificationAlgorithmTest {
 			siteAmpParams.put(Params.F2, f2);
 			siteAmpParams.put(Params.F3, f3);
 			siteAmpParams.put(Params.F, F);
+			siteAmpParams.put(Params.PHI_lnY, 0.3);
+			siteAmpParams.put(Params.PHI_S2S, 0.3);
+			siteAmpParams.put(Params.Ymax, Double.NaN);
 			mod.setSiteAmpParams(period, siteAmpParams);
 			
-			double calcSa1Median = Math.exp(mod.getModMean(gmpeWrap));
-			double calcSa1Sigma = mod.getModStdDev(gmpeWrap);
+			double calcMedian = Math.exp(mod.getModMean(gmpeWrap));
+			double calcSigma = mod.getModStdDev(gmpeWrap);
 			System.out.println("File ref PGA: "+pgaMedian);
 			
-			assertEquals(sa1Median, calcSa1Median, sa1Median*precision_fraction);
-			assertEquals(sa1Sigma, calcSa1Sigma, sa1Sigma*precision_fraction);
+			String prefix;
+			double fileMedian, fileSigma;
+			
+			if (period > 0) {
+				Preconditions.checkState(period == 1d, "must be 1s SA for test");
+				prefix = "Sa "+(float)period+"s";
+				fileMedian = sa1Median;
+				fileSigma = sa1Sigma;
+			} else {
+				prefix = "PGA";
+				fileMedian = pgaMedian;
+				fileSigma = pgaSigma;
+			}
+			
+			printDiff(prefix+" Median", fileMedian, calcMedian);
+			
+			if (DO_TEST) assertEquals(fileMedian, calcMedian, fileMedian*precision_fraction);
+			
+			printDiff(prefix+" Sigma", fileSigma, calcSigma);
+			
+			if (DO_TEST) assertEquals(fileSigma, calcSigma, fileSigma*precision_fraction);
 			
 			System.out.println("*********");
 		}
+	}
+	
+	private static void printDiff(String description, double fileVal, double calcVal) {
+		double pDiff = DataUtils.getPercentDiff(calcVal, fileVal);
+		System.out.println("+++++++++++++++++++++++++++++++++++");
+		System.out.println(description+": file="+fileVal+", calc="+calcVal
+				+". diff="+Math.abs(calcVal-fileVal)+" ("+pDiff+" %)");
+		System.out.println("+++++++++++++++++++++++++++++++++++");
 	}
 
 }

@@ -56,8 +56,14 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 	}
 	
 	public synchronized void set(double period, E param, double value) {
-		int periodIndex = periodToIndex(period);
-		Preconditions.checkState(periodIndex >= 0, "period not found: %s", period);
+		int periodIndex = Collections.binarySearch(periods, period);
+		if (periodIndex < 0) {
+			periodIndex = -(periodIndex + 1);
+			periods.add(periodIndex, period);
+			values.add(periodIndex, new double[params.length]);
+		}
+//		int periodIndex = periodToIndex(period);
+//		Preconditions.checkState(periodIndex >= 0, "period not found: %s", period);
 		
 		set(periodIndex, param, value);
 	}
