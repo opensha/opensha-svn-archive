@@ -271,7 +271,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		String sql = "SELECT count(*) from " + TABLE_NAME + " where Run_ID=" + runID;
 		if (im != null)
 			sql += " and IM_Type_ID="+im.getID();
-//		System.out.println(sql);
+		System.out.println(sql);
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);

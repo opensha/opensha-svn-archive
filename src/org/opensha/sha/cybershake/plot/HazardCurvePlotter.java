@@ -591,33 +591,42 @@ public class HazardCurvePlotter {
 				return false;
 			}
 			periodNum++;
-			int curveID = getCurveID(run, im, cmd);
-			if (curveID == -1)
-				// error
+			AnnotatedCurve curve;
+			try {
+				curve = getCurve(run, im, cmd);
+			} catch (Exception e1) {
+				System.out.print("Error calculating/fetching curve.");
+				e1.printStackTrace();
 				return false;
-			if (curveID == -2)
+			}
+			if (curve == null)
 				// skip
 				continue;
-			ArrayList<Integer> compCurveIDs = null;
+			ArrayList<AnnotatedCurve> compCurves = null;
 			if (runCompares != null && !runCompares.isEmpty()) {
-				compCurveIDs = new ArrayList<Integer>();
+				compCurves = new ArrayList<AnnotatedCurve>();
 				for (CybershakeRun runCompare : runCompares) {
-					int compCurveID = getCurveID(runCompare, im, cmd);
-					if (compCurveID == -1)
-						// error
+					AnnotatedCurve compCurve;
+					try {
+						compCurve = getCurve(runCompare, im, cmd);
+					} catch (Exception e1) {
+						System.out.print("Error calculating/fetching curve.");
+						e1.printStackTrace();
 						return false;
-					compCurveIDs.add(compCurveID);
+					}
+					compCurves.add(compCurve);
 				}
 				
 			}
-			Date date = curve2db.getDateForCurve(curveID);
+//			Date date = curve2db.getDateForCurve(curve.curveID);
+			Date date = curve.date;
 			String dateStr = dateFormat.format(date);
 			String imStr = im.getMeasure().getShortName();
 			if (im.getMeasure() == IMType.SA)
 				imStr += "_"+getPeriodStr(im.getVal())+"sec";
 			imStr += "_"+im.getComponent().getShortName();
 			String outFileName = siteName + "_ERF" + run.getERFID() + "_Run" + runID;
-			if (compCurveIDs != null) {
+			if (compCurves != null) {
 				boolean first = true;
 				for (CybershakeRun runCompare : runCompares) {
 					if (first) {
@@ -634,10 +643,10 @@ public class HazardCurvePlotter {
 			if (calcOnly)
 				continue;
 			boolean textOnly = types.size() == 1 && types.get(0) == PlotType.TXT;
-			ArrayList<DiscretizedFunc> curves = this.plotCurve(curveID, run,
-					compCurveIDs, runCompares, textOnly, noVMColors, sgtColor);
+			ArrayList<DiscretizedFunc> curves = this.plotCurve(curve, run,
+					compCurves, textOnly, noVMColors, sgtColor);
 			if (curves == null) {
-				System.err.println("No points could be fetched for curve ID " + curveID + "! Skipping...");
+				System.err.println("No points could be fetched for curve ID " + curve.curveID + "! Skipping...");
 				continue;
 			}
 			for (PlotType type : types) {
@@ -717,53 +726,74 @@ public class HazardCurvePlotter {
 		return ims;
 	}
 	
-	private int getCurveID(CybershakeRun run, CybershakeIM im, CommandLine cmd) {
+	private AnnotatedCurve getCurve(CybershakeRun run, CybershakeIM im, CommandLine cmd) {
 		int curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
 		int numPoints = 0;
 		if (curveID >= 0)
-			numPoints= curve2db.getNumHazardCurvePoints(curveID);
+			numPoints = curve2db.getNumHazardCurvePoints(curveID);
 		
 		System.out.println("Num points: " + numPoints);
 		
+		boolean forceAdd = cmd.hasOption("f");
+		boolean noAdd = cmd.hasOption("n");
+		boolean forceRecalc = cmd.hasOption("benchmark-test-recalc");
+		
+		DiscretizedFunc curve;
+		Date date;
+		
 		// if no curveID exists, or the curve has 0 points
-		if (curveID < 0 || numPoints < 1) {
-			if (!cmd.hasOption("n")) {
-				if (!cmd.hasOption("f")) {
-					// lets ask the user what they want to do
-					if (curveID >= 0)
-						System.out.println("A record for the selected curve exists in the database, but there " +
-								"are no data points: " + curveID + " period=" + im.getVal());
-					else
-						System.out.println("The selected curve does not exist in the database: " + run.getSiteID() + " period="
-								+ im.getVal() + " run=" + run.getRunID());
-					boolean skip = false;
-					// open up standard input
-					BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-					while (true) {
-						System.out.print("Would you like to calculate and insert it? (y/n): ");
-						try {
-							String response = in.readLine();
-							response = response.trim().toLowerCase();
-							if (response.startsWith("y")) { 
-								break;
-							} else if (response.startsWith("n")) {
-								skip = true;
-								break;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
+		if (curveID < 0 || numPoints < 1 || forceRecalc) {
+			if (!forceAdd && !noAdd) {
+				// lets ask the user what they want to do
+				if (curveID >= 0)
+					System.out.println("A record for the selected curve exists in the database, but there " +
+							"are no data points: " + curveID + " period=" + im.getVal());
+				else
+					System.out.println("The selected curve does not exist in the database: " + run.getSiteID() + " period="
+							+ im.getVal() + " run=" + run.getRunID());
+				boolean skip = false;
+				// open up standard input
+				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+				while (true) {
+					System.out.print("Would you like to calculate and insert it? (y/n): ");
+					try {
+						String response = in.readLine();
+						response = response.trim().toLowerCase();
+						if (response.startsWith("y")) { 
+							break;
+						} else if (response.startsWith("n")) {
+							skip = true;
+							break;
 						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
-					if (skip)
-						return -2;
 				}
-				int count = amps2db.countAmps(run.getRunID(), im);
-				if (count <= 0) {
-					System.err.println("No Peak Amps for: " + run.getSiteID() + " period="
-								+ im.getVal() + " run=" + run.getRunID());
-					return -1;
-				}
-				System.out.println(count + " amps in DB");
+				if (skip)
+					return null;
+			}	
+			
+			// calculate it
+			System.out.println("Counting amps in database");
+			int count = amps2db.countAmps(run.getRunID(), im);
+			System.out.println(count + " amps in DB");
+			Preconditions.checkState(count >= 0, "No Peak Amps for: %s period=%s run=%s",
+					run.getSiteID(), im.getVal(), run.getRunID());
+			
+			// calculate the curve
+			if (curveCalc == null)
+				curveCalc = new HazardCurveComputation(db);
+			
+			ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
+			ArrayList<Double> imVals = new ArrayList<Double>();
+			for (int i=0; i<func.size(); i++)
+				imVals.add(func.getX(i));
+			
+			curve = curveCalc.computeHazardCurve(imVals, run, im);
+			date = new Date(); // right now
+			
+			if ((!forceRecalc || curveID < 0) && !noAdd) {
+				// get credentials to add
 				if (user.equals("") && pass.equals("")) {
 					if (cmd.hasOption("pf")) {
 						String pf = cmd.getOptionValue("pf");
@@ -772,30 +802,27 @@ public class HazardCurvePlotter {
 							user = user_pass[0];
 							pass = user_pass[1];
 						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-							System.out.println("Password file not found!");
-							return -1;
+							throw new IllegalStateException("Password file not found!", e);
 						} catch (IOException e) {
-							e.printStackTrace();
-							System.out.println("Password file not found!");
-							return -1;
+							throw new IllegalStateException("Password file IO error!", e);
 						} catch (Exception e) {
-							e.printStackTrace();
-							System.out.println("Bad password file!");
-							return -1;
+							throw new IllegalStateException("Unknown password file IO error!", e);
 						}
 						if (user.equals("") || pass.equals("")) {
 							System.out.println("Bad password file!");
-							return -1;
+							throw new IllegalStateException("Unknown password file error, both are blank!");
 						}
 					} else {
 						try {
 							UserAuthDialog auth = new UserAuthDialog(null, true);
 							auth.setVisible(true);
-							if (auth.isCanceled())
-								return -1;
-							user = auth.getUsername();
-							pass = new String(auth.getPassword());
+							if (auth.isCanceled()) {
+								noAdd = true;
+								System.out.println("Will still plot without inserting");
+							} else {
+								user = auth.getUsername();
+								pass = new String(auth.getPassword());
+							}
 						} catch (HeadlessException e) {
 							System.out.println("It looks like you can't display windows, using less secure command line password input.");
 							BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -818,31 +845,20 @@ public class HazardCurvePlotter {
 										}
 									}
 								} catch (IOException e1) {
-									e1.printStackTrace();
+									throw ExceptionUtils.asRuntimeException(e1);
 								}
 							}
 						}
 					}
 				}
 				
+				// now add it
 				DBAccess writeDB = null;
 				try {
 					writeDB = new DBAccess(Cybershake_OpenSHA_DBApplication.HOST_NAME,Cybershake_OpenSHA_DBApplication.DATABASE_NAME, user, pass);
 				} catch (IOException e) {
-					e.printStackTrace();
-					return -1;
+					throw new IllegalStateException("Error creating DB write object", e);
 				}
-				
-				// calculate the curve
-				if (curveCalc == null)
-					curveCalc = new HazardCurveComputation(db);
-				
-				ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
-				ArrayList<Double> imVals = new ArrayList<Double>();
-				for (int i=0; i<func.size(); i++)
-					imVals.add(func.getX(i));
-				
-				DiscretizedFunc curve = curveCalc.computeHazardCurve(imVals, run, im);
 				HazardCurve2DB curve2db_write = new HazardCurve2DB(writeDB);
 				System.out.println("Inserting curve into database...");
 				if (curveID >= 0) {
@@ -853,27 +869,46 @@ public class HazardCurvePlotter {
 					curveID = curve2db.getHazardCurveID(run.getRunID(), im.getID());
 					System.out.println("Inserted with Curve_ID="+curveID);
 				}
-			} else {
-				System.out.println("Curve not found in DB, and no-add option supplied!");
-				return -1;
 			}
-		} else if (cmd.hasOption("benchmark-test-recalc")) {
-			System.out.println("Force calculating a curve for benchmark purposes");
-			Stopwatch watch = Stopwatch.createStarted();
-			// calculate a curve just for speed benchmarking, even though we won't use it
-			ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
-			ArrayList<Double> imVals = new ArrayList<Double>();
-			for (int i=0; i<func.size(); i++)
-				imVals.add(func.getX(i));
-			
-			if (curveCalc == null)
-				curveCalc = new HazardCurveComputation(db);
-			curveCalc.computeHazardCurve(imVals, run, im);
-			watch.stop();
-			System.out.println("Curve took "+watch.elapsed(TimeUnit.SECONDS)+" s");
+		} else {
+			System.out.println("Fetching Curve!");
+			curve = curve2db.getHazardCurve(curveID);
+			date = curve2db.getDateForCurve(curveID);
 		}
+//		} else if (cmd.hasOption("benchmark-test-recalc")) {
+//			System.out.println("Force calculating a curve for benchmark purposes");
+//			Stopwatch watch = Stopwatch.createStarted();
+//			// calculate a curve just for speed benchmarking, even though we won't use it
+//			ArbitrarilyDiscretizedFunc func = plotChars.getHazardFunc();
+//			ArrayList<Double> imVals = new ArrayList<Double>();
+//			for (int i=0; i<func.size(); i++)
+//				imVals.add(func.getX(i));
+//			
+//			if (curveCalc == null)
+//				curveCalc = new HazardCurveComputation(db);
+//			curveCalc.computeHazardCurve(imVals, run, im);
+//			watch.stop();
+//			System.out.println("Curve took "+watch.elapsed(TimeUnit.SECONDS)+" s");
+//		}
 		
-		return curveID;
+		return new AnnotatedCurve(curveID, date, run, im, curve);
+	}
+	
+	private static class AnnotatedCurve {
+		private int curveID;
+		private Date date;
+		private CybershakeRun run;
+		private CybershakeIM im;
+		private DiscretizedFunc curve;
+		
+		public AnnotatedCurve(int curveID, Date date, CybershakeRun run, CybershakeIM im, DiscretizedFunc curve) {
+			super();
+			this.curveID = curveID;
+			this.date = date;
+			this.run = run;
+			this.im = im;
+			this.curve = curve;
+		}
 	}
 	
 	public void setMaxSourceSiteDistance(int siteID) {
@@ -883,13 +918,13 @@ public class HazardCurvePlotter {
 		System.out.println("Max source distance for site " + siteID + " is " + this.maxSourceDistance);
 	}
 	
-	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run) {
-		return plotCurve(curveID, run, false, false, false);
+	public ArrayList<DiscretizedFunc> plotCurve(AnnotatedCurve curve, CybershakeRun run) {
+		return plotCurve(curve, run, false, false, false);
 	}
 	
-	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run, boolean textOnly,
+	public ArrayList<DiscretizedFunc> plotCurve(AnnotatedCurve curve, CybershakeRun run, boolean textOnly,
 			boolean noVMColor, boolean sgtColor) {
-		return plotCurve(curveID, run, null, null, textOnly, noVMColor, sgtColor);
+		return plotCurve(curve, run, null, textOnly, noVMColor, sgtColor);
 	}
 	
 	private static List<Color> csPlotColors;
@@ -985,27 +1020,14 @@ public class HazardCurvePlotter {
 		}
 	}
 	
-	public ArrayList<DiscretizedFunc> plotCurve(int curveID, CybershakeRun run,
-			ArrayList<Integer> compCurveIDs, ArrayList<CybershakeRun> compRuns, boolean textOnly,
+	public ArrayList<DiscretizedFunc> plotCurve(AnnotatedCurve annotatedCurve, CybershakeRun run,
+			ArrayList<AnnotatedCurve> compCurves, boolean textOnly,
 			boolean noVMColors, boolean sgtColors) {
 		System.out.println("Fetching Curve!");
-		DiscretizedFunc curve = curve2db.getHazardCurve(curveID);
-		
-		ArrayList<DiscretizedFunc> compCurves;
-		if (compCurveIDs != null) {
-			compCurves = new ArrayList<DiscretizedFunc>();
-			for (int compCurveID : compCurveIDs) {
-				DiscretizedFunc compCurve = curve2db.getHazardCurve(compCurveID);
-				compCurves.add(compCurve);
-			}
-		} else {
-			compCurves = null;
-		}
+		DiscretizedFunc curve = curve2db.getHazardCurve(annotatedCurve.curveID);
 		
 		if (curve == null)
 			return null;
-		
-		
 		
 		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
 		Color curveColor = plotChars.getCyberShakeColor();
@@ -1024,14 +1046,14 @@ public class HazardCurvePlotter {
 				curveSymbol, plotChars.getLineWidth()*4f, curveColor));
 		
 		
-		CybershakeIM im = curve2db.getIMForCurve(curveID);
+		CybershakeIM im = annotatedCurve.im;
 		if (im == null) {
 			System.err.println("Couldn't get IM for curve!");
 			System.exit(1);
 		}
 		
 		System.out.println("Getting Site Info.");
-		int siteID = curve2db.getSiteIDFromCurveID(curveID);
+		int siteID = annotatedCurve.run.getSiteID();
 		
 		SiteInfo2DB site2db = getSite2DB();
 		
@@ -1061,9 +1083,10 @@ public class HazardCurvePlotter {
 		
 		if (compCurves != null && !compCurves.isEmpty()) {
 			for (int i=0; i<compCurves.size(); i++) {
-				int compCurveID = compCurveIDs.get(i);
-				CybershakeRun compRun = compRuns.get(i);
-				DiscretizedFunc compCurve = compCurves.get(i);
+				AnnotatedCurve annCurve = compCurves.get(i);
+				int compCurveID = annCurve.curveID;
+				CybershakeRun compRun = annCurve.run;
+				DiscretizedFunc compCurve = annCurve.curve;
 				curves.add(compCurve);
 				CybershakeSite compSite = site2db.getSiteFromDB(compRun.getSiteID());
 				compCurve.setInfo("CyberShake Comparison Hazard Curve. Site: " + compSite.toString());
@@ -1144,11 +1167,11 @@ public class HazardCurvePlotter {
 		
 		if (erf != null && attenRels.size() > 0) {
 			System.out.println("Plotting comparisons!");
-			this.plotComparisions(curves, im, curveID, chars, run);
+			this.plotComparisions(curves, im, chars, run);
 		}
 		
 		CybershakeVelocityModel velModel = runs2db.getVelocityModel(run.getVelModelID());
-		curve.setInfo(getCyberShakeCurveInfo(curveID, csSite, run, velModel, im, curveColor, curveLineType, curveSymbol));
+		curve.setInfo(getCyberShakeCurveInfo(annotatedCurve.curveID, csSite, run, velModel, im, curveColor, curveLineType, curveSymbol));
 		
 		// old version
 //		String title = HazardCurvePlotCharacteristics.getReplacedTitle(plotChars.getTitle(), csSite);
@@ -1235,7 +1258,7 @@ public class HazardCurvePlotter {
 		return period_format.format(period);
 	}
 	
-	private void plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im, int curveID,
+	private void plotComparisions(ArrayList<DiscretizedFunc> curves, CybershakeIM im,
 			ArrayList<PlotCurveCharacterstics> chars, CybershakeRun run) {
 		ArrayList<String> names = new ArrayList<String>();
 		System.out.println("Setting ERF Params");

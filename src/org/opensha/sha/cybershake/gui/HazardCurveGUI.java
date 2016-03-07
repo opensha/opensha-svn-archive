@@ -54,7 +54,7 @@ import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.imr.AttenuationRelationship;
 
-
+@Deprecated
 public class HazardCurveGUI extends JFrame implements ActionListener, ListSelectionListener {
 	
 	DBAccess db;
@@ -214,20 +214,20 @@ public class HazardCurveGUI extends JFrame implements ActionListener, ListSelect
 		HazardCurvePlotter plotter = this.getPlotter();
 		
 		plotter.setMaxSourceSiteDistance(run.getSiteID());
-//		plotter.set
 		
-		plotter.plotCurve(curve.getCurveID(), run);
-		
-		GraphPanel gp = plotter.getGraphPanel();
-		
-		JFrame graphWindow = new JFrame("CyberShake Hazard Curve");
-		graphWindow.setContentPane(gp);
-		graphWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		
-		graphWindow.setSize(500, 700);
-		graphWindow.setLocationRelativeTo(this);
-		
-		graphWindow.setVisible(true);
+		throw new IllegalStateException("No longer supported");
+//		plotter.plotCurve(curve.getCurveID(), run);
+//		
+//		GraphPanel gp = plotter.getGraphPanel();
+//		
+//		JFrame graphWindow = new JFrame("CyberShake Hazard Curve");
+//		graphWindow.setContentPane(gp);
+//		graphWindow.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+//		
+//		graphWindow.setSize(500, 700);
+//		graphWindow.setLocationRelativeTo(this);
+//		
+//		graphWindow.setVisible(true);
 	}
 	
 	private HazardCurvePlotter getPlotter() {
