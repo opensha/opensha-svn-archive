@@ -353,6 +353,11 @@
 		<copy todir="${build}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" />
 		</copy>
+		<copy todir="${build}/org/opensha/sha/imr/mod/impl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/imr/mod/impl/" >
+				<include name="**/*.csv" />
+			</fileset>
+		</copy>
 	</target>
 	
 	<target name="resource.cybershake">
