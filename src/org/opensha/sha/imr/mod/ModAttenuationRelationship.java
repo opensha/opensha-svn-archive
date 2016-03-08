@@ -57,7 +57,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 	private ParameterListParameter imrParams;
 	private ParameterListParameter modParams;
 	
-	public static final String IMRS_PARAM_NAME = "IMR to Modify";
+	public static final String IMRS_PARAM_NAME = "Reference IMR";
 	private EnumSet<AttenRelRef> supportedIMRs;
 	private EnumParameter<AttenRelRef> imrsParam;
 	public static final String MODS_PARAM_NAME = "Modifier";
@@ -240,7 +240,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		imrsParam.addParameterChangeListener(this);
 		otherParams.addParameter(0, imrsParam);
 
-		imrParams = new ParameterListParameter("IMR Params");
+		imrParams = new ParameterListParameter("Reference IMR Params");
 		imrParams.setDefaultValue(new ParameterList());
 		otherParams.addParameter(1, imrParams);
 		

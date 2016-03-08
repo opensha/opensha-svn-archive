@@ -16,20 +16,20 @@ import org.opensha.sha.imr.mod.ModAttenuationRelationship;
  * @author kevin
  *
  */
-public class StewartSiteSpecificGMPE extends ModAttenuationRelationship {
+public class NonErgodicSiteResponseGMPE extends ModAttenuationRelationship {
 	
-	public static final String NAME = "Stewart 2014 Site Specific";
-	public static final String SHORT_NAME = "Stewart2014";
+	public static final String NAME = "Non Ergodic Site Response GMPE 2016";
+	public static final String SHORT_NAME = "NonErgodic2016";
 	
-	public StewartSiteSpecificGMPE() {
+	public NonErgodicSiteResponseGMPE() {
 		this(null);
 	}
 	
-	public StewartSiteSpecificGMPE(ParameterChangeWarningListener l) {
+	public NonErgodicSiteResponseGMPE(ParameterChangeWarningListener l) {
 //		super(l, EnumSet.copyOf(AttenRelRef.get(ServerPrefUtils.SERVER_PREFS)),
 //				EnumSet.of(ModAttenRelRef.STEWART_SITE_SPECIFIC));
-		// for now just CB 2008
-		super(l, EnumSet.of(AttenRelRef.CB_2008),
+		// for now just BSSA 2014
+		super(l, EnumSet.of(AttenRelRef.BSSA_2014),
 				EnumSet.of(ModAttenRelRef.STEWART_SITE_SPECIFIC));
 	}
 
@@ -53,6 +53,16 @@ public class StewartSiteSpecificGMPE extends ModAttenuationRelationship {
 		}
 		
 		return super.getParameter(name);
+	}
+
+	@Override
+	public String getName() {
+		return NAME;
+	}
+
+	@Override
+	public String getShortName() {
+		return SHORT_NAME;
 	}
 
 }

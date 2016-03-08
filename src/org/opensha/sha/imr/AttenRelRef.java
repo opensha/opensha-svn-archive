@@ -68,6 +68,7 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.CY_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.GK_2014_Wrapper;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.Idriss_2014_Wrapper;
 import org.opensha.sha.imr.mod.ModAttenuationRelationship;
+import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseGMPE;
 
 /**
  * This <code>enum</code> supplies references to
@@ -226,6 +227,8 @@ public enum AttenRelRef implements Named {
 	NGAWest_2014_AVG_NOIDRISS(NGAWest_2014_Averaged_AttenRel_NoIdriss.class, NGAWest_2014_Averaged_AttenRel_NoIdriss.NAME, NGAWest_2014_Averaged_AttenRel_NoIdriss.SHORT_NAME, EXPERIMENTAL),
 	
 	MOD_ATTEN_REL(ModAttenuationRelationship.class, ModAttenuationRelationship.NAME, ModAttenuationRelationship.SHORT_NAME, EXPERIMENTAL),
+	
+	NON_ERGODIC_2016(NonErgodicSiteResponseGMPE.class, NonErgodicSiteResponseGMPE.NAME, NonErgodicSiteResponseGMPE.SHORT_NAME, EXPERIMENTAL),
 
 	// DEPRECATED
 

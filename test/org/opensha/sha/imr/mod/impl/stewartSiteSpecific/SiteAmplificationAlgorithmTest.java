@@ -15,7 +15,7 @@ import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.FaultStyle;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_GMM;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_Wrappers.BSSA_2014_Wrapper;
-import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.StewartSiteSpecificMod.Params;
+import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseMod.Params;
 import org.opensha.sha.imr.param.EqkRuptureParams.MagParam;
 import org.opensha.sha.imr.param.EqkRuptureParams.RakeParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
@@ -38,7 +38,7 @@ public class SiteAmplificationAlgorithmTest {
 	
 	private static final boolean DO_TEST = true;
 	
-	private StewartSiteSpecificMod mod;
+	private NonErgodicSiteResponseMod mod;
 	private BSSA_2014_Wrapper gmpeWrap;
 	
 	private static final double precision_fraction = 0.001; // 0.1%
@@ -47,7 +47,7 @@ public class SiteAmplificationAlgorithmTest {
 	
 	@Before
 	public void setUp() throws IOException {
-		mod = new StewartSiteSpecificMod();
+		mod = new NonErgodicSiteResponseMod();
 		gmpeWrap = new BSSA_2014_Wrapper();
 		
 		csv = CSVFile.readStream(SiteAmplificationAlgorithmTest.class.getResourceAsStream("Test.csv"), false);
@@ -64,7 +64,7 @@ public class SiteAmplificationAlgorithmTest {
 	}
 	
 	public void doTest(double period) {
-		ParameterList refParams = StewartSiteSpecificMod.getDefaultReferenceSiteParams();
+		ParameterList refParams = NonErgodicSiteResponseMod.getDefaultReferenceSiteParams();
 		
 		gmpeWrap.setParamDefaults();
 		if (period > 0) {
@@ -73,6 +73,7 @@ public class SiteAmplificationAlgorithmTest {
 		} else {
 			gmpeWrap.setIntensityMeasure(PGA_Param.NAME);
 		}
+		String referenceIMT = PGA_Param.NAME;
 		mod.setIMT_IMT(gmpeWrap, gmpeWrap.getIntensityMeasure());
 		
 		for (int rowIndex=2; rowIndex<csv.getNumRows(); rowIndex++) {
@@ -106,6 +107,7 @@ public class SiteAmplificationAlgorithmTest {
 			refParams.setValue(DepthTo1pt0kmPerSecParam.NAME, refZ1);
 			mod.setReferenceSiteParams(refParams);
 			mod.setIMRParams(gmpeWrap);
+			mod.setReferenceIMT(referenceIMT);
 			
 			gmpeWrap.getParameter(MagParam.NAME).setValue(mw);
 			gmpeWrap.getParameter(DistanceJBParameter.NAME).setValue(rjb);

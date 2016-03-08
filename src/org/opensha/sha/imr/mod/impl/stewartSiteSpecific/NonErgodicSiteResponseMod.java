@@ -1,12 +1,14 @@
 package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.param.impl.StringParameter;
@@ -21,15 +23,16 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 
-public class StewartSiteSpecificMod extends AbstractAttenRelMod implements ParameterChangeListener {
+public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements ParameterChangeListener {
 	
 	private static final boolean D = true;
-	private static final boolean DD = D && true;
+	private static final boolean DD = D && false;
 	
-	public static final String NAME = "Stewart 2014 Site Specific";
-	public static final String SHORT_NAME = "Stewart2014";
+	public static final String NAME = "Non Ergodic Site Response 2016 Mod";
+	public static final String SHORT_NAME = "NonErgodic2016";
 	
 	public enum Params {
 		F1("f1"),
@@ -57,26 +60,33 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	private double[] curParamValues;
 	private PeriodDependentParamSetParam<Params> periodParamsParam;
 	
+	private static final String REF_IMT_DEFAULT = PGA_Param.NAME;
+	private StringParameter refIMTParam;
+	
 	private ParameterList paramList;
 	
 	private Parameter<Double> imt;
 	
 	private ParameterList referenceSiteParams;
 	
-	public StewartSiteSpecificMod() {
+	public NonErgodicSiteResponseMod() {
 		try {
 			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("./params.csv"));
-			System.out.println("Loaded default params:\n"+periodParams);
+			if (DD) System.out.println("Loaded default params:\n"+periodParams);
 		} catch (IOException e) {
 			System.err.println("Error loading default params:");
 			e.printStackTrace();
-			periodParams = new PeriodDependentParamSet<StewartSiteSpecificMod.Params>(Params.values());
+			periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
 		}
 		periodParamsParam = new PeriodDependentParamSetParam<Params>("Period Dependent Params", periodParams);
 		periodParamsParam.addParameterChangeListener(this);
 		
 		paramList = new ParameterList();
 		paramList.addParameter(periodParamsParam);
+		
+		refIMTParam = new StringParameter("Reference IMT", Lists.newArrayList(REF_IMT_DEFAULT));
+		refIMTParam.setValue(REF_IMT_DEFAULT);
+		paramList.addParameter(refIMTParam);
 		
 		setReferenceSiteParams(getDefaultReferenceSiteParams());
 	}
@@ -119,8 +129,6 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 
 	@Override
 	public void setIMRParams(ScalarIMR imr) {
-		// TODO Auto-generated method stub
-
 		// surround each with a try catch as certain IMRs may not have the given site parameter
 		try {
 			Parameter<Double> param = imr.getParameter(Vs30_Param.NAME);
@@ -150,7 +158,25 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 			// do nothing - IMR does not have this parameter
 			if (D) System.out.println("IMR doesn't support Z1.0");
 		}
-		if (D) System.out.println("Set site params to default");
+		if (DD) System.out.println("Set site params to default");
+		
+		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
+		ArrayList<String> allowedIMTs = Lists.newArrayList();
+		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
+			allowedIMTs.add(param.getName());
+		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
+		imtConstr.setStrings(allowedIMTs);
+		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
+			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
+				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
+			refIMTParam.setValue(REF_IMT_DEFAULT);
+		} else {
+			String val = allowedIMTs.get(0);
+			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
+					+REF_IMT_DEFAULT+". Fell back to "+val);
+			refIMTParam.setValue(val);
+		}
+		refIMTParam.getEditor().refreshParamEditor();
 	}
 
 	@Override
@@ -184,9 +210,16 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		// just update the site location, don't call setSite as it will override our site parameters
 		imr.setSiteLocation(site.getLocation());
 	}
+	
+	public void setReferenceIMT(String refIMT) {
+		Preconditions.checkArgument(refIMTParam.isAllowed(refIMT), "Value is not allowed: %s", refIMT);
+		refIMTParam.setValue(refIMT);
+	}
 
 	@Override
 	public double getModMean(ScalarIMR imr) {
+		String origIMT = imt.getName();
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
 		double u_lnX = imr.getMean();
 		if (DD) {
 			String imt = imr.getIntensityMeasure().getName();
@@ -194,18 +227,19 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 				imt += " "+(float)+SA_Param.getPeriodInSA_Param(imr.getIntensityMeasure())+"s";
 			if (DD) System.out.println("Orig IMT: "+imt);
 		}
-		if (DD) System.out.println("Orig Mean, u_X="+Math.exp(u_lnX));
+		if (DD) System.out.println("Orig Mean, "+origIMT+", u_X="+Math.exp(u_lnX));
 		
-		// now set to to PGA
-		if (DD) System.out.println("Setting to PGA");
-		imr.setIntensityMeasure(PGA_Param.NAME);
-		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(PGA_Param.NAME));
+		// now set to to ref IMT
+		String refIMT = refIMTParam.getValue();
+		if (DD) System.out.println("Setting to reference IMT: "+refIMT);
+		imr.setIntensityMeasure(refIMT);
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(refIMT));
 		double x_ref_ln = imr.getMean();
 		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-		if (DD) System.out.println("Ref PGA, x_ref="+x_ref);
+		if (DD) System.out.println("Ref IMT, "+refIMT+", x_ref="+x_ref);
 		// set back to orig IMT
 		imr.setIntensityMeasure(imt);
-		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(imt.getName()));
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
 		
 		double[] params = getCurParams();
 		double f1 = params[periodParams.getParamIndex(Params.F1)];
@@ -226,7 +260,7 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		
 		return u_lnX + ln_y;
 	}
-
+	
 	@Override
 	public double getModStdDev(ScalarIMR imr) {
 		// get values for the IMT of interest
@@ -249,15 +283,10 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 		
 		if (DD) System.out.println("Calculating std dev with f2="+f2+", f3="+f3+", F="+F+", phiS2S="+phiS2S+", phiLnY="+phiLnY);
 		
-		// now set to to PGA and get values
-		imr.setIntensityMeasure(PGA_Param.NAME);
-//		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTER);
-//		double pgaTau = imr.getStdDev(); // NOT NEEDED
-//		if (DD) System.out.println("PGA inter event, tau="+pgaTau);
-//		imrTypeParam.setValue(StdDevTypeParam.STD_DEV_TYPE_INTRA);
-//		double pgaPhi = imr.getStdDev();  // NOT NEEDED
-//		if (DD) System.out.println("PGA intra event, phi="+pgaPhi);
-		imrTypeParam.setValue(origIMRType);
+		// now set to ref IMT
+		String refIMT = refIMTParam.getValue();
+		if (DD) System.out.println("Setting to reference IMT: "+refIMT);
+		imr.setIntensityMeasure(refIMT);
 		double x_ref_ln = imr.getMean();
 		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
 		if (DD) System.out.println("x_ref="+x_ref);
@@ -279,7 +308,6 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 
 	@Override
 	public ParameterList getModParams() {
-		// TODO Auto-generated method stub
 		return paramList;
 	}
 
@@ -290,7 +318,7 @@ public class StewartSiteSpecificMod extends AbstractAttenRelMod implements Param
 	}
 	
 	public static void main(String[] args) {
-		new StewartSiteSpecificMod();
+		new NonErgodicSiteResponseMod();
 	}
 
 }
