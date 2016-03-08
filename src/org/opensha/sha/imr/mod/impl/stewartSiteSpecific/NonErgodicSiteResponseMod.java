@@ -71,7 +71,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	
 	public NonErgodicSiteResponseMod() {
 		try {
-			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("./params.csv"));
+			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("params.csv"));
 			if (DD) System.out.println("Loaded default params:\n"+periodParams);
 		} catch (IOException e) {
 			System.err.println("Error loading default params:");
