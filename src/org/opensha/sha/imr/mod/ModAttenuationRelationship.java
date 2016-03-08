@@ -348,7 +348,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 				System.out.println("Period: "+SA_Param.getPeriodInSA_Param(newIMT));
 			if (mod != null && imr != null && getIntensityMeasure() != null) {
 				mod.setIMT_IMT(imr, newIMT);
-				System.out.println("Updated IMT for "+imr.getShortName()+": "+imr.getIntensityMeasure().getName());
+				if (D) System.out.println("Updated IMT for "+imr.getShortName()+": "+imr.getIntensityMeasure().getName());
 				if (D && imr.getIntensityMeasure() instanceof SA_Param)
 					System.out.println("Period: "+SA_Param.getPeriodInSA_Param(imr.getIntensityMeasure()));
 			}
