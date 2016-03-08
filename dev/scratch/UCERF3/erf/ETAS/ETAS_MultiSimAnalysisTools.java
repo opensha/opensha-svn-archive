@@ -1128,6 +1128,20 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		Region region = new CaliforniaRegions.RELM_TESTING();
 		
+		CSVFile<String> particCSV = new CSVFile<String>(true);
+		CSVFile<String> triggerCSV = new CSVFile<String>(true);
+		
+		List<String> header = Lists.newArrayList("Section Name", "Section ID");
+		for (int i=0; i<minMags.length; i++) {
+			if (minMags[i] > 1)
+				header.add("M≥"+(float)minMags[i]);
+			else
+				header.add("Total");
+		}
+		
+		particCSV.addLine(header);
+		triggerCSV.addLine(header);
+		
 		for (int i=0; i<minMags.length; i++) {
 			double[] particRates = particRatesList.get(i);
 			double[] triggerRates = triggerRatesList.get(i);
@@ -1148,7 +1162,23 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(triggerRates), region, outputDir,
 					prefix+"_trigger"+prefixAdd, false, false, title+titleAdd+" Trigger Rate");
+			
+			for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
+				int row = sectIndex+1;
+				if (i == 0) {
+					List<String> line = Lists.newArrayList(rupSet.getFaultSectionData(sectIndex).getSectionName(), sectIndex+"");
+					for (int m=0; m<minMags.length; m++)
+						line.add("");
+					particCSV.addLine(line);
+					triggerCSV.addLine(Lists.newArrayList(line)); // need to clone so we don't overwrite values
+				}
+				int col = i+2;
+				particCSV.set(row, col, particRates[sectIndex]+"");
+				triggerCSV.set(row, col, triggerRates[sectIndex]+"");
+			}
 		}
+		particCSV.writeToFile(new File(outputDir, prefix+"_partic.csv"));
+		triggerCSV.writeToFile(new File(outputDir, prefix+"_trigger.csv"));
 	}
 	
 	private static void plotMaxTriggeredMagHist(List<List<ETAS_EqkRupture>> catalogs,
@@ -3463,8 +3493,11 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
-		nedsAnalysis();
-		System.exit(-1);
+		if (args.length == 0 && new File("/Users/field/").exists()) {
+			// now will run by default on your machine Ned
+			nedsAnalysis();
+			System.exit(-1);
+		}
 		
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
@@ -3841,8 +3874,8 @@ public class ETAS_MultiSimAnalysisTools {
 				// sub section partic/trigger rates
 				System.out.println("Plotting Sub Sect Rates");
 				double[] minMags = { 0, 6.7, 7.8 };
-//				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-//						name+" "+fullName, fullFileName+"_sect");
+				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
+						name+" "+fullName, fullFileName+"_sect");
 				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
 						name+" "+subsetName, subsetFileName+"_sect");
 			}
