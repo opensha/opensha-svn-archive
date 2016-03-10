@@ -483,6 +483,17 @@ public class ETAS_Simulator {
 				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(
 						mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
 						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+			
+			// This is to write out the fraction spontaneous as a funcation of time
+//			EvenlyDiscretizedFunc rateFunc = etas_utils.getSpontanousEventRateFunction(mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
+//					simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+//			for(int i=0;i<rateFunc.size();i++) {
+//				double year = (rateFunc.getX(i)-(double)simStartTimeMillis)/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+//				double fractRate = rateFunc.getY(i)/mfd.getTotalIncrRate();
+//				System.out.println(year+"\t"+fractRate);
+//			}
+//			System.exit(-1);
+
 
 			for(int r=0;r<spontEventTimes.length;r++) {
 				ETAS_EqkRupture rup = new ETAS_EqkRupture();
@@ -867,6 +878,29 @@ public class ETAS_Simulator {
 	}
 	
 	
+	private static void writeInfoAboutClosestSectionToLoc(FaultSystemSolutionERF erf, Location loc) {
+		List<FaultSectionPrefData> fltDataList = erf.getSolution().getRupSet().getFaultSectionDataList();
+		double minDist = Double.MAX_VALUE;
+		int index=-1;
+		CalcProgressBar progressBar = new CalcProgressBar("Fault data to process", "junk");
+		progressBar.showProgress(true);
+		int counter=0;
+
+		for(FaultSectionPrefData fltData:fltDataList) {
+			progressBar.updateProgress(counter, fltDataList.size());
+			counter+=1;
+			double dist = LocationUtils.distanceToSurf(loc, fltData.getStirlingGriddedSurface(1.0, false, true));
+			if(minDist>dist) {
+				minDist=dist;
+				index = fltData.getSectionId();
+			}
+		}
+		progressBar.showProgress(false);
+		minDist = LocationUtils.distanceToSurf(loc, fltDataList.get(index).getStirlingGriddedSurface(0.01, false, true));
+		System.out.println(index+"\tdist="+(float)minDist+"\tfor\t"+fltDataList.get(index).getName());
+	}
+
+	
 	
 	/**
 	 * This utility writes info about sources that use the given index and that are between the specified minimum and maximum mag
@@ -995,7 +1029,12 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
-		correctGriddedSeismicityRatesInERF(erf, false);
+System.out.println("TotalRateBeforeGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
+
+		if(etasParams.getApplyGridSeisCorr())
+			ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+System.out.println("TotalRateAfterGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
+System.exit(-1);
 		
 		if(simulationName == null) {
 			String imposeGR_string;
@@ -1717,8 +1756,8 @@ public class ETAS_Simulator {
 	public static void main(String[] args) {
 		
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		erf.updateForecast();
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
 		
 //		plotElMayorAndLagunaSalada(erf);
 
@@ -1748,36 +1787,36 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
 		
-		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
-		System.exit(0);
+//		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
+//		System.exit(0);
 
-		TestScenario scenario = TestScenario.CENTRAL_VALLEY_M5p5;
+		TestScenario scenario = TestScenario.MOJAVE_M7;
 //		TestScenario scenario = null;
+		
+//		writeInfoAboutClosestSectionToLoc(erf, scenario.getLocation());
+//		System.exit(0);
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
-		params.setTotalRateScaleFactor(1.);
+		params.setTotalRateScaleFactor(1.14);
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		
 		String simulationName;
-		String imposeGR_string;
+		String imposeGR_string="";
 		if(params.getImposeGR())
 			imposeGR_string = "_GRcorrApplied";
-		else {
-			imposeGR_string = "_noGRcorr";
-		}
+//		else {
+//			imposeGR_string = "_noGRcorr";
+//		}
 
 		if(scenario == null)
 			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 		else
 			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 
-//		if(params.getImposeGR() == true)
-//			simulationName += "_grCorr";
-		
-		simulationName += "_10year_Test";	// to increment runs
+		simulationName += "_10year_ForRupOverlapPlots";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1449590752534l;

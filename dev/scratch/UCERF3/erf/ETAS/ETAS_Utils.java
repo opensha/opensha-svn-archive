@@ -1093,7 +1093,10 @@ public class ETAS_Utils {
 //		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
 //				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
-//		runMagTimeCatalogSimulation();
+		System.out.println(mfd.getCumRateDistWithOffset());
+		System.exit(-1);
+		
+		runMagTimeCatalogSimulation();
 		
 		writeTriggerStatsToFiles(mfd);
 		writeTriggerStatsToFilesInfTime(mfd);
