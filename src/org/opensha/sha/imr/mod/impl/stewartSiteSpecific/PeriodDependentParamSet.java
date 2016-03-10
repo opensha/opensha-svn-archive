@@ -213,7 +213,12 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 			double y1 = get(params[i], insertionIndex-1);
 			double y2 = get(params[i], insertionIndex);
 			
-			ret[i] = Interpolate.findY(x1, y1, x2, y2, period);
+			if (x1 > 0)
+				ret[i] = Interpolate.findY(Math.log(x1), y1, Math.log(x2), y2, Math.log(period));
+			else
+				// can happen when first point is period=0 (PGA)
+				ret[i] = Interpolate.findY(x1, y1, x2, y2, period);
+//			System.out.println("x1="+x1+", y1="+y1+", x2="+x2+", y2="+y2+", period="+period+", ret="+ret[i]);
 		}
 		
 		return ret;
