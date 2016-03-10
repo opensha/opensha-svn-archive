@@ -3433,8 +3433,6 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			// DO THIS ONE FOR 30-YEAR SIMULATIONS
 //			System.out.println("ETAS_MultiSimAnalysisTools.writeSubSectRecurrenceIntervalStats(*)");
-//			writeSubSectRecurrenceIntervalStats(catalogs, erf, outputDir,10d); // JUNK THIS
-//			writeProbOfOneOrMoreEventsOnSectionStats(catalogs, erf, outputDir); // THIS NOW JUNK TOO
 			try {
 				plotAndWriteSectProbOneOrMoreData(catalogs, 10d, erf, outputDir);
 			} catch (GMT_MapException e1) {
