@@ -1496,7 +1496,7 @@ System.exit(-1);
 		BOMBAY_BEACH_M4pt8("Bombay Beach M4.8", new Location(33.3172,-115.728, 5.96), 4.8), // Bombay Beach M6 in location of 2009 M4.8
 		ROBINSON_CREEK_M5p5("Robinson Creek M5pt5", new Location(38.22137, -119.24255, 7.15), 5.5),  // based on writeLocationAtCenterOfSectionSurf(erf, 1717);	// Robinson Creek Subsection 0; highest Charfactor
 		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0), // Central Valley - farthest from faults
-		CENTRAL_VALLEY_M5p5("Central Valley M5pt5", new Location(37.622,-119.993,5.8), 5.0), // Central Valley - farthest from faults
+		CENTRAL_VALLEY_M5p0("Central Valley M5", new Location(37.622,-119.993,5.8), 5.0), // Central Valley - farthest from faults
 		ZAYANTE_VERGELES_M5p5("Zayante-Vergeles M5pt5", new Location(36.71779, -121.59369, 6.49000), 5.5), // writeLocationAtCenterOfSectionSurf(erf, 2605);	// Zayante-Vergeles 2011 CFM, Subsection 7; 36.71779, -121.59369, 6.49000; lowest char factor on more than one section
 		SAN_JACINTO_0_M5p5("San Jacinto (Borrego) M5pt5", new Location(33.1917, -116.17999, 7.41061), 5.5),	// San Jacinto (Borrego), Subsection 0	33.1917, -116.17999, 7.41061
 		MENDOCINO_12_M5p5("Mendocino M5pt5", new Location(40.38540, -125.01342, 6.0), 5.5),	// Mendocino, Subsection 12	40.38540, -125.01342, 6.0
@@ -1756,8 +1756,8 @@ System.exit(-1);
 	public static void main(String[] args) {
 		
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
-//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-//		erf.updateForecast();
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
 		
 //		plotElMayorAndLagunaSalada(erf);
 
@@ -1797,11 +1797,11 @@ System.exit(-1);
 //		System.exit(0);
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(false);	
+		params.setImposeGR(true);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
 		params.setTotalRateScaleFactor(1.14);
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
 		
 		String simulationName;
 		String imposeGR_string="";

@@ -664,7 +664,7 @@ public class ETAS_Utils {
 			List<Double> timesForCurrentGenList = Doubles.asList(primaryEventTimesArray);
 			numForEachGeneration[1] = timesForCurrentGenList.size();
 			int currentGen = 2;
-			while(currentGen<=15) {
+			while(currentGen<=numGen) {
 				List<Double>  timesForNextGeneration = new ArrayList<Double>();
 				for(double eventTime:timesForCurrentGenList) {
 					double mag = mfdMagsArray[randMFD_Sampler.getRandomInt()];
@@ -747,7 +747,7 @@ public class ETAS_Utils {
 	 */
 	public static String listExpNumForEachGenerationInfTime(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, int numGen) {
 		
-		boolean debug = false;
+		boolean debug = true;
 		
 		double[] numForGen = new double[numGen];
 		
@@ -908,6 +908,49 @@ public class ETAS_Utils {
 			}
 		}
 	}
+	
+	
+	
+	public static void writeTimeDepTriggerStatsToFiles(IncrementalMagFreqDist mfd) {
+		
+		ETAS_Utils etasUtils = new ETAS_Utils();
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		String fileName = "ETAS_M2pt5_TriggerStatsVersusTime.txt";
+		
+		double logFirstTime = Math.log10(1.0/24.0);	// 1 hour
+		double logLastTime = Math.log10(1e5*365.25);// 10,000 years
+		int numTimes = 25;
+		double deltaLogTime = (logLastTime-logFirstTime)/(numTimes-1);
+		
+		int numGen=20;
+
+		double mainMag=2.5;
+//		int numRandomSamples = (int) Math.pow(10000.0, 1+(8-mainMag)/8);	// 5623413
+		int numRandomSamples = (int)1e7;	// 10 million
+		System.out.println("numRandomSamples"+numRandomSamples);
+				
+		FileWriter fw;
+		try {
+			fw = new FileWriter(new File(fileName));
+			fw.write("numDays\tmag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+			fw.write("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+			for(int i=0;i<numTimes;i++) {
+				double logTime = logFirstTime+deltaLogTime*i;
+				double numDays = Math.pow(10.0, logTime);
+				
+				System.out.println("Working on mag numDays="+numDays+"; "+i+" of "+numTimes);
+				String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), numDays, numGen, numRandomSamples);
+				System.out.println(numDays+"\t"+line);
+				fw.write(numDays+"\t"+line);
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	
 	
 	
@@ -1093,13 +1136,24 @@ public class ETAS_Utils {
 //		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
 //				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
-		System.out.println(mfd.getCumRateDistWithOffset());
-		System.exit(-1);
+//		System.out.println(mfd.getCumRateDistWithOffset());
+//		System.exit(-1);
+//		
+//		runMagTimeCatalogSimulation();
 		
-		runMagTimeCatalogSimulation();
+//		writeTriggerStatsToFiles(mfd);
+//		writeTriggerStatsToFilesInfTime(mfd);
 		
-		writeTriggerStatsToFiles(mfd);
-		writeTriggerStatsToFilesInfTime(mfd);
+//		writeTimeDepTriggerStatsToFiles(mfd);
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		// Jeanne's altParams:	c=2.00*10^-5, p=1.08, k=2.69*10^-3
+//		etasParams.set_c(2.00e-5*365.25);
+//		etasParams.set_p(1.08);
+//		etasParams.set_k(2.69e-3*Math.pow(365.25,0.08));
+		System.out.println(listExpNumForEachGenerationInfTime(2.5, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), 30));
+
+
 
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);

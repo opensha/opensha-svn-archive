@@ -956,6 +956,7 @@ public class ETAS_PrimaryEventSampler {
 double minCharFactor = minRate/cubeRateBeyondDistThresh;
 double maxCharFactor = maxRate/cubeRateBeyondDistThresh;
 
+// this will print out min and max values (e.g., to quote in the paper)
 // System.out.println(sectionIndex+"\t"+charFactor+"\t"+maxCharFactor+"\t"+(maxCharFactor/charFactor)+"\t"+minCharFactor+"\t"+rupSet.getFaultSectionData(sectionIndex).getName()+"\t"+totalRate);
 
 		if(totWt<0.9999 || totWt>1.0001) {
@@ -3800,7 +3801,7 @@ System.exit(0);
 			}
 			
 			// now add aximuth lines so we can see direction of offset
-			LocationVector vect = new LocationVector(offsetAimuth, 500.,0.0);
+			LocationVector vect = new LocationVector(offsetAimuth, 200.,0.0);
 			LocationList locList1 = new LocationList();
 			locList1.add(firstLocOnMainTr);
 			locList1.add(LocationUtils.location(firstLocOnMainTr, vect));
@@ -6469,9 +6470,9 @@ System.exit(0);
 //		etas_PrimEventSampler.plotMaxMagAtDepthMap(7d, "MaxMagAtDepth7km_Poiss_withCorr");
 //		etas_PrimEventSampler.plotBulgeAtDepthMap(7d, "CharFactorAtDepth7km_Poiss_withCorr");
 //		etas_PrimEventSampler.plotBulgeAtDepthAndAboveMagMap(7d,6.5, "CharFactorAtDepth7kmAndAboveM6pt5_Poiss_withCorr");
-		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_Poiss_withCorr");
-		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_Poiss_withCorr");
-		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.35,"RatesAboveM6pt3_AtDepth7km_Poiss_withCorr");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,2.55,"RatesAboveM2pt5_AtDepth7km_Poiss_withCorr");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.75,"RatesAboveM6pt7_AtDepth7km_Poiss_withCorr");
+//		etas_PrimEventSampler.plotRateAtDepthMap(7d,6.35,"RatesAboveM6pt3_AtDepth7km_Poiss_withCorr");
 //		etas_PrimEventSampler.plotRatesOnlySamplerAtDepthMap(7d,"SamplerAtDepth7km_MaxCharFactor10_Poisson");
 
 		
