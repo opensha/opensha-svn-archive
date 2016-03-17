@@ -2,6 +2,8 @@ package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
@@ -11,8 +13,13 @@ import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.ButtonParameter;
+import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
+import org.opensha.commons.util.ClassUtils;
+import org.opensha.commons.util.Interpolate;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
 import org.opensha.sha.imr.mod.AbstractAttenRelMod;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -63,9 +70,17 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	private static final String REF_IMT_DEFAULT = PGA_Param.NAME;
 	private StringParameter refIMTParam;
 	
+	private DoubleParameter tSiteParam;
+	
+//	private ButtonParameter plotInterpParam;
+	
 	private ParameterList paramList;
 	
 	private Parameter<Double> imt;
+	
+	private Site curSite;
+	
+	private ParamInterpolator<Params> interp;
 	
 	private ParameterList referenceSiteParams;
 	
@@ -83,6 +98,14 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		
 		paramList = new ParameterList();
 		paramList.addParameter(periodParamsParam);
+		
+		tSiteParam = new DoubleParameter("Tsite", Double.NaN);
+		tSiteParam.addParameterChangeListener(this);
+		paramList.addParameter(tSiteParam);
+		
+//		plotInterpParam = new ButtonParameter("Interpolation", "Plot Interpolation");
+//		plotInterpParam.addParameterChangeListener(this);
+//		paramList.addParameter(plotInterpParam);
 		
 		refIMTParam = new StringParameter("Reference IMT", Lists.newArrayList(REF_IMT_DEFAULT));
 		refIMTParam.setValue(REF_IMT_DEFAULT);
@@ -160,23 +183,26 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		}
 		if (DD) System.out.println("Set site params to default");
 		
-		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
-		ArrayList<String> allowedIMTs = Lists.newArrayList();
-		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
-			allowedIMTs.add(param.getName());
-		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
-		imtConstr.setStrings(allowedIMTs);
-		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
-			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
-				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
-			refIMTParam.setValue(REF_IMT_DEFAULT);
-		} else {
-			String val = allowedIMTs.get(0);
-			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
-					+REF_IMT_DEFAULT+". Fell back to "+val);
-			refIMTParam.setValue(val);
-		}
-		refIMTParam.getEditor().refreshParamEditor();
+		Preconditions.checkState(imr.isIntensityMeasureSupported(REF_IMT_DEFAULT));
+		// the following can be used to enable other reference IMRs. for now just force PGA
+		// (will have to update interpolation for F3 if enabled and add specifics for other GMPEs)
+//		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
+//		ArrayList<String> allowedIMTs = Lists.newArrayList();
+//		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
+//			allowedIMTs.add(param.getName());
+//		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
+//		imtConstr.setStrings(allowedIMTs);
+//		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
+//			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
+//				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
+//			refIMTParam.setValue(REF_IMT_DEFAULT);
+//		} else {
+//			String val = allowedIMTs.get(0);
+//			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
+//					+REF_IMT_DEFAULT+". Fell back to "+val);
+//			refIMTParam.setValue(val);
+//		}
+//		refIMTParam.getEditor().refreshParamEditor();
 	}
 
 	@Override
@@ -193,10 +219,31 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		super.setIMT_IMT(imr, imt);
 	}
 	
-	private synchronized double[] getCurParams() {
-		if (curParamValues == null)
-			curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
+	private synchronized double[] getCurParams(ScalarIMR imr) {
+		if (curParamValues == null) {
+			if (imr.getName().startsWith(BSSA_2014.NAME)) {
+				if (interp == null || !(interp instanceof BSSA_ParamInterpolator))
+					interp = new BSSA_ParamInterpolator();
+			} else {
+				interp = null;
+			}
+			if (interp == null || curPeriod <= 0)
+				curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
+			else
+				curParamValues = interp.getInterpolated(periodParams, curPeriod, tSiteParam.getValue(), curSite);
+		}
 		return curParamValues;
+	}
+	
+	void printCurParams() {
+		// only used for testing
+		if (curParamValues == null)
+			return;
+		StringBuilder sb = new StringBuilder("Current Params:\n");
+		sb.append("\tPeriod\t").append(PeriodDependentParamSet.j.join(periodParams.getParams())).append("\n");
+		sb.append("\t").append(curPeriod).append("\t").append(
+				PeriodDependentParamSet.j.join(Doubles.asList(curParamValues))).append("\n");
+		System.out.println(sb.toString());
 	}
 	
 	public void setSiteAmpParams(double period, Map<Params, Double> values) {
@@ -204,11 +251,19 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			periodParams.set(period, param, values.get(param));
 		curParamValues = null;
 	}
+	
+	public void setTsite(double tSite) {
+		tSiteParam.setValue(tSite);
+	}
 
 	@Override
 	public void setIMRSiteParams(ScalarIMR imr, Site site) {
 		// just update the site location, don't call setSite as it will override our site parameters
 		imr.setSiteLocation(site.getLocation());
+		// store site with params for empirical model
+		this.curSite = site;
+		// params when interpolated can depend on Vs30, clear
+		curParamValues = null;
 	}
 	
 	public void setReferenceIMT(String refIMT) {
@@ -241,7 +296,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		imr.setIntensityMeasure(imt);
 		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
 		
-		double[] params = getCurParams();
+		double[] params = getCurParams(imr);
 		double f1 = params[periodParams.getParamIndex(Params.F1)];
 		double f2 = params[periodParams.getParamIndex(Params.F2)];
 		double f3 = params[periodParams.getParamIndex(Params.F3)];
@@ -249,9 +304,10 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		if (DD) System.out.println("Calculating mean with f1="+f1+", f2="+f2+", f3="+f3);
 		
 		double ln_y = f1 + f2*Math.log((x_ref + f3)/f3);
+		Preconditions.checkState(Doubles.isFinite(ln_y));
 		if (DD) System.out.println("y="+Math.exp(ln_y));
 		double yMax = Math.log(params[periodParams.getParamIndex(Params.Ymax)]);
-		if (!Double.isNaN(yMax)) {
+		if (Doubles.isFinite(yMax)) {
 			ln_y = Math.min(ln_y, yMax);
 			if (DD) System.out.println("new y (after yMax="+yMax+"): "+Math.exp(ln_y));
 		}
@@ -274,7 +330,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		if (DD) System.out.println("Orig intra event, phi="+origPhi);
 		imrTypeParam.setValue(origIMRType);
 		
-		double[] params = getCurParams();
+		double[] params = getCurParams(imr);
 		double f2 = params[periodParams.getParamIndex(Params.F2)];
 		double f3 = params[periodParams.getParamIndex(Params.F3)];
 		double F = params[periodParams.getParamIndex(Params.F)];
@@ -313,8 +369,14 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
-		if (D) System.out.println("Period params change, clearing");
-		curParamValues = null;
+		if (event.getSource() == periodParamsParam || event.getSource() == tSiteParam) {
+			if (D) System.out.println("Period params change, clearing");
+			curParamValues = null;
+		}
+//		} else if (event.getSource() == plotInterpParam) {
+//			// TODO
+////			getCurParams(imr)
+//		}
 	}
 	
 	public static void main(String[] args) {

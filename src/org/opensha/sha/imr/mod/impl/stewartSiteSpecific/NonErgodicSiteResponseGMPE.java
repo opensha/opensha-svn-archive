@@ -64,5 +64,9 @@ public class NonErgodicSiteResponseGMPE extends ModAttenuationRelationship {
 	public String getShortName() {
 		return SHORT_NAME;
 	}
+	
+	public NonErgodicSiteResponseMod getMod() {
+		return (NonErgodicSiteResponseMod)getCurrentMod();
+	}
 
 }

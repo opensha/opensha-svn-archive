@@ -34,7 +34,7 @@ import com.google.common.collect.Maps;
  * @author kevin
  *
  */
-public class SiteAmplificationAlgorithmTest {
+public class NonErgodicSiteResponseAlgorithmTest {
 	
 	private static final boolean DO_TEST = true;
 	
@@ -50,7 +50,7 @@ public class SiteAmplificationAlgorithmTest {
 		mod = new NonErgodicSiteResponseMod();
 		gmpeWrap = new BSSA_2014_Wrapper();
 		
-		csv = CSVFile.readStream(SiteAmplificationAlgorithmTest.class.getResourceAsStream("Test.csv"), false);
+		csv = CSVFile.readStream(NonErgodicSiteResponseAlgorithmTest.class.getResourceAsStream("Test.csv"), false);
 	}
 
 	@Test
