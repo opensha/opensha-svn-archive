@@ -67,6 +67,8 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.faultSurface.CompoundSurface;
+import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.PointSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -3312,7 +3314,87 @@ public class ETAS_MultiSimAnalysisTools {
 //		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 //		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
+	
+	public static void plotConditionalHypocenterDist(List<List<ETAS_EqkRupture>> catalogs, File outputDir,
+			FaultSystemRupSet rupSet) throws IOException {
+		HistogramFunction hist = new HistogramFunction(0.025, 0.475, 10);
+		
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			for (ETAS_EqkRupture rup : catalog) {
+				if (rup.getFSSIndex() < 0)
+					continue;
+				// super crude for now, just use distance to start/end points
+//				List<FaultSectionPrefData> sectData = rupSet.getFaultSectionDataForRupture(rup.getFSSIndex());
+//				FaultSectionPrefData first = sectData.get(0);
+//				FaultSectionPrefData last = sectData.get(sectData.size()-1);
+//				Location start = first.getFaultTrace().first();
+//				Location end = last.getFaultTrace().last();
+				RuptureSurface surf = rupSet.getSurfaceForRupupture(rup.getFSSIndex(), 1d, false);
+				Location hypo = rup.getHypocenterLocation();
+//				Location start = surf.getFirstLocOnUpperEdge();
+//				Location end = surf.getLastLocOnUpperEdge();
+//				double length = LocationUtils.horzDistanceFast(start, end);
+//				double d1 = LocationUtils.horzDistanceFast(start, hypo);
+//				double d2 = LocationUtils.horzDistanceFast(end, hypo);
+//				// scale distances to match length
+//				double s = length/(d1+d2);
+//				d1 *= s;
+//				d2 *= s;
+//				double sum = d1+d2;
+//				Preconditions.checkState((float)sum == (float)length, "%s != %s", sum, length);
+//				double das = d1/sum;
+//				Preconditions.checkState(das >= 0 && das <= 1,
+//						"bad DAS: %s (d1=%s, d2=%s,len=%s, s=%s)",
+//						das, d1, d2, length, s);
+				
+				FaultTrace upperEdge = surf.getEvenlyDiscritizedUpperEdge();
+				
+				int closest = -1;
+				double closestDist = Double.POSITIVE_INFINITY;
+				for (int i=0; i<upperEdge.size(); i++) {
+					double dist = LocationUtils.horzDistanceFast(hypo, upperEdge.get(i));
+					if (dist < closestDist) {
+						closest = i;
+						closestDist = dist;
+					}
+				}
+				
+				double das = 0;
+				double totLen = 0;
+				
+				for (int i=1; i<upperEdge.size(); i++) {
+					double d = LocationUtils.horzDistanceFast(upperEdge.get(i-1), upperEdge.get(i));
+					if (i <= closest)
+						das += d;
+					totLen += d;
+				}
+				
+				das /= totLen;
+				
+				if (das > 0.5)
+					das = (1d - das);
+				hist.add(das, 1d);
+			}
+		}
+		hist.normalizeBySumOfY_Vals();
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		funcs.add(hist);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		PlotSpec spec = new PlotSpec(funcs, chars, "Conditional Hypocenter Distribution",
+				"Normalized Distance Along Strike", "Density");
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 
+		setFontSizes(gp);
+
+		gp.drawGraphPanel(spec, false, false, null, null);
+		gp.setYLog(true);
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, "cond_hypo_dist.png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, "cond_hypo_dist.pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, "cond_hypo_dist.txt").getAbsolutePath());
+	}
 	
 	private static ETAS_ParameterList loadEtasParamsFromMetadata(Element root)
 			throws DocumentException, MalformedURLException {
@@ -3500,35 +3582,37 @@ public class ETAS_MultiSimAnalysisTools {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-//		boolean plotMFDs = false;
+		boolean plotMFDs = false;
+		boolean plotExpectedComparison = false;
+		boolean plotSectRates = false;
+		boolean plotTemporalDecay = false;
+		boolean plotDistanceDecay = false;
+		boolean plotMaxMagHist = false;
+		boolean plotGenerations = false;
+		boolean plotGriddedNucleation = false;
+		boolean writeTimeFromPrevSupra = false;
+		boolean plotSectScatter = false;
+		boolean plotGridScatter = false;
+		boolean plotStationarity = false;
+		boolean plotSubSectRecurrence = false;
+		boolean plotCondDist = false;
+		boolean writeCatsForViz = true;
+		
+//		boolean plotMFDs = true;
 //		boolean plotExpectedComparison = false;
 //		boolean plotSectRates = true;
-//		boolean plotTemporalDecay = false;
-//		boolean plotDistanceDecay = false;
-//		boolean plotMaxMagHist = false;
-//		boolean plotGenerations = false;
-//		boolean plotGriddedNucleation = false;
-//		boolean writeTimeFromPrevSupra = false;
-//		boolean plotSectScatter = false;
-//		boolean plotGridScatter = false;
-//		boolean plotStationarity = false;
-//		boolean plotSubSectRecurrence = false;
+//		boolean plotTemporalDecay = true;
+//		boolean plotDistanceDecay = true;
+//		boolean plotMaxMagHist = true;
+//		boolean plotGenerations = true;
+//		boolean plotGriddedNucleation = true;
+//		boolean writeTimeFromPrevSupra = true;
+//		boolean plotSectScatter = true;
+//		boolean plotGridScatter = true;
+//		boolean plotStationarity = true;
+//		boolean plotSubSectRecurrence = true;
+//		boolean plotCondDist = false;
 //		boolean writeCatsForViz = false;
-		
-		boolean plotMFDs = true;
-		boolean plotExpectedComparison = false;
-		boolean plotSectRates = true;
-		boolean plotTemporalDecay = true;
-		boolean plotDistanceDecay = true;
-		boolean plotMaxMagHist = true;
-		boolean plotGenerations = true;
-		boolean plotGriddedNucleation = true;
-		boolean writeTimeFromPrevSupra = true;
-		boolean plotSectScatter = true;
-		boolean plotGridScatter = true;
-		boolean plotStationarity = true;
-		boolean plotSubSectRecurrence = true;
-		boolean writeCatsForViz = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
 		boolean useActualDurations = true; // only applies to spontaneous runs
@@ -3566,7 +3650,10 @@ public class ETAS_MultiSimAnalysisTools {
 		if (args.length == 0) {
 			// manual run on the laptop
 			
-			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_m4.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_02_11-spontaneous-1000yr-no_ert-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
+			
+			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 			id_for_scenario = 9893;
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
@@ -3962,6 +4049,11 @@ public class ETAS_MultiSimAnalysisTools {
 				};
 				for (int sectIndex : sectIndexes)
 					plotSubSectRecurrenceHist(catalogs, fss.getRupSet(), sectIndex, outputDir, Double.NaN);
+			}
+			
+			if (plotCondDist && (duration > 1d || duration < 0) && triggerParentID < 0) {
+				System.out.println("Plotting conditional hypocenter distribution");
+				plotConditionalHypocenterDist(catalogs, outputDir, fss.getRupSet());
 			}
 			
 			if (writeCatsForViz) {

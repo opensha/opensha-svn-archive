@@ -692,7 +692,8 @@ public class LogicTreePBSWriter {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		String runName = "ucerf3p3-synthetic-tests";
+//		String runName = "ucerf3p3-synthetic-tests";
+		String runName = "biasi-downsample-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -736,7 +737,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 5;
+		int numRuns = 10;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -748,9 +749,12 @@ public class LogicTreePBSWriter {
 			noPlots = false;
 		}
 		
+		File runSubDir = new File(site.RUN_DIR, runName);
+		
 		int overallMaxJobs = -1;
 
-		TreeTrimmer trimmer = getCustomTrimmer();
+//		TreeTrimmer trimmer = getCustomTrimmer();
+		TreeTrimmer trimmer = getUCERF3RefBranches();
 //		TreeTrimmer trimmer = getFullBranchSpan();
 //		TreeTrimmer trimmer = getMiniBranchSpan();
 //		TreeTrimmer trimmer = new SingleValsTreeTrimmer(FaultModels.FM3_1, DeformationModels.GEOLOGIC,
@@ -773,8 +777,8 @@ public class LogicTreePBSWriter {
 //		trimmer = new LogicalAndTrimmer(trimmer, charOrGR, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, charUnconstOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grUnconstOnly, noUCERF2);
-		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
-//		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2);
+//		trimmer = new LogicalAndTrimmer(trimmer, charOnly);
+		trimmer = new LogicalAndTrimmer(trimmer, charOnly, noUCERF2, getZengOnlyTrimmer());
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noUCERF2);
 //		trimmer = new LogicalAndTrimmer(trimmer, grOnly, noRefBranches, noUCERF2);
@@ -912,12 +916,12 @@ public class LogicTreePBSWriter {
 //		variationBranches.add(buildVariationBranch(ops, toArray("0.05")));
 //		variationBranches.add(buildVariationBranch(ops, toArray("1")));
 		
-		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
-		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_ON)));
-		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_OFF)));
+//		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
+//		InversionOptions[] ops = { InversionOptions.INITIAL_ZERO,  InversionOptions.SYNTHETIC, InversionOptions.SERIAL };
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_ON, TAG_OPTION_ON, TAG_OPTION_OFF)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_ON)));
+//		variationBranches.add(buildVariationBranch(ops, toArray(TAG_OPTION_OFF, TAG_OPTION_ON, TAG_OPTION_OFF)));
 		
 //		variationBranches = new ArrayList<LogicTreePBSWriter.CustomArg[]>();
 //		InversionOptions[] ops = { InversionOptions.SERIAL, InversionOptions.INITIAL_RANDOM };
@@ -962,6 +966,11 @@ public class LogicTreePBSWriter {
 //				for (String val3 : argVals.get(2))
 //					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
 		
+		variationBranches = Lists.newArrayList();
+		InversionOptions[] ops = { InversionOptions.RUP_FILTER_FILE };
+		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledEnds.txt").getAbsolutePath())));
+		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledStarts.txt").getAbsolutePath())));
+		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledBoth.txt").getAbsolutePath())));
 		
 		List<InversionArg[]> saOptions = null;
 		
@@ -1130,8 +1139,6 @@ public class LogicTreePBSWriter {
 			writeDir = new File(new File("/home/kevin/OpenSHA/UCERF3/inversions"), runName);
 		if (!writeDir.exists())
 			writeDir.mkdir();
-
-		File runSubDir = new File(site.RUN_DIR, runName);
 
 		//		String queue = "nbns";
 		String queue = null;
