@@ -40,7 +40,36 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	double calcEmpirical(Params param, double period, double vs30, double z1p0) {
-		return calcEmpirical(param, IMT.getSA(period), vs30, z1p0);
+		IMT imt = IMT.getSA(period);
+		if (imt == null) {
+			// need to interpolate
+			IMT imtBelow = null;
+			IMT imtAbove = null;
+			for (IMT testIMT : IMT.values()) {
+				if (!testIMT.isSA())
+					continue;
+				double testPeriod = testIMT.getPeriod();
+				if (testPeriod < period && (imtBelow == null || testPeriod > imtBelow.getPeriod()))
+					imtBelow = testIMT;
+				if (testPeriod > period && (imtAbove == null || testPeriod < imtAbove.getPeriod()))
+					imtAbove = testIMT;
+			}
+			Preconditions.checkState(imtBelow != null && imtAbove != null,
+					"Can't interpolate empirical for %ss, no bounding periods available", period);
+			double x1 = imtBelow.getPeriod();
+			double x2 = imtAbove.getPeriod();
+			Preconditions.checkState(x1 < period);
+			Preconditions.checkState(x2 > period);
+			double y1 = calcEmpirical(param, imtBelow, vs30, z1p0);
+			double y2 = calcEmpirical(param, imtAbove, vs30, z1p0);
+			
+//			System.out.println("Interpolating empirical "+param+" between "+x1+" and "+x2);
+			
+			// log X interpolation
+			return Interpolate.findY(Math.log(x1), y1, Math.log(x2), y2, Math.log(period));
+		} else {
+			return calcEmpirical(param, imt, vs30, z1p0);
+		}
 	}
 	
 	double calcEmpirical(Params param, IMT imt, double vs30, double z1p0) {

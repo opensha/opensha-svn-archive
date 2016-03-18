@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.Site;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
@@ -105,6 +106,9 @@ public class NonErgodicSiteResponseAlgorithmTest {
 			
 			refParams.setValue(Vs30_Param.NAME, refVs30);
 			refParams.setValue(DepthTo1pt0kmPerSecParam.NAME, refZ1);
+			Site site = new Site();
+			site.addParameterList(refParams);
+			mod.setIMRSiteParams(gmpeWrap, site);
 			mod.setReferenceSiteParams(refParams);
 			mod.setIMRParams(gmpeWrap);
 			mod.setReferenceIMT(referenceIMT);

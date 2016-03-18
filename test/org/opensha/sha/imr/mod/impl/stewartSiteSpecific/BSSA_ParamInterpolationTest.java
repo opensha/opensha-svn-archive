@@ -36,7 +36,7 @@ public class BSSA_ParamInterpolationTest {
 
 	private static final double precision_diff = 0.01;
 	private static final double precision_percent = 1;
-	private static final boolean do_plot = false;
+	private static final boolean do_plot = true;
 	private static final boolean use_data_emp = false;
 	
 	private static Site site;
@@ -112,6 +112,8 @@ public class BSSA_ParamInterpolationTest {
 			for (Params param : params) {
 				for (TestType type : TestType.values()) {
 					String valStr = csv.get(row, col++).trim();
+					if (type == TestType.INTERPOLATED && period > maxParamPeriod)
+						continue;
 					if (valStr.isEmpty())
 						continue;
 					double val = Double.parseDouble(valStr);
@@ -154,6 +156,26 @@ public class BSSA_ParamInterpolationTest {
 	public void testEmpiricalF2() {
 		doTest(TestType.EMPIRICAL, Params.F2, true);
 	}
+
+	@Test
+	public void testInterpolatedF1() {
+		doTest(TestType.INTERPOLATED, Params.F1, true);
+	}
+	
+	@Test
+	public void testInterpolatedF2() {
+		doTest(TestType.INTERPOLATED, Params.F2, true);
+	}
+
+	@Test
+	public void testRecommendedF1() {
+		doTest(TestType.RECOMMENDED, Params.F1, true);
+	}
+	
+	@Test
+	public void testRecommendedF2() {
+		doTest(TestType.RECOMMENDED, Params.F2, true);
+	}
 	
 	private ArbitrarilyDiscretizedFunc doTest(TestType type, Params param, boolean test) {
 		ArbitrarilyDiscretizedFunc data = testData.get(param, type);
@@ -187,7 +209,7 @@ public class BSSA_ParamInterpolationTest {
 			double diff = Math.abs(val - testVal);
 			double pDiff = DataUtils.getPercentDiff(testVal, val);
 			boolean pass = true;
-			if (Math.abs(testVal) > 1e-4 && Math.abs(val) > 1e-4 && Math.abs(pDiff) > precision_percent)
+			if (Math.abs(testVal) > 1e-3 && Math.abs(val) > 1e-4 && Math.abs(pDiff) > precision_percent)
 				pass = false;
 			if (diff > precision_diff)
 				pass = false;
@@ -210,6 +232,8 @@ public class BSSA_ParamInterpolationTest {
 	public void createPlot() {
 		if (!do_plot)
 			return;
+		
+		List<GraphWindow> gws = Lists.newArrayList();
 		
 		for (Params param : params) {
 			List<XY_DataSet> funcs = Lists.newArrayList();
@@ -279,18 +303,25 @@ public class BSSA_ParamInterpolationTest {
 			PlotSpec spec = new PlotSpec(funcs, chars, "Interpolation Validation", "Period (s)", param.toString());
 			spec.setLegendVisible(true);
 			GraphWindow gw = new GraphWindow(spec);
-			gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+//			gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
 			gw.setXLog(true);
+			
+			gws.add(gw);
 		}
 		
 		// pause for plots
-		while (true)
+		while (true) {
+			boolean visible = false;
+			for (GraphWindow gw : gws)
+				visible = visible || gw.isVisible();
+			if (!visible)
+				break;
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
 	}
 
 }
