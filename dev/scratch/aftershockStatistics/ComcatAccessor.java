@@ -67,7 +67,7 @@ public class ComcatAccessor {
 	private static void printJSON(JSONObject json, String prefix) {
 		for (Object key : json.keySet()) {
 			Object val = json.get(key);
-			if (val.toString().startsWith("[{")) {
+			if (val != null && val.toString().startsWith("[{")) {
 				String str = val.toString();
 				try {
 					val = new JSONParser().parse(str.substring(1, str.length()-1));
@@ -75,7 +75,7 @@ public class ComcatAccessor {
 //					e.printStackTrace();
 				}
 			}
-			if (val instanceof JSONObject) {
+			if (val != null && val instanceof JSONObject) {
 				System.out.println(prefix+key+":");
 				String prefix2 = prefix;
 				if (prefix2 == null)
@@ -83,7 +83,7 @@ public class ComcatAccessor {
 				prefix2 += "\t";
 				printJSON((JSONObject)val, prefix2);
 			} else {
-				System.out.println(prefix+key+": "+json.get(key));
+				System.out.println(prefix+key+": "+val);
 			}
 		}
 	}
