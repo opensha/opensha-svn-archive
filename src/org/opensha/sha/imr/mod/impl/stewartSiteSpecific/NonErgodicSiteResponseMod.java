@@ -3,6 +3,7 @@ package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
 import org.opensha.sha.imr.mod.AbstractAttenRelMod;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
@@ -31,6 +33,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements ParameterChangeListener {
@@ -62,13 +65,53 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		}
 	}
 	
+	private static final Map<Params, Double> defaultParamValues = Maps.newHashMap();
+	static {
+		defaultParamValues.put(Params.F1, null); // null means from empirical
+		defaultParamValues.put(Params.F2, null); // null means from empirical
+		defaultParamValues.put(Params.F3, 0.1);
+		defaultParamValues.put(Params.PHI_lnY, 0.3);
+		defaultParamValues.put(Params.PHI_S2S, 0.3);
+		defaultParamValues.put(Params.F, 1d);
+		defaultParamValues.put(Params.Ymax, Double.NaN);
+		
+		// make sure complete
+		for (Params param : Params.values())
+			Preconditions.checkState(defaultParamValues.containsKey(param), "Missing default for %s", param);
+	}
+	private static double[] periodsForDefault = { 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1d };
+	
+	public enum RatioParams {
+		RATIO("Ratio");
+		
+		private String name;
+		
+		private RatioParams(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+	
 	private PeriodDependentParamSet<Params> periodParams;
 	private double curPeriod;
 	private double[] curParamValues;
 	private PeriodDependentParamSetParam<Params> periodParamsParam;
 	
+	private static final HashSet<String> allowedRefIMTs = new HashSet<String>();
+	static {
+		allowedRefIMTs.add(PGA_Param.NAME);
+		allowedRefIMTs.add(PGV_Param.NAME);
+		allowedRefIMTs.add(SA_Param.NAME);
+	}
 	private static final String REF_IMT_DEFAULT = PGA_Param.NAME;
 	private StringParameter refIMTParam;
+	
+	private PeriodDependentParamSet<RatioParams> imtRatios;
+	private PeriodDependentParamSetParam<RatioParams> imtRatiosParam;
 	
 	private DoubleParameter tSiteParam;
 	
@@ -80,19 +123,23 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	
 	private Site curSite;
 	
-	private ParamInterpolator<Params> interp;
+	private BSSA_ParamInterpolator interp;
 	
 	private ParameterList referenceSiteParams;
+	private boolean refSiteParamsStale = true;
 	
 	public NonErgodicSiteResponseMod() {
-		try {
-			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("params.csv"));
-			if (DD) System.out.println("Loaded default params:\n"+periodParams);
-		} catch (IOException e) {
-			System.err.println("Error loading default params:");
-			e.printStackTrace();
-			periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
-		}
+		// this is for loading defaults from CSV
+//		try {
+//			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("params.csv"));
+//			if (DD) System.out.println("Loaded default params:\n"+periodParams);
+//		} catch (IOException e) {
+//			System.err.println("Error loading default params:");
+//			e.printStackTrace();
+//			periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
+//		}
+		// now just leave blank and let it be filled in by empirical
+		periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
 		periodParamsParam = new PeriodDependentParamSetParam<Params>("Period Dependent Params", periodParams);
 		periodParamsParam.addParameterChangeListener(this);
 		
@@ -111,6 +158,16 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		refIMTParam.setValue(REF_IMT_DEFAULT);
 		paramList.addParameter(refIMTParam);
 		
+		try {
+			imtRatios = PeriodDependentParamSet.loadCSV(RatioParams.values(), this.getClass().getResourceAsStream("ratios.csv"));
+		} catch (IOException e) {
+			System.err.println("Error loading default ratios:");
+			e.printStackTrace();
+			imtRatios = new PeriodDependentParamSet<NonErgodicSiteResponseMod.RatioParams>(RatioParams.values());
+		}
+		imtRatiosParam = new PeriodDependentParamSetParam<RatioParams>("Ref IMT Ratio", imtRatios);
+		paramList.addParameter(imtRatiosParam);
+		
 		setReferenceSiteParams(getDefaultReferenceSiteParams());
 	}
 	
@@ -122,7 +179,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		params.addParameter(vs30);
 		
 		Vs30_TypeParam vs30Type = new Vs30_TypeParam();
-		vs30Type.setValue(Vs30_TypeParam.VS30_TYPE_INFERRED);
+		vs30Type.setValue(Vs30_TypeParam.VS30_TYPE_MEASURED);
 		params.addParameter(vs30Type);
 		
 		DepthTo2pt5kmPerSecParam z25 = new DepthTo2pt5kmPerSecParam(null, true);
@@ -137,7 +194,18 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	}
 	
 	public void setReferenceSiteParams(ParameterList referenceSiteParams) {
-		this.referenceSiteParams = referenceSiteParams;
+		if (this.referenceSiteParams == null) {
+			this.referenceSiteParams = referenceSiteParams;
+			for (Parameter<?> param : referenceSiteParams)
+				param.addParameterChangeListener(this);
+		} else {
+			for (Parameter<?> param : referenceSiteParams)
+				this.referenceSiteParams.getParameter(param.getName()).setValue(param.getValue());
+		}
+	}
+	
+	ParameterList getReferenceSiteParams() {
+		return this.referenceSiteParams;
 	}
 
 	@Override
@@ -152,6 +220,36 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 
 	@Override
 	public void setIMRParams(ScalarIMR imr) {
+		refSiteParamsStale = true;
+		checkUpdateRefIMRSiteParams(imr);
+		
+//		Preconditions.checkState(imr.isIntensityMeasureSupported(REF_IMT_DEFAULT));
+		// the following can be used to enable other reference IMRs. for now just force PGA
+		// (will have to update interpolation for F3 if enabled and add specifics for other GMPEs)
+		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
+		ArrayList<String> allowedIMTs = Lists.newArrayList();
+		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
+			if (allowedRefIMTs.contains(param.getName()))
+				allowedIMTs.add(param.getName());
+		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
+		imtConstr.setStrings(allowedIMTs);
+		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
+			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
+				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
+			refIMTParam.setValue(REF_IMT_DEFAULT);
+		} else {
+			String val = allowedIMTs.get(0);
+			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
+					+REF_IMT_DEFAULT+". Fell back to "+val);
+			refIMTParam.setValue(val);
+		}
+		refIMTParam.getEditor().refreshParamEditor();
+	}
+	
+	private void checkUpdateRefIMRSiteParams(ScalarIMR imr) {
+		if (!refSiteParamsStale)
+			return;
+		System.out.println("Updating site params");
 		// surround each with a try catch as certain IMRs may not have the given site parameter
 		try {
 			Parameter<Double> param = imr.getParameter(Vs30_Param.NAME);
@@ -182,27 +280,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			if (D) System.out.println("IMR doesn't support Z1.0");
 		}
 		if (DD) System.out.println("Set site params to default");
-		
-		Preconditions.checkState(imr.isIntensityMeasureSupported(REF_IMT_DEFAULT));
-		// the following can be used to enable other reference IMRs. for now just force PGA
-		// (will have to update interpolation for F3 if enabled and add specifics for other GMPEs)
-//		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
-//		ArrayList<String> allowedIMTs = Lists.newArrayList();
-//		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
-//			allowedIMTs.add(param.getName());
-//		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
-//		imtConstr.setStrings(allowedIMTs);
-//		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
-//			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
-//				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
-//			refIMTParam.setValue(REF_IMT_DEFAULT);
-//		} else {
-//			String val = allowedIMTs.get(0);
-//			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
-//					+REF_IMT_DEFAULT+". Fell back to "+val);
-//			refIMTParam.setValue(val);
-//		}
-//		refIMTParam.getEditor().refreshParamEditor();
+		refSiteParamsStale = false;
 	}
 
 	@Override
@@ -221,16 +299,44 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	
 	private synchronized double[] getCurParams(ScalarIMR imr) {
 		if (curParamValues == null) {
-			if (imr.getName().startsWith(BSSA_2014.NAME)) {
-				if (interp == null || !(interp instanceof BSSA_ParamInterpolator))
-					interp = new BSSA_ParamInterpolator();
-			} else {
-				interp = null;
-			}
-			if (interp == null || curPeriod <= 0)
+			if (interp == null)
+				interp = new BSSA_ParamInterpolator();
+//			if (imr.getName().startsWith(BSSA_2014.NAME)) {
+//				if (interp == null || !(interp instanceof BSSA_ParamInterpolator))
+//					interp = new BSSA_ParamInterpolator();
+//			} else {
+//				interp = null;
+//			}
+			if (periodParams.isEmpty()) {
+				// it's empty, populate with values from empirical model
+				double vs30 = (Double)curSite.getParameter(Vs30_Param.NAME).getValue();
+				Double z1p0 = (Double)curSite.getParameter(DepthTo1pt0kmPerSecParam.NAME).getValue();
+				if (z1p0 == null)
+					z1p0 = Double.NaN;
+				else
+					z1p0 /= 1000d;
+				
+				List<Double> periods = Lists.newArrayList();
+				for (double period : periodsForDefault)
+					periods.add(period);
+				periods.add(curPeriod);
+				for (double period : periods) {
+					for (Params param : Params.values()) {
+						Double defaultVal = defaultParamValues.get(param);
+						if (defaultVal == null)
+							// get from empirical
+							defaultVal = interp.calcEmpirical(param, period, vs30, z1p0);
+						periodParams.set(period, param, defaultVal);
+					}
+				}
+				periodParamsParam.getEditor().refreshParamEditor();
 				curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
-			else
-				curParamValues = interp.getInterpolated(periodParams, curPeriod, tSiteParam.getValue(), curSite);
+			} else {
+				if (interp == null || curPeriod <= 0)
+					curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
+				else
+					curParamValues = interp.getInterpolated(periodParams, curPeriod, tSiteParam.getValue(), curSite);
+			}
 		}
 		return curParamValues;
 	}
@@ -273,6 +379,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 
 	@Override
 	public double getModMean(ScalarIMR imr) {
+		checkUpdateRefIMRSiteParams(imr);
 		String origIMT = imt.getName();
 		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
 		double u_lnX = imr.getMean();
@@ -319,6 +426,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	
 	@Override
 	public double getModStdDev(ScalarIMR imr) {
+		checkUpdateRefIMRSiteParams(imr);
 		// get values for the IMT of interest
 		StringParameter imrTypeParam = (StringParameter) imr.getParameter(StdDevTypeParam.NAME);
 		String origIMRType = imrTypeParam.getValue();
@@ -372,6 +480,8 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		if (event.getSource() == periodParamsParam || event.getSource() == tSiteParam) {
 			if (D) System.out.println("Period params change, clearing");
 			curParamValues = null;
+		} else if (referenceSiteParams.containsParameter(event.getParameterName())) {
+			refSiteParamsStale = true;
 		}
 //		} else if (event.getSource() == plotInterpParam) {
 //			// TODO

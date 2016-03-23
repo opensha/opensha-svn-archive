@@ -50,6 +50,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	private JButton removeButton;
 	private JButton importButton;
 	private JButton exportButton;
+	private JButton clearButton;
 	
 	private JFileChooser chooser;
 
@@ -130,9 +131,14 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 			exportButton = new JButton("Export");
 			exportButton.addActionListener(this);
 		}
+		if (clearButton == null) {
+			clearButton = new JButton("Clear");
+			clearButton.addActionListener(this);
+		}
 		
 		bottomButtonPanel.add(importButton);
 		bottomButtonPanel.add(exportButton);
+		bottomButtonPanel.add(clearButton);
 
 		JPanel bottomWrapper = new JPanel();
 		bottomWrapper.add(bottomButtonPanel);
@@ -170,6 +176,25 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		return widgetPanel;
 	}
 	
+	static Object getPeriodForRender(double period) {
+		if (period == 0)
+			return "PGA";
+		if (period == -1)
+			return "PGV";
+		return (Double)period;
+	}
+	
+	static double getPeriodFromRender(Object val) {
+		String str = val.toString();
+		if (str.equalsIgnoreCase("PGA"))
+			return 0d;
+		if (str.equalsIgnoreCase("PGV"))
+			return -1d;
+		if (val instanceof String)
+			return Double.parseDouble(str);
+		return (Double)val;
+	}
+	
 	private final static Color disabledColor = new Color(210, 210, 210);
 	
 	private class PeriodDepTableModel extends AbstractTableModel {
@@ -196,23 +221,23 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if (columnIndex == 0)
-				return data.getPeriod(rowIndex);
+				return getPeriodForRender(data.getPeriod(rowIndex));
 			int paramIndex = columnIndex-1;
 			return data.get(params[paramIndex], rowIndex);
 		}
 		
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			double val = (Double)aValue;
-			if (D) System.out.println("Setting value at ("+rowIndex+","+columnIndex+") to: "+val);
+			if (D) System.out.println("Setting value at ("+rowIndex+","+columnIndex+") to: "+aValue);
 			if (columnIndex > 0) {
 				// we're changing a Y...easy
+				double val = (Double)aValue;
 				data.set(rowIndex, params[columnIndex-1], val);
 			} else {
 				// we're changing a period...harder
 				double[] vals = data.getValues(rowIndex);
 				removePeriod(rowIndex);
-				data.set(val, vals);
+				data.set(getPeriodFromRender(aValue), vals);
 			}
 			this.fireTableDataChanged();
 		}
@@ -238,7 +263,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		@Override
 		public String getColumnName(int column) {
 			if (column == 0)
-				return "Period";
+				return "Period/IMT";
 			else
 				return params[column-1].toString();
 		}
@@ -291,7 +316,10 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 
 
 		public void setValue(Object value) {
-			setText((value == null) ? "" : format.format(value));
+			if (value instanceof String)
+				setText(value.toString());
+			else
+				setText((value == null) ? "" : format.format(value));
 		}
 
 		//			public Dimension getPreferredSize() {
@@ -307,9 +335,10 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == addButton) {
-			String periodStr = periodField.getText();
+			String periodStr = periodField.getText().trim();
 			try {
-				double period = Double.parseDouble(periodStr);
+				double period = getPeriodFromRender(periodStr);
+				
 				tableModel.addPeriod(period);
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(widgetPanel, "Must supply valid period",
@@ -329,6 +358,9 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 			}
 			for (int index : rowsSorted)
 				tableModel.removePeriod(index);
+		} else if (e.getSource() == clearButton) {
+			getValue().clear();
+			updateWidget();
 		} else if (e.getSource() == importButton) {
 			if (chooser == null) {
 				chooser = new JFileChooser();

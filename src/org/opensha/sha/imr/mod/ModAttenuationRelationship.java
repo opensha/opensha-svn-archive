@@ -55,7 +55,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 			1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0};
 	
 	private ParameterListParameter imrParams;
-	private ParameterListParameter modParams;
+	protected ParameterListParameter modParams;
 	
 	public static final String IMRS_PARAM_NAME = "Reference IMR";
 	private EnumSet<AttenRelRef> supportedIMRs;
@@ -152,8 +152,8 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		depthTo1pt0kmPerSecParam.setValueAsDefault();
 		vs30_TypeParam.setValueAsDefault();
 		
-		updateCurrentIMR();
 		updateCurrentMod();
+		updateCurrentIMR();
 	}
 
 	@Override
@@ -255,6 +255,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		
 		modParams = new ParameterListParameter("Modifier Params");
 		modParams.setDefaultValue(new ParameterList());
+		modParams.setValueAsDefault();
 		otherParams.addParameter(3, modParams);
 	}
 	
@@ -278,7 +279,7 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 			imrsCache.put(ref, imr);
 		}
 		
-		imrParams.setValue(imr.getOtherParams());
+		imrParams.setValue(getReferenceIMRParams(imr.getOtherParams()));
 		try {
 			// update GUI if applicable
 			imrParams.getEditor().refreshParamEditor();
@@ -289,6 +290,15 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		if (D) System.out.println("Loaded IMR: "+imr.getName());
 		
 		synchModAndIMR();
+	}
+	
+	/**
+	 * Can be overridden to modify referenceIMR params
+	 * @param paramsFromIMR
+	 * @return
+	 */
+	protected ParameterList getReferenceIMRParams(ParameterList paramsFromIMR) {
+		return paramsFromIMR;
 	}
 	
 	private synchronized void updateCurrentMod() {

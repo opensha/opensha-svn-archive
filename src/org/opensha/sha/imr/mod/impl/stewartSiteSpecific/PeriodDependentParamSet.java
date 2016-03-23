@@ -302,7 +302,7 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		
 		for (int row=1; row<csv.getNumRows(); row++) {
 			List<String> line = csv.getLine(row);
-			double period = Double.parseDouble(line.get(0));
+			double period = PeriodDependentParamSetEditor.getPeriodFromRender(line.get(0));
 			double[] values = new double[params.length];
 			for (int i=0; i<params.length; i++)
 				values[i] = csvValParse(line.get(i+1));
@@ -319,7 +319,7 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		csv.addLine(header);
 		
 		for (int i=0; i<size(); i++) {
-			List<String> line = Lists.newArrayList(getPeriod(i)+"");
+			List<String> line = Lists.newArrayList(PeriodDependentParamSetEditor.getPeriodForRender(getPeriod(i))+"");
 			for (double val : getValues(i))
 				line.add(val+"");
 			csv.addLine(line);

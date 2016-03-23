@@ -49,9 +49,13 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeDependentEpistemicList;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2_TimeIndependentEpistemicList;
@@ -61,6 +65,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -72,6 +77,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
@@ -355,6 +361,43 @@ public class PureScratch {
 		int id = 193821;
 		System.out.println(Joiner.on(",").join(rupSet.getSectionsIndicesForRup(id)));
 	}
+	
+	private static void test11() throws IOException, DocumentException {
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		// Poisson
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+		// UCERF3 TD
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_PREF_BLEND);
+//		erf.getTimeSpan().setStartTime(2014); // start year
+//		erf.setParameter(HistoricOpenIntervalParam.NAME, // historical open interval
+//				erf.getTimeSpan().getStartTimeYear()-1875d);
+		
+		// duration - only really necessary for TD calculations, as MFD later is annualized
+		erf.getTimeSpan().setDuration(30d);
+		
+		erf.updateForecast();
+		
+		// circular region with given center and radius
+		Region reg = new Region(new Location(34, -118), 100d);
+		// rectangular region with these corners
+//		Region reg = new Region(new Location(34, -118), new Location(35, -120));
+		
+		double minMag = 5d;
+		int numMag = 51;
+		double deltaMag = 0.1;
+		
+		// Participation MFD
+		IncrementalMagFreqDist mfd = ERF_Calculator.getParticipationMagFreqDistInRegion(
+				erf, reg, minMag, numMag, deltaMag, true);
+		// Nucleation MFD - this will be slower
+//		IncrementalMagFreqDist mfd = ERF_Calculator.getMagFreqDistInRegion(erf, reg, minMag, numMag, deltaMag, true);
+		
+		System.out.println(mfd);
+	}
 
 	/**
 	 * @param args
@@ -369,7 +412,8 @@ public class PureScratch {
 //		test7();
 //		test8();
 //		test9();
-		test10();
+//		test10();
+		test11();
 		
 ////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 ////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
