@@ -1201,26 +1201,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		funcs.add(mfd);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
-		if (genericParams != null) {
-			// TODO calculate generic
-//			EvenlyDiscretizedFunc genericMFD = new EvenlyDiscretizedFunc(mfd.getMinX(), mfd.size(), mfd.getDelta());
-//			
-//			double a = genericParams[0];
-//			double p = genericParams[1];
-//			double c = genericParams[2];
-//			double b = bParam.getValue();
-//			double magMain = mainshock.getMag();
-//			
-//			for (int i=0; i<mfd.size(); i++) {
-//				double magMin = mfd.getX(i);
-//				double val = AftershockStatsCalc.getExpectedNumEvents(a, b, magMain, magMin, p, c, minDays, maxDays);
-//				genericMFD.set(i, val);
-//			}
-//			
-//			genericMFD.setName("Generic Model Expected Num Events");
-//			
-//			funcs.add(genericMFD);
-//			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		if (genericModel != null) {
+			// calculate generic
+			EvenlyDiscretizedFunc genericMFD = genericModel.getExpectedCumNumMFD(
+					minMag, maxMag, numMag, minDays, maxDays);
+			
+			genericMFD.setName("Generic Model Expected Num Events");
+			
+			funcs.add(genericMFD);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		}
 		
 		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
