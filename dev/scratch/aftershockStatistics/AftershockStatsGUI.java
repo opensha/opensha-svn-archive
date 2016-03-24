@@ -212,6 +212,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private GenericRJ_ParametersFetch genericFetch = null;
 	private GenericRJ_Parameters genericParams = null;
+	private RJ_AftershockModel_Generic genericModel = null;
 	
 	public AftershockStatsGUI() {
 		/*
@@ -503,6 +504,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
 			genericParams = genericFetch.get(regime);
 			System.out.println("Generic params for "+regime+": "+genericParams);
+			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
 		} catch (RuntimeException e) {
 			System.err.println("Error fetching generic params");
 			e.printStackTrace();
@@ -1027,11 +1029,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.CYAN));
 		
 		if (model != null) {
-			double a = model.getMaxLikelihood_a();
-			double p = model.getMaxLikelihood_p();
-			double c = model.getMaxLikelihood_c();
-			
-			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
+			EvenlyDiscretizedFunc expected = getModelCumNumWithTimePlot(model, magMin);
 			
 			maxY = Math.max(count, expected.getMaxY());
 			
@@ -1041,20 +1039,17 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			expected.setName("Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
 		}
 		
-		if (genericParams != null && bParam.getValue() != null) {
-			// TODO calculate generic
-//			double a = genericParams[0];
-//			double p = genericParams[1];
-//			double c = genericParams[2];
-//			
-//			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
-//			
-//			maxY = Math.max(count, expected.getMaxY());
-//			
-//			funcs.add(expected);
-//			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
-//			
-//			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+		if (genericModel != null) {
+			// calculate generic
+			
+			EvenlyDiscretizedFunc expected = getModelCumNumWithTimePlot(genericModel, magMin);
+			
+			maxY = Math.max(count, expected.getMaxY());
+			
+			funcs.add(expected);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
+			
+			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Cumulative M≥"+(float)magMin, "Days Since Mainshock",
@@ -1078,15 +1073,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > cml_num_tab_index, "Plots added out of order");
 	}
 	
-	private EvenlyDiscretizedFunc getModelCumNumPlot(double a, double p, double c, double magMin) {
-		double b = bParam.getValue();
-		double magMain = mainshock.getMag();
+	private EvenlyDiscretizedFunc getModelCumNumWithTimePlot(RJ_AftershockModel model, double magMin) {
 		double tMin = dataStartTimeParam.getValue();
 		double tMax = Math.max(dataEndTimeParam.getValue(), forecastEndTimeParam.getValue());
 		Preconditions.checkState(tMax > tMin);
 		double tDelta = (tMax - tMin)/1000d;
-		return AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(
-				a, b, magMain, magMin, p, c, tMin, tMax, tDelta);
+		return model.getExpectedCumNumEventsWithTime(magMin, tMin, tMax, tDelta);
 	}
 	
 	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
