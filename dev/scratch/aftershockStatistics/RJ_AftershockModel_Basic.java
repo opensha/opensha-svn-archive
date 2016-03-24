@@ -41,6 +41,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 public class RJ_AftershockModel_Basic extends RJ_AftershockModel {
 	
 	Boolean D=true;	// debug flag
+	double[] relativeEventTimes;
 	double a, k, p, c;
 
 	

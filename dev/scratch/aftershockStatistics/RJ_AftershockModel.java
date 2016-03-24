@@ -28,7 +28,6 @@ public abstract class RJ_AftershockModel {
 	double b, magMain, magComplete;
 	double min_a, max_a, delta_a=0, min_p, max_p, delta_p=0, min_c, max_c, delta_c=0;
 	int num_a, num_p, num_c;
-	double[] relativeEventTimes;
 	double[][][]  array;
 	int max_a_index=-1;
 	int max_p_index=-1;
