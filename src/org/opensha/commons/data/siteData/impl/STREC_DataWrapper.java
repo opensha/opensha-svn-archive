@@ -23,12 +23,12 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-public class STREC_DataWrapper extends AbstractSiteData<String> {
+public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 	
 	private static final boolean D = false;
 	
 	private File pythonScript;
-	private SiteDataServletAccessor<String> accessor;
+	private SiteDataServletAccessor<TectonicRegime> accessor;
 	
 	private Region region = Region.getGlobalRegion(); 
 	
@@ -42,7 +42,7 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 	}
 	
 	public STREC_DataWrapper() {
-		accessor = new SiteDataServletAccessor<String>(this, SERVLET_URL);
+		accessor = new SiteDataServletAccessor<TectonicRegime>(this, SERVLET_URL);
 	}
 
 	@Override
@@ -81,13 +81,13 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 	}
 
 	@Override
-	public ArrayList<String> getValues(LocationList locs) throws IOException {
+	public ArrayList<TectonicRegime> getValues(LocationList locs) throws IOException {
 		if (accessor != null)
 			return accessor.getValues(locs);
 		if (locs.isEmpty())
-			return new ArrayList<String>();
+			return new ArrayList<TectonicRegime>();
 		File tempDir = null;
-		ArrayList<String> ret = null;
+		ArrayList<TectonicRegime> ret = null;
 		try {
 			tempDir = Files.createTempDir();
 			
@@ -133,8 +133,10 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 			
 			CSVFile<String> csv = CSVFile.readFile(outputFile, false);
 			for (int row=0; row<csv.getNumRows(); row++) {
-				String regime = csv.get(row, 10);
-				Preconditions.checkNotNull(regime);
+				String regimeStr = csv.get(row, 10);
+				Preconditions.checkNotNull(regimeStr);
+				TectonicRegime regime = TectonicRegime.forName(regimeStr.trim());
+				Preconditions.checkNotNull(regime, "No mapping found for regime %s", regimeStr);
 				ret.add(regime);
 			}
 			
@@ -149,7 +151,7 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 	}
 
 	@Override
-	public String getValue(Location loc) throws IOException {
+	public TectonicRegime getValue(Location loc) throws IOException {
 		LocationList locs = new LocationList();
 		
 		locs.add(loc);
@@ -158,8 +160,8 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 	}
 
 	@Override
-	public boolean isValueValid(String el) {
-		return el != null && el.length() > 0;
+	public boolean isValueValid(TectonicRegime el) {
+		return el != null;
 	}
 
 	@Override
@@ -186,7 +188,7 @@ public class STREC_DataWrapper extends AbstractSiteData<String> {
 		
 		try {
 			Stopwatch watch = Stopwatch.createStarted();
-			List<String> vals = strec.getValues(locs);
+			List<TectonicRegime> vals = strec.getValues(locs);
 			watch.stop();
 			for (int i=0; i<locs.size(); i++)
 				System.out.println(locs.get(i)+": "+vals.get(i));
