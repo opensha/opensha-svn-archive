@@ -399,6 +399,14 @@
 		</copy>
 	</target>
 	
+	<target name="resource.oaf" depends="resource.misc.required">
+		<copy todir="${build}/scratch/aftershockStatistics" overwrite="true">
+			<fileset dir="${dev}/scratch/aftershockStatistics">
+				<include name="*.csv" />
+			</fileset>
+		</copy>
+	</target>
+	
 	<target name="resource.app.icons" if="app.short.name">
 		<trycatch>
 			<try>

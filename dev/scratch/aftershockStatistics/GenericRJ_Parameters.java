@@ -80,6 +80,10 @@ public class GenericRJ_Parameters {
 	 */
 	public double get_cValue() {return cValue;}
 
-
+	@Override
+	public String toString() {
+		return "RJ_Params[a="+get_aValueMean()+", aSigma="+get_aValueSigma()+", aSigma0="+aValue_sigma0
+			+", aSigma1="+aValue_sigma1+", b="+get_bValue()+", p="+get_pValue()+", c="+get_cValue()+"]";
+	}
 	
 }

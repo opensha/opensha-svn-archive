@@ -33,6 +33,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DatasetBinner;
+import org.opensha.commons.data.siteData.impl.TectonicRegime;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -209,8 +210,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private RJ_AftershockModel model;
 	
-	private DefaultOmoriParamFetch genericFetch = null;
-	private double[] genericParams = null;
+	private GenericRJ_ParametersFetch genericFetch = null;
+	private GenericRJ_Parameters genericParams = null;
 	
 	public AftershockStatsGUI() {
 		/*
@@ -497,13 +498,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		bParam.setValue(null);
 		try {
 			if (genericFetch == null)
-				genericFetch = new DefaultOmoriParamFetch();
+				genericFetch = new GenericRJ_ParametersFetch();
 			
-			String tectonicRegion = genericFetch.getRegion(mainshock.getHypocenterLocation());
-			genericParams = genericFetch.get(mainshock.getHypocenterLocation());
-			Preconditions.checkState(genericParams.length == 3);
-			System.out.println("Generic params for "+tectonicRegion+": a="+(float)genericParams[0]
-					+", p="+(float)genericParams[1]+", c="+(float)genericParams[2]);
+			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
+			genericParams = genericFetch.get(regime);
+			System.out.println("Generic params for "+regime+": "+genericParams);
 		} catch (RuntimeException e) {
 			System.err.println("Error fetching generic params");
 			e.printStackTrace();
@@ -1043,18 +1042,19 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		}
 		
 		if (genericParams != null && bParam.getValue() != null) {
-			double a = genericParams[0];
-			double p = genericParams[1];
-			double c = genericParams[2];
-			
-			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
-			
-			maxY = Math.max(count, expected.getMaxY());
-			
-			funcs.add(expected);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
-			
-			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			// TODO calculate generic
+//			double a = genericParams[0];
+//			double p = genericParams[1];
+//			double c = genericParams[2];
+//			
+//			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
+//			
+//			maxY = Math.max(count, expected.getMaxY());
+//			
+//			funcs.add(expected);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
+//			
+//			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Cumulative M≥"+(float)magMin, "Days Since Mainshock",
@@ -1210,25 +1210,25 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
 		if (genericParams != null) {
-			// calculate generic
-			EvenlyDiscretizedFunc genericMFD = new EvenlyDiscretizedFunc(mfd.getMinX(), mfd.size(), mfd.getDelta());
-			
-			double a = genericParams[0];
-			double p = genericParams[1];
-			double c = genericParams[2];
-			double b = bParam.getValue();
-			double magMain = mainshock.getMag();
-			
-			for (int i=0; i<mfd.size(); i++) {
-				double magMin = mfd.getX(i);
-				double val = AftershockStatsCalc.getExpectedNumEvents(a, b, magMain, magMin, p, c, minDays, maxDays);
-				genericMFD.set(i, val);
-			}
-			
-			genericMFD.setName("Generic Model Expected Num Events");
-			
-			funcs.add(genericMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+			// TODO calculate generic
+//			EvenlyDiscretizedFunc genericMFD = new EvenlyDiscretizedFunc(mfd.getMinX(), mfd.size(), mfd.getDelta());
+//			
+//			double a = genericParams[0];
+//			double p = genericParams[1];
+//			double c = genericParams[2];
+//			double b = bParam.getValue();
+//			double magMain = mainshock.getMag();
+//			
+//			for (int i=0; i<mfd.size(); i++) {
+//				double magMin = mfd.getX(i);
+//				double val = AftershockStatsCalc.getExpectedNumEvents(a, b, magMain, magMin, p, c, minDays, maxDays);
+//				genericMFD.set(i, val);
+//			}
+//			
+//			genericMFD.setName("Generic Model Expected Num Events");
+//			
+//			funcs.add(genericMFD);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		}
 		
 		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
