@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -260,7 +261,7 @@ public class AftershockStatsCalc {
 	}
 	
 	
-	private static double[] readAndysFile() {
+	public static double[] readAndysFile() {
 		
 		try {
 			BufferedReader buffRead = new BufferedReader(new InputStreamReader(
@@ -516,6 +517,33 @@ public class AftershockStatsCalc {
 		System.out.println("Mmaxc="+(float)mmaxc+" from MFD mode(s): "+Joiner.on(",").join(magsAtMax));
 		return mmaxc;
 	}
+	
+	   /**
+	    *  adaptive quadrature integration.  This is put here because it is not clear how general/robust this code is
+	    *  (e.g., with respect to singularities in the function).
+	    *  
+	    *  TODO In fact, this should be tested over the viable range of rate-decay functions that could be given
+	    * @param func
+	    * @param startTime
+	    * @param endTime
+	    * @return
+	    */
+    public static double adaptiveQuadratureIntegration(RJ_AftershockModel func, double startTime, double endTime) {
+    	final double EPSILON = 1e-6;
+    	double a=startTime;
+    	double b=endTime;
+        double h = b - a;
+        double c = (a + b) / 2.0;
+        double d = (a + c) / 2.0;
+        double e = (b + c) / 2.0;
+        double Q1 = h/6  * (func.getRateAboveMagCompleteAtTime(a) + 4*func.getRateAboveMagCompleteAtTime(c) + func.getRateAboveMagCompleteAtTime(b));
+        double Q2 = h/12 * (func.getRateAboveMagCompleteAtTime(a) + 4*func.getRateAboveMagCompleteAtTime(d) + 2*func.getRateAboveMagCompleteAtTime(c) + 4*func.getRateAboveMagCompleteAtTime(e) + func.getRateAboveMagCompleteAtTime(b));
+        if (Math.abs(Q2 - Q1) <= EPSILON)
+            return Q2 + (Q2 - Q1) / 15;
+        else
+            return adaptiveQuadratureIntegration(func,a, c) + adaptiveQuadratureIntegration(func,c, b);
+    }
+
 
 
 	/**

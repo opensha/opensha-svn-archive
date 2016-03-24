@@ -207,7 +207,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private IncrementalMagFreqDist aftershockMND;
 	private double mmaxc;
 	
-	private ReasenbergJonesAftershockModel model;
+	private RJ_AftershockModel model;
 	
 	private DefaultOmoriParamFetch genericFetch = null;
 	private double[] genericParams = null;
@@ -330,7 +330,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		timeDepMcParam.addParameterChangeListener(this);
 		fitParams.addParameter(timeDepMcParam);
 		
-		gParam = new DoubleParameter("G", 1d, 6d, new Double(2.5));
+		gParam = new DoubleParameter("G", 0.1d, 10d, new Double(0.25));
 		gParam.addParameterChangeListener(this);
 		fitParams.addParameter(gParam);
 		
@@ -1400,13 +1400,13 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 					Double mCat = mCatParam.getValue();
 					validateParameter(mCat, "Mcat");
 					
-					model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mCat, g, h, b,
+					model = new RJ_AftershockModel_TimeDepMagComplete(mainshock, aftershocks, mCat, g, h, b,
 							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
 							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
 							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
 							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
 				} else {
-					model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
+					model = new RJ_AftershockModel_Basic(mainshock, aftershocks, mc, b,
 							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
 							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
 							pRange.getLowerBound(), pRange.getUpperBound(), pNum,

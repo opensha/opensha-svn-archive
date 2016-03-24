@@ -12,17 +12,12 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 
 /**
- * This represents a Reasenberg-Jones (1989, 1994) aftershock model.
- * 
- * TODO:
- * 
- *  1) Make a constructor that takes generic values, perhaps with a PDF for a-values
- *  2) Carefully define jUnit tests in order to cover all cases, including the p=1 type cases.
- *  3) Merge the two constructors?
+ * This has been replaced by RJ_AftershockModel and its various subclasses
  *
  * @author field
  *
  */
+@Deprecated
 public class ReasenbergJonesAftershockModel {
 	
 	Boolean D=true;	// debug flag
@@ -178,7 +173,7 @@ public class ReasenbergJonesAftershockModel {
 	 * @param aftershockList - events with mag below magComplete will be filtered out
 	 * @param magCat - "Mcat" in the in the time-dependent magnitude of completeness model defined above
 	 * @param capG - the "G" parameter in the time-dependent magnitude of completeness model defined above
-	 * @param capH - the "A" parameter in the time-dependent magnitude of completeness model defined above
+	 * @param capH - the "H" parameter in the time-dependent magnitude of completeness model defined above
 	 * @param b - assumed b value
 	 * @param min_a \
 	 * @param max_a  | - range of a-values for grid search (set min=max and num=1 to constraint to single value)
@@ -368,7 +363,7 @@ public class ReasenbergJonesAftershockModel {
 	
 	/**
 	 * This converts the array to likelihood values, making sure NaNs do not occur due to high logLikelihoods,
-	 * and re-normalizes the array soas values sum to 1.0.
+	 * and re-normalizes the array so as values sum to 1.0.
 	 * @param maxLogLikeVal - the maximum values in the input array
 	 * @return
 	 */
@@ -434,14 +429,6 @@ public class ReasenbergJonesAftershockModel {
 	}
 	
 	
-	/**
-	 * This gives the expected number of aftershocks, according to maximum likelihood values, above the 
-	 * specified minimum magnitude over the specified time span.
-	 * @param magMin
-	 * @param tMinDays
-	 * @param tMaxDays
-	 * @return
-	 */
 	/**
 	 * This gives the expected number of aftershocks with time according to maximum likelihood values, and above the 
 	 * specified minimum magnitude over the specified time span.

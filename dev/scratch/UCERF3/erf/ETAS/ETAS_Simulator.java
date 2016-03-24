@@ -878,6 +878,27 @@ public class ETAS_Simulator {
 	}
 	
 	
+	/**
+	 * This utility finds the source index for the fault system rupture that has the given first and last subsection
+	 * @param erf
+	 * @param firstSectID
+	 * @param secondSectID
+	 */
+	private static void writeTotRateRupOccurOnTheseTwoSections(FaultSystemSolutionERF erf, int firstSectID, int secondSectID) {
+		System.out.println("Looking for source...");
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		double totRate=0;
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			List<Integer> sectListForSrc = rupSet.getSectionsIndicesForRup(erf.getFltSysRupIndexForSource(s));
+			if(sectListForSrc.contains(firstSectID) && sectListForSrc.contains(secondSectID)) {
+				totRate += erf.getSource(s).computeTotalEquivMeanAnnualRate(erf.getTimeSpan().getDuration());
+			}
+		}
+		System.out.println("totRate="+totRate+"\n\t"+rupSet.getFaultSectionData(firstSectID).getName()+"\n\t"+rupSet.getFaultSectionData(secondSectID).getName());
+	}
+
+	
+	
 	private static void writeInfoAboutClosestSectionToLoc(FaultSystemSolutionERF erf, Location loc) {
 		List<FaultSectionPrefData> fltDataList = erf.getSolution().getRupSet().getFaultSectionDataList();
 		double minDist = Double.MAX_VALUE;
@@ -1758,6 +1779,9 @@ System.exit(-1);
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
+		
+		writeTotRateRupOccurOnTheseTwoSections(erf, 1837, 2183);
+		System.exit(-1);
 		
 //		plotElMayorAndLagunaSalada(erf);
 
