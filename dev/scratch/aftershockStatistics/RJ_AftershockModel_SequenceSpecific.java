@@ -28,7 +28,7 @@ public class RJ_AftershockModel_SequenceSpecific extends RJ_AftershockModel impl
 	
 	Boolean D=true;	// debug flag
 	double capG, capH;
-	double a, k, p, c;
+	double a, k, p, c;	// these are used in the numerical integration
 	double magComplete;
 	ObsEqkRupList aftershockList;
 	ObsEqkRupture mainShock;

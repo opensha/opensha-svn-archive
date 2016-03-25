@@ -372,6 +372,10 @@ public abstract class RJ_AftershockModel {
 		}
 		
 	}
+	
+	public double getMainShockMag() {return magMain;}
+	
+	public double get_b() {return b;}
 
 
 	// getters/setters commented out until needed:

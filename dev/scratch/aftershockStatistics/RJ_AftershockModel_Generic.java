@@ -47,7 +47,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 	
 	Boolean D=true;	// debug flag
-	double mean_a, sigma_a, b, p, c;
+	double mean_a, sigma_a;
 
 
 	/**
@@ -64,7 +64,7 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 	
 	
 	/**
-	 * This instantiates a generic GR model for the values given
+	 * This instantiates a generic RJ model for the values given
 	 * @param magMain - main shock magnitude
 	 * @param mean_a - mean a-value for the Gaussian distribution
 	 * @param sigma_a - a-value standard deviation for the Gaussian distribution
