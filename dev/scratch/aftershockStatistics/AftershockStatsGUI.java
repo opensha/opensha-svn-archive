@@ -1078,7 +1078,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		double tMax = Math.max(dataEndTimeParam.getValue(), forecastEndTimeParam.getValue());
 		Preconditions.checkState(tMax > tMin);
 		double tDelta = (tMax - tMin)/1000d;
-		return model.getExpectedCumNumEventsWithTime(magMin, tMin, tMax, tDelta);
+		return model.getModalCumNumEventsWithTime(magMin, tMin, tMax, tDelta);
 	}
 	
 	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
@@ -1196,14 +1196,14 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		EvenlyDiscretizedFunc mfd = model.getExpectedCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+		EvenlyDiscretizedFunc mfd = model.getModalCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
 		
 		funcs.add(mfd);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 		
 		if (genericModel != null) {
 			// calculate generic
-			EvenlyDiscretizedFunc genericMFD = genericModel.getExpectedCumNumMFD(
+			EvenlyDiscretizedFunc genericMFD = genericModel.getModalCumNumMFD(
 					minMag, maxMag, numMag, minDays, maxDays);
 			
 			genericMFD.setName("Generic Model Expected Num Events");

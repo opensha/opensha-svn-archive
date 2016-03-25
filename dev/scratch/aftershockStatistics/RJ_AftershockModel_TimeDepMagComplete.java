@@ -32,6 +32,37 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 	ObsEqkRupList aftershockList;
 	ObsEqkRupture mainShock;
 	double dataStartTimeDays, dataEndTimeDays;
+	double testTotalLikelihood;
+
+	
+	/**
+	 * Use this constructor to apply a time-independent magnitude of completeness.  This is faster because it
+	 * uses an analytical solution for the integral.
+	 * 
+	 * @param mainShock
+	 * @param aftershockList - events with mag below magComplete will be filtered out
+	 * @param magCat - the magnitude of completeness (time independent)
+	 * @param b - assumed b value
+	 * @param min_a \
+	 * @param max_a  | - range of a-values for grid search (set min=max and num=1 to constraint to single value)
+	 * @param num_a /
+	 * @param min_p \
+	 * @param max_p  | - range of p-values for grid search (set min=max and num=1 to constraint to single value)
+	 * @param num_p /
+	 * @param min_c \
+	 * @param max_c  | - range of c-values for grid search (set min=max and num=1 to constraint to single value)
+	 * @param num_c /
+	 */
+	public RJ_AftershockModel_TimeDepMagComplete(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
+				double magCat, double b, double dataStartTimeDays, double dataEndTimeDays,
+				double min_a, double max_a, int num_a, 
+				double min_p, double max_p, int num_p, 
+				double min_c, double max_c, int num_c) {
+		
+		this(mainShock, aftershockList, magCat, Double.NaN, Double.NaN, b, dataStartTimeDays, dataEndTimeDays,
+				min_a, max_a, num_a, min_p, max_p, num_p, min_c, max_c, num_c);
+
+	}
 
 		
 	
@@ -120,9 +151,21 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 			System.out.println("magComplete:\t"+magComplete);
 		}
 		
-		computeSequenceSpecificParams();
+		if(Double.isNaN(capG))
+			computeSequenceSpecificParamsConstMagComplete();
+		else
+			computeSequenceSpecificParams();
+		
+		if (D) {
+			System.out.println("testTotalLikelihood="+testTotalLikelihood);
+			System.out.println("getMaxLikelihood_a()="+getMaxLikelihood_a());
+			System.out.println("getMaxLikelihood_p()="+getMaxLikelihood_p());
+			System.out.println("getMaxLikelihood_c()="+getMaxLikelihood_c());
+		}
 		
 	}
+	
+	
 	
 	private void computeSequenceSpecificParams() {
 //		SimpsonIntegrator integrator = new SimpsonIntegrator();
@@ -177,16 +220,64 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 		}
 		
 		// convert array from log-likelihood to likelihood
-		double testTotal = convertArrayToLikelihood(maxVal);
+		testTotalLikelihood = convertLogLikelihoodArrayToLikelihood(maxVal);
 		
-		if (D) {
-			System.out.println("testTotal="+testTotal);
-			System.out.println("getMaxLikelihood_a()="+getMaxLikelihood_a());
-			System.out.println("getMaxLikelihood_p()="+getMaxLikelihood_p());
-			System.out.println("getMaxLikelihood_c()="+getMaxLikelihood_c());
-		}
+		
 
 	}
+	
+	
+	/**
+	 * This is faster because the integral is computed analytically;
+	 */
+	private void computeSequenceSpecificParamsConstMagComplete() {
+		double[] relativeEventTimes = AftershockStatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
+		array = new double[num_a][num_p][num_c];
+		double maxVal= Double.NEGATIVE_INFINITY;
+		long startTime = System.currentTimeMillis();
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			a = get_a(aIndex);
+			k = AftershockStatsCalc.convertProductivityTo_k(a, b, magMain, magComplete);
+			for(int pIndex=0;pIndex<num_p;pIndex++) {
+				p = get_p(pIndex);
+				for(int cIndex=0;cIndex<num_c;cIndex++) {
+					c = get_c(cIndex);
+
+					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
+					
+					if(D) {
+						// test numerical integration results
+						double sumLn_t=0;
+						for(double t : relativeEventTimes)
+							sumLn_t += Math.log(t+c);
+					//	double integral = integrator.integrate(100000, this, dataStartTimeDays, dataEndTimeDays);
+						double integral = AftershockStatsCalc.adaptiveQuadratureIntegration(this, dataStartTimeDays, dataEndTimeDays);
+						double logLike2 =  relativeEventTimes.length*Math.log(k) - p*sumLn_t - integral;
+						double ratio = logLike/logLike2;
+						if((float)ratio != 1f)
+							throw new RuntimeException("bad ratio "+ratio);
+						//						System.out.println("ratio:\t"+(float)ratio+"\t"+logLike+"\t"+logLike2);
+					}
+
+// System.out.println(a+"\t"+p+"\t"+c+"\t"+logLike+"\t"+Math.exp(logLike));
+
+					array[aIndex][pIndex][cIndex] = logLike;
+					if(maxVal<logLike) {
+						maxVal=logLike;
+						max_a_index=aIndex;
+						max_p_index=pIndex;
+						max_c_index=cIndex;
+					}
+				}
+			}
+		}
+		
+		// convert array from log-likelihood to likelihood
+		testTotalLikelihood = convertLogLikelihoodArrayToLikelihood(maxVal);
+		
+	}
+
+	
 
 	public double getMagCompleteAtTime(double timeSinceMainDays) {
 		if(timeSinceMainDays==0d)

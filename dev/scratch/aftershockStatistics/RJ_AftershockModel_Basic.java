@@ -173,7 +173,7 @@ public class RJ_AftershockModel_Basic extends RJ_AftershockModel {
 		long runtime = System.currentTimeMillis()-startTime;
 		System.out.println("Runtime (sec): "+(double)runtime/1000d);
 		
-		double testTotal = convertArrayToLikelihood(maxVal);
+		double testTotal = convertLogLikelihoodArrayToLikelihood(maxVal);
 
 		if (D) {
 			System.out.println("maxVal="+maxVal);
@@ -244,7 +244,7 @@ public class RJ_AftershockModel_Basic extends RJ_AftershockModel {
 		System.out.println("distArray.getPDF_p():\n"+distArray.getPDF_p());
 		System.out.println("distArray.getPDF_c():\n"+distArray.getPDF_c());
 		AftershockStatsCalc.plot2D_PDF(distArray.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
-		EvenlyDiscretizedFunc mfd = distArray.getExpectedCumNumMFD(3.0, 10.0, 71, 0.0, 7.0);
+		EvenlyDiscretizedFunc mfd = distArray.getModalCumNumMFD(3.0, 10.0, 71, 0.0, 7.0);
 		System.out.println("distArray.getExpectedNumMFD():\n"+mfd);
 
 		

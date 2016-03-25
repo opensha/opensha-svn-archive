@@ -50,7 +50,7 @@ public abstract class RJ_AftershockModel {
 	 * @param maxLogLikeVal - the maximum values in the input array
 	 * @return
 	 */
-	protected double convertArrayToLikelihood(double maxLogLikeVal) {
+	protected double convertLogLikelihoodArrayToLikelihood(double maxLogLikeVal) {
 		double total=0;
 		double corr = 0;
 		if(maxLogLikeVal>100.0)	// values above ~700 cause NaNs from Math.exp(), so we subtract some number from all values to avoid such numerical problems
@@ -100,36 +100,38 @@ public abstract class RJ_AftershockModel {
 	
 	
 	/**
-	 * This gives the expected number of aftershocks, according to maximum likelihood values, above the 
-	 * specified minimum magnitude over the specified time span.
+	 * This gives the number of aftershocks associated with the maximum likelihood a/p/c parameters (which represents the mode
+	 * in the number of events space) above the given minimum magnitude and over the specified site span.  A GR distribution with
+	 * no upper bound is assumed.
 	 * @param magMin
 	 * @param tMinDays
 	 * @param tMaxDays
 	 * @return
 	 */
-	public double getExpectedNumEvents(double magMin, double tMinDays, double tMaxDays) {
+	public double getModalNumEvents(double magMin, double tMinDays, double tMaxDays) {
 		return AftershockStatsCalc.getExpectedNumEvents(getMaxLikelihood_a(), b, magMain, magMin, getMaxLikelihood_p(), getMaxLikelihood_c(), tMinDays, tMaxDays);
 	}
 	
 	
 	/**
-	 * This gives the expected number of aftershocks with time according to maximum likelihood values, and above the 
-	 * specified minimum magnitude over the specified time span.
+	 * This gives the number of aftershocks as a function of time for the maximum likelihood a/p/c parameters 
+	 * (which represents the mode in the number of events space) above the given minimum magnitude and over 
+	 * the specified time span.  A GR distribution with no upper bound is assumed.
 	 * @param magMin
 	 * @param tMinDays - left edge of first time intercal
 	 * @param tMaxDays - right edge of last time interval
 	 * @param tDelta
 	 * @return
 	 */
-	public EvenlyDiscretizedFunc getExpectedCumNumEventsWithTime(double magMin, double tMinDays, double tMaxDays, double tDelta) {
+	public EvenlyDiscretizedFunc getModalCumNumEventsWithTime(double magMin, double tMinDays, double tMaxDays, double tDelta) {
 		return AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(getMaxLikelihood_a(), b, magMain, magMin, 
 				getMaxLikelihood_p(), getMaxLikelihood_c(), tMinDays, tMaxDays, tDelta);
 	}
 
 	
 	/**
-	 * This returns an MFD with the expected number of events greater than or equal to each magnitude 
-	 * for the current model and the given time span.
+	 * This returns the cumulative MFD associated with the maximum likelihood a/p/c parameters (which represents the mode
+	 * in the number of events space) and over the specified site span.   A GR distribution with no upper bound is assumed.
 	 * @param minMag - the minimum magnitude considered
 	 * @param maxMag - the maximum magnitude considered
 	 * @param numMag - number of mags in the MFD
@@ -137,10 +139,10 @@ public abstract class RJ_AftershockModel {
 	 * @param tMaxDays
 	 * @return
 	 */
-	public EvenlyDiscretizedFunc getExpectedCumNumMFD(double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+	public EvenlyDiscretizedFunc getModalCumNumMFD(double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
 		EvenlyDiscretizedFunc mfd = new EvenlyDiscretizedFunc(minMag, maxMag, numMag);
 		for(int i=0;i<mfd.size();i++) {
-			mfd.set(i, getExpectedNumEvents(mfd.getX(i), tMinDays, tMaxDays));
+			mfd.set(i, getModalNumEvents(mfd.getX(i), tMinDays, tMaxDays));
 		}
 		mfd.setName("Expected Num Events");
 		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
