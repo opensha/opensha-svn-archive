@@ -528,7 +528,7 @@ public class AftershockStatsCalc {
 	    * @param endTime
 	    * @return
 	    */
-    public static double adaptiveQuadratureIntegration(RJ_AftershockModel func, double startTime, double endTime) {
+    public static double adaptiveQuadratureIntegration(RJ_AftershockModel_SequenceSpecific func, double startTime, double endTime) {
     	final double EPSILON = 1e-6;
     	double a=startTime;
     	double b=endTime;

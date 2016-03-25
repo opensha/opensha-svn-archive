@@ -1381,13 +1381,13 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 					Double mCat = mCatParam.getValue();
 					validateParameter(mCat, "Mcat");
 					
-					model = new RJ_AftershockModel_TimeDepMagComplete(mainshock, aftershocks, mCat, g, h, b,
+					model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mCat, g, h, b,
 							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
 							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
 							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
 							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
 				} else {
-					model = new RJ_AftershockModel_Basic(mainshock, aftershocks, mc, b,
+					model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mc, b,
 							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
 							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
 							pRange.getLowerBound(), pRange.getUpperBound(), pNum,

@@ -24,11 +24,12 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  * @author field
  *
  */
-public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel implements UnivariateFunction {
+public class RJ_AftershockModel_SequenceSpecific extends RJ_AftershockModel implements UnivariateFunction {
 	
 	Boolean D=true;	// debug flag
 	double capG, capH;
 	double a, k, p, c;
+	double magComplete;
 	ObsEqkRupList aftershockList;
 	ObsEqkRupture mainShock;
 	double dataStartTimeDays, dataEndTimeDays;
@@ -53,7 +54,7 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 	 * @param max_c  | - range of c-values for grid search (set min=max and num=1 to constraint to single value)
 	 * @param num_c /
 	 */
-	public RJ_AftershockModel_TimeDepMagComplete(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
+	public RJ_AftershockModel_SequenceSpecific(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
 				double magCat, double b, double dataStartTimeDays, double dataEndTimeDays,
 				double min_a, double max_a, int num_a, 
 				double min_p, double max_p, int num_p, 
@@ -75,7 +76,9 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 	 * @param mainShock
 	 * @param aftershockList - events with mag below magComplete will be filtered out
 	 * @param magCat - "Mcat" in the in the time-dependent magnitude of completeness model defined above
-	 * @param capG - the "G" parameter in the time-dependent magnitude of completeness model defined above
+	 * @param capG - the "G" parameter in the time-dependent magnitude of completeness model defined above; 
+	 * 				 set as Double.NaN to apply time independent Mc (analytical integration), or set as 
+	 * 				 10.0 to effectively make it time independent (but numerical integration still performed)
 	 * @param capH - the "H" parameter in the time-dependent magnitude of completeness model defined above
 	 * @param b - assumed b value
 	 * @param min_a \
@@ -88,7 +91,7 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 	 * @param max_c  | - range of c-values for grid search (set min=max and num=1 to constraint to single value)
 	 * @param num_c /
 	 */
-	public RJ_AftershockModel_TimeDepMagComplete(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
+	public RJ_AftershockModel_SequenceSpecific(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
 			 								double magCat, double capG, double capH,
 											double b, double dataStartTimeDays, double dataEndTimeDays,
 											double min_a, double max_a, int num_a, 
@@ -245,19 +248,19 @@ public class RJ_AftershockModel_TimeDepMagComplete extends RJ_AftershockModel im
 
 					double logLike = AftershockStatsCalc.getLogLikelihoodForOmoriParams(k, p, c, dataStartTimeDays, dataEndTimeDays, relativeEventTimes);
 					
-					if(D) {
-						// test numerical integration results
-						double sumLn_t=0;
-						for(double t : relativeEventTimes)
-							sumLn_t += Math.log(t+c);
-					//	double integral = integrator.integrate(100000, this, dataStartTimeDays, dataEndTimeDays);
-						double integral = AftershockStatsCalc.adaptiveQuadratureIntegration(this, dataStartTimeDays, dataEndTimeDays);
-						double logLike2 =  relativeEventTimes.length*Math.log(k) - p*sumLn_t - integral;
-						double ratio = logLike/logLike2;
-						if((float)ratio != 1f)
-							throw new RuntimeException("bad ratio "+ratio);
-						//						System.out.println("ratio:\t"+(float)ratio+"\t"+logLike+"\t"+logLike2);
-					}
+//					if(D) {
+//						// test numerical integration results
+//						double sumLn_t=0;
+//						for(double t : relativeEventTimes)
+//							sumLn_t += Math.log(t+c);
+//					//	double integral = integrator.integrate(100000, this, dataStartTimeDays, dataEndTimeDays);
+//						double integral = AftershockStatsCalc.adaptiveQuadratureIntegration(this, dataStartTimeDays, dataEndTimeDays);
+//						double logLike2 =  relativeEventTimes.length*Math.log(k) - p*sumLn_t - integral;
+//						double ratio = logLike/logLike2;
+//						if((float)ratio != 1f)
+//							throw new RuntimeException("bad ratio "+ratio);
+//						//						System.out.println("ratio:\t"+(float)ratio+"\t"+logLike+"\t"+logLike2);
+//					}
 
 // System.out.println(a+"\t"+p+"\t"+c+"\t"+logLike+"\t"+Math.exp(logLike));
 

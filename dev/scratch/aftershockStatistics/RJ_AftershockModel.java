@@ -25,23 +25,13 @@ public abstract class RJ_AftershockModel {
 	
 	Boolean D=true;	// debug flag
 	
-	double b, magMain, magComplete;
+	double b, magMain; 
 	double min_a, max_a, delta_a=0, min_p, max_p, delta_p=0, min_c, max_c, delta_c=0;
 	int num_a, num_p, num_c;
 	double[][][]  array;
 	int max_a_index=-1;
 	int max_p_index=-1;
 	int max_c_index=-1;
-
-	
-	/**
-	 * This provides the rate at timeDays after the main shock, which is generally used for numerical integration
-	 * for the log-likelihood in subclasses.
-	 * @param timeDays
-	 * @return
-	 */
-	abstract double getRateAboveMagCompleteAtTime(double timeDays);
-	
 
 	
 	/**
@@ -83,15 +73,7 @@ public abstract class RJ_AftershockModel {
 	public double getMaxLikelihood_p() { return get_p(max_p_index);}
 	
 	public double getMaxLikelihood_c() { return get_c(max_c_index);}
-	
-	/**
-	 * This gives the k value (for associated b, magMain, and magComplete )
-	 * @return
-	 */
-	public double getMaxLikelihood_k() { 
-		return AftershockStatsCalc.convertProductivityTo_k(get_a(max_a_index), b, magMain, magComplete);
-		}
-	
+		
 	protected double get_a(int aIndex) { return min_a+aIndex*delta_a;}
 	
 	protected double get_p(int pIndex) { return min_p+pIndex*delta_p;}
@@ -336,6 +318,61 @@ public abstract class RJ_AftershockModel {
 			return hist2D;
 		}
 	}
+	
+	/**
+	 * This sets the array and maximum likelihood values from the a-values in the given discretized function,
+	 *  and holding the other parameters fixed at the values given.  The array is normalized so values sum
+	 *  to 1.0.
+	 * @param aValueFunc
+	 * @param b
+	 * @param p
+	 * @param c
+	 */
+	protected void setArrayAndMaxLikelyValuesFrom_aValueFunc(EvenlyDiscretizedFunc aValueFunc, double b, double p, double c) {
+		this.delta_a = aValueFunc.getDelta();
+		this.min_a = aValueFunc.getMinX();
+		this.max_a = aValueFunc.getMaxX();
+		this.num_a = aValueFunc.size();
+
+		this.num_p=1;
+		this.min_p=p;
+		this.max_p=p;
+		this.max_p_index=0;		
+		
+		this.num_c=1;
+		this.min_c=c;
+		this.max_c=c;
+		this.max_c_index=0;
+		
+		array = new double[num_a][num_p][num_c];
+		double maxWt= Double.NEGATIVE_INFINITY;
+		double totWt=0;
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			double wt = aValueFunc.getY(aIndex);
+			array[aIndex][0][0] = wt;
+			totWt+=wt;
+			if(wt>maxWt) {
+				max_a_index=aIndex;
+				maxWt=wt;
+			}
+		}
+		// now normalize so that it sums to 1.0
+		double totTest=0;
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			array[aIndex][0][0] /= totWt;
+			totTest += array[aIndex][0][0];
+		}
+
+		if(D) {
+			System.out.println("a-values range:\t"+min_a+"\t"+max_a+"\t"+num_a+"\t"+delta_a);
+			System.out.println("totTest="+(float)totTest);
+			System.out.println("getMaxLikelihood_a()="+getMaxLikelihood_a());
+			System.out.println("getMaxLikelihood_p()="+getMaxLikelihood_p());
+			System.out.println("getMaxLikelihood_c()="+getMaxLikelihood_c());
+		}
+		
+	}
+
 
 	// getters/setters commented out until needed:
 //	public double getMin_a() { return min_a;}
