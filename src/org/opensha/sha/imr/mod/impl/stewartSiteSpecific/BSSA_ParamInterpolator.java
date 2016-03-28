@@ -24,6 +24,7 @@ import org.opensha.commons.util.Interpolate;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
 import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseMod.Params;
+import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseMod.RatioParams;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
@@ -33,10 +34,13 @@ import com.google.common.collect.Lists;
 
 public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	
+	private PeriodDependentParamSet<RatioParams> f3Ratios;
+	
 	BSSA_2014 bssa;
 	
-	public BSSA_ParamInterpolator() {
+	public BSSA_ParamInterpolator(PeriodDependentParamSet<RatioParams> f3Ratios) {
 		bssa = new BSSA_2014();
+		this.f3Ratios = f3Ratios;
 	}
 	
 	double calcEmpirical(Params param, double period, double vs30, double z1p0) {
@@ -81,20 +85,25 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		case F2:
 			return bssa.calcF2(imt, vs30);
 			
+		case F3:
+			return BSSA_2014.F3;
+			
 		default:
 			return Double.NaN;
 		}
 	}
 
 	@Override
-	public double[] getInterpolated(PeriodDependentParamSet<Params> periodParams, double period,
-			double tSite, Site site) {
+	public double[] getInterpolated(PeriodDependentParamSet<Params> periodParams, double period, double refPeriod,
+			double tSite, double tSiteN, Site site) {
 		Params[] params = periodParams.getParams();
-		return getInterpolated(periodParams, params, period, tSite, site);
+		return getInterpolated(periodParams, params, period, refPeriod, tSite, tSiteN, site);
 	}
 	
 	public double[] getInterpolated(PeriodDependentParamSet<Params> periodParams, Params[] params,
-			double period, double tSite, Site site) {
+			double period, double refPeriod, double tSite, double tSiteN, Site site) {
+		Preconditions.checkArgument(Double.isNaN(tSite) || tSiteN > 1d, "N for Tsite must be > 1 when Tsite is non Nan");
+		
 		List<Double> periods = periodParams.getPeriods();
 		
 		Preconditions.checkState(site.containsParameter(Vs30_Param.NAME));
@@ -106,6 +115,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 			// OpenSHA has Z1.0 in m instead of km, need to convert
 			z1p0 /= 1000d;
 		
+		double tSiteZoneEnd = tSiteN*tSite;
+		
 		int periodIndex = Collections.binarySearch(periods, period);
 		if (periodIndex >= 0) {
 			// exact match
@@ -116,11 +127,11 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 					double interpVal = ret[i];
 					if (period <= tSite || Double.isNaN(tSite)) {
 						ret[i] = interpVal;
-					} else if (period >= 2*tSite) {
+					} else if (period >=tSiteZoneEnd) {
 						ret[i] = empirical;
 					} else {
 						// transition zone
-						ret[i] = interpVal * Math.log(2*tSite/period)/Math.log(2)
+						ret[i] = interpVal * Math.log(tSiteZoneEnd/period)/Math.log(2)
 								+ empirical * Math.log(period/tSite)/Math.log(2);
 					}
 				}
@@ -161,21 +172,29 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 				double empiricalBelow = calcEmpirical(param, x1, vs30, z1p0);
 				double empirical = calcEmpirical(param, period, vs30, z1p0);
 				double empiricalAbove = calcEmpirical(param, x2, vs30, z1p0);
-				double diffBelow = y1[i] - empiricalBelow;
-				double diffAbove = y2[i] - empiricalAbove;
+				double epsilonBelow = y1[i] - empiricalBelow;
+				double epsilonAbove = y2[i] - empiricalAbove;
 				
-				double interpVal = empirical + w1*diffBelow + w2*diffAbove;
+				double interpVal = empirical + w1*epsilonBelow + w2*epsilonAbove;
 				
 				// now check against Tsite
 				if (period <= tSite || Double.isNaN(tSite)) {
 					val = interpVal;
-				} else if (period >= 2*tSite) {
+				} else if (period >= tSiteZoneEnd) {
 					val = empirical;
 				} else {
 					// transition zone
-					val = interpVal * Math.log(2*tSite/period)/Math.log(2)
+					val = interpVal * Math.log(tSiteZoneEnd/period)/Math.log(2)
 							+ empirical * Math.log(period/tSite)/Math.log(2);
 				}
+			} else if (param == Params.F3) {
+				// empirical value is same for all periods
+				double empirical = calcEmpirical(param, period, vs30, z1p0);
+				
+				double epsilonBelow = y1[i] - f3Ratios.getInterpolated(RatioParams.RATIO, refPeriod)*empirical;
+				double epsilonAbove = y2[i] - f3Ratios.getInterpolated(RatioParams.RATIO, refPeriod)*empirical;
+				
+				val = empirical + w1*epsilonBelow + w2*epsilonAbove;
 			} else {
 				if (x1 > 0)
 					val = Interpolate.findY(Math.log(x1), y1[i], Math.log(x2), y2[i], Math.log(period));
@@ -190,8 +209,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	public void plotInterpolation(PeriodDependentParamSet<Params> periodParams,
-			List<Double> periods, double tSite, Site site) {
-		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, tSite, site);
+			List<Double> periods, double refPeriod, double tSite, double tSiteN, Site site) {
+		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, refPeriod, tSite, tSiteN, site);
 		
 		for (PlotSpec spec : specs) {
 			GraphWindow gw = new GraphWindow(spec);
@@ -200,9 +219,9 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	public void writeInterpolationPlot(PeriodDependentParamSet<Params> periodParams,
-			List<Double> periods, double tSite, Site site, File outputFile) throws IOException {
+			List<Double> periods, double refPeriod, double tSite, double tSiteN, Site site, File outputFile) throws IOException {
 		Collections.sort(periods);
-		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, tSite, site);
+		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, refPeriod, tSite, tSiteN, site);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
@@ -227,8 +246,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	private List<PlotSpec> getInterpolationPlot(PeriodDependentParamSet<Params> periodParams,
-			List<Double> periods, double tSite, Site site) {
-		Params[] paramsToPlot = { Params.F1, Params.F2 };
+			List<Double> periods, double refPeriod, double tSite, double tSiteN, Site site) {
+		Params[] paramsToPlot = { Params.F1, Params.F2, Params.F3 };
 		
 		ArbitrarilyDiscretizedFunc[] interpolatedFunc = new ArbitrarilyDiscretizedFunc[paramsToPlot.length];
 		ArbitrarilyDiscretizedFunc[] empiricalFunc = new ArbitrarilyDiscretizedFunc[paramsToPlot.length];
@@ -253,8 +272,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		
 		for (double period : periods) {
 //			double[] vals = paramSet.getInterpolated(paramsToPlot, period);
-			double[] preferredVals = getInterpolated(periodParams, paramsToPlot, period, tSite, site);
-			double[] interpVals = getInterpolated(periodParams, paramsToPlot, period, Double.NaN, site);
+			double[] preferredVals = getInterpolated(periodParams, paramsToPlot, period, refPeriod, tSite, tSiteN, site);
+			double[] interpVals = getInterpolated(periodParams, paramsToPlot, period, refPeriod, Double.NaN, Double.NaN, site);
 			
 			for (int i=0; i<paramsToPlot.length; i++) {
 				interpolatedFunc[i].set(period, interpVals[i]);
@@ -325,7 +344,9 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 				Params.values(), PeriodDependentParamSet.class.getResourceAsStream("params.csv"));
 		File outputDir = new File("/tmp");
 //		plotInterpolation(periodParams, paramsToPlot, outputDir);
-		BSSA_ParamInterpolator interp = new BSSA_ParamInterpolator();
+		PeriodDependentParamSet<RatioParams> imtRatios = PeriodDependentParamSet.loadCSV(RatioParams.values(),
+				NonErgodicSiteResponseMod.class.getResourceAsStream("ratios.csv"));
+		BSSA_ParamInterpolator interp = new BSSA_ParamInterpolator(imtRatios);
 		
 		Site site = new Site();
 		Vs30_Param vs30 = new Vs30_Param();
@@ -336,6 +357,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		site.addParameter(z10);
 		
 		double tSite = 0.7;
+		double tSiteN = 2;
+		double refPeriod = 1d;
 		
 		List<Double> periods = Lists.newArrayList();
 		for (IMT imt : interp.bssa.getSupportedIMTs())
@@ -344,7 +367,7 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		Collections.sort(periods);
 		System.out.println("Periods: "+Joiner.on(",").join(periods));
 		
-		interp.writeInterpolationPlot(periodParams, periods, tSite, site, new File("/tmp/param_interpolation.png"));
+		interp.writeInterpolationPlot(periodParams, periods, refPeriod, tSite, tSiteN, site, new File("/tmp/param_interpolation.png"));
 	}
 
 }

@@ -381,6 +381,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 							"Exception parsing CSV:\n"+e1.getMessage(), JOptionPane.ERROR_MESSAGE);
 				}
 			}
+			refreshParamEditor();
 		} else if (e.getSource() == exportButton) {
 			if (chooser == null) {
 				chooser = new JFileChooser();

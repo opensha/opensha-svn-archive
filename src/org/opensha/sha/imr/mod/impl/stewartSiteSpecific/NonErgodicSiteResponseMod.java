@@ -7,13 +7,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
+import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.ButtonParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
 import org.opensha.commons.param.impl.StringParameter;
@@ -21,9 +25,11 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.Interpolate;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
 import org.opensha.sha.imr.mod.AbstractAttenRelMod;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.StdDevTypeParam;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
@@ -51,6 +57,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		PHI_lnY("ϕ lnY"),
 		PHI_S2S("ϕ S2S"),
 		F("F"),
+		PHI_SS("ϕ SS"),
 		Ymax("Ymax");
 		
 		private String name;
@@ -71,8 +78,9 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		defaultParamValues.put(Params.F2, null); // null means from empirical
 		defaultParamValues.put(Params.F3, 0.1);
 		defaultParamValues.put(Params.PHI_lnY, 0.3);
-		defaultParamValues.put(Params.PHI_S2S, 0.3);
+		defaultParamValues.put(Params.PHI_S2S, 0.4);
 		defaultParamValues.put(Params.F, 1d);
+		defaultParamValues.put(Params.PHI_SS, 0.437);
 		defaultParamValues.put(Params.Ymax, Double.NaN);
 		
 		// make sure complete
@@ -101,6 +109,8 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	private double[] curParamValues;
 	private PeriodDependentParamSetParam<Params> periodParamsParam;
 	
+	private BooleanParameter usePhiSSParam;
+	
 	private static final HashSet<String> allowedRefIMTs = new HashSet<String>();
 	static {
 		allowedRefIMTs.add(PGA_Param.NAME);
@@ -109,13 +119,15 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	}
 	private static final String REF_IMT_DEFAULT = PGA_Param.NAME;
 	private StringParameter refIMTParam;
+	private DoubleParameter refIMTPeriodParam;
 	
 	private PeriodDependentParamSet<RatioParams> imtRatios;
 	private PeriodDependentParamSetParam<RatioParams> imtRatiosParam;
 	
 	private DoubleParameter tSiteParam;
+	private DoubleParameter tSiteNParam;
 	
-//	private ButtonParameter plotInterpParam;
+	private ButtonParameter plotInterpParam;
 	
 	private ParameterList paramList;
 	
@@ -130,33 +142,48 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	
 	public NonErgodicSiteResponseMod() {
 		// this is for loading defaults from CSV
-//		try {
-//			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("params.csv"));
-//			if (DD) System.out.println("Loaded default params:\n"+periodParams);
-//		} catch (IOException e) {
-//			System.err.println("Error loading default params:");
-//			e.printStackTrace();
-//			periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
-//		}
-		// now just leave blank and let it be filled in by empirical
-		periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
+		try {
+			periodParams = PeriodDependentParamSet.loadCSV(Params.values(), this.getClass().getResourceAsStream("params.csv"));
+			if (DD) System.out.println("Loaded default params:\n"+periodParams);
+		} catch (IOException e) {
+			System.err.println("Error loading default params:");
+			e.printStackTrace();
+			periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
+		}
+		// this is for leaving it blank to be filled in my ergodic model
+//		periodParams = new PeriodDependentParamSet<NonErgodicSiteResponseMod.Params>(Params.values());
+		
 		periodParamsParam = new PeriodDependentParamSetParam<Params>("Period Dependent Params", periodParams);
 		periodParamsParam.addParameterChangeListener(this);
 		
 		paramList = new ParameterList();
 		paramList.addParameter(periodParamsParam);
 		
+		usePhiSSParam = new BooleanParameter("Use "+Params.PHI_SS.toString(), false);
+		paramList.addParameter(usePhiSSParam);
+		
 		tSiteParam = new DoubleParameter("Tsite", Double.NaN);
 		tSiteParam.addParameterChangeListener(this);
 		paramList.addParameter(tSiteParam);
 		
-//		plotInterpParam = new ButtonParameter("Interpolation", "Plot Interpolation");
-//		plotInterpParam.addParameterChangeListener(this);
-//		paramList.addParameter(plotInterpParam);
+		tSiteNParam = new DoubleParameter("N for Tsite", 2d);
+		tSiteNParam.addParameterChangeListener(this);
+		paramList.addParameter(tSiteNParam);
+		
+		plotInterpParam = new ButtonParameter("Interpolation", "Plot Interpolation");
+		plotInterpParam.addParameterChangeListener(this);
+		paramList.addParameter(plotInterpParam);
 		
 		refIMTParam = new StringParameter("Reference IMT", Lists.newArrayList(REF_IMT_DEFAULT));
 		refIMTParam.setValue(REF_IMT_DEFAULT);
+		refIMTParam.addParameterChangeListener(this);
 		paramList.addParameter(refIMTParam);
+		
+		refIMTPeriodParam = new DoubleParameter("Reference IMT Period", 0.01, 10d);
+		refIMTPeriodParam.setValue(1d);
+		refIMTPeriodParam.addParameterChangeListener(this);
+		refIMTPeriodParam.getEditor().setEnabled(refIMTParam.getValue().equals(SA_Param.NAME));
+		paramList.addParameter(refIMTPeriodParam);
 		
 		try {
 			imtRatios = PeriodDependentParamSet.loadCSV(RatioParams.values(), this.getClass().getResourceAsStream("ratios.csv"));
@@ -297,10 +324,15 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		super.setIMT_IMT(imr, imt);
 	}
 	
+	private BSSA_ParamInterpolator getInterpolator() {
+		if (interp == null)
+			interp = new BSSA_ParamInterpolator(imtRatios);
+		return interp;
+	}
+	
 	private synchronized double[] getCurParams(ScalarIMR imr) {
 		if (curParamValues == null) {
-			if (interp == null)
-				interp = new BSSA_ParamInterpolator();
+			BSSA_ParamInterpolator interp = getInterpolator();
 //			if (imr.getName().startsWith(BSSA_2014.NAME)) {
 //				if (interp == null || !(interp instanceof BSSA_ParamInterpolator))
 //					interp = new BSSA_ParamInterpolator();
@@ -332,10 +364,12 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 				periodParamsParam.getEditor().refreshParamEditor();
 				curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 			} else {
+				double refPeriod = getRefPeriod();
 				if (interp == null || curPeriod <= 0)
 					curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 				else
-					curParamValues = interp.getInterpolated(periodParams, curPeriod, tSiteParam.getValue(), curSite);
+					curParamValues = interp.getInterpolated(periodParams, curPeriod, refPeriod,
+							tSiteParam.getValue(), tSiteNParam.getValue(), curSite);
 			}
 		}
 		return curParamValues;
@@ -444,8 +478,11 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		double F = params[periodParams.getParamIndex(Params.F)];
 		double phiS2S = params[periodParams.getParamIndex(Params.PHI_S2S)];
 		double phiLnY = params[periodParams.getParamIndex(Params.PHI_lnY)];
+		double phiSS = params[periodParams.getParamIndex(Params.PHI_SS)];
 		
-		if (DD) System.out.println("Calculating std dev with f2="+f2+", f3="+f3+", F="+F+", phiS2S="+phiS2S+", phiLnY="+phiLnY);
+		boolean usePhiSS = usePhiSSParam.getValue();
+		if (DD) System.out.println("Calculating std dev with f2="+f2+", f3="+f3+", F="+F
+				+", phiS2S="+phiS2S+", phiLnY="+phiLnY+", phiSS="+phiSS+", usePhiSS="+usePhiSS);
 		
 		// now set to ref IMT
 		String refIMT = refIMTParam.getValue();
@@ -458,8 +495,13 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		imr.setIntensityMeasure(imt);
 		
 		double term1 = Math.pow((f2*x_ref)/(x_ref+f3) + 1, 2);
+		double term2;
+		if (usePhiSS)
+			term2 = phiSS*phiSS;
+		else
+			term2 = (origPhi*origPhi - F*phiS2S*phiS2S);
 		
-		double phi_lnZ = Math.sqrt(term1 * (origPhi*origPhi - F*phiS2S*phiS2S) + phiLnY*phiLnY);
+		double phi_lnZ = Math.sqrt(term1 * term2 + phiLnY*phiLnY);
 		
 		if (DD) System.out.println("phi_lnZ="+phi_lnZ);
 		
@@ -474,19 +516,47 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	public ParameterList getModParams() {
 		return paramList;
 	}
+	
+	private double getRefPeriod() {
+		String refIMT = refIMTParam.getValue();
+		if (refIMT.equals(SA_Param.NAME))
+			return refIMTPeriodParam.getValue();
+		else if (refIMT.equals(PGA_Param.NAME))
+			return 0;
+		else if (refIMT.equals(PGV_Param.NAME))
+			return -1;
+		else
+			throw new IllegalStateException("Unkown IMT: "+refIMT);
+	}
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
-		if (event.getSource() == periodParamsParam || event.getSource() == tSiteParam) {
+		if (event.getSource() == periodParamsParam || event.getSource() == tSiteParam || event.getSource() == tSiteNParam) {
 			if (D) System.out.println("Period params change, clearing");
 			curParamValues = null;
 		} else if (referenceSiteParams.containsParameter(event.getParameterName())) {
 			refSiteParamsStale = true;
+		} else if (event.getParameter() == refIMTParam || event.getParameter() == refIMTPeriodParam) {
+			refIMTPeriodParam.getEditor().setEnabled(refIMTParam.getValue().equals(SA_Param.NAME));
+			curParamValues = null;
+		} else if (event.getSource() == plotInterpParam) {
+			List<Double> periods = Lists.newArrayList();
+			BSSA_ParamInterpolator interp = getInterpolator();
+			for (IMT imt : interp.bssa.getSupportedIMTs())
+				if (imt.isSA())
+					periods.add(imt.getPeriod());
+			Collections.sort(periods);
+			Site site = new Site();
+			ParameterList interpSiteParams = new ParameterList();
+			interpSiteParams.addParameter(new Vs30_Param(760));
+			interpSiteParams.getParameter(Vs30_Param.NAME).setValueAsDefault();
+			interpSiteParams.addParameter(new DepthTo1pt0kmPerSecParam(null, true));
+			ParameterListEditor editor = new ParameterListEditor(interpSiteParams);
+			editor.setTitle("Empirical Model Site Parameters");
+			JOptionPane.showMessageDialog(null, editor, "Enter Site Parameters for Interpolation", JOptionPane.QUESTION_MESSAGE);
+			site.addParameterList(interpSiteParams);
+			interp.plotInterpolation(periodParams, periods, getRefPeriod(), tSiteParam.getValue(), tSiteNParam.getValue(), site);
 		}
-//		} else if (event.getSource() == plotInterpParam) {
-//			// TODO
-////			getCurParams(imr)
-//		}
 	}
 	
 	public static void main(String[] args) {

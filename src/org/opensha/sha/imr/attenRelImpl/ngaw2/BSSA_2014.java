@@ -60,7 +60,7 @@ public class BSSA_2014 implements NGAW2_GMM {
 	private static final double DC3_CA_TW = 0.0;
 	private static final double V_REF = 760.0;
 	private static final double F1 = 0.0;
-	private static final double F3 = 0.1;
+	public static final double F3 = 0.1;
 	private static final double V1 = 225;
 	private static final double V2 = 300;
 

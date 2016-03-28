@@ -24,6 +24,7 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
 import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseMod.Params;
+import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseMod.RatioParams;
 import org.opensha.sha.imr.param.SiteParams.DepthTo1pt0kmPerSecParam;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
@@ -123,9 +124,12 @@ public class BSSA_ParamInterpolationTest {
 		}
 		System.out.println("Loaded test data for "+testData.values().iterator().next().size()+" periods");
 		
+		PeriodDependentParamSet<RatioParams> imtRatios = PeriodDependentParamSet.loadCSV(RatioParams.values(),
+				NonErgodicSiteResponseMod.class.getResourceAsStream("ratios.csv"));
+		
 		periods = Lists.newArrayList();
 		if (use_data_emp) {
-			interp = new BSSA_ParamInterpolator() {
+			interp = new BSSA_ParamInterpolator(imtRatios) {
 				@Override
 				double calcEmpirical(Params param, double period, double vs30, double z1p0) {
 					return testData.get(param, TestType.EMPIRICAL).getY(period);
@@ -138,7 +142,7 @@ public class BSSA_ParamInterpolationTest {
 			for (Point2D pt : testData.get(Params.F1, TestType.EMPIRICAL))
 				periods.add(pt.getX());
 		} else {
-			interp = new BSSA_ParamInterpolator();
+			interp = new BSSA_ParamInterpolator(imtRatios);
 			for (IMT imt : interp.bssa.getSupportedIMTs())
 				if (imt.isSA())
 					periods.add(imt.getPeriod());
@@ -194,10 +198,10 @@ public class BSSA_ParamInterpolationTest {
 				val = interp.calcEmpirical(param, period, vs30, z1p0);
 				break;
 			case INTERPOLATED:
-				val = interp.getInterpolated(periodParams, new Params[] {param}, period, Double.NaN, site)[0];
+				val = interp.getInterpolated(periodParams, new Params[] {param}, period, 0d, Double.NaN, Double.NaN, site)[0];
 				break;
 			case RECOMMENDED:
-				val = interp.getInterpolated(periodParams, new Params[] {param}, period, tSite, site)[0];
+				val = interp.getInterpolated(periodParams, new Params[] {param}, period, 0d, tSite, 2d, site)[0];
 				break;
 
 			default:
