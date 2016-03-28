@@ -111,15 +111,15 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	
 	private BooleanParameter usePhiSSParam;
 	
-	private static final HashSet<String> allowedRefIMTs = new HashSet<String>();
-	static {
-		allowedRefIMTs.add(PGA_Param.NAME);
-		allowedRefIMTs.add(PGV_Param.NAME);
-		allowedRefIMTs.add(SA_Param.NAME);
-	}
+//	private static final HashSet<String> allowedRefIMTs = new HashSet<String>();
+//	static {
+//		allowedRefIMTs.add(PGA_Param.NAME);
+//		allowedRefIMTs.add(PGV_Param.NAME);
+//		allowedRefIMTs.add(SA_Param.NAME);
+//	}
 	private static final String REF_IMT_DEFAULT = PGA_Param.NAME;
+	private static final String REF_IMT_OF_INTEREST = "IMT of Interst";
 	private StringParameter refIMTParam;
-	private DoubleParameter refIMTPeriodParam;
 	
 	private PeriodDependentParamSet<RatioParams> imtRatios;
 	private PeriodDependentParamSetParam<RatioParams> imtRatiosParam;
@@ -174,16 +174,10 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		plotInterpParam.addParameterChangeListener(this);
 		paramList.addParameter(plotInterpParam);
 		
-		refIMTParam = new StringParameter("Reference IMT", Lists.newArrayList(REF_IMT_DEFAULT));
+		refIMTParam = new StringParameter("Reference IMT", Lists.newArrayList(REF_IMT_DEFAULT, REF_IMT_OF_INTEREST));
 		refIMTParam.setValue(REF_IMT_DEFAULT);
 		refIMTParam.addParameterChangeListener(this);
 		paramList.addParameter(refIMTParam);
-		
-		refIMTPeriodParam = new DoubleParameter("Reference IMT Period", 0.01, 10d);
-		refIMTPeriodParam.setValue(1d);
-		refIMTPeriodParam.addParameterChangeListener(this);
-		refIMTPeriodParam.getEditor().setEnabled(refIMTParam.getValue().equals(SA_Param.NAME));
-		paramList.addParameter(refIMTPeriodParam);
 		
 		try {
 			imtRatios = PeriodDependentParamSet.loadCSV(RatioParams.values(), this.getClass().getResourceAsStream("ratios.csv"));
@@ -250,33 +244,33 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		refSiteParamsStale = true;
 		checkUpdateRefIMRSiteParams(imr);
 		
-//		Preconditions.checkState(imr.isIntensityMeasureSupported(REF_IMT_DEFAULT));
+		Preconditions.checkState(imr.isIntensityMeasureSupported(REF_IMT_DEFAULT));
 		// the following can be used to enable other reference IMRs. for now just force PGA
 		// (will have to update interpolation for F3 if enabled and add specifics for other GMPEs)
-		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
-		ArrayList<String> allowedIMTs = Lists.newArrayList();
-		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
-			if (allowedRefIMTs.contains(param.getName()))
-				allowedIMTs.add(param.getName());
-		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
-		imtConstr.setStrings(allowedIMTs);
-		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
-			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
-				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
-			refIMTParam.setValue(REF_IMT_DEFAULT);
-		} else {
-			String val = allowedIMTs.get(0);
-			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
-					+REF_IMT_DEFAULT+". Fell back to "+val);
-			refIMTParam.setValue(val);
-		}
-		refIMTParam.getEditor().refreshParamEditor();
+//		StringConstraint imtConstr = (StringConstraint) refIMTParam.getConstraint();
+//		ArrayList<String> allowedIMTs = Lists.newArrayList();
+//		for (Parameter<?> param : imr.getSupportedIntensityMeasures())
+//			if (allowedRefIMTs.contains(param.getName()))
+//				allowedIMTs.add(param.getName());
+//		Preconditions.checkState(!allowedIMTs.isEmpty(), "IMR doesn't support any IMTs???");
+//		imtConstr.setStrings(allowedIMTs);
+//		if (imtConstr.isAllowed(REF_IMT_DEFAULT)) {
+//			if (D && !refIMTParam.getValue().equals(REF_IMT_DEFAULT))
+//				System.out.println("Resetting reference IMT to default, "+REF_IMT_DEFAULT);
+//			refIMTParam.setValue(REF_IMT_DEFAULT);
+//		} else {
+//			String val = allowedIMTs.get(0);
+//			if (D) System.out.println("WARNING: Reference IMR doesn't support default ref IMT, "
+//					+REF_IMT_DEFAULT+". Fell back to "+val);
+//			refIMTParam.setValue(val);
+//		}
+//		refIMTParam.getEditor().refreshParamEditor();
 	}
 	
 	private void checkUpdateRefIMRSiteParams(ScalarIMR imr) {
 		if (!refSiteParamsStale)
 			return;
-		System.out.println("Updating site params");
+		if (D) System.out.println("Updating site params");
 		// surround each with a try catch as certain IMRs may not have the given site parameter
 		try {
 			Parameter<Double> param = imr.getParameter(Vs30_Param.NAME);
@@ -364,11 +358,10 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 				periodParamsParam.getEditor().refreshParamEditor();
 				curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 			} else {
-				double refPeriod = getRefPeriod();
 				if (interp == null || curPeriod <= 0)
 					curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 				else
-					curParamValues = interp.getInterpolated(periodParams, curPeriod, refPeriod,
+					curParamValues = interp.getInterpolated(periodParams, curPeriod,
 							tSiteParam.getValue(), tSiteNParam.getValue(), curSite);
 			}
 		}
@@ -427,15 +420,20 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		
 		// now set to to ref IMT
 		String refIMT = refIMTParam.getValue();
-		if (DD) System.out.println("Setting to reference IMT: "+refIMT);
-		imr.setIntensityMeasure(refIMT);
-		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(refIMT));
-		double x_ref_ln = imr.getMean();
-		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-		if (DD) System.out.println("Ref IMT, "+refIMT+", x_ref="+x_ref);
-		// set back to orig IMT
-		imr.setIntensityMeasure(imt);
-		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
+		double x_ref;
+		if (!refIMT.equals(REF_IMT_OF_INTEREST)) {
+			if (DD) System.out.println("Setting to reference IMT: "+refIMT);
+			imr.setIntensityMeasure(refIMT);
+			Preconditions.checkState(imr.getIntensityMeasure().getName().equals(refIMT));
+			double x_ref_ln = imr.getMean();
+			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+			if (DD) System.out.println("Ref IMT, "+refIMT+", x_ref="+x_ref);
+			// set back to orig IMT
+			imr.setIntensityMeasure(imt);
+			Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
+		} else {
+			x_ref = Math.exp(u_lnX);
+		}
 		
 		double[] params = getCurParams(imr);
 		double f1 = params[periodParams.getParamIndex(Params.F1)];
@@ -486,13 +484,19 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		
 		// now set to ref IMT
 		String refIMT = refIMTParam.getValue();
-		if (DD) System.out.println("Setting to reference IMT: "+refIMT);
-		imr.setIntensityMeasure(refIMT);
-		double x_ref_ln = imr.getMean();
-		double x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-		if (DD) System.out.println("x_ref="+x_ref);
-		// set back to orig IMT
-		imr.setIntensityMeasure(imt);
+		double x_ref;
+		if (!refIMT.equals(REF_IMT_OF_INTEREST)) {
+			if (DD) System.out.println("Setting to reference IMT: "+refIMT);
+			imr.setIntensityMeasure(refIMT);
+			double x_ref_ln = imr.getMean();
+			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+			if (DD) System.out.println("x_ref="+x_ref);
+			// set back to orig IMT
+			imr.setIntensityMeasure(imt);
+		} else {
+			double x_ref_ln = imr.getMean();
+			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+		}
 		
 		double term1 = Math.pow((f2*x_ref)/(x_ref+f3) + 1, 2);
 		double term2;
@@ -516,18 +520,6 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	public ParameterList getModParams() {
 		return paramList;
 	}
-	
-	private double getRefPeriod() {
-		String refIMT = refIMTParam.getValue();
-		if (refIMT.equals(SA_Param.NAME))
-			return refIMTPeriodParam.getValue();
-		else if (refIMT.equals(PGA_Param.NAME))
-			return 0;
-		else if (refIMT.equals(PGV_Param.NAME))
-			return -1;
-		else
-			throw new IllegalStateException("Unkown IMT: "+refIMT);
-	}
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
@@ -536,8 +528,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			curParamValues = null;
 		} else if (referenceSiteParams.containsParameter(event.getParameterName())) {
 			refSiteParamsStale = true;
-		} else if (event.getParameter() == refIMTParam || event.getParameter() == refIMTPeriodParam) {
-			refIMTPeriodParam.getEditor().setEnabled(refIMTParam.getValue().equals(SA_Param.NAME));
+		} else if (event.getParameter() == refIMTParam) {
 			curParamValues = null;
 		} else if (event.getSource() == plotInterpParam) {
 			List<Double> periods = Lists.newArrayList();
@@ -555,7 +546,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			editor.setTitle("Empirical Model Site Parameters");
 			JOptionPane.showMessageDialog(null, editor, "Enter Site Parameters for Interpolation", JOptionPane.QUESTION_MESSAGE);
 			site.addParameterList(interpSiteParams);
-			interp.plotInterpolation(periodParams, periods, getRefPeriod(), tSiteParam.getValue(), tSiteNParam.getValue(), site);
+			interp.plotInterpolation(periodParams, periods, tSiteParam.getValue(), tSiteNParam.getValue(), site);
 		}
 	}
 	

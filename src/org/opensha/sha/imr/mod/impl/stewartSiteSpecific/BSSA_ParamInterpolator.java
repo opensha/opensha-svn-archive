@@ -94,14 +94,14 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 
 	@Override
-	public double[] getInterpolated(PeriodDependentParamSet<Params> periodParams, double period, double refPeriod,
+	public double[] getInterpolated(PeriodDependentParamSet<Params> periodParams, double period,
 			double tSite, double tSiteN, Site site) {
 		Params[] params = periodParams.getParams();
-		return getInterpolated(periodParams, params, period, refPeriod, tSite, tSiteN, site);
+		return getInterpolated(periodParams, params, period, tSite, tSiteN, site);
 	}
 	
 	public double[] getInterpolated(PeriodDependentParamSet<Params> periodParams, Params[] params,
-			double period, double refPeriod, double tSite, double tSiteN, Site site) {
+			double period, double tSite, double tSiteN, Site site) {
 		Preconditions.checkArgument(Double.isNaN(tSite) || tSiteN > 1d, "N for Tsite must be > 1 when Tsite is non Nan");
 		
 		List<Double> periods = periodParams.getPeriods();
@@ -191,10 +191,10 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 				// empirical value is same for all periods
 				double empirical = calcEmpirical(param, period, vs30, z1p0);
 				
-				double epsilonBelow = y1[i] - f3Ratios.getInterpolated(RatioParams.RATIO, refPeriod)*empirical;
-				double epsilonAbove = y2[i] - f3Ratios.getInterpolated(RatioParams.RATIO, refPeriod)*empirical;
+				double epsilonBelow = y1[i] - f3Ratios.getInterpolated(RatioParams.RATIO, x1)*empirical;
+				double epsilonAbove = y2[i] - f3Ratios.getInterpolated(RatioParams.RATIO, x2)*empirical;
 				
-				val = empirical + w1*epsilonBelow + w2*epsilonAbove;
+				val = f3Ratios.getInterpolated(RatioParams.RATIO, period)*empirical + w1*epsilonBelow + w2*epsilonAbove;
 			} else {
 				if (x1 > 0)
 					val = Interpolate.findY(Math.log(x1), y1[i], Math.log(x2), y2[i], Math.log(period));
@@ -209,8 +209,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	public void plotInterpolation(PeriodDependentParamSet<Params> periodParams,
-			List<Double> periods, double refPeriod, double tSite, double tSiteN, Site site) {
-		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, refPeriod, tSite, tSiteN, site);
+			List<Double> periods, double tSite, double tSiteN, Site site) {
+		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, tSite, tSiteN, site);
 		
 		for (PlotSpec spec : specs) {
 			GraphWindow gw = new GraphWindow(spec);
@@ -219,9 +219,9 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	public void writeInterpolationPlot(PeriodDependentParamSet<Params> periodParams,
-			List<Double> periods, double refPeriod, double tSite, double tSiteN, Site site, File outputFile) throws IOException {
+			List<Double> periods, double tSite, double tSiteN, Site site, File outputFile) throws IOException {
 		Collections.sort(periods);
-		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, refPeriod, tSite, tSiteN, site);
+		List<PlotSpec> specs = getInterpolationPlot(periodParams, periods, tSite, tSiteN, site);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
@@ -246,7 +246,7 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	private List<PlotSpec> getInterpolationPlot(PeriodDependentParamSet<Params> periodParams,
-			List<Double> periods, double refPeriod, double tSite, double tSiteN, Site site) {
+			List<Double> periods, double tSite, double tSiteN, Site site) {
 		Params[] paramsToPlot = { Params.F1, Params.F2, Params.F3 };
 		
 		ArbitrarilyDiscretizedFunc[] interpolatedFunc = new ArbitrarilyDiscretizedFunc[paramsToPlot.length];
@@ -272,8 +272,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		
 		for (double period : periods) {
 //			double[] vals = paramSet.getInterpolated(paramsToPlot, period);
-			double[] preferredVals = getInterpolated(periodParams, paramsToPlot, period, refPeriod, tSite, tSiteN, site);
-			double[] interpVals = getInterpolated(periodParams, paramsToPlot, period, refPeriod, Double.NaN, Double.NaN, site);
+			double[] preferredVals = getInterpolated(periodParams, paramsToPlot, period, tSite, tSiteN, site);
+			double[] interpVals = getInterpolated(periodParams, paramsToPlot, period, Double.NaN, Double.NaN, site);
 			
 			for (int i=0; i<paramsToPlot.length; i++) {
 				interpolatedFunc[i].set(period, interpVals[i]);
@@ -342,6 +342,8 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	public static void main(String[] args) throws IOException {
 		PeriodDependentParamSet<Params> periodParams = PeriodDependentParamSet.loadCSV(
 				Params.values(), PeriodDependentParamSet.class.getResourceAsStream("params.csv"));
+//		for (double period : periodParams.getPeriods())
+//			periodParams.set(period, Params.F3, 0.25 + Math.random()*0.5);
 		File outputDir = new File("/tmp");
 //		plotInterpolation(periodParams, paramsToPlot, outputDir);
 		PeriodDependentParamSet<RatioParams> imtRatios = PeriodDependentParamSet.loadCSV(RatioParams.values(),
@@ -358,7 +360,6 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		
 		double tSite = 0.7;
 		double tSiteN = 2;
-		double refPeriod = 1d;
 		
 		List<Double> periods = Lists.newArrayList();
 		for (IMT imt : interp.bssa.getSupportedIMTs())
@@ -367,7 +368,7 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		Collections.sort(periods);
 		System.out.println("Periods: "+Joiner.on(",").join(periods));
 		
-		interp.writeInterpolationPlot(periodParams, periods, refPeriod, tSite, tSiteN, site, new File("/tmp/param_interpolation.png"));
+		interp.writeInterpolationPlot(periodParams, periods, tSite, tSiteN, site, new File("/tmp/param_interpolation.png"));
 	}
 
 }

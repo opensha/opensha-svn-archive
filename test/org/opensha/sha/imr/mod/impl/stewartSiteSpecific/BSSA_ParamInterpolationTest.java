@@ -198,10 +198,10 @@ public class BSSA_ParamInterpolationTest {
 				val = interp.calcEmpirical(param, period, vs30, z1p0);
 				break;
 			case INTERPOLATED:
-				val = interp.getInterpolated(periodParams, new Params[] {param}, period, 0d, Double.NaN, Double.NaN, site)[0];
+				val = interp.getInterpolated(periodParams, new Params[] {param}, period, Double.NaN, Double.NaN, site)[0];
 				break;
 			case RECOMMENDED:
-				val = interp.getInterpolated(periodParams, new Params[] {param}, period, 0d, tSite, 2d, site)[0];
+				val = interp.getInterpolated(periodParams, new Params[] {param}, period, tSite, 2d, site)[0];
 				break;
 
 			default:
