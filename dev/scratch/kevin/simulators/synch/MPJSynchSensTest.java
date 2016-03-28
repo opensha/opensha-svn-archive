@@ -23,7 +23,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.LogicalOrRupIden;
@@ -138,7 +138,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 	
 	private List<List<RuptureIdentifier>> elemNeighborIdens;
 	
-	private Map<Integer, RectangularElement> elemIDMap;
+	private Map<Integer, SimulatorElement> elemIDMap;
 
 	public MPJSynchSensTest(CommandLine cmd, File outputDir) throws IOException {
 		super(cmd);
@@ -169,8 +169,8 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 		
 		if (sensType == SensTestType.ELEM_LOC || sensType == SensTestType.ELEM_VOL) {
 			elemIDMap = Maps.newHashMap();
-			List<RectangularElement> elems = SimAnalysisCatLoader.loadGeomOnly();
-			for (RectangularElement elem : elems)
+			List<SimulatorElement> elems = SimAnalysisCatLoader.loadGeomOnly();
+			for (SimulatorElement elem : elems)
 				elemIDMap.put(elem.getID(), elem);
 		}
 		
@@ -237,21 +237,21 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 	}
 	
 	private List<RuptureIdentifier> getNeighboringIdens(RuptureIdentifier rupIden, double maxHorzDist, double maxVertDist,
-			int num, Map<Integer, RectangularElement> elemIDMap) {
+			int num, Map<Integer, SimulatorElement> elemIDMap) {
 		Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
 		ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
 		Preconditions.checkState(elemIden.getElementIDs().size() == 1);
 		
 		int origID = elemIden.getElementIDs().get(0);
 		// find that elem
-		RectangularElement elem = elemIDMap.get(origID);
+		SimulatorElement elem = elemIDMap.get(origID);
 		Preconditions.checkNotNull(elem);
 		
 		int sectID = elem.getSectionID();
 		
-		List<RectangularElement> matchingElems = Lists.newArrayList();
+		List<SimulatorElement> matchingElems = Lists.newArrayList();
 		
-		for (RectangularElement testElem : elemIDMap.values()) {
+		for (SimulatorElement testElem : elemIDMap.values()) {
 			if (testElem.getSectionID() == sectID) {
 				// same section
 				double vertDist = LocationUtils.vertDistance(elem.getCenterLocation(), testElem.getCenterLocation());
@@ -268,7 +268,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 		List<RuptureIdentifier> idens = Lists.newArrayList();
 		
 		if (num <= 0) {
-			for (RectangularElement matchingElem : matchingElems) {
+			for (SimulatorElement matchingElem : matchingElems) {
 				idens.add(new ElementMagRangeDescription(rupIden.getName(), matchingElem.getID(),
 						elemIden.getMinMag(), elemIden.getMaxMag()));
 			}
@@ -382,12 +382,12 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 			rupIdens = Lists.newArrayList();
 			for (int i=0; i<this.rupIdens.size(); i++) {
 				RuptureIdentifier origIden = this.rupIdens.get(i);
-				RectangularElement elem = elemIDMap.get(((ElementMagRangeDescription)origIden).getElementIDs().get(0));
+				SimulatorElement elem = elemIDMap.get(((ElementMagRangeDescription)origIden).getElementIDs().get(0));
 				List<RuptureIdentifier> neighbors = elemNeighborIdens.get(i);
 				
 				List<RuptureIdentifier> combined = Lists.newArrayList(origIden);
 				for (RuptureIdentifier neighbor : neighbors) {
-					RectangularElement neighborElem = elemIDMap.get(((ElementMagRangeDescription)neighbor).getElementIDs().get(0));
+					SimulatorElement neighborElem = elemIDMap.get(((ElementMagRangeDescription)neighbor).getElementIDs().get(0));
 					double hDist = LocationUtils.horzDistanceFast(elem.getCenterLocation(), neighborElem.getCenterLocation());
 					if (hDist <= maxDist)
 						combined.add(neighbor);

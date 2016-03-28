@@ -27,7 +27,7 @@ import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
@@ -108,7 +108,7 @@ public class BatchPlotGen {
 
 			for (List<Integer> parents : mfdSpecialFaultParents) {
 				HashSet<Integer> sections = new HashSet<Integer>();
-				for (RectangularElement elem : tools.getElementsList()) {
+				for (SimulatorElement elem : tools.getElementsList()) {
 					if (parents.contains(elem.getSectionID()) && elementsInRegion.contains(elem.getID()))
 						sections.add(elem.getID());
 				}
@@ -141,7 +141,7 @@ public class BatchPlotGen {
 		
 		Map<Integer, List<Integer>> elemsByFaultMap = Maps.newHashMap();
 		Map<Integer, String> faultNameMap = Maps.newHashMap();
-		for (RectangularElement element : tools.getElementsList()) {
+		for (SimulatorElement element : tools.getElementsList()) {
 			Integer faultID = element.getSectionID();
 			List<Integer> elemsByFault = elemsByFaultMap.get(faultID);
 			if (elemsByFault == null) {

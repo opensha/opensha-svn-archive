@@ -17,7 +17,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
 import org.opensha.sha.simulators.iden.QuietPeriodIdenMatcher;
@@ -40,7 +40,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 	private List<EQSIM_Event> events;
 	private SubSectionBiulder subSectBuilder;
 	
-	public static SimulatorFaultSystemSolution build(List<RectangularElement> elements, List<EQSIM_Event> events,
+	public static SimulatorFaultSystemSolution build(List<SimulatorElement> elements, List<EQSIM_Event> events,
 			double durationYears) {
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		return build(subSectBuilder, events, durationYears);
@@ -105,14 +105,14 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		return vals;
 	}
 	
-	static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
+	static FaultSystemRupSet buildRupSet(List<SimulatorElement> elements, List<EQSIM_Event> events,
 			double durationYears) {
 		System.out.print("Building FSD...");
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		return buildRupSet(elements, events, durationYears, subSectBuilder);
 	}
 	
-	static FaultSystemRupSet buildRupSet(List<RectangularElement> elements, List<EQSIM_Event> events,
+	static FaultSystemRupSet buildRupSet(List<SimulatorElement> elements, List<EQSIM_Event> events,
 			double durationYears, SubSectionBiulder subSectBuilder) {
 		List<FaultSectionPrefData> fsd = subSectBuilder.getSubSectsList();
 		Map<Integer, Integer> elemIDsMap = subSectBuilder.getElemIDToSubSectsMap();
@@ -433,7 +433,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 			Map<Integer, Boolean> elementsInRegionsCache = Maps.newHashMap();
 			
 			// just uese centers since they're small enough elements
-			for (RectangularElement elem : tools.getElementsList())
+			for (SimulatorElement elem : tools.getElementsList())
 				elementsInRegionsCache.put(elem.getID(), region.contains(elem.getCenterLocation()));
 			
 			List<EQSIM_Event> eventsInRegion = Lists.newArrayList();

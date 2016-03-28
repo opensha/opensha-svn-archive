@@ -46,16 +46,16 @@ public class EventRecord {
     double[] elementSlips = new double[0];
     int[] elementIDs = new int[0];
     
-    List<RectangularElement> rectElementsList;	// this is all the elements, not just those used here
+    List<SimulatorElement> rectElementsList;	// this is all the elements, not just those used here
     
     /**
      * No arg constructor
      */
-    public EventRecord(List<RectangularElement> rectElementsList) {
+    public EventRecord(List<SimulatorElement> rectElementsList) {
     	this.rectElementsList=rectElementsList; 
     }
 
-	public EventRecord(String fileLine, List<RectangularElement> rectElementsList) {
+	public EventRecord(String fileLine, List<SimulatorElement> rectElementsList) {
     	this.rectElementsList=rectElementsList; 
 		StringTokenizer tok = new StringTokenizer(fileLine);
 		int kindOfLine = Integer.parseInt(tok.nextToken());
@@ -221,7 +221,7 @@ public class EventRecord {
 		double minDist = Double.MAX_VALUE;
 		int id = -1;
 		for(int elemID:getElementIDs()) {
-			RectangularElement rectElem = rectElementsList.get(elemID-1);  // index is ID-1
+			SimulatorElement rectElem = rectElementsList.get(elemID-1);  // index is ID-1
 			double dist = (rectElem.getAveDAS()-hypo_das)*(rectElem.getAveDAS()-hypo_das) + (rectElem.getAveDepth()-hypo_depth)*(rectElem.getAveDepth()-hypo_depth);
 			if(dist<minDist) {
 				minDist=dist;
@@ -319,7 +319,7 @@ public class EventRecord {
 		Vertex minVertex = null;
 		double minDAS = Double.MAX_VALUE;
 		for(int elemID : getElementIDs()) {
-			RectangularElement elem = rectElementsList.get(elemID-1);	// index is ID-1
+			SimulatorElement elem = rectElementsList.get(elemID-1);	// index is ID-1
 			double elemMinDAS = elem.getMinDAS();
 			if(elemMinDAS < minDAS) {
 				minDAS = elemMinDAS;
@@ -348,7 +348,7 @@ public class EventRecord {
 		Vertex maxVertex = null;
 		double maxDAS = Double.NEGATIVE_INFINITY;
 		for(int elemID : elementIDs) {
-			RectangularElement elem = rectElementsList.get(elemID-1);	// index is ID-1
+			SimulatorElement elem = rectElementsList.get(elemID-1);	// index is ID-1
 			double elemMaxDAS = elem.getMaxDAS();
 			if(elemMaxDAS > maxDAS)
 				maxDAS=elemMaxDAS;
@@ -364,8 +364,8 @@ public class EventRecord {
 		return maxVertex;
 	}
 	
-	public List<RectangularElement> getRectangularElements() {
-		List<RectangularElement> re_list = Lists.newArrayList();
+	public List<SimulatorElement> getRectangularElements() {
+		List<SimulatorElement> re_list = Lists.newArrayList();
 		for(int elemID:getElementIDs())
 			re_list.add(rectElementsList.get(elemID-1));	// index is ID-1
 		return re_list;

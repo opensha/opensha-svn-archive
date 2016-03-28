@@ -67,7 +67,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -117,7 +117,7 @@ public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
 	
-	private List<RectangularElement> rectElementsList;
+	private List<SimulatorElement> rectElementsList;
 	private List<EQSIM_Event> eventList;
 	
 	// TODO make all references use the ID/index map
@@ -214,7 +214,7 @@ public class General_EQSIM_Tools {
 		init(EQSIMv06FileReader.readGeometryFile(url.openStream()));
 	}
 	
-	private void init(List<RectangularElement> rectElementsList) {
+	private void init(List<SimulatorElement> rectElementsList) {
 		// make sure it's sorted by section
 		for (int i=1; i<rectElementsList.size(); i++)
 			Preconditions.checkState(
@@ -239,7 +239,7 @@ public class General_EQSIM_Tools {
 		double curDASMin = Double.POSITIVE_INFINITY, curDASMax = 0d;
 		String curName = null;
 		List<Vertex> vertexListForSection = null;
-		for (RectangularElement elem : rectElementsList) {
+		for (SimulatorElement elem : rectElementsList) {
 			int sectID = elem.getSectionID();
 			Preconditions.checkState(sectID >= 0);
 			if (sectID != prevSectID) {
@@ -331,13 +331,13 @@ public class General_EQSIM_Tools {
 	 * This returns the list of RectangularElement objects
 	 * @return
 	 */
-	public List<RectangularElement> getElementsList() { return rectElementsList; }
+	public List<SimulatorElement> getElementsList() { return rectElementsList; }
 	
 	
 	public String printMinAndMaxElementArea() {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
-		for(RectangularElement re:getElementsList()) {
+		for(SimulatorElement re:getElementsList()) {
 			double area = re.getArea();
 			if(area<min) min=area;
 			if(area>max) max=area;
@@ -355,7 +355,7 @@ public class General_EQSIM_Tools {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
 		int el_index = 0;
-		for(RectangularElement re:getElementsList()) {
+		for(SimulatorElement re:getElementsList()) {
 			double area1 = re.getArea()*1e-6;
 			if(area1<min) min=area1;
 			if(area1>max) max=area1;
@@ -387,7 +387,7 @@ public class General_EQSIM_Tools {
 		int numSect = testEvent.size();
 		System.out.println("numSect="+numSect);
 		
-		ArrayList<RectangularElement> elementList = testEvent.getAllElements();
+		ArrayList<SimulatorElement> elementList = testEvent.getAllElements();
 		double[] distAlongArray = testEvent.getNormDistAlongRupForElements();
 		FileWriter fw;
 		try {
@@ -420,7 +420,7 @@ public class General_EQSIM_Tools {
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		List<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 		
-		List<RectangularElement> elems = RectElemFromPrefDataBuilder.build(
+		List<SimulatorElement> elems = RectElemFromPrefDataBuilder.build(
 				allFaultSectionPrefData, aseisReducesArea, maxDiscretization);
 		init(elems);
 	}
@@ -1981,7 +1981,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			fw = new FileWriter(fileName);
 			fw.write("elemID\tCOV\tfaultName\tNumRIs\n");
 			// Loop over elements
-			for(RectangularElement elem:rectElementsList) {
+			for(SimulatorElement elem:rectElementsList) {
 				// check whether it's a surface element
 				if(elem.getVertices()[0].getTraceFlag() != 0) {
 //					System.out.println("trace vertex found");
@@ -2055,7 +2055,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<Double> vals = new ArrayList<Double>();
 		// Loop over elements rather than vertices because using the zeroeth vertex of the 
 		// element will avoid possibly overlapping vertices
-		for(RectangularElement elem:rectElementsList) {
+		for(SimulatorElement elem:rectElementsList) {
 			// check whether it's a surface element
 			if(elem.getVertices()[0].getTraceFlag() != 0) {
 				Vertex vert = elem.getVertices()[0];

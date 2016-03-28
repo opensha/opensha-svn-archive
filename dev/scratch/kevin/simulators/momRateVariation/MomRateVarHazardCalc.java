@@ -53,7 +53,7 @@ import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
@@ -95,7 +95,7 @@ public class MomRateVarHazardCalc {
 		loadIdens.add(new RegionIden(region));
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, loadIdens, false);
 		List<EQSIM_Event> events = loader.getEvents();
-		List<RectangularElement> elements = loader.getElements();
+		List<SimulatorElement> elements = loader.getElements();
 		
 		// UCERF3
 		File u3MainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_07_30-MID_VALUES");
@@ -104,7 +104,7 @@ public class MomRateVarHazardCalc {
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		File u3EtasCatalogs = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 				+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin");
-		Map<Integer, RectangularElement> u3Elems = UCERF3ComparisonAnalysis.loadElements(u3Sol.getRupSet());
+		Map<Integer, SimulatorElement> u3Elems = UCERF3ComparisonAnalysis.loadElements(u3Sol.getRupSet());
 		
 		CatalogTypes[] types = CatalogTypes.values();
 		boolean[] poissons = { false, true }; // must always be false first, will shuffle in place
@@ -277,7 +277,7 @@ public class MomRateVarHazardCalc {
 	}
 
 	private static void doHazardCalc(File outputDir, List<EQSIM_Event> events,
-			List<RectangularElement> elements, double[] hazard_durations,
+			List<SimulatorElement> elements, double[] hazard_durations,
 			double hazardMinMag, double[] years, double[] momRates)
 			throws IOException {
 		double upperMomRate = 1.5e19;

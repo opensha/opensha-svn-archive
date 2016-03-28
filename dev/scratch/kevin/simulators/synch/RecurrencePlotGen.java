@@ -43,7 +43,7 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
@@ -880,11 +880,11 @@ public class RecurrencePlotGen {
 		
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, null, true);
 		List<EQSIM_Event> events = loader.getEvents();
-		List<RectangularElement> elems = loader.getElements();
+		List<SimulatorElement> elems = loader.getElements();
 		
 		List<List<List<EQSIM_Event>>> ucerf3Catalogs = null;
 		FaultSystemSolution ucerf3Sol = null;
-		Map<Integer, RectangularElement> ucerf3Elems = null;
+		Map<Integer, SimulatorElement> ucerf3Elems = null;
 		int ucerf3StartYear = 2014;
 		int numUCERF3Catalogs = 5;
 		int totNumUCERF3 = 0;

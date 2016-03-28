@@ -21,7 +21,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.iden.QuietPeriodIdenMatcher;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -51,7 +51,7 @@ public class AMRCheck {
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
 		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
-		List<RectangularElement> elements = tools.getElementsList();
+		List<SimulatorElement> elements = tools.getElementsList();
 		System.out.println("Done loading events.");
 		
 		MagRangeRuptureIdentifier sevenPlusIden = new MagRangeRuptureIdentifier(7, 10);
@@ -79,7 +79,7 @@ public class AMRCheck {
 			List<LocationList> tracesForEvent = Lists.newArrayList();
 			for (EventRecord rec : event) {
 				HashSet<Integer> ssIDs = new HashSet<Integer>();
-				for (RectangularElement e : rec.getRectangularElements()) {
+				for (SimulatorElement e : rec.getRectangularElements()) {
 					ssIDs.add(elemToSubSectsMap.get(e.getID()));
 				}
 				List<Integer> ssIDsList = Lists.newArrayList(ssIDs);

@@ -25,6 +25,7 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
@@ -43,21 +44,21 @@ public class EQSIMv06FileReader {
 	
 	private static final boolean doAreaDebugScatter = false;
 	
-	public static List<RectangularElement> readGeometryFile(File geomFile) throws IOException {
+	public static List<SimulatorElement> readGeometryFile(File geomFile) throws IOException {
 		return readGeometryFile(new FileInputStream(geomFile));
 	}
 	
-	public static List<RectangularElement> readGeometryFile(URL url) throws IOException {
+	public static List<SimulatorElement> readGeometryFile(URL url) throws IOException {
 		return readGeometryFile(url.openStream());
 	}
 	
-	public static List<RectangularElement> readGeometryFile(InputStream is) throws IOException {
+	public static List<SimulatorElement> readGeometryFile(InputStream is) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		
 		// note that the following lists have indices that start from 0 (index = sectionID-1)
-		List<RectangularElement> rectElementsList = new ArrayList<RectangularElement>();
+		List<SimulatorElement> rectElementsList = new ArrayList<SimulatorElement>();
 		List<Vertex> vertexList = new ArrayList<Vertex>();
-		List<ArrayList<RectangularElement>> rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		List<ArrayList<SimulatorElement>> simElementsListForSections = new ArrayList<ArrayList<SimulatorElement>> ();
 		List<ArrayList<Vertex>> vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		List<String> sectionNamesList = new ArrayList<String>();
 		List<Integer> sectionIDs_List = new ArrayList<Integer>();
@@ -162,7 +163,7 @@ public class EQSIMv06FileReader {
 
 					// now read the elements
 					double aveDip = 0;
-					ArrayList<RectangularElement> rectElemForThisSect = new ArrayList<RectangularElement>();
+					ArrayList<SimulatorElement> simElemForThisSect = new ArrayList<SimulatorElement>();
 					double totArea = 0;
 					for(int r=0; r<n_sect_rectangle; r++) {
 						line = reader.readLine();
@@ -196,11 +197,11 @@ public class EQSIMv06FileReader {
 						FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
 						RectangularElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
 								numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
-						rectElemForThisSect.add(rectElem);
+						simElemForThisSect.add(rectElem);
 						rectElementsList.add(rectElem);
 						totArea += rectElem.getArea();
 					}
-					rectElementsListForSections.add(rectElemForThisSect);
+					simElementsListForSections.add(simElemForThisSect);
 					aveDipForSections.add(aveDip);
 
 					// test areas (make sure they are within 1%)
@@ -249,23 +250,23 @@ public class EQSIMv06FileReader {
 		return rectElementsList;
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(URL url, List<RectangularElement> rectElementsList)
+	public static List<EQSIM_Event> readEventsFile(URL url, List<SimulatorElement> rectElementsList)
 			throws IOException {
 		return readEventsFile(url, rectElementsList, null);
 	}
 
-	public static List<EQSIM_Event> readEventsFile(URL url, List<RectangularElement> rectElementsList,
+	public static List<EQSIM_Event> readEventsFile(URL url, List<SimulatorElement> rectElementsList,
 			Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
 		URLConnection uc = url.openConnection();
 		return readEventsFile(new InputStreamReader((InputStream) uc.getContent()), rectElementsList, rupIdens);
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File file, List<RectangularElement> rectElementsList)
+	public static List<EQSIM_Event> readEventsFile(File file, List<SimulatorElement> rectElementsList)
 			throws IOException {
 		return readEventsFile(file, rectElementsList, null);
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File file, List<RectangularElement> rectElementsList,
+	public static List<EQSIM_Event> readEventsFile(File file, List<SimulatorElement> rectElementsList,
 			Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
 		return readEventsFile(new FileReader(file), rectElementsList, rupIdens);
 	}
@@ -278,7 +279,7 @@ public class EQSIMv06FileReader {
 	 * @throws IOException
 	 */
 	private static List<EQSIM_Event> readEventsFile(
-			Reader reader, List<RectangularElement> rectElementsList, Collection<? extends RuptureIdentifier> rupIdens)
+			Reader reader, List<SimulatorElement> rectElementsList, Collection<? extends RuptureIdentifier> rupIdens)
 			throws IOException {
 		
 		BufferedReader buffRead;

@@ -64,6 +64,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.utils.UCERF2_DataForComparisonFetcher;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -110,9 +111,9 @@ public class OldGeneral_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
 	
-	ArrayList<RectangularElement> rectElementsList;
+	ArrayList<SimulatorElement> rectElementsList;
 	ArrayList<Vertex> vertexList;
-	ArrayList<ArrayList<RectangularElement>> rectElementsListForSections;
+	ArrayList<ArrayList<SimulatorElement>> rectElementsListForSections;
 	ArrayList<ArrayList<Vertex>> vertexListForSections;
 	ArrayList<String> sectionNamesList;
 	ArrayList<Integer> sectionIDs_List;
@@ -383,9 +384,9 @@ public class OldGeneral_EQSIM_Tools {
 	private void loadFromEQSIMv04_GeometryLines(ArrayList<String> lines) {
 		
 		// note that the following lists have indices that start from 0 (index = sectionID-1)
-		rectElementsList = new ArrayList<RectangularElement>();
+		rectElementsList = new ArrayList<SimulatorElement>();
 		vertexList = new ArrayList<Vertex>();
-		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		rectElementsListForSections = new ArrayList<ArrayList<SimulatorElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		sectionNamesList = new ArrayList<String>();
 		sectionIDs_List = new ArrayList<Integer>();
@@ -479,7 +480,7 @@ public class OldGeneral_EQSIM_Tools {
 					
 					// now read the elements
 					double aveDip = 0;
-					ArrayList<RectangularElement> rectElemForThisSect = new ArrayList<RectangularElement>();
+					ArrayList<SimulatorElement> rectElemForThisSect = new ArrayList<SimulatorElement>();
 					double totArea = 0;
 					for(int r=0; r<n_sect_rectangle; r++) {
 						line = linesIterator.next();
@@ -510,7 +511,7 @@ public class OldGeneral_EQSIM_Tools {
 					    int numAlongStrike = -1;// unknown
 					    int numDownDip = -1;	// unknown
 					    FocalMechanism focalMechanism = new FocalMechanism(strike,dip,rake);
-					    RectangularElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
+					    SimulatorElement rectElem = new RectangularElement(id, vertices, name, fault_id, sid, numAlongStrike, 
 					    													numDownDip, slip_rate, aseis_factor, focalMechanism, perfectBoolean);
 					    rectElemForThisSect.add(rectElem);
 					    rectElementsList.add(rectElem);
@@ -598,13 +599,13 @@ public class OldGeneral_EQSIM_Tools {
 	 * This returns the list of RectangularElement objects
 	 * @return
 	 */
-	public ArrayList<RectangularElement> getElementsList() { return rectElementsList; }
+	public ArrayList<SimulatorElement> getElementsList() { return rectElementsList; }
 	
 	
 	public String printMinAndMaxElementArea() {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
-		for(RectangularElement re:getElementsList()) {
+		for(SimulatorElement re:getElementsList()) {
 			double area = re.getArea();
 			if(area<min) min=area;
 			if(area>max) max=area;
@@ -622,7 +623,7 @@ public class OldGeneral_EQSIM_Tools {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
 		int el_index = 0;
-		for(RectangularElement re:getElementsList()) {
+		for(SimulatorElement re:getElementsList()) {
 			double area1 = re.getArea()*1e-6;
 			if(area1<min) min=area1;
 			if(area1>max) max=area1;
@@ -654,7 +655,7 @@ public class OldGeneral_EQSIM_Tools {
 		int numSect = testEvent.size();
 		System.out.println("numSect="+numSect);
 		
-		ArrayList<RectangularElement> elementList = testEvent.getAllElements();
+		ArrayList<SimulatorElement> elementList = testEvent.getAllElements();
 		double[] distAlongArray = testEvent.getNormDistAlongRupForElements();
 		FileWriter fw;
 		try {
@@ -695,9 +696,9 @@ public class OldGeneral_EQSIM_Tools {
 		// put in new list since we're about to sort
 		allFaultSectionPrefData = Lists.newArrayList(allFaultSectionPrefData);
 		
-		rectElementsList = new ArrayList<RectangularElement>();
+		rectElementsList = new ArrayList<SimulatorElement>();
 		vertexList = new ArrayList<Vertex>();
-		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		rectElementsListForSections = new ArrayList<ArrayList<SimulatorElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		sectionNamesList = new ArrayList<String>();
 //		faultIDs_ForSections = null;	// no info for this
@@ -732,7 +733,7 @@ public class OldGeneral_EQSIM_Tools {
 		String sectionName;
 //		System.out.println("allFaultSectionPrefData.size() = "+allFaultSectionPrefData.size());
 		for(int i=0;i<allFaultSectionPrefData.size();i++) {
-			ArrayList<RectangularElement> sectionElementsList = new ArrayList<RectangularElement>();
+			ArrayList<SimulatorElement> sectionElementsList = new ArrayList<SimulatorElement>();
 			ArrayList<Vertex> sectionVertexList = new ArrayList<Vertex>();
 			sectionNumber +=1; // starts from 1, not zero
 			FaultSectionPrefData faultSectionPrefData = allFaultSectionPrefData.get(i);
@@ -806,7 +807,7 @@ public class OldGeneral_EQSIM_Tools {
 					
 					FocalMechanism focalMech = new FocalMechanism(elementStrike, elementDip, elementRake);
 										
-					RectangularElement simSurface =
+					SimulatorElement simSurface =
 						new RectangularElement(elementID, elementVertices, sectionName,
 								faultNumber, sectionNumber, numberAlongStrike, numberDownDip,
 								elementSlipRate, elementAseis, focalMech, true);
@@ -876,8 +877,8 @@ public class OldGeneral_EQSIM_Tools {
 	
 	public void writeToWardFile(String fileName) throws IOException {
 		FileWriter efw = new FileWriter(fileName);
-		for (RectangularElement rectElem : rectElementsList) {
-			efw.write(rectElem.toWardFormatLine() + "\n");
+		for (SimulatorElement rectElem : rectElementsList) {
+			efw.write(((RectangularElement)rectElem).toWardFormatLine() + "\n");
 		}
 		efw.close();
 	}
@@ -894,15 +895,15 @@ public class OldGeneral_EQSIM_Tools {
 
 
 		// now need to fill these lists
-		rectElementsList = new ArrayList<RectangularElement>();
+		rectElementsList = new ArrayList<SimulatorElement>();
 		vertexList = new ArrayList<Vertex>();
-		rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		rectElementsListForSections = new ArrayList<ArrayList<SimulatorElement>> ();
 		vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		sectionNamesList = new ArrayList<String>();
 		faultIDs_ForSections = new ArrayList<Integer>();
 
 		int lastSectionID = -1;
-		ArrayList<RectangularElement> currentRectElForSection = null;
+		ArrayList<SimulatorElement> currentRectElForSection = null;
 		ArrayList<Vertex> currVertexListForSection = null;
 
 		int numVertices= 0; // to set vertexIDs
@@ -962,7 +963,7 @@ public class OldGeneral_EQSIM_Tools {
 			}
 			String sectionName = name;
 
-			RectangularElement rectElem = new RectangularElement(id, vertices, sectionName,faultID, sectionID, 
+			SimulatorElement rectElem = new RectangularElement(id, vertices, sectionName,faultID, sectionID, 
 					numAlongStrike, numDownDip, slipRate, Double.NaN, focalMechanism, true);
 
 			rectElementsList.add(rectElem);
@@ -970,7 +971,7 @@ public class OldGeneral_EQSIM_Tools {
 			// check if this is a new section
 			if(sectionID != lastSectionID) {
 				// encountered a new section
-				currentRectElForSection = new ArrayList<RectangularElement>();
+				currentRectElForSection = new ArrayList<SimulatorElement>();
 				currVertexListForSection = new ArrayList<Vertex>();
 				rectElementsListForSections.add(currentRectElForSection);
 				vertexListForSections.add(currVertexListForSection);
@@ -1055,7 +1056,7 @@ public class OldGeneral_EQSIM_Tools {
 			// loop over sections
 			for(int i=0;i<sectionNamesList.size();i++) {
 				ArrayList<Vertex> vertListForSect = vertexListForSections.get(i);
-				ArrayList<RectangularElement> rectElemForSect = rectElementsListForSections.get(i);
+				ArrayList<SimulatorElement> rectElemForSect = rectElementsListForSections.get(i);
 				String fault_id;
 				if(faultIDs_ForSections == null)
 					fault_id = "NA";
@@ -1072,7 +1073,7 @@ public class OldGeneral_EQSIM_Tools {
 							(float)(vert.getDepth()*-1000)+" "+(float)vert.getDAS()*1000+" "+vert.getTraceFlag()+"\n");
 				}
 				for(int e=0; e<rectElemForSect.size(); e++) {
-					RectangularElement elem = rectElemForSect.get(e);
+					RectangularElement elem = (RectangularElement)rectElemForSect.get(e);
 					Vertex[] vert = elem.getVertices();
 					FocalMechanism focalMech = elem.getFocalMechanism();
 					// Rectangle Record:  204 ID vertex_1 vertex_2 vertex_3 vertex_4 rake slip_rate aseis_factor strike dip perfect_flag comment_text
@@ -2768,7 +2769,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			fw = new FileWriter(fileName);
 			fw.write("elemID\tCOV\tfaultName\tNumRIs\n");
 			// Loop over elements
-			for(RectangularElement elem:rectElementsList) {
+			for(SimulatorElement elem:rectElementsList) {
 				// check whether it's a surface element
 				if(elem.getVertices()[0].getTraceFlag() != 0) {
 //					System.out.println("trace vertex found");
@@ -2842,7 +2843,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<Double> vals = new ArrayList<Double>();
 		// Loop over elements rather than vertices because using the zeroeth vertex of the 
 		// element will avoid possibly overlapping vertices
-		for(RectangularElement elem:rectElementsList) {
+		for(SimulatorElement elem:rectElementsList) {
 			// check whether it's a surface element
 			if(elem.getVertices()[0].getTraceFlag() != 0) {
 				Vertex vert = elem.getVertices()[0];

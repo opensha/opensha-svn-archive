@@ -15,6 +15,7 @@ import java.util.StringTokenizer;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -41,7 +42,7 @@ public class EQSimv06FileWriter {
 	 * @param date
 	 * @throws IOException 
 	 */
-	public static void writeGeometryFile(List<RectangularElement> rectElementsList, File outputFile,
+	public static void writeGeometryFile(List<SimulatorElement> rectElementsList, File outputFile,
 			List<String> infoLines, String titleLine, String author, String date) throws IOException {
 		FileWriter efw = new FileWriter(outputFile);
 		
@@ -86,9 +87,9 @@ public class EQSimv06FileWriter {
 		List<Vertex> vertexList = Lists.newArrayList();
 		List<List<Vertex>> vertexListForSections = Lists.newArrayList();
 		List<Vertex> vertexListForSection = null;
-		List<List<RectangularElement>> rectElementsListForSections = Lists.newArrayList();
-		List<RectangularElement> rectElementsListForSection = null;
-		for (RectangularElement elem : rectElementsList) {
+		List<List<SimulatorElement>> rectElementsListForSections = Lists.newArrayList();
+		List<SimulatorElement> rectElementsListForSection = null;
+		for (SimulatorElement elem : rectElementsList) {
 			String sectName = elem.getName();
 			if (!sectName.equals(prevName)) {
 				sectionNamesList.add(sectName);
@@ -117,7 +118,7 @@ public class EQSimv06FileWriter {
 		// loop over sections
 		for(int i=0;i<sectionNamesList.size();i++) {
 			List<Vertex> vertListForSect = vertexListForSections.get(i);
-			List<RectangularElement> rectElemForSect = rectElementsListForSections.get(i);
+			List<SimulatorElement> rectElemForSect = rectElementsListForSections.get(i);
 			int fault_id = rectElemForSect.get(0).getFaultID();
 			String fault_id_str;
 			if (fault_id >= 0)
@@ -136,7 +137,8 @@ public class EQSimv06FileWriter {
 						(float)(vert.getDepth()*-1000)+" "+(float)vert.getDAS()*1000+" "+vert.getTraceFlag()+"\n");
 			}
 			for(int e=0; e<rectElemForSect.size(); e++) {
-				RectangularElement elem = rectElemForSect.get(e);
+				// TODO deal with triangular
+				RectangularElement elem = (RectangularElement)rectElemForSect.get(e);
 				Vertex[] vert = elem.getVertices();
 				FocalMechanism focalMech = elem.getFocalMechanism();
 				// Rectangle Record:  204 ID vertex_1 vertex_2 vertex_3 vertex_4 rake slip_rate aseis_factor strike dip perfect_flag comment_text
