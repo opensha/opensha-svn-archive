@@ -188,14 +188,14 @@ public class ArbDiscrEmpiricalDistFunc_3D implements Serializable {
     
     
     /**
-     * Get the mode curve (maximum values).
+     * Get the apparent mode curve (maximum values).
      * Throws a runtime exception in the case of a multi-modal distribution
      * @return
      */
-    public EvenlyDiscretizedFunc getModeCurve() {
+    public EvenlyDiscretizedFunc getApparentModeCurve() {
         EvenlyDiscretizedFunc func = getBaseXaxisFunc();
         for(int i=0; i<func.size(); i++) {
-      	  func.set(i,arbDiscrEmpDistFuncArray[i].getMode());
+      	  func.set(i,arbDiscrEmpDistFuncArray[i].getApparentMode());
         }
         return func;
     }
