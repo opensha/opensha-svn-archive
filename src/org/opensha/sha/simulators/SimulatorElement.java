@@ -4,6 +4,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
+import org.opensha.sha.faultSurface.RuptureSurface;
 
 /**
  * This uses "id" rather than "index" to avoid confusion from the fact that our indexing 
@@ -55,9 +56,7 @@ public abstract class SimulatorElement {
 		this.focalMechanism = focalMechanism;
 	}
 	
-	public FourPointEvenlyGriddedSurface getGriddedSurface() {
-		return new FourPointEvenlyGriddedSurface(vertices[0],vertices[1],vertices[2],vertices[3]);
-	}
+	public abstract RuptureSurface getGriddedSurface();
 	
 	/**
 	 * This returns the section name for now

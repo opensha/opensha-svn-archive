@@ -3,6 +3,7 @@ package org.opensha.sha.simulators;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.sha.earthquake.FocalMechanism;
+import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
 
 import com.google.common.base.Preconditions;
 
@@ -34,6 +35,11 @@ public class RectangularElement extends SimulatorElement {
 		
 		this.perfect = perfectRect;
 		this.perfect = true;
+	}
+	
+	@Override
+	public FourPointEvenlyGriddedSurface getGriddedSurface() {
+		return new FourPointEvenlyGriddedSurface(vertices[0],vertices[1],vertices[2],vertices[3]);
 	}
 
 	/**

@@ -67,6 +67,7 @@ import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -2419,7 +2420,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationYears()+" years");
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
-		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
+		Location loc = ((RectangularElement)rectElementsList.get(497-1)).getGriddedSurface().get(0, 1);
 		plotRecurIntervalsForNearestLoc(loc, 6.5, true,"RI_distAt_NSAF_ElementID497", "");
 		
 		Integer testElementID = new Integer(661); // not sure how this was chosen

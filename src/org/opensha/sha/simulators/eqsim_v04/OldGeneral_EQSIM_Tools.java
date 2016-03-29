@@ -3209,7 +3209,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationYears()+" years");
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
-		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
+		Location loc = ((RectangularElement)rectElementsList.get(497-1)).getGriddedSurface().get(0, 1);
 		plotRecurIntervalsForNearestLoc(loc, 6.5, true,"RI_distAt_NSAF_ElementID497", "");
 		
 		Integer testElementID = new Integer(661); // not sure how this was chosen

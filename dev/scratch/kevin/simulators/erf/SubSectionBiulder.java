@@ -17,6 +17,7 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
+import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -41,14 +42,15 @@ public class SubSectionBiulder {
 		this.elements = elements;
 		
 		// first build mapping from fault section ID to faults
-		Map<Integer, List<SimulatorElement>> sectsMap = Maps.newHashMap();
+		Map<Integer, List<RectangularElement>> sectsMap = Maps.newHashMap();
 		for (SimulatorElement e : elements) {
-			List<SimulatorElement> elemsForSect = sectsMap.get(e.getSectionID());
+			List<RectangularElement> elemsForSect = sectsMap.get(e.getSectionID());
 			if (elemsForSect == null) {
 				elemsForSect = Lists.newArrayList();
 				sectsMap.put(e.getSectionID(), elemsForSect);
 			}
-			elemsForSect.add(e);
+			Preconditions.checkState(e instanceof RectangularElement, "Only rectangular supported (for now)");
+			elemsForSect.add((RectangularElement)e);
 		}
 		
 		checkAssignNAS(sectsMap);
@@ -60,20 +62,18 @@ public class SubSectionBiulder {
 		
 		for (Integer sectID : sectsMap.keySet()) {
 			// for each fault section
-			List<SimulatorElement> elemsForSect = sectsMap.get(sectID);
+			List<RectangularElement> elemsForSect = sectsMap.get(sectID);
 			String sectName = elemsForSect.get(0).getSectionName();
 			
 			// now organize elements for each fault into rows and columns
-			List<List<SimulatorElement>> organized = organizeElemsIntoColumns(elemsForSect);
-			
-			
+			List<List<RectangularElement>> organized = organizeElemsIntoColumns(elemsForSect);
 			
 			int subSectIndex = 0;
-			for (List<SimulatorElement> column : organized) {
+			for (List<RectangularElement> column : organized) {
 				String subSectName = sectName+", Subsection "+(subSectIndex++);
 				
-				SimulatorElement top = column.get(0);
-				SimulatorElement bottom = column.get(column.size()-1);
+				RectangularElement top = column.get(0);
+				RectangularElement bottom = column.get(column.size()-1);
 				FocalMechanism mech = top.getFocalMechanism();
 				
 				// average the dip
@@ -165,17 +165,17 @@ public class SubSectionBiulder {
 	 * @param elementsForFault
 	 * @return Array organized as a list of columns along strike, each of which is a list of rows (from top to bottom)
 	 */
-	private static List<List<SimulatorElement>> organizeElemsIntoColumns(Collection<SimulatorElement> elementsForFault) {
-		List<SimulatorElement> sortedAlongStrike = Lists.newArrayList(elementsForFault);
+	private static List<List<RectangularElement>> organizeElemsIntoColumns(Collection<RectangularElement> elementsForFault) {
+		List<RectangularElement> sortedAlongStrike = Lists.newArrayList(elementsForFault);
 		
 		Collections.sort(sortedAlongStrike, alongStrikeComparator);
 		
-		List<List<SimulatorElement>> organized = Lists.newArrayList();
+		List<List<RectangularElement>> organized = Lists.newArrayList();
 		
 		int curAlongStrike = -1;
-		List<SimulatorElement> curAlongStrikeList = null;
+		List<RectangularElement> curAlongStrikeList = null;
 		
-		for (SimulatorElement elem : sortedAlongStrike) {
+		for (RectangularElement elem : sortedAlongStrike) {
 			Preconditions.checkState(elem.getNumAlongStrike() >= 0, "Uh oh, NAS: "+elem.getNumAlongStrike());
 			
 			if (curAlongStrike != elem.getNumAlongStrike()) {
@@ -233,10 +233,10 @@ public class SubSectionBiulder {
 	 * the number of elements down dip is constant along strike.
 	 * @param sectsMap
 	 */
-	private static void checkAssignNAS(Map<Integer, List<SimulatorElement>> sectsMap) {
+	private static void checkAssignNAS(Map<Integer, List<RectangularElement>> sectsMap) {
 		DASComparator dasCompare = new DASComparator();
 		for (Integer sectID : sectsMap.keySet()) {
-			List<SimulatorElement> elems = sectsMap.get(sectID);
+			List<RectangularElement> elems = sectsMap.get(sectID);
 			if (elems.get(0).getNumAlongStrike()>=0)
 				continue;
 			
