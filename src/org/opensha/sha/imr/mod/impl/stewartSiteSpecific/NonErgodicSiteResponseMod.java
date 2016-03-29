@@ -186,7 +186,7 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			e.printStackTrace();
 			imtRatios = new PeriodDependentParamSet<NonErgodicSiteResponseMod.RatioParams>(RatioParams.values());
 		}
-		imtRatiosParam = new PeriodDependentParamSetParam<RatioParams>("Ref IMT Ratio", imtRatios);
+		imtRatiosParam = new PeriodDependentParamSetParam<RatioParams>("Ref IMT Ratio for f3 interpolation", imtRatios);
 		paramList.addParameter(imtRatiosParam);
 		
 		setReferenceSiteParams(getDefaultReferenceSiteParams());
@@ -358,14 +358,30 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 				periodParamsParam.getEditor().refreshParamEditor();
 				curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 			} else {
+				double refPeriod = getRefPeriodForInterpolation(imr.getIntensityMeasure().getName());
 				if (interp == null || curPeriod <= 0)
 					curParamValues = periodParams.getInterpolated(periodParams.getParams(), curPeriod);
 				else
-					curParamValues = interp.getInterpolated(periodParams, curPeriod,
+					curParamValues = interp.getInterpolated(periodParams, curPeriod, refPeriod,
 							tSiteParam.getValue(), tSiteNParam.getValue(), curSite);
 			}
 		}
 		return curParamValues;
+	}
+	
+	private double getRefPeriodForInterpolation(String imt) {
+		if (refIMTParam.getValue().equals(REF_IMT_OF_INTEREST)) {
+			if (imt.equals(SA_Param.NAME))
+				return Double.NaN;
+			else if (imt.equals(PGA_Param.NAME))
+				return 0d;
+			else if (imt.equals(PGV_Param.NAME))
+				return -1;
+			throw new IllegalStateException("Unknown IMT: "+imt);
+		} else {
+			Preconditions.checkState(refIMTParam.getValue().equals(PGA_Param.NAME));
+			return 0d;
+		}
 	}
 	
 	void printCurParams() {
@@ -546,7 +562,8 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			editor.setTitle("Empirical Model Site Parameters");
 			JOptionPane.showMessageDialog(null, editor, "Enter Site Parameters for Interpolation", JOptionPane.QUESTION_MESSAGE);
 			site.addParameterList(interpSiteParams);
-			interp.plotInterpolation(periodParams, periods, tSiteParam.getValue(), tSiteNParam.getValue(), site);
+			double refPeriod = getRefPeriodForInterpolation(SA_Param.NAME); // assume SA
+			interp.plotInterpolation(periodParams, periods, refPeriod, tSiteParam.getValue(), tSiteNParam.getValue(), site);
 		}
 	}
 	
