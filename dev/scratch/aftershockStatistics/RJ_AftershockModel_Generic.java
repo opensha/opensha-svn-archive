@@ -11,6 +11,8 @@ import org.apache.commons.math3.analysis.integration.RombergIntegrator;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
 import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.jfree.data.Range;
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -113,15 +115,33 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 
 	public static void main(String[] args) {
 		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(7.0, -2.5, 1.0, -4.5, -0.5, 1.0, 1.12, 0.018);
-		System.out.println("gen.getPDF_a():\n"+gen.getPDF_a());
+//		System.out.println("gen.getPDF_a():\n"+gen.getPDF_a());
 		
 		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
 		funcList.add(gen.getPDF_a());
 		ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
 		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		GraphWindow numVsTimeGraph = new GraphWindow(funcList, "PDF"); 
-		numVsTimeGraph.setX_AxisLabel("a-value");
-		numVsTimeGraph.setY_AxisLabel("Density");
+		GraphWindow aValueDistGraph = new GraphWindow(funcList, "PDF"); 
+		aValueDistGraph.setX_AxisLabel("a-value");
+		aValueDistGraph.setY_AxisLabel("Density");
+		
+		ArrayList<ArbitrarilyDiscretizedFunc> funcList2 = new ArrayList<ArbitrarilyDiscretizedFunc>();
+		funcList2.add(gen.computeNumMag5_DistributionFunc(0, 7).getCumDist());
+		GraphWindow numM5_Dist = new GraphWindow(funcList2, "PDF"); 
+		numM5_Dist.setX_AxisLabel("Num M>=5");
+		numM5_Dist.setY_AxisLabel("Density");
+		
+		ArrayList<EvenlyDiscretizedFunc> funcList3 = new ArrayList<EvenlyDiscretizedFunc>();
+		funcList3.add(gen.getModalCumNumMFD(4.05, 8.95, 50, 0d, 7d));
+		funcList3.add(gen.getMeanCumNumMFD(4.05, 8.95, 50, 0d, 7d));
+		funcList3.add(gen.getCumNumMFD_Fractile(0.025, 4.05, 8.95, 50, 0d, 7d));
+		funcList3.add(gen.getCumNumMFD_Fractile(0.5, 4.05, 8.95, 50, 0d, 7d));
+		funcList3.add(gen.getCumNumMFD_Fractile(0.975, 4.05, 8.95, 50, 0d, 7d));
+		GraphWindow mfdGraph = new GraphWindow(funcList3, "MFDs"); 
+		mfdGraph.setX_AxisLabel("Magnitude");
+		mfdGraph.setY_AxisLabel("Num≥M");
+		mfdGraph.setYLog(true);
+	
 	}
 
 }

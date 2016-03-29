@@ -2,6 +2,7 @@ package scratch.aftershockStatistics;
 
 import java.util.ArrayList;
 
+import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -9,6 +10,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
 /**
@@ -32,6 +34,8 @@ public abstract class RJ_AftershockModel {
 	int max_a_index=-1;
 	int max_p_index=-1;
 	int max_c_index=-1;
+	ArbDiscrEmpiricalDistFunc numMag5_DistributionFunc = null;
+	double tMinDaysCurrent=-1, tMaxDaysCurrent=-1;
 
 	
 	/**
@@ -81,6 +85,40 @@ public abstract class RJ_AftershockModel {
 	protected double get_c(int cIndex) { return min_c+cIndex*delta_c;}
 	
 	
+	
+	/**
+	 * This computes the distribution of the number of M≥5.0 events given all a, p, and c values, as well as the associated
+	 * weight for each set of values.
+	 * @param tMinDays
+	 * @param tMaxDays
+	 */
+	public ArbDiscrEmpiricalDistFunc computeNumMag5_DistributionFunc(double tMinDays, double tMaxDays) {
+		
+		if(tMinDaysCurrent == tMinDays && tMaxDaysCurrent == tMaxDays && numMag5_DistributionFunc != null) // already computed
+			return numMag5_DistributionFunc;
+		
+		tMinDaysCurrent = tMinDays;
+		tMaxDaysCurrent = tMaxDays;
+		numMag5_DistributionFunc = new ArbDiscrEmpiricalDistFunc();
+		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			for(int pIndex=0;pIndex<num_p;pIndex++) {
+				for(int cIndex=0;cIndex<num_c;cIndex++) {
+					double numM5 = AftershockStatsCalc.getExpectedNumEvents(get_a(aIndex), b, magMain, 5.0, get_p(pIndex), get_c(cIndex), tMinDays, tMaxDays);;
+					numMag5_DistributionFunc.set(numM5, array[aIndex][pIndex][cIndex]);
+				}
+			}
+		}
+		if(D) {
+			System.out.println("N≥5 mean = "+numMag5_DistributionFunc.getMean());
+			System.out.println("N≥5 mode = "+numMag5_DistributionFunc.getApparentMode());
+			System.out.println("N≥5 median = "+numMag5_DistributionFunc.getMedian());
+			System.out.println("N≥5 2.5 Percentile = "+numMag5_DistributionFunc.getInterpolatedFractile(0.025));
+			System.out.println("N≥5 97.5 Percentile = "+numMag5_DistributionFunc.getInterpolatedFractile(0.9755));
+		}
+		return numMag5_DistributionFunc;
+	}
+	
+	
 	/**
 	 * This gives the number of aftershocks associated with the maximum likelihood a/p/c parameters (which represents the mode
 	 * in the number of events space) above the given minimum magnitude and over the specified site span.  A GR distribution with
@@ -126,7 +164,7 @@ public abstract class RJ_AftershockModel {
 		for(int i=0;i<mfd.size();i++) {
 			mfd.set(i, getModalNumEvents(mfd.getX(i), tMinDays, tMaxDays));
 		}
-		mfd.setName("Expected Num Events");
+		mfd.setName("Modal Num Events");
 		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
 //		double totExpNum = getExpectedNumEvents(minMag, tMinDays, tMaxDays);
 //		GutenbergRichterMagFreqDist mfd = new GutenbergRichterMagFreqDist(b, totExpNum, minMag, maxMag, numMag);
@@ -134,6 +172,51 @@ public abstract class RJ_AftershockModel {
 //		mfd.setInfo("Total Expected Num = "+totExpNum);
 		return mfd;
 	}
+	
+	
+	
+	/**
+	 * This returns the mean cumulative MFD given each a/p/c parameter set, and the associated likelihood, 
+	 * for the specified site span.   A GR distribution with no upper bound is assumed.
+	 * @param minMag - the minimum magnitude considered
+	 * @param maxMag - the maximum magnitude considered
+	 * @param numMag - number of mags in the MFD
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getMeanCumNumMFD(double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		EvenlyDiscretizedFunc mfd = getModalCumNumMFD(minMag, maxMag, numMag, tMinDays, tMaxDays);
+		double m5val = mfd.getInterpolatedY(5.0);
+		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
+		mfd.scale(numMag5_DistributionFunc.getMean()/m5val);
+		mfd.setName("Mean Num Events");
+		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
+		return mfd;
+	}
+	
+	/**
+	 * This returns the mean cumulative MFD given each a/p/c parameter set, and the associated likelihood, 
+	 * for the specified site span.   A GR distribution with no upper bound is assumed.
+	 * @param fractile - the fractile (percentile/100) for the distribution
+	 * @param minMag - the minimum magnitude considered
+	 * @param maxMag - the maximum magnitude considered
+	 * @param numMag - number of mags in the MFD
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getCumNumMFD_Fractile(double fractile, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		EvenlyDiscretizedFunc mfd = getModalCumNumMFD(minMag, maxMag, numMag, tMinDays, tMaxDays);
+		double m5val = mfd.getInterpolatedY(5.0);
+		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
+		mfd.scale(numMag5_DistributionFunc.getInterpolatedFractile(fractile)/m5val);
+		mfd.setName(fractile+" Fractile for Num Events");
+		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
+		return mfd;
+	}
+
+
 	
 	/**
 	 * This returns the PDF of a, which is a marginal distribution if either c or p 
