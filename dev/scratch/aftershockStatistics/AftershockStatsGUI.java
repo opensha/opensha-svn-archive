@@ -505,6 +505,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			genericParams = genericFetch.get(regime);
 			System.out.println("Generic params for "+regime+": "+genericParams);
 			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
+			// set p value to generic
+			pValRangeParam.setValue(new Range(genericParams.get_pValue(), genericParams.get_pValue()));
+			pValRangeParam.getEditor().refreshParamEditor();
+//			pValNumParam.
 		} catch (RuntimeException e) {
 			System.err.println("Error fetching generic params");
 			e.printStackTrace();
@@ -1124,6 +1128,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			while (pdfGraphsPane.getTabCount() > 0)
 				pdfGraphsPane.removeTabAt(0);
 		
+		if (genericModel != null)
+			add1D_PDF(genericModel.getPDF_a(), "Generic a-value");
 		add1D_PDF(model.getPDF_a(), "a-value");
 		add1D_PDF(model.getPDF_p(), "p-value");
 		add1D_PDF(model.getPDF_c(), "c-value");

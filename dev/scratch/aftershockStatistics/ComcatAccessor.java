@@ -56,7 +56,7 @@ public class ComcatAccessor {
 		Preconditions.checkState(events.size() == 1, "More that 1 match? "+events.size());
 		
 		JsonEvent event = events.get(0);
-		printJSON(event);
+//		printJSON(event);
 		
 		return eventToObsRup(events.get(0));
 	}
