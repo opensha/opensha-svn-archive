@@ -304,11 +304,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		ParameterList fitParams = new ParameterList();
 		
-		aValRangeParam = new RangeParameter("a-value range", new Range(-3.0, -2.0));
+		aValRangeParam = new RangeParameter("a-value range", new Range(-4.5, -0.5));
 		aValRangeParam.addParameterChangeListener(this);
 		fitParams.addParameter(aValRangeParam);
 		
-		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(51));
+		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(101));
 		aValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(aValNumParam);
 		
@@ -1202,20 +1202,52 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		EvenlyDiscretizedFunc mfd = model.getModalCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+		List<RJ_AftershockModel> models = Lists.newArrayList();
+		List<String> names = Lists.newArrayList();
+		List<Color> colors = Lists.newArrayList();
 		
-		funcs.add(mfd);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		models.add(model);
+		names.add("Model");
+		colors.add(Color.BLACK);
 		
 		if (genericModel != null) {
-			// calculate generic
-			EvenlyDiscretizedFunc genericMFD = genericModel.getModalCumNumMFD(
-					minMag, maxMag, numMag, minDays, maxDays);
+			models.add(genericModel);
+			names.add("Generic Model");
+			colors.add(Color.GRAY);
 			
-			genericMFD.setName("Generic Model Expected Num Events");
+			if (RJ_AftershockModel_Bayesian.areModelsEquivalent(model, genericModel)) {
+				// generate Bayesian model
+				models.add(new RJ_AftershockModel_Bayesian(model, genericModel));
+				names.add("Bayesian Model");
+				colors.add(Color.BLUE);
+			} else {
+				System.out.println("Could not create Bayesian model as sequence specifc and generic models are not equivalent");
+			}
+		}
+		
+		double[] fractiles = { 0.025, 0.975 };
+		
+		for (int i=0; i<models.size(); i++) {
+			RJ_AftershockModel model = models.get(i);
+			EvenlyDiscretizedFunc mode = model.getModalCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+			mode.setName(names.get(i)+" Mode");
+			EvenlyDiscretizedFunc mean = model.getMeanCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+			mean.setName("Mean");
+			Color c = colors.get(i);
 			
-			funcs.add(genericMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+			funcs.add(mode);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+			
+			funcs.add(mean);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, c));
+			
+			for (double f : fractiles) {
+				EvenlyDiscretizedFunc fractile = model.getCumNumMFD_Fractile(f, minMag, maxMag, numMag, minDays, maxDays);
+				fractile.setName("p"+(float)(f*100d)+"%");
+				
+				funcs.add(fractile);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, c));
+			}
 		}
 		
 		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
@@ -1225,8 +1257,19 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		mainshockFunc.setName("Mainshock M="+(float)mainshockMag);
 		DefaultXY_DataSet bathsFunc = new DefaultXY_DataSet();
 		bathsFunc.setName("Bath's Law M="+(float)bathsMag);
-		for (int i=0; i<mfd.size(); i++) {
-			double y = mfd.getY(i);
+		
+		MinMaxAveTracker yTrack = new MinMaxAveTracker();
+		for (PlotElement elem : funcs) {
+			if (elem instanceof XY_DataSet) {
+				XY_DataSet xy = (XY_DataSet)elem;
+				yTrack.addValue(xy.getMinY());
+				yTrack.addValue(xy.getMaxY());
+			}
+		}
+		System.out.println(yTrack);
+		EvenlyDiscretizedFunc yVals = new EvenlyDiscretizedFunc(yTrack.getMin(), yTrack.getMax(), 20);
+		for (int i=0; i<yVals.size(); i++) {
+			double y = yVals.getX(i);
 			mainshockFunc.set(mainshockMag, y);
 			bathsFunc.set(bathsMag, y);
 		}

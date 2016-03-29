@@ -26,6 +26,8 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * This represents a Reasenberg-Jones (1989, 1994) aftershock model where the a-value distribution is the Bayesian
@@ -48,6 +50,25 @@ public class RJ_AftershockModel_Bayesian extends RJ_AftershockModel {
 	Boolean D=true;	// debug flag
 	
 	/**
+	 * Check similarity of both models, currently to floating point precision
+	 * 
+	 * @param model1
+	 * @param model2
+	 * @return
+	 */
+	public static boolean areModelsEquivalent(RJ_AftershockModel model1, RJ_AftershockModel model2) {
+		if ((float)model1.getMainShockMag() != (float)model2.getMainShockMag())
+			return false;
+		if ((float)model1.get_b() != (float)model2.get_b())
+			return false;
+		if ((float)model1.getMaxLikelihood_p() != (float)model2.getMaxLikelihood_p())
+			return false;
+		if ((float)model1.getMaxLikelihood_c() != (float)model2.getMaxLikelihood_c())
+			return false;
+		return true;
+	}
+	
+	/**
 	 * This instantiates a Bayesian combination of the two given RJ models
 	 * @param model1
 	 * @param model2
@@ -60,14 +81,15 @@ public class RJ_AftershockModel_Bayesian extends RJ_AftershockModel {
 		double c = model1.getMaxLikelihood_c();
 		
 		// check similarity of these with the second model
-		if(magMain != model2.getMainShockMag())
-			throw new RuntimeException("Error: Main shock magnitudes differ between the two input models");
-		if(b != model2.get_b())
-			throw new RuntimeException("Error: b-values differ between the two input models");
-		if(p != model2.getMaxLikelihood_p())
-			throw new RuntimeException("Error: p-values differ between the two input models");
-		if(c != model2.getMaxLikelihood_c())
-			throw new RuntimeException("Error: c-values differ between the two input models:\t"+c+"\t"+model2.getMaxLikelihood_c());
+		Preconditions.checkArgument(areModelsEquivalent(model1, model2),
+				"Models are not equivalent so Bayesian combination impossible."
+						+"\n\tMain shock mags: %s, %s"
+						+"\n\tb-values: %s, %s"
+						+"\n\tp-values: %s, %s"
+						+"\n\tc-values: %s, %s",
+						model1.getMainShockMag(), model2.getMainShockMag(), model1.get_b(), model2.get_b(),
+						model1.getMaxLikelihood_p(), model2.getMaxLikelihood_p(),
+						model1.getMaxLikelihood_c(), model2.getMaxLikelihood_c());
 		
 		this.min_p=p;
 		this.max_p=p;
