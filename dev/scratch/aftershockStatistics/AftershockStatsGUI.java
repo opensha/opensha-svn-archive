@@ -214,6 +214,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private GenericRJ_Parameters genericParams = null;
 	private RJ_AftershockModel_Generic genericModel = null;
 	
+	private RJ_AftershockModel_Bayesian bayesianModel = null;
+	
 	public AftershockStatsGUI() {
 		/*
 		 * Data parameters
@@ -1132,9 +1134,20 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			while (pdfGraphsPane.getTabCount() > 0)
 				pdfGraphsPane.removeTabAt(0);
 		
-		if (genericModel != null)
-			add1D_PDF(genericModel.getPDF_a(), "Generic a-value");
-		add1D_PDF(model.getPDF_a(), "a-value");
+		HistogramFunction[] aValExtras = null;
+		if (genericModel != null) {
+			HistogramFunction genericA = genericModel.getPDF_a();
+			genericA.setName("Generic");
+			HistogramFunction bayesianA;
+			if (bayesianModel != null) {
+				bayesianA = bayesianModel.getPDF_a();
+				bayesianA.setName("Bayesian");
+				aValExtras = new HistogramFunction[] { genericA, bayesianA };
+			} else {
+				aValExtras = new HistogramFunction[] { genericA };
+			}
+		}
+		add1D_PDF(model.getPDF_a(), "a-value", aValExtras);
 		add1D_PDF(model.getPDF_p(), "p-value");
 		add1D_PDF(model.getPDF_c(), "c-value");
 		add2D_PDF(model.get2D_PDF_for_a_and_c(), "a-value", "c-value");
@@ -1148,7 +1161,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > pdf_tab_index, "Plots added out of order");
 	}
 	
-	private void add1D_PDF(HistogramFunction pdf, String name) {
+	private static Color[] extra_colors = {Color.GRAY, Color.BLUE, Color.ORANGE, Color.GREEN};
+	
+	private void add1D_PDF(HistogramFunction pdf, String name, HistogramFunction... extras) {
 		if (pdf == null)
 			return;
 		
@@ -1159,7 +1174,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
 				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 		
+		if (extras != null && extras.length > 0) {
+			for (int i=0; i<extras.length; i++) {
+				funcs.add(extras[i]);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, extra_colors[i % extra_colors.length]));
+			}
+		}
+		
 		PlotSpec spec = new PlotSpec(funcs, chars, pdf.getName(), name, "Density");
+		spec.setLegendVisible(funcs.size() > 1);
 		
 		GraphWidget widget = new GraphWidget(spec);
 		setupGP(widget);
@@ -1219,13 +1242,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			names.add("Generic Model");
 			colors.add(Color.GRAY);
 			
-			if (RJ_AftershockModel_Bayesian.areModelsEquivalent(model, genericModel)) {
+			if (bayesianModel != null) {
 				// generate Bayesian model
-				models.add(new RJ_AftershockModel_Bayesian(model, genericModel));
+				models.add(bayesianModel);
 				names.add("Bayesian Model");
 				colors.add(Color.BLUE);
-			} else {
-				System.out.println("Could not create Bayesian model as sequence specifc and generic models are not equivalent");
 			}
 		}
 		
@@ -1457,6 +1478,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				pValParam.getEditor().refreshParamEditor();
 				cValParam.setValue(model.getMaxLikelihood_c());
 				cValParam.getEditor().refreshParamEditor();
+				
+				bayesianModel = null;
+				if (genericModel != null) {
+					if (RJ_AftershockModel_Bayesian.areModelsEquivalent(model, genericModel))
+						bayesianModel = new RJ_AftershockModel_Bayesian(model, genericModel);
+					else
+						System.out.println("Could not create Bayesian model as sequence specifc and "
+								+ "generic models are not equivalent");
+				}
 				
 				plotPDFs();
 				setEnableParamsPostAfershockParams(true);
