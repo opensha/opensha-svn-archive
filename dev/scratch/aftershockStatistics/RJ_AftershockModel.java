@@ -245,6 +245,7 @@ public abstract class RJ_AftershockModel {
 //				System.out.println("PDF of a-value:  "+hist);
 				System.out.println("PDF of a-value: totalTest = "+hist.calcSumOfY_Vals());
 			}
+			hist.scale(1d/hist.getDelta());
 			return hist;
 		}
 	}
@@ -275,6 +276,7 @@ public abstract class RJ_AftershockModel {
 			if(D) {
 				System.out.println("PDF of p-value: totalTest = "+hist.calcSumOfY_Vals());
 			}
+			hist.scale(1d/hist.getDelta());
 			return hist;
 		}
 	}
@@ -305,6 +307,7 @@ public abstract class RJ_AftershockModel {
 			if(D) {
 				System.out.println("PDF of c-value: totalTest = "+hist.calcSumOfY_Vals());
 			}
+			hist.scale(1d/hist.getDelta());
 			return hist;
 		}
 	}
@@ -336,6 +339,7 @@ public abstract class RJ_AftershockModel {
 			if(D) {
 				System.out.println("2D PDF of a vs p: totalTest = "+hist2D.getSumZ());
 			}
+			hist2D.scale(1d/(hist2D.getGridSpacingX()*hist2D.getGridSpacingY()));
 			return hist2D;
 		}
 	}
@@ -368,6 +372,7 @@ public abstract class RJ_AftershockModel {
 			if(D) {
 				System.out.println("2D PDF of a vs c: totalTest = "+hist2D.getSumZ());
 			}
+			hist2D.scale(1d/(hist2D.getGridSpacingX()*hist2D.getGridSpacingY()));
 			return hist2D;
 		}
 	}
@@ -398,6 +403,7 @@ public abstract class RJ_AftershockModel {
 			if(D) {
 				System.out.println("2D PDF of c vs p: totalTest = "+hist2D.getSumZ());
 			}
+			hist2D.scale(1d/(hist2D.getGridSpacingX()*hist2D.getGridSpacingY()));
 			return hist2D;
 		}
 	}
