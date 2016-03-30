@@ -288,7 +288,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		magPrecisionParam.addParameterChangeListener(this);
 		dataParams.addParameter(magPrecisionParam);
 		
-		computeBButton = new ButtonParameter("GR b-value", "Compute b");
+		computeBButton = new ButtonParameter("Sequence Specific GR b-value", "Compute b (optional)");
 		computeBButton.addParameterChangeListener(this);
 		dataParams.addParameter(computeBButton);
 		
@@ -320,7 +320,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		pValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(pValNumParam);
 		
-		cValRangeParam = new RangeParameter("c-value range", new Range(0.05, 0.05));
+		cValRangeParam = new RangeParameter("c-value range", new Range(0.018, 0.018));
 		cValRangeParam.addParameterChangeListener(this);
 		fitParams.addParameter(cValRangeParam);
 		
@@ -505,10 +505,13 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			genericParams = genericFetch.get(regime);
 			System.out.println("Generic params for "+regime+": "+genericParams);
 			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
-			// set p value to generic
+			// set default values to generic
 			pValRangeParam.setValue(new Range(genericParams.get_pValue(), genericParams.get_pValue()));
 			pValRangeParam.getEditor().refreshParamEditor();
-//			pValNumParam.
+			cValRangeParam.setValue(new Range(genericParams.get_cValue(), genericParams.get_cValue()));
+			cValRangeParam.getEditor().refreshParamEditor();
+			bParam.setValue(genericModel.get_b());
+			bParam.getEditor().refreshParamEditor();
 		} catch (RuntimeException e) {
 			System.err.println("Error fetching generic params");
 			e.printStackTrace();
@@ -878,6 +881,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		funcs.add(xy);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN));
 		
+		System.out.println("********************Calculating MFD with b: "+bParam.getValue());
 		if (bParam.getValue() != null) {
 			// add Mc used for b-value calculation
 			double mc = mcParam.getValue();
@@ -1356,7 +1360,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}
 		} else if (param == mcParam || param == magPrecisionParam) {
 			setEnableParamsPostComputeB(false);
-			bParam.setValue(null);
+			if (genericModel != null)
+				bParam.setValue(genericModel.get_b());
+			else
+				bParam.setValue(null);
+			bParam.getEditor().refreshParamEditor();
 		} else if (param == computeBButton) {
 			String title = "Error Computing b";
 			setEnableParamsPostComputeB(false);
@@ -1380,7 +1388,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
-		} else  if (param == bParam) {
+		} else if (param == bParam) {
 			setEnableParamsPostAfershockParams(false);
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
 				plotMFDs(aftershockMND, mmaxc);
@@ -1509,21 +1517,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	/**
-	 * disables all parameters that are dependent on the fetch step and beyond
+	 * disables/enables all parameters that are dependent on the fetch step and beyond
 	 */
 	private void setEnableParamsPostFetch(boolean enabled) {
 		saveCatalogButton.getEditor().setEnabled(enabled);
 		mcParam.getEditor().setEnabled(enabled);
 		magPrecisionParam.getEditor().setEnabled(enabled);
 		computeBButton.getEditor().setEnabled(enabled);
-		if (!enabled)
-			setEnableParamsPostComputeB(enabled);
-	}
-	
-	/**
-	 * disables all parameters that are dependent on the compute b step and beyond
-	 */
-	private void setEnableParamsPostComputeB(boolean enabled) {
+		
+		// these used to be enabled after computing b but we now allow the user to just use default B
 		bParam.getEditor().setEnabled(enabled);
 		aValRangeParam.getEditor().setEnabled(enabled);
 		aValNumParam.getEditor().setEnabled(enabled);
@@ -1536,6 +1538,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		gParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
 		hParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
 		mCatParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+		
+		if (!enabled)
+			setEnableParamsPostComputeB(enabled);
+	}
+	
+	/**
+	 * disables all parameters that are dependent on the compute b step and beyond
+	 */
+	private void setEnableParamsPostComputeB(boolean enabled) {
 		if (!enabled)
 			setEnableParamsPostAfershockParams(enabled);
 	}
