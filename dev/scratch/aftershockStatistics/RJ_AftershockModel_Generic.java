@@ -54,13 +54,13 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 
 	/**
 	 * This instantiates a generic RJ model from a GenericRJ_Parameters object, where aValueMin and aValueMax
-	 * are set as -4.5 and -0.5, respectively, and
+	 * are set as -4.5 and -0.5, respectively, and the a-value sigma is magnitude dependent here.
 	 * @param magMain
 	 * @param params
 	 */
 	public RJ_AftershockModel_Generic(double magMain, GenericRJ_Parameters params) {
 		
-		this(magMain, params.get_aValueMean(), params.get_aValueSigma(), -4.5, -0.5, 
+		this(magMain, params.get_aValueMean(), params.get_aValueSigma(magMain), -4.5, -0.5, 
 				params.get_bValue(), params.get_pValue(), params.get_cValue());
 	}
 	
