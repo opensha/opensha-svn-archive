@@ -74,7 +74,7 @@ public class GMPE_ScenarioComparisonCalc {
 
 			@Override
 			public int compare(CybershakeSite o1, CybershakeSite o2) {
-				return Integer.compare(o1.id, o2.id);
+				return new Integer(o1.id).compareTo(o2.id);
 			}
 		});
 		
