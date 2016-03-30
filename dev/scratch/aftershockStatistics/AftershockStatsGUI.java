@@ -288,7 +288,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		magPrecisionParam.addParameterChangeListener(this);
 		dataParams.addParameter(magPrecisionParam);
 		
-		computeBButton = new ButtonParameter("Sequence Specific GR b-value", "Compute b (optional)");
+		computeBButton = new ButtonParameter("Seq. Specific GR b-value", "Compute b (optional)");
 		computeBButton.addParameterChangeListener(this);
 		dataParams.addParameter(computeBButton);
 		
