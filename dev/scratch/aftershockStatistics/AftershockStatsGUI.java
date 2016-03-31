@@ -216,6 +216,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private RJ_AftershockModel_Bayesian bayesianModel = null;
 	
+	private static final Color generic_color = Color.GREEN.darker();
+	private static final Color bayesian_color = Color.RED;
+	private static final Color sequence_specific_color = Color.BLUE.darker();
+	
 	public AftershockStatsGUI() {
 		/*
 		 * Data parameters
@@ -1036,7 +1040,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
 		funcs.add(countFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.CYAN));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 		
 		if (model != null) {
 			EvenlyDiscretizedFunc expected = getModelCumNumWithTimePlot(model, magMin);
@@ -1044,9 +1048,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			maxY = Math.max(count, expected.getMaxY());
 			
 			funcs.add(expected);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, sequence_specific_color));
 			
-			expected.setName("Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			expected.setName("Seq Specific: "+new DecimalFormat("0.#").format(expected.getMaxY()));
 		}
 		
 		if (genericModel != null) {
@@ -1057,9 +1061,20 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			maxY = Math.max(count, expected.getMaxY());
 			
 			funcs.add(expected);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, generic_color));
 			
-			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			expected.setName("Generic: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			
+			if (bayesianModel != null) {
+				expected = getModelCumNumWithTimePlot(bayesianModel, magMin);
+				
+				maxY = Math.max(count, expected.getMaxY());
+				
+				funcs.add(expected);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, bayesian_color));
+				
+				expected.setName("Bayesian: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			}
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Cumulative M≥"+(float)magMin, "Days Since Mainshock",
@@ -1172,12 +1187,20 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(pdf);
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
-				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, sequence_specific_color));
 		
 		if (extras != null && extras.length > 0) {
 			for (int i=0; i<extras.length; i++) {
 				funcs.add(extras[i]);
-				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, extra_colors[i % extra_colors.length]));
+				Color c;
+				String extraName = extras[i].getName().toLowerCase();
+				if (extraName.contains("generic"))
+					c = generic_color;
+				else if (extraName.contains("bayesian"))
+					c = bayesian_color;
+				else
+					c = extra_colors[i % extra_colors.length];
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
 			}
 		}
 		
@@ -1234,19 +1257,19 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<Color> colors = Lists.newArrayList();
 		
 		models.add(model);
-		names.add("Model");
-		colors.add(Color.BLACK);
+		names.add("Seq. Specific");
+		colors.add(sequence_specific_color);
 		
 		if (genericModel != null) {
 			models.add(genericModel);
-			names.add("Generic Model");
-			colors.add(Color.GRAY);
+			names.add("Generic");
+			colors.add(generic_color);
 			
 			if (bayesianModel != null) {
 				// generate Bayesian model
 				models.add(bayesianModel);
-				names.add("Bayesian Model");
-				colors.add(Color.BLUE);
+				names.add("Bayesian");
+				colors.add(bayesian_color);
 			}
 		}
 		
@@ -1299,9 +1322,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			bathsFunc.set(bathsMag, y);
 		}
 		funcs.add(mainshockFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
 		funcs.add(bathsFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN.darker()));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
 		spec.setLegendVisible(true);
