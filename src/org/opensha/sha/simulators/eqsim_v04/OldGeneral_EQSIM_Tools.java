@@ -627,7 +627,7 @@ public class OldGeneral_EQSIM_Tools {
 			double area1 = re.getArea()*1e-6;
 			if(area1<min) min=area1;
 			if(area1>max) max=area1;
-			double area2 = re.getGriddedSurface().getArea();
+			double area2 = re.getSurface().getArea();
 			double ratio = area1/area2;
 			if(ratio >1.01 || ratio < 0.99)
 				System.out.println(el_index+"\t"+ratio+"\t"+area1+"\t"+area2);
@@ -3209,7 +3209,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationYears()+" years");
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
-		Location loc = ((RectangularElement)rectElementsList.get(497-1)).getGriddedSurface().get(0, 1);
+		Location loc = ((RectangularElement)rectElementsList.get(497-1)).getSurface().get(0, 1);
 		plotRecurIntervalsForNearestLoc(loc, 6.5, true,"RI_distAt_NSAF_ElementID497", "");
 		
 		Integer testElementID = new Integer(661); // not sure how this was chosen

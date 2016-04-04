@@ -56,7 +56,7 @@ public abstract class SimulatorElement {
 		this.focalMechanism = focalMechanism;
 	}
 	
-	public abstract RuptureSurface getGriddedSurface();
+	public abstract RuptureSurface getSurface();
 	
 	/**
 	 * This returns the section name for now
@@ -136,12 +136,7 @@ public abstract class SimulatorElement {
 	 * This returns the average/center location
 	 * @return
 	 */
-	public Location getCenterLocation() {
-		double aveLat = (vertices[0].getLatitude()+vertices[1].getLatitude()+vertices[2].getLatitude()+vertices[3].getLatitude())/4.0;
-		double aveLon = (vertices[0].getLongitude()+vertices[1].getLongitude()+vertices[2].getLongitude()+vertices[3].getLongitude())/4.0;
-		double aveDep = (vertices[0].getDepth()+vertices[1].getDepth()+vertices[2].getDepth()+vertices[3].getDepth())/4.0;
-		return new Location(aveLat,aveLon,aveDep);
-	}
+	public abstract Location getCenterLocation();
 	
 	/**
 	 * This returns the minimum DAS (in km) among all vertices

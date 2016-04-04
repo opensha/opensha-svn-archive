@@ -38,7 +38,7 @@ public class RectangularElement extends SimulatorElement {
 	}
 	
 	@Override
-	public FourPointEvenlyGriddedSurface getGriddedSurface() {
+	public FourPointEvenlyGriddedSurface getSurface() {
 		return new FourPointEvenlyGriddedSurface(vertices[0],vertices[1],vertices[2],vertices[3]);
 	}
 

@@ -86,12 +86,12 @@ public class SubSectionBiulder {
 				double dipDir = LocationUtils.azimuth(top.getCenterLocation(), bottom.getCenterLocation());
 				
 				// upper depth
-				double upperDepth = getMinDepth(top.getGriddedSurface());
-				double lowerDepth = getMaxDepth(bottom.getGriddedSurface());
+				double upperDepth = getMinDepth(top.getSurface());
+				double lowerDepth = getMaxDepth(bottom.getSurface());
 				
 				// fault trace
 				FaultTrace trace = new FaultTrace(subSectName);
-				trace.addAll(top.getGriddedSurface().getRowAsTrace(0));
+				trace.addAll(top.getSurface().getRowAsTrace(0));
 				
 				// build FSD object
 				FaultSectionPrefData fsd = new FaultSectionPrefData();
@@ -243,7 +243,7 @@ public class SubSectionBiulder {
 			// we need to set the NAS a NDD numbers
 			
 			// detect element size
-			FourPointEvenlyGriddedSurface surf = elems.get(0).getGriddedSurface();
+			FourPointEvenlyGriddedSurface surf = elems.get(0).getSurface();
 			double elemDeltaDepth = surf.getLocation(1,0).getDepth() - surf.getLocation(0,0).getDepth();
 			
 			// first bin by depth (simplest)
