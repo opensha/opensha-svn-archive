@@ -183,14 +183,14 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private JTabbedPane tabbedPane;
 	private JScrollPane consoleScroll;
 	
-	private static final int hypo_tab_index = 1;
+	private static final int epicenter_tab_index = 1;
 	private static final int mag_num_tab_index = 2;
 	private static final int mag_time_tab_index = 3;
 	private static final int cml_num_tab_index = 4;
 	private static final int catalog_tab_index = 5;
 	private static final int pdf_tab_index = 6;
 	private static final int aftershock_expected_index = 7;
-	private GraphWidget hypocenterGraph;
+	private GraphWidget epicenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
 	private GraphWidget cmlNumGraph;
@@ -743,25 +743,25 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		Collections.reverse(funcs);
 		Collections.reverse(chars);
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Hypocenters", "Longitude", "Latitude");
-		if (hypocenterGraph == null)
-			hypocenterGraph = new GraphWidget(spec);
+		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Epicenters", "Longitude", "Latitude");
+		if (epicenterGraph == null)
+			epicenterGraph = new GraphWidget(spec);
 		else
-			hypocenterGraph.setPlotSpec(spec);
+			epicenterGraph.setPlotSpec(spec);
 		
 		double regBuff = 0.05;
-		hypocenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
+		epicenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
 				region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
 		
-		setupGP(hypocenterGraph);
+		setupGP(epicenterGraph);
 		
 		if (subtitle != null)
-			hypocenterGraph.getGraphPanel().addSubtitle(subtitle);
+			epicenterGraph.getGraphPanel().addSubtitle(subtitle);
 		
-		if (tabbedPane.getTabCount() == hypo_tab_index)
-			tabbedPane.addTab("Hypocenters", null, hypocenterGraph, "Hypocenter Map");
+		if (tabbedPane.getTabCount() == epicenter_tab_index)
+			tabbedPane.addTab("Epicenters", null, epicenterGraph, "Epicenter Map");
 		else
-			Preconditions.checkState(tabbedPane.getTabCount() > hypo_tab_index, "Plots added out of order");
+			Preconditions.checkState(tabbedPane.getTabCount() > epicenter_tab_index, "Plots added out of order");
 	}
 	
 	private void buildFuncsCharsForBinned(XY_DataSet[] binnedFuncs,
@@ -1370,7 +1370,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				plotCumulativeNum();
 				plotCatalogText();
 				
-				tabbedPane.setSelectedIndex(hypo_tab_index);
+				tabbedPane.setSelectedIndex(epicenter_tab_index);
 
 				setEnableParamsPostFetch(true);
 			} catch (Exception e) {
