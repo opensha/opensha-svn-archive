@@ -40,6 +40,9 @@ public class NonErgodicSiteResponseGMPE extends ModAttenuationRelationship {
 		super(l, EnumSet.of(AttenRelRef.BSSA_2014, AttenRelRef.ASK_2014, AttenRelRef.CY_2014,
 				AttenRelRef.CB_2014), EnumSet.of(ModAttenRelRef.STEWART_SITE_SPECIFIC, ModAttenRelRef.ERGODIC_FROM_REF));
 		getParameter(IMRS_PARAM_NAME).setValue(AttenRelRef.BSSA_2014);
+		getParameter(IMRS_PARAM_NAME).setInfo(
+				"The intensity measure used as the driver of nonlinearity representing the level of "
+				+ "\nshaking in reference condition (rock motion).");
 		getParameter(MODS_PARAM_NAME).setValue(ModAttenRelRef.STEWART_SITE_SPECIFIC);
 		
 		((ParameterListParameterEditor)modParams.getEditor()).setDialogDimensions(new Dimension(600, 400));

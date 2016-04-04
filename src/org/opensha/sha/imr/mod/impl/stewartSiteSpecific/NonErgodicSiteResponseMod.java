@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import org.opensha.commons.data.ShortNamed;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.Parameter;
@@ -50,24 +51,40 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 	public static final String NAME = "Non Ergodic Site Response 2016 Mod";
 	public static final String SHORT_NAME = "NonErgodic2016";
 	
-	public enum Params {
-		F1("f1"),
-		F2("f2"),
-		F3("f3"),
-		PHI_lnY("ϕ lnY"),
-		PHI_S2S("ϕ S2S"),
-		F("F"),
-		PHI_SS("ϕ SS"),
-		Ymax("Ymax");
+	public enum Params implements ShortNamed {
+		F1("f1", "Weak-motion (linear) amplification"),
+		F2("f2", "The level of nonlinearity in site response."),
+		F3("f3", "The level of reference site ground shaking below which the amplification"
+				+ "\nconverges towards a linear (constant) upper limit."),
+		PHI_lnY("ϕ lnY", "Standard deviation of amplification function"),
+		PHI_S2S("ϕ S2S", "Represents site-to-site amplification variability"),
+		F("F", "Reduction factor for site-to-site variability for single site analysis which is between 0 and 1. "
+				+ "\nF=1 means completely eliminating site-to-site variability, F=0 means no reduction of site-to-site variability."),
+		PHI_SS("ϕ SS", "Represents within-event single site standard deviation of ground motion. "
+				+ "\nIn the case of activating \"Use ϕ SS\" button, ϕ S2S will be ignored, and ϕ SSs will be used."),
+		Ymax("Ymax", "(Optional) Weak motion amplification level beyond which the amplification function will be truncated to Ymax. "
+				+ "\nIf no values (or NaN) are entered, no truncation will happen.");
 		
 		private String name;
+		private String description;
 		
-		private Params(String name) {
+		private Params(String name, String description) {
 			this.name = name;
+			this.description = description;
 		}
 		
 		@Override
 		public String toString() {
+			return name;
+		}
+
+		@Override
+		public String getName() {
+			return description;
+		}
+
+		@Override
+		public String getShortName() {
 			return name;
 		}
 	}
@@ -163,10 +180,16 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		paramList.addParameter(usePhiSSParam);
 		
 		tSiteParam = new DoubleParameter("Tsite", Double.NaN);
+		tSiteParam.setInfo(
+					"(Optional) The natural period of the site (sec). The transition of amplification parameters from "
+				+ 	"\nuser-entered values to the Semi-empirical model starts from Tsite. If no values are entered, the "
+				+ 	"\ntransition will not happen, and the last user-entered value for amplification parameters will be used "
+				+ 	"\nfor all periods longer than the longest period for which the user has entered the amplification values.");
 		tSiteParam.addParameterChangeListener(this);
 		paramList.addParameter(tSiteParam);
 		
 		tSiteNParam = new DoubleParameter("N for Tsite", 2d);
+		tSiteNParam.setInfo("The transition from user-entered values to the Semi-empirical model starts at Tsite and ends at N*Tsite.");
 		tSiteNParam.addParameterChangeListener(this);
 		paramList.addParameter(tSiteNParam);
 		
@@ -187,6 +210,9 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 			imtRatios = new PeriodDependentParamSet<NonErgodicSiteResponseMod.RatioParams>(RatioParams.values());
 		}
 		imtRatiosParam = new PeriodDependentParamSetParam<RatioParams>("Ref IMT Ratio for f3 interpolation", imtRatios);
+		imtRatiosParam.setInfo(
+				"In the case that Reference IM is not PGA, these values will be used to convert PGA to the\n"
+				+ "reference IM for f3 calculations. For details see Stewart et al. (2014).");
 		paramList.addParameter(imtRatiosParam);
 		
 		setReferenceSiteParams(getDefaultReferenceSiteParams());

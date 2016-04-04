@@ -2,6 +2,7 @@ package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,8 +28,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 import org.jfree.ui.ExtensionFileFilter;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -145,10 +148,17 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		buttonPanel.add(bottomWrapper, BorderLayout.SOUTH);
 
 		tableModel = new PeriodDepTableModel(data);
-		table = new JTable(tableModel);
+		table = new JTable(tableModel) {
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+				Component c = super.prepareRenderer(renderer, row, column);
+				addToolTip(c, row, column);
+				return c;
+			}
+		};
 		tableModel.addTableModelListener(this);
 		//		table.setDefaultEditor(Double.class, new ArbitrarilyDiscretizedFuncTableCellEditor());
-		TableCellRenderer renderer = tableModel.getRenderer();
+		CustomTableCellRenderer renderer = tableModel.getRenderer();
 		table.setDefaultRenderer(Double.class, renderer);
 
 		JScrollPane scroll = new JScrollPane(table);
@@ -163,6 +173,21 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		widgetPanel.repaint();
 
 		return widgetPanel;
+	}
+	
+	private void addToolTip(Component c, int row, int col) {
+		String toolTip = null;
+		if (col == 0) {
+			toolTip = "SA Period (s), PGA, or PGV";
+		} else if (tableModel != null) {
+			E param = tableModel.params[col-1];
+			if (param instanceof Named)
+				toolTip = ((Named)param).getName();
+			else
+				toolTip = param.toString();
+		}
+		if (toolTip != null && c instanceof JComponent)
+            ((JComponent)c).setToolTipText(toolTip);
 	}
 
 	@Override
@@ -202,7 +227,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		private PeriodDependentParamSet<E> data;
 		private E[] params;
 		
-		private TableCellRenderer renderer;
+		private CustomTableCellRenderer renderer;
 		
 		public PeriodDepTableModel(PeriodDependentParamSet<E> data) {
 			updateData(data);
@@ -253,7 +278,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		}
 		
 		public void setEnabled(boolean isEnabled) {
-			TableCellRenderer renderer = getRenderer();
+			CustomTableCellRenderer renderer = getRenderer();
 			if (isEnabled)
 				renderer.setBackground(Color.WHITE);
 			else
@@ -268,9 +293,9 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 				return params[column-1].toString();
 		}
 		
-		public TableCellRenderer getRenderer() {
+		public CustomTableCellRenderer getRenderer() {
 			if (renderer == null)
-				renderer = new TableCellRenderer();
+				renderer = new CustomTableCellRenderer();
 			return renderer;
 		}
 		
@@ -305,9 +330,9 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	
 	// Based on JTable.DoubleRenderer with modifications to the formatter
 	// I have to reimplement some of it because JTable.DoubleRenderer isn't visible
-	private class TableCellRenderer extends DefaultTableCellRenderer.UIResource {
+	private class CustomTableCellRenderer extends DefaultTableCellRenderer.UIResource {
 
-		public TableCellRenderer() {
+		public CustomTableCellRenderer() {
 			super();
 			setHorizontalAlignment(JLabel.RIGHT);
 			this.setPreferredSize(new Dimension(20, 8));
