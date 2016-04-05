@@ -64,6 +64,7 @@ import org.opensha.commons.param.impl.RangeParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
@@ -259,7 +260,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		maxLonParam = new DoubleParameter("Max Lon", -180d, 180d, new Double(36d));
 		minDepthParam = new DoubleParameter("Min Depth", 0d, 1000d, new Double(0));
 		minDepthParam.setUnits("km");
-		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(40));
+		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(1000d));
 		maxDepthParam.setUnits("km");
 		regionCenterTypeParam = new EnumParameter<AftershockStatsGUI.RegionCenterType>(
 				"Region Center", EnumSet.allOf(RegionCenterType.class), RegionCenterType.CENTROID, null);
@@ -557,17 +558,20 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	private Location getCentroid() {
+		// now works across prime meridian
 		List<Location> locs = Lists.newArrayList(mainshock.getHypocenterLocation());
 		for (ObsEqkRupture aftershock : aftershocks)
 			locs.add(aftershock.getHypocenterLocation());
-		double lat = 0;
-		double lon = 0;
+		List<Double> lats = Lists.newArrayList();
+		List<Double> lons = Lists.newArrayList();
 		for (Location loc : locs) {
-			lat += loc.getLatitude();
-			lon += loc.getLongitude();
+			lats.add(loc.getLatitude());
+			lons.add(loc.getLongitude());
 		}
-		lat /= (double)locs.size();
-		lon /= (double)locs.size();
+		double lat = FaultUtils.getAngleAverage(lats);
+		double lon = FaultUtils.getAngleAverage(lons);
+		if (lon > 180)
+			lon -= 360;
 		Location centroid = new Location(lat, lon);
 		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
 		System.out.println("Centroid: "+(float)lat+", "+(float)lon+" ("+(float)dist+" km from epicenter)");
@@ -585,11 +589,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		double magDelta = 0.5;
 		int numMag = 2*8;
 		magSizeFunc = new EvenlyDiscretizedFunc(minMag, numMag, magDelta);
-		double maxMag = magSizeFunc.getMaxX();
-		double minSize = 1d;
+//		double maxMag = magSizeFunc.getMaxX();
+//		double minSize = 1d;
 //		double maxSize = 20d;
-		double sizeMult = 1.4;
-		double size = minSize;
+//		double sizeMult = 1.4;
+//		double size = minSize;
 		
 		double dS = 3;
 		for (int i=0; i<magSizeFunc.size(); i++) {
@@ -603,7 +607,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			double radius = Math.pow((7d/16d)*Math.pow(10, 1.5*mag + 9)/(dS*1e6), 1d/3d) / 300d;
 			magSizeFunc.set(i, radius);
 //			System.out.println("Mag="+mag+", radius="+radius);
-			size *= sizeMult;
+//			size *= sizeMult;
 		}
 		
 		return magSizeFunc;
