@@ -558,24 +558,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	private Location getCentroid() {
-		// now works across prime meridian
-		List<Location> locs = Lists.newArrayList(mainshock.getHypocenterLocation());
-		for (ObsEqkRupture aftershock : aftershocks)
-			locs.add(aftershock.getHypocenterLocation());
-		List<Double> lats = Lists.newArrayList();
-		List<Double> lons = Lists.newArrayList();
-		for (Location loc : locs) {
-			lats.add(loc.getLatitude());
-			lons.add(loc.getLongitude());
-		}
-		double lat = FaultUtils.getAngleAverage(lats);
-		double lon = FaultUtils.getAngleAverage(lons);
-		if (lon > 180)
-			lon -= 360;
-		Location centroid = new Location(lat, lon);
-		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
-		System.out.println("Centroid: "+(float)lat+", "+(float)lon+" ("+(float)dist+" km from epicenter)");
-		return centroid;
+		return AftershockStatsCalc.getCentroid(mainshock, aftershocks);
 	}
 	
 	private EvenlyDiscretizedFunc magSizeFunc;

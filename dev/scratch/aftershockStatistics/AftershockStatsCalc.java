@@ -18,6 +18,7 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -25,6 +26,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -544,7 +546,26 @@ public class AftershockStatsCalc {
             return adaptiveQuadratureIntegration(func,a, c) + adaptiveQuadratureIntegration(func,c, b);
     }
 
-
+    public static Location getCentroid(ObsEqkRupture mainshock, ObsEqkRupList aftershocks) {
+		// now works across prime meridian
+		List<Location> locs = Lists.newArrayList(mainshock.getHypocenterLocation());
+		for (ObsEqkRupture aftershock : aftershocks)
+			locs.add(aftershock.getHypocenterLocation());
+		List<Double> lats = Lists.newArrayList();
+		List<Double> lons = Lists.newArrayList();
+		for (Location loc : locs) {
+			lats.add(loc.getLatitude());
+			lons.add(loc.getLongitude());
+		}
+		double lat = FaultUtils.getAngleAverage(lats);
+		double lon = FaultUtils.getAngleAverage(lons);
+		if (lon > 180)
+			lon -= 360;
+		Location centroid = new Location(lat, lon);
+		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
+		System.out.println("Centroid: "+(float)lat+", "+(float)lon+" ("+(float)dist+" km from epicenter)");
+		return centroid;
+	}
 
 	/**
 	 * @param args
