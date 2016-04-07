@@ -366,137 +366,39 @@ public class AftershockStatsCalc {
 		int num_c=1;
 
 		
-		ReasenbergJonesAftershockModel solution = new ReasenbergJonesAftershockModel(mainShock, aftershockList, magCat, capG, capH, b, dataStartTimeDays, dataEndTimeDays,
-				min_a, max_a, num_a, min_p, max_p, num_p, min_c, max_c, num_c);
-		
-		plot2D_PDF(solution.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
-		
-		GraphWindow graph = new GraphWindow(solution.getPDF_a(), "a-value PDF"); 
-		graph.setX_AxisLabel("a-axis");
-		graph.setY_AxisLabel("DensityF");
-//		graph.setX_AxisRange(-4, 3);
-//		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
-		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph.setPlotChars(plotChars);
-		graph.setPlotLabelFontSize(18);
-		graph.setAxisLabelFontSize(16);
-		graph.setTickLabelFontSize(14);
+//		ReasenbergJonesAftershockModel solution = new ReasenbergJonesAftershockModel(mainShock, aftershockList, magCat, capG, capH, b, dataStartTimeDays, dataEndTimeDays,
+//				min_a, max_a, num_a, min_p, max_p, num_p, min_c, max_c, num_c);
+//		
+//		plot2D_PDF(solution.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
+//		
+//		GraphWindow graph = new GraphWindow(solution.getPDF_a(), "a-value PDF"); 
+//		graph.setX_AxisLabel("a-axis");
+//		graph.setY_AxisLabel("DensityF");
+////		graph.setX_AxisRange(-4, 3);
+////		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+//		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+//		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+//		graph.setPlotChars(plotChars);
+//		graph.setPlotLabelFontSize(18);
+//		graph.setAxisLabelFontSize(16);
+//		graph.setTickLabelFontSize(14);
+//
+//		
+//		GraphWindow graph2 = new GraphWindow(solution.getPDF_p(), "p-value PDF"); 
+//		graph2.setX_AxisLabel("p-axis");
+//		graph2.setY_AxisLabel("DensityF");
+//		graph2.setPlotChars(plotChars);
+//		graph2.setPlotLabelFontSize(18);
+//		graph2.setAxisLabelFontSize(16);
+//		graph2.setTickLabelFontSize(14);
 
-		
-		GraphWindow graph2 = new GraphWindow(solution.getPDF_p(), "p-value PDF"); 
-		graph2.setX_AxisLabel("p-axis");
-		graph2.setY_AxisLabel("DensityF");
-		graph2.setPlotChars(plotChars);
-		graph2.setPlotLabelFontSize(18);
-		graph2.setAxisLabelFontSize(16);
-		graph2.setTickLabelFontSize(14);
-
-
-	}
-
-	
-	
-	
-	
-	public static void testAndyCalc() {
-		
-		double c = 0.05;
-		
-		double k_min = 17;
-		double k_max = 34;
-		double k_delta = 0.25;
-
-		double p_min = 0.9; 
-		double p_max = 1.15; 
-		double p_delta = 0.0125;
-		
-		int k_num = (int)Math.round((k_max-k_min)/k_delta) + 1;		
-		int p_num = (int)Math.round((p_max-p_min)/p_delta) + 1;
-		
-		
-		if(true) {
-			System.out.println("k1\t"+k_min+"\t"+k_max+"\t"+k_num+"\t"+k_delta);
-			System.out.println("p1\t"+p_min+"\t"+p_max+"\t"+p_num+"\t"+p_delta);
-		}
-
-		
-		double[] relativeEventTimes = readAndysFile();
-		double tStartDays = relativeEventTimes[0];
-		double tEndDays = relativeEventTimes[relativeEventTimes.length-1];
-
-		// x-axis is k and y-axis is p
-		EvenlyDiscrXYZ_DataSet xyzLogLikelihood = new EvenlyDiscrXYZ_DataSet(k_num, p_num, k_min, p_min, k_delta, p_delta);
-		
-		double maxLike=-Double.MAX_VALUE;
-		double maxLike_k=Double.NaN;
-		double maxLike_p=Double.NaN;
-		for(int x=0;x<xyzLogLikelihood.getNumX();x++) {
-			for(int y=0;y<xyzLogLikelihood.getNumY();y++) {
-				double logLike = getLogLikelihoodForOmoriParams(xyzLogLikelihood.getX(x), xyzLogLikelihood.getY(y), c, 
-						tStartDays, tEndDays, relativeEventTimes);
-				xyzLogLikelihood.set(x, y, logLike);
-				if(logLike>maxLike) {
-					maxLike=logLike;
-					maxLike_k = xyzLogLikelihood.getX(x);
-					maxLike_p = xyzLogLikelihood.getY(y);					
-				}
-			}
-		}
-
-		System.out.println("maxLike_k="+maxLike_k+"\nmaxLike_p="+maxLike_p);
-		
-		CPT cpt=null;
-		try {
-			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(xyzLogLikelihood.getMinZ(), xyzLogLikelihood.getMaxZ());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		XYZPlotSpec logLikeSpec = new XYZPlotSpec(xyzLogLikelihood, cpt, "Log Likelihood", "k", "p", "log-likelihood");
-		XYZPlotWindow window_logLikeSpec = new XYZPlotWindow(logLikeSpec, new Range(k_min,k_max), new Range(p_min,p_max));
-		
-		
-		// test model assuming b=1
-		double b = 1;
-		double magMain = 7;	// assumed value for Andy's data
-		double magComplete = 5;	// assumed value for Andy's data
-		double a_min = convertProductivityTo_a(k_min, b, magMain, magComplete);
-		double a_max = convertProductivityTo_a(k_max, b, magMain, magComplete);
-		int a_num = k_num;
-		ObsEqkRupture dummyMainShock = new ObsEqkRupture();
-		dummyMainShock.setMag(magMain);
-		dummyMainShock.setOriginTime(0l);
-		ObsEqkRupList dummyAftershocks = new ObsEqkRupList();
-		for(double relTime:relativeEventTimes) {
-			ObsEqkRupture newRup = new ObsEqkRupture();
-			long ot = (long)(relTime*(double)MILLISEC_PER_DAY);
-			newRup.setOriginTime(ot);
-			newRup.setMag(magComplete+1); // anything above magComplete);
-			dummyAftershocks.add(newRup);
-		}
-		
-		ReasenbergJonesAftershockModel distArray = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b,
-				tStartDays, tEndDays, a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1);
-		System.out.println("max likelihood gridded k =  "+distArray.getMaxLikelihood_k());
-		System.out.println("distArray.getPDF_a():\n"+distArray.getPDF_a());
-		System.out.println("distArray.getPDF_p():\n"+distArray.getPDF_p());
-		System.out.println("distArray.getPDF_c():\n"+distArray.getPDF_c());
-		plot2D_PDF(distArray.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
-		EvenlyDiscretizedFunc mfd = distArray.getExpectedCumNumMFD(3.0, 10.0, 71, 0.0, 7.0);
-		System.out.println("distArray.getExpectedNumMFD():\n"+mfd);
-
-		
-		// test the maximum likelihood k value for constrained p and c
-		double p = distArray.getMaxLikelihood_p();
-		ReasenbergJonesAftershockModel distArray2 = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b, 
-				tStartDays, tEndDays, a_min, a_max, a_num, p, p, 1, c, c, 1);
-		System.out.println("2nd max likelihood gridded k =  "+distArray2.getMaxLikelihood_k());
-		
-
-		System.out.println("2nd max likelihood analytic k =  "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, 
-				tStartDays, tEndDays, relativeEventTimes.length));
 
 	}
+
+	
+	
+	
+	
 	
 	public static double getMmaxC(IncrementalMagFreqDist mfd) {
 		List<Double> magsAtMax = Lists.newArrayList();

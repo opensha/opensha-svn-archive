@@ -47,20 +47,20 @@ public class HardCodedExample {
 		WC1994_MagLengthRelationship wcMagLen = new WC1994_MagLengthRelationship();
 		double radius = wcMagLen.getMedianLength(mainshock.getMag());
 		
-		// region centered around main shock location
-		Region region = new Region(mainshock.getHypocenterLocation(), radius);
+		// circular region centered around main shock location
+		Region tempRegion = new Region(mainshock.getHypocenterLocation(), radius);
 		
 		// fetch aftershocks
-		ObsEqkRupList aftershocks = accessor.fetchAftershocks(mainshock, dataMinDays, dataMaxDays, minDepth, maxDepth, region);
+		ObsEqkRupList aftershocks = accessor.fetchAftershocks(mainshock, dataMinDays, dataMaxDays, minDepth, maxDepth, tempRegion);
 		
 		// now find centroid and use that to rebuild the aftershock list
 		if (aftershocks.isEmpty()) {
 			System.out.println("No aftershocks found, skipping centroid");
 		} else {
 			Location centroid = AftershockStatsCalc.getCentroid(mainshock, aftershocks);
-			region = new Region(centroid, radius);
+			Region finalRegion = new Region(centroid, radius);
 
-			aftershocks = accessor.fetchAftershocks(mainshock, dataMinDays, dataMaxDays, minDepth, maxDepth, region);
+			aftershocks = accessor.fetchAftershocks(mainshock, dataMinDays, dataMaxDays, minDepth, maxDepth, finalRegion);
 		}
 		
 		/*
@@ -70,6 +70,8 @@ public class HardCodedExample {
 		TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
 		GenericRJ_Parameters genericParams = genericFetch.get(regime);
 		System.out.println("Generic params for "+regime+": "+genericParams);
+		
+		// Make generic model
 		RJ_AftershockModel_Generic genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
 		
 		/*
