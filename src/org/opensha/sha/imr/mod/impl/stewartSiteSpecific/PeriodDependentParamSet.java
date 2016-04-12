@@ -302,6 +302,10 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		
 		for (int row=1; row<csv.getNumRows(); row++) {
 			List<String> line = csv.getLine(row);
+//			System.out.println(Joiner.on(",").join(line));
+			String periodStr = line.get(0);
+			if (periodStr == null || periodStr.isEmpty())
+				continue;
 			double period = PeriodDependentParamSetEditor.getPeriodFromRender(line.get(0));
 			double[] values = new double[params.length];
 			for (int i=0; i<params.length; i++)

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.math3.util.Precision;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -44,7 +45,17 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	}
 	
 	double calcEmpirical(Params param, double period, double vs30, double z1p0) {
-		IMT imt = IMT.getSA(period);
+		IMT imt = null;
+		for (IMT testIMT : bssa.getSupportedIMTs()) {
+			if (testIMT.name().startsWith("SA")) {
+				double saPeriod = testIMT.getPeriod();
+				if (Precision.equals(saPeriod, period, 0.000001)) {
+					imt = testIMT;
+					break;
+				}
+			}
+		}
+		
 		if (imt == null) {
 			// need to interpolate
 			IMT imtBelow = null;
