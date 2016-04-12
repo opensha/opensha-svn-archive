@@ -129,8 +129,8 @@ public class RJ_AftershockModel_SequenceSpecific extends RJ_AftershockModel impl
 		this.num_c = num_c;
 		this.b = b;
 		this.magComplete = magCat;
-//		this.aftershockList=aftershockList;
-		this.aftershockList = new ObsEqkRupList();
+		this.aftershockList=aftershockList;
+//		this.aftershockList = new ObsEqkRupList();
 		this.mainShock=mainShock;
 		this.dataStartTimeDays=dataStartTimeDays;
 		this.dataEndTimeDays=dataEndTimeDays;
