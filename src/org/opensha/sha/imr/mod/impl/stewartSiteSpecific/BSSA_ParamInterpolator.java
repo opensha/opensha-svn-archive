@@ -47,7 +47,7 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 	double calcEmpirical(Params param, double period, double vs30, double z1p0) {
 		IMT imt = null;
 		for (IMT testIMT : bssa.getSupportedIMTs()) {
-			if (testIMT.name().startsWith("SA")) {
+			if (testIMT.isSA()) {
 				double saPeriod = testIMT.getPeriod();
 				if (Precision.equals(saPeriod, period, 0.000001)) {
 					imt = testIMT;
@@ -60,7 +60,7 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 			// need to interpolate
 			IMT imtBelow = null;
 			IMT imtAbove = null;
-			for (IMT testIMT : IMT.values()) {
+			for (IMT testIMT : bssa.getSupportedIMTs()) {
 				if (!testIMT.isSA())
 					continue;
 				double testPeriod = testIMT.getPeriod();
