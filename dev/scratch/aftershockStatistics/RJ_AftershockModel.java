@@ -208,7 +208,11 @@ public abstract class RJ_AftershockModel {
 	 */
 	public EvenlyDiscretizedFunc getCumNumMFD_Fractile(double fractile, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
 		EvenlyDiscretizedFunc mfd = getModalCumNumMFD(minMag, maxMag, numMag, tMinDays, tMaxDays);
-		double m5val = mfd.getInterpolatedY(5.0);
+		double m5val;
+		if (minMag > 5 || maxMag < 5)
+			m5val = getModalCumNumMFD(5d, 5d, 1, tMinDays, tMaxDays).getY(0);
+		else
+			m5val = mfd.getInterpolatedY(5.0);
 		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
 		mfd.scale(numMag5_DistributionFunc.getInterpolatedFractile(fractile)/m5val);
 		mfd.setName(fractile+" Fractile for Num Events");

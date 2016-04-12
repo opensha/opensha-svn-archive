@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -20,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 
 import org.jfree.chart.title.PaintScaleLegend;
@@ -77,6 +79,8 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
+
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 
 public class AftershockStatsGUI extends JFrame implements ParameterChangeListener {
 	
@@ -191,6 +195,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private static final int catalog_tab_index = 5;
 	private static final int pdf_tab_index = 6;
 	private static final int aftershock_expected_index = 7;
+	private static final int forecast_table_tab_index = 8;
 	private GraphWidget epicenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
@@ -198,6 +203,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private JTextArea catalogText;
 	private JTabbedPane pdfGraphsPane;
 	private GraphWidget aftershockExpectedGraph;
+	private JTabbedPane forecastTablePane;
 	
 	private ComcatAccessor accessor;
 	private WC1994_MagLengthRelationship wcMagLen;
@@ -501,6 +507,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		mainshock = accessor.fetchEvent(eventID);
 		Preconditions.checkState(mainshock != null, "Event not found: %s", eventID);
+		System.out.println("Mainshock Location: "+mainshock.getHypocenterLocation());
 		
 		genericParams = null;
 		bParam.setValue(null);
@@ -1329,6 +1336,53 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		else
 			Preconditions.checkState(tabbedPane.getTabCount() > aftershock_expected_index, "Plots added out of order");
 	}
+	
+	private void plotForecastTable() {
+		if (forecastTablePane == null)
+			forecastTablePane = new JTabbedPane();
+		else
+			while (forecastTablePane.getTabCount() > 0)
+				forecastTablePane.removeTabAt(0);
+		
+		List<RJ_AftershockModel> models = Lists.newArrayList();
+		List<String> names = Lists.newArrayList();
+		
+		models.add(model);
+		names.add("Seq. Specific");
+		
+		if (genericModel != null) {
+			models.add(genericModel);
+			names.add("Generic");
+			
+			if (bayesianModel != null) {
+				// generate Bayesian model
+				models.add(bayesianModel);
+				names.add("Bayesian");
+			}
+		}
+		
+		GregorianCalendar eventDate = mainshock.getOriginTimeCal();
+		GregorianCalendar startDate = new GregorianCalendar();
+		Double minDays = forecastStartTimeParam.getValue();
+		validateParameter(minDays, "start time");
+		double startTime = eventDate.getTime().getTime() + minDays*ProbabilityModelsCalc.MILLISEC_PER_DAY;
+		startDate.setTimeInMillis((long)startTime);
+		
+		for (int i=0; i<models.size(); i++) {
+			RJ_AftershockModel model = models.get(i);
+			String name = names.get(i);
+			
+			USGS_AftershockForecast forecast = new USGS_AftershockForecast(model, eventDate, startDate);
+			JTable jTable = new JTable(forecast.getTableModel());
+			forecastTablePane.addTab(name, jTable);
+		}
+		
+		if (tabbedPane.getTabCount() == forecast_table_tab_index)
+			tabbedPane.addTab("Forecast Table", null, forecastTablePane,
+					"USGS Forecast Table");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > forecast_table_tab_index, "Plots added out of order");
+	}
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
@@ -1519,6 +1573,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 //				validateParameter(c, "c-value");
 				
 				plotExpectedAfershockMFDs();
+				plotForecastTable();
 				
 				tabbedPane.setSelectedIndex(aftershock_expected_index);
 			} catch (Exception e) {
