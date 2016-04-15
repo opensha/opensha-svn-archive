@@ -1098,6 +1098,10 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
+		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(8, 0.1653);
+		System.out.println(grMFD.getCumRateDistWithOffset());
+		System.exit(0);
+		
 //		// Branching ratio for U3ETAS model (regional MFD)
 //		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 //		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);

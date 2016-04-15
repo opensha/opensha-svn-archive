@@ -210,7 +210,7 @@ public class ETAS_Simulator {
 		}
 		
 		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
-		boolean generateDiagnosticsForScenario = true;	// to be able to turn off even if in debug mode
+		boolean generateDiagnosticsForScenario = false;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -1050,12 +1050,12 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
-System.out.println("TotalRateBeforeGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
+//System.out.println("TotalRateBeforeGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
 
 		if(etasParams.getApplyGridSeisCorr())
 			ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
-System.out.println("TotalRateAfterGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
-System.exit(-1);
+//System.out.println("TotalRateAfterGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
+//System.exit(-1);
 		
 		if(simulationName == null) {
 			String imposeGR_string;
@@ -1777,11 +1777,11 @@ System.exit(-1);
 	public static void main(String[] args) {
 		
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		erf.updateForecast();
-		
-		writeTotRateRupOccurOnTheseTwoSections(erf, 1837, 2183);
-		System.exit(-1);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		
+//		writeTotRateRupOccurOnTheseTwoSections(erf, 1837, 2183);
+//		System.exit(-1);
 		
 //		plotElMayorAndLagunaSalada(erf);
 
@@ -1821,11 +1821,11 @@ System.exit(-1);
 //		System.exit(0);
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
-		params.setImposeGR(true);	
+		params.setImposeGR(false);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
 		params.setTotalRateScaleFactor(1.14);
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		String imposeGR_string="";
@@ -1840,7 +1840,7 @@ System.exit(-1);
 		else
 			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 
-		simulationName += "_10year_ForRupOverlapPlots";	// to increment runs
+		simulationName += "test";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1449590752534l;
