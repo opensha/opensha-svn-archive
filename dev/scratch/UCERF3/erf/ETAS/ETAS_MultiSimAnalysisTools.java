@@ -550,8 +550,9 @@ public class ETAS_MultiSimAnalysisTools {
 		return ret;
 	}
 	
-	private static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs,
-			File outputDir, String name, String prefix) throws IOException {
+	private static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs, File outputDir,
+			String name, String prefix, TestScenario scenario, double expNumForM2p5, FaultSystemSolution fss)
+					throws IOException {
 		double minMag = mfdMinMag;
 		int numMag = mfdNumMag;
 		
@@ -591,6 +592,12 @@ public class ETAS_MultiSimAnalysisTools {
 		EvenlyDiscretizedFunc atFunc = myFuncs[0];
 		EvenlyDiscretizedFunc atOrAboveFunc = myFuncs[1];
 		
+		IncrementalMagFreqDist regionalGR = null;
+		if (expNumForM2p5 > 0)
+			regionalGR = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(
+				scenario.getMagnitude(), expNumForM2p5, fss);
+		
+		
 		for (boolean cumulative : cumulatives) {
 			EvenlyDiscretizedFunc[] mySubMagNums;
 			String yAxisLabel;
@@ -602,6 +609,7 @@ public class ETAS_MultiSimAnalysisTools {
 			myPrefix += "mag_num_";
 			EvenlyDiscretizedFunc myAtFunc;
 			EvenlyDiscretizedFunc myPrimaryFunc;
+			EvenlyDiscretizedFunc myRegionalGR = null;
 			if (cumulative) {
 //				myMFD = mfd.getCumRateDistWithOffset();
 				myPrimaryFunc = primaryMFD.getCumRateDistWithOffset();
@@ -610,6 +618,8 @@ public class ETAS_MultiSimAnalysisTools {
 				yAxisLabel = "Cumulative Number";
 				myPrefix += "cumulative";
 				myAtFunc = atOrAboveFunc;
+				if (regionalGR != null)
+					myRegionalGR = regionalGR.getCumRateDistWithOffset();
 			} else {
 //				myMFD = mfd;
 				myPrimaryFunc = primaryMFD;
@@ -618,7 +628,11 @@ public class ETAS_MultiSimAnalysisTools {
 				yAxisLabel = "Incremental Number";
 				myPrefix += "incremental";
 				myAtFunc = atFunc;
+				if (regionalGR != null)
+					myRegionalGR = regionalGR;;
 			}
+			if (myRegionalGR != null)
+				myRegionalGR.setName("GR");
 			
 			List<XY_DataSet> funcs = Lists.newArrayList();
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -633,6 +647,11 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			getFractilePlotFuncs(mySubMagNums, fractiles, funcs, chars, csvFile,
 					Color.BLACK, Color.BLUE, Color.CYAN, null, myAtFunc, myPrimaryFunc);
+			
+			if (myRegionalGR != null) {
+				funcs.add(myRegionalGR);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK));
+			}
 			
 			funcs.add(myAtFunc);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.RED));
@@ -3582,7 +3601,7 @@ public class ETAS_MultiSimAnalysisTools {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-		boolean plotMFDs = false;
+		boolean plotMFDs = true;
 		boolean plotExpectedComparison = false;
 		boolean plotSectRates = false;
 		boolean plotTemporalDecay = false;
@@ -3596,7 +3615,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean plotStationarity = false;
 		boolean plotSubSectRecurrence = false;
 		boolean plotCondDist = false;
-		boolean writeCatsForViz = true;
+		boolean writeCatsForViz = false;
 		
 //		boolean plotMFDs = true;
 //		boolean plotExpectedComparison = false;
@@ -3937,8 +3956,12 @@ public class ETAS_MultiSimAnalysisTools {
 				
 				plotFractWithMagAbove(childrenCatalogs, subMFDs, scenario, outputDir, name, fullFileName+"_fract_above_mag");
 				
-				if (scenario != null)
-					plotMagNum(childrenCatalogs, outputDir, name, "consolidated_aftershocks");
+				if (scenario != null) {
+					double expNumForM2p5 = 0;
+					if (inputDuration == 10)
+						expNumForM2p5 = 0.1653;
+					plotMagNum(childrenCatalogs, outputDir, name, "consolidated_aftershocks", scenario, expNumForM2p5, fss);
+				}
 			}
 			
 			if (plotExpectedComparison && triggerParentID >= 0) {

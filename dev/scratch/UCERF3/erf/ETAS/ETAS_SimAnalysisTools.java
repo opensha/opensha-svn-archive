@@ -64,6 +64,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
@@ -610,6 +611,37 @@ public class ETAS_SimAnalysisTools {
 	 */
 	public static IncrementalMagFreqDist getTotalAftershockMFD_ForU3_RegionalGR(double mainshockMag, double expNumForM2p5) {
 		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+		return getTotalAftershockMFD_ForU3_RegionalGR(mainshockMag, expNumForM2p5, erf);
+	}
+	
+	/**
+	 * This returns the expected number of aftershocks, as a function of magnitude,  assuming the U3 regional MFD 
+	 * applies everywhere.  This could be primary events or all aftershocks, as well as any duration following the
+	 *  event, depending on what value is given for expNumForM2p5 (the expected number of events produced by an M 
+	 *  2.5 main shock).  This assumes the ETAS alpha value is 1.0.
+	 * @param mainshockMag
+	 * @param expNumForM2p5
+	 * @param fss
+	 * @return
+	 */
+	public static IncrementalMagFreqDist getTotalAftershockMFD_ForU3_RegionalGR(double mainshockMag, double expNumForM2p5,
+			FaultSystemSolution fss) {
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(fss, 2012, 1.0);
+		return getTotalAftershockMFD_ForU3_RegionalGR(mainshockMag, expNumForM2p5, erf);
+	}
+	
+	/**
+	 * This returns the expected number of aftershocks, as a function of magnitude,  assuming the U3 regional MFD 
+	 * applies everywhere.  This could be primary events or all aftershocks, as well as any duration following the
+	 *  event, depending on what value is given for expNumForM2p5 (the expected number of events produced by an M 
+	 *  2.5 main shock).  This assumes the ETAS alpha value is 1.0.
+	 * @param mainshockMag
+	 * @param expNumForM2p5
+	 * @param erf note probability model will be set to POISSON 
+	 * @return
+	 */
+	public static IncrementalMagFreqDist getTotalAftershockMFD_ForU3_RegionalGR(double mainshockMag, double expNumForM2p5,
+			FaultSystemSolutionERF erf) {
 		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 		erf.updateForecast();
 		
