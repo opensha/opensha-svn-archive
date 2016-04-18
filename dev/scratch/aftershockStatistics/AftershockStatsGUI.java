@@ -79,6 +79,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
+import com.lowagie.text.Font;
 
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 
@@ -1374,6 +1375,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			
 			USGS_AftershockForecast forecast = new USGS_AftershockForecast(model, eventDate, startDate);
 			JTable jTable = new JTable(forecast.getTableModel());
+			jTable.getTableHeader().setFont(jTable.getTableHeader().getFont().deriveFont(Font.BOLD));
 			forecastTablePane.addTab(name, jTable);
 		}
 		

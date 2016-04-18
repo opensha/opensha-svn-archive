@@ -122,7 +122,7 @@ public class USGS_AftershockForecast {
 	
 	public TableModel getTableModel() {
 		final int numEach = minMags.length+1;
-		final int rows = probs.rowKeySet().size()*numEach + 1;
+		final int rows = probs.rowKeySet().size()*numEach;
 		final int cols = 4;
 		return new AbstractTableModel() {
 
@@ -171,6 +171,8 @@ public class USGS_AftershockForecast {
 						int prob = (int)(100d*probs.get(durations[d], mag) + 0.5);
 						if (prob == 0)
 							return "*";
+						else if (prob == 100)
+							return ">99 %";
 						return prob+" %";
 					}
 				}

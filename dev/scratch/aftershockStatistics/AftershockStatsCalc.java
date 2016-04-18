@@ -460,8 +460,10 @@ public class AftershockStatsCalc {
 			lons.add(loc.getLongitude());
 		}
 		double lat = FaultUtils.getAngleAverage(lats);
+		while (lat > 90)
+			lat -= 360;
 		double lon = FaultUtils.getAngleAverage(lons);
-		if (lon > 180)
+		while (lon > 180)
 			lon -= 360;
 		Location centroid = new Location(lat, lon);
 		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
