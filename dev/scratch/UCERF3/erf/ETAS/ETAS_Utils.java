@@ -1098,8 +1098,27 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(8, 0.1653);
+		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(5, 0.1653);
 		System.out.println(grMFD.getCumRateDistWithOffset());
+		EvenlyDiscretizedFunc cumMFD = grMFD.getCumRateDistWithOffset();
+		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
+		cumMFD.setInfo(cumMFD.toString());
+		magProbDists.add(cumMFD);
+		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "M 5 Main Shock"); 
+		magProbDistsGraph.setX_AxisLabel("Magnitude");
+		magProbDistsGraph.setY_AxisLabel("Expected Number ≥M");
+		magProbDistsGraph.setY_AxisRange(1e-7, 1e2);
+		magProbDistsGraph.setX_AxisRange(2.5d, 8.5d);
+		magProbDistsGraph.setYLog(true);
+		magProbDistsGraph.setPlotLabelFontSize(26);
+		magProbDistsGraph.setAxisLabelFontSize(24);
+		magProbDistsGraph.setTickLabelFontSize(22);
+		try {
+			magProbDistsGraph.saveAsPDF("ExpNumFromM5_MainShock.pdf");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		System.exit(0);
 		
 //		// Branching ratio for U3ETAS model (regional MFD)

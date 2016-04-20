@@ -1107,7 +1107,7 @@ public class ETAS_Simulator {
 //		}
 //		System.exit(-1);
 		
-		boolean includeSpontEvents=true;
+		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=true;
 		double gridSeisDiscr = 0.1;
 		
@@ -1814,7 +1814,7 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
 //		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = TestScenario.MOJAVE_M5;
 //		TestScenario scenario = null;
 		
 //		writeInfoAboutClosestSectionToLoc(erf, scenario.getLocation());
@@ -1840,7 +1840,7 @@ public class ETAS_Simulator {
 		else
 			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 
-		simulationName += "test";	// to increment runs
+		simulationName += "_NoSpontaneous";	// to increment runs
 
 		Long seed = null;
 //		Long seed = 1449590752534l;

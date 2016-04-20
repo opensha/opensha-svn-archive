@@ -6457,7 +6457,8 @@ System.exit(0);
 //		etas_PrimEventSampler.plotMFDsForSubSect(1851); //  Mojave S Subsect 14
 //		etas_PrimEventSampler.plotMFDsForSubSect(1835); //  Mojave N Subsect 3
 //		etas_PrimEventSampler.plotMFDsForSubSect(1841); //  Mojave S, subsection 4
-//		etas_PrimEventSampler.plotMFDsForSubSect(2461); //  Surprise Valley, subsection 15
+		etas_PrimEventSampler.plotMFDsForSubSect(2460); //  Surprise Valley, subsection 14
+		etas_PrimEventSampler.plotMFDsForSubSect(2159); //  San Jacinto (Borrego), subsection 0
 //		etas_PrimEventSampler.plotMFDsForSubSect(961); //   Imperial, subsection 0
 
 //		// This generates 3D plotting data for cube charFactors and rates over sections 1844 to 1849 on Mojave S
@@ -6518,8 +6519,8 @@ System.exit(0);
 //		}
 
 		
-		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 6.0), "gmtPie_SliceData_6kmDepth");
-		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData_18kmDepth");
+//		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 6.0), "gmtPie_SliceData_6kmDepth");
+//		etas_PrimEventSampler.writeGMT_PieSliceDecayData(new Location(34., -118., 18.0), "gmtPie_SliceData_18kmDepth");
 //		etas_PrimEventSampler.writeGMT_PieSliceRatesData(new Location(34., -118., 12.0), "gmtPie_SliceData");
 
 		
