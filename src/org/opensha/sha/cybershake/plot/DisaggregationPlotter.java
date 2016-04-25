@@ -29,7 +29,9 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
+import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
+import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.calc.params.IncludeMagDistFilterParam;
 import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.calc.params.MaxDistanceParam;
@@ -86,6 +88,7 @@ public class DisaggregationPlotter {
 	private List<AttenuationRelationship> gmpeComparisons;
 	private double forceVs30 = Double.NaN;
 	
+	private HazardCurveCalculator gmpeCurveCalc;
 	private DisaggregationCalculator disaggCalc;
 	private ParameterList disaggParams;
 	
@@ -102,19 +105,20 @@ public class DisaggregationPlotter {
 	
 	private double maxZAxis = Double.NaN;
 	
-	private ArrayList<PlotType> plotTypes;
+	private List<PlotType> plotTypes;
 	
 	private HashMap<Double, Double> imlToProbsMap;
 	
 	public DisaggregationPlotter(
 			int runID,
 			List<CybershakeIM> ims,
+			List<AttenuationRelationship> gmpes,
 			List<Double> probLevels,
 			List<Double> imlLevels,
 			File outputDir,
 			List<PlotType> plotTypes) {
 		initDB();
-		init(runID, ims, null, probLevels, imlLevels, outputDir, plotTypes);
+		init(runID, ims, gmpes, probLevels, imlLevels, outputDir, plotTypes);
 	}
 	
 	public DisaggregationPlotter(CommandLine cmd) {
@@ -155,6 +159,7 @@ public class DisaggregationPlotter {
 			outputDir = new File("");
 		}
 		
+		List<PlotType> plotTypes;
 		if (cmd.hasOption("t")) {
 			String typeStr = cmd.getOptionValue("t");
 			
@@ -200,6 +205,8 @@ public class DisaggregationPlotter {
 		this.run = runs2db.getRun(runID);
 		Preconditions.checkNotNull(run, "Error fetching runs from DB");
 		
+		this.plotTypes = plotTypes;
+		
 		this.ims = ims;
 		Preconditions.checkNotNull(ims, "Error fetching IMs from DB");
 		Preconditions.checkState(!ims.isEmpty(), "must have at least 1 IM");
@@ -234,6 +241,7 @@ public class DisaggregationPlotter {
 		this.gmpeComparisons = gmpeComparisons;
 		
 		disaggCalc = new DisaggregationCalculator();
+		gmpeCurveCalc = new HazardCurveCalculator();
 		
 		disaggParams = new ParameterList();
 		disaggParams.addParameter(new MaxDistanceParam());
@@ -283,6 +291,7 @@ public class DisaggregationPlotter {
 			}
 			
 			imlToProbsMap = new HashMap<Double, Double>();
+			List<Double> myIMLevels = Lists.newArrayList(imlLevels);
 			// convert prob values to IMLs
 			for (double probLevel : probLevels) {
 				if (probLevel > curve.getY(0)
@@ -294,7 +303,7 @@ public class DisaggregationPlotter {
 				double imLevel = curve.getFirstInterpolatedX_inLogXLogYDomain(probLevel);
 				System.out.println("converted prob of: "+probLevel+" to IML of: "+imLevel);
 				imlToProbsMap.put(imLevel, probLevel);
-				imlLevels.add(imLevel);
+				myIMLevels.add(imLevel);
 			}
 			
 			// set up GMPE comparisons
@@ -321,7 +330,7 @@ public class DisaggregationPlotter {
 					HazardCurvePlotter.setAttenRelParams(attenRel, im, run, csSite, datas);
 			}
 			
-			for (double iml : imlLevels) {
+			for (double iml : myIMLevels) {
 				System.out.println("Disaggregating");
 				disaggCalc.setMagRange(minMag, numMags, deltaMag);
 				disaggCalc.setNumSourcestoShow(numSourcesForDisag);
@@ -363,13 +372,7 @@ public class DisaggregationPlotter {
 						outFileName += "_DisaggIML_"+(float)iml+"_G";
 					outFileName += "_" + periodStr + "_" + dateStr;
 					
-					String meanModeHeader;
-					if (isProb)
-						meanModeHeader = "Disaggregation Results for Prob = " + prob
-						+ " (for IML = " + (float) iml + ")";
-					else
-						meanModeHeader = "Disaggregation Results for IML = " + iml
-						+ " (for Prob = " + (float) prob + ")";
+					String meanModeHeader = getMeanModeHeader(iml, isProb, prob);
 					
 					String meanModeText = meanModeHeader+disaggCalc.getMeanAndModeInfo();
 					
@@ -385,6 +388,14 @@ public class DisaggregationPlotter {
 					if (gmpeComparisons != null) {
 						for (AttenuationRelationship attenRel : gmpeComparisons) {
 							System.out.println("Calculating GMPE comparison: "+attenRel.getShortName());
+							if (isProb) {
+								// need to calculate the correct IML from the GMPE curve
+								DiscretizedFunc gmpeCurve = curve.deepClone();
+								gmpeCurve = HazardCurveSetCalculator.getLogFunction(gmpeCurve);
+								gmpeCurveCalc.getHazardCurve(gmpeCurve, site, attenRel, erf);
+								gmpeCurve = HazardCurveSetCalculator.unLogFunction(curve, gmpeCurve);
+								iml = gmpeCurve.getFirstInterpolatedX_inLogXLogYDomain(prob);
+							}
 							success = disaggCalc.disaggregate(Math.log(iml), site, attenRel, erf, disaggParams);
 							if (!success)
 								throw new RuntimeException("Disagg calc failed (see errors above, if any).");
@@ -396,7 +407,8 @@ public class DisaggregationPlotter {
 							}
 							
 							String gmpeOutFileName = outFileName+"_"+attenRel.getShortName();
-							String gmpeMeanModeText = meanModeHeader+disaggCalc.getMeanAndModeInfo();
+							String gmpeMeanModeHeader = getMeanModeHeader(iml, isProb, prob);
+							String gmpeMeanModeText = gmpeMeanModeHeader+disaggCalc.getMeanAndModeInfo();
 							String gmpeMetadataText = HazardCurvePlotter.getCurveParametersInfoAsString(
 									attenRel, erf, site,
 									disaggParams.getParameter(Double.class, MaxDistanceParam.NAME).getValue());
@@ -415,6 +427,17 @@ public class DisaggregationPlotter {
 				}
 			}
 		}
+	}
+
+	private String getMeanModeHeader(double iml, boolean isProb, double prob) {
+		String meanModeHeader;
+		if (isProb)
+			meanModeHeader = "Disaggregation Results for Prob = " + prob
+			+ " (for IML = " + (float) iml + ")";
+		else
+			meanModeHeader = "Disaggregation Results for IML = " + iml
+			+ " (for Prob = " + (float) prob + ")";
+		return meanModeHeader;
 	}
 
 	private void savePlot(String address, String outFileName, String meanModeText, String metadataText,
