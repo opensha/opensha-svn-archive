@@ -22,6 +22,7 @@ import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
 import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
+import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
 import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.earthquake.ERF;
@@ -106,7 +107,7 @@ public class CyberShakeMCErDeterministicCalc extends AbstractMCErDeterministicCa
 		Map<Double, DeterministicResult> result = Maps.newHashMap();
 		
 		for (CybershakeIM im : ims) {
-			double period = CyberShakeMCErProbabilisticCalc.getCleanedCS_Period(im.getVal());
+			double period = PeakAmplitudesFromDB.getCleanedCS_Period(im.getVal());
 			// make sure that we have amplitudes by checking for a hazard curve
 			int curveID = curves2db.getHazardCurveID(runID, im.getID());
 			if (curveID < 0) {

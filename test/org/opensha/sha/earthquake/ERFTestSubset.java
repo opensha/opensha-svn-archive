@@ -21,7 +21,7 @@ public class ERFTestSubset implements ERF {
 
 	HashMap<Integer, Integer> sourceIDMap = new HashMap<Integer, Integer>();
 	
-	private AbstractERF baseERF;
+	private ERF baseERF;
 	
 	/** fields for nth rupture info */
 	protected int totNumRups=-1;
@@ -29,7 +29,7 @@ public class ERFTestSubset implements ERF {
 	protected int[] srcIndexForNthRup;
 	protected int[] rupIndexForNthRup;
 	
-	public ERFTestSubset(AbstractERF baseERF) {
+	public ERFTestSubset(ERF baseERF) {
 		this.baseERF = baseERF;
 	}
 

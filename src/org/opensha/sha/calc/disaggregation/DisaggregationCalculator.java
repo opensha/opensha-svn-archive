@@ -229,8 +229,8 @@ implements DisaggregationCalculatorAPI{
 		//resetting the Parameter change Listeners on the AttenuationRelationship
 		//parameters. This allows the Server version of our application to listen to the
 		//parameter changes.
-		for (ScalarIMR imr : imrMap.values())
-			( (AttenuationRelationship) imr).resetParameterEventListeners();
+//		for (ScalarIMR imr : imrMap.values())
+//			( (AttenuationRelationship) imr).resetParameterEventListeners();
 
 
 		boolean includeMagDistFilter = includeMagDistFilterParam.getValue();
@@ -355,7 +355,7 @@ implements DisaggregationCalculatorAPI{
 				imr.setEqkRupture(rupture);
 
 				// get the cond prob
-				condProb = imr.getExceedProbability();
+				condProb = imr.getExceedProbability(iml);
 				// should the following throw an exception?
 				if (condProb == 0 && D)
 					System.out.println(S +

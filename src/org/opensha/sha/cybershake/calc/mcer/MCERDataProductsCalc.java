@@ -39,6 +39,7 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
 import org.opensha.sha.calc.mcer.AbstractMCErDeterministicCalc;
 import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
@@ -54,6 +55,8 @@ import org.opensha.sha.calc.mcer.MCErCalcUtils;
 import org.opensha.sha.calc.mcer.WeightProvider;
 import org.opensha.sha.calc.mcer.WeightedAverageMCErDeterministicCalc;
 import org.opensha.sha.calc.mcer.WeightedAverageMCErProbabilisticCalc;
+import org.opensha.sha.cybershake.calc.HazardCurveComputation;
+import org.opensha.sha.cybershake.calc.HazardDecompositionPlotter;
 import org.opensha.sha.cybershake.calc.RupProbModERF;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
 import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
@@ -64,9 +67,12 @@ import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
+import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
+import org.opensha.sha.cybershake.plot.DisaggregationPlotter;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.cybershake.plot.PlotType;
 import org.opensha.sha.earthquake.ERF;
@@ -74,6 +80,8 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.MeanUCERF2
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.attenRelImpl.MultiIMR_Averaged_AttenRel;
+import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.util.SiteTranslator;
@@ -127,8 +135,15 @@ public class MCERDataProductsCalc {
 	static final String default_periods = "1,1.5,2,3,4,5,7.5,10";
 	static final String all_periods = "0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,"
 				+"0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0";
+//	static final String all_periods = "0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,"
+//			+"0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,5.5,6,6.5,7.5,8.5,10.0";
 	
 	static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+	
+	private boolean disaggregate = false;
+	private Map<String, List<Integer>> combinedSources = null;
+	
+	private ERF erf;
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
 			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
@@ -174,6 +189,8 @@ public class MCERDataProductsCalc {
 		
 		boolean includeNEHRP = cmd.hasOption("nehrp-mcer");
 		
+		disaggregate = cmd.hasOption("disaggregate");
+		
 		init(Cybershake_OpenSHA_DBApplication.db, erf, attenRels, gmpeERF, comp, periods, outputDir,
 				cmd.hasOption("weight-average"), gmpeCacheDir, includeNEHRP);
 	}
@@ -187,6 +204,7 @@ public class MCERDataProductsCalc {
 		this.gmpes = gmpes;
 		this.outputDir = outputDir;
 		this.includeNEHRP = includeNEHRP;
+		this.erf = erf;
 		
 		runs2db = new Runs2DB(db);
 		sites2db = new CybershakeSiteInfo2DB(db);
@@ -509,6 +527,77 @@ public class MCERDataProductsCalc {
 				MCErCalcUtils.saToPsuedoVel(gmpeCombinedDetSpectrum), MCErCalcUtils.saToPsuedoVel(asceDeterm),
 				MCErCalcUtils.saToPsuedoVel(csProbSpectrum), MCErCalcUtils.saToPsuedoVel(gmpeCombinedProbSpectrum),
 				asceProb, weightAverageDet, weightAverageProb);
+		
+		if (disaggregate) {
+			List<CybershakeIM> ims = amps2db.getSupportedIMs(run.getRunID());
+			CybershakeIM imForOrder = null;
+			for (int i=ims.size(); --i>=0;) {
+				CybershakeIM im = ims.get(i);
+				if (im.getComponent() != comp)
+					ims.remove(i);
+				else if ((float)im.getVal() == 5f)
+					imForOrder = im;
+			}
+			if (imForOrder == null)
+				imForOrder = ims.get(0);
+			DiscretizedFunc xVals = new IMT_Info().getDefaultHazardCurve(SA_Param.NAME);
+			int numToInclude = 5;
+			if (combinedSources == null)
+				combinedSources = HazardDecompositionPlotter.getCombinedSources(erf);
+//			numToInclude = combinedSources.size()-1;
+			System.out.println("Sources: "+combinedSources.size());
+			
+			String prefix = csSite.short_name+"_run"+run.getRunID()+"_"+comp.getShortName();
+			File disaggDir = new File(runOutputDir, "disaggregations");
+			Preconditions.checkState(disaggDir.exists() || disaggDir.mkdir());
+			HazardCurveComputation calc = new HazardCurveComputation(db);
+			calc.setPeakAmpsAccessor(amps2db);
+			double uhsVal = Double.NaN; // RTGM if NaN
+			SiteInfo2DB site2db = new SiteInfo2DB(db);
+			HazardDecompositionPlotter.writeBarChart(calc, site2db, run, csSite,
+					ims, imForOrder, xVals, disaggDir, numToInclude, prefix+"_hazard_decomp_bar",
+					erf, combinedSources, uhsVal);
+			
+			// now hazard decomposition
+			List<CybershakeIM> imsForDisagg = Lists.newArrayList();
+			for (CybershakeIM im : ims) {
+				float period = (float)PeakAmplitudesFromDB.getCleanedCS_Period(im.getVal());
+				if (period == 5f || period == 7.5f)
+					imsForDisagg.add(im);
+			}
+			
+			uhsVal = 4e-4;
+			AttenuationRelationship gmpe = null;
+			if (gmpes != null) {
+				if (gmpes.size() > 1) {
+					gmpe = new MultiIMR_Averaged_AttenRel(gmpes) {
+						@Override
+						public String getShortName() {
+							return "GMPE";
+						}
+					};
+					gmpe.setParamDefaults();
+				} else {
+					gmpe = gmpes.get(0);
+				}
+			}
+			HazardCurveCalculator gmpeCalc = new HazardCurveCalculator();
+			for (CybershakeIM im : imsForDisagg) {
+				float period = (float)PeakAmplitudesFromDB.getCleanedCS_Period(im.getVal());
+				String xAxisLabel = period+"s SA";
+				HazardDecompositionPlotter.doCyberShake(calc, site2db, run, csSite, im, xVals, disaggDir,
+						numToInclude, xAxisLabel, prefix+"_hazard_decomp_"+period+"s", erf, combinedSources, uhsVal);
+				if (gmpes != null)
+					HazardDecompositionPlotter.doGMPE(gmpeCalc, site, gmpe, erf, xVals, disaggDir, numToInclude,
+						xAxisLabel, prefix+"_hazard_decomp_gmpe_"+period+"s", im, combinedSources, uhsVal);
+			}
+			
+			// now disagg
+			DisaggregationPlotter disagg = new DisaggregationPlotter(run.getRunID(), imsForDisagg,
+					Lists.newArrayList(gmpe), Lists.newArrayList(uhsVal), null, disaggDir,
+					Lists.newArrayList(PlotType.PDF, PlotType.PNG, PlotType.TXT));
+			disagg.disaggregate();
+		}
 	}
 	
 	private static DiscretizedFunc average(List<DiscretizedFunc> funcs) {
@@ -923,6 +1012,10 @@ public class MCERDataProductsCalc {
 		gmpeCacheDir.setRequired(false);
 		ops.addOption(gmpeCacheDir);
 		
+		Option disagg = new Option("disagg", "disaggregate", false, "Flag to do disaggregation");
+		disagg.setRequired(false);
+		ops.addOption(disagg);
+		
 		Option help = new Option("?", "help", false, "Display this message");
 		help.setRequired(false);
 		ops.addOption(help);
@@ -954,10 +1047,31 @@ public class MCERDataProductsCalc {
 //			String argStr = "--run-id 3883"; // s603 1 hz
 //			String argStr = "--run-id 3875,3878,3877"; // LAPD,PAS,COO 1 hz
 //			String argStr = "--run-id 3876,3877,3868,3875,3879,3878,3882,3883,3884,3885,3880,3869,3873,3861";
-			String argStr = "--run-id 4282,4283,4284,4285,4286,4287,4289,4290,4291,4292,4293,4294,4295,4296";
-			argStr += " --component RotD100";
-//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products_stochastic";
+//			String argStr = "--run-id 4282,4283,4284,4285,4286,4287,4289,4290,4291,4292,4293,4294,4295,4296";
+			String argStr = "--component RotD100";
+//			argStr += " --run-id 4282,4283,4284,4285,4286,4287,4289,4290,4291,4292,4293,4294,4295,4296";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_12_main";
+//			argStr += " --run-id 4516,4517,4518,4519,4520,4521,4522,4523";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_12_la_west";
+//			argStr += " --run-id 3876,3877,3870,3875,3879,4266,3882,3883,3884,3885,3880,3869,3873,3861";
+//			argStr += " --run-id 3876";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_main";
+//			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_la_basin_west";
+//			argStr += " --run-id 4083,4084,4085,4086,4087,4088,4237,4090";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_la_basin_central";
+//			argStr += " --run-id 4111,4112,4113,4114,4115,4116,4129,4130";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_la_basin_east";
+//			argStr += " --run-id 4058,4047,3938,4037,3932,3934";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_sf_valley";
+			argStr += " --run-id 4125,4126,4127,4128,4139,4140,4141,4142,4151,4152,4153";
+			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_orance_county";
+//			argStr += " --run-id 4155,4156,3883,4157,4167,4168,4169,4181,4182";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_inland_empire";
+//			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221,4083,4084,4085,4086,4087,4088,4237,"
+//					+ "4090,4111,4112,4113,4114,4115,4116,4129,4130,4058,4047,3938,4037,3932,3934";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_extra30";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products_stochastic";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products_gmpeUCERF3";
 //			argStr += " --output-dir /tmp/mcer_data_products";
 			argStr += " --erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF.xml";
@@ -966,6 +1080,7 @@ public class MCERDataProductsCalc {
 					+ "src/org/opensha/sha/cybershake/conf/cb2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cy2014.xml";
 			argStr += " --period "+all_periods;
+			argStr += " --disaggregate";
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
 			// for UCERF3 GMPE
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_full.xml";

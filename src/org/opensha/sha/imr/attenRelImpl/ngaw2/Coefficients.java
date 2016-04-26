@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayTable;
@@ -62,6 +63,7 @@ public abstract class Coefficients {
 	public void set(IMT imt) {
 		if (this.imt == imt) return;
 		try {
+			Preconditions.checkState(table.rowKeySet().contains(imt), "no coeff for %s", imt);
 			for (String name : table.columnKeySet()) {
 				double value = table.get(imt, name);
 				getClass().getDeclaredField(name).set(this, value);

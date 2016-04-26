@@ -10,6 +10,7 @@ import java.util.List;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
+import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -36,6 +37,9 @@ public class GMPE_ScenarioComparisonCalc {
 	public static void main(String[] args) throws IOException {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		
+//		Double forceVs30 = null;
+		Double forceVs30 = 760d;
+		
 		List<ScalarIMR> imrs = Lists.newArrayList();
 		imrs.add(AttenRelRef.ASK_2014.instance(null));
 		imrs.add(AttenRelRef.BSSA_2014.instance(null));
@@ -52,6 +56,11 @@ public class GMPE_ScenarioComparisonCalc {
 		double[] periods = { 2,3,5 };
 		
 		String outPrefix = "gmpe_amps_source"+sourceID+"_rup"+rupID;
+		String vs30Name = "Wills 2006 Vs30 (m/s)";
+		if (forceVs30 != null) {
+			outPrefix += "_forceVs30"+forceVs30;
+			vs30Name = "Hardcoded Vs30 (m/s)";
+		}
 		
 		ParameterList siteParams = new ParameterList();
 		for (ScalarIMR imr : imrs) {
@@ -79,7 +88,7 @@ public class GMPE_ScenarioComparisonCalc {
 		});
 		
 		List<String> header = Lists.newArrayList("Site Short Name", "Site ID",
-				"Wills 2006 Vs30 (m/s)", "CVM-S4.26 Z1.0 (km)", "CVM-S4.26 Z2.5 (km)");
+				vs30Name, "CVM-S4.26 Z1.0 (km)", "CVM-S4.26 Z2.5 (km)");
 		for (ScalarIMR imr : imrs)
 			header.add(imr.getShortName());
 		
@@ -101,7 +110,11 @@ public class GMPE_ScenarioComparisonCalc {
 			Site site = new Site(csSite.createLocation());
 			ArrayList<SiteDataValue<?>> datas = provs.getBestAvailableData(site.getLocation());
 			for (Parameter<?> param : siteParams) {
-				trans.setParameterValue(param, datas);
+				if (forceVs30 != null && param.getName().equals(Vs30_Param.NAME))
+					trans.setParameterValue(param, new SiteDataValue<Double>(
+							SiteData.TYPE_VS30, SiteData.TYPE_FLAG_INFERRED, forceVs30));
+				else
+					trans.setParameterValue(param, datas);
 				site.addParameter(param);
 			}
 			
