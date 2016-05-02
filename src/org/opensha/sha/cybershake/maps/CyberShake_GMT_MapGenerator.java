@@ -79,10 +79,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //	public static final Color OUTSIDE_REGION_COLOR = Color.WHITE;
 	
 	public static CPT getHazardCPT() throws IOException {
-		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/resources/cpt/MaxSpectrum2.cpt"));
 //		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
+//				"/resources/cpt/MaxSpectrum2.cpt"));
+		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
 		return cpt;
 	}
@@ -91,10 +91,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //		CPT ratioCPT = GMT_CPT_Files.MAX_SPECTRUM.instance();
 //		ratioCPT = ratioCPT.rescale(0, 2);
 //		return ratioCPT;
-		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
-				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
 //		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
-//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio_tighter.cpt"));
+//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio.cpt"));
+		CPT cpt = CPT.loadFromStream(CyberShake_GMT_MapGenerator.class.getResourceAsStream(
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_ratio_tighter.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
 		return cpt;
 	}

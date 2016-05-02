@@ -1064,10 +1064,10 @@ public class MCERDataProductsCalc {
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_la_basin_east";
 //			argStr += " --run-id 4058,4047,3938,4037,3932,3934";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_sf_valley";
-			argStr += " --run-id 4125,4126,4127,4128,4139,4140,4141,4142,4151,4152,4153";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_orance_county";
-//			argStr += " --run-id 4155,4156,3883,4157,4167,4168,4169,4181,4182";
-//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_inland_empire";
+//			argStr += " --run-id 4125,4126,4127,4128,4139,4140,4141,4142,4151,4152,4153";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_orange_county";
+			argStr += " --run-id 4155,4156,3883,4157,4167,4168,4169,4181,4182";
+			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_inland_empire";
 //			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221,4083,4084,4085,4086,4087,4088,4237,"
 //					+ "4090,4111,4112,4113,4114,4115,4116,4129,4130,4058,4047,3938,4037,3932,3934";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_extra30";

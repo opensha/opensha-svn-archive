@@ -2000,6 +2000,10 @@ public class SynchParamCalculator {
 		for (ComparablePairing<Integer, Integer>  comp : eventComps)
 			sortedIndexes.add(comp.getData());
 		
+		ArbitrarilyDiscretizedFunc occVsFractFunc = new ArbitrarilyDiscretizedFunc();
+		
+		System.out.println("Fraction of states occupied only once:");
+		
 		for (int nDims=chain.getNDims(); nDims>=2; nDims--) {
 			EmpiricalMarkovChain myChain = chain;
 			List<Integer> indexesToInclude = sortedIndexes;
@@ -2029,6 +2033,10 @@ public class SynchParamCalculator {
 			
 			destHist.normalizeBySumOfY_Vals();
 			occHist.normalizeBySumOfY_Vals();
+			
+			double fractOnlyOnce = occHist.getY(1d);
+			occVsFractFunc.set((double)nDims, fractOnlyOnce);
+			System.out.println(nDims+"-D: "+(float)fractOnlyOnce);
 			
 			List<DiscretizedFunc> funcs = Lists.newArrayList();
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -2072,7 +2080,7 @@ public class SynchParamCalculator {
 			funcs.add(occHist);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 			
-			spec = new PlotSpec(funcs, chars, nDims+"-D State Transition Hist:\n"+nameStr,
+			spec = new PlotSpec(funcs, chars, nDims+"-D State Occupancy Hist:\n"+nameStr,
 					"Occupancy Count", "Fraction of States");
 			
 			gp = new HeadlessGraphPanel();
@@ -2097,6 +2105,29 @@ public class SynchParamCalculator {
 			gp.getCartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		}
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(occVsFractFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "State Occupancy Hist vs Dimensions",
+				"Num Dimensions", "Fract Occupied Only Once");
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(14);
+		gp.setAxisLabelFontSize(16);
+		gp.setPlotLabelFontSize(14);
+
+		gp.drawGraphPanel(spec, false, false, null, new Range(0d, 1d));
+		
+		File outputFile = new File(outputDir, "state_occ_vs_dims");
+
+		gp.getCartPanel().setSize(1000, 800);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 	}
 
 	public static void main(String[] args) throws IOException {
