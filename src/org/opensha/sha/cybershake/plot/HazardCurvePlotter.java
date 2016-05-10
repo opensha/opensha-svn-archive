@@ -1024,7 +1024,11 @@ public class HazardCurvePlotter {
 			ArrayList<AnnotatedCurve> compCurves, boolean textOnly,
 			boolean noVMColors, boolean sgtColors) {
 		System.out.println("Fetching Curve!");
-		DiscretizedFunc curve = curve2db.getHazardCurve(annotatedCurve.curveID);
+		DiscretizedFunc curve;
+		if (annotatedCurve.curve == null)
+			curve = curve2db.getHazardCurve(annotatedCurve.curveID);
+		else
+			curve = annotatedCurve.curve;
 		
 		if (curve == null)
 			return null;
@@ -1191,12 +1195,12 @@ public class HazardCurvePlotter {
 	
 	private void plotCurvesToPNG(String outFile) throws IOException {
 		System.out.println("Saving PNG to: " + outFile);
-		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
+		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getChartPanel().getChart(), plotWidth, plotHeight);
 	}
 	
 	private void plotCurvesToJPG(String outFile) throws IOException {
 		System.out.println("Saving JPG to: " + outFile);
-		ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getCartPanel().getChart(), plotWidth, plotHeight);
+		ChartUtilities.saveChartAsJPEG(new File(outFile), gp.getChartPanel().getChart(), plotWidth, plotHeight);
 	}
 	
 	private void plotCurvesToTXT(String outFile, ArrayList<DiscretizedFunc> curves) throws IOException {
