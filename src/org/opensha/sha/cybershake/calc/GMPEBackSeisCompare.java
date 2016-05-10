@@ -128,7 +128,7 @@ public class GMPEBackSeisCompare {
 			gp.setPlotLabelFontSize(21);
 			
 			gp.drawGraphPanel(spec, true, true, new Range(3e-3, 3e0), new Range(5e-7, 5e-1));
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.setVisible(true);
 			
 			gp.validate();

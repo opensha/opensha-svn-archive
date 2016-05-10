@@ -322,9 +322,17 @@ public class HardCodedInterpDiffMapCreator {
 			// 167: RotD50 2sec
 			// 162: RotD50 3sec
 			
-			int imTypeID = 94;
-			String imtLabel = "0.2sec SA";
-			Double customMax = 2d;
+			int imTypeID = 86;
+			String imtLabel = "1sec SA";
+			Double customMax = 1.5d;
+			
+//			int imTypeID = 88;
+//			String imtLabel = "0.5sec SA";
+//			Double customMax = 3d;
+			
+//			int imTypeID = 94;
+//			String imtLabel = "0.2sec SA";
+//			Double customMax = 3d;
 			
 //			int imTypeID = 26; // 2 sec SA, GEOM
 //			String imtLabel = "2sec SA";
@@ -336,11 +344,11 @@ public class HardCodedInterpDiffMapCreator {
 			
 //			int imTypeID = 11; // 5 sec SA, GEOM
 //			String imtLabel = "5sec SA";
-//			Double customMax = 0.8;
+//			Double customMax = 0.6;
 			
 //			int imTypeID = 1; // 10 sec SA, GEOM
 //			String imtLabel = "10sec SA";
-//			Double customMax = 0.6;
+//			Double customMax = 0.4;
 			
 			String prefix = "study_15_12";
 //			String prefix = "study_15_4";
@@ -407,8 +415,8 @@ public class HardCodedInterpDiffMapCreator {
 			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(35);
-			List<Integer> compDatasetIDs = Lists.newArrayList(57);
-//			List<Integer> compDatasetIDs = null;
+//			List<Integer> compDatasetIDs = Lists.newArrayList(57);
+			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;

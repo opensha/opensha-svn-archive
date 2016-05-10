@@ -397,8 +397,11 @@ public class XYZGraphPanel extends JPanel {
 				subPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 			}
 			
-			legends.add(getLegendForCPT(scale, spec.getZAxisLabel(), axisFontSize, tickFontSize,
-					spec.getCPTTickUnit(), spec.getLegendPosition()));
+			if (spec.isCPTVisible())
+				legends.add(getLegendForCPT(scale, spec.getZAxisLabel(), axisFontSize, tickFontSize,
+					spec.getCPTTickUnit(), spec.getCPTPosition()));
+			else
+				legends.add(null);
 			
 			// now add any annotations
 			if (spec.getPlotAnnotations() != null)
@@ -442,11 +445,14 @@ public class XYZGraphPanel extends JPanel {
 		//giving off all the data that needs to be plotted to JFreechart, which return backs
 		//a panel of curves,
 		JFreeChart chart = new JFreeChart(specs.get(0).getTitle(), newPlotLabelFont, plot, false );
-		if (sameLegends)
+		if (sameLegends) {
+			if (legends.get(0) != null)
 			chart.addSubtitle(0, legends.get(0));
-		else
+		} else {
 			for (int i=0; i<legends.size(); i++)
-				chart.addSubtitle(i, legends.get(i));
+				if (legends.get(i) != null)
+					chart.addSubtitle(i, legends.get(i));
+		}
 
 		chart.setBackgroundPaint( plotPrefs.getBackgroundColor() );
 

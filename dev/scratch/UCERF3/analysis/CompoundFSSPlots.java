@@ -282,7 +282,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					fname += "_UNNAMED_REGION_" + (++unnamedRegionCnt);
 
 				File file = new File(subDir, fname);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 				gp.saveAsPNG(file.getAbsolutePath() + ".png");
 				gp.saveAsTXT(file.getAbsolutePath() + ".txt");
@@ -290,7 +290,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if (!smallDir.exists())
 					smallDir.mkdir();
 				file = new File(smallDir, fname + "_small");
-				gp.getCartPanel().setSize(500, 400);
+				gp.getChartPanel().setSize(500, 400);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 			}
@@ -634,7 +634,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				fname += "_UNNAMED_REGION_" + (++unnamedRegionCnt);
 
 			File file = new File(subDir, fname);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 			gp.saveAsPNG(file.getAbsolutePath() + ".png");
 			gp.saveAsTXT(file.getAbsolutePath() + ".txt");
@@ -642,7 +642,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			if (!smallDir.exists())
 				smallDir.mkdir();
 			file = new File(smallDir, fname + "_small");
-			gp.getCartPanel().setSize(500, 400);
+			gp.getChartPanel().setSize(500, 400);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
@@ -1175,12 +1175,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				String fname = prefix+"_"+(int)duration+"yr_MPD_ERF_"+regNameFileSafe;
 
 				File file = new File(durDir, fname);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 				gp.saveAsPNG(file.getAbsolutePath() + ".png");
 				gp.saveAsTXT(file.getAbsolutePath() + ".txt");
 				file = new File(smallMPDDir, fname + "_small");
-				gp.getCartPanel().setSize(500, 400);
+				gp.getChartPanel().setSize(500, 400);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				regSmallPDFs.add(new File(file.getAbsolutePath()+".pdf"));
@@ -1241,7 +1241,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 					
 					gp.drawGraphPanel(histSpec);
 					file = new File(regionHistDir, name);
-					gp.getCartPanel().setSize(500, 400);
+					gp.getChartPanel().setSize(500, 400);
 					gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 					gp.saveAsPNG(file.getAbsolutePath()+".png");
 					histPDFs.add(new File(file.getAbsolutePath()+".pdf"));
@@ -1267,12 +1267,12 @@ public abstract class CompoundFSSPlots implements Serializable {
 				String fname = spec.getTitle().replaceAll("\\W+", "_")+"_"+(int)duration+"yr";
 
 				File file = new File(faultDir, fname);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 				gp.saveAsPNG(file.getAbsolutePath() + ".png");
 				gp.saveAsTXT(file.getAbsolutePath() + ".txt");
 				file = new File(smallFaultsDir, fname + "_small");
-				gp.getCartPanel().setSize(500, 400);
+				gp.getChartPanel().setSize(500, 400);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 			}
@@ -3139,7 +3139,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 						
 						gp.drawGraphPanel(histSpec);
 						File file = new File(tempDir, name);
-						gp.getCartPanel().setSize(500, 400);
+						gp.getChartPanel().setSize(500, 400);
 						gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 						gp.saveAsPNG(file.getAbsolutePath()+".png");
 						histPDFs.add(new File(file.getAbsolutePath()+".pdf"));

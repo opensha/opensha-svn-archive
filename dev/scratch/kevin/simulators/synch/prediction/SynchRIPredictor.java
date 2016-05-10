@@ -392,7 +392,7 @@ public class SynchRIPredictor implements Predictor {
 				
 				gp.setUserBounds(null, new Range(-2, 2));
 				gp.drawGraphPanel(spec);
-				gp.getCartPanel().setSize(800, 400);
+				gp.getChartPanel().setSize(800, 400);
 				gp.saveAsPNG(new File(dir, prefix+".png").getAbsolutePath());
 				gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());
 			}
@@ -417,7 +417,7 @@ public class SynchRIPredictor implements Predictor {
 			gp.setBackgroundColor(Color.WHITE);
 			
 			gp.drawGraphPanel(spec);
-			gp.getCartPanel().setSize(800, 400);
+			gp.getChartPanel().setSize(800, 400);
 			gp.saveAsPNG(new File(histDir,
 					PeriodicityPlotter.getFileSafeString(name)+".png").getAbsolutePath());
 		}

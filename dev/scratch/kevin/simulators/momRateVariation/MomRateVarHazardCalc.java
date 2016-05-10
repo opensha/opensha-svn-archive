@@ -528,7 +528,7 @@ public class MomRateVarHazardCalc {
 		gp.setBackgroundColor(Color.WHITE);
 		
 		gp.drawGraphPanel(spec, true, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		File outputFile = new File(outputDir, "event_rate_following");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -574,7 +574,7 @@ public class MomRateVarHazardCalc {
 				"Moment Rate for "+durationBefore+"yrs Before", "Rate Gain M>="+(double)minMag+" Following");
 		spec.setLegendVisible(true);
 		gp.drawGraphPanel(spec, true, false, xRange, new Range(0d, 2.5d));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "event_rate_gain");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -660,7 +660,7 @@ public class MomRateVarHazardCalc {
 		gp.setBackgroundColor(Color.WHITE);
 		
 		gp.drawGraphPanel(spec, true, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		File outputFile = new File(outputDir, "mom_rate_following");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -697,7 +697,7 @@ public class MomRateVarHazardCalc {
 				"Moment Rate for "+durationBefore+"yrs Before", "Moment Rate Gain Following");
 		spec.setLegendVisible(true);
 		gp.drawGraphPanel(spec, true, false, xRange, new Range(0d, 2.5d));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "mom_rate_gain");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -742,7 +742,7 @@ public class MomRateVarHazardCalc {
 				"Log10(Moment Rate)", "Density");
 		spec.setLegendVisible(false);
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "mom_rate_hist");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -754,7 +754,7 @@ public class MomRateVarHazardCalc {
 				"Log10(Moment Rate)", "Density");
 		spec.setLegendVisible(true);
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "mom_rate_hist_after_low");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");

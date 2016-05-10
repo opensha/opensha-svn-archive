@@ -252,7 +252,7 @@ public class TornadoDiagram {
 		gp.setUserBounds(getXRange(), getYRange());
 		gp.drawGraphPanel(getPlot());
 		setupGraphPanel(gp);
-		gp.getCartPanel().setSize(width, height);
+		gp.getChartPanel().setSize(width, height);
 		
 		return gp;
 	}

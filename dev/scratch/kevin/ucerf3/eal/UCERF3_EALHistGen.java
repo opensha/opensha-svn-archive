@@ -175,7 +175,7 @@ public class UCERF3_EALHistGen {
 			
 			gp.drawGraphPanel(histSpec);
 			File file = new File(plotDir, name);
-			gp.getCartPanel().setSize(500, 400);
+			gp.getChartPanel().setSize(500, 400);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			histPDFs.add(new File(file.getAbsolutePath()+".pdf"));

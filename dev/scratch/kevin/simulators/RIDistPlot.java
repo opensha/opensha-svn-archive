@@ -366,7 +366,7 @@ public class RIDistPlot {
 			List<PlotSpec> specs = Lists.newArrayList(distChar, eChar);
 			gp.setCombinedOnYAxis(false);
 			gp.drawGraphPanel(specs, false, false, null, null);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			try {
 				String numStr = graphic_cnt+"";
 				if (graphic_cnt<10)

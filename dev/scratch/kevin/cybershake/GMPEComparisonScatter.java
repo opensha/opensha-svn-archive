@@ -246,7 +246,7 @@ public class GMPEComparisonScatter {
 							gp.setBackgroundColor(Color.WHITE);
 							
 							gp.drawGraphPanel(spec, true, true, range, range);
-							gp.getCartPanel().setSize(900, 800);
+							gp.getChartPanel().setSize(900, 800);
 							gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 							gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 						}

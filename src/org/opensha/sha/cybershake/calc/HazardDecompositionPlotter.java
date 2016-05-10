@@ -270,7 +270,7 @@ public class HazardDecompositionPlotter {
 		gp.setPlotLabelFontSize(21);
 		
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 		
 		gp.validate();
@@ -325,7 +325,7 @@ public class HazardDecompositionPlotter {
 		gp.setPlotLabelFontSize(21);
 		
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 		
 		gp.validate();
@@ -741,7 +741,7 @@ public class HazardDecompositionPlotter {
 		gp.setLegendFontSize(18);
 		
 		gp.drawGraphPanel(spec, true, false, xRange, null);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 		
 		gp.validate();

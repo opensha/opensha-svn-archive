@@ -917,7 +917,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, title);
 
 		File file = new File(dir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -971,7 +971,7 @@ public class CommandLineInversionRunner {
 		PlotSpec spec = invSol.getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(spec, totalMFD);
 		File file = new File(dir, getMFDPrefix(prefix, region));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1005,7 +1005,7 @@ public class CommandLineInversionRunner {
 				paleoRateConstraints, aveSlipConstraints, sol, true);
 
 		File file = new File(dir, prefix+"_paleo_fit");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1039,7 +1039,7 @@ public class CommandLineInversionRunner {
 		prefix = getSAFSegPrefix(prefix, minMag, endsOnly);
 
 		File file = new File(dir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1583,7 +1583,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, title);
 		
 		File file = new File(dir, fname);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1591,10 +1591,10 @@ public class CommandLineInversionRunner {
 		if (!smallDir.exists())
 			smallDir.mkdir();
 		file = new File(smallDir, fname+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 	}
 
 	public static void writePaleoCorrelationPlots(
@@ -1638,7 +1638,7 @@ public class CommandLineInversionRunner {
 					spec.getPlotElems(), spec.getChars(), spec.getTitle());
 			
 			File file = new File(dir, fname);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1776,7 +1776,7 @@ public class CommandLineInversionRunner {
 				gp.drawGraphPanel(spec);
 				
 				File file = new File(dir, fname+"_"+fname_add);
-				gp.getCartPanel().setSize(1000, 500);
+				gp.getChartPanel().setSize(1000, 500);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1805,7 +1805,7 @@ public class CommandLineInversionRunner {
 			gp.drawGraphPanel(combinedSpecs, false, true, xRanges, yRanges);
 			
 			File file = new File(dir, fname+"_combined");
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1856,7 +1856,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars,
 				"Rupture Pairing Smoothness");
 		File file = new File(dir, prefix+"_rup_smooth_pairings");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		
@@ -1870,7 +1870,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars,
 				"Rupture Pairing Smoothness Fractions");
 		file = new File(dir, prefix+"_rup_smooth_pairings_fract");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 	}

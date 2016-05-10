@@ -76,7 +76,7 @@ public class PaleoMagHistGen {
 			
 			gp.setBackground(Color.WHITE);
 			gp.drawGraphPanel("Magnitude", "Number", funcs, chars, hist.getName());
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(new File(dir, name+"_hist.png").getAbsolutePath());
 			
 			csv.writeToFile(magCSVFile);

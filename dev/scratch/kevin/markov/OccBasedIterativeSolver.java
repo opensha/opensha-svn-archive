@@ -589,7 +589,7 @@ public class OccBasedIterativeSolver {
 		
 //		gp.setUserBounds(getXRange(), getYRange());
 		gp.drawGraphPanel(specs, false, false, xRanges, yRanges);
-		gp.getCartPanel().setSize(800, 1800);
+		gp.getChartPanel().setSize(800, 1800);
 		
 		String prefix = "markov_scatter_"+PeriodicityPlotter.getFileSafeString(names.get(0).getName())
 				+"_"+PeriodicityPlotter.getFileSafeString(names.get(1).getName());

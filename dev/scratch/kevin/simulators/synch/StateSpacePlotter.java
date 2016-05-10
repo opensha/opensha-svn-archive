@@ -662,7 +662,7 @@ public class StateSpacePlotter {
 			gp.setBackgroundColor(Color.WHITE);
 			
 			gp.drawGraphPanel(spec);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			File out = new File(outputDir, filePrefix+"_"+PeriodicityPlotter.getFileSafeString(name1)
 					+"_"+PeriodicityPlotter.getFileSafeString(name2));
 			gp.saveAsPNG(out.getAbsolutePath()+".png");

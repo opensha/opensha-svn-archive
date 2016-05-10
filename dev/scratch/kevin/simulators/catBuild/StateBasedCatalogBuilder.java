@@ -411,7 +411,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 			
 			for (int i=0; i<specs.size(); i++) {
 				XYZPlotSpec spec = specs.get(i);
-				spec.setLegendPosition(RectangleEdge.BOTTOM);
+				spec.setCPTPosition(RectangleEdge.BOTTOM);
 				
 				probFile = new File(writeDir, probFName+"_sub"+i+".pdf");
 				

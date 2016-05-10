@@ -294,12 +294,12 @@ public class BayAreaProbsOverTimeCalc {
 		
 		// log plot
 		gp.drawGraphPanel(spec, false, true, new Range(startYear, endYear), new Range(1e-3,1));
-		gp.getCartPanel().setSize(width, height);
+		gp.getChartPanel().setSize(width, height);
 		gp.saveAsPNG(new File(outputDir, "probs_log.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "probs_log.pdf").getAbsolutePath());
 		// now linear
 		gp.drawGraphPanel(spec, false, false, new Range(startYear, endYear), new Range(0,1));
-		gp.getCartPanel().setSize(width, height);
+		gp.getChartPanel().setSize(width, height);
 		gp.saveAsPNG(new File(outputDir, "probs_linear.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "probs_linear.pdf").getAbsolutePath());
 		
@@ -307,7 +307,7 @@ public class BayAreaProbsOverTimeCalc {
 				"Year", "Probability Gain (ref="+startYear+")");
 		gainSpec.setLegendVisible(true);
 		gp.drawGraphPanel(gainSpec, false, false, new Range(startYear, endYear), null);
-		gp.getCartPanel().setSize(width, height);
+		gp.getChartPanel().setSize(width, height);
 		gp.saveAsPNG(new File(outputDir, "gain.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "gain.pdf").getAbsolutePath());
 	}

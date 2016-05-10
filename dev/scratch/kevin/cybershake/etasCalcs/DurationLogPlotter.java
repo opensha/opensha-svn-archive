@@ -197,7 +197,7 @@ public class DurationLogPlotter {
 			
 			gp.drawGraphPanel(specs, false, false, xRanges, yRanges);
 			
-			gp.getCartPanel().setSize(200+600*specs.size(), 400);
+			gp.getChartPanel().setSize(200+600*specs.size(), 400);
 			gp.saveAsPNG(new File("/tmp/plot_duration.png").getAbsolutePath());
 		}
 	}

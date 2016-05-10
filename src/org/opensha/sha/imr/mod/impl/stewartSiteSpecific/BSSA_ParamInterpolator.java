@@ -253,7 +253,7 @@ public class BSSA_ParamInterpolator implements ParamInterpolator<Params> {
 		List<Range> xRanges = Lists.newArrayList(new Range(periods.get(0), periods.get(periods.size()-1)));
 		
 		gp.drawGraphPanel(specs, true, false, xRanges, null);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		String name = outputFile.getName().toLowerCase();
 		if (name.endsWith(".png"))
 			gp.saveAsPNG(outputFile.getAbsolutePath());

@@ -1456,7 +1456,7 @@ public class OldGeneral_EQSIM_Tools {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setUserBounds(new Range(0, 5), null);
 		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, plotTitle);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		
 		return gp;
 	}
@@ -2312,7 +2312,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					plot11.setXLog(true);
 					plot11.setYLog(true);
 					plot11.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, plotTitle11);
-					plot11.getCartPanel().setSize(1000, 800);
+					plot11.getChartPanel().setSize(1000, 800);
 					if(saveStuff) {
 						String fileName10 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
 						String fileName11 = dirNameForSavingFiles+"/"+subDir+"/normObsVsLastSlip_forSect"+s+".pdf";

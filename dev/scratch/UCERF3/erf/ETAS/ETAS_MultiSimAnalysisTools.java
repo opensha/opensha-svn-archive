@@ -266,7 +266,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -390,7 +390,7 @@ public class ETAS_MultiSimAnalysisTools {
 			setFontSizes(gp);
 			
 			gp.drawGraphPanel(spec, false, true);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
 			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
@@ -512,7 +512,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -669,7 +669,7 @@ public class ETAS_MultiSimAnalysisTools {
 			setFontSizes(gp, 10);
 			
 			gp.drawGraphPanel(spec, false, true);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
 			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
@@ -860,7 +860,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -934,7 +934,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -966,7 +966,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -1004,7 +1004,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -1292,7 +1292,7 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		gp.drawGraphPanel(spec, false, false);
 		gp.drawGraphPanel(spec, false, false, new Range(minX, maxX), new Range(0, maxY));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -1338,7 +1338,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -1615,7 +1615,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false, new Range(0, hist.getMaxX()+0.5*hist.getDelta()), new Range(0d, 1d));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, "time_since_last_supra.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "time_since_last_supra.pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, "time_since_last_supra.txt").getAbsolutePath());
@@ -2267,7 +2267,7 @@ public class ETAS_MultiSimAnalysisTools {
 		Range range = new Range(1e-6,0.1);
 
 		gp.drawGraphPanel(spec, true, true, range, range);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -2546,7 +2546,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, true, true, range, range);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -2649,7 +2649,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, true, null, new Range(momRateDataset.getLowerMinY(), momRateDataset.getUpperMaxY()));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -2666,7 +2666,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false, null, new Range(m5RateDataset.getLowerMinY(), m5RateDataset.getUpperMaxY()));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -2877,7 +2877,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false, null, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -2979,7 +2979,7 @@ public class ETAS_MultiSimAnalysisTools {
 
 		
 		gp.drawGraphPanel(spec, false, false, null, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -3077,7 +3077,7 @@ public class ETAS_MultiSimAnalysisTools {
 		setFontSizes(gp);
 		
 		gp.drawGraphPanel(spec, false, false, xRange, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -3409,7 +3409,7 @@ public class ETAS_MultiSimAnalysisTools {
 
 		gp.drawGraphPanel(spec, false, false, null, null);
 		gp.setYLog(true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(outputDir, "cond_hypo_dist.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "cond_hypo_dist.pdf").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, "cond_hypo_dist.txt").getAbsolutePath());

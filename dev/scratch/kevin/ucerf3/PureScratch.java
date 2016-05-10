@@ -444,6 +444,14 @@ public class PureScratch {
 
 		//        pga = Math.exp( attenRel.getIML_AtExceedProb(prob) );
 	}
+	
+	private static void test13() {
+		double x1 = 0.5;
+		double x2 = 1.0;
+		
+		System.out.println("geo-mean: "+StatUtils.geometricMean(new double[] {x1, x2}));
+		System.out.println("log-mean: "+Math.exp(StatUtils.mean(new double[] {Math.log(x1), Math.log(x2)})));
+	}
 
 	/**
 	 * @param args
@@ -460,7 +468,7 @@ public class PureScratch {
 		//		test9();
 		//		test10();
 		//		test11();
-		test12();
+		test13();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

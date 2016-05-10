@@ -227,7 +227,7 @@ public class ProbabilisticResultPlotter {
 		gp.setPlotLabelFontSize(21);
 
 		gp.drawGraphPanel(spec, xLog, yLog, xRange, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 
 		gp.validate();

@@ -664,7 +664,7 @@ public class ETAS_CatalogEALCalculator {
 			else
 				gp.setUserBounds(minX, maxX, 0, maxY);
 			gp.drawGraphPanel(spec, false, logY);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			String myPrefix = outputPrefix;
 			if (logY)
 				myPrefix += "_logY";
@@ -698,7 +698,7 @@ public class ETAS_CatalogEALCalculator {
 			else
 				gp.setUserBounds(minX, maxX, 0, maxY);
 			gp.drawGraphPanel(spec, false, logY);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			String myPrefix = outputPrefix+"_exceed";
 			if (logY)
 				myPrefix += "_logY";

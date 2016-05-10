@@ -1441,7 +1441,7 @@ public class RecurrencePlotGen {
 		gp.setBackgroundColor(Color.WHITE);
 		
 		gp.drawGraphPanel(spec, false, false, new Range(0, maxX), new Range(0, 1));
-		gp.getCartPanel().setSize(800, 700);
+		gp.getChartPanel().setSize(800, 700);
 		String prefix = distMetric.name()+"_"+calcMetric.name()+"_hist";
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
@@ -1471,7 +1471,7 @@ public class RecurrencePlotGen {
 		
 		EvenlyDiscretizedFunc func0 = funcs.get(0);
 		gp.drawGraphPanel(spec, false, false, new Range(func0.getMinX(), func0.getMaxX()), null);
-		gp.getCartPanel().setSize(800, 700);
+		gp.getChartPanel().setSize(800, 700);
 		String prefix = metric.name()+"_"+calcMetric.name()+"_func";
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
@@ -1501,7 +1501,7 @@ public class RecurrencePlotGen {
 		
 		EvenlyDiscretizedFunc func0 = funcs.get(0);
 		gp.drawGraphPanel(spec, false, false, new Range(func0.getMinX(), func0.getMaxX()), null);
-		gp.getCartPanel().setSize(800, 700);
+		gp.getChartPanel().setSize(800, 700);
 		String prefix = metric.name()+"_"+calcMetric.name()+"_ts";
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
@@ -1647,7 +1647,7 @@ public class RecurrencePlotGen {
 			
 			List<Range> xRanges = Lists.newArrayList(xRange);
 			gp.drawGraphPanel(specs, false, true, xRanges, yRanges);
-			gp.getCartPanel().setSize(xyzGP.getChartPanel().getWidth(), (int)(0.6*xyzGP.getChartPanel().getHeight()));
+			gp.getChartPanel().setSize(xyzGP.getChartPanel().getWidth(), (int)(0.6*xyzGP.getChartPanel().getHeight()));
 			gp.saveAsPNG(new File(comboDir, "mom_rate_comparison.png").getAbsolutePath());
 			gp.saveAsPDF(new File(comboDir, "mom_rate_comparison.pdf").getAbsolutePath());
 		}

@@ -874,7 +874,7 @@ public class PeriodicityPlotter {
 				gp.setAxisLabelFontSize(20);
 				gp.setPlotLabelFontSize(21);
 				gp.drawGraphPanel(newSpec, false, false, null, null);
-				gp.getCartPanel().setSize(1500, ySize);
+				gp.getChartPanel().setSize(1500, ySize);
 				String fileName = myWriteDir.getAbsolutePath()+File.separator+fName;
 				gp.saveAsPDF(fileName+".pdf");
 			}
@@ -887,7 +887,7 @@ public class PeriodicityPlotter {
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
 		gp.drawGraphPanel(specs, false, false, null, null);
-		gp.getCartPanel().setSize(2000, 5000);
+		gp.getChartPanel().setSize(2000, 5000);
 		String fileName = writeDir.getAbsolutePath()+File.separator+"comb_all_inter_events";
 		gp.saveAsPNG(fileName+".png");
 		gp.saveAsPDF(fileName+".pdf");
@@ -985,7 +985,7 @@ public class PeriodicityPlotter {
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
 		gp.drawGraphPanel(specs, false, false, null, null);
-		gp.getCartPanel().setSize(1000, 10000);
+		gp.getChartPanel().setSize(1000, 10000);
 		fileName = writeDir.getAbsolutePath()+File.separator+"comb_inter_events";
 		gp.saveAsPNG(fileName+".png");
 		gp.saveAsPDF(fileName+".pdf");
@@ -1085,7 +1085,7 @@ public class PeriodicityPlotter {
 				gp.setAxisLabelFontSize(20);
 				gp.setPlotLabelFontSize(21);
 				gp.drawGraphPanel(specs, false, false, null, null);
-				gp.getCartPanel().setSize(2000, 3000);
+				gp.getChartPanel().setSize(2000, 3000);
 				File prefixFile = new File(pdfDir, getFileSafeString(name2)+"_corr_"+getFileSafeString(name1));
 				fileName = prefixFile.getAbsolutePath();
 				gp.saveAsPNG(fileName+".png");
@@ -1158,7 +1158,7 @@ public class PeriodicityPlotter {
 				gp.setAxisLabelFontSize(20);
 				gp.setPlotLabelFontSize(21);
 				gp.drawGraphPanel(specs, false, false, null, null);
-				gp.getCartPanel().setSize(2000, 3000);
+				gp.getChartPanel().setSize(2000, 3000);
 				File prefixFile = new File(pdfDir, getFileSafeString(name)+"_rolling_autocorr");
 				fileName = prefixFile.getAbsolutePath();
 				gp.saveAsPNG(fileName+".png");
@@ -1213,7 +1213,7 @@ public class PeriodicityPlotter {
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
 		gp.drawGraphPanel(spec, false, false, null, null);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		File prefixFile = new File(writeDir, "events_over_time");
 		fileName = prefixFile.getAbsolutePath();
 		gp.saveAsPNG(fileName+".png");
@@ -1754,9 +1754,9 @@ public class PeriodicityPlotter {
 			gp.setPlotLabelFontSize(21);
 			gp.drawGraphPanel(spec);
 			if (dimensions == null)
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 			else
-				gp.getCartPanel().setSize(dimensions[0], dimensions[1]);
+				gp.getChartPanel().setSize(dimensions[0], dimensions[1]);
 			gp.saveAsPNG(fileName+".png");
 			gp.saveAsPDF(fileName+".pdf");
 		}

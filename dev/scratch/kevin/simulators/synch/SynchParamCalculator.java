@@ -715,7 +715,7 @@ public class SynchParamCalculator {
 		Range yRange = new Range(1e-6, 1e-0);
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
 
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(scatterPlotFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(scatterPlotFile.getAbsolutePath()+".pdf");
 		this.scatterPlotFile = new File(scatterPlotFile.getAbsolutePath()+".pdf");
@@ -737,7 +737,7 @@ public class SynchParamCalculator {
 		yRange = new Range(1e-6, 1e1);
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
 
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(contribScatterFile.getAbsolutePath()+".png");
 
 		if (name1.contains("Mojave") && name2.contains("Coachella")) {
@@ -1406,7 +1406,7 @@ public class SynchParamCalculator {
 				gp.drawGraphPanel(spec, false, false, lagXRange, lagYRange);
 
 				// 8.5x11
-				gp.getCartPanel().setSize(800, 300);
+				gp.getChartPanel().setSize(800, 300);
 				gp.saveAsPDF(subLagFile.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(subLagFile.getAbsolutePath()+".png");
 			}
@@ -1454,7 +1454,7 @@ public class SynchParamCalculator {
 			gp.drawGraphPanel(lagSpecPage, false, false, lagXRanges, lagYRanges);
 
 			// 8.5x11
-			gp.getCartPanel().setSize(850, 1100);
+			gp.getChartPanel().setSize(850, 1100);
 			gp.saveAsPDF(synchLagFile.getAbsolutePath());
 			synchLagFiles.add(synchLagFile);
 		}
@@ -1731,7 +1731,7 @@ public class SynchParamCalculator {
 
 				gp.drawGraphPanel(spec, false, false);
 
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPNG(new File(outputDir, outputName+".png").getAbsolutePath());
 //				gp.saveAsPDF(scatterPlotFile.getAbsolutePath()+".pdf");
 			}
@@ -2061,7 +2061,7 @@ public class SynchParamCalculator {
 			
 			File outputFile = new File(outputDir, "state_trans_hist_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 			gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 			
@@ -2070,7 +2070,7 @@ public class SynchParamCalculator {
 			
 			outputFile = new File(outputDir, "state_trans_hist_log_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 			
 			// now occupancy
@@ -2093,7 +2093,7 @@ public class SynchParamCalculator {
 			
 			outputFile = new File(outputDir, "state_occ_hist_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 			gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 			
@@ -2102,7 +2102,7 @@ public class SynchParamCalculator {
 			
 			outputFile = new File(outputDir, "state_occ_hist_log_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		}
 		
@@ -2125,7 +2125,7 @@ public class SynchParamCalculator {
 		
 		File outputFile = new File(outputDir, "state_occ_vs_dims");
 
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 	}

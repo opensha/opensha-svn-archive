@@ -1180,7 +1180,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		gp.setYLog(true);
 		gp.setUserBounds(6d, 8.5d, 1e-6, 1e-1);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -1219,7 +1219,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		gp.setYLog(true);
 		gp.setUserBounds(6d, 8.5d, 1e-6, 1e-1);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
@@ -1293,7 +1293,7 @@ public class ETASModProbConfig extends AbstractModProbConfig {
 		gp.setYLog(true);
 		gp.setUserBounds(6d, 8.5d, 1e-6, 1e-1);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		String prefix = "combined_mfds";
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());

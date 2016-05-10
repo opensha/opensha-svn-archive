@@ -205,12 +205,12 @@ public class CompoundSolAboveWaterlevelCalc {
 			
 			File file = new File(dir, "rups_above_waterlevel"+nameAdd);
 			
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
 			file = new File(file.getAbsolutePath()+"_small");
-			gp.getCartPanel().setSize(500, 400);
+			gp.getChartPanel().setSize(500, 400);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
@@ -242,12 +242,12 @@ public class CompoundSolAboveWaterlevelCalc {
 			
 			File file = new File(dir, "rups_above_waterlevel_combined");
 			
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
 			file = new File(file.getAbsolutePath()+"_small");
-			gp.getCartPanel().setSize(500, 400);
+			gp.getChartPanel().setSize(500, 400);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 		}
@@ -283,12 +283,12 @@ public class CompoundSolAboveWaterlevelCalc {
 		gp.drawGraphPanel("# Runs", "# Ruptures", funcs, chars,
 				"Ruptures Above Waterlevel");
 		File file = new File("/tmp/compound_rups_above_waterlevel");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		file = new File(file.getAbsolutePath()+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}

@@ -2155,7 +2155,7 @@ public class ETAS_SimAnalysisTools {
 			gp.setUserBounds(minX, maxX, minY, maxY);
 			gp.setYLog(true);
 			gp.drawGraphPanel(spec);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			
 			if (outputFile.getName().toLowerCase().endsWith(".png"))
 				gp.saveAsPNG(outputFile.getAbsolutePath());

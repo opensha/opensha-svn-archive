@@ -188,6 +188,7 @@ public class GraphPanel extends JSplitPane {
 	public GraphPanel(PlotPreferences plotPrefs) {
 		super(JSplitPane.VERTICAL_SPLIT, true);
 		this.plotPrefs = plotPrefs;
+		this.backgroundColor = plotPrefs.getBackgroundColor();
 		setResizeWeight(1);
 		setBorder(null);
 		
@@ -1291,7 +1292,7 @@ public class GraphPanel extends JSplitPane {
 	}
 
 
-	public ChartPanel getCartPanel() {
+	public ChartPanel getChartPanel() {
 		return this.chartPanel;
 	}
 	

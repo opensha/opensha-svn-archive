@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.stat.StatUtils;
@@ -26,6 +28,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
@@ -50,27 +53,34 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class NorthridgeCSComparison {
+	
+	private static final DecimalFormat df = new DecimalFormat("0.###");
 
 	public static void main(String[] args) throws IOException {
 		CyberShakeComponent comp = CyberShakeComponent.GEOM_MEAN;
 		int sourceID = 223;
 		String sourceName = "Northridge";
-		int csHistEstNum= 15;
+		int csHistEstNum = 15;
 		Range magRange = new Range(6.64, 6.76);
-//		int datasetID = 57;
-//		String prefix = "study_15_4";
+//		Range magRange = new Range(6.54, 6.86);
+		int datasetID = 57;
+		String prefix = "study_15_4";
 //		File outputDir = new File("/home/kevin/CyberShake/MCER/northridge_comparisons");
 //		String prefix = "study_13_4_cvmh";
 //		int datasetID = 25;
 //		File mainDir = new File("/home/kevin/CyberShake/MCER/northridge_comparisons");
-		String prefix = "study_13_4_cvms";
-		int datasetID = 19;
+//		String prefix = "study_13_4_cvms";
+//		int datasetID = 19;
 		File mainDir = new File("/home/kevin/CyberShake/MCER/northridge_comparisons");
 		File outputDir = new File(mainDir, prefix);
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		double maxDist = 2d;
+		double csHistDelta = 0.005; // if csHistEstNum <= 0
 		
 		List<Double> periods = Lists.newArrayList(3d, 5d);
+		List<Double> maxVals = Lists.newArrayList();
+		for (int i=0; i<periods.size(); i++)
+			maxVals.add(0d);
 		List<String> siteNames = Lists.newArrayList("P1", "P23", "SMCA", "CCP", "P18",
 				"LADT", "USC", "COO", "s387", "s478");
 		
@@ -91,6 +101,14 @@ public class NorthridgeCSComparison {
 				record.set(period, val);
 			}
 			records.add(record);
+			for (int i=0; i<periods.size(); i++) {
+				double period = periods.get(i);
+				if (period <= record.maxPeriod) {
+					double val = record.get(period);
+					if (val > maxVals.get(i))
+						maxVals.set(i, val);
+				}
+			}
 		}
 		
 		DBAccess db = null;
@@ -125,21 +143,19 @@ public class NorthridgeCSComparison {
 				Location loc = csSite.createLocation();
 				
 				// now find matching record
-				Record record = null;
-				double recordDist = Double.POSITIVE_INFINITY;
+				List<Double> distances = Lists.newArrayList();
 				for (Record r : records) {
 					double dist = LocationUtils.horzDistanceFast(loc, r.loc);
-					if (dist < recordDist) {
-						record = r;
-						recordDist = dist;
-					}
+					distances.add(dist);
 				}
-				if (recordDist > maxDist) {
+				List<ComparablePairing<Double, Record>> pairings = ComparablePairing.build(distances, records);
+				Collections.sort(pairings);
+				double closestDist = pairings.get(0).getComparable();
+				if (closestDist > maxDist) {
 					System.out.println("*** No matching record within "+maxDist+"km of "+csSiteName
-							+" (closest is "+recordDist+" km)");
+							+" (closest is "+closestDist+" km)");
 					continue;
 				}
-				System.out.println("Matching record "+recordDist+"km away: "+record.id+". "+record.name);
 				
 				int velModelID = runs2db.getRun(runID).getVelModelID();
 				Site site = new Site(loc);
@@ -158,8 +174,20 @@ public class NorthridgeCSComparison {
 				
 				for (int p=0; p<periods.size(); p++) {
 					double period = periods.get(p);
-					if (period > record.maxPeriod) {
-						System.out.println("Can't do "+period+"s, above max period of "+record.maxPeriod+"s");
+					List<Record> myRecords = Lists.newArrayList();
+					List<Double> myDists = Lists.newArrayList();
+					for (ComparablePairing<Double, Record> pairing : pairings) {
+						double dist = pairing.getComparable();
+						if (dist > maxDist)
+							break;
+						Record record = pairing.getData();
+						if (period > record.maxPeriod)
+							continue;
+						myRecords.add(record);
+						myDists.add(dist);
+					}
+					if (myRecords.isEmpty()) {
+						System.out.println("Can't do "+period+"s, no records suitable at this period");
 						continue;
 					}
 					String periodStr;
@@ -181,7 +209,8 @@ public class NorthridgeCSComparison {
 					for (double val : csAmps)
 						csFunc.set(val/HazardCurveComputation.CONVERSION_TO_G,1);
 					
-					double csHistDelta = (csFunc.getMaxX() - csFunc.getMinX()) / csHistEstNum;
+					if (csHistEstNum <= 0)
+						csHistDelta = (csFunc.getMaxX() - csFunc.getMinX()) / csHistEstNum;
 					HistogramFunction csHist = HistogramFunction.getEncompassingHistogram(
 							csFunc.getMinX(), csFunc.getMaxX(), csHistDelta);
 					for (Point2D pt : csFunc)
@@ -190,11 +219,6 @@ public class NorthridgeCSComparison {
 //					csHist.scale(1d/(csHistDelta*csHist.calcSumOfY_Vals()));
 					csHist.normalizeBySumOfY_Vals();
 					Range yRange = new Range(0, csHist.getMaxY()*1.2);
-					
-					XY_DataSet recordingXY = new DefaultXY_DataSet();
-					double recording = record.get(period);
-					recordingXY.set(recording, 0d);
-					recordingXY.set(recording, yRange.getUpperBound());
 					
 					double csMean = logAverage(csAmps)/HazardCurveComputation.CONVERSION_TO_G;
 					XY_DataSet csMeanXY = new DefaultXY_DataSet();
@@ -226,17 +250,38 @@ public class NorthridgeCSComparison {
 					
 					funcs.add(csMeanXY);
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
-					csMeanXY.setName("CS Log-Mean: "+(float)csMean);
-					
-					funcs.add(recordingXY);
-					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN.darker()));
-					recordingXY.setName("Record "+record.id+": "+(float)recording);
+					csMeanXY.setName("CS Log-Mean: "+df.format(csMean));
 					
 					funcs.add(gmpeMeanXY);
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLUE));
-					gmpeMeanXY.setName("GMPE Log-Mean: "+(float)gmpeMean);
+					gmpeMeanXY.setName("GMPE Log-Mean: "+df.format(gmpeMean));
 					
-					String title = sourceName+", "+csSiteName+"/"+record.name;
+					List<Integer> recordIDs = Lists.newArrayList();
+					
+					for (int i=0; i<myRecords.size(); i++) {
+						Record record = myRecords.get(i);
+						double dist = myDists.get(i);
+						XY_DataSet recordingXY = new DefaultXY_DataSet();
+						double recording = record.get(period);
+						recordingXY.set(recording, 0d);
+						recordingXY.set(recording, yRange.getUpperBound());
+						
+						funcs.add(recordingXY);
+						chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN.darker()));
+						recordingXY.setName("Record "+record.id+": "+df.format(recording)+" g ("+df.format(dist)+" km)");
+						
+						recordIDs.add(record.id);
+					}
+					
+					String recName = myRecords.get(0).name;
+					if (myRecords.size() > 1) {
+						recName += " (and "+(myRecords.size()-1)+" other";
+						if (myRecords.size() > 2)
+							recName += "s";
+						recName += ")";
+					}
+					
+					String title = sourceName+", "+csSiteName+"/"+recName;
 					
 					PlotSpec spec = new PlotSpec(funcs, chars, title, periodStr+"s SA", "");
 					spec.setLegendVisible(true);
@@ -247,9 +292,11 @@ public class NorthridgeCSComparison {
 					gp.setPlotLabelFontSize(21);
 					gp.setBackgroundColor(Color.WHITE);
 					
-					gp.drawGraphPanel(spec, false, false, null, yRange);
-					gp.getCartPanel().setSize(1000, 800);
-					String fName = sourceName+"_"+csSiteName+"_"+record.id+"_"+(int)period+"s_"+comp.getShortName();
+					Range xRange = new Range(0d, maxVals.get(p)*1.1);
+					
+					gp.drawGraphPanel(spec, false, false, xRange, yRange);
+					gp.getChartPanel().setSize(1000, 800);
+					String fName = sourceName+"_"+csSiteName+"_"+Joiner.on("_").join(recordIDs)+"_"+(int)period+"s_"+comp.getShortName();
 					gp.saveAsPNG(new File(subDir, fName+".png").getAbsolutePath());
 					gp.saveAsPDF(new File(subDir, fName+".pdf").getAbsolutePath());
 				}

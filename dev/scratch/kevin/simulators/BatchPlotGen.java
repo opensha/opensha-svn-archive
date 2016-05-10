@@ -540,7 +540,7 @@ public class BatchPlotGen {
 		
 		gp.drawGraphPanel(spec);
 		
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(dir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(dir, prefix+".png").getAbsolutePath());
 	}

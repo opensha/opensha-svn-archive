@@ -129,6 +129,7 @@ public class MCERDataProductsCalc {
 	private WeightedAverageMCErProbabilisticCalc avgProbCalc;
 	private static boolean directAverage = false;
 	private WeightProvider avgWeightProv;
+	private static boolean doFinalMCER = true;
 	
 	private boolean includeNEHRP = false;
 	
@@ -777,7 +778,7 @@ public class MCERDataProductsCalc {
 		gp.setPlotLabelFontSize(21);
 
 		gp.drawGraphPanel(spec, xLog, yLog, xRange, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 
 		gp.validate();
@@ -841,7 +842,7 @@ public class MCERDataProductsCalc {
 		gp.setPlotLabelFontSize(21);
 
 		gp.drawGraphPanel(spec, xLog, yLog, xRange, yRange);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 
 		gp.validate();
@@ -852,21 +853,68 @@ public class MCERDataProductsCalc {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
+		// now final MCEr
+		DiscretizedFunc finalMCER = null;
+		if (doFinalMCER) {
+			finalMCER = calcFinalMCER(csMCER, gmpeMCER);
+			
+			funcs = Lists.newArrayList();
+			chars = Lists.newArrayList();
+
+			if (asceProb != null) {
+				funcs.add(asceProb);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLACK));
+			}
+
+//			funcs.add(gmpeMCER);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.RED));
+//
+//			funcs.add(csMCER);
+//			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, Color.BLUE));
+			
+			funcs.add(finalMCER);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, PlotSymbol.FILLED_CIRCLE, 4f, avgColor));
+
+			spec = new PlotSpec(funcs, chars, siteName+" MCER", "Period (s)", "PSV (cm/s)");
+			spec.setLegendVisible(true);
+
+			gp = new HeadlessGraphPanel();
+			gp.setBackgroundColor(Color.WHITE);
+			//			gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+			gp.setTickLabelFontSize(18);
+			gp.setAxisLabelFontSize(20);
+			gp.setPlotLabelFontSize(21);
+
+			gp.drawGraphPanel(spec, xLog, yLog, xRange, yRange);
+			gp.getChartPanel().setSize(1000, 800);
+			gp.setVisible(true);
+
+			gp.validate();
+			gp.repaint();
+
+			file = new File(outputDir, prefix+"_final_MCER");
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		}
+		
 		// now write CSV
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		List<String> header = Lists.newArrayList("Site Short Name", "Run ID", "Component", "Period");
+		if (finalMCER != null)
+			header.add("Final MCEr");
 		if (avgMCER != null)
-			header.add("Weight Averaged MCEr");
+			header.add("Curve Weight Averaged MCEr");
 		header.add("CyberShake MCEr");
 		header.add("GMPE MCEr");
 		if (avgMCER != null)
-			header.add("Weight Averaged Probabilistic");
+			header.add("Curve Weight Averaged Probabilistic");
 		header.add("CyberShake Probabilistic");
 		header.add("GMPE Probabilistic");
 		if (avgMCER != null)
-			header.add("Weight Averaged Deterministic");
+			header.add("Curve Weight Averaged Deterministic");
 		header.add("CyberShake Deterministic");
 		header.add("GMPE Deterministic");
 		header.add("Deterministic Lower Limit");
@@ -874,6 +922,8 @@ public class MCERDataProductsCalc {
 		
 		for (double period : periods) {
 			List<String> line = Lists.newArrayList(site.short_name, run.getRunID()+"", comp.getShortName(), (float)period+"");
+			if (finalMCER != null)
+				line.add(getValIfPresent(finalMCER, period));
 			if (avgMCER != null)
 				line.add(getValIfPresent(avgMCER, period));
 			line.add(getValIfPresent(csMCER, period));
@@ -892,6 +942,38 @@ public class MCERDataProductsCalc {
 		}
 		
 		csv.writeToFile(new File(outputDir, prefix+"_MCER.csv"));
+	}
+	
+	public static DiscretizedFunc calcFinalMCER(DiscretizedFunc csMCER, DiscretizedFunc gmpeMCER) {
+		ArbitrarilyDiscretizedFunc finalMCER = new ArbitrarilyDiscretizedFunc();
+		finalMCER.setName("Final MCEr");
+		
+		for (int i=0; i<gmpeMCER.size(); i++) {
+			double period = gmpeMCER.getX(i);
+			double gmpeVal = gmpeMCER.getY(period);
+			double csVal;
+			if (csMCER.hasX(period))
+				csVal = csMCER.getY(period);
+			else
+				csVal = gmpeVal;
+			
+			finalMCER.set(period, calcFinalMCER(csVal, gmpeVal, period));
+		}
+		
+		return finalMCER;
+	}
+	
+	public static double calcFinalMCER(double csVal, double gmpeVal, double period) {
+		if (gmpeVal >= csVal) {
+			// CS can only increase, not decrease
+			return gmpeVal;
+		} else {
+			double csWeight = CyberShakeWeightProvider.calcCyberShakeWeight(period);
+			double gmpeWeight = CyberShakeWeightProvider.calcGMPEWeight(period);
+			
+			// weighted average in log space
+			return Math.exp(Math.log(csVal)*csWeight + Math.log(gmpeVal)*gmpeWeight);
+		}
 	}
 	
 	private static String getValIfPresent(DiscretizedFunc func, double period) {
@@ -1053,9 +1135,9 @@ public class MCERDataProductsCalc {
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_12_main";
 //			argStr += " --run-id 4516,4517,4518,4519,4520,4521,4522,4523";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_12_la_west";
-//			argStr += " --run-id 3876,3877,3870,3875,3879,4266,3882,3883,3884,3885,3880,3869,3873,3861";
-//			argStr += " --run-id 3876";
-//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_main";
+//			argStr += " --run-id 3876,3877,3870,3875,3879,3878,3882,3883,3884,3885,3880,3869,3873,3861";
+			argStr += " --run-id 3878";
+			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_main";
 //			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_la_basin_west";
 //			argStr += " --run-id 4083,4084,4085,4086,4087,4088,4237,4090";
@@ -1066,8 +1148,8 @@ public class MCERDataProductsCalc {
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_sf_valley";
 //			argStr += " --run-id 4125,4126,4127,4128,4139,4140,4141,4142,4151,4152,4153";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_orange_county";
-			argStr += " --run-id 4155,4156,3883,4157,4167,4168,4169,4181,4182";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_inland_empire";
+//			argStr += " --run-id 4155,4156,3883,4157,4167,4168,4169,4181,4182";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_inland_empire";
 //			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221,4083,4084,4085,4086,4087,4088,4237,"
 //					+ "4090,4111,4112,4113,4114,4115,4116,4129,4130,4058,4047,3938,4037,3932,3934";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_extra30";

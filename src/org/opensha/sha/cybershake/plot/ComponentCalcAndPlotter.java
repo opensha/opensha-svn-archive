@@ -139,7 +139,7 @@ public class ComponentCalcAndPlotter {
 		
 		String outFile = dir + shortName + "_curves.png";
 		System.out.println("Saving PNG to: " + outFile);
-		gp.getCartPanel().setSize(600, 500);
+		gp.getChartPanel().setSize(600, 500);
 		gp.saveAsPNG(outFile);
 	}
 

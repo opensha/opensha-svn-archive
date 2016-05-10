@@ -141,7 +141,7 @@ public class ManyRunCompilation {
 					func.set(j, runRates[j]);
 				
 				gp.drawGraphPanel(idXAxisLabel, "Rate", funcs, chars, title);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPNG(rankFile.getAbsolutePath());
 			}
 			
@@ -155,7 +155,7 @@ public class ManyRunCompilation {
 					func.set(cnt++, sortedRates[j]);
 				
 				gp.drawGraphPanel(rankXAxisLabel, "Rate", funcs, chars, title);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPNG(rankFile.getAbsolutePath());
 			}
 			
@@ -198,7 +198,7 @@ public class ManyRunCompilation {
 							new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLACK));
 					
 					gp.drawGraphPanel(idXAxisLabel, "Rate", funcs2, chars2, "Mean/Std Devs after "+n+" runs");
-					gp.getCartPanel().setSize(1000, 800);
+					gp.getChartPanel().setSize(1000, 800);
 					gp.saveAsPNG(meanFile.getAbsolutePath());
 				}
 			}
@@ -291,7 +291,7 @@ public class ManyRunCompilation {
 		gp.setYLog(true);
 		gp.drawGraphPanel("# Runs", "Normalized Residuals vs Mean", funcs, chars, "Rup Rate Residuals Vs Runs");
 		File plotFile = new File(dir, "rup_rate_residuals");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
@@ -629,7 +629,7 @@ public class ManyRunCompilation {
 		
 		gp.drawGraphPanel("# Runs", "Normalized Residuals vs Mean", funcs, chars, "Normalized Partic Rate Residuals Vs Runs");
 		File plotFile = new File(dir, "partic_rate_normalized_residuals");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
@@ -641,7 +641,7 @@ public class ManyRunCompilation {
 		
 		gp.drawGraphPanel("# Runs", "Residuals vs Mean", funcs, chars, "Partic Rate Residuals Vs Runs");
 		plotFile = new File(dir, "partic_rate_residuals");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
@@ -658,7 +658,7 @@ public class ManyRunCompilation {
 		gp.drawGraphPanel("N", "Mean / Std Dev Of Mean", funcs, chars,
 				"Lowest Mean / Std Dev Of Mean vs # Runs");
 		plotFile = new File(dir, "partic_mean_over_std_dev_of_mean");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
@@ -684,7 +684,7 @@ public class ManyRunCompilation {
 		gp.drawGraphPanel("N", "Target Mean / Std Dev Of Mean", theoreticalNFuncs, chars,
 				"Theoretical N Needed to reach given Mean / Std Dev Of Mean");
 		plotFile = new File(dir, "partic_target_mean_over_std_dev_of_mean");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 		
@@ -720,7 +720,7 @@ public class ManyRunCompilation {
 			gp.drawGraphPanel("N", "% above Mean / Std Dev Of Mean of "+aboveTarget, percentAvobeMeanOverSDOMFuncs, chars,
 					"% Sects above Mean/SDOM of "+aboveTarget);
 			plotFile = new File(dir, "partic_above_"+(int)aboveTarget+"_mean_over_std_dev_of_mean");
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 			
@@ -732,7 +732,7 @@ public class ManyRunCompilation {
 				gp.drawGraphPanel("Mean Rate", "Mean / Std Dev", scatterMeanOverSDOMFuncs, scatterChars,
 						"Mean Rate vs Mean/SDOM of N=1");
 				plotFile = new File(dir, "partic_scatter_mean_over_std_dev_of_mean");
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPDF(plotFile.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(plotFile.getAbsolutePath()+".png");
 				gp.setXLog(false);
@@ -988,7 +988,7 @@ public class ManyRunCompilation {
 		gp.setYLog(true);
 		gp.drawGraphPanel("Mean Rate Rank", "Rate", funcs, chars, title);
 		File rankFile = new File(dir, prefix+"_rate_dist");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(rankFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(rankFile.getAbsolutePath()+".png");
 		
@@ -997,7 +997,7 @@ public class ManyRunCompilation {
 		
 		gp.drawGraphPanel("Rupture ID", "Rate", funcs, chars, title);
 		rankFile = new File(dir, prefix+"_rate_id_dist");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(rankFile.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(rankFile.getAbsolutePath()+".png");
 		
