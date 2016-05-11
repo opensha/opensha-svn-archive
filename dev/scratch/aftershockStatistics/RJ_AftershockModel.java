@@ -253,7 +253,7 @@ public abstract class RJ_AftershockModel {
 		double maxExpNum = numMag5_DistributionFunc.getMaxX()*Math.pow(10d, b*(5-mag));
 		PoissonDistribution poissDist = new PoissonDistribution(maxExpNum);
 		int maxAleatoryNum = poissDist.inverseCumulativeProbability(0.999);
-				
+		
 		HistogramFunction cumDistFunc = new HistogramFunction(0d, (double)maxAleatoryNum,maxAleatoryNum+1);
 		double wtAveTest=0;
 		double totWt=0;
@@ -271,7 +271,7 @@ public abstract class RJ_AftershockModel {
 		}
 		double fractVal = (int)Math.round(cumDistFunc.getClosestXtoY(fractile));
 		if(cumDistFunc.getY(fractVal)<fractVal)
-			fractVal += 1;
+			fractVal += 1;	// this is how PoissonDistribution does it
 		
 //		System.out.println("totWt="+totWt);
 //		System.out.println("cumDistFunc.getMaxY()="+cumDistFunc.getMaxY());
