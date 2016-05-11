@@ -14,8 +14,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -475,13 +477,56 @@ public class AftershockStatsCalc {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		double mean = 0.78;
+		double mean = 11.5079;
+		
+		PoissonDistribution poissDist = new PoissonDistribution(mean);
+		System.out.println(poissDist.inverseCumulativeProbability(0.025));
+		System.out.println(poissDist.inverseCumulativeProbability(0.975));
+		
+		int minInt=0;
+		int maxInt=poissDist.inverseCumulativeProbability(0.999);
+		
+		HistogramFunction hist = new HistogramFunction((double)minInt,(double)maxInt,maxInt+1);
+		HistogramFunction histCum = new HistogramFunction((double)minInt,(double)maxInt,maxInt+1);
+		for(int i=0;i<hist.size();i++) {
+			hist.set(i, poissDist.probability(i));
+			histCum.set(i, poissDist.cumulativeProbability(i));
+		}
+		
+		int lowBound = (int)Math.round(histCum.getClosestXtoY(0.025));
+		if(histCum.getY(lowBound)<0.025)
+			lowBound += 1;
+		
+		int highBound = (int)Math.round(histCum.getClosestXtoY(0.975));
+		if(histCum.getY(highBound)<0.975)
+			highBound += 1;
+		
+		System.out.println(lowBound);
+		System.out.println(highBound);
+		
+		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+		funcList.add(hist);
+		funcList.add(histCum);
+		
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		
+		GraphWindow graph = new GraphWindow(funcList, "Poisson Distributions",plotCharList); 
+		graph.setX_AxisLabel("Num");
+		graph.setY_AxisLabel("Probability");
+
+		
+		
 //		System.out.println(getExpectedNumEvents(0d, 1d, 1d, 1d, 1.025, 0.05, 0d, 1e6));
 		
 //		double val = Math.log(Double.MAX_VALUE);
 //		System.out.println(val);
 //		System.out.println(Math.exp(700.0));
 		
-		testJeanneCalc();
+//		testJeanneCalc();
 //		testAndyCalc();
 	}
 

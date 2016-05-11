@@ -114,33 +114,63 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 		
 
 	public static void main(String[] args) {
-		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(7.0, -2.5, 1.0, -4.5, -0.5, 1.0, 1.12, 0.018);
+		
+		double magMain=7.8;
+		double mean_a=-2.47;
+		double sigma_a=0.5;
+		double min_a = mean_a-3.0*sigma_a;
+		double max_a = mean_a+3.0*sigma_a;
+		double b=1.0;
+		double p=0.88;
+		double c=0.018;
+		
+		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(magMain,mean_a,sigma_a,min_a,max_a,b,p,c);
+		
+		EvenlyDiscretizedFunc lowFract = gen.getCumNumMFD_Fractile(0.025, 5.0, 8.0, 31, 0d, 7d);
+		System.out.println("2.5%: "+lowFract.getX(0)+"\t"+lowFract.getY(0));
+		EvenlyDiscretizedFunc hiFract = gen.getCumNumMFD_Fractile(0.975, 5.0, 8.0, 31, 0d, 7d);
+		System.out.println("97.5%: "+hiFract.getX(0)+"\t"+hiFract.getY(0));
+		
+		EvenlyDiscretizedFunc lowFractWithAleatory = gen.getCumNumMFD_FractileWithAleatoryVariability(0.025, 5.0, 8.0, 31, 0d, 7d);
+		System.out.println("2.5% With Aleatory: "+lowFractWithAleatory.getX(0)+"\t"+lowFractWithAleatory.getY(0));
+		EvenlyDiscretizedFunc hiFractWithAleatory = gen.getCumNumMFD_FractileWithAleatoryVariability(0.975, 5.0, 8.0, 31, 0d, 7d);
+		System.out.println("97.5% With Aleatory: "+hiFractWithAleatory.getX(0)+"\t"+hiFractWithAleatory.getY(0));
+
+//		double mean = gen.getModalNumEvents(5.0, 0d, 7d);
+//		System.out.println("Mode: "+mean);
+//		
+//		gen.getCumNumFractileWithAleatory(0.025, 5, 0, 7);
+//		gen.getCumNumFractileWithAleatory(0.975, 5, 0, 7);
+//		System.exit(-1);
+		
+				
+//		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(7.0, -2.5, 1.0, -4.5, -0.5, 1.0, 1.12, 0.018);
 //		System.out.println("gen.getPDF_a():\n"+gen.getPDF_a());
 		
-		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
-		funcList.add(gen.getPDF_a());
-		ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
-		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		GraphWindow aValueDistGraph = new GraphWindow(funcList, "PDF"); 
-		aValueDistGraph.setX_AxisLabel("a-value");
-		aValueDistGraph.setY_AxisLabel("Density");
-		
-		ArrayList<ArbitrarilyDiscretizedFunc> funcList2 = new ArrayList<ArbitrarilyDiscretizedFunc>();
-		funcList2.add(gen.computeNumMag5_DistributionFunc(0, 7).getCumDist());
-		GraphWindow numM5_Dist = new GraphWindow(funcList2, "PDF"); 
-		numM5_Dist.setX_AxisLabel("Num M>=5");
-		numM5_Dist.setY_AxisLabel("Density");
-		
-		ArrayList<EvenlyDiscretizedFunc> funcList3 = new ArrayList<EvenlyDiscretizedFunc>();
-		funcList3.add(gen.getModalCumNumMFD(4.05, 8.95, 50, 0d, 7d));
-		funcList3.add(gen.getMeanCumNumMFD(4.05, 8.95, 50, 0d, 7d));
-		funcList3.add(gen.getCumNumMFD_Fractile(0.025, 4.05, 8.95, 50, 0d, 7d));
-		funcList3.add(gen.getCumNumMFD_Fractile(0.5, 4.05, 8.95, 50, 0d, 7d));
-		funcList3.add(gen.getCumNumMFD_Fractile(0.975, 4.05, 8.95, 50, 0d, 7d));
-		GraphWindow mfdGraph = new GraphWindow(funcList3, "MFDs"); 
-		mfdGraph.setX_AxisLabel("Magnitude");
-		mfdGraph.setY_AxisLabel("Num≥M");
-		mfdGraph.setYLog(true);
+//		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+//		funcList.add(gen.getPDF_a());
+//		ArrayList<PlotCurveCharacterstics> curveCharList = new ArrayList<PlotCurveCharacterstics>();
+//		curveCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+//		GraphWindow aValueDistGraph = new GraphWindow(funcList, "PDF"); 
+//		aValueDistGraph.setX_AxisLabel("a-value");
+//		aValueDistGraph.setY_AxisLabel("Density");
+//		
+//		ArrayList<ArbitrarilyDiscretizedFunc> funcList2 = new ArrayList<ArbitrarilyDiscretizedFunc>();
+//		funcList2.add(gen.computeNumMag5_DistributionFunc(0, 7).getCumDist());
+//		GraphWindow numM5_Dist = new GraphWindow(funcList2, "PDF"); 
+//		numM5_Dist.setX_AxisLabel("Num M>=5");
+//		numM5_Dist.setY_AxisLabel("Density");
+//		
+//		ArrayList<EvenlyDiscretizedFunc> funcList3 = new ArrayList<EvenlyDiscretizedFunc>();
+//		funcList3.add(gen.getModalCumNumMFD(4.05, 8.95, 50, 0d, 7d));
+//		funcList3.add(gen.getMeanCumNumMFD(4.05, 8.95, 50, 0d, 7d));
+//		funcList3.add(gen.getCumNumMFD_Fractile(0.025, 4.05, 8.95, 50, 0d, 7d));
+//		funcList3.add(gen.getCumNumMFD_Fractile(0.5, 4.05, 8.95, 50, 0d, 7d));
+//		funcList3.add(gen.getCumNumMFD_Fractile(0.975, 4.05, 8.95, 50, 0d, 7d));
+//		GraphWindow mfdGraph = new GraphWindow(funcList3, "MFDs"); 
+//		mfdGraph.setX_AxisLabel("Magnitude");
+//		mfdGraph.setY_AxisLabel("Num≥M");
+//		mfdGraph.setYLog(true);
 	
 	}
 

@@ -1285,7 +1285,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, c));
 			
 			for (double f : fractiles) {
-				EvenlyDiscretizedFunc fractile = model.getCumNumMFD_Fractile(f, minMag, maxMag, numMag, minDays, maxDays);
+				EvenlyDiscretizedFunc fractile = model.getCumNumMFD_FractileWithAleatoryVariability(f, minMag, maxMag, numMag, minDays, maxDays);
 				fractile.setName("p"+(float)(f*100d)+"%");
 				
 				funcs.add(fractile);

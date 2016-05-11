@@ -2,10 +2,12 @@ package scratch.aftershockStatistics;
 
 import java.util.ArrayList;
 
+import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
@@ -113,7 +115,7 @@ public abstract class RJ_AftershockModel {
 			System.out.println("N≥5 mode = "+numMag5_DistributionFunc.getApparentMode());
 			System.out.println("N≥5 median = "+numMag5_DistributionFunc.getMedian());
 			System.out.println("N≥5 2.5 Percentile = "+numMag5_DistributionFunc.getInterpolatedFractile(0.025));
-			System.out.println("N≥5 97.5 Percentile = "+numMag5_DistributionFunc.getInterpolatedFractile(0.9755));
+			System.out.println("N≥5 97.5 Percentile = "+numMag5_DistributionFunc.getInterpolatedFractile(0.975));
 		}
 		return numMag5_DistributionFunc;
 	}
@@ -196,8 +198,9 @@ public abstract class RJ_AftershockModel {
 	}
 	
 	/**
-	 * This returns the mean cumulative MFD given each a/p/c parameter set, and the associated likelihood, 
-	 * for the specified site span.   A GR distribution with no upper bound is assumed.
+	 * This returns the fractile MFD implied by each a/p/c parameter set and their associated likelihoods, 
+	 * for the specified site span.   A GR distribution with no upper bound is assumed.  Only epistemic uncertainty
+	 * is considered (no aleatory variability).
 	 * @param fractile - the fractile (percentile/100) for the distribution
 	 * @param minMag - the minimum magnitude considered
 	 * @param maxMag - the maximum magnitude considered
@@ -218,6 +221,65 @@ public abstract class RJ_AftershockModel {
 		mfd.setName(fractile+" Fractile for Num Events");
 		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
 		return mfd;
+	}
+
+	
+	/**
+	 * This returns the fractile MFD implied by each a/p/c parameter set and their associated likelihoods, 
+	 * for the specified site span.   A GR distribution with no upper bound is assumed.  Both epistemic uncertainty
+	 * and aleatory variability are considered.
+	 * @param fractile - the fractile (percentile/100) for the distribution
+	 * @param minMag - the minimum magnitude considered
+	 * @param maxMag - the maximum magnitude considered
+	 * @param numMag - number of mags in the MFD
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return
+	 */
+	public EvenlyDiscretizedFunc getCumNumMFD_FractileWithAleatoryVariability(double fractile, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		EvenlyDiscretizedFunc mfd = new EvenlyDiscretizedFunc(minMag, maxMag, numMag);
+		for(int i=0;i<mfd.size();i++)
+			mfd.set(i,getCumNumFractileWithAleatory(fractile, mfd.getX(i), tMinDays, tMaxDays));
+		mfd.setName(fractile+" Fractile for Num Events, including aleatory variability");
+		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
+		return mfd;
+	}
+
+	
+	public double getCumNumFractileWithAleatory(double fractile, double mag, double tMinDays, double tMaxDays) {
+		// compute the distribution for the expected num aftershocks with M≥5 (which we will scale to other magnitudes)
+		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
+		// get the maximum expected num, which we will use to set the maximum num in the distribution function
+		double maxExpNum = numMag5_DistributionFunc.getMaxX()*Math.pow(10d, b*(5-mag));
+		PoissonDistribution poissDist = new PoissonDistribution(maxExpNum);
+		int maxAleatoryNum = poissDist.inverseCumulativeProbability(0.999);
+				
+		HistogramFunction cumDistFunc = new HistogramFunction(0d, (double)maxAleatoryNum,maxAleatoryNum+1);
+		double wtAveTest=0;
+		double totWt=0;
+		for(int i=0;i<numMag5_DistributionFunc.size();i++) {
+			double expNum = numMag5_DistributionFunc.getX(i)*Math.pow(10d, b*(5-mag));
+			double wt = numMag5_DistributionFunc.getY(i);
+			poissDist = new PoissonDistribution(expNum);
+			wtAveTest += poissDist.inverseCumulativeProbability(fractile)*wt;
+			totWt+=wt;
+			
+			for(int j=0;j<cumDistFunc.size();j++) {
+				double newVal = cumDistFunc.getY(j) + poissDist.cumulativeProbability(j)*wt;
+				cumDistFunc.set(j,newVal);
+			}
+		}
+		double fractVal = (int)Math.round(cumDistFunc.getClosestXtoY(fractile));
+		if(cumDistFunc.getY(fractVal)<fractVal)
+			fractVal += 1;
+		
+//		System.out.println("totWt="+totWt);
+//		System.out.println("cumDistFunc.getMaxY()="+cumDistFunc.getMaxY());
+//		System.out.println("wtAveTest="+wtAveTest);
+//		System.out.println("fractVal="+fractVal+"\tfractile="+fractile);
+//		GraphWindow graph = new GraphWindow(cumDistFunc, "cumDistFunc"); 
+
+		return fractVal;
 	}
 
 
