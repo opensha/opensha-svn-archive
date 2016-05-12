@@ -137,10 +137,10 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 		EvenlyDiscretizedFunc hiFract = gen.getCumNumMFD_Fractile(0.975, 5.0, 8.0, 31, 0d, 7d);
 		System.out.println("97.5%: "+hiFract.getX(0)+"\t"+hiFract.getY(0));
 		
-		EvenlyDiscretizedFunc lowFractWithAleatory = gen.getCumNumMFD_FractileWithAleatoryVariability(0.025, 5.0, 8.0, 31, 0d, 7d);
-		System.out.println("2.5% With Aleatory: "+lowFractWithAleatory.getX(0)+"\t"+lowFractWithAleatory.getY(0));
-		EvenlyDiscretizedFunc hiFractWithAleatory = gen.getCumNumMFD_FractileWithAleatoryVariability(0.975, 5.0, 8.0, 31, 0d, 7d);
-		System.out.println("97.5% With Aleatory: "+hiFractWithAleatory.getX(0)+"\t"+hiFractWithAleatory.getY(0));
+		double[] fractArray = {0.025, 0.975};
+		EvenlyDiscretizedFunc[] fractalWithAleatoryMFDArray = gen.getCumNumMFD_FractileWithAleatoryVariability(fractArray, 5.0, 8.0, 31, 0d, 7d);
+		System.out.println("2.5% With Aleatory: "+fractalWithAleatoryMFDArray[0].getX(0)+"\t"+fractalWithAleatoryMFDArray[0].getY(0));
+		System.out.println("97.5% With Aleatory: "+fractalWithAleatoryMFDArray[1].getX(0)+"\t"+fractalWithAleatoryMFDArray[1].getY(0));
 
 //		double mean = gen.getModalNumEvents(5.0, 0d, 7d);
 //		System.out.println("Mode: "+mean);

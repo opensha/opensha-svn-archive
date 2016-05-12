@@ -225,31 +225,39 @@ public abstract class RJ_AftershockModel {
 
 	
 	/**
-	 * This returns the fractile MFD implied by each a/p/c parameter set and their associated likelihoods, 
+	 * This returns the fractile MFDs implied by each a/p/c parameter set and their associated likelihoods, 
 	 * for the specified site span.   A GR distribution with no upper bound is assumed.  Both epistemic uncertainty
 	 * and aleatory variability are considered.
-	 * @param fractile - the fractile (percentile/100) for the distribution
+	 * @param fractileArray - the fractile (percentile/100) for the distribution
 	 * @param minMag - the minimum magnitude considered
 	 * @param maxMag - the maximum magnitude considered
 	 * @param numMag - number of mags in the MFD
 	 * @param tMinDays
 	 * @param tMaxDays
-	 * @return
+	 * @return EvenlyDiscretizedFunc[]
 	 */
-	public EvenlyDiscretizedFunc getCumNumMFD_FractileWithAleatoryVariability(double fractile, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
-		EvenlyDiscretizedFunc mfd = new EvenlyDiscretizedFunc(minMag, maxMag, numMag);
-		for(int i=0;i<mfd.size();i++) {
-			mfd.set(i,getCumNumFractileWithAleatory(fractile, mfd.getX(i), tMinDays, tMaxDays));
-			System.out.println("\t"+mfd.getX(i)+"\t"+mfd.getY(i));
+	public EvenlyDiscretizedFunc[] getCumNumMFD_FractileWithAleatoryVariability(double[] fractileArray, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		EvenlyDiscretizedFunc[] mfdArray = new EvenlyDiscretizedFunc[fractileArray.length];
+		for(int i=0;i<fractileArray.length;i++) {
+			mfdArray[i] = new EvenlyDiscretizedFunc(minMag, maxMag, numMag);
+			mfdArray[i].setName(fractileArray[i]+" Fractile for Num Events, including aleatory variability");
+			mfdArray[i].setInfo("Cumulative distribution (greater than or equal to each magnitude)");
+		}
+		for(int i=0;i<numMag;i++) {
+			double mag = mfdArray[0].getX(i);	// any MFD will do, as they all have the same x-axis values
+			double[] valsArray = getCumNumFractileWithAleatory(fractileArray, mag, tMinDays, tMaxDays);
+			for(int j=0;j<fractileArray.length;j++) {
+				mfdArray[j].set(i,valsArray[j]);
+//				System.out.println("\t"+mfd.getX(i)+"\t"+mfd.getY(i));
+			}
 
 		}
-		mfd.setName(fractile+" Fractile for Num Events, including aleatory variability");
-		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
-		return mfd;
+		return mfdArray;
 	}
 
 	
-	public double getCumNumFractileWithAleatory(double fractile, double mag, double tMinDays, double tMaxDays) {
+	
+	public double[] getCumNumFractileWithAleatory(double[] fractileArray, double mag, double tMinDays, double tMaxDays) {
 		// compute the distribution for the expected num aftershocks with M≥5 (which we will scale to other magnitudes)
 		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
 		// get the maximum expected num, which we will use to set the maximum num in the distribution function
@@ -258,13 +266,11 @@ public abstract class RJ_AftershockModel {
 		int maxAleatoryNum = poissDist.inverseCumulativeProbability(0.999);
 		
 		HistogramFunction cumDistFunc = new HistogramFunction(0d, (double)maxAleatoryNum,maxAleatoryNum+1);
-		double wtAveTest=0;
 		double totWt=0;
 		for(int i=0;i<numMag5_DistributionFunc.size();i++) {
 			double expNum = numMag5_DistributionFunc.getX(i)*Math.pow(10d, b*(5-mag));
 			double wt = numMag5_DistributionFunc.getY(i);
 			poissDist = new PoissonDistribution(expNum);
-			wtAveTest += poissDist.inverseCumulativeProbability(fractile)*wt;
 			totWt+=wt;
 			
 			for(int j=0;j<cumDistFunc.size();j++) {
@@ -272,17 +278,21 @@ public abstract class RJ_AftershockModel {
 				cumDistFunc.set(j,newVal);
 			}
 		}
-		double fractVal = (int)Math.round(cumDistFunc.getClosestXtoY(fractile));
-		if(cumDistFunc.getY(fractVal)<fractVal)
-			fractVal += 1;	// this is how PoissonDistribution does it
+		double[] fractValArray = new double[fractileArray.length];
+		for(int i=0;i<fractileArray.length;i++) {
+			double fractVal = (int)Math.round(cumDistFunc.getClosestXtoY(fractileArray[i]));
+			if(cumDistFunc.getY(fractVal)<fractVal)
+				fractVal += 1;	// this is how PoissonDistribution class does it	
+			fractValArray[i]=fractVal;
+		}
+
 		
 //		System.out.println("totWt="+totWt);
 //		System.out.println("cumDistFunc.getMaxY()="+cumDistFunc.getMaxY());
-//		System.out.println("wtAveTest="+wtAveTest);
 //		System.out.println("fractVal="+fractVal+"\tfractile="+fractile);
 //		GraphWindow graph = new GraphWindow(cumDistFunc, "cumDistFunc"); 
 
-		return fractVal;
+		return fractValArray;
 	}
 
 
