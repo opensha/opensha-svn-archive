@@ -7,13 +7,17 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -66,7 +70,6 @@ import org.opensha.commons.param.impl.RangeParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
@@ -77,7 +80,9 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 import com.lowagie.text.Font;
 
@@ -146,6 +151,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private ParameterListParameter regionEditParam;
 	
 	private ButtonParameter fetchButton;
+	
+	private JFileChooser loadCatalogChooser;
+	private ButtonParameter loadCatalogButton;
 	
 	private JFileChooser saveCatalogChooser;
 	private ButtonParameter saveCatalogButton;
@@ -285,6 +293,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		fetchButton.setInfo("From USGS ComCat");
 		fetchButton.addParameterChangeListener(this);
 		dataParams.addParameter(fetchButton);
+		
+		loadCatalogButton = new ButtonParameter("External Catalog", "Load Catalog");
+		loadCatalogButton.setInfo("Load catalog in 10 column format");
+		loadCatalogButton.addParameterChangeListener(this);
+		dataParams.addParameter(loadCatalogButton);
 		
 		saveCatalogButton = new ButtonParameter("Aftershock Catalog", "Save Catalog");
 		saveCatalogButton.setInfo("Save catalog in 10 column format");
@@ -506,32 +519,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		String eventID = eventIDParam.getValue();
 		Preconditions.checkState(eventID != null && !eventID.isEmpty(), "Must supply event ID!");
 		
-		mainshock = accessor.fetchEvent(eventID);
+		mainshock = null;
+		ObsEqkRupture mainshock = accessor.fetchEvent(eventID);
 		Preconditions.checkState(mainshock != null, "Event not found: %s", eventID);
 		System.out.println("Mainshock Location: "+mainshock.getHypocenterLocation());
 		
-		genericParams = null;
-		bParam.setValue(null);
-		try {
-			if (genericFetch == null)
-				genericFetch = new GenericRJ_ParametersFetch();
-			
-			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
-			genericParams = genericFetch.get(regime);
-			System.out.println("Generic params for "+regime+": "+genericParams);
-			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
-			// set default values to generic
-			pValRangeParam.setValue(new Range(genericParams.get_pValue(), genericParams.get_pValue()));
-			pValRangeParam.getEditor().refreshParamEditor();
-			cValRangeParam.setValue(new Range(genericParams.get_cValue(), genericParams.get_cValue()));
-			cValRangeParam.getEditor().refreshParamEditor();
-			bParam.setValue(genericModel.get_b());
-			bParam.getEditor().refreshParamEditor();
-		} catch (RuntimeException e) {
-			System.err.println("Error fetching generic params");
-			e.printStackTrace();
-			genericParams = null;
-		}
+		setMainshock(mainshock);
 		
 		Double minDepth = minDepthParam.getValue();
 		validateParameter(minDepth, "min depth");
@@ -562,6 +555,32 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			region = buildRegion(mainshock, null);
 			
 			aftershocks = accessor.fetchAftershocks(mainshock, minDays, maxDays, minDepth, maxDepth, region);
+		}
+	}
+	
+	private void setMainshock(ObsEqkRupture mainshock) {
+		this.mainshock = mainshock;
+		genericParams = null;
+		bParam.setValue(null);
+		try {
+			if (genericFetch == null)
+				genericFetch = new GenericRJ_ParametersFetch();
+			
+			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
+			genericParams = genericFetch.get(regime);
+			System.out.println("Generic params for "+regime+": "+genericParams);
+			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
+			// set default values to generic
+			pValRangeParam.setValue(new Range(genericParams.get_pValue(), genericParams.get_pValue()));
+			pValRangeParam.getEditor().refreshParamEditor();
+			cValRangeParam.setValue(new Range(genericParams.get_cValue(), genericParams.get_cValue()));
+			cValRangeParam.getEditor().refreshParamEditor();
+			bParam.setValue(genericModel.get_b());
+			bParam.getEditor().refreshParamEditor();
+		} catch (RuntimeException e) {
+			System.err.println("Error fetching generic params");
+			e.printStackTrace();
+			genericParams = null;
 		}
 	}
 	
@@ -726,14 +745,16 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		}
 		
 		// now add outline
-		DefaultXY_DataSet outline = new DefaultXY_DataSet();
-		for (Location loc : region.getBorder())
-			outline.set(loc.getLongitude(), loc.getLatitude());
-		outline.set(outline.get(0));
-		outline.setName("Region Outline");
-		
-		funcs.add(outline);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		if (region != null) {
+			DefaultXY_DataSet outline = new DefaultXY_DataSet();
+			for (Location loc : region.getBorder())
+				outline.set(loc.getLongitude(), loc.getLatitude());
+			outline.set(outline.get(0));
+			outline.setName("Region Outline");
+			
+			funcs.add(outline);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		}
 		
 		Collections.reverse(funcs);
 		Collections.reverse(chars);
@@ -745,8 +766,22 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			epicenterGraph.setPlotSpec(spec);
 		
 		double regBuff = 0.05;
-		epicenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
-				region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
+		if (region != null) {
+			epicenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
+					region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
+		} else {
+			 MinMaxAveTracker latTrack = new MinMaxAveTracker();
+			 MinMaxAveTracker lonTrack = new MinMaxAveTracker();
+			 latTrack.addValue(mainshock.getHypocenterLocation().getLatitude());
+			 lonTrack.addValue(mainshock.getHypocenterLocation().getLongitude());
+			 for (ObsEqkRupture rup : aftershocks) {
+				 Location loc = rup.getHypocenterLocation();
+				 latTrack.addValue(loc.getLatitude());
+				 lonTrack.addValue(loc.getLongitude());
+			 }
+			 epicenterGraph.setAxisRange(lonTrack.getMin()-regBuff, lonTrack.getMax()+regBuff,
+						latTrack.getMin()-regBuff, latTrack.getMax()+regBuff);
+		}
 		
 		setupGP(epicenterGraph);
 		
@@ -1118,6 +1153,24 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		return sb.toString();
 	}
 	
+	private static ObsEqkRupture fromCatalogLine(String line) throws ParseException {
+		line = line.trim();
+		String[] split = line.split("\\s+");
+		Preconditions.checkState(split.length == 10, "Unexpected number of colums. Has %s, expected 10", split.length);
+		String dateStr = split[0]+"\t"+split[1]+"\t"+split[2]+"\t"+split[3]+"\t"+split[4]+"\t"+split[5];
+		Date date = catDateFormat.parse(dateStr);
+		double lat = Double.parseDouble(split[6]);
+		double lon = Double.parseDouble(split[7]);
+		double depth = Double.parseDouble(split[8]);
+		double mag = Double.parseDouble(split[9]);
+		Location hypoLoc = new Location(lat, lon, depth);
+		
+		String eventId = dateStr.replaceAll("\t", "_")+"_M"+(float)mag;
+		long originTimeInMillis = date.getTime();
+		
+		return new ObsEqkRupture(eventId, originTimeInMillis, hypoLoc, mag);
+	}
+	
 	private void plotCatalogText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("# Year\tMonth\tDay\tHour\tMinute\tSec\tLat\tLon\tDepth\tMagnitude\n");
@@ -1135,6 +1188,74 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		} else {
 			catalogText.setText(sb.toString());
 		}
+	}
+	
+	private void loadCatalog(File catalogFile) throws IOException {
+		List<String> lines = Files.readLines(catalogFile, Charset.defaultCharset());
+		ObsEqkRupList myAftershocks = new ObsEqkRupList();
+		ObsEqkRupture myMainshock = null;
+		for (int i=0; i<lines.size(); i++) {
+			String line = lines.get(i).trim();
+			if (line.startsWith("#")) {
+				if (line.toLowerCase().startsWith("# main")
+						&& i < lines.size()-1 && lines.get(i+1).startsWith("#")) {
+					// main shock on next line, starting with a #
+					String mainshockLine = lines.get(i+1).substring(1).trim();
+					System.out.println("Detected mainshock in file: "+mainshockLine);
+					try {
+						myMainshock = fromCatalogLine(mainshockLine);
+					} catch (Exception e) {
+						System.err.println("Error loading mainshock");
+					}
+				}
+				continue;
+			}
+			if (!line.isEmpty()) {
+				try {
+					myAftershocks.add(fromCatalogLine(line));
+				} catch (ParseException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+			}
+		}
+		
+		System.out.println("Loaded "+myAftershocks.size()+" aftershocks from file");
+		
+		if (myMainshock == null) {
+			// no mainshock detected, must load or use existing
+			boolean prompt = true;
+			if (mainshock != null) {
+				// ask the user if they want to overwrite the existing one in the app
+				int ret = JOptionPane.showConfirmDialog(this, "A main shock has already been loaded."
+						+ "\nDo you wish to specify your own custom main shock instead?",
+						"Specify Custom Mainshock?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				prompt = ret == JOptionPane.YES_OPTION;
+			}
+			StringParameter lineParam = new StringParameter("Mainshock Line");
+			lineParam.setValue("Year Month Day Hour Minute Sec Lat Lon Depth Magnitude");
+			while (prompt) {
+				try {
+					myMainshock = fromCatalogLine(lineParam.getValue());
+					break;
+				} catch (Exception e) {
+					int ret = JOptionPane.showConfirmDialog(this, "Error: "+e.getMessage()+"\nTry again?",
+							"Error Parsing Mainshock", JOptionPane.OK_CANCEL_OPTION);
+					if (ret == JOptionPane.CANCEL_OPTION)
+						break;
+				}
+			}
+		}
+		
+		Preconditions.checkState(myMainshock != null, "Could not laod mainshock");
+		if (myMainshock != mainshock) {
+			// custom mainshock
+			eventIDParam.setName("<custom>");
+			eventIDParam.getEditor().refreshParamEditor();
+		}
+		setMainshock(myMainshock);
+		aftershocks = myAftershocks;
+		region = null;
+		setEnableParamsPostFetch(true);
 	}
 	
 	private void plotPDFs() {
@@ -1305,8 +1426,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		for (PlotElement elem : funcs) {
 			if (elem instanceof XY_DataSet) {
 				XY_DataSet xy = (XY_DataSet)elem;
-				yTrack.addValue(xy.getMinY());
-				yTrack.addValue(xy.getMaxY());
+				for (Point2D pt : xy)
+					if (pt.getY() > 0)
+						yTrack.addValue(pt.getY());
 			}
 		}
 		System.out.println(yTrack);
@@ -1329,6 +1451,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		else
 			aftershockExpectedGraph.setPlotSpec(spec);
 		aftershockExpectedGraph.setY_Log(true);
+		aftershockExpectedGraph.setY_AxisRange(new Range(yTrack.getMin(), yTrack.getMax()));
 		setupGP(aftershockExpectedGraph);
 		
 		if (tabbedPane.getTabCount() == aftershock_expected_index)
@@ -1370,6 +1493,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		startDate.setTimeInMillis((long)startTime);
 		
 		for (int i=0; i<models.size(); i++) {
+			Stopwatch watch = Stopwatch.createStarted();
 			RJ_AftershockModel model = models.get(i);
 			String name = names.get(i);
 			
@@ -1377,6 +1501,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			JTable jTable = new JTable(forecast.getTableModel());
 			jTable.getTableHeader().setFont(jTable.getTableHeader().getFont().deriveFont(Font.BOLD));
 			forecastTablePane.addTab(name, jTable);
+			System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute aftershock table for "+name);
+			watch.stop();
 		}
 		
 		if (tabbedPane.getTabCount() == forecast_table_tab_index)
@@ -1400,26 +1526,28 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			setEnableParamsPostFetch(false);
 			try {
 				fetchEvents();
-				title = "Error Calculating Mag Num Distrubution";
-				aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
-				mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
-				mcParam.setValue(mmaxc+0.5);
-				mcParam.getEditor().refreshParamEditor();
-				// plots
-				title = "Error Plotting Events";
-				plotAftershockHypocs();
-				plotMFDs(aftershockMND, mmaxc);
-				plotMagVsTime();
-				plotCumulativeNum();
-				plotCatalogText();
-				
-				tabbedPane.setSelectedIndex(epicenter_tab_index);
-
-				setEnableParamsPostFetch(true);
+				title = "Error Plotting Events/Data";
+				doPostFetchPlots();
 			} catch (Exception e) {
 				e.printStackTrace();
 				String message = e.getMessage();
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+			}
+		} else if (param == loadCatalogButton) {
+			if (loadCatalogChooser == null)
+				loadCatalogChooser = new JFileChooser();
+			int ret = loadCatalogChooser.showOpenDialog(this);
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				File file = loadCatalogChooser.getSelectedFile();
+				String title = "Error loading events";
+				try {
+					loadCatalog(file);
+					title = "Error Plotting Events/Data";
+					doPostFetchPlots();
+				} catch (Exception e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(this, e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		} else if (param == saveCatalogButton) {
 			if (saveCatalogChooser == null)
@@ -1574,8 +1702,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 //				Double c = cValParam.getValue();
 //				validateParameter(c, "c-value");
 				
+				Stopwatch watch = Stopwatch.createStarted();
 				plotExpectedAfershockMFDs();
+				watch.stop();
+				System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot aftershock MFDs");
+				watch.reset();
+				watch.start();
 				plotForecastTable();
+				watch.stop();
+				System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot forecast table");
 				
 				tabbedPane.setSelectedIndex(aftershock_expected_index);
 			} catch (Exception e) {
@@ -1584,6 +1719,23 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
 			}
 		}
+	}
+	
+	private void doPostFetchPlots() {
+		aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
+		mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
+		mcParam.setValue(mmaxc+0.5);
+		mcParam.getEditor().refreshParamEditor();
+		// plots
+		plotAftershockHypocs();
+		plotMFDs(aftershockMND, mmaxc);
+		plotMagVsTime();
+		plotCumulativeNum();
+		plotCatalogText();
+		
+		tabbedPane.setSelectedIndex(epicenter_tab_index);
+
+		setEnableParamsPostFetch(true);
 	}
 	
 	private static void validateParameter(Double value, String name) {
