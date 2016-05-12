@@ -238,8 +238,11 @@ public abstract class RJ_AftershockModel {
 	 */
 	public EvenlyDiscretizedFunc getCumNumMFD_FractileWithAleatoryVariability(double fractile, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
 		EvenlyDiscretizedFunc mfd = new EvenlyDiscretizedFunc(minMag, maxMag, numMag);
-		for(int i=0;i<mfd.size();i++)
+		for(int i=0;i<mfd.size();i++) {
 			mfd.set(i,getCumNumFractileWithAleatory(fractile, mfd.getX(i), tMinDays, tMaxDays));
+			System.out.println("\t"+mfd.getX(i)+"\t"+mfd.getY(i));
+
+		}
 		mfd.setName(fractile+" Fractile for Num Events, including aleatory variability");
 		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
 		return mfd;

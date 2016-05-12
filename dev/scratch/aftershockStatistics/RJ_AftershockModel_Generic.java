@@ -16,6 +16,7 @@ import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -115,16 +116,21 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 
 	public static void main(String[] args) {
 		
-		double magMain=7.8;
-		double mean_a=-2.47;
-		double sigma_a=0.5;
-		double min_a = mean_a-3.0*sigma_a;
-		double max_a = mean_a+3.0*sigma_a;
-		double b=1.0;
-		double p=0.88;
-		double c=0.018;
+//		double magMain=7.8;
+//		double mean_a=-2.47;
+//		double sigma_a=0.5;
+//		double min_a = mean_a-3.0*sigma_a;
+//		double max_a = mean_a+3.0*sigma_a;
+//		double b=1.0;
+//		double p=0.88;
+//		double c=0.018;
+//		
+//		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(magMain,mean_a,sigma_a,min_a,max_a,b,p,c);
 		
-		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(magMain,mean_a,sigma_a,min_a,max_a,b,p,c);
+		GenericRJ_ParametersFetch fetch = new GenericRJ_ParametersFetch();
+		Location loc = new Location(33.0, -120, 6.0);
+		RJ_AftershockModel_Generic gen = new RJ_AftershockModel_Generic(7d,fetch.get(loc));
+				
 		
 		EvenlyDiscretizedFunc lowFract = gen.getCumNumMFD_Fractile(0.025, 5.0, 8.0, 31, 0d, 7d);
 		System.out.println("2.5%: "+lowFract.getX(0)+"\t"+lowFract.getY(0));
