@@ -1360,7 +1360,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		Double maxDays = forecastEndTimeParam.getValue();
 		validateParameter(maxDays, "end time");
 		
-		double minMag = 3d;
+		double minMag;
+		if (mainshock.getMag() < 6)
+			minMag = 3d;
+		else
+			minMag = 4d;
 		double maxMag = 9d;
 		double deltaMag = 0.1;
 		int numMag = (int)((maxMag - minMag)/deltaMag + 1.5);
@@ -1405,8 +1409,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			funcs.add(mean);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, c));
 			
-			for (double f : fractiles) {
-				EvenlyDiscretizedFunc fractile = model.getCumNumMFD_FractileWithAleatoryVariability(f, minMag, maxMag, numMag, minDays, maxDays);
+			EvenlyDiscretizedFunc[] fractilesFuncs =model.getCumNumMFD_FractileWithAleatoryVariability(
+					fractiles, minMag, maxMag, numMag, minDays, maxDays);
+			
+			for (int j= 0; j<fractiles.length; j++) {
+				double f = fractiles[j];
+				EvenlyDiscretizedFunc fractile = fractilesFuncs[j];
 				fractile.setName("p"+(float)(f*100d)+"%");
 				
 				funcs.add(fractile);

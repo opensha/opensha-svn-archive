@@ -83,6 +83,8 @@ public class USGS_AftershockForecast {
 		durations = Duration.values();
 		endDates = new GregorianCalendar[durations.length];
 		
+		double[] calcFractiles = {fractile_lower, fractile_upper};
+		
 		System.out.println("Start date: "+df.format(startDate.getTime()));
 		for (int i=0; i<durations.length; i++) {
 			Duration duration = durations[i];
@@ -100,10 +102,10 @@ public class USGS_AftershockForecast {
 			for (int m=0; m<minMags.length; m++) {
 				double minMag = minMags[m];
 				
-				numEventsLower.put(duration, minMag, model.getCumNumMFD_Fractile(
-						fractile_lower, minMag, minMag, 1, tMinDays, tMaxDays).getY(0));
-				numEventsUpper.put(duration, minMag, model.getCumNumMFD_Fractile(
-						fractile_upper, minMag, minMag, 1, tMinDays, tMaxDays).getY(0));
+				double[] fractiles = model.getCumNumFractileWithAleatory(calcFractiles, minMag, tMinDays, tMaxDays);
+				
+				numEventsLower.put(duration, minMag, fractiles[0]);
+				numEventsUpper.put(duration, minMag, fractiles[1]);
 //				double rate = model.getModalNumEvents(minMag, tMinDays, tMaxDays);
 				double expectedVal = model.getModalNumEvents(minMag, tMinDays, tMaxDays);
 				double poissonProb = 1 - Math.exp(-expectedVal);
