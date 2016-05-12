@@ -3,10 +3,12 @@ package scratch.aftershockStatistics;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Dialog.ModalityType;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -27,6 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.Range;
@@ -76,6 +79,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
@@ -1354,7 +1358,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				new Range(pdf.getMinY()-0.5*yDelta, pdf.getMaxY()+0.5*yDelta));
 	}
 	
-	private void plotExpectedAfershockMFDs() {
+	private void plotExpectedAfershockMFDs(CalcProgressBar progress) {
 		Double minDays = forecastStartTimeParam.getValue();
 		validateParameter(minDays, "start time");
 		Double maxDays = forecastEndTimeParam.getValue();
@@ -1396,9 +1400,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		double[] fractiles = { 0.025, 0.975 };
 		
 		for (int i=0; i<models.size(); i++) {
+			String name = names.get(i);
+			if (progress != null)
+				progress.updateProgress(i, models.size(), "Calculating "+name+"...");
 			RJ_AftershockModel model = models.get(i);
 			EvenlyDiscretizedFunc mode = model.getModalCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
-			mode.setName(names.get(i)+" Mode");
+			mode.setName(name+" Mode");
 			EvenlyDiscretizedFunc mean = model.getMeanCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
 			mean.setName("Mean");
 			Color c = colors.get(i);
@@ -1422,6 +1429,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}
 		}
 		
+		if (progress != null) {
+			progress.setIndeterminate(true);
+			progress.setProgressMessage("Plotting...");
+		}
+		
 		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
 		double mainshockMag = mainshock.getMag();
 		double bathsMag = mainshockMag - 1.2;
@@ -1430,7 +1442,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		DefaultXY_DataSet bathsFunc = new DefaultXY_DataSet();
 		bathsFunc.setName("Bath's Law M="+(float)bathsMag);
 		
-		MinMaxAveTracker yTrack = new MinMaxAveTracker();
+		final MinMaxAveTracker yTrack = new MinMaxAveTracker();
 		for (PlotElement elem : funcs) {
 			if (elem instanceof XY_DataSet) {
 				XY_DataSet xy = (XY_DataSet)elem;
@@ -1451,25 +1463,41 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		funcs.add(bathsFunc);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
+		final PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
 		spec.setLegendVisible(true);
 		
-		if (aftershockExpectedGraph == null)
-			aftershockExpectedGraph = new GraphWidget(spec);
-		else
-			aftershockExpectedGraph.setPlotSpec(spec);
-		aftershockExpectedGraph.setY_Log(true);
-		aftershockExpectedGraph.setY_AxisRange(new Range(yTrack.getMin(), yTrack.getMax()));
-		setupGP(aftershockExpectedGraph);
+		Runnable displayRun = new Runnable() {
+			
+			@Override
+			public void run() {
+				if (aftershockExpectedGraph == null)
+					aftershockExpectedGraph = new GraphWidget(spec);
+				else
+					aftershockExpectedGraph.setPlotSpec(spec);
+				aftershockExpectedGraph.setY_Log(true);
+				aftershockExpectedGraph.setY_AxisRange(new Range(yTrack.getMin(), yTrack.getMax()));
+				setupGP(aftershockExpectedGraph);
+				
+				if (tabbedPane.getTabCount() == aftershock_expected_index)
+					tabbedPane.addTab("Forecast", null, aftershockExpectedGraph,
+							"Aftershock Expected Frequency Plot");
+				else
+					Preconditions.checkState(tabbedPane.getTabCount() > aftershock_expected_index, "Plots added out of order");
+			}
+		};
 		
-		if (tabbedPane.getTabCount() == aftershock_expected_index)
-			tabbedPane.addTab("Forecast", null, aftershockExpectedGraph,
-					"Aftershock Expected Frequency Plot");
-		else
-			Preconditions.checkState(tabbedPane.getTabCount() > aftershock_expected_index, "Plots added out of order");
+		if (SwingUtilities.isEventDispatchThread()) {
+			displayRun.run();
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(displayRun);
+			} catch (Exception e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
 	}
 	
-	private void plotForecastTable() {
+	private void plotForecastTable(CalcProgressBar progress) {
 		if (forecastTablePane == null)
 			forecastTablePane = new JTabbedPane();
 		else
@@ -1505,6 +1533,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			RJ_AftershockModel model = models.get(i);
 			String name = names.get(i);
 			
+			if (progress != null)
+				progress.updateProgress(i, models.size(), "Calculating "+name+"...");
+			
 			USGS_AftershockForecast forecast = new USGS_AftershockForecast(model, eventDate, startDate);
 			JTable jTable = new JTable(forecast.getTableModel());
 			jTable.getTableHeader().setFont(jTable.getTableHeader().getFont().deriveFont(Font.BOLD));
@@ -1512,6 +1543,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute aftershock table for "+name);
 			watch.stop();
 		}
+		if (progress != null)
+			progress.updateProgress(models.size(), models.size());
 		
 		if (tabbedPane.getTabCount() == forecast_table_tab_index)
 			tabbedPane.addTab("Forecast Table", null, forecastTablePane,
@@ -1519,10 +1552,125 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		else
 			Preconditions.checkState(tabbedPane.getTabCount() > forecast_table_tab_index, "Plots added out of order");
 	}
+	
+	private class CalcStep {
+		
+		private String title;
+		private String progressMessage;
+		private Runnable run;
+		boolean runInEDT;
+		
+		public CalcStep(String title, String progressMessage, Runnable run) {
+			this(title, progressMessage, run, false);
+		}
+		
+		public CalcStep(String title, String progressMessage, Runnable run, boolean runInEDT) {
+			this.title = title;
+			this.progressMessage = progressMessage;
+			this.run = run;
+			this.runInEDT = runInEDT;
+		}
+		
+	}
+	
+	private class CalcRunnable implements Runnable {
+		private CalcProgressBar progress;
+		private CalcStep[] steps;
+		
+		private String curTitle;
+		private Throwable exception;
+		
+		public CalcRunnable(CalcProgressBar progress, CalcStep... calcSteps) {
+			this.progress = progress;
+			this.steps = calcSteps;
+		}
+
+		@Override
+		public void run() {
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					if (progress.isVisible())
+						progress.setVisible(false);
+					progress.setModalityType(ModalityType.APPLICATION_MODAL);
+					progress.setVisible(true);
+				}
+			});
+			for (final CalcStep step : steps) {
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						progress.setTitle(step.title);
+						progress.setProgressMessage(step.progressMessage);
+						progress.pack();
+					}
+				});
+				curTitle = step.title;
+				if (step.runInEDT) {
+					try {
+						SwingUtilities.invokeAndWait(new Runnable() {
+							
+							@Override
+							public void run() {
+								try {
+									step.run.run();
+								} catch (Throwable e) {
+									exception = e;
+								}
+							}
+						});
+					} catch (Exception e) {
+						exception = e;
+					}
+					if (exception != null)
+						break;
+				} else {
+					try {
+						step.run.run();
+					} catch (Throwable e) {
+						exception = e;
+						break;
+					}
+				}
+			}
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					progress.setVisible(false);
+					progress.dispose();
+				}
+			});
+			if (exception != null) {
+				final String title = "Error "+curTitle;
+				exception.printStackTrace();
+				final String message = exception.getMessage();
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						
+						@Override
+						public void run() {
+							JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+						}
+					});
+				} catch (Exception e) {
+					System.err.println("Error displaying error message!");
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
 		Parameter<?> param = event.getParameter();
+		
+		final CalcProgressBar progress = new CalcProgressBar(this, "", "", false);
+		progress.setIndeterminate(true);
+		
 		if (param == eventIDParam || param == dataStartTimeParam || param == dataEndTimeParam
 				|| param == regionEditParam) {
 			setEnableParamsPostFetch(false);
@@ -1530,32 +1678,51 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
 			setEnableParamsPostFetch(false);
 		} else if (param == fetchButton) {
-			String title = "Error Fetching Events";
 			setEnableParamsPostFetch(false);
-			try {
-				fetchEvents();
-				title = "Error Plotting Events/Data";
-				doPostFetchPlots();
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
+			CalcStep fetchStep = new CalcStep("Fetching Events",
+					"Contacting USGS ComCat Webservice. This is occasionally slow. "
+					+ "If it fails, trying again often works.", new Runnable() {
+						
+						@Override
+						public void run() {
+							fetchEvents();
+						}
+					});
+			CalcStep postFetchPlotStep = new CalcStep("Plotting Events/Data", "...", new Runnable() {
+						
+						@Override
+						public void run() {
+							doPostFetchPlots();
+						}
+					});
+			CalcRunnable run = new CalcRunnable(progress, fetchStep, postFetchPlotStep);
+			new Thread(run).start();
 		} else if (param == loadCatalogButton) {
 			if (loadCatalogChooser == null)
 				loadCatalogChooser = new JFileChooser();
 			int ret = loadCatalogChooser.showOpenDialog(this);
 			if (ret == JFileChooser.APPROVE_OPTION) {
-				File file = loadCatalogChooser.getSelectedFile();
-				String title = "Error loading events";
-				try {
-					loadCatalog(file);
-					title = "Error Plotting Events/Data";
-					doPostFetchPlots();
-				} catch (Exception e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(this, e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
-				}
+				final File file = loadCatalogChooser.getSelectedFile();
+				CalcStep loadStep = new CalcStep("Loading events", "...", new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							loadCatalog(file);
+						} catch (IOException e) {
+							ExceptionUtils.throwAsRuntimeException(e);
+						}
+					}
+				});
+				CalcStep postFetchPlotStep = new CalcStep("Plotting Events/Data", "...", new Runnable() {
+					
+					@Override
+					public void run() {
+						doPostFetchPlots();
+					}
+				});
+				CalcRunnable run = new CalcRunnable(progress, loadStep, postFetchPlotStep);
+				new Thread(run).start();
 			}
 		} else if (param == saveCatalogButton) {
 			if (saveCatalogChooser == null)
@@ -1589,28 +1756,29 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				bParam.setValue(null);
 			bParam.getEditor().refreshParamEditor();
 		} else if (param == computeBButton) {
-			String title = "Error Computing b";
 			setEnableParamsPostComputeB(false);
-			try {
-				Double mc = mcParam.getValue();
-				validateParameter(mc, "Mc");
+			CalcStep bStep = new CalcStep("Computing b", "...", new Runnable() {
 				
-				double magPrecision = magPrecisionParam.getValue();
-				
-				ObsEqkRupList filteredRupList = aftershocks.getRupsAboveMag(mc);
-				double b = AftershockStatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
-				System.out.println("Num rups ≥ Mc = "+filteredRupList.size());
-				System.out.println("Computed b-value: "+b);
-				bParam.setValue(b);
-				bParam.getEditor().refreshParamEditor();
-				
-				setEnableParamsPostComputeB(true);
-				tabbedPane.setSelectedIndex(mag_num_tab_index);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
+				@Override
+				public void run() {
+					Double mc = mcParam.getValue();
+					validateParameter(mc, "Mc");
+					
+					double magPrecision = magPrecisionParam.getValue();
+					
+					ObsEqkRupList filteredRupList = aftershocks.getRupsAboveMag(mc);
+					double b = AftershockStatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
+					System.out.println("Num rups ≥ Mc = "+filteredRupList.size());
+					System.out.println("Computed b-value: "+b);
+					bParam.setValue(b);
+					bParam.getEditor().refreshParamEditor();
+					
+					setEnableParamsPostComputeB(true);
+					tabbedPane.setSelectedIndex(mag_num_tab_index);
+				}
+			});
+			CalcRunnable run = new CalcRunnable(progress, bStep);
+			new Thread(run).start();
 		} else if (param == bParam) {
 			setEnableParamsPostAfershockParams(false);
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
@@ -1632,100 +1800,110 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		} else if (param == gParam || param == hParam || param == mCatParam) {
 			setEnableParamsPostAfershockParams(false);
 		} else if (param == computeAftershockParamsButton) {
-			String title = "Error Computing Aftershock Params";
 			setEnableParamsPostAfershockParams(false);
-			try {
-				Range aRange = aValRangeParam.getValue();
-				int aNum = aValNumParam.getValue();
-				validateRange(aRange, aNum, "a-value");
-				Range pRange = pValRangeParam.getValue();
-				int pNum = pValNumParam.getValue();
-				validateRange(pRange, pNum, "p-value");
-				Range cRange = cValRangeParam.getValue();
-				int cNum = cValNumParam.getValue();
-				validateRange(cRange, cNum, "c-value");
-				
-				Double mc = mcParam.getValue();
-				validateParameter(mc, "Mc");
-								
-				Double b = bParam.getValue();
-				validateParameter(b, "b-value");
-				
-				if (timeDepMcParam.getValue()) {
-					Double g = gParam.getValue();
-					validateParameter(g, "G");
+			CalcStep computeStep = new CalcStep("Computing Aftershock Params", "...", new Runnable() {
+
+				@Override
+				public void run() {
+					Range aRange = aValRangeParam.getValue();
+					int aNum = aValNumParam.getValue();
+					validateRange(aRange, aNum, "a-value");
+					Range pRange = pValRangeParam.getValue();
+					int pNum = pValNumParam.getValue();
+					validateRange(pRange, pNum, "p-value");
+					Range cRange = cValRangeParam.getValue();
+					int cNum = cValNumParam.getValue();
+					validateRange(cRange, cNum, "c-value");
 					
-					Double h = hParam.getValue();
-					validateParameter(h, "H");
+					Double mc = mcParam.getValue();
+					validateParameter(mc, "Mc");
+									
+					Double b = bParam.getValue();
+					validateParameter(b, "b-value");
 					
-					Double mCat = mCatParam.getValue();
-					validateParameter(mCat, "Mcat");
-					
-					model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mCat, g, h, b,
-							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
-							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
-							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
-							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
-				} else {
-					model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mc, b,
-							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
-							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
-							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
-							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+					if (timeDepMcParam.getValue()) {
+						Double g = gParam.getValue();
+						validateParameter(g, "G");
+						
+						Double h = hParam.getValue();
+						validateParameter(h, "H");
+						
+						Double mCat = mCatParam.getValue();
+						validateParameter(mCat, "Mcat");
+						
+						model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mCat, g, h, b,
+								dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+								aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+								pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+								cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+					} else {
+						model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mc, b,
+								dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+								aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+								pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+								cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+					}
 				}
 				
-				aValParam.setValue(model.getMaxLikelihood_a());
-				aValParam.getEditor().refreshParamEditor();
-				pValParam.setValue(model.getMaxLikelihood_p());
-				pValParam.getEditor().refreshParamEditor();
-				cValParam.setValue(model.getMaxLikelihood_c());
-				cValParam.getEditor().refreshParamEditor();
+			});
+			CalcStep plotStep = new CalcStep("Plotting Model PDFs", "...", new Runnable() {
 				
-				bayesianModel = null;
-				if (genericModel != null) {
-					if (RJ_AftershockModel_Bayesian.areModelsEquivalent(model, genericModel))
-						bayesianModel = new RJ_AftershockModel_Bayesian(model, genericModel);
-					else
-						System.out.println("Could not create Bayesian model as sequence specifc and "
-								+ "generic models are not equivalent");
+				@Override
+				public void run() {
+					aValParam.setValue(model.getMaxLikelihood_a());
+					aValParam.getEditor().refreshParamEditor();
+					pValParam.setValue(model.getMaxLikelihood_p());
+					pValParam.getEditor().refreshParamEditor();
+					cValParam.setValue(model.getMaxLikelihood_c());
+					cValParam.getEditor().refreshParamEditor();
+					
+					bayesianModel = null;
+					if (genericModel != null) {
+						if (RJ_AftershockModel_Bayesian.areModelsEquivalent(model, genericModel))
+							bayesianModel = new RJ_AftershockModel_Bayesian(model, genericModel);
+						else
+							System.out.println("Could not create Bayesian model as sequence specifc and "
+									+ "generic models are not equivalent");
+					}
+					
+					plotPDFs();
+					setEnableParamsPostAfershockParams(true);
+					plotCumulativeNum();
+					tabbedPane.setSelectedIndex(pdf_tab_index);
 				}
-				
-				plotPDFs();
-				setEnableParamsPostAfershockParams(true);
-				plotCumulativeNum();
-				tabbedPane.setSelectedIndex(pdf_tab_index);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
+			}, true);
+			CalcRunnable run = new CalcRunnable(progress, computeStep, plotStep);
+			new Thread(run).start();
 		} else if (param == computeAftershockForecastButton) {
-			String title = "Error Computing Aftershock Forecast";
-			try {
-				// TODO make editbale?
-//				Double a = aValParam.getValue();
-//				validateParameter(a, "a-value");
-//				Double p = pValParam.getValue();
-//				validateParameter(p, "p-value");
-//				Double c = cValParam.getValue();
-//				validateParameter(c, "c-value");
+			CalcStep plotStep = new CalcStep("Computing/Plotting Forecast MFDs", "This can take some time...",
+					new Runnable() {
+
+						@Override
+						public void run() {
+							Stopwatch watch = Stopwatch.createStarted();
+							plotExpectedAfershockMFDs(progress);
+							watch.stop();
+							System.out.println(
+									"Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot aftershock MFDs");
+						}
 				
-				Stopwatch watch = Stopwatch.createStarted();
-				plotExpectedAfershockMFDs();
-				watch.stop();
-				System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot aftershock MFDs");
-				watch.reset();
-				watch.start();
-				plotForecastTable();
-				watch.stop();
-				System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot forecast table");
+			});
+			CalcStep tableStep = new CalcStep("Computing Forecast Table", "This can take some time...",
+					new Runnable() {
+
+						@Override
+						public void run() {
+							Stopwatch watch = Stopwatch.createStarted();
+							plotForecastTable(progress);
+							watch.stop();
+							System.out.println(
+									"Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot forecast table");
+							tabbedPane.setSelectedIndex(aftershock_expected_index);
+						}
 				
-				tabbedPane.setSelectedIndex(aftershock_expected_index);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
+			});
+			CalcRunnable run = new CalcRunnable(progress, plotStep, tableStep);
+			new Thread(run).start();
 		}
 	}
 	

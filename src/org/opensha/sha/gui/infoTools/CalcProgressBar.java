@@ -85,6 +85,10 @@ public class CalcProgressBar extends JDialog {
 	 * @param info
 	 */
 	public CalcProgressBar(Component owner, String title, String info) {
+		this(owner, title, info, true);
+	}
+	
+	public CalcProgressBar(Component owner, String title, String info, boolean visible) {
 		super(JOptionPane.getFrameForComponent(owner), title);
 		setResizable(false);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -95,7 +99,7 @@ public class CalcProgressBar extends JDialog {
 		getContentPane().add(content);
 		pack();
 		setLocationRelativeTo(JOptionPane.getFrameForComponent(owner));
-		setVisible(true);
+		setVisible(visible);
 	}
 
 	private JPanel buildContent(String s) {
@@ -174,13 +178,20 @@ public class CalcProgressBar extends JDialog {
 	 * @param total
 	 */
 	public void updateProgress(long count, long total) {
+		updateProgress(count, total, null);
+	}
+	
+	public void updateProgress(long count, long total, String message) {
 		if (total != 0) {
 			int value = (int)((count * 100) / total);
-			StringBuilder sb = new StringBuilder();
-			sb.append(count).append(" of ").append(total).append(" Complete");
-			info.setText(sb.toString());
+			if (message == null)
+				message = new StringBuilder().append(count).append(" of ").append(total).append(" Complete").toString();
+			if (progress.isIndeterminate())
+				progress.setIndeterminate(false);
 			progress.setValue(value);
 		}
+		if (message != null)
+			setProgressMessage(message);
 	}
 
 	/**
