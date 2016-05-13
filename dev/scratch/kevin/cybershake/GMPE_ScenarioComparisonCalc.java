@@ -1,6 +1,7 @@
 package scratch.kevin.cybershake;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.sha.cybershake.HazardCurveFetcher;
@@ -22,6 +24,7 @@ import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.plot.HazardCurvePlotter;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -47,8 +50,16 @@ public class GMPE_ScenarioComparisonCalc {
 		imrs.add(AttenRelRef.CY_2014.instance(null));
 		
 		AbstractERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
-		int sourceID = 64;
-		int rupID = 3;
+//		int sourceID = 64;
+//		int rupID = 3;
+//		int sourceID = 184;
+//		int rupID = 6;
+//		int sourceID = 158;
+//		int rupID = 6;
+//		int sourceID = 242;
+//		int rupID = 26;
+		int sourceID = 265;
+		int rupID = 94;
 		ProbEqkRupture rup = erf.getRupture(sourceID, rupID);
 		
 		System.out.println("Scenario: M"+rup.getMag()+" on "+erf.getSource(sourceID).getName());
@@ -145,6 +156,18 @@ public class GMPE_ScenarioComparisonCalc {
 		}
 		
 		db.destroy();
+		
+		// now write rupture surface
+		RuptureSurface surf = rup.getRuptureSurface();
+		String rupPrefix = "rup_surf_"+sourceID+"_"+rupID;
+		FileWriter fw = new FileWriter(new File("/tmp", rupPrefix+"_full.txt"));
+		for (Location loc : surf.getEvenlyDiscritizedListOfLocsOnSurface())
+			fw.write(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth()+"\n");
+		fw.close();
+		fw = new FileWriter(new File("/tmp", rupPrefix+"_upper.txt"));
+		for (Location loc : surf.getUpperEdge())
+			fw.write(loc.getLatitude()+"\t"+loc.getLongitude()+"\t"+loc.getDepth()+"\n");
+		fw.close();
 	}
 
 }

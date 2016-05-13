@@ -9,10 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.simulators.EQSIM_Event;
@@ -25,6 +27,7 @@ import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -398,8 +401,8 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
-//		Region region = null;
-		Region region = new CaliforniaRegions.RELM_SOCAL();
+		Region region = null;
+//		Region region = new CaliforniaRegions.RELM_SOCAL();
 		
 //		RuptureIdentifier rupIden = null;
 		ElementMagRangeDescription cholameIden = new ElementMagRangeDescription("SAF Cholame 7+",
@@ -453,8 +456,38 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		SimulatorFaultSystemSolution fss = build(tools.getElementsList(), events, durationYears);
 		System.out.println(fss.getInfoString());
 		
-		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));
-		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol.zip"));
+//		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol_mojave_trigger_quiet_156_wind_30_yr.zip"));
+//		FaultSystemIO.writeSol(fss, new File("/tmp/simulators_long_sol.zip"));
+		
+		Map<String, Integer> rupCounts = Maps.newHashMap();
+		FaultSystemRupSet rupSet = fss.getRupSet();
+		for (int r=0; r<rupSet.getNumRuptures(); r++) {
+			String key = uniqueRupHash(rupSet.getSectionsIndicesForRup(r));
+			Integer count = rupCounts.get(key);
+			if (count == null)
+				count = 0;
+			count += 1;
+			rupCounts.put(key, count);
+		}
+		MinMaxAveTracker track = new MinMaxAveTracker();
+		HistogramFunction hist = new HistogramFunction(1d, 10, 1d);
+		int tot = 0;
+		for (String key : rupCounts.keySet()) {
+			int count = rupCounts.get(key);
+			tot += count;
+			track.addValue(count);
+			hist.add(hist.getClosestXIndex(count), 1d);
+		}
+		System.out.println(rupCounts.size()+"/"+tot+" unique rupture");
+		System.out.println(track);
+		System.out.println(hist);
+	}
+	
+	private static final Joiner j = Joiner.on("_");
+	private static String uniqueRupHash(List<Integer> sects) {
+		sects = Lists.newArrayList(sects);
+		Collections.sort(sects);
+		return j.join(sects);
 	}
 
 }

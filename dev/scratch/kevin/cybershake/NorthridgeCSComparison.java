@@ -16,6 +16,7 @@ import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
@@ -78,6 +79,7 @@ public class NorthridgeCSComparison {
 		double csHistDelta = 0.005; // if csHistEstNum <= 0
 		
 		List<Double> periods = Lists.newArrayList(3d, 5d);
+		List<Range> forceXRanges = Lists.newArrayList(new Range(0d, 0.12), null);
 		List<Double> maxVals = Lists.newArrayList();
 		for (int i=0; i<periods.size(); i++)
 			maxVals.add(0d);
@@ -273,6 +275,13 @@ public class NorthridgeCSComparison {
 						recordIDs.add(record.id);
 					}
 					
+					double myMax = 0d;
+					for (XY_DataSet xy : funcs) {
+						for (Point2D pt : xy)
+							if (pt.getY() > 0)
+								myMax = Math.max(myMax, pt.getX());
+					}
+					
 					String recName = myRecords.get(0).name;
 					if (myRecords.size() > 1) {
 						recName += " (and "+(myRecords.size()-1)+" other";
@@ -292,7 +301,11 @@ public class NorthridgeCSComparison {
 					gp.setPlotLabelFontSize(21);
 					gp.setBackgroundColor(Color.WHITE);
 					
-					Range xRange = new Range(0d, maxVals.get(p)*1.1);
+					Range xRange = null;
+					if (forceXRanges != null && forceXRanges.size() > p)
+						xRange = forceXRanges.get(p);
+					if (xRange == null || xRange.getUpperBound() < myMax)
+						xRange = new Range(0d, maxVals.get(p)*1.1);
 					
 					gp.drawGraphPanel(spec, false, false, xRange, yRange);
 					gp.getChartPanel().setSize(1000, 800);
