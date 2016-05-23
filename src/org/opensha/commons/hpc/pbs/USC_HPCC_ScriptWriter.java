@@ -10,7 +10,7 @@ public class USC_HPCC_ScriptWriter extends BatchScriptWriter {
 	public static final File MPJ_HOME = new File("/home/rcf-12/kmilner/mpj-v0_38");
 	public static final File FMPJ_HOME = new File("/home/rcf-12/kmilner/FastMPJ");
 //	public static final File JAVA_BIN = new File("/usr/usc/jdk/default/jre/bin/java");
-	public static final File JAVA_BIN = new File("/usr/usc/jdk/1.7.0_25/bin/java");
+	public static final File JAVA_BIN = new File("/usr/usc/jdk/1.8.0_45/bin/java");
 	
 	private String nodesAddition;
 	private int perNodeMemGB = -1;

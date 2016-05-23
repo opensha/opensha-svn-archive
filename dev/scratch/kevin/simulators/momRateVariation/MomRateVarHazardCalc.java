@@ -53,7 +53,7 @@ import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
@@ -95,7 +95,7 @@ public class MomRateVarHazardCalc {
 		loadIdens.add(new RegionIden(region));
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, loadIdens, false);
 		List<EQSIM_Event> events = loader.getEvents();
-		List<RectangularElement> elements = loader.getElements();
+		List<SimulatorElement> elements = loader.getElements();
 		
 		// UCERF3
 		File u3MainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare/2015_07_30-MID_VALUES");
@@ -103,8 +103,8 @@ public class MomRateVarHazardCalc {
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		File u3EtasCatalogs = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin");
-		Map<Integer, RectangularElement> u3Elems = UCERF3ComparisonAnalysis.loadElements(u3Sol.getRupSet());
+				+ "2016_02_04-spontaneous-10000yr-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin");
+		Map<Integer, SimulatorElement> u3Elems = UCERF3ComparisonAnalysis.loadElements(u3Sol.getRupSet());
 		
 		CatalogTypes[] types = CatalogTypes.values();
 		boolean[] poissons = { false, true }; // must always be false first, will shuffle in place
@@ -117,6 +117,9 @@ public class MomRateVarHazardCalc {
 		
 		int windowLen = 100;
 		boolean before = true;
+		
+		outputDir = new File(outputDir, windowLen+"yr");
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		double[] taper;
 		if (before)
@@ -157,7 +160,7 @@ public class MomRateVarHazardCalc {
 						+", t="+myEvents.get(maxDeltaIndex).getTimeInYears());
 				break;
 			case UCERF3_ETAS:
-				List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(u3EtasCatalogs);
+				List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(u3EtasCatalogs, 5);
 				eventLists = UCERF3_ETASComparisons.loadUCERF3EtasCatalogs(catalogs, u3Sol, region, u3Elems);
 				myEvents = UCERF3ComparisonAnalysis.stitch(eventLists);
 				break;
@@ -210,7 +213,7 @@ public class MomRateVarHazardCalc {
 //					MatrixIO.doubleArrayToFile(momRates, momRateFile);
 //				}
 				doMomRateCalc(myDir, events, years, momRates, durations, windowLen);
-				doEventRateCalc(myDir, myEvents, years, momRates, 7d, durations);
+				doEventRateCalc(myDir, myEvents, years, momRates, 7d, durations, windowLen);
 			}
 		}
 		
@@ -277,7 +280,7 @@ public class MomRateVarHazardCalc {
 	}
 
 	private static void doHazardCalc(File outputDir, List<EQSIM_Event> events,
-			List<RectangularElement> elements, double[] hazard_durations,
+			List<SimulatorElement> elements, double[] hazard_durations,
 			double hazardMinMag, double[] years, double[] momRates)
 			throws IOException {
 		double upperMomRate = 1.5e19;
@@ -498,7 +501,7 @@ public class MomRateVarHazardCalc {
 	}
 	
 	private static void doEventRateCalc(File outputDir, List<EQSIM_Event> events, double[] years,
-			double[] moRates, double minMag, double[] durations) throws IOException {
+			double[] moRates, double minMag, double[] durations, int durationBefore) throws IOException {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
@@ -515,16 +518,17 @@ public class MomRateVarHazardCalc {
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Event Rates vs Moment Rates",
-				"Moment Rate Before", "Rate M>="+(double)minMag+" Following");
+				"Moment Rate for "+durationBefore+"yrs Before", "Rate M>="+(double)minMag+" Following");
 		spec.setLegendVisible(true);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		gp.setAxisLabelFontSize(22);
+		gp.setPlotLabelFontSize(24);
+		gp.setLegendFontSize(18);
 		gp.setBackgroundColor(Color.WHITE);
 		
 		gp.drawGraphPanel(spec, true, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		File outputFile = new File(outputDir, "event_rate_following");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -536,6 +540,8 @@ public class MomRateVarHazardCalc {
 				countAbove++;
 		double simDuration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
 		double rateAbove = (double)countAbove/simDuration;
+		
+		Range xRange = new Range(1e18, 1e20);
 		
 		List<DiscretizedFunc> gainFuncs = Lists.newArrayList();
 		for (int i=0; i<durations.length; i++) {
@@ -550,15 +556,25 @@ public class MomRateVarHazardCalc {
 				double gain = myRate/rateAbove;
 				gainFunc.set(pt.getX(), gain);
 			}
+			while (gainFunc.getMinX() < xRange.getLowerBound())
+				xRange = new Range(xRange.getLowerBound()/10, xRange.getUpperBound());
+			while (gainFunc.getMaxX() > xRange.getUpperBound())
+				xRange = new Range(xRange.getLowerBound()/10, xRange.getUpperBound());
 			
 			gainFuncs.add(gainFunc);
 		}
 		
+		ArbitrarilyDiscretizedFunc flatGainFunc = new ArbitrarilyDiscretizedFunc();
+		flatGainFunc.set(xRange.getLowerBound(), 1d);
+		flatGainFunc.set(xRange.getUpperBound(), 1d);
+		gainFuncs.add(0, flatGainFunc);
+		chars.add(0, new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		
 		spec = new PlotSpec(gainFuncs, chars, "Event Rate Gain vs Moment Rates",
-				"Moment Rate Before", "Rate Gain M>="+(double)minMag+" Following");
+				"Moment Rate for "+durationBefore+"yrs Before", "Rate Gain M>="+(double)minMag+" Following");
 		spec.setLegendVisible(true);
-		gp.drawGraphPanel(spec, true, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.drawGraphPanel(spec, true, false, xRange, new Range(0d, 2.5d));
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "event_rate_gain");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -638,18 +654,20 @@ public class MomRateVarHazardCalc {
 		spec.setLegendVisible(true);
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
+		gp.setAxisLabelFontSize(22);
+		gp.setPlotLabelFontSize(24);
+		gp.setLegendFontSize(18);
 		gp.setBackgroundColor(Color.WHITE);
 		
 		gp.drawGraphPanel(spec, true, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		File outputFile = new File(outputDir, "mom_rate_following");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		
 		double meanMoRate = StatUtils.mean(moRates);
 		
+		Range xRange = new Range(1e18, 1e20);
 		List<DiscretizedFunc> gainFuncs = Lists.newArrayList();
 		for (int i=0; i<durations.length; i++) {
 			DiscretizedFunc countFunc = funcs.get(i);
@@ -661,15 +679,25 @@ public class MomRateVarHazardCalc {
 				double gain = pt.getY()/meanMoRate;
 				gainFunc.set(pt.getX(), gain);
 			}
+			while (gainFunc.getMinX() < xRange.getLowerBound())
+				xRange = new Range(xRange.getLowerBound()/10, xRange.getUpperBound());
+			while (gainFunc.getMaxX() > xRange.getUpperBound())
+				xRange = new Range(xRange.getLowerBound()/10, xRange.getUpperBound());
 			
 			gainFuncs.add(gainFunc);
 		}
 		
+		ArbitrarilyDiscretizedFunc flatGainFunc = new ArbitrarilyDiscretizedFunc();
+		flatGainFunc.set(xRange.getLowerBound(), 1d);
+		flatGainFunc.set(xRange.getUpperBound(), 1d);
+		gainFuncs.add(0, flatGainFunc);
+		chars.add(0, new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		
 		spec = new PlotSpec(gainFuncs, chars, "Moment Rate Gain vs Moment Rates",
 				"Moment Rate for "+durationBefore+"yrs Before", "Moment Rate Gain Following");
 		spec.setLegendVisible(true);
-		gp.drawGraphPanel(spec, true, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.drawGraphPanel(spec, true, false, xRange, new Range(0d, 2.5d));
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "mom_rate_gain");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -714,7 +742,7 @@ public class MomRateVarHazardCalc {
 				"Log10(Moment Rate)", "Density");
 		spec.setLegendVisible(false);
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "mom_rate_hist");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
@@ -726,7 +754,7 @@ public class MomRateVarHazardCalc {
 				"Log10(Moment Rate)", "Density");
 		spec.setLegendVisible(true);
 		gp.drawGraphPanel(spec, false, false);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		outputFile = new File(outputDir, "mom_rate_hist_after_low");
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");

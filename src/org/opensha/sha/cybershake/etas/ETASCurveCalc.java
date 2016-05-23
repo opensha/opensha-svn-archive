@@ -863,7 +863,7 @@ public class ETASCurveCalc {
 		gp.setYLog(true);
 		gp.setUserBounds(1e-2, 1e0, 1e-7, 1e-1);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(outputDir, "curve_"+siteShortName+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, "curve_"+siteShortName+".png").getAbsolutePath());
 		gp.saveAsTXT(new File(outputDir, "curve_"+siteShortName+".txt").getAbsolutePath());
@@ -1188,7 +1188,7 @@ public class ETASCurveCalc {
 		
 		gp.setUserBounds(0, funcs.get(0).getMaxX(), 0, startY+halfDelta);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 10000);
+		gp.getChartPanel().setSize(1000, 10000);
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 	}
@@ -1310,7 +1310,7 @@ public class ETASCurveCalc {
 //		gp.setYLog(true);
 //		gp.setUserBounds(1e-2, 1e0, 1e-7, 1e-2);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(new File(outputDir, "dist_gain_"+scenario.name()+".pdf").getAbsolutePath());
 		gp.saveAsPNG(new File(outputDir, "dist_gain_"+scenario.name()+".png").getAbsolutePath());
 	}

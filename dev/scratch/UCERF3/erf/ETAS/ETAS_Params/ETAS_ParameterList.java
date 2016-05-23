@@ -22,52 +22,66 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	public static final String XML_METADATA_NAME = "ETAS_ParameterList";
 
 	ETAS_ProductivityParam_k kParam = new ETAS_ProductivityParam_k();
-	ETAS_FractionSpontaneousParam fractSpontParam = new ETAS_FractionSpontaneousParam();
 	ETAS_TemporalDecayParam_p pParam = new ETAS_TemporalDecayParam_p();
 	ETAS_MinTimeParam_c cParam = new ETAS_MinTimeParam_c();
 	ETAS_DistanceDecayParam_q qParam = new ETAS_DistanceDecayParam_q();
 	ETAS_MinDistanceParam_d dParam = new ETAS_MinDistanceParam_d();
-	ETAS_ImposeGR_SamplingParam imposeGR = new ETAS_ImposeGR_SamplingParam();
-	ETAS_ApplyLongTermRatesInSamplingParam applyLongTermRatesParam = new ETAS_ApplyLongTermRatesInSamplingParam();
 	U3ETAS_ProbabilityModelParam probModelParam = new U3ETAS_ProbabilityModelParam();
-//	U3ETAS_MaxCharFactorParam maxCharFactorParam = new U3ETAS_MaxCharFactorParam();
-	
+	ETAS_ImposeGR_SamplingParam imposeGR = new ETAS_ImposeGR_SamplingParam();
+	U3ETAS_ApplySubSeisRatesForSupraNucleationRatesParam applySubSeisForSupraNuclParam = new U3ETAS_ApplySubSeisRatesForSupraNucleationRatesParam();
+	U3ETAS_ApplyGridSeisCorrectionParam applyGridSeisCorrParam = new U3ETAS_ApplyGridSeisCorrectionParam();
+	U3ETAS_TotalRateScaleFactorParam totalRateScaleFactorParam = new U3ETAS_TotalRateScaleFactorParam();
+	//	U3ETAS_MaxCharFactorParam maxCharFactorParam = new U3ETAS_MaxCharFactorParam();
+//	ETAS_FractionSpontaneousParam fractSpontParam = new ETAS_FractionSpontaneousParam();
+//	ETAS_ApplyLongTermRatesInSamplingParam applyLongTermRatesParam = new ETAS_ApplyLongTermRatesInSamplingParam();
+
 	public ETAS_ParameterList() {
-		this.addParameter(probModelParam);
 		this.addParameter(kParam);
-		this.addParameter(fractSpontParam);
 		this.addParameter(pParam);
 		this.addParameter(cParam);
 		this.addParameter(qParam);
 		this.addParameter(dParam);
+		this.addParameter(probModelParam);
 		this.addParameter(imposeGR);
+		this.addParameter(applySubSeisForSupraNuclParam);
+		this.addParameter(applyGridSeisCorrParam);
+		this.addParameter(totalRateScaleFactorParam);
 //		this.addParameter(maxCharFactorParam);
-		this.addParameter(applyLongTermRatesParam);
+//		this.addParameter(fractSpontParam); // computed from other things
+//		this.addParameter(applyLongTermRatesParam);
 		
 	}
 	
 	public double get_k() {return kParam.getValue();}
-	public double getFractSpont() {return fractSpontParam.getValue();}
 	public double get_p() {return pParam.getValue();}
 	public double get_c() {return cParam.getValue();}
 	public double get_q() {return qParam.getValue();}
 	public double get_d() {return dParam.getValue();}
-	public boolean getImposeGR() {return imposeGR.getValue();}
-//	public double getMaxCharFactor() {return maxCharFactorParam.getValue(); }
-	public boolean getApplyLongTermRates() {return applyLongTermRatesParam.getValue();}
 	public U3ETAS_ProbabilityModelOptions getU3ETAS_ProbModel() {return probModelParam.getValue();}
+	public boolean getImposeGR() {return imposeGR.getValue();}
+	public boolean getApplySubSeisForSupraNucl() {return applySubSeisForSupraNuclParam.getValue();}
+	public boolean getApplyGridSeisCorr() {return applyGridSeisCorrParam.getValue();}
+	public double getTotalRateScaleFactor() {return totalRateScaleFactorParam.getValue();}
+//	public double getMaxCharFactor() {return maxCharFactorParam.getValue(); }
+//	public double getFractSpont() {return fractSpontParam.getValue();}
+//	public boolean getApplyLongTermRates() {return applyLongTermRatesParam.getValue();}
 	
 	
 	public void set_k(double k) {kParam.setValue(k);}
-	public void setFractSpont(double fractSpont) {fractSpontParam.setValue(fractSpont);}
 	public void set_p(double p) {pParam.setValue(p);}
 	public void set_c(double c) {cParam.setValue(c);}
 	public void set_q(double q) {qParam.setValue(q);}
 	public void get_d(double d) {dParam.setValue(d);}
 	public void setImposeGR(boolean value) { imposeGR.setValue(value);}
-	public void setApplyLongTermRates(boolean value) { applyLongTermRatesParam.setValue(value);}
 	public void setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions value) { probModelParam.setValue(value); }
+	public void setApplySubSeisForSupraNucl(boolean value) {applySubSeisForSupraNuclParam.setValue(value);}
+	public void setApplyGridSeisCorr(boolean value) {applyGridSeisCorrParam.setValue(value);}
+	public void setTotalRateScaleFactor(double value) {totalRateScaleFactorParam.setValue(value);}
+
+	
 //	public void setMaxCharFactor(double value) {maxCharFactorParam.setValue(value); }
+//	public void setFractSpont(double fractSpont) {fractSpontParam.setValue(fractSpont);}
+//	public void setApplyLongTermRates(boolean value) { applyLongTermRatesParam.setValue(value);}
 
 	/**
 	 * @param args
@@ -86,6 +100,9 @@ public class ETAS_ParameterList extends ParameterList implements XMLSaveable {
 	
 	public static ETAS_ParameterList fromXMLMetadata(Element paramsEl) {
 		ETAS_ParameterList params = new ETAS_ParameterList();
+		
+		// if xml file doesn't have this parameter, it should be false, so make sure it's initiated false
+		params.setApplyGridSeisCorr(false);
 		
 		Iterator<Element> it = paramsEl.elementIterator();
 		while (it.hasNext()) {

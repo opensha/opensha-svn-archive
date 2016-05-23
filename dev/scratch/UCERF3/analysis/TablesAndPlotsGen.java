@@ -508,12 +508,12 @@ public class TablesAndPlotsGen {
 				"Moment Rate Distribution");
 		
 		File outputFile = new File(dir, name+"_mo_rate_dist_on_off");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 		outputFile = new File(outputFile.getAbsolutePath()+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
@@ -558,12 +558,12 @@ public class TablesAndPlotsGen {
 				"Moment Rate Distribution");
 		
 		outputFile = new File(dir, name+"_mo_rate_dist_total");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 		outputFile = new File(outputFile.getAbsolutePath()+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
@@ -657,7 +657,7 @@ public class TablesAndPlotsGen {
 		gp.drawGraphPanel("Rupture Length (km)", "Fraction of Earthquakes", funcs, chars,
 				"Rupture Length Distribution");
 		File outputFile = new File(dir, prefix+"_length_dists");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
@@ -705,11 +705,11 @@ public class TablesAndPlotsGen {
 		gp.drawGraphPanel("Mean Rupture Rate", "N for 95%-Conf within 10%", funcs, chars,
 				"");
 		File file = new File(outputDir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		file = new File(outputDir, prefix+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 //		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -829,12 +829,12 @@ public class TablesAndPlotsGen {
 		gp.drawGraphPanel("Subsection Slip Rate Misfit (solution/target)", yAxisLabel, funcs, chars,
 				"Slip Rate Misfits");
 		File file = new File(outputDir, "slip_misfit_hist");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		file = new File(file.getAbsolutePath()+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}

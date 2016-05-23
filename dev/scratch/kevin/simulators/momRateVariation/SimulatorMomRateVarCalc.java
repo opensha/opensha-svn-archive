@@ -462,7 +462,7 @@ public class SimulatorMomRateVarCalc {
 		for (int i=0; i<specs.size(); i++)
 			yRanges.add(yRange);
 		gp.drawGraphPanel(specs, false, true, xRanges, yRanges);
-		gp.getCartPanel().setSize(1200, 60+260*windowLens.length);
+		gp.getChartPanel().setSize(1200, 60+260*windowLens.length);
 		gp.saveAsPNG(outputFile.getAbsolutePath());
 		
 //		GraphWindow gw = new GraphWindow(funcs, title, chars);

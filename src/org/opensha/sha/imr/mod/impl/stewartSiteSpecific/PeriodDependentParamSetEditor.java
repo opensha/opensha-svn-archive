@@ -2,6 +2,7 @@ package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,8 +28,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 import org.jfree.ui.ExtensionFileFilter;
+import org.opensha.commons.data.Named;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.editor.AbstractParameterEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
@@ -50,6 +53,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	private JButton removeButton;
 	private JButton importButton;
 	private JButton exportButton;
+	private JButton clearButton;
 	
 	private JFileChooser chooser;
 
@@ -130,19 +134,31 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 			exportButton = new JButton("Export");
 			exportButton.addActionListener(this);
 		}
+		if (clearButton == null) {
+			clearButton = new JButton("Clear");
+			clearButton.addActionListener(this);
+		}
 		
 		bottomButtonPanel.add(importButton);
 		bottomButtonPanel.add(exportButton);
+		bottomButtonPanel.add(clearButton);
 
 		JPanel bottomWrapper = new JPanel();
 		bottomWrapper.add(bottomButtonPanel);
 		buttonPanel.add(bottomWrapper, BorderLayout.SOUTH);
 
 		tableModel = new PeriodDepTableModel(data);
-		table = new JTable(tableModel);
+		table = new JTable(tableModel) {
+			@Override
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+				Component c = super.prepareRenderer(renderer, row, column);
+				addToolTip(c, row, column);
+				return c;
+			}
+		};
 		tableModel.addTableModelListener(this);
 		//		table.setDefaultEditor(Double.class, new ArbitrarilyDiscretizedFuncTableCellEditor());
-		TableCellRenderer renderer = tableModel.getRenderer();
+		CustomTableCellRenderer renderer = tableModel.getRenderer();
 		table.setDefaultRenderer(Double.class, renderer);
 
 		JScrollPane scroll = new JScrollPane(table);
@@ -158,6 +174,21 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 
 		return widgetPanel;
 	}
+	
+	private void addToolTip(Component c, int row, int col) {
+		String toolTip = null;
+		if (col == 0) {
+			toolTip = "SA Period (s), PGA, or PGV";
+		} else if (tableModel != null) {
+			E param = tableModel.params[col-1];
+			if (param instanceof Named)
+				toolTip = ((Named)param).getName();
+			else
+				toolTip = param.toString();
+		}
+		if (toolTip != null && c instanceof JComponent)
+            ((JComponent)c).setToolTipText(toolTip);
+	}
 
 	@Override
 	protected JComponent updateWidget() {
@@ -170,6 +201,25 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		return widgetPanel;
 	}
 	
+	static Object getPeriodForRender(double period) {
+		if (period == 0)
+			return "PGA";
+		if (period == -1)
+			return "PGV";
+		return (Double)period;
+	}
+	
+	static double getPeriodFromRender(Object val) {
+		String str = val.toString();
+		if (str.equalsIgnoreCase("PGA"))
+			return 0d;
+		if (str.equalsIgnoreCase("PGV"))
+			return -1d;
+		if (val instanceof String)
+			return Double.parseDouble(str);
+		return (Double)val;
+	}
+	
 	private final static Color disabledColor = new Color(210, 210, 210);
 	
 	private class PeriodDepTableModel extends AbstractTableModel {
@@ -177,7 +227,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		private PeriodDependentParamSet<E> data;
 		private E[] params;
 		
-		private TableCellRenderer renderer;
+		private CustomTableCellRenderer renderer;
 		
 		public PeriodDepTableModel(PeriodDependentParamSet<E> data) {
 			updateData(data);
@@ -196,23 +246,23 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if (columnIndex == 0)
-				return data.getPeriod(rowIndex);
+				return getPeriodForRender(data.getPeriod(rowIndex));
 			int paramIndex = columnIndex-1;
 			return data.get(params[paramIndex], rowIndex);
 		}
 		
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			double val = (Double)aValue;
-			if (D) System.out.println("Setting value at ("+rowIndex+","+columnIndex+") to: "+val);
+			if (D) System.out.println("Setting value at ("+rowIndex+","+columnIndex+") to: "+aValue);
 			if (columnIndex > 0) {
 				// we're changing a Y...easy
+				double val = (Double)aValue;
 				data.set(rowIndex, params[columnIndex-1], val);
 			} else {
 				// we're changing a period...harder
 				double[] vals = data.getValues(rowIndex);
 				removePeriod(rowIndex);
-				data.set(val, vals);
+				data.set(getPeriodFromRender(aValue), vals);
 			}
 			this.fireTableDataChanged();
 		}
@@ -228,7 +278,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		}
 		
 		public void setEnabled(boolean isEnabled) {
-			TableCellRenderer renderer = getRenderer();
+			CustomTableCellRenderer renderer = getRenderer();
 			if (isEnabled)
 				renderer.setBackground(Color.WHITE);
 			else
@@ -238,14 +288,14 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 		@Override
 		public String getColumnName(int column) {
 			if (column == 0)
-				return "Period";
+				return "Period/IMT";
 			else
 				return params[column-1].toString();
 		}
 		
-		public TableCellRenderer getRenderer() {
+		public CustomTableCellRenderer getRenderer() {
 			if (renderer == null)
-				renderer = new TableCellRenderer();
+				renderer = new CustomTableCellRenderer();
 			return renderer;
 		}
 		
@@ -280,9 +330,9 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	
 	// Based on JTable.DoubleRenderer with modifications to the formatter
 	// I have to reimplement some of it because JTable.DoubleRenderer isn't visible
-	private class TableCellRenderer extends DefaultTableCellRenderer.UIResource {
+	private class CustomTableCellRenderer extends DefaultTableCellRenderer.UIResource {
 
-		public TableCellRenderer() {
+		public CustomTableCellRenderer() {
 			super();
 			setHorizontalAlignment(JLabel.RIGHT);
 			this.setPreferredSize(new Dimension(20, 8));
@@ -291,7 +341,10 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 
 
 		public void setValue(Object value) {
-			setText((value == null) ? "" : format.format(value));
+			if (value instanceof String)
+				setText(value.toString());
+			else
+				setText((value == null) ? "" : format.format(value));
 		}
 
 		//			public Dimension getPreferredSize() {
@@ -307,9 +360,10 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == addButton) {
-			String periodStr = periodField.getText();
+			String periodStr = periodField.getText().trim();
 			try {
-				double period = Double.parseDouble(periodStr);
+				double period = getPeriodFromRender(periodStr);
+				
 				tableModel.addPeriod(period);
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(widgetPanel, "Must supply valid period",
@@ -329,6 +383,9 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 			}
 			for (int index : rowsSorted)
 				tableModel.removePeriod(index);
+		} else if (e.getSource() == clearButton) {
+			getValue().clear();
+			updateWidget();
 		} else if (e.getSource() == importButton) {
 			if (chooser == null) {
 				chooser = new JFileChooser();
@@ -349,6 +406,7 @@ extends AbstractParameterEditor<PeriodDependentParamSet<E>> implements ActionLis
 							"Exception parsing CSV:\n"+e1.getMessage(), JOptionPane.ERROR_MESSAGE);
 				}
 			}
+			refreshParamEditor();
 		} else if (e.getSource() == exportButton) {
 			if (chooser == null) {
 				chooser = new JFileChooser();

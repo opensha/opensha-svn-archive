@@ -38,6 +38,7 @@ import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -66,8 +67,8 @@ import com.google.common.collect.Maps;
 
 public class UCERF3ComparisonAnalysis {
 	
-	public static Map<Integer, RectangularElement> loadElements(FaultSystemRupSet rupSet) {
-		Map<Integer, RectangularElement> elems = Maps.newHashMap();
+	public static Map<Integer, SimulatorElement> loadElements(FaultSystemRupSet rupSet) {
+		Map<Integer, SimulatorElement> elems = Maps.newHashMap();
 		
 		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
 			Vertex[] vertices = new Vertex[4];
@@ -81,7 +82,7 @@ public class UCERF3ComparisonAnalysis {
 			vertices[2] = new Vertex(lower.last());
 			vertices[3] = new Vertex(lower.first());
 			
-			RectangularElement elem = new RectangularElement(sect.getSectionId(), vertices, sect.getSectionName(),
+			SimulatorElement elem = new RectangularElement(sect.getSectionId(), vertices, sect.getSectionName(),
 					sect.getParentSectionId(), sect.getParentSectionId(), 0, 0, sect.getOrigAveSlipRate(),
 					sect.getAseismicSlipFactor(), null, false);
 			
@@ -93,9 +94,9 @@ public class UCERF3ComparisonAnalysis {
 	
 	static class UCERF3EventRecord extends EventRecord {
 		
-		private List<RectangularElement> rupElems;
+		private List<SimulatorElement> rupElems;
 
-		public UCERF3EventRecord(Map<Integer, RectangularElement> elems, FaultSystemRupSet rupSet, int rupIndex, double time) {
+		public UCERF3EventRecord(Map<Integer, SimulatorElement> elems, FaultSystemRupSet rupSet, int rupIndex, double time) {
 			super(null);
 			
 			setID(rupIndex);
@@ -115,19 +116,19 @@ public class UCERF3ComparisonAnalysis {
 		}
 
 		@Override
-		public List<RectangularElement> getRectangularElements() {
+		public List<SimulatorElement> getRectangularElements() {
 			return rupElems;
 		}
 		
 	}
 	
 	public static List<RuptureIdentifier> buildUCERF3_EquivIdens(List<RuptureIdentifier> idens,
-			List<RectangularElement> origElems, Map<Integer, RectangularElement> ucerf3ElemsMap,
+			List<SimulatorElement> origElems, Map<Integer, SimulatorElement> ucerf3ElemsMap,
 			FaultSystemRupSet rupSet) {
 		List<RuptureIdentifier> ucerf3Idens = Lists.newArrayList();
 		
-		Map<Integer, RectangularElement> origElemsMap = Maps.newHashMap();
-		for (RectangularElement elem : origElems)
+		Map<Integer, SimulatorElement> origElemsMap = Maps.newHashMap();
+		for (SimulatorElement elem : origElems)
 			origElemsMap.put(elem.getID(), elem);
 		
 		for (RuptureIdentifier iden : idens) {
@@ -136,13 +137,13 @@ public class UCERF3ComparisonAnalysis {
 			ElementMagRangeDescription elemIden = (ElementMagRangeDescription)iden;
 			List<Integer> mappedIDs = Lists.newArrayList();
 			for (int origID : elemIden.getElementIDs()) {
-				RectangularElement elem = origElemsMap.get(origID);
+				SimulatorElement elem = origElemsMap.get(origID);
 				Preconditions.checkNotNull(elem);
 				// find closest match
 				Location center = elem.getCenterLocation();
 				double minDist = Double.POSITIVE_INFINITY;
-				RectangularElement closest = null;
-				for (RectangularElement u3Elem : ucerf3ElemsMap.values()) {
+				SimulatorElement closest = null;
+				for (SimulatorElement u3Elem : ucerf3ElemsMap.values()) {
 					if (u3Elem.getName().toLowerCase().contains("stepover"))
 						// we don't want stepovers
 						continue;
@@ -167,7 +168,7 @@ public class UCERF3ComparisonAnalysis {
 	}
 	
 	private static List<EQSIM_Event> loadCatalogAsFakeSimEvents(FaultSystemSolution sol, Region region,
-			File eventFile, Map<Integer, RectangularElement> elems, int startYear) throws IOException {
+			File eventFile, Map<Integer, SimulatorElement> elems, int startYear) throws IOException {
 		List<EQSIM_Event> events = Lists.newArrayList();
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
@@ -236,7 +237,7 @@ public class UCERF3ComparisonAnalysis {
 	}
 	
 	public static List<EQSIM_Event> calcPoissonCatalog(FaultSystemSolution sol,
-			Map<Integer, RectangularElement> elems, double duration) {
+			Map<Integer, SimulatorElement> elems, double duration) {
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		
@@ -290,7 +291,7 @@ public class UCERF3ComparisonAnalysis {
 	}
 	
 	public static List<EQSIM_Event> loadUCERF3CatalogBinary(FaultSystemSolution sol,
-			Map<Integer, RectangularElement> elems, File file) throws IOException {
+			Map<Integer, SimulatorElement> elems, File file) throws IOException {
 		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
 		
 		List<EQSIM_Event> events = Lists.newArrayList();
@@ -366,7 +367,7 @@ public class UCERF3ComparisonAnalysis {
 	 * @return
 	 */
 	public static List<EQSIM_Event> getFakePreEvents(FaultSystemRupSet rupSet, List<RuptureIdentifier> u3Idens,
-			Map<Integer, RectangularElement> elems, int startYear) {
+			Map<Integer, SimulatorElement> elems, int startYear) {
 		List<EQSIM_Event> events = Lists.newArrayList();
 		
 		long startTime = new GregorianCalendar(startYear, 0, 1).getTimeInMillis();
@@ -407,12 +408,12 @@ public class UCERF3ComparisonAnalysis {
 	}
 	
 	public static List<List<EQSIM_Event>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
-			Region region, Map<Integer, RectangularElement> elems, int startYear) throws IOException {
+			Region region, Map<Integer, SimulatorElement> elems, int startYear) throws IOException {
 		return loadUCERF3Catalogs(mainDir, sol, region, elems, startYear, null);
 	}
 	
 	static List<List<EQSIM_Event>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
-			Region region, Map<Integer, RectangularElement> elems, int startYear, int[] windowLens)
+			Region region, Map<Integer, SimulatorElement> elems, int startYear, int[] windowLens)
 					throws IOException {
 		File[] batchDirs = mainDir.listFiles();
 		Arrays.sort(batchDirs, new FileNameComparator());
@@ -490,7 +491,7 @@ public class UCERF3ComparisonAnalysis {
 		boolean doRecurrence = true;
 		boolean doRecurrencePoisson = true;
 		
-		Map<Integer, RectangularElement> elems = loadElements(sol.getRupSet());
+		Map<Integer, SimulatorElement> elems = loadElements(sol.getRupSet());
 		List<List<EQSIM_Event>> eventsList = loadUCERF3Catalogs(mainDir, sol, region, elems, startYear);
 		
 		for (List<EQSIM_Event> events : eventsList)
@@ -527,7 +528,7 @@ public class UCERF3ComparisonAnalysis {
 		
 		for (SynchFaults[] faults : faultSets) {
 			List<RuptureIdentifier> origIdens = SynchIdens.getIndividualFaults(7, 10d, faults);
-			List<RectangularElement> origElems = SimAnalysisCatLoader.loadGeomOnly();
+			List<SimulatorElement> origElems = SimAnalysisCatLoader.loadGeomOnly();
 			List<RuptureIdentifier> rupIdens = buildUCERF3_EquivIdens(origIdens, origElems, elems, sol.getRupSet());
 			double distSpacing = 10d;
 			boolean normalize = true;

@@ -62,7 +62,7 @@ public class SlipVsParticPlotGen {
 			gp.setYLog(true);
 //			gp.setUserBounds(1e-2, 1e0, 1e-7, 1e-2);
 			gp.drawGraphPanel(spec);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(new File(outputDir, "partic_vs_slip_"+(float)minMag+"_"+(float)maxMag+".png").getAbsolutePath());
 		}
 	}

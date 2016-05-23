@@ -1,5 +1,6 @@
 package org.opensha.sha.imr.mod.impl.stewartSiteSpecific;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,9 +9,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jfree.data.Range;
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
+import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
+import org.opensha.commons.gui.plot.PlotLineType;
+import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.Interpolate;
+import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseMod.Params;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -56,8 +66,14 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 	}
 	
 	public synchronized void set(double period, E param, double value) {
-		int periodIndex = periodToIndex(period);
-		Preconditions.checkState(periodIndex >= 0, "period not found: %s", period);
+		int periodIndex = Collections.binarySearch(periods, period);
+		if (periodIndex < 0) {
+			periodIndex = -(periodIndex + 1);
+			periods.add(periodIndex, period);
+			values.add(periodIndex, new double[params.length]);
+		}
+//		int periodIndex = periodToIndex(period);
+//		Preconditions.checkState(periodIndex >= 0, "period not found: %s", period);
 		
 		set(periodIndex, param, value);
 	}
@@ -146,6 +162,21 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		return Arrays.copyOf(values.get(index), params.length);
 	}
 	
+	/**
+	 * Returns view of the values for the given params at the given index.
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public double[] getValues(E[] params, int index) {
+		int size = size();
+		Preconditions.checkArgument(index >= 0 && index < size, "bad index: %s, size: %s", index, size);
+		double[] ret = new double[params.length];
+		for (int i=0; i<params.length; i++)
+			ret[i] = get(params[i], index);
+		return ret;
+	}
+	
 	public int getParamIndex(E param) {
 		return paramToIndexMap.get(param);
 	}
@@ -207,7 +238,12 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 			double y1 = get(params[i], insertionIndex-1);
 			double y2 = get(params[i], insertionIndex);
 			
-			ret[i] = Interpolate.findY(x1, y1, x2, y2, period);
+			if (x1 > 0)
+				ret[i] = Interpolate.findY(Math.log(x1), y1, Math.log(x2), y2, Math.log(period));
+			else
+				// can happen when first point is period=0 (PGA)
+				ret[i] = Interpolate.findY(x1, y1, x2, y2, period);
+//			System.out.println("x1="+x1+", y1="+y1+", x2="+x2+", y2="+y2+", period="+period+", ret="+ret[i]);
 		}
 		
 		return ret;
@@ -266,7 +302,11 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		
 		for (int row=1; row<csv.getNumRows(); row++) {
 			List<String> line = csv.getLine(row);
-			double period = Double.parseDouble(line.get(0));
+//			System.out.println(Joiner.on(",").join(line));
+			String periodStr = line.get(0);
+			if (periodStr == null || periodStr.isEmpty())
+				continue;
+			double period = PeriodDependentParamSetEditor.getPeriodFromRender(line.get(0));
 			double[] values = new double[params.length];
 			for (int i=0; i<params.length; i++)
 				values[i] = csvValParse(line.get(i+1));
@@ -283,7 +323,7 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		csv.addLine(header);
 		
 		for (int i=0; i<size(); i++) {
-			List<String> line = Lists.newArrayList(getPeriod(i)+"");
+			List<String> line = Lists.newArrayList(PeriodDependentParamSetEditor.getPeriodForRender(getPeriod(i))+"");
 			for (double val : getValues(i))
 				line.add(val+"");
 			csv.addLine(line);
@@ -292,7 +332,7 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		csv.writeToFile(csvFile);
 	}
 	
-	private static final Joiner j = Joiner.on("\t");
+	static final Joiner j = Joiner.on("\t");
 	
 	@Override
 	public String toString() {
@@ -301,5 +341,76 @@ public class PeriodDependentParamSet<E extends Enum<E>> {
 		for (int i=0; i<size(); i++)
 			sb.append("\t").append(getPeriod(i)).append("\t").append(j.join(Doubles.asList(getValues(i)))).append("\n");
 		return sb.toString();
+	}
+	
+	private static <E extends Enum<E>> void plotInterpolation(
+			PeriodDependentParamSet<E> paramSet, E[] paramsToPlot, File outputDir) throws IOException {
+		List<Double> periods = Lists.newArrayList();
+		for (int i=1; i<32; i++) {
+			double pre = i % 10;
+			if (pre == 0)
+				continue;
+			double exp = (int)(i/10) - 2;
+			double p = pre*Math.pow(10, exp);
+//			System.out.println(p);
+			periods.add(p);
+		}
+		
+		ArbitrarilyDiscretizedFunc[] interpolated = new ArbitrarilyDiscretizedFunc[paramsToPlot.length];
+		for (int i=0; i<interpolated.length; i++) {
+			interpolated[i] = new ArbitrarilyDiscretizedFunc();
+			interpolated[i].setName("Interpolated");
+		}
+		
+		for (double period : periods) {
+			double[] vals = paramSet.getInterpolated(paramsToPlot, period);
+			
+			for (int i=0; i<paramsToPlot.length; i++)
+				interpolated[i].set(period, vals[i]);
+		}
+		
+		List<PlotSpec> specs = Lists.newArrayList();
+		
+		for (int i=0; i<paramsToPlot.length; i++) {
+			List<DiscretizedFunc> funcs = Lists.newArrayList();
+			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+			
+			ArbitrarilyDiscretizedFunc input = new ArbitrarilyDiscretizedFunc();
+			input.setName("Input");
+			for (double period : paramSet.getPeriods())
+				input.set(period, paramSet.get(paramsToPlot[i], period));
+			funcs.add(input);
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.TRIANGLE, 4f, Color.BLACK));
+			
+			funcs.add(interpolated[i]);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+			
+			PlotSpec spec = new PlotSpec(funcs, chars,
+					"Parameter Interpolation", "Period", paramsToPlot[i].toString());
+			if (i == paramsToPlot.length-1)
+				spec.setLegendVisible(true);
+			specs.add(spec);
+		}
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		
+		List<Range> xRanges = Lists.newArrayList(new Range(periods.get(0), periods.get(periods.size()-1)));
+		
+		gp.drawGraphPanel(specs, true, false, xRanges, null);
+		gp.getChartPanel().setSize(1000, 800);
+		gp.saveAsPNG(new File(outputDir, "param_interpolation.png").getAbsolutePath());
+	}
+	
+	public static void main(String[] args) throws IOException {
+		PeriodDependentParamSet<Params> periodParams = PeriodDependentParamSet.loadCSV(
+				Params.values(), PeriodDependentParamSet.class.getResourceAsStream("params.csv"));
+		Params[] paramsToPlot = { Params.F1, Params.F2 };
+		File outputDir = new File("/tmp");
+		plotInterpolation(periodParams, paramsToPlot, outputDir);
 	}
 }

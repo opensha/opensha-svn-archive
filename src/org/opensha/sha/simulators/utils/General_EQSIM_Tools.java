@@ -68,6 +68,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -117,7 +118,7 @@ public class General_EQSIM_Tools {
 
 	protected final static boolean D = false;  // for debugging
 	
-	private List<RectangularElement> rectElementsList;
+	private List<SimulatorElement> rectElementsList;
 	private List<EQSIM_Event> eventList;
 	
 	// TODO make all references use the ID/index map
@@ -214,7 +215,7 @@ public class General_EQSIM_Tools {
 		init(EQSIMv06FileReader.readGeometryFile(url.openStream()));
 	}
 	
-	private void init(List<RectangularElement> rectElementsList) {
+	private void init(List<SimulatorElement> rectElementsList) {
 		// make sure it's sorted by section
 		for (int i=1; i<rectElementsList.size(); i++)
 			Preconditions.checkState(
@@ -239,7 +240,7 @@ public class General_EQSIM_Tools {
 		double curDASMin = Double.POSITIVE_INFINITY, curDASMax = 0d;
 		String curName = null;
 		List<Vertex> vertexListForSection = null;
-		for (RectangularElement elem : rectElementsList) {
+		for (SimulatorElement elem : rectElementsList) {
 			int sectID = elem.getSectionID();
 			Preconditions.checkState(sectID >= 0);
 			if (sectID != prevSectID) {
@@ -331,13 +332,13 @@ public class General_EQSIM_Tools {
 	 * This returns the list of RectangularElement objects
 	 * @return
 	 */
-	public List<RectangularElement> getElementsList() { return rectElementsList; }
+	public List<SimulatorElement> getElementsList() { return rectElementsList; }
 	
 	
 	public String printMinAndMaxElementArea() {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
-		for(RectangularElement re:getElementsList()) {
+		for(SimulatorElement re:getElementsList()) {
 			double area = re.getArea();
 			if(area<min) min=area;
 			if(area>max) max=area;
@@ -355,11 +356,11 @@ public class General_EQSIM_Tools {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
 		int el_index = 0;
-		for(RectangularElement re:getElementsList()) {
+		for(SimulatorElement re:getElementsList()) {
 			double area1 = re.getArea()*1e-6;
 			if(area1<min) min=area1;
 			if(area1>max) max=area1;
-			double area2 = re.getGriddedSurface().getArea();
+			double area2 = re.getSurface().getArea();
 			double ratio = area1/area2;
 			if(ratio >1.01 || ratio < 0.99)
 				System.out.println(el_index+"\t"+ratio+"\t"+area1+"\t"+area2);
@@ -387,7 +388,7 @@ public class General_EQSIM_Tools {
 		int numSect = testEvent.size();
 		System.out.println("numSect="+numSect);
 		
-		ArrayList<RectangularElement> elementList = testEvent.getAllElements();
+		ArrayList<SimulatorElement> elementList = testEvent.getAllElements();
 		double[] distAlongArray = testEvent.getNormDistAlongRupForElements();
 		FileWriter fw;
 		try {
@@ -420,7 +421,7 @@ public class General_EQSIM_Tools {
 		DeformationModelPrefDataFinal deformationModelPrefDB = new DeformationModelPrefDataFinal();
 		List<FaultSectionPrefData> allFaultSectionPrefData = deformationModelPrefDB.getAllFaultSectionPrefData(deformationModelID);
 		
-		List<RectangularElement> elems = RectElemFromPrefDataBuilder.build(
+		List<SimulatorElement> elems = RectElemFromPrefDataBuilder.build(
 				allFaultSectionPrefData, aseisReducesArea, maxDiscretization);
 		init(elems);
 	}
@@ -759,7 +760,7 @@ public class General_EQSIM_Tools {
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setUserBounds(new Range(0, 5), null);
 		gp.drawGraphPanel("RI (yrs)", "Density", funcList, curveCharacteristics, plotTitle);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		
 		return gp;
 	}
@@ -1524,7 +1525,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 					plot11.setXLog(true);
 					plot11.setYLog(true);
 					plot11.drawGraphPanel("Norm Last Slip", "Norm Observed RI", tempList, curveCharacteristics2, plotTitle11);
-					plot11.getCartPanel().setSize(1000, 800);
+					plot11.getChartPanel().setSize(1000, 800);
 					if(saveStuff) {
 						String fileName10 = dirNameForSavingFiles+"/"+subDir+"/normObsIntervalDist_forSect"+s+".pdf";
 						String fileName11 = dirNameForSavingFiles+"/"+subDir+"/normObsVsLastSlip_forSect"+s+".pdf";
@@ -1981,7 +1982,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 			fw = new FileWriter(fileName);
 			fw.write("elemID\tCOV\tfaultName\tNumRIs\n");
 			// Loop over elements
-			for(RectangularElement elem:rectElementsList) {
+			for(SimulatorElement elem:rectElementsList) {
 				// check whether it's a surface element
 				if(elem.getVertices()[0].getTraceFlag() != 0) {
 //					System.out.println("trace vertex found");
@@ -2055,7 +2056,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArrayList<Double> vals = new ArrayList<Double>();
 		// Loop over elements rather than vertices because using the zeroeth vertex of the 
 		// element will avoid possibly overlapping vertices
-		for(RectangularElement elem:rectElementsList) {
+		for(SimulatorElement elem:rectElementsList) {
 			// check whether it's a surface element
 			if(elem.getVertices()[0].getTraceFlag() != 0) {
 				Vertex vert = elem.getVertices()[0];
@@ -2419,7 +2420,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		infoStrings.add("Simulation Duration is "+(float)this.getSimulationDurationYears()+" years");
 		
 		// this is a location that has a very non-BPT looking PDF of recurrence times for "eqs.NCA_RSQSim.barall.txt" file.
-		Location loc = rectElementsList.get(497-1).getGriddedSurface().get(0, 1);
+		Location loc = ((RectangularElement)rectElementsList.get(497-1)).getSurface().get(0, 1);
 		plotRecurIntervalsForNearestLoc(loc, 6.5, true,"RI_distAt_NSAF_ElementID497", "");
 		
 		Integer testElementID = new Integer(661); // not sure how this was chosen

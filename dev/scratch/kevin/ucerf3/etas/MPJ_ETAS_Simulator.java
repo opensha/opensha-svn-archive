@@ -48,9 +48,11 @@ import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ApplyLongTermRatesInSamplingParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ApplySubSeisRatesForSupraNucleationRatesParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelParam;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_TotalRateScaleFactorParam;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -94,7 +96,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private boolean includeSpontEvents = true;
 	private boolean includeIndirectTriggering = true;
 	private double gridSeisDiscr = 0.1;
-	private boolean applyLongTermRates = ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT;
+//	private boolean applyLongTermRates = ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT;
+	private boolean applySubSeisForSupraNucl = U3ETAS_ApplySubSeisRatesForSupraNucleationRatesParam.DEFAULT;
+	private double totRateScaleFactor = U3ETAS_TotalRateScaleFactorParam.DEFAULT_VALUE;
 	
 	private boolean timeIndep = false;
 	
@@ -139,8 +143,14 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		if (cmd.hasOption("prob-model"))
 			probModel = U3ETAS_ProbabilityModelOptions.valueOf(cmd.getOptionValue("prob-model"));
 		
-		if (cmd.hasOption("apply-long-term-rates"))
-			applyLongTermRates = Boolean.parseBoolean(cmd.getOptionValue("apply-long-term-rates"));
+//		if (cmd.hasOption("apply-long-term-rates"))
+//			applyLongTermRates = Boolean.parseBoolean(cmd.getOptionValue("apply-long-term-rates"));
+		
+		if (cmd.hasOption("apply-sub-seis-for-supra-nucl"))
+			applySubSeisForSupraNucl = Boolean.parseBoolean(cmd.getOptionValue("apply-sub-seis-for-supra-nucl"));
+		
+		if (cmd.hasOption("tot-rate-scale-factor"))
+			totRateScaleFactor = Double.parseDouble(cmd.getOptionValue("tot-rate-scale-factor"));
 		
 		binaryOutput = cmd.hasOption("binary");
 		
@@ -156,7 +166,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			startYear = Integer.parseInt(cmd.getOptionValue("start-year"));
 		if (rank == 0)
 			debug("Start year: "+startYear);
-		ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
 		
 		fssScenarioRupID = -1;
 		
@@ -274,6 +284,9 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			if (rank == 0)
 				debug("Loading gridded seismicity correction cache file from "+cacheFile.getAbsolutePath());
 			gridSeisCorrections = MatrixIO.doubleArrayFromFile(cacheFile);
+			
+			for (int i=0; i<sols.length; i++)
+				ETAS_Simulator.correctGriddedSeismicityRatesInERF(sols[i], false, gridSeisCorrections);
 		}
 	}
 	
@@ -490,9 +503,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 				debug("Instantiationg ERF");
 				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration, startYear);
-				
-				if (gridSeisCorrections != null)
-					ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false, gridSeisCorrections);
 
 				if (fssScenarioRupID >= 0) {
 					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
@@ -518,7 +528,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				ETAS_ParameterList params = new ETAS_ParameterList();
 				params.setImposeGR(imposeGR);
 				params.setU3ETAS_ProbModel(probModel);
-				params.setApplyLongTermRates(applyLongTermRates);
+				// already applied if applicable, setting here for metadata
+				params.setApplyGridSeisCorr(gridSeisCorrections != null);
+				params.setApplySubSeisForSupraNucl(applySubSeisForSupraNucl);
+				params.setTotalRateScaleFactor(totRateScaleFactor);
 				
 				if (rank == 0) {
 					synchronized (MPJ_ETAS_Simulator.class) {
@@ -773,8 +786,14 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 //		maxCharOption.setRequired(false);
 //		ops.addOption(maxCharOption);
 		
-		Option applyLongTermOption = new Option("ltr", "apply-long-term-rates", true, "Flag to apply/disable long"
-				+ " term rates (true/false). Default: "+ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT);
+//		Option applyLongTermOption = new Option("ltr", "apply-long-term-rates", true, "Flag to apply/disable long"
+//				+ " term rates (true/false). Default: "+ETAS_ApplyLongTermRatesInSamplingParam.DEFAULT);
+//		applyLongTermOption.setRequired(false);
+//		ops.addOption(applyLongTermOption);
+		
+		Option applyLongTermOption = new Option("subseissupra", "apply-sub-seis-for-supra-nucl", true, "Flag to apply/disable"
+				+ " whether to correct gridded seismicity rates soas not to be less than the expected rate of aftershocks from "
+				+ "supraseismogenic events. Default: "+U3ETAS_ApplySubSeisRatesForSupraNucleationRatesParam.DEFAULT);
 		applyLongTermOption.setRequired(false);
 		ops.addOption(applyLongTermOption);
 		
@@ -790,6 +809,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				+ " using file in cache directory");
 		gridSeisCorrectRates.setRequired(false);
 		ops.addOption(gridSeisCorrectRates);
+		
+		Option totRateScaleFactor = new Option("scale", "tot-rate-scale-factor", true,
+				"Total rate scale factor. Default: "+U3ETAS_TotalRateScaleFactorParam.DEFAULT_VALUE);
+		totRateScaleFactor.setRequired(false);
+		ops.addOption(totRateScaleFactor);
 		
 		return ops;
 	}

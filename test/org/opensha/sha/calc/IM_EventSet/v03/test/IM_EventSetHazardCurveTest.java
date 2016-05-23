@@ -139,7 +139,7 @@ public class IM_EventSetHazardCurveTest implements IM_EventSetCalc_v3_0_API {
 		this.gp.repaint();
 		
 		ChartUtilities.saveChartAsPNG(new File(outputDir.getAbsolutePath() + File.separator + "curves.png"),
-				gp.getCartPanel().getChart(), 800, 600);
+				gp.getChartPanel().getChart(), 800, 600);
 		
 		double maxDiff = 0;
 		double maxPDiff = 0;

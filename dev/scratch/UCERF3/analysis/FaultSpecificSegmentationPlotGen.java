@@ -501,7 +501,7 @@ public class FaultSpecificSegmentationPlotGen {
 		String prefix = "ucerf3_hayward_seg";
 
 		File file = new File(writeDir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -512,7 +512,7 @@ public class FaultSpecificSegmentationPlotGen {
 		prefix = "ucerf3_hayward_seg7.0+";
 
 		file = new File(writeDir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -523,7 +523,7 @@ public class FaultSpecificSegmentationPlotGen {
 		prefix = "ucerf3_hayward_seg7.5+";
 
 		file = new File(writeDir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -536,7 +536,7 @@ public class FaultSpecificSegmentationPlotGen {
 		prefix = "ucerf2_hayward_seg";
 
 		file = new File(writeDir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -547,7 +547,7 @@ public class FaultSpecificSegmentationPlotGen {
 		prefix = "ucerf2_hayward_seg7.0+";
 
 		file = new File(writeDir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");

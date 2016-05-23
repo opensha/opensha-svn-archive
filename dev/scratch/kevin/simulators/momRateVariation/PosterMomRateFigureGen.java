@@ -108,7 +108,7 @@ public class PosterMomRateFigureGen {
 		for (int i=0; i<specs.size(); i++)
 			yRanges.add(yRange);
 		gp.drawGraphPanel(specs, false, true, xRanges, yRanges);
-		gp.getCartPanel().setSize(1200, 700);
+		gp.getChartPanel().setSize(1200, 700);
 		gp.saveAsPNG(new File(outputDir, "combined_time_series.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "combined_time_series.pdf").getAbsolutePath());
 	}

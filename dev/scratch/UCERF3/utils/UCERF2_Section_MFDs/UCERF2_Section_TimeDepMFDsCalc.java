@@ -468,7 +468,7 @@ public class UCERF2_Section_TimeDepMFDsCalc {
 			if(!filePath.exists())filePath.mkdirs();
 			
 			File file = new File(MFD_PLOTS_DIR+subDir, fileName);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			try {
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			} catch (IOException e) {

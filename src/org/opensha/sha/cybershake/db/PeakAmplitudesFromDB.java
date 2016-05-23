@@ -271,7 +271,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		String sql = "SELECT count(*) from " + TABLE_NAME + " where Run_ID=" + runID;
 		if (im != null)
 			sql += " and IM_Type_ID="+im.getID();
-//		System.out.println(sql);
+		System.out.println(sql);
 		ResultSet rs = null;
 		try {
 			rs = dbaccess.selectData(sql);
@@ -607,6 +607,17 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 		return null;
 	}
 	
+	/**
+	 * CyberShake periods can be a little nasty, such as 3.00003. This will fix them.
+	 * @param period
+	 * @return
+	 */
+	public static double getCleanedCS_Period(double period) {
+		if (period >= 1d)
+			period = Math.round(period*1000d)/1000d;
+		return period;
+	}
+
 	public static void main(String args[]) {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);

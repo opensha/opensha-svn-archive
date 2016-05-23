@@ -13,7 +13,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -28,7 +28,7 @@ import scratch.kevin.simulators.momRateVariation.UCERF3ComparisonAnalysis.UCERF3
 public class UCERF3_ETASComparisons {
 	
 	public static List<List<EQSIM_Event>> loadUCERF3EtasCatalogs(List<List<ETAS_EqkRupture>> catalogs, FaultSystemSolution sol,
-			Region region, Map<Integer, RectangularElement> elems)
+			Region region, Map<Integer, SimulatorElement> elems)
 					throws IOException {
 		
 		List<List<EQSIM_Event>> eventsList = Lists.newArrayList();
@@ -40,7 +40,7 @@ public class UCERF3_ETASComparisons {
 	}
 	
 	private static List<EQSIM_Event> loadETASCatalogAsFakeSimEvents(FaultSystemSolution sol, Region region,
-			List<ETAS_EqkRupture> catalog, Map<Integer, RectangularElement> elems) throws IOException {
+			List<ETAS_EqkRupture> catalog, Map<Integer, SimulatorElement> elems) throws IOException {
 		List<EQSIM_Event> events = Lists.newArrayList();
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
@@ -95,7 +95,7 @@ public class UCERF3_ETASComparisons {
 		
 		int[] windowLens = { 10, 25, 50, 75, 100, 150, 200 };
 		
-		Map<Integer, RectangularElement> elems = UCERF3ComparisonAnalysis.loadElements(sol.getRupSet());
+		Map<Integer, SimulatorElement> elems = UCERF3ComparisonAnalysis.loadElements(sol.getRupSet());
 		
 		List<List<EQSIM_Event>> eventLists = loadUCERF3EtasCatalogs(catalogs, sol, region, elems);
 		List<EQSIM_Event> stitched = UCERF3ComparisonAnalysis.stitch(eventLists);

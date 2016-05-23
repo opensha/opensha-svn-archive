@@ -92,7 +92,7 @@ public class SingleCurveDebugTest {
 		this.gp.repaint();
 		
 		System.out.println("Saving PNG to: " + outFile);
-		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getCartPanel().getChart(), 600, 500);
+		ChartUtilities.saveChartAsPNG(new File(outFile), gp.getChartPanel().getChart(), 600, 500);
 	}
 
 }

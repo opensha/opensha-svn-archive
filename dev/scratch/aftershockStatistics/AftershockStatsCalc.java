@@ -13,10 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
+import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -24,6 +28,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -260,7 +265,7 @@ public class AftershockStatsCalc {
 	}
 	
 	
-	private static double[] readAndysFile() {
+	public static double[] readAndysFile() {
 		
 		try {
 			BufferedReader buffRead = new BufferedReader(new InputStreamReader(
@@ -363,137 +368,39 @@ public class AftershockStatsCalc {
 		int num_c=1;
 
 		
-		ReasenbergJonesAftershockModel solution = new ReasenbergJonesAftershockModel(mainShock, aftershockList, magCat, capG, capH, b, dataStartTimeDays, dataEndTimeDays,
-				min_a, max_a, num_a, min_p, max_p, num_p, min_c, max_c, num_c);
-		
-		plot2D_PDF(solution.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
-		
-		GraphWindow graph = new GraphWindow(solution.getPDF_a(), "a-value PDF"); 
-		graph.setX_AxisLabel("a-axis");
-		graph.setY_AxisLabel("DensityF");
-//		graph.setX_AxisRange(-4, 3);
-//		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
-		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
-		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
-		graph.setPlotChars(plotChars);
-		graph.setPlotLabelFontSize(18);
-		graph.setAxisLabelFontSize(16);
-		graph.setTickLabelFontSize(14);
+//		ReasenbergJonesAftershockModel solution = new ReasenbergJonesAftershockModel(mainShock, aftershockList, magCat, capG, capH, b, dataStartTimeDays, dataEndTimeDays,
+//				min_a, max_a, num_a, min_p, max_p, num_p, min_c, max_c, num_c);
+//		
+//		plot2D_PDF(solution.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
+//		
+//		GraphWindow graph = new GraphWindow(solution.getPDF_a(), "a-value PDF"); 
+//		graph.setX_AxisLabel("a-axis");
+//		graph.setY_AxisLabel("DensityF");
+////		graph.setX_AxisRange(-4, 3);
+////		graph.setY_AxisRange(1e-3, graph.getY_AxisRange().getUpperBound());
+//		ArrayList<PlotCurveCharacterstics> plotChars = new ArrayList<PlotCurveCharacterstics>();
+//		plotChars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+//		graph.setPlotChars(plotChars);
+//		graph.setPlotLabelFontSize(18);
+//		graph.setAxisLabelFontSize(16);
+//		graph.setTickLabelFontSize(14);
+//
+//		
+//		GraphWindow graph2 = new GraphWindow(solution.getPDF_p(), "p-value PDF"); 
+//		graph2.setX_AxisLabel("p-axis");
+//		graph2.setY_AxisLabel("DensityF");
+//		graph2.setPlotChars(plotChars);
+//		graph2.setPlotLabelFontSize(18);
+//		graph2.setAxisLabelFontSize(16);
+//		graph2.setTickLabelFontSize(14);
 
-		
-		GraphWindow graph2 = new GraphWindow(solution.getPDF_p(), "p-value PDF"); 
-		graph2.setX_AxisLabel("p-axis");
-		graph2.setY_AxisLabel("DensityF");
-		graph2.setPlotChars(plotChars);
-		graph2.setPlotLabelFontSize(18);
-		graph2.setAxisLabelFontSize(16);
-		graph2.setTickLabelFontSize(14);
-
-
-	}
-
-	
-	
-	
-	
-	public static void testAndyCalc() {
-		
-		double c = 0.05;
-		
-		double k_min = 17;
-		double k_max = 34;
-		double k_delta = 0.25;
-
-		double p_min = 0.9; 
-		double p_max = 1.15; 
-		double p_delta = 0.0125;
-		
-		int k_num = (int)Math.round((k_max-k_min)/k_delta) + 1;		
-		int p_num = (int)Math.round((p_max-p_min)/p_delta) + 1;
-		
-		
-		if(true) {
-			System.out.println("k1\t"+k_min+"\t"+k_max+"\t"+k_num+"\t"+k_delta);
-			System.out.println("p1\t"+p_min+"\t"+p_max+"\t"+p_num+"\t"+p_delta);
-		}
-
-		
-		double[] relativeEventTimes = readAndysFile();
-		double tStartDays = relativeEventTimes[0];
-		double tEndDays = relativeEventTimes[relativeEventTimes.length-1];
-
-		// x-axis is k and y-axis is p
-		EvenlyDiscrXYZ_DataSet xyzLogLikelihood = new EvenlyDiscrXYZ_DataSet(k_num, p_num, k_min, p_min, k_delta, p_delta);
-		
-		double maxLike=-Double.MAX_VALUE;
-		double maxLike_k=Double.NaN;
-		double maxLike_p=Double.NaN;
-		for(int x=0;x<xyzLogLikelihood.getNumX();x++) {
-			for(int y=0;y<xyzLogLikelihood.getNumY();y++) {
-				double logLike = getLogLikelihoodForOmoriParams(xyzLogLikelihood.getX(x), xyzLogLikelihood.getY(y), c, 
-						tStartDays, tEndDays, relativeEventTimes);
-				xyzLogLikelihood.set(x, y, logLike);
-				if(logLike>maxLike) {
-					maxLike=logLike;
-					maxLike_k = xyzLogLikelihood.getX(x);
-					maxLike_p = xyzLogLikelihood.getY(y);					
-				}
-			}
-		}
-
-		System.out.println("maxLike_k="+maxLike_k+"\nmaxLike_p="+maxLike_p);
-		
-		CPT cpt=null;
-		try {
-			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(xyzLogLikelihood.getMinZ(), xyzLogLikelihood.getMaxZ());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		XYZPlotSpec logLikeSpec = new XYZPlotSpec(xyzLogLikelihood, cpt, "Log Likelihood", "k", "p", "log-likelihood");
-		XYZPlotWindow window_logLikeSpec = new XYZPlotWindow(logLikeSpec, new Range(k_min,k_max), new Range(p_min,p_max));
-		
-		
-		// test model assuming b=1
-		double b = 1;
-		double magMain = 7;	// assumed value for Andy's data
-		double magComplete = 5;	// assumed value for Andy's data
-		double a_min = convertProductivityTo_a(k_min, b, magMain, magComplete);
-		double a_max = convertProductivityTo_a(k_max, b, magMain, magComplete);
-		int a_num = k_num;
-		ObsEqkRupture dummyMainShock = new ObsEqkRupture();
-		dummyMainShock.setMag(magMain);
-		dummyMainShock.setOriginTime(0l);
-		ObsEqkRupList dummyAftershocks = new ObsEqkRupList();
-		for(double relTime:relativeEventTimes) {
-			ObsEqkRupture newRup = new ObsEqkRupture();
-			long ot = (long)(relTime*(double)MILLISEC_PER_DAY);
-			newRup.setOriginTime(ot);
-			newRup.setMag(magComplete+1); // anything above magComplete);
-			dummyAftershocks.add(newRup);
-		}
-		
-		ReasenbergJonesAftershockModel distArray = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b,
-				tStartDays, tEndDays, a_min, a_max, a_num, p_min, p_max, p_num, c, c, 1);
-		System.out.println("max likelihood gridded k =  "+distArray.getMaxLikelihood_k());
-		System.out.println("distArray.getPDF_a():\n"+distArray.getPDF_a());
-		System.out.println("distArray.getPDF_p():\n"+distArray.getPDF_p());
-		System.out.println("distArray.getPDF_c():\n"+distArray.getPDF_c());
-		plot2D_PDF(distArray.get2D_PDF_for_a_and_p(), "PDF for a vs p", "a", "p", "density");
-		EvenlyDiscretizedFunc mfd = distArray.getExpectedCumNumMFD(3.0, 10.0, 71, 0.0, 7.0);
-		System.out.println("distArray.getExpectedNumMFD():\n"+mfd);
-
-		
-		// test the maximum likelihood k value for constrained p and c
-		double p = distArray.getMaxLikelihood_p();
-		ReasenbergJonesAftershockModel distArray2 = new ReasenbergJonesAftershockModel(dummyMainShock, dummyAftershocks, magComplete, b, 
-				tStartDays, tEndDays, a_min, a_max, a_num, p, p, 1, c, c, 1);
-		System.out.println("2nd max likelihood gridded k =  "+distArray2.getMaxLikelihood_k());
-		
-
-		System.out.println("2nd max likelihood analytic k =  "+ getMaxLikelihood_k(distArray2.getMaxLikelihood_p(), c, 
-				tStartDays, tEndDays, relativeEventTimes.length));
 
 	}
+
+	
+	
+	
+	
 	
 	public static double getMmaxC(IncrementalMagFreqDist mfd) {
 		List<Double> magsAtMax = Lists.newArrayList();
@@ -516,19 +423,110 @@ public class AftershockStatsCalc {
 		System.out.println("Mmaxc="+(float)mmaxc+" from MFD mode(s): "+Joiner.on(",").join(magsAtMax));
 		return mmaxc;
 	}
+	
+	   /**
+	    *  adaptive quadrature integration.  This is put here because it is not clear how general/robust this code is
+	    *  (e.g., with respect to singularities in the function).
+	    *  
+	    *  TODO In fact, this should be tested over the viable range of rate-decay functions that could be given
+	    * @param func
+	    * @param startTime
+	    * @param endTime
+	    * @return
+	    */
+    public static double adaptiveQuadratureIntegration(RJ_AftershockModel_SequenceSpecific func, double startTime, double endTime) {
+    	final double EPSILON = 1e-6;
+    	double a=startTime;
+    	double b=endTime;
+        double h = b - a;
+        double c = (a + b) / 2.0;
+        double d = (a + c) / 2.0;
+        double e = (b + c) / 2.0;
+        double Q1 = h/6  * (func.getRateAboveMagCompleteAtTime(a) + 4*func.getRateAboveMagCompleteAtTime(c) + func.getRateAboveMagCompleteAtTime(b));
+        double Q2 = h/12 * (func.getRateAboveMagCompleteAtTime(a) + 4*func.getRateAboveMagCompleteAtTime(d) + 2*func.getRateAboveMagCompleteAtTime(c) + 4*func.getRateAboveMagCompleteAtTime(e) + func.getRateAboveMagCompleteAtTime(b));
+        if (Math.abs(Q2 - Q1) <= EPSILON)
+            return Q2 + (Q2 - Q1) / 15;
+        else
+            return adaptiveQuadratureIntegration(func,a, c) + adaptiveQuadratureIntegration(func,c, b);
+    }
 
+    public static Location getCentroid(ObsEqkRupture mainshock, ObsEqkRupList aftershocks) {
+		// now works across prime meridian
+		List<Location> locs = Lists.newArrayList(mainshock.getHypocenterLocation());
+		for (ObsEqkRupture aftershock : aftershocks)
+			locs.add(aftershock.getHypocenterLocation());
+		List<Double> lats = Lists.newArrayList();
+		List<Double> lons = Lists.newArrayList();
+		for (Location loc : locs) {
+			lats.add(loc.getLatitude());
+			lons.add(loc.getLongitude());
+		}
+		double lat = FaultUtils.getAngleAverage(lats);
+		while (lat > 90)
+			lat -= 360;
+		double lon = FaultUtils.getAngleAverage(lons);
+		while (lon > 180)
+			lon -= 360;
+		Location centroid = new Location(lat, lon);
+		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
+		System.out.println("Centroid: "+(float)lat+", "+(float)lon+" ("+(float)dist+" km from epicenter)");
+		return centroid;
+	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		double mean = 0.78;
+		double mean = 11.5079;
+		
+		PoissonDistribution poissDist = new PoissonDistribution(mean);
+		System.out.println(poissDist.inverseCumulativeProbability(0.025));
+		System.out.println(poissDist.inverseCumulativeProbability(0.975));
+		
+		int minInt=0;
+		int maxInt=poissDist.inverseCumulativeProbability(0.999);
+		
+		HistogramFunction hist = new HistogramFunction((double)minInt,(double)maxInt,maxInt+1);
+		HistogramFunction histCum = new HistogramFunction((double)minInt,(double)maxInt,maxInt+1);
+		for(int i=0;i<hist.size();i++) {
+			hist.set(i, poissDist.probability(i));
+			histCum.set(i, poissDist.cumulativeProbability(i));
+		}
+		
+		int lowBound = (int)Math.round(histCum.getClosestXtoY(0.025));
+		if(histCum.getY(lowBound)<0.025)
+			lowBound += 1;
+		
+		int highBound = (int)Math.round(histCum.getClosestXtoY(0.975));
+		if(histCum.getY(highBound)<0.975)
+			highBound += 1;
+		
+		System.out.println(lowBound);
+		System.out.println(highBound);
+		
+		ArrayList<HistogramFunction> funcList = new ArrayList<HistogramFunction>();
+		funcList.add(hist);
+		funcList.add(histCum);
+		
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 2f, Color.BLACK));
+		plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		
+		GraphWindow graph = new GraphWindow(funcList, "Poisson Distributions",plotCharList); 
+		graph.setX_AxisLabel("Num");
+		graph.setY_AxisLabel("Probability");
+
+		
+		
 //		System.out.println(getExpectedNumEvents(0d, 1d, 1d, 1d, 1.025, 0.05, 0d, 1e6));
 		
 //		double val = Math.log(Double.MAX_VALUE);
 //		System.out.println(val);
 //		System.out.println(Math.exp(700.0));
 		
-		testJeanneCalc();
+//		testJeanneCalc();
 //		testAndyCalc();
 	}
 

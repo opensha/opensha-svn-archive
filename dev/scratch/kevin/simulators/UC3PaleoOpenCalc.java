@@ -28,7 +28,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementIden;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.LogicalOrRupIden;
@@ -62,7 +62,7 @@ public class UC3PaleoOpenCalc {
 		private PaleoRateConstraint constr;
 		private long dateOfLastEventMillis;
 		
-		public PaleoOpenIden(PaleoRateConstraint constr, long dateOfLastEventMillis, List<RectangularElement> geom) {
+		public PaleoOpenIden(PaleoRateConstraint constr, long dateOfLastEventMillis, List<SimulatorElement> geom) {
 			super(constr.getPaleoSiteName(), getForLoc(constr.getPaleoSiteName(), constr.getPaleoSiteLoction(), geom));
 			this.constr = constr;
 			this.dateOfLastEventMillis = dateOfLastEventMillis;
@@ -91,11 +91,11 @@ public class UC3PaleoOpenCalc {
 		return Math.round((year-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
 	}
 	
-	private static int getForLoc(String name, Location loc, List<RectangularElement> geom) {
-		RectangularElement closest = null;
+	private static int getForLoc(String name, Location loc, List<SimulatorElement> geom) {
+		SimulatorElement closest = null;
 		double closestDist = Double.POSITIVE_INFINITY;
 		
-		for (RectangularElement el : geom) {
+		for (SimulatorElement el : geom) {
 			Location centerLocation = el.getCenterLocation();
 			double hDist = LocationUtils.horzDistanceFast(loc, centerLocation);
 			if (hDist < closestDist) {
@@ -110,7 +110,7 @@ public class UC3PaleoOpenCalc {
 	}
 	
 	private static List<PaleoOpenIden> getUC3SitesWithOpenIntervals(
-			FaultSystemSolution sol, List<RectangularElement> geom) throws IOException {
+			FaultSystemSolution sol, List<SimulatorElement> geom) throws IOException {
 		List<FaultSectionPrefData> fsd = sol.getRupSet().getFaultSectionDataList();
 		ArrayList<PaleoRateConstraint> constraints = UCERF3_PaleoRateConstraintFetcher.getConstraints(fsd);
 		
@@ -368,7 +368,7 @@ public class UC3PaleoOpenCalc {
 		File geomFile = new File(simDir, "ALLCAL2_1-7-11_Geometry.dat");
 		System.out.println("Loading geometry...");
 		General_EQSIM_Tools tools = new General_EQSIM_Tools(geomFile);
-		List<RectangularElement> geoms = tools.getElementsList();
+		List<SimulatorElement> geoms = tools.getElementsList();
 		
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File("/home/kevin/workspace/OpenSHA/dev/"
 				+ "scratch/UCERF3/data/scratch/InversionSolutions/"

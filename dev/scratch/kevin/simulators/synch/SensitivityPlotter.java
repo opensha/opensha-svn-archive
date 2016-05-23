@@ -324,10 +324,10 @@ public class SensitivityPlotter {
 		File outputFile = new File(outputDir, testType.name()+"_"
 				+fault1.name.replaceAll(" ", "_")+"_"+fault2.name.replaceAll(" ", "_"));
 		
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		File smallPlotDir = new File(outputDir, "small_plots");
 		if (!smallPlotDir.exists())
 			smallPlotDir.mkdir();
@@ -423,10 +423,10 @@ public class SensitivityPlotter {
 		
 		File outputFile = new File(outputDir, testType.name()+"_ALL");
 		
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		File smallPlotDir = new File(outputDir, "small_plots");
 		if (!smallPlotDir.exists())
 			smallPlotDir.mkdir();

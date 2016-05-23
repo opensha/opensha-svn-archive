@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import org.dom4j.DocumentException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.sha.cybershake.ERF_Rupture_File_Writer;
 import org.opensha.sha.cybershake.db.CybershakeSite;
 import org.opensha.sha.cybershake.db.CybershakeSiteInfo2DB;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
@@ -34,29 +35,33 @@ public class FSSToCyberShakeDB {
 			String erfName = "UCERF3 SAF Downsampling Test ERF, 200m";
 			String erfDescription = "Test UCERF3 ERF which contains only ruptures that are entirely on the SAF and at least"
 					+ " partially within Southern California";
-			double gridSpacing = 0.2d;
+//			double gridSpacing = 0.2d;
+			double gridSpacing = 1d;
 			
 			db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, true);
 			if (db.isReadOnly())
 				db.setIgnoreInserts(true);
 			
 			ERF2DB erf2db = new FSS_ERF2DB(fss, db, true, gridSpacing);
-			erf2db.setFileBased(new File("/home/kevin/CyberShake/rupSurfaces/37"), true);
+			File erfDir = new File("/home/kevin/CyberShake/rupSurfaces/37");
+			erf2db.setFileBased(erfDir, true);
 			System.out.println("ERF has "+erf2db.getERF_Instance().getNumSources()+" sources");
-			writeTestRup(erf2db.getERF_Instance());
+//			writeTestRup(erf2db.getERF_Instance());
+			ERF_Rupture_File_Writer.writeRuptureFile(
+					erf2db.getERF_Instance().getRupture(8182, 0), 8182, 0, new File("/tmp"), false);
 //			erf2db.insertForecaseInDB(erfName, erfDescription);
 //			int erfID = erf2db.getInserted_ERF_ID(erfName);
 //			erf2db.insertSrcRupInDB(erfID, null, 10430, 0);
 			
-			CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
-			
-			ArrayList<CybershakeSite> sites = Lists.newArrayList();
-			sites.add(sites2db.getSiteFromDB(18)); // USC
-			
-			Cybershake_OpenSHA_DBApplication cs = new Cybershake_OpenSHA_DBApplication();
-			cs.setSiteInfoObject(sites2db);
-			boolean forceAdd = false; // can't remember what this is
-			cs.insertNewERFForSites(sites, erf2db, erfName, erfDescription, forceAdd);
+//			CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
+//			
+//			ArrayList<CybershakeSite> sites = Lists.newArrayList();
+//			sites.add(sites2db.getSiteFromDB(18)); // USC
+//			
+//			Cybershake_OpenSHA_DBApplication cs = new Cybershake_OpenSHA_DBApplication();
+//			cs.setSiteInfoObject(sites2db);
+//			boolean forceAdd = false; // can't remember what this is
+//			cs.insertNewERFForSites(sites, erf2db, erfName, erfDescription, forceAdd);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

@@ -188,6 +188,7 @@ public class GraphPanel extends JSplitPane {
 	public GraphPanel(PlotPreferences plotPrefs) {
 		super(JSplitPane.VERTICAL_SPLIT, true);
 		this.plotPrefs = plotPrefs;
+		this.backgroundColor = plotPrefs.getBackgroundColor();
 		setResizeWeight(1);
 		setBorder(null);
 		
@@ -1291,7 +1292,7 @@ public class GraphPanel extends JSplitPane {
 	}
 
 
-	public ChartPanel getCartPanel() {
+	public ChartPanel getChartPanel() {
 		return this.chartPanel;
 	}
 	
@@ -1346,6 +1347,10 @@ public class GraphPanel extends JSplitPane {
 
 	public void setPlotLabelFontSize(int plotLabelFontSize) {
 		plotPrefs.setPlotLabelFontSize(plotLabelFontSize);
+	}
+	
+	public void setLegendFontSize(int legendFontSize) {
+		plotPrefs.setLegendFontSize(legendFontSize);
 	}
 	
 	public void setGriddedFuncAxesTicks(boolean histogramAxesTicks) {

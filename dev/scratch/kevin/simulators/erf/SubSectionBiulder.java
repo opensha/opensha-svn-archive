@@ -18,6 +18,7 @@ import org.opensha.sha.faultSurface.EvenlyGriddedSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.FourPointEvenlyGriddedSurface;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
@@ -33,22 +34,23 @@ import com.google.common.collect.Maps;
  */
 public class SubSectionBiulder {
 	
-	private List<RectangularElement> elements;
+	private List<SimulatorElement> elements;
 	private List<FaultSectionPrefData> subSectsList;
 	private Map<Integer, Integer> elemIDToSubSectsMap;
 	
-	public SubSectionBiulder(List<RectangularElement> elements) {
+	public SubSectionBiulder(List<SimulatorElement> elements) {
 		this.elements = elements;
 		
 		// first build mapping from fault section ID to faults
 		Map<Integer, List<RectangularElement>> sectsMap = Maps.newHashMap();
-		for (RectangularElement e : elements) {
+		for (SimulatorElement e : elements) {
 			List<RectangularElement> elemsForSect = sectsMap.get(e.getSectionID());
 			if (elemsForSect == null) {
 				elemsForSect = Lists.newArrayList();
 				sectsMap.put(e.getSectionID(), elemsForSect);
 			}
-			elemsForSect.add(e);
+			Preconditions.checkState(e instanceof RectangularElement, "Only rectangular supported (for now)");
+			elemsForSect.add((RectangularElement)e);
 		}
 		
 		checkAssignNAS(sectsMap);
@@ -65,8 +67,6 @@ public class SubSectionBiulder {
 			
 			// now organize elements for each fault into rows and columns
 			List<List<RectangularElement>> organized = organizeElemsIntoColumns(elemsForSect);
-			
-			
 			
 			int subSectIndex = 0;
 			for (List<RectangularElement> column : organized) {
@@ -86,12 +86,12 @@ public class SubSectionBiulder {
 				double dipDir = LocationUtils.azimuth(top.getCenterLocation(), bottom.getCenterLocation());
 				
 				// upper depth
-				double upperDepth = getMinDepth(top.getGriddedSurface());
-				double lowerDepth = getMaxDepth(bottom.getGriddedSurface());
+				double upperDepth = getMinDepth(top.getSurface());
+				double lowerDepth = getMaxDepth(bottom.getSurface());
 				
 				// fault trace
 				FaultTrace trace = new FaultTrace(subSectName);
-				trace.addAll(top.getGriddedSurface().getRowAsTrace(0));
+				trace.addAll(top.getSurface().getRowAsTrace(0));
 				
 				// build FSD object
 				FaultSectionPrefData fsd = new FaultSectionPrefData();
@@ -114,7 +114,7 @@ public class SubSectionBiulder {
 				subSectsList.add(fsd);
 				
 				// populate mapping from element ID to sub section index
-				for (RectangularElement e : column)
+				for (SimulatorElement e : column)
 					elemIDToSubSectsMap.put(e.getID(), sectIndex);
 				
 				sectIndex++;
@@ -123,7 +123,7 @@ public class SubSectionBiulder {
 		}
 	}
 	
-	public List<RectangularElement> getElements() {
+	public List<SimulatorElement> getElements() {
 		return elements;
 	}
 	
@@ -209,19 +209,19 @@ public class SubSectionBiulder {
 	private static AlongStrikeComparator alongStrikeComparator = new AlongStrikeComparator();
 	private static DownDipComparator downDipComparator = new DownDipComparator();
 	
-	private static class AlongStrikeComparator implements Comparator<RectangularElement> {
+	private static class AlongStrikeComparator implements Comparator<SimulatorElement> {
 
 		@Override
-		public int compare(RectangularElement o1, RectangularElement o2) {
+		public int compare(SimulatorElement o1, SimulatorElement o2) {
 			return new Integer(o1.getNumAlongStrike()).compareTo(o2.getNumAlongStrike());
 		}
 		
 	}
 	
-	private static class DownDipComparator implements Comparator<RectangularElement> {
+	private static class DownDipComparator implements Comparator<SimulatorElement> {
 
 		@Override
-		public int compare(RectangularElement o1, RectangularElement o2) {
+		public int compare(SimulatorElement o1, SimulatorElement o2) {
 			return new Integer(o1.getNumDownDip()).compareTo(o2.getNumDownDip());
 		}
 		
@@ -243,12 +243,12 @@ public class SubSectionBiulder {
 			// we need to set the NAS a NDD numbers
 			
 			// detect element size
-			FourPointEvenlyGriddedSurface surf = elems.get(0).getGriddedSurface();
+			FourPointEvenlyGriddedSurface surf = elems.get(0).getSurface();
 			double elemDeltaDepth = surf.getLocation(1,0).getDepth() - surf.getLocation(0,0).getDepth();
 			
 			// first bin by depth (simplest)
 			MinMaxAveTracker depthTrack = new MinMaxAveTracker();
-			for (RectangularElement elem : elems)
+			for (SimulatorElement elem : elems)
 				depthTrack.addValue(elem.getCenterLocation().getDepth());
 			
 			double minDepth = depthTrack.getMin();
@@ -262,11 +262,11 @@ public class SubSectionBiulder {
 			Preconditions.checkState(depthError < 0.1, "DDW error too big, may be unstable: min="+minDepth+", max="+maxDepth
 					+", delta="+deltaDepth+", elemDelta="+elemDeltaDepth+", numElems="+numElemsNoRound);
 			
-			List<List<RectangularElement>> elemsByDepth = Lists.newArrayList();
+			List<List<SimulatorElement>> elemsByDepth = Lists.newArrayList();
 			for (int i=0; i<numElemsDD; i++)
-				elemsByDepth.add(new ArrayList<RectangularElement>());
+				elemsByDepth.add(new ArrayList<SimulatorElement>());
 			
-			for (RectangularElement elem : elems) {
+			for (SimulatorElement elem : elems) {
 				double depth = elem.getCenterLocation().getDepth();
 				double depthIndexNoRound = (depth - minDepth)/elemDeltaDepth;
 				double depthIndexError = depthIndexNoRound - Math.floor(depthIndexNoRound);
@@ -285,13 +285,13 @@ public class SubSectionBiulder {
 			
 			// now bin by DAS
 			for (int i=0; i<elemsByDepth.size(); i++) {
-				List<RectangularElement> elemsForDepth = elemsByDepth.get(i);
+				List<SimulatorElement> elemsForDepth = elemsByDepth.get(i);
 				
 				// sort by DAS
 				Collections.sort(elemsForDepth, dasCompare);
 				
 				for (int j=0; j<elemsForDepth.size(); j++) {
-					RectangularElement elem = elemsForDepth.get(j);
+					SimulatorElement elem = elemsForDepth.get(j);
 					elem.setNumAlongStrike(j);
 					elem.setNumDownDip(i);
 				}
@@ -299,10 +299,10 @@ public class SubSectionBiulder {
 		}
 	}
 	
-	private static class DASComparator implements Comparator<RectangularElement> {
+	private static class DASComparator implements Comparator<SimulatorElement> {
 
 		@Override
-		public int compare(RectangularElement o1, RectangularElement o2) {
+		public int compare(SimulatorElement o1, SimulatorElement o2) {
 			return Double.compare(o1.getAveDAS(), o2.getAveDAS());
 		}
 		

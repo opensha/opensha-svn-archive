@@ -7,7 +7,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 
 public class MFDCalc {
 	
@@ -47,9 +47,9 @@ public class MFDCalc {
 	}
 	
 	public static HashSet<Integer> getElementsInsideRegion(
-			List<RectangularElement> elements, Region region) {
+			List<SimulatorElement> elements, Region region) {
 		HashSet<Integer> elementsInRegion = new HashSet<Integer>();
-		for (RectangularElement elem : elements) {
+		for (SimulatorElement elem : elements) {
 			double lat = 0; 
 			double lon = 0;
 			int num = 0;

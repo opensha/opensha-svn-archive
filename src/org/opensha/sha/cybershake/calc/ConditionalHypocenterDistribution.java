@@ -528,7 +528,7 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 				gp.drawGraphPanel(spec, true, true);
 //				gp.setUserBounds(new Range(0, 2), new Range(1.0E-6, 1));
 //				gp.drawGraphPanel(spec, false, true);
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				File outputFile = new File(curveDir, site.short_name+"_comparison");
 				gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 				gp.saveAsPDF(outputFile.getAbsolutePath()+".pdf");

@@ -21,9 +21,11 @@ package org.opensha.commons.param.editor.impl;
 
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ListIterator;
@@ -81,6 +83,9 @@ ActionListener,ParameterChangeListener{
 	private boolean useButton;
 	
 	private boolean modal = true;
+	
+	private Dimension dialogDims = new Dimension(300,400);
+	private Point dialogPosition = null;
 
 	public ParameterListParameterEditor(Parameter<ParameterList> model) {
 		this(model, true);
@@ -90,6 +95,10 @@ ActionListener,ParameterChangeListener{
 		super(model);
 		this.useButton = useButton;
 		refreshParamEditor();
+	}
+	
+	public void setDialogDimensions(Dimension dialogDims) {
+		this.dialogDims = dialogDims;
 	}
 
 	/**
@@ -138,10 +147,16 @@ ActionListener,ParameterChangeListener{
 	 */
 	public void actionPerformed(ActionEvent e ) {
 		if (e.getSource() == button) {
+			if (frame != null && frame.getWidth() > 0)
+				dialogDims = frame.getSize();
+			if (frame != null)
+				dialogPosition = frame.getLocation();
 			parameterChangeFlag = false;
 			frame = new JDialog();
 			frame.setModal(modal);
-			frame.setSize(300,400);
+			frame.setSize(dialogDims);
+			if (dialogPosition != null)
+				frame.setLocation(dialogPosition);
 			frame.setTitle(getParameter().getName());
 			frame.getContentPane().setLayout(new GridBagLayout());
 			frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -159,7 +174,8 @@ ActionListener,ParameterChangeListener{
 			frame.getContentPane().add(button,new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
 					,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
 			frame.setVisible(true);
-			frame.pack();
+//			frame.getlo
+//			frame.pack();
 		}
 	}
 

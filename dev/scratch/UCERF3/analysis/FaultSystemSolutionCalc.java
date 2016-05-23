@@ -211,7 +211,7 @@ public class FaultSystemSolutionCalc {
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, null, title);
 		File file = new File("testRightHere");
 //		gp.getCartPanel().setSize(1000, 800);
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		try {
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");

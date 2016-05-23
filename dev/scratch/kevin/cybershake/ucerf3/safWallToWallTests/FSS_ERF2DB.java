@@ -59,6 +59,8 @@ public class FSS_ERF2DB extends ERF2DB {
 			this.gridSpacing = gridSpacing;
 			if (gridSpacing < 0.5)
 				createGridSpacing = 1d;
+			else
+				createGridSpacing = gridSpacing;
 		}
 
 		@Override

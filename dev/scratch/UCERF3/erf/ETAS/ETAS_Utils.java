@@ -664,7 +664,7 @@ public class ETAS_Utils {
 			List<Double> timesForCurrentGenList = Doubles.asList(primaryEventTimesArray);
 			numForEachGeneration[1] = timesForCurrentGenList.size();
 			int currentGen = 2;
-			while(currentGen<=15) {
+			while(currentGen<=numGen) {
 				List<Double>  timesForNextGeneration = new ArrayList<Double>();
 				for(double eventTime:timesForCurrentGenList) {
 					double mag = mfdMagsArray[randMFD_Sampler.getRandomInt()];
@@ -747,7 +747,7 @@ public class ETAS_Utils {
 	 */
 	public static String listExpNumForEachGenerationInfTime(double mainMag, IncrementalMagFreqDist mfd, double k, double p, double magMin, double c, int numGen) {
 		
-		boolean debug = false;
+		boolean debug = true;
 		
 		double[] numForGen = new double[numGen];
 		
@@ -864,7 +864,7 @@ public class ETAS_Utils {
 		ETAS_Utils etasUtils = new ETAS_Utils();
 		
 		ETAS_ParameterList etasParams = new ETAS_ParameterList();
-		String Prefix = "";
+		String prefix = "";
 
 		// Felzer Params:
 //		etasParams.set_c(0.095);
@@ -878,13 +878,14 @@ public class ETAS_Utils {
 //		System.exit(0);
 		
 		
-		double numDays[] = {3.0, 7.0,365.25, 365.25*10, 365.25*100, 365.25*1000};	// 1 week, 1 year, and 1000 years
-		String filenames[] = {Prefix+"ETAS_TriggerStats_3days.txt",
-				Prefix+"ETAS_TriggerStats_1week.txt",
-				Prefix+"ETAS_TriggerStats_1year.txt",
-				Prefix+"ETAS_TriggerStats_10year.txt",
-				Prefix+"ETAS_TriggerStats_100year.txt",
-				Prefix+"ETAS_TriggerStats_1000year.txt"};
+		double numDays[] = {1.0, 3.0, 7.0,365.25, 365.25*10, 365.25*100, 365.25*1000};	// 1 week, 1 year, and 1000 years
+		String filenames[] = {prefix+"ETAS_TriggerStats_1day.txt",
+				prefix+"ETAS_TriggerStats_3days.txt",
+				prefix+"ETAS_TriggerStats_1week.txt",
+				prefix+"ETAS_TriggerStats_1year.txt",
+				prefix+"ETAS_TriggerStats_10year.txt",
+				prefix+"ETAS_TriggerStats_100year.txt",
+				prefix+"ETAS_TriggerStats_1000year.txt"};
 		
 		
 		for(int i=0;i<numDays.length;i++) {
@@ -907,6 +908,49 @@ public class ETAS_Utils {
 			}
 		}
 	}
+	
+	
+	
+	public static void writeTimeDepTriggerStatsToFiles(IncrementalMagFreqDist mfd) {
+		
+		ETAS_Utils etasUtils = new ETAS_Utils();
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		String fileName = "ETAS_M2pt5_TriggerStatsVersusTime.txt";
+		
+		double logFirstTime = Math.log10(1.0/24.0);	// 1 hour
+		double logLastTime = Math.log10(1e5*365.25);// 10,000 years
+		int numTimes = 25;
+		double deltaLogTime = (logLastTime-logFirstTime)/(numTimes-1);
+		
+		int numGen=20;
+
+		double mainMag=2.5;
+//		int numRandomSamples = (int) Math.pow(10000.0, 1+(8-mainMag)/8);	// 5623413
+		int numRandomSamples = (int)1e7;	// 10 million
+		System.out.println("numRandomSamples"+numRandomSamples);
+				
+		FileWriter fw;
+		try {
+			fw = new FileWriter(new File(fileName));
+			fw.write("numDays\tmag\tgen1\tgen2\tgen3\tgen4\tgen5\tgen6\tgen7\tgen8\tgen9\tgen10\tgen11\tgen12\tgen13\tgen14\tgen15\t");
+			fw.write("gen1_AtMainMag\ttotAtMainMag\tgen1_AtMainMagMinus1\ttot_AtMainMagMinus1\n");
+			for(int i=0;i<numTimes;i++) {
+				double logTime = logFirstTime+deltaLogTime*i;
+				double numDays = Math.pow(10.0, logTime);
+				
+				System.out.println("Working on mag numDays="+numDays+"; "+i+" of "+numTimes);
+				String line = etasUtils.listExpNumForEachGenerationAlt(mainMag, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), numDays, numGen, numRandomSamples);
+				System.out.println(numDays+"\t"+line);
+				fw.write(numDays+"\t"+line);
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	
 	
 	
@@ -1054,6 +1098,39 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
+		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(5, 0.1653);
+		System.out.println(grMFD.getCumRateDistWithOffset());
+		EvenlyDiscretizedFunc cumMFD = grMFD.getCumRateDistWithOffset();
+		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
+		cumMFD.setInfo(cumMFD.toString());
+		magProbDists.add(cumMFD);
+		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "M 5 Main Shock"); 
+		magProbDistsGraph.setX_AxisLabel("Magnitude");
+		magProbDistsGraph.setY_AxisLabel("Expected Number ≥M");
+		magProbDistsGraph.setY_AxisRange(1e-7, 1e2);
+		magProbDistsGraph.setX_AxisRange(2.5d, 8.5d);
+		magProbDistsGraph.setYLog(true);
+		magProbDistsGraph.setPlotLabelFontSize(26);
+		magProbDistsGraph.setAxisLabelFontSize(24);
+		magProbDistsGraph.setTickLabelFontSize(22);
+		try {
+			magProbDistsGraph.saveAsPDF("ExpNumFromM5_MainShock.pdf");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		System.exit(0);
+		
+//		// Branching ratio for U3ETAS model (regional MFD)
+//		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		double durationDays = 5e9*365.25;	// approx age of earth
+//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+//		System.out.println("mfd BR = "+getBranchingRatio(mfd, etasParams.get_k(), etasParams.get_p(), 2.5, etasParams.get_c(), durationDays));
+//		System.exit(-1);
+		
 		
 //		plotExpectedNumPrimaryVsTime();
 		
@@ -1066,11 +1143,11 @@ public class ETAS_Utils {
 		
 		
 //		// plot fraction subseis triggered by supra
-		try {
-			plotFractionSubseisTriggeredBySupra(new File(GMT_CA_Maps.GMT_DIR, "FractionSubseisTriggeredBySupra"), "Test", true, erf, new ETAS_ParameterList());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			plotFractionSubseisTriggeredBySupra(new File(GMT_CA_Maps.GMT_DIR, "FractionSubseisTriggeredBySupra"), "Test", true, erf, new ETAS_ParameterList());
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
 
 //		GutenbergRichterMagFreqDist grDist = new GutenbergRichterMagFreqDist(1.0, 1.0, 2.55, 8.25, 58);
@@ -1078,14 +1155,28 @@ public class ETAS_Utils {
 
 
 		
-//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 //		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
 //				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
+//		System.out.println(mfd.getCumRateDistWithOffset());
+//		System.exit(-1);
+//		
 //		runMagTimeCatalogSimulation();
 		
 //		writeTriggerStatsToFiles(mfd);
 //		writeTriggerStatsToFilesInfTime(mfd);
+		
+//		writeTimeDepTriggerStatsToFiles(mfd);
+		
+		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+		// Jeanne's altParams:	c=2.00*10^-5, p=1.08, k=2.69*10^-3
+//		etasParams.set_c(2.00e-5*365.25);
+//		etasParams.set_p(1.08);
+//		etasParams.set_k(2.69e-3*Math.pow(365.25,0.08));
+		System.out.println(listExpNumForEachGenerationInfTime(2.5, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), 30));
+
+
 
 		
 //		EvenlyDiscretizedFunc func = getTargetDistDecayDensityFunc(-2.1, 3.9, 31, 1.96, 0.79);

@@ -3,16 +3,23 @@ package scratch.aftershockStatistics;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Dialog.ModalityType;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -20,7 +27,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.Range;
@@ -33,6 +42,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DatasetBinner;
+import org.opensha.commons.data.siteData.impl.TectonicRegime;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -69,12 +79,18 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupListCalc;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.RuptureSurface;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
+import com.lowagie.text.Font;
+
+import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 
 public class AftershockStatsGUI extends JFrame implements ParameterChangeListener {
 	
@@ -140,6 +156,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private ButtonParameter fetchButton;
 	
+	private JFileChooser loadCatalogChooser;
+	private ButtonParameter loadCatalogButton;
+	
 	private JFileChooser saveCatalogChooser;
 	private ButtonParameter saveCatalogButton;
 	
@@ -182,20 +201,22 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private JTabbedPane tabbedPane;
 	private JScrollPane consoleScroll;
 	
-	private static final int hypo_tab_index = 1;
+	private static final int epicenter_tab_index = 1;
 	private static final int mag_num_tab_index = 2;
 	private static final int mag_time_tab_index = 3;
 	private static final int cml_num_tab_index = 4;
 	private static final int catalog_tab_index = 5;
 	private static final int pdf_tab_index = 6;
 	private static final int aftershock_expected_index = 7;
-	private GraphWidget hypocenterGraph;
+	private static final int forecast_table_tab_index = 8;
+	private GraphWidget epicenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
 	private GraphWidget cmlNumGraph;
 	private JTextArea catalogText;
 	private JTabbedPane pdfGraphsPane;
 	private GraphWidget aftershockExpectedGraph;
+	private JTabbedPane forecastTablePane;
 	
 	private ComcatAccessor accessor;
 	private WC1994_MagLengthRelationship wcMagLen;
@@ -207,10 +228,17 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	private IncrementalMagFreqDist aftershockMND;
 	private double mmaxc;
 	
-	private ReasenbergJonesAftershockModel model;
+	private RJ_AftershockModel model;
 	
-	private DefaultOmoriParamFetch genericFetch = null;
-	private double[] genericParams = null;
+	private GenericRJ_ParametersFetch genericFetch = null;
+	private GenericRJ_Parameters genericParams = null;
+	private RJ_AftershockModel_Generic genericModel = null;
+	
+	private RJ_AftershockModel_Bayesian bayesianModel = null;
+	
+	private static final Color generic_color = Color.GREEN.darker();
+	private static final Color bayesian_color = Color.RED;
+	private static final Color sequence_specific_color = Color.BLUE.darker();
 	
 	public AftershockStatsGUI() {
 		/*
@@ -251,7 +279,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		maxLonParam = new DoubleParameter("Max Lon", -180d, 180d, new Double(36d));
 		minDepthParam = new DoubleParameter("Min Depth", 0d, 1000d, new Double(0));
 		minDepthParam.setUnits("km");
-		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(40));
+		maxDepthParam = new DoubleParameter("Max Depth", 0d, 1000d, new Double(1000d));
 		maxDepthParam.setUnits("km");
 		regionCenterTypeParam = new EnumParameter<AftershockStatsGUI.RegionCenterType>(
 				"Region Center", EnumSet.allOf(RegionCenterType.class), RegionCenterType.CENTROID, null);
@@ -270,6 +298,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		fetchButton.addParameterChangeListener(this);
 		dataParams.addParameter(fetchButton);
 		
+		loadCatalogButton = new ButtonParameter("External Catalog", "Load Catalog");
+		loadCatalogButton.setInfo("Load catalog in 10 column format");
+		loadCatalogButton.addParameterChangeListener(this);
+		dataParams.addParameter(loadCatalogButton);
+		
 		saveCatalogButton = new ButtonParameter("Aftershock Catalog", "Save Catalog");
 		saveCatalogButton.setInfo("Save catalog in 10 column format");
 		saveCatalogButton.addParameterChangeListener(this);
@@ -286,7 +319,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		magPrecisionParam.addParameterChangeListener(this);
 		dataParams.addParameter(magPrecisionParam);
 		
-		computeBButton = new ButtonParameter("GR b-value", "Compute b");
+		computeBButton = new ButtonParameter("Seq. Specific GR b-value", "Compute b (optional)");
 		computeBButton.addParameterChangeListener(this);
 		dataParams.addParameter(computeBButton);
 		
@@ -302,11 +335,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		
 		ParameterList fitParams = new ParameterList();
 		
-		aValRangeParam = new RangeParameter("a-value range", new Range(-3.0, -2.0));
+		aValRangeParam = new RangeParameter("a-value range", new Range(-4.5, -0.5));
 		aValRangeParam.addParameterChangeListener(this);
 		fitParams.addParameter(aValRangeParam);
 		
-		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(51));
+		aValNumParam = new IntegerParameter("a-value num", 1, 10000, new Integer(101));
 		aValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(aValNumParam);
 		
@@ -318,7 +351,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		pValNumParam.addParameterChangeListener(this);
 		fitParams.addParameter(pValNumParam);
 		
-		cValRangeParam = new RangeParameter("c-value range", new Range(0.05, 0.05));
+		cValRangeParam = new RangeParameter("c-value range", new Range(0.018, 0.018));
 		cValRangeParam.addParameterChangeListener(this);
 		fitParams.addParameter(cValRangeParam);
 		
@@ -330,7 +363,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		timeDepMcParam.addParameterChangeListener(this);
 		fitParams.addParameter(timeDepMcParam);
 		
-		gParam = new DoubleParameter("G", 1d, 6d, new Double(2.5));
+		gParam = new DoubleParameter("G", 0.1d, 10d, new Double(0.25));
 		gParam.addParameterChangeListener(this);
 		fitParams.addParameter(gParam);
 		
@@ -490,25 +523,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		String eventID = eventIDParam.getValue();
 		Preconditions.checkState(eventID != null && !eventID.isEmpty(), "Must supply event ID!");
 		
-		mainshock = accessor.fetchEvent(eventID);
+		mainshock = null;
+		ObsEqkRupture mainshock = accessor.fetchEvent(eventID);
 		Preconditions.checkState(mainshock != null, "Event not found: %s", eventID);
+		System.out.println("Mainshock Location: "+mainshock.getHypocenterLocation());
 		
-		genericParams = null;
-		bParam.setValue(null);
-		try {
-			if (genericFetch == null)
-				genericFetch = new DefaultOmoriParamFetch();
-			
-			String tectonicRegion = genericFetch.getRegion(mainshock.getHypocenterLocation());
-			genericParams = genericFetch.get(mainshock.getHypocenterLocation());
-			Preconditions.checkState(genericParams.length == 3);
-			System.out.println("Generic params for "+tectonicRegion+": a="+(float)genericParams[0]
-					+", p="+(float)genericParams[1]+", c="+(float)genericParams[2]);
-		} catch (RuntimeException e) {
-			System.err.println("Error fetching generic params");
-			e.printStackTrace();
-			genericParams = null;
-		}
+		setMainshock(mainshock);
 		
 		Double minDepth = minDepthParam.getValue();
 		validateParameter(minDepth, "min depth");
@@ -542,22 +562,34 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		}
 	}
 	
-	private Location getCentroid() {
-		List<Location> locs = Lists.newArrayList(mainshock.getHypocenterLocation());
-		for (ObsEqkRupture aftershock : aftershocks)
-			locs.add(aftershock.getHypocenterLocation());
-		double lat = 0;
-		double lon = 0;
-		for (Location loc : locs) {
-			lat += loc.getLatitude();
-			lon += loc.getLongitude();
+	private void setMainshock(ObsEqkRupture mainshock) {
+		this.mainshock = mainshock;
+		genericParams = null;
+		bParam.setValue(null);
+		try {
+			if (genericFetch == null)
+				genericFetch = new GenericRJ_ParametersFetch();
+			
+			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
+			genericParams = genericFetch.get(regime);
+			System.out.println("Generic params for "+regime+": "+genericParams);
+			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
+			// set default values to generic
+			pValRangeParam.setValue(new Range(genericParams.get_pValue(), genericParams.get_pValue()));
+			pValRangeParam.getEditor().refreshParamEditor();
+			cValRangeParam.setValue(new Range(genericParams.get_cValue(), genericParams.get_cValue()));
+			cValRangeParam.getEditor().refreshParamEditor();
+			bParam.setValue(genericModel.get_b());
+			bParam.getEditor().refreshParamEditor();
+		} catch (RuntimeException e) {
+			System.err.println("Error fetching generic params");
+			e.printStackTrace();
+			genericParams = null;
 		}
-		lat /= (double)locs.size();
-		lon /= (double)locs.size();
-		Location centroid = new Location(lat, lon);
-		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
-		System.out.println("Centroid: "+(float)lat+", "+(float)lon+" ("+(float)dist+" km from epicenter)");
-		return centroid;
+	}
+	
+	private Location getCentroid() {
+		return AftershockStatsCalc.getCentroid(mainshock, aftershocks);
 	}
 	
 	private EvenlyDiscretizedFunc magSizeFunc;
@@ -571,11 +603,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		double magDelta = 0.5;
 		int numMag = 2*8;
 		magSizeFunc = new EvenlyDiscretizedFunc(minMag, numMag, magDelta);
-		double maxMag = magSizeFunc.getMaxX();
-		double minSize = 1d;
+//		double maxMag = magSizeFunc.getMaxX();
+//		double minSize = 1d;
 //		double maxSize = 20d;
-		double sizeMult = 1.4;
-		double size = minSize;
+//		double sizeMult = 1.4;
+//		double size = minSize;
 		
 		double dS = 3;
 		for (int i=0; i<magSizeFunc.size(); i++) {
@@ -589,7 +621,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			double radius = Math.pow((7d/16d)*Math.pow(10, 1.5*mag + 9)/(dS*1e6), 1d/3d) / 300d;
 			magSizeFunc.set(i, radius);
 //			System.out.println("Mag="+mag+", radius="+radius);
-			size *= sizeMult;
+//			size *= sizeMult;
 		}
 		
 		return magSizeFunc;
@@ -717,37 +749,53 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		}
 		
 		// now add outline
-		DefaultXY_DataSet outline = new DefaultXY_DataSet();
-		for (Location loc : region.getBorder())
-			outline.set(loc.getLongitude(), loc.getLatitude());
-		outline.set(outline.get(0));
-		outline.setName("Region Outline");
-		
-		funcs.add(outline);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		if (region != null) {
+			DefaultXY_DataSet outline = new DefaultXY_DataSet();
+			for (Location loc : region.getBorder())
+				outline.set(loc.getLongitude(), loc.getLatitude());
+			outline.set(outline.get(0));
+			outline.setName("Region Outline");
+			
+			funcs.add(outline);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		}
 		
 		Collections.reverse(funcs);
 		Collections.reverse(chars);
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Hypocenters", "Longitude", "Latitude");
-		if (hypocenterGraph == null)
-			hypocenterGraph = new GraphWidget(spec);
+		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Epicenters", "Longitude", "Latitude");
+		if (epicenterGraph == null)
+			epicenterGraph = new GraphWidget(spec);
 		else
-			hypocenterGraph.setPlotSpec(spec);
+			epicenterGraph.setPlotSpec(spec);
 		
 		double regBuff = 0.05;
-		hypocenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
-				region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
+		if (region != null) {
+			epicenterGraph.setAxisRange(region.getMinLon()-regBuff, region.getMaxLon()+regBuff,
+					region.getMinLat()-regBuff, region.getMaxLat()+regBuff);
+		} else {
+			 MinMaxAveTracker latTrack = new MinMaxAveTracker();
+			 MinMaxAveTracker lonTrack = new MinMaxAveTracker();
+			 latTrack.addValue(mainshock.getHypocenterLocation().getLatitude());
+			 lonTrack.addValue(mainshock.getHypocenterLocation().getLongitude());
+			 for (ObsEqkRupture rup : aftershocks) {
+				 Location loc = rup.getHypocenterLocation();
+				 latTrack.addValue(loc.getLatitude());
+				 lonTrack.addValue(loc.getLongitude());
+			 }
+			 epicenterGraph.setAxisRange(lonTrack.getMin()-regBuff, lonTrack.getMax()+regBuff,
+						latTrack.getMin()-regBuff, latTrack.getMax()+regBuff);
+		}
 		
-		setupGP(hypocenterGraph);
+		setupGP(epicenterGraph);
 		
 		if (subtitle != null)
-			hypocenterGraph.getGraphPanel().addSubtitle(subtitle);
+			epicenterGraph.getGraphPanel().addSubtitle(subtitle);
 		
-		if (tabbedPane.getTabCount() == hypo_tab_index)
-			tabbedPane.addTab("Hypocenters", null, hypocenterGraph, "Hypocenter Map");
+		if (tabbedPane.getTabCount() == epicenter_tab_index)
+			tabbedPane.addTab("Epicenters", null, epicenterGraph, "Epicenter Map");
 		else
-			Preconditions.checkState(tabbedPane.getTabCount() > hypo_tab_index, "Plots added out of order");
+			Preconditions.checkState(tabbedPane.getTabCount() > epicenter_tab_index, "Plots added out of order");
 	}
 	
 	private void buildFuncsCharsForBinned(XY_DataSet[] binnedFuncs,
@@ -873,6 +921,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		funcs.add(xy);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN));
 		
+		System.out.println("********************Calculating MFD with b: "+bParam.getValue());
 		if (bParam.getValue() != null) {
 			// add Mc used for b-value calculation
 			double mc = mcParam.getValue();
@@ -1025,36 +1074,41 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
 		funcs.add(countFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.CYAN));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
 		
 		if (model != null) {
-			double a = model.getMaxLikelihood_a();
-			double p = model.getMaxLikelihood_p();
-			double c = model.getMaxLikelihood_c();
-			
-			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
+			EvenlyDiscretizedFunc expected = getModelCumNumWithTimePlot(model, magMin);
 			
 			maxY = Math.max(count, expected.getMaxY());
 			
 			funcs.add(expected);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, sequence_specific_color));
 			
-			expected.setName("Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			expected.setName("Seq Specific: "+new DecimalFormat("0.#").format(expected.getMaxY()));
 		}
 		
-		if (genericParams != null && bParam.getValue() != null) {
-			double a = genericParams[0];
-			double p = genericParams[1];
-			double c = genericParams[2];
+		if (genericModel != null) {
+			// calculate generic
 			
-			EvenlyDiscretizedFunc expected = getModelCumNumPlot(a, p, c, magMin);
+			EvenlyDiscretizedFunc expected = getModelCumNumWithTimePlot(genericModel, magMin);
 			
 			maxY = Math.max(count, expected.getMaxY());
 			
 			funcs.add(expected);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, Color.GRAY));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, generic_color));
 			
-			expected.setName("Generic Model: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			expected.setName("Generic: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			
+			if (bayesianModel != null) {
+				expected = getModelCumNumWithTimePlot(bayesianModel, magMin);
+				
+				maxY = Math.max(count, expected.getMaxY());
+				
+				funcs.add(expected);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 3f, bayesian_color));
+				
+				expected.setName("Bayesian: "+new DecimalFormat("0.#").format(expected.getMaxY()));
+			}
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Cumulative M≥"+(float)magMin, "Days Since Mainshock",
@@ -1078,15 +1132,12 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > cml_num_tab_index, "Plots added out of order");
 	}
 	
-	private EvenlyDiscretizedFunc getModelCumNumPlot(double a, double p, double c, double magMin) {
-		double b = bParam.getValue();
-		double magMain = mainshock.getMag();
+	private EvenlyDiscretizedFunc getModelCumNumWithTimePlot(RJ_AftershockModel model, double magMin) {
 		double tMin = dataStartTimeParam.getValue();
 		double tMax = Math.max(dataEndTimeParam.getValue(), forecastEndTimeParam.getValue());
 		Preconditions.checkState(tMax > tMin);
 		double tDelta = (tMax - tMin)/1000d;
-		return AftershockStatsCalc.getExpectedCumulativeNumWithTimeFunc(
-				a, b, magMain, magMin, p, c, tMin, tMax, tDelta);
+		return model.getModalCumNumEventsWithTime(magMin, tMin, tMax, tDelta);
 	}
 	
 	private static SimpleDateFormat catDateFormat = new SimpleDateFormat("yyyy\tMM\tdd\tHH\tmm\tss");
@@ -1104,6 +1155,24 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		sb.append((float)hypoLoc.getDepth()).append("\t");
 		sb.append((float)rup.getMag());
 		return sb.toString();
+	}
+	
+	private static ObsEqkRupture fromCatalogLine(String line) throws ParseException {
+		line = line.trim();
+		String[] split = line.split("\\s+");
+		Preconditions.checkState(split.length == 10, "Unexpected number of colums. Has %s, expected 10", split.length);
+		String dateStr = split[0]+"\t"+split[1]+"\t"+split[2]+"\t"+split[3]+"\t"+split[4]+"\t"+split[5];
+		Date date = catDateFormat.parse(dateStr);
+		double lat = Double.parseDouble(split[6]);
+		double lon = Double.parseDouble(split[7]);
+		double depth = Double.parseDouble(split[8]);
+		double mag = Double.parseDouble(split[9]);
+		Location hypoLoc = new Location(lat, lon, depth);
+		
+		String eventId = dateStr.replaceAll("\t", "_")+"_M"+(float)mag;
+		long originTimeInMillis = date.getTime();
+		
+		return new ObsEqkRupture(eventId, originTimeInMillis, hypoLoc, mag);
 	}
 	
 	private void plotCatalogText() {
@@ -1125,6 +1194,74 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		}
 	}
 	
+	private void loadCatalog(File catalogFile) throws IOException {
+		List<String> lines = Files.readLines(catalogFile, Charset.defaultCharset());
+		ObsEqkRupList myAftershocks = new ObsEqkRupList();
+		ObsEqkRupture myMainshock = null;
+		for (int i=0; i<lines.size(); i++) {
+			String line = lines.get(i).trim();
+			if (line.startsWith("#")) {
+				if (line.toLowerCase().startsWith("# main")
+						&& i < lines.size()-1 && lines.get(i+1).startsWith("#")) {
+					// main shock on next line, starting with a #
+					String mainshockLine = lines.get(i+1).substring(1).trim();
+					System.out.println("Detected mainshock in file: "+mainshockLine);
+					try {
+						myMainshock = fromCatalogLine(mainshockLine);
+					} catch (Exception e) {
+						System.err.println("Error loading mainshock");
+					}
+				}
+				continue;
+			}
+			if (!line.isEmpty()) {
+				try {
+					myAftershocks.add(fromCatalogLine(line));
+				} catch (ParseException e) {
+					throw ExceptionUtils.asRuntimeException(e);
+				}
+			}
+		}
+		
+		System.out.println("Loaded "+myAftershocks.size()+" aftershocks from file");
+		
+		if (myMainshock == null) {
+			// no mainshock detected, must load or use existing
+			boolean prompt = true;
+			if (mainshock != null) {
+				// ask the user if they want to overwrite the existing one in the app
+				int ret = JOptionPane.showConfirmDialog(this, "A main shock has already been loaded."
+						+ "\nDo you wish to specify your own custom main shock instead?",
+						"Specify Custom Mainshock?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				prompt = ret == JOptionPane.YES_OPTION;
+			}
+			StringParameter lineParam = new StringParameter("Mainshock Line");
+			lineParam.setValue("Year Month Day Hour Minute Sec Lat Lon Depth Magnitude");
+			while (prompt) {
+				try {
+					myMainshock = fromCatalogLine(lineParam.getValue());
+					break;
+				} catch (Exception e) {
+					int ret = JOptionPane.showConfirmDialog(this, "Error: "+e.getMessage()+"\nTry again?",
+							"Error Parsing Mainshock", JOptionPane.OK_CANCEL_OPTION);
+					if (ret == JOptionPane.CANCEL_OPTION)
+						break;
+				}
+			}
+		}
+		
+		Preconditions.checkState(myMainshock != null, "Could not laod mainshock");
+		if (myMainshock != mainshock) {
+			// custom mainshock
+			eventIDParam.setName("<custom>");
+			eventIDParam.getEditor().refreshParamEditor();
+		}
+		setMainshock(myMainshock);
+		aftershocks = myAftershocks;
+		region = null;
+		setEnableParamsPostFetch(true);
+	}
+	
 	private void plotPDFs() {
 		if (pdfGraphsPane == null)
 			pdfGraphsPane = new JTabbedPane();
@@ -1132,7 +1269,20 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			while (pdfGraphsPane.getTabCount() > 0)
 				pdfGraphsPane.removeTabAt(0);
 		
-		add1D_PDF(model.getPDF_a(), "a-value");
+		HistogramFunction[] aValExtras = null;
+		if (genericModel != null) {
+			HistogramFunction genericA = genericModel.getPDF_a();
+			genericA.setName("Generic");
+			HistogramFunction bayesianA;
+			if (bayesianModel != null) {
+				bayesianA = bayesianModel.getPDF_a();
+				bayesianA.setName("Bayesian");
+				aValExtras = new HistogramFunction[] { genericA, bayesianA };
+			} else {
+				aValExtras = new HistogramFunction[] { genericA };
+			}
+		}
+		add1D_PDF(model.getPDF_a(), "a-value", aValExtras);
 		add1D_PDF(model.getPDF_p(), "p-value");
 		add1D_PDF(model.getPDF_c(), "c-value");
 		add2D_PDF(model.get2D_PDF_for_a_and_c(), "a-value", "c-value");
@@ -1146,7 +1296,9 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			Preconditions.checkState(tabbedPane.getTabCount() > pdf_tab_index, "Plots added out of order");
 	}
 	
-	private void add1D_PDF(HistogramFunction pdf, String name) {
+	private static Color[] extra_colors = {Color.GRAY, Color.BLUE, Color.ORANGE, Color.GREEN};
+	
+	private void add1D_PDF(HistogramFunction pdf, String name, HistogramFunction... extras) {
 		if (pdf == null)
 			return;
 		
@@ -1155,9 +1307,25 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(pdf);
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList(
-				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+				new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, sequence_specific_color));
+		
+		if (extras != null && extras.length > 0) {
+			for (int i=0; i<extras.length; i++) {
+				funcs.add(extras[i]);
+				Color c;
+				String extraName = extras[i].getName().toLowerCase();
+				if (extraName.contains("generic"))
+					c = generic_color;
+				else if (extraName.contains("bayesian"))
+					c = bayesian_color;
+				else
+					c = extra_colors[i % extra_colors.length];
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+			}
+		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, pdf.getName(), name, "Density");
+		spec.setLegendVisible(funcs.size() > 1);
 		
 		GraphWidget widget = new GraphWidget(spec);
 		setupGP(widget);
@@ -1190,13 +1358,17 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				new Range(pdf.getMinY()-0.5*yDelta, pdf.getMaxY()+0.5*yDelta));
 	}
 	
-	private void plotExpectedAfershockMFDs() {
+	private void plotExpectedAfershockMFDs(CalcProgressBar progress) {
 		Double minDays = forecastStartTimeParam.getValue();
 		validateParameter(minDays, "start time");
 		Double maxDays = forecastEndTimeParam.getValue();
 		validateParameter(maxDays, "end time");
 		
-		double minMag = 3d;
+		double minMag;
+		if (mainshock.getMag() < 6)
+			minMag = 3d;
+		else
+			minMag = 4d;
 		double maxMag = 9d;
 		double deltaMag = 0.1;
 		int numMag = (int)((maxMag - minMag)/deltaMag + 1.5);
@@ -1204,31 +1376,62 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		List<PlotElement> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		EvenlyDiscretizedFunc mfd = model.getExpectedCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+		List<RJ_AftershockModel> models = Lists.newArrayList();
+		List<String> names = Lists.newArrayList();
+		List<Color> colors = Lists.newArrayList();
 		
-		funcs.add(mfd);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		models.add(model);
+		names.add("Seq. Specific");
+		colors.add(sequence_specific_color);
 		
-		if (genericParams != null) {
-			// calculate generic
-			EvenlyDiscretizedFunc genericMFD = new EvenlyDiscretizedFunc(mfd.getMinX(), mfd.size(), mfd.getDelta());
+		if (genericModel != null) {
+			models.add(genericModel);
+			names.add("Generic");
+			colors.add(generic_color);
 			
-			double a = genericParams[0];
-			double p = genericParams[1];
-			double c = genericParams[2];
-			double b = bParam.getValue();
-			double magMain = mainshock.getMag();
-			
-			for (int i=0; i<mfd.size(); i++) {
-				double magMin = mfd.getX(i);
-				double val = AftershockStatsCalc.getExpectedNumEvents(a, b, magMain, magMin, p, c, minDays, maxDays);
-				genericMFD.set(i, val);
+			if (bayesianModel != null) {
+				// generate Bayesian model
+				models.add(bayesianModel);
+				names.add("Bayesian");
+				colors.add(bayesian_color);
 			}
+		}
+		
+		double[] fractiles = { 0.025, 0.975 };
+		
+		for (int i=0; i<models.size(); i++) {
+			String name = names.get(i);
+			if (progress != null)
+				progress.updateProgress(i, models.size(), "Calculating "+name+"...");
+			RJ_AftershockModel model = models.get(i);
+			EvenlyDiscretizedFunc mode = model.getModalCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+			mode.setName(name+" Mode");
+			EvenlyDiscretizedFunc mean = model.getMeanCumNumMFD(minMag, maxMag, numMag, minDays, maxDays);
+			mean.setName("Mean");
+			Color c = colors.get(i);
 			
-			genericMFD.setName("Generic Model Expected Num Events");
+			funcs.add(mode);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
 			
-			funcs.add(genericMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+			funcs.add(mean);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, c));
+			
+			EvenlyDiscretizedFunc[] fractilesFuncs =model.getCumNumMFD_FractileWithAleatoryVariability(
+					fractiles, minMag, maxMag, numMag, minDays, maxDays);
+			
+			for (int j= 0; j<fractiles.length; j++) {
+				double f = fractiles[j];
+				EvenlyDiscretizedFunc fractile = fractilesFuncs[j];
+				fractile.setName("p"+(float)(f*100d)+"%");
+				
+				funcs.add(fractile);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, c));
+			}
+		}
+		
+		if (progress != null) {
+			progress.setIndeterminate(true);
+			progress.setProgressMessage("Plotting...");
 		}
 		
 		// mainshock mag and Bath's law, use evenly discr functions so that it shows up well at all zoom levels
@@ -1238,36 +1441,236 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		mainshockFunc.setName("Mainshock M="+(float)mainshockMag);
 		DefaultXY_DataSet bathsFunc = new DefaultXY_DataSet();
 		bathsFunc.setName("Bath's Law M="+(float)bathsMag);
-		for (int i=0; i<mfd.size(); i++) {
-			double y = mfd.getY(i);
+		
+		final MinMaxAveTracker yTrack = new MinMaxAveTracker();
+		for (PlotElement elem : funcs) {
+			if (elem instanceof XY_DataSet) {
+				XY_DataSet xy = (XY_DataSet)elem;
+				for (Point2D pt : xy)
+					if (pt.getY() > 0)
+						yTrack.addValue(pt.getY());
+			}
+		}
+		System.out.println(yTrack);
+		EvenlyDiscretizedFunc yVals = new EvenlyDiscretizedFunc(yTrack.getMin(), yTrack.getMax(), 20);
+		for (int i=0; i<yVals.size(); i++) {
+			double y = yVals.getX(i);
 			mainshockFunc.set(mainshockMag, y);
 			bathsFunc.set(bathsMag, y);
 		}
 		funcs.add(mainshockFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLACK));
 		funcs.add(bathsFunc);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GREEN.darker()));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
+		final PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Forecast", "Magnitude", "Expected Num \u2265 Mag");
 		spec.setLegendVisible(true);
 		
-		if (aftershockExpectedGraph == null)
-			aftershockExpectedGraph = new GraphWidget(spec);
-		else
-			aftershockExpectedGraph.setPlotSpec(spec);
-		aftershockExpectedGraph.setY_Log(true);
-		setupGP(aftershockExpectedGraph);
+		Runnable displayRun = new Runnable() {
+			
+			@Override
+			public void run() {
+				if (aftershockExpectedGraph == null)
+					aftershockExpectedGraph = new GraphWidget(spec);
+				else
+					aftershockExpectedGraph.setPlotSpec(spec);
+				aftershockExpectedGraph.setY_Log(true);
+				aftershockExpectedGraph.setY_AxisRange(new Range(yTrack.getMin(), yTrack.getMax()));
+				setupGP(aftershockExpectedGraph);
+				
+				if (tabbedPane.getTabCount() == aftershock_expected_index)
+					tabbedPane.addTab("Forecast", null, aftershockExpectedGraph,
+							"Aftershock Expected Frequency Plot");
+				else
+					Preconditions.checkState(tabbedPane.getTabCount() > aftershock_expected_index, "Plots added out of order");
+			}
+		};
 		
-		if (tabbedPane.getTabCount() == aftershock_expected_index)
-			tabbedPane.addTab("Forecast", null, aftershockExpectedGraph,
-					"Aftershock Expected Frequency Plot");
+		if (SwingUtilities.isEventDispatchThread()) {
+			displayRun.run();
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(displayRun);
+			} catch (Exception e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
+	}
+	
+	private void plotForecastTable(CalcProgressBar progress) {
+		if (forecastTablePane == null)
+			forecastTablePane = new JTabbedPane();
 		else
-			Preconditions.checkState(tabbedPane.getTabCount() > aftershock_expected_index, "Plots added out of order");
+			while (forecastTablePane.getTabCount() > 0)
+				forecastTablePane.removeTabAt(0);
+		
+		List<RJ_AftershockModel> models = Lists.newArrayList();
+		List<String> names = Lists.newArrayList();
+		
+		models.add(model);
+		names.add("Seq. Specific");
+		
+		if (genericModel != null) {
+			models.add(genericModel);
+			names.add("Generic");
+			
+			if (bayesianModel != null) {
+				// generate Bayesian model
+				models.add(bayesianModel);
+				names.add("Bayesian");
+			}
+		}
+		
+		GregorianCalendar eventDate = mainshock.getOriginTimeCal();
+		GregorianCalendar startDate = new GregorianCalendar();
+		Double minDays = forecastStartTimeParam.getValue();
+		validateParameter(minDays, "start time");
+		double startTime = eventDate.getTime().getTime() + minDays*ProbabilityModelsCalc.MILLISEC_PER_DAY;
+		startDate.setTimeInMillis((long)startTime);
+		
+		for (int i=0; i<models.size(); i++) {
+			Stopwatch watch = Stopwatch.createStarted();
+			RJ_AftershockModel model = models.get(i);
+			String name = names.get(i);
+			
+			if (progress != null)
+				progress.updateProgress(i, models.size(), "Calculating "+name+"...");
+			
+			USGS_AftershockForecast forecast = new USGS_AftershockForecast(model, eventDate, startDate);
+			JTable jTable = new JTable(forecast.getTableModel());
+			jTable.getTableHeader().setFont(jTable.getTableHeader().getFont().deriveFont(Font.BOLD));
+			forecastTablePane.addTab(name, jTable);
+			System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute aftershock table for "+name);
+			watch.stop();
+		}
+		if (progress != null)
+			progress.updateProgress(models.size(), models.size());
+		
+		if (tabbedPane.getTabCount() == forecast_table_tab_index)
+			tabbedPane.addTab("Forecast Table", null, forecastTablePane,
+					"USGS Forecast Table");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > forecast_table_tab_index, "Plots added out of order");
+	}
+	
+	private class CalcStep {
+		
+		private String title;
+		private String progressMessage;
+		private Runnable run;
+		boolean runInEDT;
+		
+		public CalcStep(String title, String progressMessage, Runnable run) {
+			this(title, progressMessage, run, false);
+		}
+		
+		public CalcStep(String title, String progressMessage, Runnable run, boolean runInEDT) {
+			this.title = title;
+			this.progressMessage = progressMessage;
+			this.run = run;
+			this.runInEDT = runInEDT;
+		}
+		
+	}
+	
+	private class CalcRunnable implements Runnable {
+		private CalcProgressBar progress;
+		private CalcStep[] steps;
+		
+		private String curTitle;
+		private Throwable exception;
+		
+		public CalcRunnable(CalcProgressBar progress, CalcStep... calcSteps) {
+			this.progress = progress;
+			this.steps = calcSteps;
+		}
+
+		@Override
+		public void run() {
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					if (progress.isVisible())
+						progress.setVisible(false);
+					progress.setModalityType(ModalityType.APPLICATION_MODAL);
+					progress.setVisible(true);
+				}
+			});
+			for (final CalcStep step : steps) {
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						progress.setTitle(step.title);
+						progress.setProgressMessage(step.progressMessage);
+						progress.pack();
+					}
+				});
+				curTitle = step.title;
+				if (step.runInEDT) {
+					try {
+						SwingUtilities.invokeAndWait(new Runnable() {
+							
+							@Override
+							public void run() {
+								try {
+									step.run.run();
+								} catch (Throwable e) {
+									exception = e;
+								}
+							}
+						});
+					} catch (Exception e) {
+						exception = e;
+					}
+					if (exception != null)
+						break;
+				} else {
+					try {
+						step.run.run();
+					} catch (Throwable e) {
+						exception = e;
+						break;
+					}
+				}
+			}
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					progress.setVisible(false);
+					progress.dispose();
+				}
+			});
+			if (exception != null) {
+				final String title = "Error "+curTitle;
+				exception.printStackTrace();
+				final String message = exception.getMessage();
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						
+						@Override
+						public void run() {
+							JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+						}
+					});
+				} catch (Exception e) {
+					System.err.println("Error displaying error message!");
+					e.printStackTrace();
+				}
+				
+			}
+		}
 	}
 
 	@Override
 	public void parameterChange(ParameterChangeEvent event) {
 		Parameter<?> param = event.getParameter();
+		
+		final CalcProgressBar progress = new CalcProgressBar(this, "", "", false);
+		progress.setIndeterminate(true);
+		
 		if (param == eventIDParam || param == dataStartTimeParam || param == dataEndTimeParam
 				|| param == regionEditParam) {
 			setEnableParamsPostFetch(false);
@@ -1275,30 +1678,51 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			updateRegionParamList(regionTypeParam.getValue(), regionCenterTypeParam.getValue());
 			setEnableParamsPostFetch(false);
 		} else if (param == fetchButton) {
-			String title = "Error Fetching Events";
 			setEnableParamsPostFetch(false);
-			try {
-				fetchEvents();
-				title = "Error Calculating Mag Num Distrubution";
-				aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
-				mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
-				mcParam.setValue(mmaxc+0.5);
-				mcParam.getEditor().refreshParamEditor();
-				// plots
-				title = "Error Plotting Events";
-				plotAftershockHypocs();
-				plotMFDs(aftershockMND, mmaxc);
-				plotMagVsTime();
-				plotCumulativeNum();
-				plotCatalogText();
-				
-				tabbedPane.setSelectedIndex(hypo_tab_index);
-
-				setEnableParamsPostFetch(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+			CalcStep fetchStep = new CalcStep("Fetching Events",
+					"Contacting USGS ComCat Webservice. This is occasionally slow. "
+					+ "If it fails, trying again often works.", new Runnable() {
+						
+						@Override
+						public void run() {
+							fetchEvents();
+						}
+					});
+			CalcStep postFetchPlotStep = new CalcStep("Plotting Events/Data", "...", new Runnable() {
+						
+						@Override
+						public void run() {
+							doPostFetchPlots();
+						}
+					});
+			CalcRunnable run = new CalcRunnable(progress, fetchStep, postFetchPlotStep);
+			new Thread(run).start();
+		} else if (param == loadCatalogButton) {
+			if (loadCatalogChooser == null)
+				loadCatalogChooser = new JFileChooser();
+			int ret = loadCatalogChooser.showOpenDialog(this);
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				final File file = loadCatalogChooser.getSelectedFile();
+				CalcStep loadStep = new CalcStep("Loading events", "...", new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							loadCatalog(file);
+						} catch (IOException e) {
+							ExceptionUtils.throwAsRuntimeException(e);
+						}
+					}
+				});
+				CalcStep postFetchPlotStep = new CalcStep("Plotting Events/Data", "...", new Runnable() {
+					
+					@Override
+					public void run() {
+						doPostFetchPlots();
+					}
+				});
+				CalcRunnable run = new CalcRunnable(progress, loadStep, postFetchPlotStep);
+				new Thread(run).start();
 			}
 		} else if (param == saveCatalogButton) {
 			if (saveCatalogChooser == null)
@@ -1326,31 +1750,36 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}
 		} else if (param == mcParam || param == magPrecisionParam) {
 			setEnableParamsPostComputeB(false);
-			bParam.setValue(null);
+			if (genericModel != null)
+				bParam.setValue(genericModel.get_b());
+			else
+				bParam.setValue(null);
+			bParam.getEditor().refreshParamEditor();
 		} else if (param == computeBButton) {
-			String title = "Error Computing b";
 			setEnableParamsPostComputeB(false);
-			try {
-				Double mc = mcParam.getValue();
-				validateParameter(mc, "Mc");
+			CalcStep bStep = new CalcStep("Computing b", "...", new Runnable() {
 				
-				double magPrecision = magPrecisionParam.getValue();
-				
-				ObsEqkRupList filteredRupList = aftershocks.getRupsAboveMag(mc);
-				double b = AftershockStatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
-				System.out.println("Num rups ≥ Mc = "+filteredRupList.size());
-				System.out.println("Computed b-value: "+b);
-				bParam.setValue(b);
-				bParam.getEditor().refreshParamEditor();
-				
-				setEnableParamsPostComputeB(true);
-				tabbedPane.setSelectedIndex(mag_num_tab_index);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
-		} else  if (param == bParam) {
+				@Override
+				public void run() {
+					Double mc = mcParam.getValue();
+					validateParameter(mc, "Mc");
+					
+					double magPrecision = magPrecisionParam.getValue();
+					
+					ObsEqkRupList filteredRupList = aftershocks.getRupsAboveMag(mc);
+					double b = AftershockStatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
+					System.out.println("Num rups ≥ Mc = "+filteredRupList.size());
+					System.out.println("Computed b-value: "+b);
+					bParam.setValue(b);
+					bParam.getEditor().refreshParamEditor();
+					
+					setEnableParamsPostComputeB(true);
+					tabbedPane.setSelectedIndex(mag_num_tab_index);
+				}
+			});
+			CalcRunnable run = new CalcRunnable(progress, bStep);
+			new Thread(run).start();
+		} else if (param == bParam) {
 			setEnableParamsPostAfershockParams(false);
 			if (tabbedPane.getTabCount() > mag_time_tab_index)
 				plotMFDs(aftershockMND, mmaxc);
@@ -1371,84 +1800,128 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		} else if (param == gParam || param == hParam || param == mCatParam) {
 			setEnableParamsPostAfershockParams(false);
 		} else if (param == computeAftershockParamsButton) {
-			String title = "Error Computing Aftershock Params";
 			setEnableParamsPostAfershockParams(false);
-			try {
-				Range aRange = aValRangeParam.getValue();
-				int aNum = aValNumParam.getValue();
-				validateRange(aRange, aNum, "a-value");
-				Range pRange = pValRangeParam.getValue();
-				int pNum = pValNumParam.getValue();
-				validateRange(pRange, pNum, "p-value");
-				Range cRange = cValRangeParam.getValue();
-				int cNum = cValNumParam.getValue();
-				validateRange(cRange, cNum, "c-value");
-				
-				Double mc = mcParam.getValue();
-				validateParameter(mc, "Mc");
-								
-				Double b = bParam.getValue();
-				validateParameter(b, "b-value");
-				
-				if (timeDepMcParam.getValue()) {
-					Double g = gParam.getValue();
-					validateParameter(g, "G");
+			CalcStep computeStep = new CalcStep("Computing Aftershock Params", "...", new Runnable() {
+
+				@Override
+				public void run() {
+					Range aRange = aValRangeParam.getValue();
+					int aNum = aValNumParam.getValue();
+					validateRange(aRange, aNum, "a-value");
+					Range pRange = pValRangeParam.getValue();
+					int pNum = pValNumParam.getValue();
+					validateRange(pRange, pNum, "p-value");
+					Range cRange = cValRangeParam.getValue();
+					int cNum = cValNumParam.getValue();
+					validateRange(cRange, cNum, "c-value");
 					
-					Double h = hParam.getValue();
-					validateParameter(h, "H");
+					Double mc = mcParam.getValue();
+					validateParameter(mc, "Mc");
+									
+					Double b = bParam.getValue();
+					validateParameter(b, "b-value");
 					
-					Double mCat = mCatParam.getValue();
-					validateParameter(mCat, "Mcat");
-					
-					model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mCat, g, h, b,
-							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
-							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
-							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
-							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
-				} else {
-					model = new ReasenbergJonesAftershockModel(mainshock, aftershocks, mc, b,
-							dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
-							aRange.getLowerBound(), aRange.getUpperBound(), aNum,
-							pRange.getLowerBound(), pRange.getUpperBound(), pNum,
-							cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+					if (timeDepMcParam.getValue()) {
+						Double g = gParam.getValue();
+						validateParameter(g, "G");
+						
+						Double h = hParam.getValue();
+						validateParameter(h, "H");
+						
+						Double mCat = mCatParam.getValue();
+						validateParameter(mCat, "Mcat");
+						
+						model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mCat, g, h, b,
+								dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+								aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+								pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+								cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+					} else {
+						model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mc, b,
+								dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+								aRange.getLowerBound(), aRange.getUpperBound(), aNum,
+								pRange.getLowerBound(), pRange.getUpperBound(), pNum,
+								cRange.getLowerBound(), cRange.getUpperBound(), cNum);
+					}
 				}
 				
-				aValParam.setValue(model.getMaxLikelihood_a());
-				aValParam.getEditor().refreshParamEditor();
-				pValParam.setValue(model.getMaxLikelihood_p());
-				pValParam.getEditor().refreshParamEditor();
-				cValParam.setValue(model.getMaxLikelihood_c());
-				cValParam.getEditor().refreshParamEditor();
+			});
+			CalcStep plotStep = new CalcStep("Plotting Model PDFs", "...", new Runnable() {
 				
-				plotPDFs();
-				setEnableParamsPostAfershockParams(true);
-				plotCumulativeNum();
-				tabbedPane.setSelectedIndex(pdf_tab_index);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
+				@Override
+				public void run() {
+					aValParam.setValue(model.getMaxLikelihood_a());
+					aValParam.getEditor().refreshParamEditor();
+					pValParam.setValue(model.getMaxLikelihood_p());
+					pValParam.getEditor().refreshParamEditor();
+					cValParam.setValue(model.getMaxLikelihood_c());
+					cValParam.getEditor().refreshParamEditor();
+					
+					bayesianModel = null;
+					if (genericModel != null) {
+						if (RJ_AftershockModel_Bayesian.areModelsEquivalent(model, genericModel))
+							bayesianModel = new RJ_AftershockModel_Bayesian(model, genericModel);
+						else
+							System.out.println("Could not create Bayesian model as sequence specifc and "
+									+ "generic models are not equivalent");
+					}
+					
+					plotPDFs();
+					setEnableParamsPostAfershockParams(true);
+					plotCumulativeNum();
+					tabbedPane.setSelectedIndex(pdf_tab_index);
+				}
+			}, true);
+			CalcRunnable run = new CalcRunnable(progress, computeStep, plotStep);
+			new Thread(run).start();
 		} else if (param == computeAftershockForecastButton) {
-			String title = "Error Computing Aftershock Forecast";
-			try {
-				// TODO make editbale?
-//				Double a = aValParam.getValue();
-//				validateParameter(a, "a-value");
-//				Double p = pValParam.getValue();
-//				validateParameter(p, "p-value");
-//				Double c = cValParam.getValue();
-//				validateParameter(c, "c-value");
+			CalcStep plotStep = new CalcStep("Computing/Plotting Forecast MFDs", "This can take some time...",
+					new Runnable() {
+
+						@Override
+						public void run() {
+							Stopwatch watch = Stopwatch.createStarted();
+							plotExpectedAfershockMFDs(progress);
+							watch.stop();
+							System.out.println(
+									"Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot aftershock MFDs");
+						}
 				
-				plotExpectedAfershockMFDs();
+			});
+			CalcStep tableStep = new CalcStep("Computing Forecast Table", "This can take some time...",
+					new Runnable() {
+
+						@Override
+						public void run() {
+							Stopwatch watch = Stopwatch.createStarted();
+							plotForecastTable(progress);
+							watch.stop();
+							System.out.println(
+									"Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute/plot forecast table");
+							tabbedPane.setSelectedIndex(aftershock_expected_index);
+						}
 				
-				tabbedPane.setSelectedIndex(aftershock_expected_index);
-			} catch (Exception e) {
-				e.printStackTrace();
-				String message = e.getMessage();
-				JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
-			}
+			});
+			CalcRunnable run = new CalcRunnable(progress, plotStep, tableStep);
+			new Thread(run).start();
 		}
+	}
+	
+	private void doPostFetchPlots() {
+		aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
+		mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
+		mcParam.setValue(mmaxc+0.5);
+		mcParam.getEditor().refreshParamEditor();
+		// plots
+		plotAftershockHypocs();
+		plotMFDs(aftershockMND, mmaxc);
+		plotMagVsTime();
+		plotCumulativeNum();
+		plotCatalogText();
+		
+		tabbedPane.setSelectedIndex(epicenter_tab_index);
+
+		setEnableParamsPostFetch(true);
 	}
 	
 	private static void validateParameter(Double value, String name) {
@@ -1479,21 +1952,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	}
 	
 	/**
-	 * disables all parameters that are dependent on the fetch step and beyond
+	 * disables/enables all parameters that are dependent on the fetch step and beyond
 	 */
 	private void setEnableParamsPostFetch(boolean enabled) {
 		saveCatalogButton.getEditor().setEnabled(enabled);
 		mcParam.getEditor().setEnabled(enabled);
 		magPrecisionParam.getEditor().setEnabled(enabled);
 		computeBButton.getEditor().setEnabled(enabled);
-		if (!enabled)
-			setEnableParamsPostComputeB(enabled);
-	}
-	
-	/**
-	 * disables all parameters that are dependent on the compute b step and beyond
-	 */
-	private void setEnableParamsPostComputeB(boolean enabled) {
+		
+		// these used to be enabled after computing b but we now allow the user to just use default B
 		bParam.getEditor().setEnabled(enabled);
 		aValRangeParam.getEditor().setEnabled(enabled);
 		aValNumParam.getEditor().setEnabled(enabled);
@@ -1506,6 +1973,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		gParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
 		hParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
 		mCatParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+		
+		if (!enabled)
+			setEnableParamsPostComputeB(enabled);
+	}
+	
+	/**
+	 * disables all parameters that are dependent on the compute b step and beyond
+	 */
+	private void setEnableParamsPostComputeB(boolean enabled) {
 		if (!enabled)
 			setEnableParamsPostAfershockParams(enabled);
 	}

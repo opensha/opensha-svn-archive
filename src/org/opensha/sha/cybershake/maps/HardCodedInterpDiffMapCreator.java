@@ -322,29 +322,42 @@ public class HardCodedInterpDiffMapCreator {
 			// 167: RotD50 2sec
 			// 162: RotD50 3sec
 			
+			int imTypeID = 86;
+			String imtLabel = "1sec SA";
+			Double customMax = 1.5d;
+			
+//			int imTypeID = 88;
+//			String imtLabel = "0.5sec SA";
+//			Double customMax = 3d;
+			
+//			int imTypeID = 94;
+//			String imtLabel = "0.2sec SA";
+//			Double customMax = 3d;
+			
 //			int imTypeID = 26; // 2 sec SA, GEOM
 //			String imtLabel = "2sec SA";
 //			Double customMax = 1.0;
 			
-			int imTypeID = 21; // 3 sec SA, GEOM
-			String imtLabel = "3sec SA";
-			Double customMax = 1.0;
+//			int imTypeID = 21; // 3 sec SA, GEOM
+//			String imtLabel = "3sec SA";
+//			Double customMax = 1.0;
 			
 //			int imTypeID = 11; // 5 sec SA, GEOM
 //			String imtLabel = "5sec SA";
-//			Double customMax = 0.8;
+//			Double customMax = 0.6;
 			
 //			int imTypeID = 1; // 10 sec SA, GEOM
 //			String imtLabel = "10sec SA";
-//			Double customMax = 0.6;
+//			Double customMax = 0.4;
 			
+			String prefix = "study_15_12";
 //			String prefix = "study_15_4";
 //			String prefix = "study_14_2";
 //			String prefix = "study_14_2_cvm_s426";
 //			String prefix = "study_14_2_cvm_s426";
 //			String prefix = "study_13_4_cvm_s4";
-			String prefix = "study_13_4_cvm_h119";
-			String compPrefix = prefix+"_vs_14_2";
+//			String prefix = "study_13_4_cvm_h119";
+			String compPrefix = prefix+"_vs_15_4";
 			File downloadDir = new File("/tmp/cs_maps");
 			
 //			Collection<Integer> siteTypes = CybershakeSite.getTypesExcept(
@@ -360,6 +373,10 @@ public class HardCodedInterpDiffMapCreator {
 //			double val = 0.2;
 			
 			/* the main dataset(s) that we're plotting */
+			
+			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(61);
 			
 			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
 //			int velModelID = 5;
@@ -393,11 +410,12 @@ public class HardCodedInterpDiffMapCreator {
 //			List<Integer> datasetIDs = Lists.newArrayList(26);
 			
 			// CVM-S4i26
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(29);
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(29);
 			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(35);
+//			List<Integer> compDatasetIDs = Lists.newArrayList(57);
 			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
@@ -454,17 +472,22 @@ public class HardCodedInterpDiffMapCreator {
 			String addr = getMap(logPlot, velModelID, datasetIDs, imTypeID, siteTypes, customMin, customMax,
 					isProbAt_IML, val, baseMapIMR, config, probGain,
 					customLabel);
+			if (prefix == null)
+				prefix = "dataset_"+Joiner.on("_").join(datasetIDs);
+			
+			String imtPrefix = imtLabel.replaceAll(" ", "_");
+			
+			prefix += "_"+imtPrefix;
 			
 			System.out.println("Map address: " + addr);
 			if (downloadDir != null) {
 				Preconditions.checkState(downloadDir.exists() || downloadDir.mkdir());
-				if (prefix == null)
-					prefix = "dataset_"+Joiner.on("_").join(datasetIDs);
 				
 				FileUtils.downloadURL(addr+"interpolated_marks.150.png", new File(downloadDir, prefix+"_marks.png"));
 				FileUtils.downloadURL(addr+"interpolated.150.png", new File(downloadDir, prefix+".png"));
 				if (downloadBasemap && baseMapIMR != null)
-					FileUtils.downloadURL(addr+"basemap.150.png", new File(downloadDir, baseMapIMR.getShortName()+".png"));
+					FileUtils.downloadURL(addr+"basemap.150.png", new File(downloadDir,
+							baseMapIMR.getShortName()+"_"+imtPrefix+".png"));
 			}
 			
 			if (compDatasetIDs != null && !compDatasetIDs.isEmpty()) {
@@ -479,6 +502,7 @@ public class HardCodedInterpDiffMapCreator {
 				if (downloadDir != null) {
 					if (compPrefix == null)
 						compPrefix = prefix+"_vs_"+Joiner.on("_").join(compDatasetIDs);
+					compPrefix += "_"+imtPrefix;
 					
 					FileUtils.downloadURL(diff+"interpolated_marks.150.png", new File(downloadDir, compPrefix+"_diff.png"));
 					FileUtils.downloadURL(ratio+"interpolated_marks.150.png", new File(downloadDir, compPrefix+"_ratio.png"));

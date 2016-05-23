@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 
 public class WardFileReader {
@@ -25,7 +26,7 @@ public class WardFileReader {
 	 * @return
 	 * @throws IOException
 	 */
-	public static List<RectangularElement> readGeometryFile(File geomFile) throws IOException {
+	public static List<SimulatorElement> readGeometryFile(File geomFile) throws IOException {
 		return readGeometryFile(new FileInputStream(geomFile));
 	}
 	
@@ -38,19 +39,19 @@ public class WardFileReader {
 	 * @return
 	 * @throws IOException
 	 */
-	public static List<RectangularElement> readGeometryFile(InputStream is) throws IOException {
+	public static List<SimulatorElement> readGeometryFile(InputStream is) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		
 		// now need to fill these lists
-		List<RectangularElement> rectElementsList = new ArrayList<RectangularElement>();
+		List<SimulatorElement> rectElementsList = new ArrayList<SimulatorElement>();
 		List<Vertex> vertexList = new ArrayList<Vertex>();
-		List<ArrayList<RectangularElement>> rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		List<ArrayList<SimulatorElement>> rectElementsListForSections = new ArrayList<ArrayList<SimulatorElement>> ();
 		List<ArrayList<Vertex>> vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		List<String> sectionNamesList = new ArrayList<String>();
 		List<Integer> faultIDs_ForSections = new ArrayList<Integer>();
 
 		int lastSectionID = -1;
-		ArrayList<RectangularElement> currentRectElForSection = null;
+		ArrayList<SimulatorElement> currentRectElForSection = null;
 		ArrayList<Vertex> currVertexListForSection = null;
 
 		int numVertices= 0; // to set vertexIDs
@@ -112,7 +113,7 @@ public class WardFileReader {
 			}
 			String sectionName = name;
 
-			RectangularElement rectElem = new RectangularElement(id, vertices, sectionName,faultID, sectionID, 
+			SimulatorElement rectElem = new RectangularElement(id, vertices, sectionName,faultID, sectionID, 
 					numAlongStrike, numDownDip, slipRate, Double.NaN, focalMechanism, true);
 
 			rectElementsList.add(rectElem);
@@ -120,7 +121,7 @@ public class WardFileReader {
 			// check if this is a new section
 			if(sectionID != lastSectionID) {
 				// encountered a new section
-				currentRectElForSection = new ArrayList<RectangularElement>();
+				currentRectElForSection = new ArrayList<SimulatorElement>();
 				currVertexListForSection = new ArrayList<Vertex>();
 				rectElementsListForSections.add(currentRectElForSection);
 				vertexListForSections.add(currVertexListForSection);

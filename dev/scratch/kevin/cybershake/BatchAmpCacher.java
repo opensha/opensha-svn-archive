@@ -32,7 +32,7 @@ public class BatchAmpCacher {
 			datasetID = 57;
 //			imTypeIDs = new int[] { 151, 146, 142, 136 };
 			imTypeIDs = new int[] { 151, 146, 144, 142, 138, 136 };
-			killTimerMins = 1;
+//			killTimerMins = 1;
 		} else if (args.length == 3 || args.length == 4) {
 			cacheDir = new File(args[0]);
 			Preconditions.checkState(cacheDir.exists() || cacheDir.mkdir());

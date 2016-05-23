@@ -2535,7 +2535,7 @@ if(mMax<5.85)
 			title += " for "+parSectName+" ("+parID+")";
 			gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, title);
 			File file = new File(dir, fname);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			try {
 //				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");

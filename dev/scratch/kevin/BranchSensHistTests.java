@@ -77,7 +77,7 @@ public class BranchSensHistTests {
 			gp.drawGraphPanel(spec, false, false, new Range(0d, 2d), new Range(0d, 1d));
 			
 			File file = new File(outputDir, categoryName+"_hists");
-			gp.getCartPanel().setSize(1000, 600);
+			gp.getChartPanel().setSize(1000, 600);
 			gp.saveAsPDF(file.getAbsolutePath() + ".pdf");
 			gp.saveAsPNG(file.getAbsolutePath() + ".png");
 		}

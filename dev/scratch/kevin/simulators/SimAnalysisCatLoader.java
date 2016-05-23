@@ -8,7 +8,7 @@ import java.util.List;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -79,7 +79,7 @@ public class SimAnalysisCatLoader {
 		events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
 	}
 	
-	public static List<RectangularElement> loadGeomOnly() throws IOException {
+	public static List<SimulatorElement> loadGeomOnly() throws IOException {
 		return new SimAnalysisCatLoader().tools.getElementsList();
 	}
 	
@@ -176,7 +176,7 @@ public class SimAnalysisCatLoader {
 		return events;
 	}
 	
-	public List<RectangularElement> getElements() {
+	public List<SimulatorElement> getElements() {
 		return tools.getElementsList();
 	}
 	

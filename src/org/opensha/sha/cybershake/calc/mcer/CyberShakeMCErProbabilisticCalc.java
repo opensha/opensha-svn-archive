@@ -53,7 +53,7 @@ public class CyberShakeMCErProbabilisticCalc extends
 			CybershakeIM match = null;
 			
 			// we multiply by 1000 and round for comparisons
-			double periodCompare = getCleanedCS_Period(period);
+			double periodCompare = PeakAmplitudesFromDB.getCleanedCS_Period(period);
 			
 			double closestPeriod = Double.NaN;
 			double closestDiff = Double.POSITIVE_INFINITY;
@@ -71,7 +71,7 @@ public class CyberShakeMCErProbabilisticCalc extends
 				}
 				
 				// need to round CS periods
-				double imPeriodCompare = getCleanedCS_Period(imPeriod);
+				double imPeriodCompare = PeakAmplitudesFromDB.getCleanedCS_Period(imPeriod);
 				
 				if ((float)periodCompare == (float)imPeriodCompare) {
 					match = im;
@@ -105,17 +105,6 @@ public class CyberShakeMCErProbabilisticCalc extends
 		}
 	}
 	
-	/**
-	 * CyberShake periods can be a little nasty, such as 3.00003. This will fix them.
-	 * @param period
-	 * @return
-	 */
-	static double getCleanedCS_Period(double period) {
-		if (period >= 1d)
-			period = Math.round(period*1000d)/1000d;
-		return period;
-	}
-
 	@Override
 	public Map<Double, DiscretizedFunc> calcHazardCurves(Site site, Collection<Double> periods) {
 		Preconditions.checkArgument(site instanceof CyberShakeSiteRun,
@@ -149,7 +138,7 @@ public class CyberShakeMCErProbabilisticCalc extends
 		
 		for (CybershakeIM im : ims) {
 			Integer curveID = imToCurveIDMap.get(im);
-			double period = getCleanedCS_Period(im.getVal());
+			double period = PeakAmplitudesFromDB.getCleanedCS_Period(im.getVal());
 			// chop of weirdness at, for example 3.00003
 			if (curveID == null) {
 				System.out.println("Skipping period "+period+" for site "+site.getName()+", no curve exists");

@@ -514,7 +514,7 @@ public class AverageFaultSystemSolution extends InversionFaultSystemSolution imp
 		
 		gp.drawGraphPanel("", "Event Rate Per Year", funcs, chars, "Paleosiesmic Constraint Fit");
 		File file = new File(dir, prefix+"_paleo_bounds");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}

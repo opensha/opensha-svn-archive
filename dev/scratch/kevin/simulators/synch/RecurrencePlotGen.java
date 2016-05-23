@@ -17,6 +17,7 @@ import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -32,6 +33,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotPreferences;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
@@ -43,7 +45,7 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
@@ -372,6 +374,15 @@ public class RecurrencePlotGen {
 	
 	private static XYZGraphPanel plotRotated(List<double[][]> datas, List<String> labels, DistanceMetric distCalc,
 			CPT cpt, int widthEach, double distSpacing, File outputFile) throws IOException {
+		return plotRotated(datas, labels, distCalc, cpt, widthEach, distSpacing, outputFile, null, null);
+	}
+	
+	private static final Color[] rup_colors = { Color.RED.darker(), Color.BLUE.darker(),
+			Color.GREEN.darker(), Color.BLACK, Color.ORANGE.darker() };
+	
+	private static XYZGraphPanel plotRotated(List<double[][]> datas, List<String> labels, DistanceMetric distCalc,
+			CPT cpt, int widthEach, double distSpacing, File outputFile,
+			List<List<int[]>> paths, List<String> idenNames) throws IOException {
 		// now rotate to pixel space
 		int shiftDist = widthEach / 2;
 		int overlapEach = 1; // 0.5 on each end\
@@ -482,6 +493,37 @@ public class RecurrencePlotGen {
 			spec.setCPTTickUnit(cptTickUnit);
 			
 			specs.add(spec);
+			
+			if (paths != null && paths.size() > d) {
+				// add actual ruptures
+				List<int[]> path = paths.get(d);
+				Preconditions.checkState(idenNames.size() == path.get(0).length);
+				List<ArbitrarilyDiscretizedFunc> rupFuncs = Lists.newArrayList();
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+				for (int i=0; i<idenNames.size(); i++) {
+					rupFuncs.add(new ArbitrarilyDiscretizedFunc());
+					chars.add(new PlotCurveCharacterstics(
+							PlotSymbol.FILLED_SQUARE, 5f, rup_colors[i % rup_colors.length]));
+				}
+				
+				double ySpacing = distSpacing*2.2;
+				double startY = xyz.getMinY() - ySpacing;
+				double endY = startY - ySpacing*(idenNames.size()+0.5);
+				
+				for (int i=0; i<path.size(); i++) {
+					int[] state = path.get(i);
+					double x = i*distSpacing + 0.5*distSpacing;
+					for (int j=0; j<state.length; j++) {
+						if (state[j] == 0) {
+							double y = startY - ySpacing*j;
+							rupFuncs.get(j).set(x, y);
+						}
+					}
+				}
+				yRanges.set(yRanges.size()-1, new Range(endY, xyz.getMaxY()));
+				spec.setXYElems(rupFuncs);
+				spec.setXYChars(chars);
+			}
 		}
 		
 		if (labels != null) {
@@ -561,10 +603,15 @@ public class RecurrencePlotGen {
 	}
 	
 	private static double[] calcMetrics(DistanceMetric distMetric, double threshold, CalcMetric[] calcMetrics,
-			List<int[]> fullPath, double distSpacing) {
+			List<int[]> fullPath) {
 		List<double[]> normPath = calcNormalizedPath(fullPath, calcMeanRIs(fullPath));
 		double[][] data = calcRotated(normPath, distMetric, calc_metrics_width);
 		
+		return calcMetrics(threshold, calcMetrics, data);
+	}
+	
+	private static double[] calcMetrics(double threshold, CalcMetric[] calcMetrics,
+			double[][] data) {
 		int middleIndex = data[0].length/2 + 1;
 		
 //		// now we need to get outside the main diagonal
@@ -698,6 +745,8 @@ public class RecurrencePlotGen {
 	}
 	
 	private static double calcLAM(double[][] data, int maxIndex, double threshold) {
+		if (data.length <= 1)
+			return Double.NaN;
 		long total = 0;
 		long onDiag = 0;
 		for (int r=0; r<data.length; r++) {
@@ -805,8 +854,9 @@ public class RecurrencePlotGen {
 		List<SynchFaults[]> faultSets = Lists.newArrayList();
 		
 		faultSets.add(new SynchFaults[] {SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CARRIZO});
+		faultSets.add(new SynchFaults[] {SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA, SynchFaults.SAN_JACINTO});
 		faultSets.add(new SynchFaults[] {SynchFaults.SAF_MOJAVE, SynchFaults.SAF_CARRIZO, SynchFaults.SAF_COACHELLA,
-				SynchFaults.SAF_CHOLAME, SynchFaults.SAN_JACINTO});
+				SynchFaults.SAN_JACINTO});
 		
 		/* UCERF3 Comparisons */
 		File ucerf3MainDir = new File("/home/kevin/Simulators/time_series/ucerf3_compare");
@@ -827,7 +877,8 @@ public class RecurrencePlotGen {
 		File[] etasCatalogs = {
 				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
-						+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin")
+//						+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin")
+						+ "2016_02_04-spontaneous-10000yr-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin")
 		};
 		
 		
@@ -847,7 +898,8 @@ public class RecurrencePlotGen {
 		
 		boolean[] poissons = { false, true };
 		
-		CalcMetric[] calcMetrics = CalcMetric.values();
+//		CalcMetric[] calcMetrics = CalcMetric.values();
+		CalcMetric[] calcMetrics = { CalcMetric.RR };
 		
 		List<Color> colors = Lists.newArrayList();
 		
@@ -877,14 +929,17 @@ public class RecurrencePlotGen {
 				}
 			}
 		}
+		if (etasCatalogs != null)
+			for (int i=0; i<etasCatalogs.length; i++)
+				colors.add(Color.ORANGE);
 		
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, null, true);
 		List<EQSIM_Event> events = loader.getEvents();
-		List<RectangularElement> elems = loader.getElements();
+		List<SimulatorElement> elems = loader.getElements();
 		
 		List<List<List<EQSIM_Event>>> ucerf3Catalogs = null;
 		FaultSystemSolution ucerf3Sol = null;
-		Map<Integer, RectangularElement> ucerf3Elems = null;
+		Map<Integer, SimulatorElement> ucerf3Elems = null;
 		int ucerf3StartYear = 2014;
 		int numUCERF3Catalogs = 5;
 		int totNumUCERF3 = 0;
@@ -950,6 +1005,9 @@ public class RecurrencePlotGen {
 		
 		for (SynchFaults[] faults : faultSets) {
 			List<RuptureIdentifier> rupIdens = SynchIdens.getIndividualFaults(7, 10d, faults);
+			List<String> idenNames = Lists.newArrayList();
+			for (RuptureIdentifier iden : rupIdens)
+				idenNames.add(iden.getName());
 			
 			String faultNames = Joiner.on("_").join(Lists.newArrayList(faults));
 			
@@ -966,13 +1024,16 @@ public class RecurrencePlotGen {
 			// for threshold histogram
 			Map<CalcMetric, List<double[]>> threshFracts = null;
 			Map<CalcMetric, List<EvenlyDiscretizedFunc>> threshFuncs = null;
+			Map<CalcMetric, List<EvenlyDiscretizedFunc>> metricTimeSeries = null;
 			List<String> threshNames = null;
 			if (doCalcMetrics) {
 				threshFracts = Maps.newHashMap();
 				threshFuncs = Maps.newHashMap();
+				metricTimeSeries = Maps.newHashMap();
 				for (CalcMetric metric : calcMetrics) {
 					threshFracts.put(metric, new ArrayList<double[]>());
 					threshFuncs.put(metric, new ArrayList<EvenlyDiscretizedFunc>());
+					metricTimeSeries.put(metric, new ArrayList<EvenlyDiscretizedFunc>());
 				}
 				threshNames = Lists.newArrayList();
 			}
@@ -1016,7 +1077,7 @@ public class RecurrencePlotGen {
 //				System.out.println("Path length: "+fullPath.size());
 				
 				if (plotRecurrence)
-					plotRecurrence(mySubDir, fullPath, distSpacing, normalize, metrics, thresholds);
+					plotRecurrence(mySubDir, fullPath, distSpacing, normalize, metrics, thresholds, rupIdens);
 				
 				if (!poisson && plotSpecialPosterFigs) {
 					// plot standard for poster
@@ -1061,12 +1122,13 @@ public class RecurrencePlotGen {
 				}
 				
 				if (doCalcMetrics) {
-					double[] result = calcMetrics(metrics.get(0), thresholds.get(0), calcMetrics, fullPath,
-							distSpacing);
+					List<double[]> normPath = calcNormalizedPath(fullPath, calcMeanRIs(fullPath));
+					double[][] data = calcRotated(normPath, metrics.get(0), calc_metrics_width);
+					
+					double[] result = calcMetrics(thresholds.get(0), calcMetrics, data);
 					List<double[]> funcResults = Lists.newArrayList();
 					for (int t=0; t<threshFuncXVals.size(); t++)
-						funcResults.add(calcMetrics(metrics.get(0), threshFuncXVals.getX(t), calcMetrics,
-								fullPath, distSpacing));
+						funcResults.add(calcMetrics(threshFuncXVals.getX(t), calcMetrics, data));
 					for (int m=0; m<calcMetrics.length; m++) {
 						threshFracts.get(calcMetrics[m]).add(new double[] {result[m]});
 						EvenlyDiscretizedFunc threshFunc = new EvenlyDiscretizedFunc(
@@ -1075,6 +1137,20 @@ public class RecurrencePlotGen {
 							threshFunc.set(t, funcResults.get(t)[m]);
 						threshFuncs.get(calcMetrics[m]).add(threshFunc);
 					}
+					
+					// now time series
+					EvenlyDiscretizedFunc[] timeSeries = new EvenlyDiscretizedFunc[calcMetrics.length];
+					for (int m=0; m<calcMetrics.length; m++) {
+						timeSeries[m] = new EvenlyDiscretizedFunc(0d, data.length, distSpacing);
+						metricTimeSeries.get(calcMetrics[m]).add(timeSeries[m]);
+					}
+					for (int i=0; i<data.length; i++) {
+						double[][] subData = {data[i]};
+						result = calcMetrics(thresholds.get(0), calcMetrics, subData);
+						for (int m=0; m<calcMetrics.length; m++)
+							timeSeries[m].set(i, result[m]);
+					}
+					
 					threshNames.add(name);
 				}
 			}
@@ -1091,14 +1167,18 @@ public class RecurrencePlotGen {
 					else
 						cov = null;
 					String name;
-					if (cov == null)
+					String comboName;
+					if (cov == null) {
 						if (i >= ucerf3Comparisons.length)
-							name = "UCERF3 ETAS";
+							name = "UCERF3-ETAS";
 						else
 							name = "UCERF3 Poisson";
-					else
+						comboName = name;
+					} else {
 						name = "UCERF3 "+cov.name().replaceAll("_", " ")
 							.replaceAll("VALUES", "COV");
+						comboName = "UCERF3-TD";
+					}
 					
 					File subDir;
 					if (cov == null)
@@ -1144,20 +1224,23 @@ public class RecurrencePlotGen {
 						for (int m=0; m<calcMetrics.length; m++)
 								threshFunc[m] = new EvenlyDiscretizedFunc(
 										threshFuncXVals.getMinX(), threshFuncXVals.size(), threshFuncXVals.getDelta());
+						double[][] data = null;
 						for (List<EQSIM_Event> catalog : catalogs) {
 							catalog = Lists.newArrayList(catalog);
 							if (preEvents != null)
 								catalog.addAll(0, preEvents);
 							List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing,
 									MarkovChainBuilder.getMatchesLists(catalog, ucerf3Idens), 0d, null);
-							results.add(calcMetrics(metrics.get(0), thresholds.get(0), calcMetrics, fullPath,
-									distSpacing));
+							List<double[]> normPath = calcNormalizedPath(fullPath, calcMeanRIs(fullPath));
+							double[][] myData = calcRotated(normPath, metrics.get(0), calc_metrics_width);
+							results.add(calcMetrics(thresholds.get(0), calcMetrics, myData));
 							for (int t=0; t<threshFuncXVals.size(); t++)  {
-								double[] ret = calcMetrics(metrics.get(0), threshFuncXVals.getX(t),calcMetrics,
-										fullPath, distSpacing);
+								double[] ret = calcMetrics(threshFuncXVals.getX(t), calcMetrics, myData);
 								for (int m=0; m<calcMetrics.length; m++)
 									threshFunc[m].add(t, catRate*ret[m]);
 							}
+							if (data == null)
+								data = myData;
 						}
 						for (int m=0; m<calcMetrics.length; m++) {
 							double[] fracts = new double[results.size()];
@@ -1166,6 +1249,20 @@ public class RecurrencePlotGen {
 							threshFracts.get(calcMetrics[m]).add(fracts);
 							threshFuncs.get(calcMetrics[m]).add(threshFunc[m]);
 						}
+						
+						// now time series
+						EvenlyDiscretizedFunc[] timeSeries = new EvenlyDiscretizedFunc[calcMetrics.length];
+						for (int m=0; m<calcMetrics.length; m++) {
+							timeSeries[m] = new EvenlyDiscretizedFunc(0d, data.length, distSpacing);
+							metricTimeSeries.get(calcMetrics[m]).add(timeSeries[m]);
+						}
+						for (int j=0; j<data.length; j++) {
+							double[][] subData = {data[j]};
+							double[] result = calcMetrics(thresholds.get(0), calcMetrics, subData);
+							for (int m=0; m<calcMetrics.length; m++)
+								timeSeries[m].set(i, result[m]);
+						}
+						
 						threshNames.add(name);
 					}
 					
@@ -1212,7 +1309,7 @@ public class RecurrencePlotGen {
 										|| i == ucerf3Comparisons.length)) {
 //						if (j == 0 && ucerf3ForComboSet.contains(cov)) {
 							comboPlotPaths.add(fullPath);
-							comboPlotNames.add(name);
+							comboPlotNames.add(comboName);
 						}
 						
 						if (doMomRateComparison) {
@@ -1238,17 +1335,17 @@ public class RecurrencePlotGen {
 						
 						if (plotRecurrence)
 							plotRecurrence(mySubDir, fullPath, distSpacing, normalize,
-								metrics, thresholds);
+								metrics, thresholds, rupIdens);
 					}
 					// now all catalogs combined
 					if (catalogPaths.size() > 1 && plotRecurrence) {
 						for (int m=0; m<metrics.size(); m++) {
 							if (m == 0)
 								plotMultiRecurrence(distSpacing, normalize, metrics.get(m), thresholds.get(m), catalogPaths,
-									catalogNames, catalogEventLists, catalogStartTimesForComparison, subDir);
+									catalogNames, catalogEventLists, catalogStartTimesForComparison, subDir, idenNames);
 							else
 								plotMultiRecurrence(distSpacing, normalize, metrics.get(m), thresholds.get(m), catalogPaths,
-										catalogNames, null, null, subDir);
+										catalogNames, null, null, subDir, idenNames);
 						}
 					}
 				}
@@ -1263,10 +1360,10 @@ public class RecurrencePlotGen {
 			for (int i=0; i<metrics.size() && plotRecurrence; i++) {
 				if (i == 0)
 					plotMultiRecurrence(distSpacing, normalize, metrics.get(i), thresholds.get(i), comboPlotPaths,
-						comboPlotNames, comboEventLists, comboStartTimesForComparison, comboDir);
+						comboPlotNames, comboEventLists, comboStartTimesForComparison, comboDir, idenNames);
 				else
 					plotMultiRecurrence(distSpacing, normalize, metrics.get(i), thresholds.get(i), comboPlotPaths,
-							comboPlotNames, null, null, comboDir);
+							comboPlotNames, null, null, comboDir, idenNames);
 			}
 			
 			// now thresh fract plots
@@ -1275,6 +1372,8 @@ public class RecurrencePlotGen {
 					plotMetricHists(metrics.get(0), thresholds.get(0), calcMetric,
 							threshFracts.get(calcMetric), threshNames, colors, comboDir);
 					plotMetricFuncs(metrics.get(0), calcMetric, threshFuncs.get(calcMetric),
+							threshNames, colors, comboDir);
+					plotMetricTimeSeries(metrics.get(0), calcMetric, metricTimeSeries.get(calcMetric), thresholds.get(0),
 							threshNames, colors, comboDir);
 				}
 			}
@@ -1302,7 +1401,8 @@ public class RecurrencePlotGen {
 				
 				double weight = 1d/fract.length;
 				for (double val : fract)
-					hist.add(val, weight);
+					if (Doubles.isFinite(val))
+						hist.add(val, weight);
 				
 				maxX = Math.max(maxX, hist.getMaxX()+0.5*histDelta);
 				
@@ -1341,7 +1441,7 @@ public class RecurrencePlotGen {
 		gp.setBackgroundColor(Color.WHITE);
 		
 		gp.drawGraphPanel(spec, false, false, new Range(0, maxX), new Range(0, 1));
-		gp.getCartPanel().setSize(800, 700);
+		gp.getChartPanel().setSize(800, 700);
 		String prefix = distMetric.name()+"_"+calcMetric.name()+"_hist";
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
@@ -1371,10 +1471,41 @@ public class RecurrencePlotGen {
 		
 		EvenlyDiscretizedFunc func0 = funcs.get(0);
 		gp.drawGraphPanel(spec, false, false, new Range(func0.getMinX(), func0.getMaxX()), null);
-		gp.getCartPanel().setSize(800, 700);
+		gp.getChartPanel().setSize(800, 700);
 		String prefix = metric.name()+"_"+calcMetric.name()+"_func";
 		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+	}
+	
+	private static void plotMetricTimeSeries(DistanceMetric metric, CalcMetric calcMetric, List<EvenlyDiscretizedFunc> funcs,
+			double threshold, List<String> names, List<Color> colors, File outputDir) throws IOException {
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		for (int i=0; i<funcs.size(); i++) {
+			funcs.get(i).setName(names.get(i));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, colors.get(i)));
+		}
+		
+		Collections.reverse(funcs);
+		Collections.reverse(chars);
+		
+		String title = calcMetric.toString()+" Time Series, "+metric.name()+" ≤ "+(float)threshold;
+		PlotSpec spec = new PlotSpec(funcs, chars, title, "Years", calcMetric.toString());
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setBackgroundColor(Color.WHITE);
+		
+		EvenlyDiscretizedFunc func0 = funcs.get(0);
+		gp.drawGraphPanel(spec, false, false, new Range(func0.getMinX(), func0.getMaxX()), null);
+		gp.getChartPanel().setSize(800, 700);
+		String prefix = metric.name()+"_"+calcMetric.name()+"_ts";
+		gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
 	/**
@@ -1431,7 +1562,8 @@ public class RecurrencePlotGen {
 
 	private static void plotMultiRecurrence(double distSpacing, boolean normalize, DistanceMetric metric,
 			double threshold, List<List<int[]>> comboPlotPaths, List<String> comboPlotNames,
-			List<List<EQSIM_Event>> catalogs, List<Double> startTimesForComparison, File comboDir) throws IOException {
+			List<List<EQSIM_Event>> catalogs, List<Double> startTimesForComparison, File comboDir,
+			List<String> idenNames) throws IOException {
 		int startIndex = 0;
 		int rotatedEndIndex = 500;
 		for (List<int[]> fullPath : comboPlotPaths)
@@ -1461,7 +1593,7 @@ public class RecurrencePlotGen {
 		
 		String name = "rp_"+metric.name()+"_hybrid_"+threshStr+"_rotated.png";
 		XYZGraphPanel xyzGP = plotRotated(datas, comboPlotNames, metric, cpt, rotated_pixel_width, distSpacing,
-				new File(comboDir, name));
+				new File(comboDir, name), comboPlotPaths, idenNames);
 		
 		if (catalogs != null) {
 			int windowLen = 25;
@@ -1515,7 +1647,7 @@ public class RecurrencePlotGen {
 			
 			List<Range> xRanges = Lists.newArrayList(xRange);
 			gp.drawGraphPanel(specs, false, true, xRanges, yRanges);
-			gp.getCartPanel().setSize(xyzGP.getChartPanel().getWidth(), (int)(0.6*xyzGP.getChartPanel().getHeight()));
+			gp.getChartPanel().setSize(xyzGP.getChartPanel().getWidth(), (int)(0.6*xyzGP.getChartPanel().getHeight()));
 			gp.saveAsPNG(new File(comboDir, "mom_rate_comparison.png").getAbsolutePath());
 			gp.saveAsPDF(new File(comboDir, "mom_rate_comparison.pdf").getAbsolutePath());
 		}
@@ -1602,11 +1734,12 @@ public class RecurrencePlotGen {
 		
 		populateDefaultMetrics(metrics, thresholds, normalize);
 		
-		plotRecurrence(outputDir, fullPath, distSpacing, normalize, metrics, thresholds);
+		plotRecurrence(outputDir, fullPath, distSpacing, normalize, metrics, thresholds, null);
 	}
 
 	public static void plotRecurrence(File outputDir, List<int[]> fullPath, double distSpacing,
-			boolean normalize, List<DistanceMetric> metrics, List<Double> thresholds) throws IOException {
+			boolean normalize, List<DistanceMetric> metrics, List<Double> thresholds,
+			List<RuptureIdentifier> idens) throws IOException {
 //		File rotatedDir = new File(outputDir, "rotated");
 //		Preconditions.checkState(rotatedDir.exists() || rotatedDir.mkdir());
 		
@@ -1686,6 +1819,21 @@ public class RecurrencePlotGen {
 			
 			String name = "rp_"+metric.name()+"_hybrid_"+threshStr+"_rotated.png";
 			plotHybridRotated(rotatedData, metric, rotated_pixel_width, threshold, maxZ, distSpacing, new File(outputDir, name));
+			
+			// now with annotations
+			if (idens != null) {
+				List<String> idenNames = Lists.newArrayList();
+				for (RuptureIdentifier iden : idens)
+					idenNames.add(iden.getName());
+				CPT cpt = getHybridCPT(threshold, maxZ);
+				List<List<int[]>> paths = Lists.newArrayList();
+				paths.add(fullPath);
+				List<double[][]> datas = Lists.newArrayList();
+				datas.add(rotatedData);
+				name = "rp_"+metric.name()+"_hybrid_"+threshStr+"_rotated_with_events.png";
+				plotRotated(datas, null, metric, cpt, rotated_pixel_width, distSpacing,
+						new File(outputDir, name), paths, idenNames);
+			}
 		}
 	}
 

@@ -12,7 +12,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.function.UncertainArbDiscDataset;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
@@ -22,9 +26,11 @@ import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
+import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
@@ -58,20 +64,23 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.google.common.primitives.Doubles;
 
 public class HazardDecompositionPlotter {
 	
 	public static void main(String[] args) throws IOException {
-		List<Integer> runIDs = Lists.newArrayList(2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
-				2660, 2703, 3504, 2988, 2965, 3007);
-//		List<Integer> runIDs = Lists.newArrayList(2988, 2965, 3007);
+//		List<Integer> runIDs = Lists.newArrayList(2657, 3037, 2722, 3022, 3030, 3027, 2636, 2638,
+//				2660, 2703, 3504, 2988, 2965, 3007);
+		List<Integer> runIDs = Lists.newArrayList(3877);
 		File baseDir = new File("/home/kevin/CyberShake/MCER");
-		File outputDir = new File(baseDir, "hazard_decomposition");
+		File outputDir = new File(baseDir, "hazard_decomposition_2");
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		File cacheDir = new File(baseDir, ".amps_cache");
 		if (!cacheDir.exists())
 			cacheDir.mkdir();
+		
+		double uhsVal = Double.NaN; // can be set to 4e-4 for 2% in 50 instead of RTGM
 		
 		// NGA2 without Idriss
 		CachedGMPE gmpe = new CachedGMPE();
@@ -135,21 +144,21 @@ public class HazardDecompositionPlotter {
 			
 			System.out.println("Doing CyberShake for "+site.getName());
 			doCyberShake(csCalc, site2db, run, csSite, imType, xVals, outputDir, numToInclude,
-					xAxisLabel, prefix+"_CyberShake", erf, combSourceMap);
+					xAxisLabel, prefix+"_CyberShake", erf, combSourceMap, uhsVal);
 			
 			System.out.println("Doing GMPE for "+site.getName());
 			doGMPE(calc, site, gmpe, erf, xVals, outputDir, numToInclude,
-					xAxisLabel, prefix+"_NGA2", imType, combSourceMap);
+					xAxisLabel, prefix+"_NGA2", imType, combSourceMap, uhsVal);
 		}
 		
 		db.destroy();
 		System.exit(0);
 	}
 	
-	private static void doGMPE(HazardCurveCalculator calc, Site site, ScalarIMR imr,
-			AbstractERF erf, DiscretizedFunc xVals, File outputDir, int numToInclude,
+	public static void doGMPE(HazardCurveCalculator calc, Site site, ScalarIMR imr,
+			ERF erf, DiscretizedFunc xVals, File outputDir, int numToInclude,
 			String xAxisLabel, String prefix, CybershakeIM imType,
-			Map<String, List<Integer>> combSourceMap) throws IOException {
+			Map<String, List<Integer>> combSourceMap, double uhsVal) throws IOException {
 		DiscretizedFunc logXVals = HazardCurveSetCalculator.getLogFunction(xVals.deepClone());
 		DiscretizedFunc totalHazard = calc.getAnnualizedRates(
 				HazardCurveSetCalculator.unLogFunction(xVals,
@@ -160,7 +169,12 @@ public class HazardDecompositionPlotter {
 		List<DiscretizedFunc> sourceFuncs = Lists.newArrayList();
 		List<Double> sourceRTGMContributions = Lists.newArrayList();
 		
-		double totRTGM = calcRTGM(totalHazard);
+		double totRTGM = calcVal(totalHazard, uhsVal);
+		
+		double sumContributions = 0d;
+		
+		boolean origScalePrint = HazardCurvePlotter.SCALE_PRINT_SUCCESS;
+		HazardCurvePlotter.SCALE_PRINT_SUCCESS = false;
 		
 		for (String sourceName : combSourceMap.keySet()) {
 			List<Integer> ids = combSourceMap.get(sourceName);
@@ -198,15 +212,20 @@ public class HazardDecompositionPlotter {
 							calc.getHazardCurve(logXVals.deepClone(), site, imr, subset)), 1d);
 			srcWithoutHazard = HazardCurvePlotter.getScaledCurveForComponent(imr, imType, srcWithoutHazard);
 			
-			double withoutRTGM = calcRTGM(srcWithoutHazard);
+			double withoutRTGM = calcVal(srcWithoutHazard, uhsVal);
 			double deltaRTGM = totRTGM - withoutRTGM;
 //			Preconditions.checkState(deltaRTGM >= 0);
 			sourceRTGMContributions.add(deltaRTGM);
+			
+			sumContributions += deltaRTGM/totRTGM;
 			
 			srcHazard.setName(sourceName);
 			srcHazard.setInfo("RTGM Contribution: "+(float)totRTGM+" - "+(float)withoutRTGM+" = "+(float)deltaRTGM);
 //			System.out.println(source.getName()+" "+srcHazard.getInfo());
 		}
+		HazardCurvePlotter.SCALE_PRINT_SUCCESS = origScalePrint;
+		
+		System.out.println("Total fractional GMPE contribution: "+sumContributions);
 		
 //		System.out.println("Num above zero: "+numAboveZero);
 		
@@ -215,7 +234,7 @@ public class HazardDecompositionPlotter {
 		Collections.sort(pairings);
 		Collections.reverse(pairings);
 		
-		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<XY_DataSet> funcs = Lists.newArrayList();
 		List<Color> colors = GraphWindow.generateDefaultColors();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
@@ -224,7 +243,19 @@ public class HazardDecompositionPlotter {
 		
 		for (int i=0; i<numToInclude; i++) {
 			funcs.add(pairings.get(i).getData());
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, colors.get((funcs.size()-1) % colors.size())));
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get((funcs.size()-1) % colors.size())));
+		}
+		
+		Range xRange = new Range(3e-3, 3e0);
+		Range yRange = new Range(5e-7, 5e-1);
+		
+		if (uhsVal > 0) {
+			double x = totalHazard.getFirstInterpolatedX_inLogXLogYDomain(uhsVal);
+			DefaultXY_DataSet xy = new DefaultXY_DataSet();
+			xy.set(x, yRange.getLowerBound());
+			xy.set(x, yRange.getUpperBound());
+			funcs.add(xy);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
 		}
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, site.getName()+" NGA2 Hazard Decomposition",
@@ -238,8 +269,8 @@ public class HazardDecompositionPlotter {
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
 		
-		gp.drawGraphPanel(spec, true, true, new Range(3e-3, 3e0), new Range(5e-7, 5e-1));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.drawGraphPanel(spec, true, true, xRange, yRange);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 		
 		gp.validate();
@@ -250,27 +281,115 @@ public class HazardDecompositionPlotter {
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 	
-	private static void doCyberShake(HazardCurveComputation calc, SiteInfo2DB site2db,
+	public static void doCyberShake(HazardCurveComputation calc, SiteInfo2DB site2db,
 			CybershakeRun run, CybershakeSite site, CybershakeIM imType, DiscretizedFunc xVals,
-			File outputDir, int numToInclude, String xAxisLabel, String prefix, AbstractERF erf,
-			Map<String, List<Integer>> combSourceMap) throws IOException {
+			File outputDir, int numToInclude, String xAxisLabel, String prefix, ERF erf,
+			Map<String, List<Integer>> combSourceMap, double uhsVal) throws IOException {
+		
+		List<DecompositionResult> results = calcFaultContributions(
+				calc, site2db, run, site, imType, xVals, erf, combSourceMap, uhsVal);
+		
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(results.get(0).curveAllFaults);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get((funcs.size()-1) % colors.size())));
+		
+		for (int i=0; i<numToInclude && i<results.size(); i++) {
+			funcs.add(results.get(i).curveFaultOnly);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get((funcs.size()-1) % colors.size())));
+		}
+		
+		Range xRange = new Range(3e-3, 3e0);
+		Range yRange = new Range(5e-7, 5e-1);
+		
+		if (uhsVal > 0) {
+			double x = results.get(0).curveAllFaults.getFirstInterpolatedX_inLogXLogYDomain(uhsVal);
+			DefaultXY_DataSet xy = new DefaultXY_DataSet();
+			xy.set(x, yRange.getLowerBound());
+			xy.set(x, yRange.getUpperBound());
+			funcs.add(xy);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.GRAY));
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, site.short_name+" CyberShake Hazard Decomposition",
+				xAxisLabel, "Annual Rate Of Exceedance");
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
+//		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		
+		gp.drawGraphPanel(spec, true, true, xRange, yRange);
+		gp.getChartPanel().setSize(1000, 800);
+		gp.setVisible(true);
+		
+		gp.validate();
+		gp.repaint();
+		
+		File file = new File(outputDir, prefix);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+	}
+	
+	public static class DecompositionResult implements Comparable<DecompositionResult> {
+		final String faultName;
+		final double hazardDelta;
+		final double hazardWith;
+		final double hazardWithout;
+		final DiscretizedFunc curveFaultOnly;
+		final DiscretizedFunc curveAllFaults;
+		
+		public DecompositionResult(String faultName, double hazardDelta, double hazardWith, double hazardWithout,
+				DiscretizedFunc curveFaultOnly, DiscretizedFunc curveAllFaults) {
+			super();
+			this.faultName = faultName;
+			this.hazardDelta = hazardDelta;
+			this.hazardWith = hazardWith;
+			this.hazardWithout = hazardWithout;
+			this.curveFaultOnly = curveFaultOnly;
+			this.curveAllFaults = curveAllFaults;
+		}
+
+		@Override
+		public int compareTo(DecompositionResult o) {
+			return Double.compare(o.hazardDelta, hazardDelta);
+		}
+		
+		
+	}
+	
+	static List<DecompositionResult> calcFaultContributions(HazardCurveComputation calc, SiteInfo2DB site2db,
+			CybershakeRun run, CybershakeSite site, CybershakeIM imType, DiscretizedFunc xVals, ERF erf,
+			Map<String, List<Integer>> combSourceMap, double uhsVal) {
+		List<DecompositionResult> results = Lists.newArrayList();
+		
 		List<Double> xValsList = Lists.newArrayList();
 		for (Point2D pt : xVals)
 			xValsList.add(pt.getX());
 		
 		HazardCurveCalculator gmpeCalc = new HazardCurveCalculator();
 		
+		List<Integer> allSoucreIDs = site2db.getSrcIdsForSite(run.getSiteID(), run.getERFID());
+		
 		DiscretizedFunc totalHazard = gmpeCalc.getAnnualizedRates(
-				calc.computeHazardCurve(xValsList, run, imType), 1d);
+				calc.computeHazardCurve(xValsList, run, imType, allSoucreIDs), 1d);
 		totalHazard.setName("Total Hazard");
 		
 		List<DiscretizedFunc> sourceFuncs = Lists.newArrayList();
 		List<Double> sourceRTGMContributions = Lists.newArrayList();
 		
-		double totRTGM = calcRTGM(totalHazard);
+		double totRTGM = calcVal(totalHazard, uhsVal);
+		Preconditions.checkState(Doubles.isFinite(totRTGM));
 		
 		HashSet<Integer> sourceSet = new HashSet<Integer>(
-				site2db.getSrcIdsForSite(run.getSiteID(), run.getERFID()));
+				allSoucreIDs);
+		
+		HashSet<Integer> sourcesConsidered = new HashSet<Integer>();
 		
 		for (String sourceName : combSourceMap.keySet()) {
 			List<Integer> ids = combSourceMap.get(sourceName);
@@ -279,6 +398,8 @@ public class HazardDecompositionPlotter {
 				if (!sourceSet.contains(sourceID))
 					continue;
 				withinIDs.add(sourceID);
+				Preconditions.checkState(!sourcesConsidered.contains(sourceID));
+				sourcesConsidered.add(sourceID);
 			}
 			if (withinIDs.isEmpty())
 				continue;
@@ -297,59 +418,34 @@ public class HazardDecompositionPlotter {
 			DiscretizedFunc srcWithoutHazard = gmpeCalc.getAnnualizedRates(
 					calc.computeHazardCurve(xValsList, run, imType, sourcesWithout), 1d);
 			
-			double withoutRTGM = calcRTGM(srcWithoutHazard);
+			double withoutRTGM = calcVal(srcWithoutHazard, uhsVal);
 			double deltaRTGM = totRTGM - withoutRTGM;
+//			double deltaRTGM = calcRTGM(srcHazard);
+//			if (Double.isNaN(deltaRTGM))
+//				deltaRTGM = 0d;
+//			double withoutRTGM = totRTGM - deltaRTGM;
+			Preconditions.checkState(Doubles.isFinite(deltaRTGM));
+			Preconditions.checkState(Doubles.isFinite(withoutRTGM));
 			Preconditions.checkState(deltaRTGM >= 0);
 			sourceRTGMContributions.add(deltaRTGM);
 			
 			srcHazard.setName(sourceName);
 			srcHazard.setInfo("CS RTGM Contribution: "+(float)totRTGM+" - "+(float)withoutRTGM+" = "+(float)deltaRTGM);
 //			System.out.println(source.getName()+" "+srcHazard.getInfo());
+			
+			results.add(new DecompositionResult(sourceName, deltaRTGM, totRTGM, withoutRTGM, srcHazard, totalHazard));
 		}
 		
-//		System.out.println("Num above zero: "+numAboveZero);
+		System.out.println(sourcesConsidered.size()+"/"+sourceSet.size()+" considered");
 		
-		List<ComparablePairing<Double, DiscretizedFunc>> pairings =
-				ComparablePairing.build(sourceRTGMContributions, sourceFuncs);
-		Collections.sort(pairings);
-		Collections.reverse(pairings);
+		Collections.sort(results);
 		
-		List<DiscretizedFunc> funcs = Lists.newArrayList();
-		List<Color> colors = GraphWindow.generateDefaultColors();
-		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
-		
-		funcs.add(totalHazard);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.get((funcs.size()-1) % colors.size())));
-		
-		for (int i=0; i<numToInclude; i++) {
-			funcs.add(pairings.get(i).getData());
-			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, colors.get((funcs.size()-1) % colors.size())));
-		}
-		
-		PlotSpec spec = new PlotSpec(funcs, chars, site.short_name+" CyberShake Hazard Decomposition",
-				xAxisLabel, "Annual Rate Of Exceedance");
-		spec.setLegendVisible(true);
-		
-		HeadlessGraphPanel gp = new HeadlessGraphPanel();
-		gp.setBackgroundColor(Color.WHITE);
-//		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
-		gp.setTickLabelFontSize(18);
-		gp.setAxisLabelFontSize(20);
-		gp.setPlotLabelFontSize(21);
-		
-		gp.drawGraphPanel(spec, true, true, new Range(3e-3, 3e0), new Range(5e-7, 5e-1));
-		gp.getCartPanel().setSize(1000, 800);
-		gp.setVisible(true);
-		
-		gp.validate();
-		gp.repaint();
-		
-		File file = new File(outputDir, prefix);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		return results;
 	}
 	
-	private static double calcRTGM(DiscretizedFunc curve) {
+	private static double calcVal(DiscretizedFunc curve, double uhsVal) {
+		if (uhsVal > 0)
+			return HazardDataSetLoader.getCurveVal(curve, false, uhsVal);
 		RTGM calc = RTGM.create(curve, null, null);
 		try {
 			calc.call();
@@ -440,7 +536,7 @@ public class HazardDecompositionPlotter {
 		
 	}
 	
-	private static Map<String, List<Integer>> getCombinedSources(ERF erf) {
+	public static Map<String, List<Integer>> getCombinedSources(ERF erf) {
 		int commonPrefix = 8; // will pass if common prefix this long 
 		int distance = 3; // or if lev distance this little and prefix as long as below
 		int distPrefix = 6;
@@ -505,6 +601,155 @@ public class HazardDecompositionPlotter {
 		if (name.toLowerCase().startsWith("western"))
 			name = name.substring("western".length()).trim();
 		return name;
+	}
+	
+	public static void writeBarChart(HazardCurveComputation calc, SiteInfo2DB site2db,
+			CybershakeRun run, CybershakeSite site, List<CybershakeIM> imTypes, CybershakeIM imForOrder,
+			DiscretizedFunc xVals, File outputDir, int numToInclude, String prefix,
+			ERF erf, Map<String, List<Integer>> combSourceMap, double uhsVal) throws IOException {
+		Preconditions.checkState(imTypes.contains(imForOrder));
+		
+		// first do it for im for ordering
+		List<DecompositionResult> resultsForOrder = calcFaultContributions(
+				calc, site2db, run, site, imForOrder, xVals, erf, combSourceMap, uhsVal);
+		if (numToInclude > resultsForOrder.size())
+			numToInclude = resultsForOrder.size();
+		resultsForOrder = resultsForOrder.subList(0, numToInclude);
+		
+		double sumContrib = 0;
+		for (DecompositionResult result : resultsForOrder) {
+			double val = result.hazardDelta/result.hazardWith;
+			System.out.println(result.faultName+": delta="+result.hazardDelta+", with="+result.hazardWith
+					+", without="+result.hazardWithout+", contrib="+val);
+			sumContrib += val;
+		}
+		System.out.println("Sum of ref contributions: "+sumContrib);
+//		System.exit(0);
+		
+		Map<String, List<Integer>> myFaultsMap = Maps.newHashMap();
+		HashSet<Integer> sourcesIncluded = new HashSet<Integer>();
+		for (DecompositionResult result : resultsForOrder) {
+			myFaultsMap.put(result.faultName, combSourceMap.get(result.faultName));
+			sourcesIncluded.addAll(combSourceMap.get(result.faultName));
+		}
+		List<Integer> otherSources = Lists.newArrayList();
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++)
+			if (!sourcesIncluded.contains(sourceID))
+				otherSources.add(sourceID);
+		myFaultsMap.put("Other Faults", otherSources);
+		Map<String, List<Integer>> additional = Maps.newHashMap();
+		additional.put("Other Faults", otherSources);
+		resultsForOrder.add(calcFaultContributions(
+				calc, site2db, run, site, imForOrder, xVals, erf, additional, uhsVal).get(0));
+		
+		Map<String, DiscretizedFunc> faultContribFuncs = Maps.newHashMap();
+		for (DecompositionResult result : resultsForOrder) {
+			DiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+			func.setName(result.faultName);
+			faultContribFuncs.put(result.faultName, func);
+		}
+		
+		for (int i=0; i<imTypes.size(); i++) {
+			CybershakeIM im = imTypes.get(i);
+			List<DecompositionResult> results;
+//			if (im.equals(imForOrder))
+//				results = resultsForOrder;
+//			else
+				results = calcFaultContributions(calc, site2db, run, site, imTypes.get(i), xVals, erf, myFaultsMap, uhsVal);
+			
+			for (DecompositionResult result : results)
+				faultContribFuncs.get(result.faultName).set(im.getVal(), result.hazardDelta/result.hazardWith);
+//				faultContribFuncs.get(result.faultName).set(im.getVal(), result.hazardDelta);
+		}
+		
+		// now combine
+		List<DiscretizedFunc> relativeFuncs = Lists.newArrayList();
+		
+		for (int j=0; j<resultsForOrder.size(); j++) {
+			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+			func.setName(resultsForOrder.get(j).faultName);
+			relativeFuncs.add(func);
+		}
+//		ArbitrarilyDiscretizedFunc otherRelative = new ArbitrarilyDiscretizedFunc();
+//		otherRelative.setName("Other Faults");
+//		relativeFuncs.add(otherRelative); // for all others
+		
+		for (int i=0; i<imTypes.size(); i++) {
+			CybershakeIM im = imTypes.get(i);
+			
+			double val = 0d;
+			for (int j=0; j<resultsForOrder.size(); j++) {
+				String faultName = resultsForOrder.get(j).faultName;
+				
+				double myRelative = faultContribFuncs.get(faultName).getY(im.getVal());
+				val += myRelative;
+			}
+			
+			for (int j=0; j<resultsForOrder.size(); j++) {
+				String faultName = resultsForOrder.get(j).faultName;
+				
+				double myRelative = faultContribFuncs.get(faultName).getY(im.getVal());
+				relativeFuncs.get(j).set(im.getVal(), val);
+				val -= myRelative;
+			}
+//			Preconditions.checkState(val >= 0, val);
+//			relativeFuncs.get(relativeFuncs.size()-1).set(im.getVal(), val);
+		}
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		
+		Range xRange = null;
+		
+		for (int i=0; i<relativeFuncs.size(); i++) {
+			DiscretizedFunc func = relativeFuncs.get(i);
+			DiscretizedFunc funcAfter;
+			if (i == relativeFuncs.size()-1) {
+				funcAfter = new ArbitrarilyDiscretizedFunc();
+				for (CybershakeIM im : imTypes)
+					funcAfter.set(im.getVal(), 0d);
+			} else {
+				funcAfter = relativeFuncs.get(i+1);
+			}
+			
+			if (xRange == null)
+				xRange = new Range(func.getMinX(), func.getMaxX());
+			
+			UncertainArbDiscDataset rangeFunc = new UncertainArbDiscDataset(func, funcAfter, func);
+			rangeFunc.setName(func.getName());
+			
+			funcs.add(rangeFunc);
+			Color c = colors.get((funcs.size()-1) % colors.size());
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SHADED_UNCERTAIN, 1f, c));
+			
+			func.setName(null);
+			funcs.add(func);
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.FILLED_CIRCLE, 4f, c));
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, site.short_name+" CyberShake MCEr Fault Impact",
+				"Period (s)", "RTGM Fault Exclusion Impact");
+		spec.setLegendVisible(true);
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
+//		gp.setRenderingOrder(DatasetRenderingOrder.REVERSE);
+		gp.setTickLabelFontSize(18);
+		gp.setAxisLabelFontSize(20);
+		gp.setPlotLabelFontSize(21);
+		gp.setLegendFontSize(18);
+		
+		gp.drawGraphPanel(spec, true, false, xRange, null);
+		gp.getChartPanel().setSize(1000, 800);
+		gp.setVisible(true);
+		
+		gp.validate();
+		gp.repaint();
+		
+		File file = new File(outputDir, prefix);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}
 
 }

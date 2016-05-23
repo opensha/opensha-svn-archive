@@ -89,7 +89,7 @@ public class LegendTests {
 		gp.drawGraphPanel(specs, false, false, null, null);
 
 		File file = new File("/tmp/legend_test.png");
-		gp.getCartPanel().setSize(1000, 1000);
+		gp.getChartPanel().setSize(1000, 1000);
 		gp.saveAsPNG(file.getAbsolutePath());
 	}
 

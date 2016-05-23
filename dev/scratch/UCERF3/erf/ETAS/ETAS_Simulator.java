@@ -203,8 +203,6 @@ public class ETAS_Simulator {
 			ETAS_ParameterList etasParams)
 					throws IOException {
 		
-		boolean APPLY_GR_CORR_TO_GRIDDED_SEIS = false;
-		
 		// Overide to Poisson if needed
 		if (etasParams.getU3ETAS_ProbModel() == U3ETAS_ProbabilityModelOptions.POISSON) {
 			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
@@ -212,6 +210,7 @@ public class ETAS_Simulator {
 		}
 		
 		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
+		boolean generateDiagnosticsForScenario = false;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -276,7 +275,8 @@ public class ETAS_Simulator {
 		ArrayList<ETAS_EqkRupture> obsEqkRuptureList = new ArrayList<ETAS_EqkRupture>();
 		
 		if(histQkList != null) {
-			int id=0;
+			// now start at 1, zero is reserved for scenarios if included
+			int id=1;
 			for(ObsEqkRupture qk : histQkList) {
 				Location hyp = qk.getHypocenterLocation();
 				if(griddedRegion.contains(hyp) && hyp.getDepth() < 24.0) {	//TODO remove hard-coded 24.0 (get from depth dist)
@@ -299,7 +299,9 @@ public class ETAS_Simulator {
 		int scenarioRupID = -1;
 		double numPrimaryAshockForScenario = 0;
 		if(scenarioRup != null) {
-			scenarioRupID = obsEqkRuptureList.size();
+//			scenarioRupID = obsEqkRuptureList.size();
+			// zero is reserved for scenario rupture
+			scenarioRupID = 0;
 			scenarioRup.setID(scenarioRupID);
 			obsEqkRuptureList.add(scenarioRup);		
 			if(D) {
@@ -347,6 +349,7 @@ public class ETAS_Simulator {
 		info_fr.flush();
 		
 		
+		// TODO This loop is redundant with that above; combine
 		if(D) System.out.println("Computing original spontaneousRupSampler & sourceRates[s]");
 		st = System.currentTimeMillis();
 		double sourceRates[] = new double[erf.getNumSources()];
@@ -377,38 +380,11 @@ public class ETAS_Simulator {
 		
 		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(griddedRegion, erf, sourceRates,
-				gridSeisDiscr,null, etasParams.getApplyLongTermRates(), etas_utils, etasParams.get_q(), etasParams.get_d(), 
-				etasParams.getImposeGR(), etasParams.getU3ETAS_ProbModel(), fractionSrcInCubeList, srcInCubeList, 
+				gridSeisDiscr,null, etasParams, etas_utils, fractionSrcInCubeList, srcInCubeList, 
 				inputIsCubeInsideFaultPolygon);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 		info_fr.flush();
-		
-		
-		// Apply corrections to gridded seis rates if desired
-//		double oldTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
-		if(APPLY_GR_CORR_TO_GRIDDED_SEIS && etasParams.getImposeGR()) {
-			double[] gridSeisGRcorrArray = etas_PrimEventSampler.getGR_CorrFactorsForGriddedSeis();
-			nthRup=0;
-			for(int s=0;s<erf.getNumSources();s++) {
-				if(s<numFaultSysSources) {
-					nthRup+=erf.getSource(s).getNumRuptures();
-				}
-				else {
-					for(ProbEqkRupture rup:erf.getSource(s)) {
-						if (nthRup >= spontaneousRupSampler.size())
-							throw new RuntimeException("Weird...tot num="+erf.getTotNumRups()+", nth="+nthRup);
-						double newVal = spontaneousRupSampler.getY(nthRup)*gridSeisGRcorrArray[s-numFaultSysSources];
-						spontaneousRupSampler.set(nthRup, newVal);
-						nthRup+=1;
-					}				
-				}
-			}			
-		}
-//		double newTotalRate=spontaneousRupSampler.calcSumOfY_Vals();
-//		System.out.println("oldTotalRate="+oldTotalRate+"newTotalRate="+newTotalRate+"newTotalRate="+(newTotalRate/oldTotalRate));
-//		System.exit(-1);
-		
 		
 		
 		
@@ -417,12 +393,12 @@ public class ETAS_Simulator {
 		// (filling in origin time ID, parentID, and location on parent that does triggering, with the rest to be filled in later)
 		if (D) System.out.println("Making primary aftershocks from input obsEqkRuptureList, size = "+obsEqkRuptureList.size());
 		PriorityQueue<ETAS_EqkRupture>  eventsToProcess = new PriorityQueue<ETAS_EqkRupture>(1000, oigTimeComparator);	// not sure about the first field
-		int testParID=0;	// this will be used to test IDs
+//		int testParID=0;	// this will be used to test IDs
 		int eventID = obsEqkRuptureList.size();	// start IDs after input events
 		for(ETAS_EqkRupture parRup: obsEqkRuptureList) {
 			int parID = parRup.getID();
-			if(parID != testParID) 
-				throw new RuntimeException("problem with ID");
+//			if(parID != testParID) 
+//				throw new RuntimeException("problem with ID");
 			long rupOT = parRup.getOriginTime();
 			double startDay = (double)(simStartTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;	// convert epoch to days from event origin time
 			double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -430,6 +406,7 @@ public class ETAS_Simulator {
 			double[] randomAftShockTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), parRup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
 			if(parRup.getID() == scenarioRupID)
 				numPrimaryAshockForScenario = randomAftShockTimes.length;
+			LocationList locList = null;
 			if(randomAftShockTimes.length>0) {
 				for(int i=0; i<randomAftShockTimes.length;i++) {
 					long ot = rupOT +  (long)(randomAftShockTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);	// convert to milliseconds
@@ -443,8 +420,10 @@ public class ETAS_Simulator {
 //						Location tempLoc = etas_utils.getRandomLocationOnRupSurface(parRup);
 						
 						// for no creep/aseis reduction:
-						RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(parRup.getFSSIndex(), fssERF, 0.05);
-						LocationList locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();
+						if(locList==null) {	// make reusable location list
+							RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(parRup.getFSSIndex(), fssERF, 0.05);
+							locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();							
+						}
 						Location tempLoc = locList.get(etas_utils.getRandomInt(locList.size()-1));
 						
 						if(tempLoc.getDepth()>etas_PrimEventSampler.maxDepth) {
@@ -460,7 +439,7 @@ public class ETAS_Simulator {
 					eventID +=1;
 				}
 			}
-			testParID += 1;				
+//			testParID += 1;				
 		}
 		if (D) System.out.println("The "+obsEqkRuptureList.size()+" input events produced "+eventsToProcess.size()+" primary aftershocks");
 		info_fr.write("\nThe "+obsEqkRuptureList.size()+" input observed events produced "+eventsToProcess.size()+" primary aftershocks\n");
@@ -494,7 +473,9 @@ public class ETAS_Simulator {
 			// NEW WAY (time-dep rate of spont events)
 			long histCatStartTime = simStartTimeMillis;
 			long[] spontEventTimes;
-			SummedMagFreqDist mfd = etas_PrimEventSampler.getLongTermTotalERF_MFD();
+			IncrementalMagFreqDist mfd = etas_PrimEventSampler.getLongTermTotalERF_MFD().deepClone();
+			// Apply scale factor
+			mfd.scale(etasParams.getTotalRateScaleFactor());
 			if(histQkList==null)
 				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(mfd, histCatStartTime, simStartTimeMillis, simEndTimeMillis, 1000, 
 						etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
@@ -502,6 +483,17 @@ public class ETAS_Simulator {
 				spontEventTimes = etas_utils.getRandomSpontanousEventTimes(
 						mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
 						simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+			
+			// This is to write out the fraction spontaneous as a funcation of time
+//			EvenlyDiscretizedFunc rateFunc = etas_utils.getSpontanousEventRateFunction(mfd, U3_EqkCatalogStatewideCompleteness.load().getEvenlyDiscretizedMagYearFunc(), simStartTimeMillis, 
+//					simEndTimeMillis, 1000, etasParams.get_k(), etasParams.get_p(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c());
+//			for(int i=0;i<rateFunc.size();i++) {
+//				double year = (rateFunc.getX(i)-(double)simStartTimeMillis)/ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+//				double fractRate = rateFunc.getY(i)/mfd.getTotalIncrRate();
+//				System.out.println(year+"\t"+fractRate);
+//			}
+//			System.exit(-1);
+
 
 			for(int r=0;r<spontEventTimes.length;r++) {
 				ETAS_EqkRupture rup = new ETAS_EqkRupture();
@@ -535,7 +527,7 @@ public class ETAS_Simulator {
 			System.out.println("Expected number of primary events for Scenario: "+expNum);
 			System.out.println("Observed number of primary events for Scenario: "+numPrimaryAshockForScenario+"\n");
 
-			if(D && generateDiagnostics) {
+			if(D && generateDiagnosticsForScenario) {
 				System.out.println("Computing Scenario Diagnostics");
 				long timeMillis =System.currentTimeMillis();
 				expectedPrimaryMFDsForScenarioList = etas_PrimEventSampler.generateRuptureDiagnostics(scenarioRup, expNum, "Scenario", resultsDir,info_fr);
@@ -633,9 +625,8 @@ public class ETAS_Simulator {
 			}
 			
 			// break out if we failed to set the rupture
-			if(!succeededInSettingRupture)
+			if(!succeededInSettingRupture) // TODO shouldn't following chunk of code be in the else statement directly above?
 				continue;
-			
 			nthRup = rup.getNthERF_Index();
 			int srcIndex = erf.getSrcIndexForNthRup(nthRup);
 			int fltSysRupIndex = -1;
@@ -661,7 +652,7 @@ public class ETAS_Simulator {
 				double endDay = (double)(simEndTimeMillis-rupOT) / (double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 //				double[] eventTimes = etas_utils.getDefaultRandomEventTimes(rup.getMag(), startDay, endDay);
 				double[] eventTimes = etas_utils.getRandomEventTimes(etasParams.get_k(), etasParams.get_p(), rup.getMag(), ETAS_Utils.magMin_DEFAULT, etasParams.get_c(), startDay, endDay);
-
+				LocationList locList = null;
 				if(eventTimes.length>0) {
 					for(int i=0; i<eventTimes.length;i++) {
 						long ot = rupOT +  (long)(eventTimes[i]*(double)ProbabilityModelsCalc.MILLISEC_PER_DAY);
@@ -671,8 +662,23 @@ public class ETAS_Simulator {
 						if(rup.getFSSIndex()==-1)
 							newRup.setParentTriggerLoc(etas_utils.getRandomLocationOnRupSurface(rup));
 						else {
-							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup);
-							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));	// add fuzziness to parent location
+							// this produces too few aftershocks on highly creeping faults:
+//							Location tempLoc = etas_utils.getRandomLocationOnRupSurface(rup);
+							
+							// for no creep/aseis reduction:
+							if(locList==null) {	// make reusable location list
+								RuptureSurface surf = etas_utils.getRuptureSurfaceWithNoCreepReduction(rup.getFSSIndex(), fssERF, 0.05);
+								locList = surf.getEvenlyDiscritizedListOfLocsOnSurface();							
+							}
+							Location tempLoc = locList.get(etas_utils.getRandomInt(locList.size()-1));
+							
+							if(tempLoc.getDepth()>etas_PrimEventSampler.maxDepth) {
+								Location newLoc = new Location(tempLoc.getLatitude(),tempLoc.getLongitude(), etas_PrimEventSampler.maxDepth);
+								tempLoc=newLoc;
+							}
+
+							// now add some randomness for numerical stability:
+							newRup.setParentTriggerLoc(etas_PrimEventSampler.getRandomFuzzyLocation(tempLoc));
 						}
 						etas_PrimEventSampler.addRuptureToProcess(newRup);
 						eventsToProcess.add(newRup);
@@ -800,7 +806,7 @@ public class ETAS_Simulator {
 			ETAS_SimAnalysisTools.plotDistDecayDensityOfAshocksForRup("Scenario in "+simulationName, new File(resultsDir,"distDecayDensityForScenario.pdf").getAbsolutePath(), 
 					simulatedRupsQueue, etasParams.get_q(), etasParams.get_d(), scenarioRup);
 			ArrayList<IncrementalMagFreqDist> obsAshockMFDsForScenario = ETAS_SimAnalysisTools.getAftershockMFDsForRup(simulatedRupsQueue, inputRupID, simulationName);
-			if(generateDiagnostics == true)
+			if(generateDiagnosticsForScenario == true)
 				obsAshockMFDsForScenario.add((IncrementalMagFreqDist)expectedPrimaryMFDsForScenarioList.get(0));
 			ETAS_SimAnalysisTools.plotMagFreqDistsForRup("AshocksOfScenarioMFD", resultsDir, obsAshockMFDsForScenario);
 			
@@ -809,7 +815,7 @@ public class ETAS_Simulator {
 			
 			double expPrimNumAtMainMag = Double.NaN;
 			double expPrimNumAtMainMagMinusOne = Double.NaN;
-			if(generateDiagnostics && expectedPrimaryMFDsForScenarioList.get(1) != null) {
+			if(generateDiagnosticsForScenario && expectedPrimaryMFDsForScenarioList.get(1) != null) {
 				expPrimNumAtMainMag = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag());
 				expPrimNumAtMainMagMinusOne = expectedPrimaryMFDsForScenarioList.get(1).getInterpolatedY(scenarioRup.getMag()-1.0);				
 			}
@@ -871,6 +877,50 @@ public class ETAS_Simulator {
 		}
 	}
 	
+	
+	/**
+	 * This utility finds the source index for the fault system rupture that has the given first and last subsection
+	 * @param erf
+	 * @param firstSectID
+	 * @param secondSectID
+	 */
+	private static void writeTotRateRupOccurOnTheseTwoSections(FaultSystemSolutionERF erf, int firstSectID, int secondSectID) {
+		System.out.println("Looking for source...");
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		double totRate=0;
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			List<Integer> sectListForSrc = rupSet.getSectionsIndicesForRup(erf.getFltSysRupIndexForSource(s));
+			if(sectListForSrc.contains(firstSectID) && sectListForSrc.contains(secondSectID)) {
+				totRate += erf.getSource(s).computeTotalEquivMeanAnnualRate(erf.getTimeSpan().getDuration());
+			}
+		}
+		System.out.println("totRate="+totRate+"\n\t"+rupSet.getFaultSectionData(firstSectID).getName()+"\n\t"+rupSet.getFaultSectionData(secondSectID).getName());
+	}
+
+	
+	
+	private static void writeInfoAboutClosestSectionToLoc(FaultSystemSolutionERF erf, Location loc) {
+		List<FaultSectionPrefData> fltDataList = erf.getSolution().getRupSet().getFaultSectionDataList();
+		double minDist = Double.MAX_VALUE;
+		int index=-1;
+		CalcProgressBar progressBar = new CalcProgressBar("Fault data to process", "junk");
+		progressBar.showProgress(true);
+		int counter=0;
+
+		for(FaultSectionPrefData fltData:fltDataList) {
+			progressBar.updateProgress(counter, fltDataList.size());
+			counter+=1;
+			double dist = LocationUtils.distanceToSurf(loc, fltData.getStirlingGriddedSurface(1.0, false, true));
+			if(minDist>dist) {
+				minDist=dist;
+				index = fltData.getSectionId();
+			}
+		}
+		progressBar.showProgress(false);
+		minDist = LocationUtils.distanceToSurf(loc, fltDataList.get(index).getStirlingGriddedSurface(0.01, false, true));
+		System.out.println(index+"\tdist="+(float)minDist+"\tfor\t"+fltDataList.get(index).getName());
+	}
+
 	
 	
 	/**
@@ -1000,7 +1050,12 @@ public class ETAS_Simulator {
 		Long st = System.currentTimeMillis();
 
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(startTimeYear, durationYears);
-		correctGriddedSeismicityRatesInERF(erf, false);
+//System.out.println("TotalRateBeforeGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
+
+		if(etasParams.getApplyGridSeisCorr())
+			ETAS_Simulator.correctGriddedSeismicityRatesInERF(erf, false);
+//System.out.println("TotalRateAfterGriddedSeisCorr: "+ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true).getTotalIncrRate());		
+//System.exit(-1);
 		
 		if(simulationName == null) {
 			String imposeGR_string;
@@ -1052,7 +1107,7 @@ public class ETAS_Simulator {
 //		}
 //		System.exit(-1);
 		
-		boolean includeSpontEvents=true;
+		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=true;
 		double gridSeisDiscr = 0.1;
 		
@@ -1347,19 +1402,19 @@ public class ETAS_Simulator {
 	}
 	
 	
-	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio) {
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF erf, boolean plotRateRatio) {
 		double[] gridSeisCorrValsArray;
 		try {
 			gridSeisCorrValsArray = MatrixIO.doubleArrayFromFile(new File(ETAS_PrimaryEventSampler.defaultGriddedCorrFilename));
 		} catch (IOException e) {
 			throw ExceptionUtils.asRuntimeException(e);
 		}
-		correctGriddedSeismicityRatesInERF(erf, plotRateRatio, gridSeisCorrValsArray);
+		correctGriddedSeismicityRatesInERF(erf.getSolution(), plotRateRatio, gridSeisCorrValsArray);
 	}
 	
-	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolutionERF_ETAS erf, boolean plotRateRatio,
+	public static void correctGriddedSeismicityRatesInERF(FaultSystemSolution sol, boolean plotRateRatio,
 			double[] gridSeisCorrValsArray) {
-		GridSourceFileReader gridSources = (GridSourceFileReader)erf.getGridSourceProvider();
+		GridSourceFileReader gridSources = (GridSourceFileReader)sol.getGridSourceProvider();
 		gridSources.scaleAllNodeMFDs(gridSeisCorrValsArray);
 		
 		double totalRate=0;
@@ -1374,9 +1429,9 @@ public class ETAS_Simulator {
 			nodeRatePDF[i] = nodeRateArray[i]/totalRate;
 		}
 
-		GriddedSeisUtils griddedSeisUtils = new GriddedSeisUtils(erf.getSolution().getRupSet().getFaultSectionDataList(), nodeRatePDF, InversionTargetMFDs.FAULT_BUFFER);
+		GriddedSeisUtils griddedSeisUtils = new GriddedSeisUtils(sol.getRupSet().getFaultSectionDataList(), nodeRatePDF, InversionTargetMFDs.FAULT_BUFFER);
 		
-		List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList = erf.getSolution().getSubSeismoOnFaultMFD_List();
+		List<? extends IncrementalMagFreqDist> longTermSubSeisMFD_OnSectList = sol.getSubSeismoOnFaultMFD_List();
 		
 		double[] oldRateArray = new double[longTermSubSeisMFD_OnSectList.size()];
 		double[] newRateArray = new double[longTermSubSeisMFD_OnSectList.size()];
@@ -1391,14 +1446,14 @@ public class ETAS_Simulator {
 			else
 				ratioArray[sectIndex] = 1.0;
 			
-			System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
+			if (D) System.out.println(newRateArray[sectIndex]+"\t"+oldRateArray[sectIndex]+"\t"+ratioArray[sectIndex]+"\t"+sol.getRupSet().getFaultSectionData(sectIndex).getName());
 			
 			longTermSubSeisMFD_OnSectList.get(sectIndex).scale(ratioArray[sectIndex]);
 						
 		}
 		
 		if(plotRateRatio) {
-			List<FaultSectionPrefData> faults = erf.getSolution().getRupSet().getFaultSectionDataList();
+			List<FaultSectionPrefData> faults = sol.getRupSet().getFaultSectionDataList();
 			String name = "SubSeisRateChange";
 			String title = "SubSeisRateChange";
 			CPT cpt= FaultBasedMapGen.getLinearRatioCPT().rescale(0, 10);
@@ -1448,8 +1503,8 @@ public class ETAS_Simulator {
 		LANDERS("Landers", 246711),			// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 243, 989);
 		NORTHRIDGE("Northridge", 187455),	// found by running: writeInfoAboutSourceWithThisFirstAndLastSection(erf, 1409, 1413);
 		LA_HABRA_6p2("La Habra 6.2", new Location(33.932,-117.917,4.8), 6.2),
-		NEAR_SURPRISE_VALLEY_5p0("NearSurpriseValley5pt0", new Location(41.83975, -120.12356, 4.67500), 5.0),
-		NEAR_SURPRISE_VALLEY_5p5("NearSurpriseValley5pt5", new Location(41.83975, -120.12356, 4.67500), 5.5),
+		SURPRISE_VALLEY_5p0("SurpriseValley5pt0", new Location(41.83975, -120.12356, 4.6750), 5.0), // Locationat center of Surprise Valley 2011 CFM, Subsection 14	41.83975, -120.12356, 4.675
+		SURPRISE_VALLEY_5p5("SurpriseValley5pt5", new Location(41.83975, -120.12356, 4.6750), 5.5),	// found with writeLocationAtCenterOfSectionSurf(erf, 2460);  2nd highest Charfactor
 		NEAR_MAACAMA("Near Maacama", new Location(39.79509, -123.56665-0.04, 7.54615), 7.0),
 		ON_MAACAMA("On Maacama", new Location(39.79509, -123.56665, 7.54615), 7.0),
 		ON_N_MOJAVE("On N Mojave", getMojaveTestLoc(0.0), 6.0),	// on N edge of the Mojave scenario
@@ -1458,8 +1513,18 @@ public class ETAS_Simulator {
 		NAPA("Napa 6.0", 93902, null, 6d), // supra-seismogenic rup that is a 6.3 in U3, overridden to be a 6.0
 		PARKFIELD("Parkfield M6", 30473), // Parkfield M6 fault based rup
 		BOMBAY_BEACH_M6("Bombay Beach M6", new Location(33.3183,-115.7283,5.8), 6.0), // Bombay Beach M6 in location of 2009 M4.8
-		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0); // Central Valley - farthest from faults
-
+		// From Felzer appendix: 2009   3 24 11 55 43.9300 33.3172 -115.728 5.96 4.96 7.00 2.00 0.09 0.01; Andy's paper says it's M 4.8
+		BOMBAY_BEACH_M4pt8("Bombay Beach M4.8", new Location(33.3172,-115.728, 5.96), 4.8), // Bombay Beach M6 in location of 2009 M4.8
+		ROBINSON_CREEK_M5p5("Robinson Creek M5pt5", new Location(38.22137, -119.24255, 7.15), 5.5),  // based on writeLocationAtCenterOfSectionSurf(erf, 1717);	// Robinson Creek Subsection 0; highest Charfactor
+		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0), // Central Valley - farthest from faults
+		CENTRAL_VALLEY_M5p0("Central Valley M5", new Location(37.622,-119.993,5.8), 5.0), // Central Valley - farthest from faults
+		ZAYANTE_VERGELES_M5p5("Zayante-Vergeles M5pt5", new Location(36.71779, -121.59369, 6.49000), 5.5), // writeLocationAtCenterOfSectionSurf(erf, 2605);	// Zayante-Vergeles 2011 CFM, Subsection 7; 36.71779, -121.59369, 6.49000; lowest char factor on more than one section
+		SAN_JACINTO_0_M5p5("San Jacinto (Borrego) M5pt5", new Location(33.1917, -116.17999, 7.41061), 5.5),	// San Jacinto (Borrego), Subsection 0	33.1917, -116.17999, 7.41061
+		MENDOCINO_12_M5p5("Mendocino M5pt5", new Location(40.38540, -125.01342, 6.0), 5.5),	// Mendocino, Subsection 12	40.38540, -125.01342, 6.0
+		SAF_PENINSULA_M5p5("SAF_PeninsulaM5pt5", new Location(37.72793, -122.54861, 7.0), 5.5),  // San Andreas (Peninsula) 2011 CFM, Subsection 12	37.72793, -122.54861, 7.0
+		SAF_PENINSULA_M6p3("SAF_PeninsulaM6pt3", 122568),  // Inversion Src #122568; 2 SECTIONS BETWEEN San Andreas (Peninsula) 2011 CFM, Subsection 12 AND San Andreas (Peninsula) 2011 CFM, Subsection 11
+		SAF_PENINSULA_M7("SAF_PeninsulaM7", 119367);  // Inversion Src #119367; 9 SECTIONS BETWEEN San Andreas (North Coast) 2011 CFM, Subsection 1 AND San Andreas (Peninsula) 2011 CFM, Subsection 9
+//	
 				
 		private String name;
 		private int fssIndex;
@@ -1657,6 +1722,52 @@ public class ETAS_Simulator {
 	}
 
 
+	/**
+	 * This shows that El Mayor Cucapah reset Laguna Salada subsections 0-12 (leaving 13 and 14) according to UCERF3 rules.
+	 * @param erf
+	 */
+	private static void plotElMayorAndLagunaSalada(FaultSystemSolutionERF_ETAS erf) {
+		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(2012,erf.getSolution().getRupSet());
+		// this shows that the ID for El Mayor is 4552
+//		for(int i=0;i<histCat.size();i++)
+//			if(histCat.get(i).getMag()>7) {
+//				double year = ((double)histCat.get(i).getOriginTime())/(365.25*24*3600*1000)+1970.0;
+//				System.out.println(i+"\t"+histCat.get(i).getMag()+"\t"+year);
+//			}
+//		System.exit(-1);
+
+		LocationList locListForElMayor = histCat.get(4552).getRuptureSurface().getEvenlyDiscritizedListOfLocsOnSurface();
+		DefaultXY_DataSet elMayorXYdata = new DefaultXY_DataSet();
+		for(Location loc:locListForElMayor)
+			elMayorXYdata.set(loc.getLongitude(), loc.getLatitude());
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
+		funcList.add(elMayorXYdata);
+		ArrayList<PlotCurveCharacterstics> plotCharList = new ArrayList<PlotCurveCharacterstics>();
+		plotCharList.add(new PlotCurveCharacterstics(PlotSymbol.BOLD_CROSS, 1f, Color.RED));
+
+		FaultSystemRupSet rupSet = ((FaultSystemSolutionERF)erf).getSolution().getRupSet();
+		FaultPolyMgr faultPolyMgr = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);	// this works for U3, but not generalized
+
+		for(int i=1042;i<=1056;i++) {
+			DefaultXY_DataSet lagunaSaladaPolygonsXYdata = new DefaultXY_DataSet();
+			FaultSectionPrefData fltData = rupSet.getFaultSectionData(i);
+			System.out.println(fltData.getName());
+			Region polyReg = faultPolyMgr.getPoly(i);
+			for(Location loc : polyReg.getBorder()) {
+				lagunaSaladaPolygonsXYdata.set(loc.getLongitude(), loc.getLatitude());
+			}
+			funcList.add(lagunaSaladaPolygonsXYdata);
+			plotCharList.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.BLUE));
+		}
+		
+		GraphWindow graph = new GraphWindow(funcList, "El Mayor and Laguna Salada", plotCharList); 
+		graph.setX_AxisLabel("Longitude");
+		graph.setY_AxisLabel("Latitude");
+
+
+		
+	}
 
 	
 
@@ -1665,19 +1776,33 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
-		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,1.0);	
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
+//		
+//		writeTotRateRupOccurOnTheseTwoSections(erf, 1837, 2183);
+//		System.exit(-1);
+		
+//		plotElMayorAndLagunaSalada(erf);
+
 //		plotERF_RatesMap(erf, "testBeforeCorr");
 //		correctGriddedSeismicityRatesInERF(erf, true);
 //		plotERF_RatesMap(erf, "testAfterCorr");
 		
+//		double[] vals = FaultSysSolutionERF_Calc.tempCalcParticipationRateForAllSects(erf);
+//		for(int s=0;s<vals.length;s++)
+//			System.out.println(s+"\t"+vals[s]+"\t"+erf.getSolution().getRupSet().getFaultSectionData(s).getName());
+//		System.exit(0);
 		
 		
-//		System.out.println(erf.getGridSourceProvider().getClass());
-//		System.out.println(erf.getGridSourceProvider().getGriddedRegion().getClass());
-//		System.out.println(erf.getSolution().getClass());
-//		writeLocationAtCenterOfSectionSurf(erf, 1850);
-//		System.out.println(erf.getSolution().getGridSourceProvider().getClass());
-//		System.out.println(erf.getSolution().getClass());
+//		writeLocationAtCenterOfSectionSurf(erf, 1850);	// Mojave
+//		writeLocationAtCenterOfSectionSurf(erf, 1717);	// Robinson Creek Subsection 0
+//		writeLocationAtCenterOfSectionSurf(erf, 2460);	// Suprise Valley Subsection 14
+//		writeLocationAtCenterOfSectionSurf(erf, 2605);	// Zayante-Vergeles 2011 CFM, Subsection 7
+//		writeLocationAtCenterOfSectionSurf(erf, 2159);	// San Jacinto (Borrego), Subsection 0	33.19172092060858, -116.1799928635995, 7.4106132512450795
+//		writeLocationAtCenterOfSectionSurf(erf, 1259);	// Mendocino, Subsection 12	40.38540306568454, -125.01342272786124, 6.0
+//		writeLocationAtCenterOfSectionSurf(erf, 1940);	// San Andreas (Peninsula) 2011 CFM, Subsection 12	37.72792670654364, -122.54861017376626, 7.0
+//		writeInfoAboutSourcesThatUseSection(erf, 1940, 5d, 7.1);
 //		System.exit(0);
 		
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
@@ -1686,50 +1811,53 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
 		
-//		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "testPlot");
+//		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
+//		System.exit(0);
 
-
-//		TestScenario scenario = TestScenario.CENTRAL_VALLEY_M3;
-		TestScenario scenario = null;
+		TestScenario scenario = TestScenario.MOJAVE_M5;
+//		TestScenario scenario = null;
+		
+//		writeInfoAboutClosestSectionToLoc(erf, scenario.getLocation());
+//		System.exit(0);
 		
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		params.setImposeGR(false);	
+		params.setApplyGridSeisCorr(true);
+		params.setApplySubSeisForSupraNucl(true);
+		params.setTotalRateScaleFactor(1.14);
 		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
-		params.setApplyLongTermRates(false);
 		
 		String simulationName;
-		String imposeGR_string;
+		String imposeGR_string="";
 		if(params.getImposeGR())
 			imposeGR_string = "_GRcorrApplied";
-		else {
-			imposeGR_string = "_noGRcorr";
-		}
+//		else {
+//			imposeGR_string = "_noGRcorr";
+//		}
 
 		if(scenario == null)
 			simulationName = "NoScenario_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 		else
 			simulationName = scenario+"_"+params.getU3ETAS_ProbModel()+imposeGR_string;
 
-//		if(params.getImposeGR() == true)
-//			simulationName += "_grCorr";
-		
-		simulationName += "_10yr_NewCorr_3";	// to increment runs
+		simulationName += "_NoSpontaneous";	// to increment runs
 
-//		Long seed = null;
-		Long seed = 1449590752534l;
+		Long seed = null;
+//		Long seed = 1449590752534l;
 //		Long seed = 1444170206879l;
 //		Long seed = 1439486175712l;
 		
-		double startTimeYear=2012;
-		double durationYears=10;
-//		double startTimeYear=2014;
+//		double startTimeYear=2012;
 //		double durationYears=10;
+		double startTimeYear=2014;
+		double durationYears=10;
 		
-//		ObsEqkRupList histCat = null;
+		ObsEqkRupList histCat = null;
 //		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
-		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
+//		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
 
 		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
+		
 		
 		
 		

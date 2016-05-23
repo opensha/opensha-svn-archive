@@ -60,7 +60,7 @@ public class BSSA_2014 implements NGAW2_GMM {
 	private static final double DC3_CA_TW = 0.0;
 	private static final double V_REF = 760.0;
 	private static final double F1 = 0.0;
-	private static final double F3 = 0.1;
+	public static final double F3 = 0.1;
 	private static final double V1 = 225;
 	private static final double V2 = 300;
 
@@ -177,25 +177,55 @@ public class BSSA_2014 implements NGAW2_GMM {
 		double Fp = calcPathTerm(c, Mw, R);
 
 		// Site Linear Term -- Equation 6
-		double vsLin = (vs30 <= c.Vc) ? vs30 : c.Vc;
-		double lnFlin = c.c * log(vsLin / V_REF);
+		double lnFlin = calcLnFlin(c, vs30);
 		
 		// Site Nonlinear Term -- Equations 7, 8
-		double f2 = c.f4 * (exp(c.f5 * (min(vs30, 760.0) - 360.0)) - 
-				exp(c.f5 * (760.0 - 360.0)));
+		double f2 = calcF2(c, vs30);
 		double lnFnl = F1 + f2 * log((pgaRock + F3) / F3);
 
 		// Basin depth term -- Equations 9, 10 , 11
-		double DZ1 = calcDeltaZ1(z1p0, vs30);
-		double Fdz1 = (c.imt().isSA() && c.imt().getPeriod() >= 0.65) ?
-			(DZ1 <= c.f7 / c.f6) ? c.f6 * DZ1 : c.f7
-				: 0.0;
+		double Fdz1 = calcFdz1(c, vs30, z1p0);
 		
 		// Total site term -- Equation 5
 		double Fs = lnFlin + lnFnl + Fdz1;
 
 		// Total model -- Equation 1
 		return Fe + Fp + Fs;
+	}
+	
+	public final double calcLnFlin(IMT imt, double vs30) {
+		coeffs.set(imt);
+		return calcLnFlin(coeffs, vs30);
+	}
+	
+	public final double calcF2(IMT imt, double vs30) {
+		coeffs.set(imt);
+		return calcF2(coeffs, vs30);
+	}
+	
+	public final double calcFdz1(IMT imt, double vs30, double z1p0) {
+		coeffs.set(imt);
+		return calcFdz1(coeffs, vs30, z1p0);
+	}
+
+	private static final double calcLnFlin(Coeffs c, double vs30) {
+		double vsLin = (vs30 <= c.Vc) ? vs30 : c.Vc;
+		double lnFlin = c.c * log(vsLin / V_REF);
+		return lnFlin;
+	}
+
+	private static final double calcF2(Coeffs c, double vs30) {
+		double f2 = c.f4 * (exp(c.f5 * (min(vs30, 760.0) - 360.0)) - 
+				exp(c.f5 * (760.0 - 360.0)));
+		return f2;
+	}
+	
+	private static final double calcFdz1(Coeffs c, double vs30, double z1p0) {
+		double DZ1 = calcDeltaZ1(z1p0, vs30);
+		double Fdz1 = (c.imt().isSA() && c.imt().getPeriod() >= 0.65) ?
+			(DZ1 <= c.f7 / c.f6) ? c.f6 * DZ1 : c.f7
+				: 0.0;
+		return Fdz1;
 	}
 	
 	// Median PGA for ref rock (Vs30=760m/s); always called with PGA coeffs

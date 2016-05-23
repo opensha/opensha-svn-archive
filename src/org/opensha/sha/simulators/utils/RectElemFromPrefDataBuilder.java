@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.faultSurface.EvenlyGridCenteredSurface;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
 import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.writers.EQSimv06FileWriter;
@@ -37,24 +39,24 @@ public class RectElemFromPrefDataBuilder {
 	
 	private static final boolean D = false;
 
-	public static List<RectangularElement> build(List<FaultSectionPrefData> allFaultSectionPrefData,
+	public static List<SimulatorElement> build(List<FaultSectionPrefData> allFaultSectionPrefData,
 			boolean aseisReducesArea, double maxDiscretization) {
 		return build(allFaultSectionPrefData, aseisReducesArea, maxDiscretization, null);
 	}
 	
-	public static List<RectangularElement> build(List<FaultSectionPrefData> allFaultSectionPrefData,
+	public static List<SimulatorElement> build(List<FaultSectionPrefData> allFaultSectionPrefData,
 			boolean aseisReducesArea, double maxDiscretization, Map<Integer, Integer> parentSectToFaultIDMap) {
 		// put in new list since we're about to sort
 		allFaultSectionPrefData = Lists.newArrayList(allFaultSectionPrefData);
 
-		List<RectangularElement> rectElementsList = new ArrayList<RectangularElement>();
+		List<SimulatorElement> rectElementsList = new ArrayList<SimulatorElement>();
 		List<Vertex> vertexList = new ArrayList<Vertex>();
-		List<ArrayList<RectangularElement>> rectElementsListForSections = new ArrayList<ArrayList<RectangularElement>> ();
+		List<ArrayList<SimulatorElement>> rectElementsListForSections = new ArrayList<ArrayList<SimulatorElement>> ();
 		List<ArrayList<Vertex>> vertexListForSections = new ArrayList<ArrayList<Vertex>>();
 		List<String> sectionNamesList = new ArrayList<String>();
 
 		//Alphabetize:
-		Collections.sort(allFaultSectionPrefData, new NamedComparator());
+		Collections.sort(allFaultSectionPrefData, new SubSectNameComparator());
 
 		/*		  
 				  // write sections IDs and names
@@ -82,7 +84,7 @@ public class RectElemFromPrefDataBuilder {
 		String sectionName;
 		//				System.out.println("allFaultSectionPrefData.size() = "+allFaultSectionPrefData.size());
 		for(int i=0;i<allFaultSectionPrefData.size();i++) {
-			ArrayList<RectangularElement> sectionElementsList = new ArrayList<RectangularElement>();
+			ArrayList<SimulatorElement> sectionElementsList = new ArrayList<SimulatorElement>();
 			ArrayList<Vertex> sectionVertexList = new ArrayList<Vertex>();
 			sectionNumber +=1; // starts from 1, not zero
 			FaultSectionPrefData faultSectionPrefData = allFaultSectionPrefData.get(i);
@@ -249,7 +251,7 @@ public class RectElemFromPrefDataBuilder {
 
 					FocalMechanism focalMech = new FocalMechanism(elementStrike, elementDip, elementRake);
 
-					RectangularElement simSurface =
+					SimulatorElement simSurface =
 							new RectangularElement(elementID, elementVertices, sectionName,
 									faultNumber, sectionNumber, numberAlongStrike, numberDownDip,
 									elementSlipRate, elementAseis, focalMech, true);
@@ -316,6 +318,19 @@ public class RectElemFromPrefDataBuilder {
 		return rectElementsList;
 	}
 	
+	private static class SubSectNameComparator implements Comparator<FaultSectionPrefData> {
+		
+		private NamedComparator nameComp = new NamedComparator();
+
+		@Override
+		public int compare(FaultSectionPrefData o1, FaultSectionPrefData o2) {
+			if (o1.getParentSectionId() != o2.getParentSectionId())
+				return nameComp.compare(o1, o2);
+			return new Integer(o1.getSectionId()).compareTo(o2.getSectionId());
+		}
+		
+	}
+	
 	public static void main(String[] args) throws IOException {
 		// write UCERF3 DMs
 		
@@ -330,7 +345,7 @@ public class RectElemFromPrefDataBuilder {
 		double maxDiscretization = 4.0; // TODO
 		DateFormat df = new SimpleDateFormat("MMM d, yyyy");
 		DeformationModelFetcher dmFetch = new DeformationModelFetcher(fm, dm, scratchDir, defaultAseisVal);
-		List<RectangularElement> elems = build(dmFetch.getSubSectionList(), aseisReducesArea, maxDiscretization);
+		List<SimulatorElement> elems = build(dmFetch.getSubSectionList(), aseisReducesArea, maxDiscretization);
 		File outputFile = new File(outputDir, fm.encodeChoiceString()+"_"+dm.encodeChoiceString()+"_EQSIM.txt");
 		EQSimv06FileWriter.writeGeometryFile(elems, outputFile, null, fm.name()+", "+dm.name()+" output",
 				"Kevin Milner", EQSimv06FileWriter.getCurDateString());

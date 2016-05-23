@@ -22,7 +22,7 @@ import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.RectangularElement;
+import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -216,7 +216,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 			Map<Integer, Boolean> elementsInRegionsCache = Maps.newHashMap();
 			
 			// just uese centers since they're small enough elements
-			for (RectangularElement elem : tools.getElementsList())
+			for (SimulatorElement elem : tools.getElementsList())
 				elementsInRegionsCache.put(elem.getID(), region.contains(elem.getCenterLocation()));
 			
 			List<EQSIM_Event> eventsInRegion = Lists.newArrayList();
@@ -243,7 +243,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
-		List<RectangularElement> elements = tools.getElementsList();
+		List<SimulatorElement> elements = tools.getElementsList();
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		FaultSystemRupSet rupSet = SimulatorFaultSystemSolution.buildRupSet(elements, events, durationYears, subSectBuilder);
 		FaultSystemSolution sol = new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);

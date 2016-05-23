@@ -321,6 +321,16 @@
 		</copy>
 	</target>
 
+	<target name="resource.erfs.nz">
+		<!-- This is for the GEM ERFs...which we may or may not include in our regular apps. -->
+		<copy todir="${build}/scratch/stirling/data" overwrite="true">
+			<fileset dir="${dev}/scratch/stirling/data">
+				<include name="**/*.txt" />
+				<include name="**/*.DAT" />
+			</fileset>
+		</copy>
+	</target>
+
 	<target name="resource.erfs.aux">
 		<!-- This is for ERFs that we won't include in our regular apps because they require
 		too much data, but may be useful to someone. -->
@@ -342,6 +352,11 @@
 		</copy>
 		<copy todir="${build}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" overwrite="true">
 			<fileset dir="${src}/org/opensha/sha/imr/attenRelImpl/ngaw2/coeff" />
+		</copy>
+		<copy todir="${build}/org/opensha/sha/imr/mod/impl/" overwrite="true">
+			<fileset dir="${src}/org/opensha/sha/imr/mod/impl/" >
+				<include name="**/*.csv" />
+			</fileset>
 		</copy>
 	</target>
 	
@@ -384,6 +399,14 @@
 		</copy>
 	</target>
 	
+	<target name="resource.oaf" depends="resource.misc.required">
+		<copy todir="${build}/scratch/aftershockStatistics" overwrite="true">
+			<fileset dir="${dev}/scratch/aftershockStatistics">
+				<include name="*.csv" />
+			</fileset>
+		</copy>
+	</target>
+	
 	<target name="resource.app.icons" if="app.short.name">
 		<trycatch>
 			<try>
@@ -409,6 +432,7 @@
 		<!--			ERF Resources				-->
 		<antcall target="resource.erfs.main" />
 		<antcall target="resource.erfs.gem" />
+		<antcall target="resource.erfs.nz" />
 		<antcall target="resource.cybershake" />
 
 		<antcall target="resource.hazard.apps.server" />
@@ -460,6 +484,7 @@
 		<unjar src="${lib.dir}/poi-3.8-20120326.jar" dest="${build}" />
 		<unjar src="${lib.dir}/f2jutil.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-math3-3.2.jar" dest="${build}" />
+		<unjar src="${lib.dir}/commons-cli-1.2.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-lang3-3.0.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-codec-1.5.jar" dest="${build}" />
 		<unjar src="${lib.dir}/commons-io-2.0.1.jar" dest="${build}" />

@@ -552,7 +552,7 @@ public class SimJunctionMapper {
 		gp.setBackgroundColor(Color.WHITE);
 		CommandLineInversionRunner.setFontSizes(gp);
 		gp.drawGraphPanel(spec, true, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(plotsDir, fName+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(plotsDir, fName+".pdf").getAbsolutePath());
 	}
@@ -625,7 +625,7 @@ public class SimJunctionMapper {
 		PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.drawGraphPanel(spec, true, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(plotsDir, fName+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(plotsDir, fName+".pdf").getAbsolutePath());
 	}
@@ -666,7 +666,7 @@ public class SimJunctionMapper {
 		PlotSpec spec = new PlotSpec(funcs, chars, title, xLabel, yLabel);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(plotsDir, fName+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(plotsDir, fName+".pdf").getAbsolutePath());
 	}
@@ -706,7 +706,7 @@ public class SimJunctionMapper {
 		PlotSpec spec = new PlotSpec(funcs, chars, title, xLabel, yLabel);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(plotsDir, fName+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(plotsDir, fName+".pdf").getAbsolutePath());
 	}
@@ -969,7 +969,7 @@ public class SimJunctionMapper {
 		spec.setPlotAnnotations(annotations);
 		gp.setBackgroundColor(Color.WHITE);
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(plotsDir, fName+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(plotsDir, fName+".pdf").getAbsolutePath());
 	}
@@ -1130,7 +1130,7 @@ public class SimJunctionMapper {
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setUserBounds(new Range(0d, 10d), new Range(1e-6, 1e1));
 		gp.drawGraphPanel(spec, false, true);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(new File(plotsDir, fName+".png").getAbsolutePath());
 		gp.saveAsPDF(new File(plotsDir, fName+".pdf").getAbsolutePath());
 	}

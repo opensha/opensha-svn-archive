@@ -26,6 +26,7 @@ public class XYZPlotSpec {
 	private Double thickness = null;
 	private List<? extends XYAnnotation> annotations;
 	private RectangleEdge legendPosition = RectangleEdge.TOP;
+	private boolean cptVisible = true;
 	private List<? extends XY_DataSet> xyElems;
 	private List<PlotCurveCharacterstics> xyChars;
 	private double cptTickUnit = -1;
@@ -120,7 +121,7 @@ public class XYZPlotSpec {
 		return annotations;
 	}
 
-	public RectangleEdge getLegendPosition() {
+	public RectangleEdge getCPTPosition() {
 		return legendPosition;
 	}
 
@@ -128,8 +129,16 @@ public class XYZPlotSpec {
 	 * This sets the position of the color scale legend.
 	 * @param legendPosition
 	 */
-	public void setLegendPosition(RectangleEdge legendPosition) {
+	public void setCPTPosition(RectangleEdge legendPosition) {
 		this.legendPosition = legendPosition;
+	}
+	
+	public void setCPTVisible(boolean cptVisible) {
+		this.cptVisible = cptVisible;
+	}
+	
+	public boolean isCPTVisible() {
+		return cptVisible;
 	}
 
 	public List<? extends XY_DataSet> getXYElems() {

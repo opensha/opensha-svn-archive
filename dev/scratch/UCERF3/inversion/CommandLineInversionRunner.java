@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +88,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.google.common.io.Files;
 
 /**
  * This is the main class for running UCERF3 Inversions. It handes creation of the input matrices,
@@ -138,7 +140,9 @@ public class CommandLineInversionRunner {
 				"Set coulomb filter exclusion DCFF threshold"),
 		UCERF3p2("u3p2", "ucerf3p2", "U3p2", false, "Flag for reverting to UCERF3.2 rup set/data"),
 		RUP_SMOOTH_WT("rupsm", "rup-rate-smoothing-wt", "RupSmth", true, "Rupture rate smoothing constraint weight"),
-		U2_MAPPED_RUPS_ONLY("u2rups", "u2-rups-only", "U2Rups", false, "UCERF2 Mappable Ruptures Only");
+		U2_MAPPED_RUPS_ONLY("u2rups", "u2-rups-only", "U2Rups", false, "UCERF2 Mappable Ruptures Only"),
+		RUP_FILTER_FILE("rupfilter", "rup-filter-file", "FilteredRups", true,
+				"ASCII file listing rupture indexes, one per line, to include in output solution");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -188,6 +192,13 @@ public class CommandLineInversionRunner {
 		public String getFileName(String option) {
 			if (hasOption) {
 				Preconditions.checkArgument(option != null && !option.isEmpty());
+				if (option.contains("/")) {
+					// it's a file, just use file name
+					File file = new File(option);
+					option = file.getName().replaceAll("_", "");
+					if (option.contains("."))
+						option = option.substring(0, option.indexOf("."));
+				}
 				return fileName+option;
 			}
 			return fileName;
@@ -319,6 +330,11 @@ public class CommandLineInversionRunner {
 			InversionFaultSystemRupSet rupSet = InversionFaultSystemRupSetFactory.forBranch(
 					laughTest, defaultAseis, branch);
 			System.out.println("Num rups: "+rupSet.getNumRuptures());
+			
+			if (cmd.hasOption(InversionOptions.RUP_FILTER_FILE.argName)) {
+				rupSet = getFilteredRupsOnly(rupSet, new File(cmd.getOptionValue(InversionOptions.RUP_FILTER_FILE.argName)));
+				System.out.println("Num rups after filtering: "+rupSet.getNumRuptures());
+			}
 			
 			if (cmd.hasOption(InversionOptions.U2_MAPPED_RUPS_ONLY.argName)) {
 				rupSet = getUCERF2RupsOnly(rupSet);
@@ -901,7 +917,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Number of Jumps > "+(float)jumpDist+" km", "Rate", funcs, chars, title);
 
 		File file = new File(dir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -955,7 +971,7 @@ public class CommandLineInversionRunner {
 		PlotSpec spec = invSol.getMFDPlots(totalMFD, targetMFD, region, ucerf2Fetch);
 		HeadlessGraphPanel gp = invSol.getHeadlessMFDPlot(spec, totalMFD);
 		File file = new File(dir, getMFDPrefix(prefix, region));
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -989,7 +1005,7 @@ public class CommandLineInversionRunner {
 				paleoRateConstraints, aveSlipConstraints, sol, true);
 
 		File file = new File(dir, prefix+"_paleo_fit");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1023,7 +1039,7 @@ public class CommandLineInversionRunner {
 		prefix = getSAFSegPrefix(prefix, minMag, endsOnly);
 
 		File file = new File(dir, prefix);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1567,7 +1583,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Magnitude", yAxisLabel, funcs, chars, title);
 		
 		File file = new File(dir, fname);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1575,10 +1591,10 @@ public class CommandLineInversionRunner {
 		if (!smallDir.exists())
 			smallDir.mkdir();
 		file = new File(smallDir, fname+"_small");
-		gp.getCartPanel().setSize(500, 400);
+		gp.getChartPanel().setSize(500, 400);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 	}
 
 	public static void writePaleoCorrelationPlots(
@@ -1622,7 +1638,7 @@ public class CommandLineInversionRunner {
 					spec.getPlotElems(), spec.getChars(), spec.getTitle());
 			
 			File file = new File(dir, fname);
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1760,7 +1776,7 @@ public class CommandLineInversionRunner {
 				gp.drawGraphPanel(spec);
 				
 				File file = new File(dir, fname+"_"+fname_add);
-				gp.getCartPanel().setSize(1000, 500);
+				gp.getChartPanel().setSize(1000, 500);
 				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(file.getAbsolutePath()+".png");
 				gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1789,7 +1805,7 @@ public class CommandLineInversionRunner {
 			gp.drawGraphPanel(combinedSpecs, false, true, xRanges, yRanges);
 			
 			File file = new File(dir, fname+"_combined");
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 			gp.saveAsPNG(file.getAbsolutePath()+".png");
 			gp.saveAsTXT(file.getAbsolutePath()+".txt");
@@ -1840,7 +1856,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)", funcs, chars,
 				"Rupture Pairing Smoothness");
 		File file = new File(dir, prefix+"_rup_smooth_pairings");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		
@@ -1854,7 +1870,7 @@ public class CommandLineInversionRunner {
 		gp.drawGraphPanel("Rank", "abs(rate1 - rate2)/(mean rate)", funcs, chars,
 				"Rupture Pairing Smoothness Fractions");
 		file = new File(dir, prefix+"_rup_smooth_pairings_fract");
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 	}
@@ -1885,6 +1901,49 @@ public class CommandLineInversionRunner {
 			rupLengths[cnt] = rupSet.getLengthForRup(r);
 			rupAveSlips[cnt] = rupSet.getAveSlipForRup(r);
 			cnt++;
+		}
+		
+		FaultSystemRupSet subset = new FaultSystemRupSet(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(),
+				rupSet.getSlipRateStdDevForAllSections(), rupSet.getAreaForAllSections(),
+				sectionForRups, mags, rakes, rupAreas, rupLengths, rupSet.getInfoString());
+		
+		return new InversionFaultSystemRupSet(subset, rupSet.getLogicTreeBranch(), rupSet.getLaughTestFilter(), rupAveSlips,
+				null, null, null);
+	}
+	
+	public static InversionFaultSystemRupSet getFilteredRupsOnly(InversionFaultSystemRupSet rupSet, File file) throws IOException {
+		Preconditions.checkArgument(file.exists());
+		
+		List<Integer> rupIndexes = Lists.newArrayList();
+		
+		FileWriter mappingFW = new FileWriter(new File(file.getAbsolutePath()+".mappings"));
+		mappingFW.write("# OrigID\tMappedID\n");
+		
+		for (String line : Files.readLines(file, Charset.defaultCharset())) {
+			line = line.trim();
+			if (line.isEmpty() || line.startsWith("#"))
+				continue;
+			int rupIndex = Integer.parseInt(line);
+			mappingFW.write(rupIndex+"\t"+rupIndexes.size()+"\n");
+			rupIndexes.add(rupIndex);
+		}
+		mappingFW.close();
+		
+		List<List<Integer>> sectionForRups = Lists.newArrayList();
+		double[] mags = new double[rupIndexes.size()];
+		double[] rakes = new double[rupIndexes.size()];
+		double[] rupAreas = new double[rupIndexes.size()];
+		double[] rupLengths = new double[rupIndexes.size()];
+		double[] rupAveSlips = new double[rupIndexes.size()];
+		
+		for (int i=0; i<rupIndexes.size(); i++) {
+			int rupIndex = rupIndexes.get(i);
+			sectionForRups.add(rupSet.getSectionsIndicesForRup(rupIndex));
+			mags[i] = rupSet.getMagForRup(rupIndex);
+			rakes[i] = rupSet.getAveRakeForRup(rupIndex);
+			rupAreas[i] = rupSet.getAreaForRup(rupIndex);
+			rupLengths[i] = rupSet.getLengthForRup(rupIndex);
+			rupAveSlips[i] = rupSet.getAveSlipForRup(rupIndex);
 		}
 		
 		FaultSystemRupSet subset = new FaultSystemRupSet(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(),

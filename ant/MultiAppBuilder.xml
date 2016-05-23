@@ -279,7 +279,7 @@
 			<property name="app.main.class" value="scratch.aftershockStatistics.AftershockStatsGUI" />
 			<property name="javac.includes"     value="scratch/aftershockStatistics/AftershockStatsGUI.java" />
 			<property name="javac.excludes" value="" />
-			<property name="resource.target" value="resource.misc.required" />
+			<property name="resource.target" value="resource.oaf" />
 			<property name="unjar.target" value="unjar.libs.oaf" />
 		</ant>
 	</target>

@@ -1052,7 +1052,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		}
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.drawGraphPanel(specs, false, false, null, null);
-		gp.getCartPanel().setSize(1000, 1500);
+		gp.getChartPanel().setSize(1000, 1500);
 		gp.setBackground(Color.WHITE);
 		gp.saveAsPNG("/tmp/dist_benchmarks_by_length.png");
 		
@@ -1073,7 +1073,7 @@ public class QuadSurface implements RuptureSurface, CacheEnabledSurface {
 		}
 		gp = new HeadlessGraphPanel();
 		gp.drawGraphPanel(specs, false, false, null, null);
-		gp.getCartPanel().setSize(1000, 1500);
+		gp.getChartPanel().setSize(1000, 1500);
 		gp.setBackground(Color.WHITE);
 		gp.saveAsPNG("/tmp/dist_benchmarks_by_pts.png");
 	}

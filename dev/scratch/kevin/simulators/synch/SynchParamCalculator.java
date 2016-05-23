@@ -715,7 +715,7 @@ public class SynchParamCalculator {
 		Range yRange = new Range(1e-6, 1e-0);
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
 
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(scatterPlotFile.getAbsolutePath()+".png");
 		gp.saveAsPDF(scatterPlotFile.getAbsolutePath()+".pdf");
 		this.scatterPlotFile = new File(scatterPlotFile.getAbsolutePath()+".pdf");
@@ -737,7 +737,7 @@ public class SynchParamCalculator {
 		yRange = new Range(1e-6, 1e1);
 		gp.drawGraphPanel(spec, true, true, xRange, yRange);
 
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.saveAsPNG(contribScatterFile.getAbsolutePath()+".png");
 
 		if (name1.contains("Mojave") && name2.contains("Coachella")) {
@@ -1406,7 +1406,7 @@ public class SynchParamCalculator {
 				gp.drawGraphPanel(spec, false, false, lagXRange, lagYRange);
 
 				// 8.5x11
-				gp.getCartPanel().setSize(800, 300);
+				gp.getChartPanel().setSize(800, 300);
 				gp.saveAsPDF(subLagFile.getAbsolutePath()+".pdf");
 				gp.saveAsPNG(subLagFile.getAbsolutePath()+".png");
 			}
@@ -1454,7 +1454,7 @@ public class SynchParamCalculator {
 			gp.drawGraphPanel(lagSpecPage, false, false, lagXRanges, lagYRanges);
 
 			// 8.5x11
-			gp.getCartPanel().setSize(850, 1100);
+			gp.getChartPanel().setSize(850, 1100);
 			gp.saveAsPDF(synchLagFile.getAbsolutePath());
 			synchLagFiles.add(synchLagFile);
 		}
@@ -1731,7 +1731,7 @@ public class SynchParamCalculator {
 
 				gp.drawGraphPanel(spec, false, false);
 
-				gp.getCartPanel().setSize(1000, 800);
+				gp.getChartPanel().setSize(1000, 800);
 				gp.saveAsPNG(new File(outputDir, outputName+".png").getAbsolutePath());
 //				gp.saveAsPDF(scatterPlotFile.getAbsolutePath()+".pdf");
 			}
@@ -2000,6 +2000,10 @@ public class SynchParamCalculator {
 		for (ComparablePairing<Integer, Integer>  comp : eventComps)
 			sortedIndexes.add(comp.getData());
 		
+		ArbitrarilyDiscretizedFunc occVsFractFunc = new ArbitrarilyDiscretizedFunc();
+		
+		System.out.println("Fraction of states occupied only once:");
+		
 		for (int nDims=chain.getNDims(); nDims>=2; nDims--) {
 			EmpiricalMarkovChain myChain = chain;
 			List<Integer> indexesToInclude = sortedIndexes;
@@ -2030,6 +2034,10 @@ public class SynchParamCalculator {
 			destHist.normalizeBySumOfY_Vals();
 			occHist.normalizeBySumOfY_Vals();
 			
+			double fractOnlyOnce = occHist.getY(1d);
+			occVsFractFunc.set((double)nDims, fractOnlyOnce);
+			System.out.println(nDims+"-D: "+(float)fractOnlyOnce);
+			
 			List<DiscretizedFunc> funcs = Lists.newArrayList();
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 			
@@ -2053,7 +2061,7 @@ public class SynchParamCalculator {
 			
 			File outputFile = new File(outputDir, "state_trans_hist_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 			gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 			
@@ -2062,7 +2070,7 @@ public class SynchParamCalculator {
 			
 			outputFile = new File(outputDir, "state_trans_hist_log_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 			
 			// now occupancy
@@ -2072,7 +2080,7 @@ public class SynchParamCalculator {
 			funcs.add(occHist);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
 			
-			spec = new PlotSpec(funcs, chars, nDims+"-D State Transition Hist:\n"+nameStr,
+			spec = new PlotSpec(funcs, chars, nDims+"-D State Occupancy Hist:\n"+nameStr,
 					"Occupancy Count", "Fraction of States");
 			
 			gp = new HeadlessGraphPanel();
@@ -2085,7 +2093,7 @@ public class SynchParamCalculator {
 			
 			outputFile = new File(outputDir, "state_occ_hist_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 			gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 			
@@ -2094,9 +2102,32 @@ public class SynchParamCalculator {
 			
 			outputFile = new File(outputDir, "state_occ_hist_log_"+nDims+"D");
 
-			gp.getCartPanel().setSize(1000, 800);
+			gp.getChartPanel().setSize(1000, 800);
 			gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
 		}
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(occVsFractFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.BLACK));
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "State Occupancy Hist vs Dimensions",
+				"Num Dimensions", "Fract Occupied Only Once");
+		
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		gp.setBackgroundColor(Color.WHITE);
+		gp.setTickLabelFontSize(14);
+		gp.setAxisLabelFontSize(16);
+		gp.setPlotLabelFontSize(14);
+
+		gp.drawGraphPanel(spec, false, false, null, new Range(0d, 1d));
+		
+		File outputFile = new File(outputDir, "state_occ_vs_dims");
+
+		gp.getChartPanel().setSize(1000, 800);
+		gp.saveAsPNG(outputFile.getAbsolutePath()+".png");
+		gp.saveAsTXT(outputFile.getAbsolutePath()+".txt");
 	}
 
 	public static void main(String[] args) throws IOException {

@@ -121,7 +121,7 @@ public class CyberShakeWeightProvider implements WeightProvider {
 		gp.setPlotLabelFontSize(21);
 
 		gp.drawGraphPanel(spec);
-		gp.getCartPanel().setSize(1000, 800);
+		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 
 		gp.validate();
