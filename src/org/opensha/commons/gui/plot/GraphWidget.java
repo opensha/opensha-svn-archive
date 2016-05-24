@@ -362,8 +362,13 @@ public class GraphWidget extends JPanel {
 		chartPane.add(c, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 				, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 0), 0, 0));
-		chartPane.validate();
-		chartPane.repaint();
+		try {
+			chartPane.validate();
+			chartPane.repaint();
+		} catch (RuntimeException e) {
+			System.err.println("Exception in painting chart, often non-critical so ignoring:");
+			e.printStackTrace();
+		}
 	}
 
 	/**

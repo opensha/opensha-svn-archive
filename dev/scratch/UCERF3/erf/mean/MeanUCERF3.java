@@ -3,6 +3,7 @@ package scratch.UCERF3.erf.mean;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,9 +16,11 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.impl.BooleanParameter;
 import org.opensha.commons.param.impl.DoubleParameter;
+import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
@@ -61,9 +64,11 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 	
 	public static final String NAME = "Mean UCERF3";
 	
-	static final String DOWNLOAD_URL = "http://opensha.usc.edu/ftp/ucerf3_erf/";
+	static final String DOWNLOAD_URL = "http://"+ServerPrefUtils.SERVER_PREFS.getHostName()+"/ftp/ucerf3_erf/";
 	static final String RAKE_BASIS_FILE_NAME = "rake_basis.zip";
 	static final String TRUE_MEAN_FILE_NAME = "mean_ucerf3_sol.zip";
+	
+	private EnumParameter<Presets> presetsParam;
 	
 	public static final String UPPER_DEPTH_TOL_PARAM_NAME = "Sect Upper Depth Averaging Tolerance";
 	public static final double UPPER_DEPTH_TOL_MIN = 0d;
@@ -96,6 +101,38 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 	private DiscretizedFunc[] meanTotalMFDs;
 	
 	private Map<Integer, List<LastEventData>> lastEventData;
+	
+	private enum Presets {
+		FM3_1_BRANCH_AVG("FM3.1 Branch Averaged", FaultModels.FM3_1, UPPER_DEPTH_TOL_MAX, true, 1d, RAKE_BASIS_MEAN),
+		FM3_1_MAG_VAR("FM3.1 BA w/ Alt Mags", FaultModels.FM3_1, UPPER_DEPTH_TOL_MAX, true, 0d, RAKE_BASIS_MEAN),
+		FM3_2_BRANCH_AVG("FM3.2 Branch Averaged", FaultModels.FM3_2, UPPER_DEPTH_TOL_MAX, true, 1d, RAKE_BASIS_MEAN),
+		FM3_2_MAG_VAR("FM3.2 BA w/ Alt Mags", FaultModels.FM3_2, UPPER_DEPTH_TOL_MAX, true, 0d, RAKE_BASIS_MEAN),
+		BOTH_FM_BRANCH_AVG("(POISSON ONLY) Both FM Branch Averaged", null, UPPER_DEPTH_TOL_MAX, true, 1d, RAKE_BASIS_MEAN),
+		BOTH_FM_MAG_VAR("(POISSON ONLY) Both FM BA w/ Alt Mags", null, UPPER_DEPTH_TOL_MAX, true, 0d, RAKE_BASIS_MEAN),
+		COMPLETE_MODEL("(POISSON ONLY LARGE MEM) Complete Model", null, 0d, true, 0d, RAKE_BASIS_NONE);
+		
+		private String name;
+		private FaultModels fm;
+		private double upperDepthTol;
+		private boolean upperDepthUseMean;
+		private double magTol;
+		private String rakeBasisStr;
+		
+		private Presets(String name, FaultModels fm, double upperDepthTol, boolean upperDepthUseMean,
+				double magTol, String rakeBasisStr) {
+			this.name = name;
+			this.fm = fm;
+			this.upperDepthTol = upperDepthTol;
+			this.upperDepthUseMean = upperDepthUseMean;
+			this.magTol = magTol;
+			this.rakeBasisStr = rakeBasisStr;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 	
 	public static File getStoreDir() {
 		// first check user prop
@@ -153,6 +190,10 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		System.out.println("MeanUCERF3 store dir: "+storeDir);
 		Preconditions.checkState(storeDir.exists(), "Store dir doesn't exist: "+storeDir.getAbsolutePath());
 		
+		presetsParam = new EnumParameter<MeanUCERF3.Presets>("Mean UCERF3 Presets",
+				EnumSet.allOf(Presets.class), Presets.FM3_1_BRANCH_AVG, "(custom)");
+		presetsParam.addParameterChangeListener(this);
+		
 		upperDepthTolParam = new DoubleParameter(UPPER_DEPTH_TOL_PARAM_NAME, UPPER_DEPTH_TOL_MIN, UPPER_DEPTH_TOL_MAX);
 		upperDepthTolParam.setValue(0d);
 		upperDepthTolParam.setUnits("km");
@@ -191,7 +232,6 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 				"\ndeformation model.");
 		rakeBasisParam.addParameterChangeListener(this);
 		rakeBasisStr = rakeBasisParam.getValue();
-		loadRakeBasis();
 		
 		ArrayList<String> faultModelStrs = Lists.newArrayList(FAULT_MODEL_BOTH);
 		for (FaultModels fm : FaultModels.values())
@@ -212,6 +252,10 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		// ensure disabled by default
 		aleatoryMagAreaStdDevParam.setValue(0d);
 		
+		doSetPreset(presetsParam.getValue());
+		
+		loadRakeBasis();
+		
 		createParamList();
 	}
 	
@@ -222,6 +266,8 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		if (upperDepthTolParam == null)
 			// called during super constructor, wait until next time
 			return;
+		
+		adjustableParams.addParameter(0, presetsParam);
 		
 		adjustableParams.addParameter(upperDepthTolParam);
 		adjustableParams.addParameter(upperDepthUseMeanParam);
@@ -241,7 +287,13 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			// this means that we have to load/build the solution (parameter change or never loaded)
 			fetchSolution();
 		}
+		checkTimeDepCompatibility(true);
 		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON) {
+			Preconditions.checkState(isTimeDepCompatible(), "The given parameterization is not compatible with time dependence."
+					+ " When multiple fault models are used, or upper depth tolerance < 10,"
+					+ " MeanUCERF3 creates multiple instances of each subsection, each of"
+					+ " which has a portion of the rate, and thus a longer recurrence interval. This throws"
+					+ " off the BPT calculations which use the subsection recurrence interval.");
 			if (lastEventData == null) {
 				try {
 					lastEventData = LastEventData.load();
@@ -251,14 +303,6 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 			}
 			LastEventData.populateSubSects(getSolution().getRupSet().getFaultSectionDataList(), lastEventData);
 		}
-//		if (getParameter(ProbabilityModelParam.NAME).getValue() != ProbabilityModelOptions.POISSON)
-//			throw new IllegalStateException("MeanUCERF3 is not compatible with time dependence. Certain"
-//					+ " parameter combination should be compatible in theory but this needs further testing."
-//					+ " Long story short, MeanUCERF3 creates multiple instances of each subsection, each of"
-//					+ " which has a portion of the rate, and thus a longer recurrence interval. This throws"
-//					+ " off the BPT calculations which use the subsection recurrence interval. Things get worse"
-//					+ " when you combine fault models, as the section participation rates are halved for each"
-//					+ " section unique to a FM.");
 		super.updateForecast();
 	}
 
@@ -267,30 +311,105 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		// we set the solution to null as a flag that something has changed
 		// and we need to rebuild the solution on the next update forecast call
 		
+		Presets preset = null;
+		if (presetsParam != null)
+			preset = presetsParam.getValue();
+		
 		Parameter<?> param = event.getParameter();
 		if (param == upperDepthTolParam) {
 			upperDepthTol = upperDepthTolParam.getValue();
+			if (preset != null && upperDepthTol != preset.upperDepthTol)
+				setPreset(null);
 			setSolution(null);
+			checkTimeDepCompatibility(false);
 		} else if (param == upperDepthUseMeanParam) {
 			upperDepthUseMean = upperDepthUseMeanParam.getValue();
+			if (preset != null && upperDepthUseMean != preset.upperDepthUseMean)
+				setPreset(null);
 			setSolution(null);
 		} else if (param == magTolParam) {
 			magTol = magTolParam.getValue();
+			if (preset != null && magTol != preset.magTol)
+				setPreset(null);
 			setSolution(null);
 		} else if (param == rakeBasisParam) {
 			rakeBasisStr = rakeBasisParam.getValue();
+			if (preset != null && !rakeBasisStr.equals(preset.rakeBasisStr))
+				setPreset(null);
 			loadRakeBasis();
 			setSolution(null);
 		} else if (param == faultModelParam) {
 			faultModelStr = faultModelParam.getValue();
+			if (preset != null) {
+				if (preset.fm == null) {
+					if (!faultModelStr.equals(FAULT_MODEL_BOTH))
+						setPreset(null);
+				} else {
+					if (!preset.fm.name().equals(faultModelStr))
+						setPreset(null);
+				}
+			}
 			setTrueMeanSol(null);
 			setSolution(null);
+			checkTimeDepCompatibility(false);
 		} else if (param == ignoreCacheParam) {
 			ignoreCache = ignoreCacheParam.getValue();
 			setSolution(null);
+		} else if (param == presetsParam) {
+			doSetPreset(preset);
 		} else {
 			super.parameterChange(event);
 		}
+	}
+	
+	public void setPreset(Presets preset) {
+		presetsParam.setValue(preset);
+		presetsParam.getEditor().refreshParamEditor();
+	}
+	
+	private void doSetPreset(Presets preset) {
+		if (preset == null)
+			return;
+		upperDepthTolParam.setValue(preset.upperDepthTol);
+		upperDepthTolParam.getEditor().refreshParamEditor();
+		upperDepthUseMeanParam.setValue(preset.upperDepthUseMean);
+		upperDepthUseMeanParam.getEditor().refreshParamEditor();
+		magTolParam.setValue(preset.magTol);
+		magTolParam.getEditor().refreshParamEditor();
+		rakeBasisParam.setValue(preset.rakeBasisStr);
+		rakeBasisParam.getEditor().refreshParamEditor();
+		FaultModels fm = preset.fm;
+		if (fm == null)
+			faultModelParam.setValue(FAULT_MODEL_BOTH);
+		else
+			faultModelParam.setValue(fm.name());
+		faultModelParam.getEditor().refreshParamEditor();
+	}
+	
+	private void checkTimeDepCompatibility(boolean warn) {
+		if (!isTimeDepCompatible() && !isPoisson()) {
+			if (warn) {
+				String title = "Setting Probability Model to Poisson";
+				String message = "The given parameterization is not compatible with time dependence."
+						+ " When multiple fault models are used, or upper depth tolerance < 10,\n"
+						+ " MeanUCERF3 creates multiple instances of each subsection, each of which\n"
+						+ " has a portion of the rate, and thus a longer recurrence interval. This throws\n"
+						+ " off the BPT calculations which use the subsection recurrence interval.\n"
+						+ "\nIt has now been set to Poisson.";
+				JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+			}
+			setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+			getParameter(ProbabilityModelParam.NAME).getEditor().refreshParamEditor();
+		}
+			
+	}
+	
+	private boolean isTimeDepCompatible() {
+		if (faultModelStr.equals(FAULT_MODEL_BOTH))
+			return false;
+		if (upperDepthTol < 10d)
+			return false;
+		return true;
 	}
 
 	/**
