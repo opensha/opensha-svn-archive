@@ -516,7 +516,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		//if the selected IMT is SA
 		if(imt.equals(SA_Param.NAME)){
 			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
-			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -:  -V";
 			gmtCommandLines.add(commandLine+"\n");
 			commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+hazusPrefix;
 			gmtCommandLines.add(commandLine+"\n");
@@ -524,7 +524,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		//if the selected IMT is PGA
 		else if(imt.equals(PGA_Param.NAME)){
 			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
-			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -:  -V";
 			gmtCommandLines.add(commandLine+"\n");
 			commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+hazusPrefix;
 			gmtCommandLines.add(commandLine+"\n");
@@ -532,7 +532,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		//if the selected IMT is PGV
 		else if(imt.equals(PGV_Param.NAME)){
 			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
-			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+			"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -:  -V";
 			gmtCommandLines.add(commandLine+"\n");
 			commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 4.0 -f 2.0 -Z 0.3937 -T4 -o "+hazusPrefix;
 			gmtCommandLines.add(commandLine+"\n");
@@ -574,7 +574,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			//if the selected IMT is SA
 			if(imt.equals(SA_Param.NAME)){
 				commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
-				"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+				"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -:  -V";
 				gmtCommandLines.add(commandLine+"\n");
 				commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+HAZUS_FILE_PREFIX;
 				gmtCommandLines.add(commandLine+"\n");
@@ -582,7 +582,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			//if the selected IMT is PGA
 			else if(imt.equals(PGA_Param.NAME)){
 				commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
-				"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+				"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -:  -V";
 				gmtCommandLines.add(commandLine+"\n");
 				commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+HAZUS_FILE_PREFIX;
 				gmtCommandLines.add(commandLine+"\n");
@@ -590,7 +590,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			//if the selected IMT is PGV
 			else if(imt.equals(PGV_Param.NAME)){
 				commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
-				"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+				"-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -:  -V";
 				gmtCommandLines.add(commandLine+"\n");
 				commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 4.0 -f 2.0 -Z 0.3937 -T4 -o "+HAZUS_FILE_PREFIX;
 				gmtCommandLines.add(commandLine+"\n");
@@ -622,6 +622,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			int cols = surface.getNumCols();
 			if(D) System.out.println(C+" rows, cols: "+rows+", "+cols);
 			int c, r;
+			
+			double penWidth = 2;
 
 			if(rupPlot.equals(RUP_PLOT_PARAM_PERIMETER)) {
 				//  This draws separate segments between each neighboring point
@@ -644,7 +646,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 						Color color = new Color(shade, shade, shade);
 						poly.setPenColor(color);
-						poly.setPenWidth(8);
+						poly.setPenWidth(penWidth);
 						map.addPolys(poly);
 						lastLoc = loc;
 					}
@@ -657,7 +659,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 						Color color = new Color(shade, shade, shade);
 						poly.setPenColor(color);
-						poly.setPenWidth(8);
+						poly.setPenWidth(penWidth);
 						map.addPolys(poly);
 						lastLoc = loc;
 					}
@@ -670,7 +672,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 						PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 						Color color = new Color(shade, shade, shade);
 						poly.setPenColor(color);
-						poly.setPenWidth(8);
+						poly.setPenWidth(penWidth);
 						map.addPolys(poly);
 						lastLoc = loc;
 					}
@@ -684,7 +686,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 					PSXYPolygon poly = new PSXYPolygon(lastLoc, loc);
 					Color color = new Color(shade, shade, shade);
 					poly.setPenColor(color);
-					poly.setPenWidth(8);
+					poly.setPenWidth(penWidth);
 					map.addPolys(poly);
 					lastLoc = loc;
 				}
@@ -722,7 +724,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 				Point2D pt = new Point2D.Double(hypo.getLongitude(), hypo.getLatitude());
 				Symbol symbol = Symbol.STAR;
 				double width = 0.4;
-				double penWidth = 8;
 				Color penColor = Color.BLACK;
 				Color fillColor = null;
 				PSXYSymbol hypoSym = new PSXYSymbol(pt, symbol, width, penWidth, penColor, fillColor);
@@ -874,7 +875,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
 				// plot the rupture surface points
 				commandLine = GMT_PATH+"psxy "+ EQK_RUP_XYZ_FILE_NAME + region +
-				projWdth +" -K -O -M >> " + PS_FILE_NAME;
+				projWdth +" -K -O >> " + PS_FILE_NAME;
 				gmtLines.add(commandLine+"\n");
 				gmtLines.add(COMMAND_PATH+"rm "+EQK_RUP_XYZ_FILE_NAME+"\n");
 			}

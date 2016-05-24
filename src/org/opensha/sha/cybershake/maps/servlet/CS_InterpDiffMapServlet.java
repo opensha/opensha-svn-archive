@@ -34,6 +34,8 @@ import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
 
+import com.google.common.base.Preconditions;
+
 
 
 /**
@@ -65,6 +67,8 @@ extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private static final File GMT_DATA_DIR = GMT_MapGeneratorServlet.GMT_DATA_DIR;
+	
 	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL()
 					+ "CS_InterpDiffMapServlet";
 	
@@ -79,12 +83,10 @@ extends HttpServlet {
 				getOutputStream());
 
 		try {
-			//all the user gmt stuff will be stored in this directory
-			File mainDir = new File(GMT_MapGeneratorServlet.FILE_PATH + GMT_MapGeneratorServlet.GMT_DATA_DIR);
 			//create the main directory if it does not exist already
-			if (!mainDir.isDirectory()) {
-				(new File(GMT_MapGeneratorServlet.FILE_PATH + GMT_MapGeneratorServlet.GMT_DATA_DIR)).mkdir();
-			}
+			if (!GMT_DATA_DIR.exists())
+				GMT_DATA_DIR.mkdir();
+			Preconditions.checkState(GMT_DATA_DIR.exists());
 
 			// get an input stream from the applet
 			ObjectInputStream inputFromApplet = new ObjectInputStream(request.

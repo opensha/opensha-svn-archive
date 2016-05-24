@@ -1,11 +1,14 @@
+#!/bin/bash
+
+set -o errexit
+
 # this script removes old gmt plots. it can be run manually if needed, but is currently
 # running every night at midnight as a cron job. it leaves directories that are only
 # 6 or less hours old, so that if you make a map close to midnight, it won't get deleted
 # until the next day
 
-
 # the data directory
-cd /usr/local/tomcat/default/webapps/OpenSHA/gmtData
+cd /export/opensha-00/tmp/gmtData
 
 # the buffer zone so that directories that have been modified within this time period
 # won't get deleted.

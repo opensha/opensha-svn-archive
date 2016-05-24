@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
@@ -102,15 +103,19 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	protected String SCALE_LABEL; // what's used to label the color scale
 
 	/*				opensha.usc.edu paths				*/
-	public static final String OPENSHA_GMT_PATH="/usr/local/GMT4.2.1/bin/";
+//	public static final String OPENSHA_GMT_PATH="/usr/local/GMT4.2.1/bin/";
+	public static final String OPENSHA_GMT_PATH="/usr/bin/gmt "; // needs the space after
 	public static final String OPENSHA_GS_PATH="/usr/bin/gs";
 	public static final String OPENSHA_PS2PDF_PATH = "/usr/bin/ps2pdf";
 	public static final String OPENSHA_CONVERT_PATH="/usr/bin/convert";
-	public static final String OPENSHA_GMT_DATA_PATH = "/export/opensha/data/gmt/";
+	public static final String OPENSHA_GMT_DATA_PATH =
+			ServerPrefUtils.SERVER_PREFS.getDataDir().getAbsolutePath()+File.separator+"gmt"+File.separator;
 	public static final String OPENSHA_SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "GMT_MapGeneratorServlet";
-	public static final String OPENSHA_JAVA_PATH = "/usr/java/1.5.0_10/bin/java";
-	public static final String OPENSHA_CLASSPATH = ServerPrefUtils.SERVER_PREFS.getTomcatDir()+"classes";
-	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
+	public static final String OPENSHA_JAVA_PATH = "/usr/bin/java";
+	public static final String OPENSHA_CLASSPATH = ServerPrefUtils.SERVER_PREFS.getTomcatDir().getAbsolutePath()
+			+File.separator+"classes";
+//	public static final String OPENSHA_NETCDF_LIB_PATH="/usr/local/netCDF/lib/";
+	public static final String OPENSHA_NETCDF_LIB_PATH=null; // libraries are in /usr/lib64/ so hopefully not needed
 
 	// this is the path where general data (e.g., topography) are found:
 	public static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
@@ -499,7 +504,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		
 		CoastAttributes coast = null;
 		if (coastParam.getValue().equals(COAST_DRAW)) {
-			coast = new CoastAttributes(Color.GRAY, 5.0);
+			coast = new CoastAttributes(Color.GRAY, 1);
 		} else if (coastParam.getValue().equals(COAST_FILL)) {
 			coast = new CoastAttributes();
 		}
@@ -986,7 +991,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add("PS2PDF_PATH='" + PS2PDF_PATH + "'\n\n");
 
 		// command line to convert xyz file to grd file
-		commandLine = "${GMT_PATH}xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+		commandLine = "${GMT_PATH}xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -:";
 		gmtCommandLines.add(commandLine+"\n");
 
 		// get color scale limits
@@ -1014,12 +1019,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// set some defaults
 		if(blackBackgroundParam.getValue()) {
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
-			commandLine+=" BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,white FONT_LABEL=18p,white PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
+			commandLine+=" MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i MAP_FRAME_PEN=1p";
 		}
 		else {
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
-			commandLine+=" BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,black FONT_LABEL=18p,black PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
+			commandLine+=" MAP_DEFAULT_PEN=black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i MAP_FRAME_PEN=1p";
 		}
 		gmtCommandLines.add(commandLine+"\n");
 
@@ -1047,7 +1052,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			String hiResFile = fileName+"HiResData.grd";
 			rmFiles.add(hiResFile);
 			commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-			resolution + "c -Q "+region;
+			resolution + "s -nl "+region;
 			gmtCommandLines.add(commandLine+"\n");
 			String intenFile = fileName+"Inten.grd";
 			commandLine="${GMT_PATH}grdcut " + topoIntenFile + " -G"+intenFile+ " " +region;
@@ -1060,20 +1065,20 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add highways if desired
 		if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W1p,125/125/125 -: " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
 //		if(blackBackgroundParam.getValue())
-//			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN 255/255/255 FORMAT_GEO_MAP=-D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 //		else
-//			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+//			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN 0/0/0 FORMAT_GEO_MAP=-D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
 //
 //		gmtCommandLines.add(commandLine+"\n");
 
 		// add coast and fill if desired
 		if(coast.equals(COAST_FILL)) {
-			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1/17/73/71 -P -S17/73/71 -Dh -Na >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}pscoast "+region + projWdth + " -K -O  -W1p,17/73/71 -P -S17/73/71 -Dh -Na >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		else if(coast.equals(COAST_DRAW)) {
@@ -1105,7 +1110,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		double kmScaleXoffset = plotWdth/4; 
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
-		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
+		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+"+l -O >> " + PS_FILE_NAME;
 		gmtCommandLines.add(commandLine+"\n");
 
 		// boolean to switch between purely using convert for the ps conversion, 
@@ -1342,7 +1347,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				// simple gridded data
 				gmtCommandLines.add("# convert xyz file to grd file");
 				commandLine = "${GMT_PATH}xyz2grd "+ map.getXyzFileName()+" -G"+ grdFileName+ " -I"+gridSpacing+
-								region +" -D/degree/degree/amp/=/=/=  -: -H0";
+								region +" -D/degree/degree/amp/=/=/=  -:";
 				gmtCommandLines.add(commandLine);
 			} else {
 				// scatter data that must be interpolated
@@ -1387,9 +1392,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT paper/font defaults");
 		if(map.isBlackBackground())
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,white FONT_LABEL=18p,white PS_PAGE_COLOR=0/0/0 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
 		else
-			commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 255/255/255 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
+			commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,black FONT_LABEL=18p,black PS_PAGE_COLOR=255/255/255 PS_PAGE_ORIENTATION=portrait PS_MEDIA=letter";
 		gmtCommandLines.add(commandLine+"\n");
 		
 		boolean doContour = map.getGriddedData() != null && map.getContourIncrement() > 0;
@@ -1453,7 +1458,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 				rmFiles.add(hiResFile);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
 				commandLine="${GMT_PATH}grdsample "+grdFileName+" -G"+hiResFile+" -I" +
-				topoFile.resolution() + "c -Q "+region;
+				topoFile.resolution() + "s -nl "+region;
 				gmtCommandLines.add(commandLine);
 				
 				if (map.isMaskIfNotRectangular() && !map.getRegion().isRectangular()) {
@@ -1518,9 +1523,9 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// set some defaults
 		gmtCommandLines.add("# Set GMT map property defaults");
 		if(map.isBlackBackground())
-			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 255/255/255 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=+white FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255 MAP_FRAME_PEN=1p";
 		else
-			commandLine="${GMT_PATH}gmtset BASEMAP_FRAME_RGB 0/0/0 PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+			commandLine="${GMT_PATH}gmtset MAP_DEFAULT_PEN=black FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND=255/255/255 MAP_FRAME_PEN=1p";
 		gmtCommandLines.add(commandLine);
 
 		addColorbarCommand(gmtCommandLines, map, colorScaleMin, colorScaleMax, cptFile, psFileName);
@@ -1531,7 +1536,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
 		gmtCommandLines.add("# Map frame and KM scale label");
 		commandLine="${GMT_PATH}psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
-		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + psFileName;
+		" -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+"+l -O >> " + psFileName;
 		gmtCommandLines.add(commandLine);
 		
 		gmtCommandLines.add("");
@@ -1665,7 +1670,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		// add highways if desired
 		if (map.getHighwayFile() != null) {
 			gmtCommandLines.add("# Add highways to plot");
-			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W5/125/125/125 -: -Ms "
+			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W1p,125/125/125 -: "
 						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFile+"\n");
 		}
 	}
@@ -1683,12 +1688,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			}
 			String lineColor = "";
 			if (coastAt.getLineColor() != null) {
-				lineColor = "-W" + coastAt.getLineSize() + "/" + getGMTColorString(coastAt.getLineColor());
+				lineColor = "-W" + coastAt.getLineSize() + "p," + getGMTColorString(coastAt.getLineColor());
 			}
 			
 			gmtCommandLines.add("# Draw coastline");
 			gmtCommandLines.add("${GMT_PATH}pscoast "+region + proj + " -K -O " + lineColor + 
-						" -P " + fillColor + " -Dh -Na/"+coastAt.getLineSize()+"/"
+						" -P " + fillColor + " -Dh -Na/"+coastAt.getLineSize()+"p,"
 						+getGMTColorString(coastAt.getLineColor())+" >> " + psFile+"\n");
 		}
 	}
@@ -1717,7 +1722,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			}
 			gmtCommandLines.add("END");
 			gmtCommandLines.add("${GMT_PATH}psxy " + polyFile + " " + region + proj
-								+" -K -O -M >> " + psFile);
+								+" -K -O >> " + psFile);
 //			rmFiles.add(polyFile);
 		}
 	}
@@ -1769,8 +1774,8 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("END");
 			String symbolFile = "symbol_set.xy";
 			gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
-			ArrayList<PSXYSymbol> symbols = symSet.getSymbols();
-			ArrayList<Double> vals = symSet.getVals();
+			List<PSXYSymbol> symbols = symSet.getSymbols();
+			List<Double> vals = symSet.getVals();
 			for (int i=0; i<symbols.size(); i++) {
 				PSXYSymbol symbol = symbols.get(i);
 				double val = vals.get(i);

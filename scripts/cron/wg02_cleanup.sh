@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -o errexit
+
 # this script removes old WG02 runs. it can be run manually if needed, but is currently
 # running every night at midnight as a cron job. it leaves directories that are only
 # 6 or less hours old, so that if you make a map close to midnight, it won't get deleted
@@ -5,7 +9,7 @@
 
 
 # the data directory
-cd /usr/local/tomcat/default/webapps/OpenSHA/wg99/wg99_src_v27/wg02_dirs
+cd /usr/share/tomcat/webapps/OpenSHA/wg99/wg99_src_v27/wg02_dirs
 
 # the buffer zone so that directories that have been modified within this time period
 # won't get deleted.

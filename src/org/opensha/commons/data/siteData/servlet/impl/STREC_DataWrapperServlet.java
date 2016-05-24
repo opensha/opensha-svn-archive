@@ -29,7 +29,7 @@ import org.opensha.commons.data.siteData.servlet.AbstractSiteDataServlet;
 public class STREC_DataWrapperServlet extends
 		AbstractSiteDataServlet<TectonicRegime> {
 	
-	private static final File SCRIPT_FILE = new File("/scratch/opensha/strec/anaconda2/bin/getstrec_bulk.py");
+	private static final File SCRIPT_FILE = new File("/export/opensha-00/strec/anaconda2/bin/getstrec_bulk.py");
 	
 	public STREC_DataWrapperServlet() throws IOException {
 		super(new STREC_DataWrapper(SCRIPT_FILE));

@@ -79,10 +79,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //	public static final Color OUTSIDE_REGION_COLOR = Color.WHITE;
 	
 	public static CPT getHazardCPT() throws IOException {
-//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-//				"/resources/cpt/MaxSpectrum2.cpt"));
 		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
+				"/resources/cpt/MaxSpectrum2.cpt"));
+//		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
 		return cpt;
 	}
@@ -195,7 +195,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			rmFiles.add(baseGRD);
 			gmtCommandLines.add("# convert xyz file to grd file");
 			commandLine = "${GMT_PATH}xyz2grd "+ basemapXYZName +" -G"+ baseGRD+ " -I"+mapGridSpacing+
-							region +" -D/degree/degree/amp/=/=/=  -: -H0";
+							region +" -D/degree/degree/amp/=/=/=  -:";
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
@@ -238,7 +238,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				commandLine = "${GMT_PATH}grdsample "+interpUnsampledGRD+" -G"+interpSampledGRD
 								+" -I"+mapGridSpacing+region;
 				if (!bicubic)
-					commandLine += "-Q";
+					commandLine += "-nl";
 				gmtCommandLines.add(commandLine+"\n");
 			}
 			
@@ -268,7 +268,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 					commandLine = "${GMT_PATH}grdsample "+interpRatioUnsampledGRD+" -G"+interpRatioSampledGRD
 									+" -I"+mapGridSpacing+region;
 					if (!bicubic)
-						commandLine += "-Q";
+						commandLine += "-nl";
 					gmtCommandLines.add(commandLine+"\n");
 				}
 			}
@@ -369,17 +369,19 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		gmtCommandLines.add("# Set GMT paper/font defaults");
 		// set some defaults
-		String pageColor, frameColor;
+		String pageColor, frameColor, mapPenColor;
 		if (map.isBlackBackground()) {
-			pageColor = "0/0/0";
-			frameColor = "255/255/255";
+			pageColor = "black";
+			frameColor = "white";
+			mapPenColor = "+"+frameColor;
 		} else {
-			pageColor = "255/255/255";
-			frameColor = "0/0/0";
+			pageColor = "white";
+			frameColor = "black";
+			mapPenColor = frameColor;
 		}
-		commandLine = "${GMT_PATH}gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR" +
-				" "+pageColor+" PAGE_ORIENTATION portrait PAPER_MEDIA csmap BASEMAP_FRAME_RGB "+frameColor +
-				" PLOT_DEGREE_FORMAT -D FRAME_WIDTH 0.1i COLOR_FOREGROUND "+frameColor;
+		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,"+frameColor+" FONT_LABEL=18p,"+frameColor+" PS_PAGE_COLOR" +
+				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN="+mapPenColor +
+				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor+" MAP_FRAME_PEN=1p";
 		gmtCommandLines.add(commandLine+"\n");
 		
 		String interpPlotGRD;
@@ -502,7 +504,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				rmFiles.add(topoResGRD);
 				gmtCommandLines.add("# Resample the map to the topo resolution");
 				commandLine="${GMT_PATH}grdsample "+grdFile+" -G"+topoResGRD+" -I" +
-				topoFile.resolution() + "c -Q "+region;
+				topoFile.resolution() + "c -nl "+region;
 				gmtCommandLines.add(commandLine);
 				grdFile = topoResGRD;
 //				if (mapType != InterpDiffMapType.DIFF && mapType != InterpDiffMapType.RATIO)

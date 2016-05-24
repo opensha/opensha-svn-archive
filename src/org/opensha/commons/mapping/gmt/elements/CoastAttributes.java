@@ -39,7 +39,7 @@ public class CoastAttributes implements Serializable {
 	public CoastAttributes() {
 		fillColor = new Color(17, 73, 71);
 		lineColor = fillColor;
-		lineSize = 5d;
+		lineSize = 1d;
 	}
 	
 	/**

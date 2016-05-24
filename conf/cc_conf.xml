@@ -1,13 +1,17 @@
 <cruisecontrol>
 	<!-- Commonly used directories -->
-	<property name="projectdir" value="/scratch/opensha/build/trunk"/>
-	<property name="tomcatprojectdir" value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF"/>
-	<property name="tomcatdistdir" value="/usr/local/tomcat/default/webapps/OpenSHA/WEB-INF"/>
+	<property name="projectdir" value="/export/opensha-00/build/trunk"/>
+	<property name="tomcatprojectdir" value="/usr/share/tomcat/webapps/OpenSHA_dev/WEB-INF"/>
+	<property name="tomcatdistdir" value="/usr/share/tomcat/webapps/OpenSHA/WEB-INF"/>
 	<property name="testdir" value="${projectdir}/junit/logs"/>
 	<property name="logdir" value="logs/${project.name}"/>
-	<property name="ant.bin" value="/usr/local/ant/default/bin/ant"/>
+	<property name="ant.bin" value="/usr/bin/ant"/>
+	<property name="cruisedir" value="/usr/local/cruise/default/binaryrelease"/>
+	<property name="ant.log.jar" value="${cruisedir}/lib/cruisecontrol-antprogresslogger.jar"/>
 	
-	<property name="returnaddress" value="noreply@opensha.usc.edu"/>
+	<dashboard url="http://shauser:OpenSHA@localhost:8080/dashboard"/>;
+	
+	<property name="returnaddress" value="noreply@zero.usc.edu"/>
 
 	<!-- This runs based on modifications to the repository. It compiles the code and runs common tests. -->
 	<project name="OpenSHA-continuous" buildafterfailed="false" requiremodification="true">
@@ -26,7 +30,7 @@
 		</bootstrappers>
 
 		<schedule interval="300">
-			<ant uselogger="true" antscript="${ant.bin}"
+			<ant uselogger="true" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="svn.build.run.common.tests" />
 		</schedule>
@@ -47,12 +51,12 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<always address="pmpowers@usgs.gov" />
+				<!--<always address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -76,7 +80,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant uselogger="true" time="0000" antscript="${ant.bin}"
+			<ant uselogger="true" time="0000" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="svn.update.app.build" />
 		</schedule>
@@ -98,12 +102,12 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@usgs.gov" />
+				<!--<failure address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -133,11 +137,11 @@
 			<!-- bundle in composite tag to execute both -->
 			<composite>
 				<!-- This test runs hourly, making sure the system is operational (servlets, DB) -->
-				<ant uselogger="true" antscript="${ant.bin}"
+				<ant uselogger="true" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 							buildfile="${projectdir}/ant/cc-build-test.xml"
 							target="run.operational.tests" />
 				<!-- Now test released applications making sure the system is operational (servlets, DB) -->
-				<ant uselogger="true" antscript="${ant.bin}"
+				<ant uselogger="true" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 							buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 							target="run.operational.tests" />
 			</composite>
@@ -160,8 +164,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
@@ -191,7 +195,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, updating the coverage site with daily tests -->
-			<ant uselogger="true" time="0145" antscript="${ant.bin}"
+			<ant uselogger="true" time="0145" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${projectdir}/ant/cc-build-test.xml"
 						target="svn.build.run.daily.coverage" />
 		</schedule>
@@ -213,12 +217,12 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@usgs.gov" />
+				<!--<failure address="pmpowers@usgs.gov" />-->
 			</htmlemail>
 
 		</publishers>
@@ -245,7 +249,7 @@
 		<schedule>
 			<!-- This test runs nightly, updating pref data at 1 am, with a timeout
 					of 20 minutes (1200 seconds)  -->
-			<ant uselogger="true" time="0100" antscript="${ant.bin}" timeout="1200"
+			<ant uselogger="true" time="0100" antscript="${ant.bin}" timeout="1200" progressLoggerLib="${ant.log.jar}"
 						buildfile="${tomcatprojectdir}/ant/cc-build-test.xml"
 						target="pref.fault.data.update" />
 		</schedule>
@@ -267,8 +271,8 @@
 						reportsuccess="fixes"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />
@@ -279,7 +283,7 @@
 
 	</project>
 	
-	<!-- This runs every night to build applications -->
+	<!-- This runs manually to build release applications -->
 	<project name="OpenSHA-DistManualAppBuild" buildafterfailed="false" forceOnly="true" forceBuildNewProject="false">
 	
 		<listeners>
@@ -296,7 +300,7 @@
 
 		<schedule>
 			<!-- This test runs nightly, building nightly jars -->
-			<ant uselogger="true" time="0300" antscript="${ant.bin}"
+			<ant uselogger="true" time="0400" antscript="${ant.bin}" progressLoggerLib="${ant.log.jar}"
 						buildfile="${tomcatdistdir}/ant/cc-build-test.xml"
 						target="svn.update.app.dist.build" />
 		</schedule>
@@ -318,12 +322,11 @@
 						reportsuccess="always"
 						subjectprefix="[CuiseControl]"
 						skipusers="true"
-						css="/usr/local/cruise/default/reporting/jsp/webcontent/css/cruisecontrol.css"
-						xsldir="/usr/local/cruise/default/reporting/jsp/webcontent/xsl"
+						css="${cruisedir}/webapps/cruisecontrol/css/cruisecontrol.css"
+						xsldir="${cruisedir}/webapps/cruisecontrol/xsl"
 						logdir="${logdir}">
 				<always address="kmilner@usc.edu" />
 				<!--<failure address="kmilner@usc.edu" />-->
-				<failure address="pmpowers@usgs.gov" />
 			</htmlemail>
 
 		</publishers>

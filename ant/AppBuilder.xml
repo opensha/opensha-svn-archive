@@ -27,7 +27,7 @@
     </description>
 	
 	<taskdef resource="proguard/ant/task.properties"
-		         classpath="lib/proguard4.6/proguard.jar" />
+		         classpath="lib/proguard5.2.1/proguard.jar" />
 
 	<import file="include/utils.xml"/>
 	

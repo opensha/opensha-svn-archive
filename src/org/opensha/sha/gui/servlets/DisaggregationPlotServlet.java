@@ -39,6 +39,8 @@ import org.opensha.commons.util.RunScript;
 import org.opensha.sha.calc.disaggregation.DisaggregationCalculator;
 import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 
+import com.google.common.base.Preconditions;
+
 
 /**
  * <p>Title: DisaggregationPlotServlet </p>
@@ -52,9 +54,8 @@ import org.opensha.sha.calc.disaggregation.DisaggregationPlotData;
 public class DisaggregationPlotServlet
 extends HttpServlet {
 
-	private static final String GMT_URL_PATH = "http://opensha.usc.edu/";
-	private final static String FILE_PATH = GMT_MapGeneratorServlet.OPENSHA_FILE_PATH;
-	private final static String GMT_DATA_DIR = "gmtData/";
+	private static final String GMT_URL_PATH = GMT_MapGeneratorServlet.GMT_URL_PATH;
+	private static final File GMT_DATA_DIR = GMT_MapGeneratorServlet.GMT_DATA_DIR;
 	private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
 	private final static String METADATA_FILE_NAME = "metadata.txt";
 
@@ -72,24 +73,22 @@ extends HttpServlet {
 		String currentMilliSec = "";
 		currentMilliSec += System.currentTimeMillis();
 		//Name of the directory in which we are storing all the gmt data for the user
-		String newDir = null;
+		File newDir = null;
 
 		try {
-			//all the user gmt stuff will be stored in this directory
-			File mainDir = new File(FILE_PATH + GMT_DATA_DIR);
 			//create the main directory if it does not exist already
-			if (!mainDir.isDirectory()) {
-				(new File(FILE_PATH + GMT_DATA_DIR)).mkdir();
-			}
+			if (!GMT_DATA_DIR.exists())
+				GMT_DATA_DIR.mkdir();
+			Preconditions.checkState(GMT_DATA_DIR.exists());
 
 			// get an input stream from the applet
 			ObjectInputStream inputFromApplet = new ObjectInputStream(request.
 					getInputStream());
 
-			newDir = FILE_PATH + GMT_DATA_DIR + currentMilliSec;
+			newDir = new File(GMT_DATA_DIR, currentMilliSec);
 
 			//create a gmt directory for each user in which all his gmt files will be stored
-			(new File(newDir)).mkdir();
+			Preconditions.checkState(newDir.exists() || newDir.mkdir());
 			//reading the gmtScript file that user sent as the attachment and create
 			//a new gmt script inside the directory created for the user.
 			//The new gmt script file created also has one minor modification
@@ -97,13 +96,14 @@ extends HttpServlet {
 			//that it should pick all the gmt related files from the directory cretade for the user.
 			//reading the gmt script file sent by user as te attchment
 
-			String gmtScriptFile = newDir + "/" + GMT_SCRIPT_FILE;
+			File gmtScriptFile = new File(newDir, GMT_SCRIPT_FILE);
 
 			System.out.println("DisaggregationPlotServlet: fetching disagg data");
 			//gets the object for the GMT_MapGenerator script
 			DisaggregationPlotData data = (DisaggregationPlotData)inputFromApplet.readObject();
 			System.out.println("DisaggregationPlotServlet: creating disagg GMT script");
-			ArrayList<String> gmtMapScript = DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, newDir);
+			ArrayList<String> gmtMapScript =
+					DisaggregationCalculator.createGMTScriptForDisaggregationPlot(data, newDir.getAbsolutePath());
 
 			//Metadata content: Map Info
 			System.out.println("DisaggregationPlotServlet: fetching disagg metadata");
@@ -119,7 +119,7 @@ extends HttpServlet {
 			}
 			bw.close();
 
-			String metadataFile = newDir + "/" + METADATA_FILE_NAME;
+			File metadataFile = new File(newDir, METADATA_FILE_NAME);
 
 			System.out.println("DisaggregationPlotServlet: writing disagg metadata");
 			//creating the metadata (map Info) file in the new directory created for user
@@ -137,11 +137,10 @@ extends HttpServlet {
 
 			System.out.println("DisaggregationPlotServlet: zipping output files");
 			//create the Zip file for all the files generated
-			FileUtils.createZipFile(newDir);
+			FileUtils.createZipFile(newDir.getAbsolutePath());
 			//URL path to folder where all GMT related files and map data file for this
 			//calculations reside.
-			String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-			currentMilliSec + SystemUtils.FILE_SEPARATOR;
+			String mapImagePath = GMT_URL_PATH+currentMilliSec+SystemUtils.FILE_SEPARATOR;
 			System.out.println("DisaggregationPlotServlet: sending image path to application");
 			//returns the URL to the folder where map image resides
 			outputToApplet.writeObject(mapImagePath);

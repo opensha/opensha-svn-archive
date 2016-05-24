@@ -21,6 +21,7 @@ package org.opensha.commons.mapping.gmt.elements;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.util.cpt.CPT;
 
@@ -32,8 +33,8 @@ public class PSXYSymbolSet extends PSXYElement {
 	private static final long serialVersionUID = 1l;
 	
 	private CPT cpt;
-	private ArrayList<PSXYSymbol> symbols;
-	private ArrayList<Double> vals;
+	private List<PSXYSymbol> symbols;
+	private List<Double> vals;
 	
 	public PSXYSymbolSet() {
 		super(0, null, null);
@@ -41,11 +42,11 @@ public class PSXYSymbolSet extends PSXYElement {
 		vals = new ArrayList<Double>();
 	}
 	
-	public PSXYSymbolSet(CPT cpt, ArrayList<PSXYSymbol> symbols, ArrayList<Double> vals) {
+	public PSXYSymbolSet(CPT cpt, List<PSXYSymbol> symbols, List<Double> vals) {
 		this(cpt, symbols, vals, 0, null, null);
 	}
 	
-	public PSXYSymbolSet(CPT cpt, ArrayList<PSXYSymbol> symbols, ArrayList<Double> vals,
+	public PSXYSymbolSet(CPT cpt, List<PSXYSymbol> symbols, List<Double> vals,
 					double penWidth, Color penColor, Color fillColor) {
 		super(penWidth, penColor, fillColor);
 		this.cpt = cpt;
@@ -66,19 +67,19 @@ public class PSXYSymbolSet extends PSXYElement {
 		this.cpt = cpt;
 	}
 
-	public ArrayList<PSXYSymbol> getSymbols() {
+	public List<PSXYSymbol> getSymbols() {
 		return symbols;
 	}
 
-	public void setSymbols(ArrayList<PSXYSymbol> symbols) {
+	public void setSymbols(List<PSXYSymbol> symbols) {
 		this.symbols = symbols;
 	}
 
-	public ArrayList<Double> getVals() {
+	public List<Double> getVals() {
 		return vals;
 	}
 
-	public void setVals(ArrayList<Double> vals) {
+	public void setVals(List<Double> vals) {
 		this.vals = vals;
 	}
 

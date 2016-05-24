@@ -25,7 +25,7 @@ import com.google.common.io.Files;
 
 public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 	
-	private static final boolean D = false;
+	private static final boolean D = true;
 	
 	private File pythonScript;
 	private SiteDataServletAccessor<TectonicRegime> accessor;
@@ -89,7 +89,9 @@ public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 		File tempDir = null;
 		ArrayList<TectonicRegime> ret = null;
 		try {
-			tempDir = Files.createTempDir();
+//			tempDir = Files.createTempDir();
+			tempDir = new File("/tmp/opensha_"+System.currentTimeMillis());
+			tempDir.mkdir();
 			
 			if (D) System.out.println("Temp dir: "+tempDir.getAbsolutePath());
 			
@@ -144,7 +146,7 @@ public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 		} finally {
 			if (tempDir != null) {
 				if (D) System.out.println("Deleting "+tempDir.getAbsolutePath());
-				FileUtils.deleteDirectory(tempDir);
+//				FileUtils.deleteDirectory(tempDir);
 			}
 		}
 		return ret;

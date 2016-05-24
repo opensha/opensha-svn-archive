@@ -30,7 +30,7 @@ public class GarciaRegionPerlWrapperServlet extends
 		AbstractSiteDataServlet<String> {
 	
 	private static File getScriptFile() {
-		File tomcatDir = new File(ServerPrefs.PRODUCTION_PREFS.getTomcatDir()).getParentFile();
+		File tomcatDir = ServerPrefs.PRODUCTION_PREFS.getTomcatDir().getParentFile();
 		File feDir = new File(tomcatDir, "flinn_engdahl_regions");
 		return new File(feDir, "feregion_ajm.pl");
 	}

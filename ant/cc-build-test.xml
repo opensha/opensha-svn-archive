@@ -20,6 +20,9 @@
 
 <project basedir="." default="svn.build.run.common.tests" name="Cruise Control Build File">
 	
+	<property name="javadoc.dir" value="/var/www/html/docs/opensha/javadoc/" />
+	<property name="opensha.dev" value="/usr/share/tomcat/webapps/OpenSHA_dev/WEB-INF/" />
+	
 	<target name="svn.update">
 		<ant antfile="test.xml"  target="pre.test.init"/>
 		<ant antfile="build.xml" target="svn.update"/>
@@ -62,7 +65,7 @@
 	
 	<target name="javadoc">
 		<ant antfile="build.xml" target="javadoc">
-			<property name="javadoc.dir" value="/var/www/html/docs/opensha/javadoc/" />
+			<property name="javadoc.dir" value="${javadoc.dir}" />
 		</ant>
 	</target>
 	
@@ -71,13 +74,14 @@
 		<ant antfile="test.xml" target="run.cobertura.weekly"/>
 	</target>
 	
+	<!--
 	<target name="restart.tomcat">
 		<echo message="shutting down tomcat"/>
-		<!-- shutdown tomcat -->
+		<!- - shutdown tomcat - ->
 		<exec executable="/bin/bash" timeout="10000">
 			<arg value="/usr/local/tomcat/default/bin/shutdown.sh"/>
 		</exec>
-		<!-- sleep -->
+		<!- - sleep - ->
 		<echo message="sleeping for 5 seconds"/>
 		<sleep seconds="5"/>
 		<echo message="making sure it's really dead!"/>
@@ -85,12 +89,13 @@
 			<arg value="../scripts/cron/force_kill_tomcat.sh"/>
 		</exec>
 		<sleep seconds="1"/>
-		<!-- start tomcat -->
+		<!- - start tomcat - ->
 		<echo message="starting up tomcat"/>
 		<exec executable="/bin/bash" spawn="true">
 			<arg value="/usr/local/tomcat/default/bin/startup.sh"/>
 		</exec>
 	</target>
+	-->
 	
 	<!-- Called by the OpenSHA-FaultDBPrefData CC project -->
 	<target name="pref.fault.data.update">
@@ -100,7 +105,7 @@
 			failonerror="true"
 			dir="../">
 			<arg value="--file"/>
-			<arg value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/pref_update_user.dat"/>
+			<arg value="${opensha.dev}/pref_update_user.dat"/>
 			<classpath>
 				<pathelement location="../classes" />
 				<fileset dir="../lib">
@@ -118,7 +123,7 @@
 			failonerror="true"
 			dir="../">
 			<arg value="--file"/>
-			<arg value="/usr/local/tomcat/default/webapps/OpenSHA_dev/WEB-INF/pref_update_user.dat"/>
+			<arg value="${opensha.dev}/pref_update_user.dat"/>
 			<classpath>
 				<pathelement location="../classes" />
 				<fileset dir="../lib">
