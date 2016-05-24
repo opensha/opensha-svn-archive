@@ -322,17 +322,17 @@ public class HardCodedInterpDiffMapCreator {
 			// 167: RotD50 2sec
 			// 162: RotD50 3sec
 			
-			int imTypeID = 86;
-			String imtLabel = "1sec SA";
-			Double customMax = 1.5d;
+//			int imTypeID = 86;
+//			String imtLabel = "1sec SA";
+//			Double customMax = 1.5d;
 			
 //			int imTypeID = 88;
 //			String imtLabel = "0.5sec SA";
 //			Double customMax = 3d;
 			
-//			int imTypeID = 94;
-//			String imtLabel = "0.2sec SA";
-//			Double customMax = 3d;
+			int imTypeID = 94;
+			String imtLabel = "0.2sec SA";
+			Double customMax = 3d;
 			
 //			int imTypeID = 26; // 2 sec SA, GEOM
 //			String imtLabel = "2sec SA";

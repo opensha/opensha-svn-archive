@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.ZipException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.DocumentException;
@@ -452,6 +453,14 @@ public class PureScratch {
 		System.out.println("geo-mean: "+StatUtils.geometricMean(new double[] {x1, x2}));
 		System.out.println("log-mean: "+Math.exp(StatUtils.mean(new double[] {Math.log(x1), Math.log(x2)})));
 	}
+	
+	private static void test14() {
+		String name = "34.05_-118.57.txt";
+//		String latlon = StringUtils.replaceChars(name, '_', ',');
+		String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
+				name, "."), '_', ',');
+		System.out.println(latlon);
+	}
 
 	/**
 	 * @param args
@@ -468,7 +477,8 @@ public class PureScratch {
 		//		test9();
 		//		test10();
 		//		test11();
-		test13();
+//		test13();
+		test14();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
@@ -480,7 +490,7 @@ public class PureScratch {
 		////		FaultSystemSolution sol1 = cfss2.getSolution(LogicTreeBranch.DEFAULT);
 		//		FaultSystemSolution inputSol = FaultSystemIO.loadSol(
 		////				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-		////						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		////					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/UCERF3_ERF/"
 		//						+ "cached_dep10.0_depMean_rakeGEOLOGIC.zip"));
 		//		

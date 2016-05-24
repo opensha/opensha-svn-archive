@@ -1,6 +1,7 @@
 package org.opensha.sha.cybershake.calc;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -607,6 +609,7 @@ public class HazardDecompositionPlotter {
 			CybershakeRun run, CybershakeSite site, List<CybershakeIM> imTypes, CybershakeIM imForOrder,
 			DiscretizedFunc xVals, File outputDir, int numToInclude, String prefix,
 			ERF erf, Map<String, List<Integer>> combSourceMap, double uhsVal) throws IOException {
+		boolean normalize = true;
 		Preconditions.checkState(imTypes.contains(imForOrder));
 		
 		// first do it for im for ordering
@@ -664,11 +667,15 @@ public class HazardDecompositionPlotter {
 		
 		// now combine
 		List<DiscretizedFunc> relativeFuncs = Lists.newArrayList();
+		List<DiscretizedFunc> absoluteFuncs = Lists.newArrayList();
 		
 		for (int j=0; j<resultsForOrder.size(); j++) {
 			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
 			func.setName(resultsForOrder.get(j).faultName);
 			relativeFuncs.add(func);
+			func = new ArbitrarilyDiscretizedFunc();
+			func.setName(resultsForOrder.get(j).faultName);
+			absoluteFuncs.add(func);
 		}
 //		ArbitrarilyDiscretizedFunc otherRelative = new ArbitrarilyDiscretizedFunc();
 //		otherRelative.setName("Other Faults");
@@ -685,11 +692,17 @@ public class HazardDecompositionPlotter {
 				val += myRelative;
 			}
 			
+			double maxVal = val;
+			
 			for (int j=0; j<resultsForOrder.size(); j++) {
 				String faultName = resultsForOrder.get(j).faultName;
 				
 				double myRelative = faultContribFuncs.get(faultName).getY(im.getVal());
-				relativeFuncs.get(j).set(im.getVal(), val);
+				if (normalize)
+					relativeFuncs.get(j).set(im.getVal(), val/maxVal);
+				else
+					relativeFuncs.get(j).set(im.getVal(), val);
+				absoluteFuncs.get(j).set(im.getVal(), myRelative);
 				val -= myRelative;
 			}
 //			Preconditions.checkState(val >= 0, val);
@@ -741,6 +754,8 @@ public class HazardDecompositionPlotter {
 		gp.setLegendFontSize(18);
 		
 		gp.drawGraphPanel(spec, true, false, xRange, null);
+		if (normalize)
+			gp.getYAxis().setTickLabelsVisible(false);
 		gp.getChartPanel().setSize(1000, 800);
 		gp.setVisible(true);
 		
@@ -748,6 +763,36 @@ public class HazardDecompositionPlotter {
 		gp.repaint();
 		
 		File file = new File(outputDir, prefix);
+		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+		gp.saveAsPNG(file.getAbsolutePath()+".png");
+		
+		if (normalize)
+			gp.getYAxis().setTickLabelsVisible(true);
+		
+		// write line chart
+		funcs = absoluteFuncs;
+		chars = Lists.newArrayList();
+		for (int i=0; i<funcs.size(); i++) {
+			Color c = colors.get(i % colors.size());
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, c));
+		}
+		
+		spec = new PlotSpec(funcs, chars, site.short_name+" CyberShake MCEr Fault Impact",
+				"Period (s)", "RTGM Fault Exclusion Impact");
+		spec.setLegendVisible(true);
+		
+		gp.drawGraphPanel(spec, true, false, xRange, null);
+		gp.getChartPanel().setSize(1000, 800);
+		gp.setVisible(true);
+		
+		gp.validate();
+		gp.repaint();
+		
+		if (prefix.contains("bar"))
+			prefix = prefix.replace("bar", "line");
+		else
+			prefix += "_line";
+		file = new File(outputDir, prefix);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
 	}

@@ -200,7 +200,7 @@ public class UC3_CalcMPJ_Map extends MPJTaskCalculator {
 				for (File file : files) {
 					StringBuilder sb = new StringBuilder();
 					String latlon = StringUtils.replaceChars(StringUtils.substringBeforeLast(
-						file.getName(), "_"), '_', ',');
+						file.getName(), "."), '_', ',');
 					sb.append(latlon).append(",");
 					Files.copy(file, Charsets.US_ASCII, sb);
 					br.write(sb.toString());

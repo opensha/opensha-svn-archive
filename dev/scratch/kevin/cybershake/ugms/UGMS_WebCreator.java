@@ -103,14 +103,17 @@ public class UGMS_WebCreator {
 					for (int i=0; i<runDirs.size(); i++) {
 						String siteName = siteNames.get(i);
 						File runDir = runDirs.get(i);
-						File mcerFile;
-						if (myFinalMCER)
-							mcerFile = new File(runDir, runDir.getName()+"_RotD100_final_MCER.png");
-						else
-							mcerFile = new File(runDir, runDir.getName()+"_RotD100_MCER.png");
+						File mcerFile = new File(runDir, runDir.getName()+"_RotD100_MCER.png");
+						File mcerFinalFile = new File(runDir, runDir.getName()+"_RotD100_final_MCER.png");
 						Preconditions.checkState(mcerFile.exists());
 						
-						String mcerImage = "<img src=\""+runDir.getName()+"/"+mcerFile.getName()+"\"/>";
+						String mcerImage;
+						if (myFinalMCER) {
+							mcerImage = "<img src=\""+runDir.getName()+"/"+mcerFinalFile.getName()+"\" width=\"50%\" height=\"50%\"/>"
+									+ "<img src=\""+runDir.getName()+"/"+mcerFile.getName()+"\" width=\"50%\" height=\"50%\"/>";
+						} else {
+							mcerImage = "<img src=\""+runDir.getName()+"/"+mcerFile.getName()+"\"/>";
+						}
 						Location loc = sites2db.getSiteFromDB(siteName).createLocation();
 						File mapFile = new File(runDir, "site_location_map.png");
 						if (!mapFile.exists() || reDownloadMaps)
@@ -122,8 +125,14 @@ public class UGMS_WebCreator {
 						metadata += "<li><a href=\""+runDir.getName()+"/disaggregations\">Disaggregations</a></li>";
 						metadata += "<li>Location: "+(float)loc.getLatitude()+", "+(float)loc.getLongitude()+"</li>";
 						for (int s=0; s<siteDataProvs.size(); s++) {
-							double val = siteDataProvs.get(s).getValue(loc);
-							metadata += "<li>"+siteDataProvNames.get(s)+": "+(float)val+"</li>";
+							SiteData<Double> prov = siteDataProvs.get(s);
+							double val = prov.getValue(loc);
+							String valStr;
+							if (prov.getDataType().equals(SiteData.TYPE_VS30))
+								valStr = (int)(val+0.5d)+"";
+							else
+								valStr = (float)val+"";
+							metadata += "<li>"+siteDataProvNames.get(s)+": "+valStr+"</li>";
 						}
 						metadata += "</ul></h3>";
 						
