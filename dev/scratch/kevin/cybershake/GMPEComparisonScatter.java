@@ -62,13 +62,16 @@ public class GMPEComparisonScatter {
 		
 		List<String> siteNames = Lists.newArrayList("CCP", "COO", "LADT", "LAPD", "P22", "PAS", "s429",
 				"s603", "s684", "s758", "SBSM", "SMCA", "STNI", "WNGC");
-		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter");
+//		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter");
+		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter_15_12");
 		
-		List<Double> periods = Lists.newArrayList(3d, 5d, 10d);
+//		List<Double> periods = Lists.newArrayList(3d, 5d, 10d);
+		List<Double> periods = Lists.newArrayList(0.2, 0.5, 3d, 5d, 10d);
 		
 		CyberShakeComponent comp = CyberShakeComponent.RotD50;
 		CyberShakeComponent compForRunID = CyberShakeComponent.GEOM_MEAN;
-		int datasetID = 57;
+//		int datasetID = 57;
+		int datasetID = 61;
 		
 		DBAccess db = null;
 		try {

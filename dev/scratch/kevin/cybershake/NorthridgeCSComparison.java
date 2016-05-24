@@ -3,6 +3,7 @@ package scratch.kevin.cybershake;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.faultSurface.RuptureSurface;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -125,6 +127,10 @@ public class NorthridgeCSComparison {
 					rupIDs.add(rupID);
 			}
 			System.out.println("Ruptures: "+Joiner.on(",").join(rupIDs));
+			
+			writeSurfFile(source, sourceID, -1, outputDir);
+			for (int rupID : rupIDs)
+				writeSurfFile(source, sourceID, rupID, outputDir);
 			
 			List<ScalarIMR> gmpes = Lists.newArrayList();
 			gmpes.add(AttenRelRef.ASK_2014.instance(null));
@@ -320,6 +326,42 @@ public class NorthridgeCSComparison {
 			if (db != null)
 				db.destroy();
 		}
+	}
+	
+	private static void writeSurfFile(ProbEqkSource source, int sourceID, int rupID, File dir) throws IOException {
+		String name = "source_"+sourceID+"_";
+		if (rupID < 0)
+			name += "complete";
+		else
+			name += "rup_"+rupID;
+		name += "_metadata.txt";
+		File outputFile = new File(dir, name);
+		FileWriter fw = new FileWriter(outputFile);
+		
+		fw.write("Source ID: "+sourceID+"\n");
+		fw.write("Source Name: "+source.getName()+"\n");
+		RuptureSurface surf;
+		if (rupID < 0) {
+			fw.write("Rupture ID: N/A\n");
+			fw.write("Rupture Mag: N/A\n");
+			surf = source.getSourceSurface();
+		} else {
+			fw.write("Rupture ID: "+rupID+"\n");
+			fw.write("Rupture Mag: "+(float)source.getRupture(rupID).getMag()+"\n");
+			surf = source.getRupture(rupID).getRuptureSurface();
+		}
+		fw.write("Surf Area (km^2): "+surf.getArea()+"\n");
+		fw.write("Surf Length (km): "+surf.getAveLength()+"\n");
+		fw.write("Surf Width (km): "+surf.getAveWidth()+"\n");
+		fw.write("Surf Dip: "+surf.getAveDip()+"\n");
+		fw.write("Surf Top Depth (km): "+surf.getAveRupTopDepth()+"\n");
+		fw.write("Surf Upper Trace:\n");
+		for (Location loc : surf.getUpperEdge())
+			fw.write("\t"+loc.getLatitude()+" "+loc.getLongitude()+" "+loc.getDepth()+"\n");
+		fw.write("Evenly Discretized Surface Points:\n");
+		for (Location loc : surf.getEvenlyDiscritizedListOfLocsOnSurface())
+			fw.write("\t"+loc.getLatitude()+" "+loc.getLongitude()+" "+loc.getDepth()+"\n");
+		fw.close();
 	}
 	
 	private static double logAverage(List<Double> linearVals) {
