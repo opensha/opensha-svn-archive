@@ -531,6 +531,8 @@ public class WarningDoubleParameter extends DoubleParameter implements
        }
         for ( int i = 0; i < vector.size(); i++ ) {
             ParameterChangeWarningListener listener = ( ParameterChangeWarningListener ) vector.get( i );
+            if (listener == null)
+            	continue;
             if(D) System.out.println(S + "Firing warning to (" + i + ") " + listener.getClass().getName());
             listener.parameterChangeWarning( event );
         }
