@@ -35,6 +35,8 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.param.AbstractParameter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.WarningParameter;
+import org.opensha.commons.param.impl.WarningDoubleParameter;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.opensha.sha.gcim.imr.param.EqkRuptureParams.FocalDepthParam;
@@ -375,7 +377,10 @@ extends AbstractIMR implements ScalarIMR {
 			);
 		}
 
-		this.im.setValue(iml);
+		if (im instanceof WarningDoubleParameter)
+			((WarningDoubleParameter)im).setValueIgnoreWarning(iml);
+		else
+			this.im.setValue(iml);
 	}
 
 	/**
