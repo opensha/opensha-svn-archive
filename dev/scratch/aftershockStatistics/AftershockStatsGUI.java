@@ -570,8 +570,11 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			if (genericFetch == null)
 				genericFetch = new GenericRJ_ParametersFetch();
 			
+			System.out.println("Determining tectonic regime for generic parameters");
 			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
+			Preconditions.checkNotNull(regime, "Regime not found or server error");
 			genericParams = genericFetch.get(regime);
+			Preconditions.checkNotNull(genericParams, "Generic params not found or server error");
 			System.out.println("Generic params for "+regime+": "+genericParams);
 			genericModel = new RJ_AftershockModel_Generic(mainshock.getMag(), genericParams);
 			// set default values to generic

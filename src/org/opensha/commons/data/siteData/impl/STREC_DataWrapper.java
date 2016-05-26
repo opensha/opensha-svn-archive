@@ -146,7 +146,7 @@ public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 		} finally {
 			if (tempDir != null) {
 				if (D) System.out.println("Deleting "+tempDir.getAbsolutePath());
-//				FileUtils.deleteDirectory(tempDir);
+				FileUtils.deleteDirectory(tempDir);
 			}
 		}
 		return ret;
@@ -181,7 +181,7 @@ public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 		locs.add(new Location(28.2305, 84.7314, 8.22));
 		locs.add(new Location(35, -118, 7d));
 		locs.add(new Location(35, -50, 7d));
-		for (int i=0; i<1000; i++) {
+		for (int i=0; i<100; i++) {
 			double lat = 180d*Math.random()-90d;
 			double lon = 360d*Math.random()-180d;
 			double depth = 20d*Math.random();
