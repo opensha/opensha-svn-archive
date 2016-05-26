@@ -248,7 +248,7 @@ public abstract class RJ_AftershockModel {
 			double[] valsArray = getCumNumFractileWithAleatory(fractileArray, mag, tMinDays, tMaxDays);
 			for(int j=0;j<fractileArray.length;j++) {
 				mfdArray[j].set(i,valsArray[j]);
-//				System.out.println("\t"+mfd.getX(i)+"\t"+mfd.getY(i));
+//				System.out.println("\tworking on "+mag);
 			}
 
 		}
@@ -261,23 +261,40 @@ public abstract class RJ_AftershockModel {
 		// compute the distribution for the expected num aftershocks with M≥5 (which we will scale to other magnitudes)
 		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
 		// get the maximum expected num, which we will use to set the maximum num in the distribution function
+System.out.print("\tworking on M "+mag+"\nunm="+numMag5_DistributionFunc.size()+"\n");
 		double maxExpNum = numMag5_DistributionFunc.getMaxX()*Math.pow(10d, b*(5-mag));
 		PoissonDistribution poissDist = new PoissonDistribution(maxExpNum);
 		int maxAleatoryNum = poissDist.inverseCumulativeProbability(0.999);
 		
 		HistogramFunction cumDistFunc = new HistogramFunction(0d, (double)maxAleatoryNum,maxAleatoryNum+1);
+		double[] distFunc = new double[cumDistFunc.size()];
 		double totWt=0;
+		
 		for(int i=0;i<numMag5_DistributionFunc.size();i++) {
+//System.out.print(", "+i);
 			double expNum = numMag5_DistributionFunc.getX(i)*Math.pow(10d, b*(5-mag));
 			double wt = numMag5_DistributionFunc.getY(i);
 			poissDist = new PoissonDistribution(expNum);
 			totWt+=wt;
 			
-			for(int j=0;j<cumDistFunc.size();j++) {
-				double newVal = cumDistFunc.getY(j) + poissDist.cumulativeProbability(j)*wt;
-				cumDistFunc.set(j,newVal);
+			int minLoopVal = poissDist.inverseCumulativeProbability(0.0001);
+			int maxLoopVal = poissDist.inverseCumulativeProbability(0.9999);
+			if(maxLoopVal>cumDistFunc.size()-1)
+				maxLoopVal=cumDistFunc.size()-1;
+//			for(int j=0;j<cumDistFunc.size();j++) {
+			for(int j=minLoopVal;j<=maxLoopVal;j++) {
+				distFunc[j] += poissDist.probability(j)*wt;
+//				double newVal = cumDistFunc.getY(j) + poissDist.cumulativeProbability(j)*wt;
+//				cumDistFunc.set(j,newVal);
 			}
+			
 		}
+		double sum=0;
+		for(int j=0;j<distFunc.length;j++) {
+			sum+=distFunc[j];
+			cumDistFunc.set(j,sum);
+		}
+//System.out.print("\n");
 		double[] fractValArray = new double[fractileArray.length];
 		for(int i=0;i<fractileArray.length;i++) {
 			double fractVal = (int)Math.round(cumDistFunc.getClosestXtoY(fractileArray[i]));
