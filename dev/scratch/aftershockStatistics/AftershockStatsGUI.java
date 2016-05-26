@@ -1371,7 +1371,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		if (mainshock.getMag() < 6)
 			minMag = 3d;
 		else
-			minMag = 4d;
+			minMag = 3d;
 		double maxMag = 9d;
 		double deltaMag = 0.1;
 		int numMag = (int)((maxMag - minMag)/deltaMag + 1.5);

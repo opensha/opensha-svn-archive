@@ -261,7 +261,7 @@ public abstract class RJ_AftershockModel {
 		// compute the distribution for the expected num aftershocks with M≥5 (which we will scale to other magnitudes)
 		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
 		// get the maximum expected num, which we will use to set the maximum num in the distribution function
-System.out.print("\tworking on M "+mag+"\nunm="+numMag5_DistributionFunc.size()+"\n");
+//System.out.print("\tworking on M "+mag+"\nunm="+numMag5_DistributionFunc.size()+"\n");
 		double maxExpNum = numMag5_DistributionFunc.getMaxX()*Math.pow(10d, b*(5-mag));
 		PoissonDistribution poissDist = new PoissonDistribution(maxExpNum);
 		int maxAleatoryNum = poissDist.inverseCumulativeProbability(0.999);
