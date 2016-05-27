@@ -45,7 +45,7 @@ import com.google.common.primitives.Doubles;
 
 public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements ParameterChangeListener {
 	
-	private static final boolean D = true;
+	private static final boolean D = false;
 	private static final boolean DD = D && false;
 	
 	public static final String NAME = "Non Ergodic Site Response 2016 Mod";

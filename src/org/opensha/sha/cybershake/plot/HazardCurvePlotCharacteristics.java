@@ -156,7 +156,7 @@ public class HazardCurvePlotCharacteristics implements XMLSaveable {
 			return cs.toString();
 	}
 	
-	private static ArrayList<Color> getDefaultColors() {
+	public static ArrayList<Color> getDefaultColors() {
 		ArrayList<Color> attenRelColors = new ArrayList<Color>();
 		
 		attenRelColors.add(CyberShakeColors.LIGHT_RED.color); // light red

@@ -141,6 +141,16 @@ public enum ERF_Ref {
 	
 	/** WGCEP Mean UCERF 2 */
 	MEAN_UCERF_2_Mod(ModMeanUCERF2_FM2pt1.class, ModMeanUCERF2_FM2pt1.NAME, PRODUCTION, false),
+	
+	/** Fault System Solution ERF */
+	INVERSION_SOLUTION_ERF(FaultSystemSolutionERF.class, FaultSystemSolutionERF.NAME,
+			PRODUCTION, false),
+	
+	/** WGCEP Mean UCERF 3 */
+	MEAN_UCERF3(MeanUCERF3.class, MeanUCERF3.NAME, PRODUCTION, false),
+	
+	/** WGCEP Single Branch UCERF 3 */
+	UCERF3_COMPOUND(UCERF3_CompoundSol_ERF.class, UCERF3_CompoundSol_ERF.NAME, PRODUCTION, false),
 
 	/** Yucca Mountain ERF */
 	YUCCA_MOUNTAIN(YuccaMountainERF.class, YuccaMountainERF.NAME, PRODUCTION, false),
@@ -184,14 +194,7 @@ public enum ERF_Ref {
 	
 	/** CyberShake ERF that wraps UCERF2 for use with the CyberShake Fake IMR */
 	CYBERSHAKE_UCERF2_WRAPPER(CyberShakeUCERFWrapper_ERF.class,
-			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false),
-			
-	INVERSION_SOLUTION_ERF(FaultSystemSolutionERF.class, FaultSystemSolutionERF.NAME,
-					EXPERIMENTAL, false),
-		
-	MEAN_UCERF3(MeanUCERF3.class, MeanUCERF3.NAME, EXPERIMENTAL, false),
-	
-	UCERF3_COMPOUND(UCERF3_CompoundSol_ERF.class, UCERF3_CompoundSol_ERF.NAME, EXPERIMENTAL, false);
+			CyberShakeUCERFWrapper_ERF.NAME, EXPERIMENTAL, false);
 	
 //	TEST_ETAS1_ERF(TestModel1_ERF.class, TestModel1_ERF.NAME, EXPERIMENTAL, false);
 

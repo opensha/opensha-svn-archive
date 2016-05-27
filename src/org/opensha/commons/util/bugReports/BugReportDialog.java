@@ -114,6 +114,10 @@ public class BugReportDialog extends JDialog implements ActionListener, Hyperlin
 				null, "<b>This is an inconsequential Java Bug<b>"+
 				" No further action is required as this in an internal Java Swing bug that won't affect"+
 				" the operation of this application. No bug report is necessary.", true));
+		knownBugDetectors.add(new ExceptionTypeKnownBugDetector(null, "javax.swing", null,
+				null, "<b>This is an inconsequential Java Bug<b>"+
+				" No further action is required as this in an internal Java Swing bug that won't affect"+
+				" the operation of this application. No bug report is necessary.", true));
 	}
 	
 	private boolean fatal;

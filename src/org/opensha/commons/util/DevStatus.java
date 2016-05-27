@@ -12,29 +12,31 @@ import org.opensha.commons.data.Named;
  * @author Peter Powers
  * @version $Id$
  */
-public enum DevStatus implements Named {
+public enum DevStatus implements Named, Comparable<DevStatus> {
 
 	/** Status indicating something is production ready. */
-	PRODUCTION("Production", "dist"),
+	PRODUCTION("Production", "dist", 0),
 
 	/** Status indicating something is under development. */
-	DEVELOPMENT("Development", "nightly"),
+	DEVELOPMENT("Development", "nightly", 1),
 	
 	/** Status indicating something is merely experimental. */
-	EXPERIMENTAL("Experimental", null),
+	EXPERIMENTAL("Experimental", null, 2),
 
 	/** Status indicating something is deprecated. */
-	DEPRECATED("Deprecated", null),
+	DEPRECATED("Deprecated", null, 3),
 	
 	/** Status indicating something has a critical error and is disabled until fixed */
-	ERROR("Error", null);
+	ERROR("Error", null, 4);
 	
-	private String name;
-	private String buildDirName;
+	private final String name;
+	private final String buildDirName;
+	private final int priority;
 	
-	private DevStatus(String name, String buildDirName) {
+	private DevStatus(String name, String buildDirName, int priority) {
 		this.name = name;
 		this.buildDirName = buildDirName;
+		this.priority = priority;
 	}
 
 	/**
@@ -58,5 +60,9 @@ public enum DevStatus implements Named {
 	@Override
 	public String toString() {
 		return getName();
+	}
+	
+	public int priority() {
+		return priority;
 	}
 }

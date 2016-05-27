@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.ClassUtils;
 
 public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 	
@@ -22,14 +23,19 @@ public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		try {
-			e.printStackTrace();
 			BugReport bug = new BugReport(e, null, appName, appVersion, app);
 			BugReportDialog dialog = new BugReportDialog(parent, bug, false);
-			if (!dialog.canIgnoreKnownBug())
+			if (!dialog.canIgnoreKnownBug()) {
 				// there are some stray swing exceptions that we wish to ignore. only show if not one of those
+				e.printStackTrace();
 				dialog.setVisible(true);
-			else
+			} else {
 				System.err.println("Ignoring bug as detected in uncaught handler and flagged as not critical");
+				System.err.println("\tType: "+ClassUtils.getClassNameWithoutPackage(e.getClass())+", Message: "+e.getMessage());
+				System.err.println("\tThrowing class: "+t.getStackTrace()[0].getClassName());
+				System.err.println("\tThrowing method: "+t.getStackTrace()[0].getMethodName()
+						+" (line "+t.getStackTrace()[0].getLineNumber()+")");
+			}
 		} catch (Throwable e1) {
 			System.err.println("Error in exception handler!");
 			e1.printStackTrace();

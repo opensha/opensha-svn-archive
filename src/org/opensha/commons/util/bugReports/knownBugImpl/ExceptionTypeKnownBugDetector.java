@@ -10,7 +10,7 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 	private String message;
 	private boolean messageIsRegex = false;
 	
-	private Class<?> throwingClass;
+	private String throwingClassName;
 	private String methodName;
 	
 	private boolean canIgnore;
@@ -24,7 +24,7 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 			String message,
 			String desc,
 			boolean canIgnore) {
-		this(exceptionClass, null, null, message, desc, canIgnore);
+		init(exceptionClass, null, null, message, desc, canIgnore);
 	}
 	
 	public ExceptionTypeKnownBugDetector(Class<? extends Throwable> exceptionClass,
@@ -33,8 +33,26 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 			String message,
 			String desc,
 			boolean canIgnore) {
+		this(exceptionClass, throwingClass.getName(), methodName, message, desc, canIgnore);
+	}
+	
+	public ExceptionTypeKnownBugDetector(Class<? extends Throwable> exceptionClass,
+			String throwingClassName,
+			String methodName,
+			String message,
+			String desc,
+			boolean canIgnore) {
+		init(exceptionClass, throwingClassName, methodName, message, desc, canIgnore);
+	}
+	
+	private void init(Class<? extends Throwable> exceptionClass,
+			String throwingClassName,
+			String methodName,
+			String message,
+			String desc,
+			boolean canIgnore) {
 		this.exceptionClass = exceptionClass;
-		this.throwingClass = throwingClass;
+		this.throwingClassName = throwingClassName;
 		this.methodName = methodName;
 		this.desc = desc;
 		this.message = message;
@@ -64,10 +82,10 @@ public class ExceptionTypeKnownBugDetector implements KnownBugDetector {
 			// starts with our message.
 			
 			// check against throwing class/method name
-			if (throwingClass != null) {
+			if (throwingClassName != null && !throwingClassName.isEmpty()) {
 				String className = t.getStackTrace()[0].getClassName();
 				// use startswith because of potential subclasses
-				if (!className.startsWith(throwingClass.getName()))
+				if (!className.startsWith(throwingClassName))
 					return false;
 			}
 			if (methodName != null) {

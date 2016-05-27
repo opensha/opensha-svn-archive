@@ -55,6 +55,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
@@ -86,6 +87,7 @@ import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
 import org.opensha.commons.util.ApplicationVersion;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.ListUtils;
 import org.opensha.commons.util.ServerPrefUtils;
@@ -1034,9 +1036,15 @@ ScalarIMRChangeListener {
 	protected void drawGraph() {
 		// you can show warning messages now
 		//		imrGuiBean.showWarningMessages(true); // TODO should we add this to the multi imr bean?
-		addGraphPanel();
-		if (!disaggregationFlag)
-			setButtonsEnable(true);
+		runInEDT(new Runnable() {
+			
+			@Override
+			public void run() {
+				addGraphPanel();
+				if (!disaggregationFlag)
+					setButtonsEnable(true);
+			}
+		});
 	}
 
 	/**
@@ -1252,22 +1260,31 @@ ScalarIMRChangeListener {
 			// (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
 			try {
 				if (isProbabilisticCurve) {
-					hazFunction = (ArbitrarilyDiscretizedFunc) calc
-					.getHazardCurve(hazFunction, site, imrMap,
+					hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(hazFunction, site, imrMap,
 							(ERF) forecast);
 				} else if (isStochasticCurve) {
-					hazFunction = (ArbitrarilyDiscretizedFunc) calc.
-					getAverageEventSetHazardCurve(hazFunction, site, imrGuiBean.getSelectedIMR(),
-							(ERF) forecast);
+					hazFunction = (ArbitrarilyDiscretizedFunc) calc.getAverageEventSetHazardCurve(
+							hazFunction, site, imrGuiBean.getSelectedIMR(), (ERF) forecast);
 				} else { // deterministic
-					progressCheckBox.setSelected(false);
-					progressCheckBox.setEnabled(false);
+					runInEDT(new Runnable() {
+						
+						@Override
+						public void run() {
+							progressCheckBox.setSelected(false);
+							progressCheckBox.setEnabled(false);
+						}
+					});
 					ScalarIMR imr = imrGuiBean.getSelectedIMR();
 					EqkRupture rupture = this.erfRupSelectorGuiBean.getRupture();
-					hazFunction = (ArbitrarilyDiscretizedFunc) calc
-					.getHazardCurve(hazFunction, site, imr, rupture);
-					progressCheckBox.setSelected(true);
-					progressCheckBox.setEnabled(true);
+					hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(hazFunction, site, imr, rupture);
+					runInEDT(new Runnable() {
+						
+						@Override
+						public void run() {
+							progressCheckBox.setSelected(true);
+							progressCheckBox.setEnabled(true);
+						}
+					});
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1291,20 +1308,33 @@ ScalarIMRChangeListener {
 		functionList.add(hazFunction);
 		// set the X-axis label
 		String imt = imtGuiBean.getSelectedIMT();
-		String xAxisName = imt + " (" + firstIMRFromMap.getParameter(imt).getUnits() + ")";
-		String yAxisName = "Probability of Exceedance";
-		graphWidget.setXAxisLabel(xAxisName);
-		graphWidget.setYAxisLabel(yAxisName);
+		final String xAxisName = imt + " (" + firstIMRFromMap.getParameter(imt).getUnits() + ")";
+		final String yAxisName = "Probability of Exceedance";
+		runInEDT(new Runnable() {
+			
+			@Override
+			public void run() {
+				graphWidget.setXAxisLabel(xAxisName);
+				graphWidget.setYAxisLabel(yAxisName);
+			}
+		});
 
 		isHazardCalcDone = true;
 		disaggregationString = null;
 
 		// Disaggregation with stochastic event sets not yet supported
 		if (disaggregationFlag && isStochasticCurve) {
-			JOptionPane.showMessageDialog(this,
-					"Disaggregation not yet supported with stochastic event-set calculations",
-					"Input Error", JOptionPane.INFORMATION_MESSAGE);
-			setButtonsEnable(true);
+			final Component parent = this;
+			runInEDT(new Runnable() {
+				
+				@Override
+				public void run() {
+					JOptionPane.showMessageDialog(parent,
+							"Disaggregation not yet supported with stochastic event-set calculations",
+							"Input Error", JOptionPane.INFORMATION_MESSAGE);
+					setButtonsEnable(true);
+				}
+			});
 			return;
 		}
 
@@ -1439,10 +1469,30 @@ ScalarIMRChangeListener {
 						+ "the given IML (or that interpolated from the chosen probability).",
 						"Disaggregation Message", JOptionPane.OK_OPTION);
 		}
-		setButtonsEnable(true);
+		runInEDT(new Runnable() {
+			
+			@Override
+			public void run() {
+				setButtonsEnable(true);
+			}
+		});
 		// displays the disaggregation string in the pop-up window
 
 		disaggregationString = null;
+	}
+	
+	static void runInEDT(Runnable run) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			run.run();
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(run);
+			} catch (InvocationTargetException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			} catch (InterruptedException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
 	}
 
 	/**

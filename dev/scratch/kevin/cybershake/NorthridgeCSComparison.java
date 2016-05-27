@@ -364,7 +364,7 @@ public class NorthridgeCSComparison {
 		fw.close();
 	}
 	
-	private static double logAverage(List<Double> linearVals) {
+	static double logAverage(List<Double> linearVals) {
 		double[] vals = new double[linearVals.size()];
 		for (int i=0; i<linearVals.size(); i++)
 			vals[i] = Math.log(linearVals.get(i));

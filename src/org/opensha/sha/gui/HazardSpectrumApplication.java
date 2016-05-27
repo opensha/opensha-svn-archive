@@ -249,7 +249,7 @@ extends HazardCurveApplication {
 		//gets the IML or Prob value filled in by the user
 		double imlProbValue = imlProbGuiBean.getIML_Prob();
 
-		String xAxisName, yAxisName;
+		final String xAxisName, yAxisName;
 		if (imlOrProb.equalsIgnoreCase(IMLorProbSelectorGuiBean.PROB_AT_IML)) {
 			yAxisName = PROB_AT_EXCEED;
 			probAtIML = true;
@@ -259,8 +259,14 @@ extends HazardCurveApplication {
 			probAtIML = false;
 		}
 		xAxisName = X_AXIS_LABEL;
-		graphWidget.setXAxisLabel(xAxisName);
-		graphWidget.setYAxisLabel(yAxisName);
+		runInEDT(new Runnable() {
+			
+			@Override
+			public void run() {
+				graphWidget.setXAxisLabel(xAxisName);
+				graphWidget.setYAxisLabel(yAxisName);
+			}
+		});
 
 		if (forecast instanceof AbstractEpistemicListERF && isProbabilisticCurve) {
 			//if add on top get the name of ERF List forecast
@@ -317,17 +323,28 @@ extends HazardCurveApplication {
 					}
 				}
 				else {
-					progressCheckBox.setSelected(false);
-					progressCheckBox.setEnabled(false);
+					runInEDT(new Runnable() {
+						
+						@Override
+						public void run() {
+							progressCheckBox.setSelected(false);
+							progressCheckBox.setEnabled(false);
+						}
+					});
 					if (probAtIML)//if the user has selected prob@IML
 						hazFunction = (DiscretizedFunc) calc.getDeterministicSpectrumCurve(
 								site, imr,rupture,  probAtIML, imlProbValue);
 					else //if the user has selected IML@prob
 						hazFunction = (DiscretizedFunc) calc.getDeterministicSpectrumCurve(
 								site, imr,rupture,probAtIML, imlProbValue);
-
-					progressCheckBox.setSelected(true);
-					progressCheckBox.setEnabled(true);
+					runInEDT(new Runnable() {
+						
+						@Override
+						public void run() {
+							progressCheckBox.setSelected(true);
+							progressCheckBox.setEnabled(true);
+						}
+					});
 				}
 			}
 			catch (Exception e) {

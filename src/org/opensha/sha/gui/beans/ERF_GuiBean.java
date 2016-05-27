@@ -26,6 +26,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -117,7 +119,20 @@ ParameterChangeListener{
 		for (ERF_Ref erf : erfRefSet) {
 			list.add(erf);
 		}
+		// sort by name, dev status
+//		Collections.sort(list, new ERF_RefComparator());
 		return list;
+	}
+	private static class ERF_RefComparator implements Comparator<ERF_Ref> {
+
+		@Override
+		public int compare(ERF_Ref o1, ERF_Ref o2) {
+			int priorityComp = new Integer(o1.status().priority()).compareTo(o2.status().priority());
+			if (priorityComp != 0)
+				return priorityComp;
+			return o1.toString().compareTo(o2.toString());
+		}
+		
 	}
 	
 	public ERF_GuiBean(ERF_Ref... erfRefs) throws InvocationTargetException {
