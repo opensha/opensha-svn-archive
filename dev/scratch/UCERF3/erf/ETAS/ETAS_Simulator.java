@@ -210,7 +210,7 @@ public class ETAS_Simulator {
 		}
 		
 		boolean generateDiagnostics = false;	// to be able to turn off even if in debug mode
-		boolean generateDiagnosticsForScenario = false;	// to be able to turn off even if in debug mode
+		boolean generateDiagnosticsForScenario = true;	// to be able to turn off even if in debug mode
 
 		// set the number or fault-based sources
 		int numFaultSysSources = 0;
@@ -1523,7 +1523,7 @@ public class ETAS_Simulator {
 		MENDOCINO_12_M5p5("Mendocino M5pt5", new Location(40.38540, -125.01342, 6.0), 5.5),	// Mendocino, Subsection 12	40.38540, -125.01342, 6.0
 		SAF_PENINSULA_M5p5("SAF_PeninsulaM5pt5", new Location(37.72793, -122.54861, 7.0), 5.5),  // San Andreas (Peninsula) 2011 CFM, Subsection 12	37.72793, -122.54861, 7.0
 		SAF_PENINSULA_M6p3("SAF_PeninsulaM6pt3", 122568),  // Inversion Src #122568; 2 SECTIONS BETWEEN San Andreas (Peninsula) 2011 CFM, Subsection 12 AND San Andreas (Peninsula) 2011 CFM, Subsection 11
-		SAF_PENINSULA_M7("SAF_PeninsulaM7", 119367);  // Inversion Src #119367; 9 SECTIONS BETWEEN San Andreas (North Coast) 2011 CFM, Subsection 1 AND San Andreas (Peninsula) 2011 CFM, Subsection 9
+		HAYWIRED_M7("HaywiredM7pt1", 101499);  // SourceIndex=101485	Inversion Src #101499; 14 SECTIONS BETWEEN Hayward (So) 2011 CFM, Subsection 2 AND Hayward (No) 2011 CFM, Subsection 7	mag=7.09
 //	
 				
 		private String name;
@@ -1776,6 +1776,10 @@ public class ETAS_Simulator {
 	 */
 	public static void main(String[] args) {
 		
+//		// Haywired scenario:
+//		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),825,830);
+//		System.exit(0);
+		
 		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
 //		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
@@ -1806,7 +1810,6 @@ public class ETAS_Simulator {
 //		System.exit(0);
 		
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),1841,1849);
-//		System.exit(0);
 		
 //		writeInfoAboutSourcesThatUseSection(getU3_ETAS_ERF(2012.0,1.0), 1850, 6, 7);
 //		System.exit(0);
@@ -1814,7 +1817,7 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
 //		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M5;
+		TestScenario scenario = TestScenario.HAYWIRED_M7;
 //		TestScenario scenario = null;
 		
 //		writeInfoAboutClosestSectionToLoc(erf, scenario.getLocation());
@@ -1825,7 +1828,7 @@ public class ETAS_Simulator {
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
 		params.setTotalRateScaleFactor(1.14);
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
 		
 		String simulationName;
 		String imposeGR_string="";
