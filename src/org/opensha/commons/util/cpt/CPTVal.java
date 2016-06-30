@@ -130,6 +130,43 @@ public class CPTVal implements Comparable<CPTVal>, Serializable, Cloneable, XMLS
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(end);
+		result = prime * result + ((maxColor == null) ? 0 : maxColor.hashCode());
+		result = prime * result + ((minColor == null) ? 0 : minColor.hashCode());
+		result = prime * result + Float.floatToIntBits(start);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CPTVal other = (CPTVal) obj;
+		if (Float.floatToIntBits(end) != Float.floatToIntBits(other.end))
+			return false;
+		if (maxColor == null) {
+			if (other.maxColor != null)
+				return false;
+		} else if (!maxColor.equals(other.maxColor))
+			return false;
+		if (minColor == null) {
+			if (other.minColor != null)
+				return false;
+		} else if (!minColor.equals(other.minColor))
+			return false;
+		if (Float.floatToIntBits(start) != Float.floatToIntBits(other.start))
+			return false;
+		return true;
+	}
+
 	/**
 	 *
 	 * @param value

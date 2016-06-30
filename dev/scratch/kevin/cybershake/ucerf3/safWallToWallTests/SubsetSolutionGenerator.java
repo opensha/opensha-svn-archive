@@ -57,8 +57,6 @@ public class SubsetSolutionGenerator {
 		int numSAF = 0;
 		int numPartiallySAFSoCal = 0;
 		int numOnlySAFSoCal = 0;
-		int longestSAF = -1;
-		double longestSAFLength = 0d;
 		rupLoop:
 		for (int rupIndex = 0; rupIndex<rupSet.getNumRuptures(); rupIndex++) {
 			for (int parent : rupSet.getParentSectionsForRup(rupIndex)) {
@@ -79,11 +77,6 @@ public class SubsetSolutionGenerator {
 			}
 			if (only)
 				numOnlySAFSoCal++;
-			double len = rupSet.getLengthForRup(rupIndex)/1000d;
-			if (len > longestSAFLength) {
-				longestSAFLength = len;
-				longestSAF = rupIndex;
-			}
 		}
 		
 		System.out.println(numSAF+"/"+rupSet.getNumRuptures()+" ruputures are only on SAF");
@@ -93,7 +86,34 @@ public class SubsetSolutionGenerator {
 		FaultSystemSolution subsetSol = new RuptureCombiner.SubsetSolution(sol, rupsWithPartial);
 		System.out.println("Subset sol has "+subsetSol.getRupSet().getNumRuptures()+" ruptures");
 		
+		int longestSAF = -1;
+		double longestSAFLength = 0d;
+		int longestSAF_soCal = -1;
+		double longestSoCalSAFLength = 0d;
+		FaultSystemRupSet subsetRupSet = subsetSol.getRupSet();
+		for (int rupIndex=0; rupIndex<subsetRupSet.getNumRuptures(); rupIndex++) {
+			boolean partial = false;
+			boolean only = true;
+			for (int sectIndex : subsetRupSet.getSectionsIndicesForRup(rupIndex)) {
+				boolean inside = safSectsInSoCal.get(sectIndex);
+				partial = partial || inside;
+				only = only && inside;
+			}
+			double len = subsetRupSet.getLengthForRup(rupIndex)/1000d;
+			if (len > longestSAFLength) {
+				longestSAFLength = len;
+				longestSAF = rupIndex;
+			}
+			if (only && len > longestSoCalSAFLength) {
+				longestSoCalSAFLength = len;
+				longestSAF_soCal = rupIndex;
+			}
+		}
+		
 		FaultSystemIO.writeSol(subsetSol, new File(outputDir, "saf_subset_sol.zip"));
+		
+		System.out.println("Longest All SAF: "+longestSAF);
+		System.out.println("Longest So Cal SAF: "+longestSAF_soCal);
 		
 		CompoundSurface surf = (CompoundSurface) rupSet.getSurfaceForRupupture(longestSAF, 1d, false);
 		System.out.println();

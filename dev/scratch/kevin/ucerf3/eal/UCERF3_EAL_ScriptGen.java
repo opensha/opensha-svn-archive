@@ -34,7 +34,8 @@ public class UCERF3_EAL_ScriptGen {
 //		String runSubDirName = "2014_05_16-ucerf3-99percent-wills";
 //		String runSubDirName = "2014_05_19-ucerf3-fatality";
 //		String runSubDirName = "2014_05_28-ucerf3-99percent-wills-smaller";
-		String runSubDirName = "2014_05_28-ucerf3-fatality-smaller";
+//		String runSubDirName = "2014_05_28-ucerf3-fatality-smaller";
+		String runSubDirName = "2016_06_06-ucerf3-90percent-wald";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
@@ -57,8 +58,8 @@ public class UCERF3_EAL_ScriptGen {
 		File meanSolFile = new File(remoteMainDir, meanSolFileName);
 		
 //		String vulnFileName = "2012_01_02_VUL06.txt";
-//		String vulnFileName = "2014_05_16_VUL06.txt"; // updated for 99%
-		String vulnFileName = "2014_05_16b_VUL06.txt"; // fatalities
+		String vulnFileName = "2014_05_16_VUL06.txt"; // updated for 99%
+//		String vulnFileName = "2014_05_16b_VUL06.txt"; // fatalities
 		File vulnFile = new File(remoteMainDir, vulnFileName);
 		
 //		String portfolioFileName = "Porter (30 Oct 2013) CEA proxy portfolio.csv"; // 2013 values, Wills Vs30
@@ -66,17 +67,19 @@ public class UCERF3_EAL_ScriptGen {
 //		String portfolioFileName = "small_test_port.csv";
 //		String portfolioFileName = "Porter (10 May 2014) CA 99pct portfolio 2013 values Wills Vs30.txt";
 //		String portfolioFileName = "Porter (16 May 2014) SCEC UCERF3 CA fatality portfolio.txt"; // fatality portfolio, Wills Vs30
-		String portfolioFileName = "Porter-22-May-14-CA-CAS4-90pct-Wills.txt"; // smaller fatality portfolio, Wills Vs30
+//		String portfolioFileName = "Porter-22-May-14-CA-CAS4-90pct-Wills.txt"; // smaller fatality portfolio, Wills Vs30
 //		String portfolioFileName = "Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // smaller 99%
+		String portfolioFileName = "Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // smaller 99%, Wald version
 		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,
 				LogicTreePBSWriter.getClasspath(remoteMainDir, remoteSubDir), mpjHome, false);
+		javaWrite.setUseLaunchWrapper(true);
 		
 //		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(javaBin, maxHeapMB,
 //				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));
 		
-		int mins = 1000;
+		int mins = 24*60;
 		int nodes = 80;
 		int ppn = 8;
 		String queue = null;

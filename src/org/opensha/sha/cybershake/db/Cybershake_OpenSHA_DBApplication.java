@@ -363,7 +363,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		if (db.isReadOnly())
 			db.setIgnoreInserts(true);
 		
-		boolean highRes = false;
+		boolean highRes = true;
 		System.out.println("Creating and Updating ERF...");
 		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, highRes);
 //		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m");
@@ -379,6 +379,8 @@ public class Cybershake_OpenSHA_DBApplication {
 		System.out.println("ERF NAME: " + erfName);
 		int erfId = erfDB.getInserted_ERF_ID(erfName);
 		System.out.println("ERF ID: " + erfId);
+		
+//		System.exit(0);
 		
 		CybershakeSiteInfo2DB siteDB = new CybershakeSiteInfo2DB(db);
 		app.setSiteInfoObject(siteDB);
@@ -412,17 +414,20 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		SiteInfo2DB sites2db = new SiteInfo2DB(db);
 		ArrayList<CybershakeSite> sites = Lists.newArrayList();
-		CybershakeSiteInfo2DB.CUT_OFF_DISTANCE = 300;
-		CybershakeSiteInfo2DB.FORCE_CUTOFF = true;
-		sites.add(sites2db.getSiteFromDB("s040"));
-		sites.add(sites2db.getSiteFromDB("s064"));
-		sites.add(sites2db.getSiteFromDB("s758"));
-		sites.add(sites2db.getSiteFromDB("s778"));
-		sites.add(sites2db.getSiteFromDB("STNI"));
-		sites.add(sites2db.getSiteFromDB("SBSM"));
-		sites.add(sites2db.getSiteFromDB("USC"));
-//		sites.add(sites2db.getSiteFromDB(73));
-//		sites.add(sites2db.getSiteFromDB(978));
+//		CybershakeSiteInfo2DB.CUT_OFF_DISTANCE = 300;
+//		CybershakeSiteInfo2DB.FORCE_CUTOFF = true;
+//		sites.add(sites2db.getSiteFromDB("s040"));
+//		sites.add(sites2db.getSiteFromDB("s064"));
+//		sites.add(sites2db.getSiteFromDB("s758"));
+//		sites.add(sites2db.getSiteFromDB("s778"));
+//		sites.add(sites2db.getSiteFromDB("STNI"));
+//		sites.add(sites2db.getSiteFromDB("SBSM"));
+//		sites.add(sites2db.getSiteFromDB("USC"));
+////		sites.add(sites2db.getSiteFromDB(73));
+////		sites.add(sites2db.getSiteFromDB(978));
+		sites.add(sites2db.getSiteFromDB(999));
+		sites.add(sites2db.getSiteFromDB(1000));
+		sites.add(sites2db.getSiteFromDB(1001));
 		app.insertNewERFForSites(sites, erfDB, erfName, erfDescription, false);
 		
 		/////////////// ADD SITES //////////////////////

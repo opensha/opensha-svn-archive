@@ -30,6 +30,7 @@ public class DefaultExceptoinHandler implements UncaughtExceptionHandler {
 				e.printStackTrace();
 				dialog.setVisible(true);
 			} else {
+				e.printStackTrace();
 				System.err.println("Ignoring bug as detected in uncaught handler and flagged as not critical");
 				System.err.println("\tType: "+ClassUtils.getClassNameWithoutPackage(e.getClass())+", Message: "+e.getMessage());
 				System.err.println("\tThrowing class: "+t.getStackTrace()[0].getClassName());

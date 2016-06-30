@@ -48,16 +48,16 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int hours = 24;
 //		int nodes = 60;
 		
-		double duration = 30;
-		int numSims = 5000;
-		int hours = 24;
-		int nodes = 60;
-		
-		// for scenarios
-//		double duration = 10;
-//		int numSims = 10000;
+//		double duration = 30;
+//		int numSims = 5000;
 //		int hours = 24;
 //		int nodes = 60;
+		
+		// for scenarios
+		double duration = 10;
+		int numSims = 10000;
+		int hours = 24;
+		int nodes = 60;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -77,16 +77,18 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		boolean includeSpontaneous = false;
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
-		TestScenario[] scenarios = { null };
+//		boolean includeSpontaneous = true;
+		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
+//		TestScenario[] scenarios = { null };
 		boolean includeSpontaneous = true;
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-//		double totRateScaleFactor = 1.14;
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
-		double totRateScaleFactor = 1.0;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		double totRateScaleFactor = 1.14;
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+//		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };

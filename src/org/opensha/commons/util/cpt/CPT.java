@@ -789,5 +789,60 @@ public class CPT extends ArrayList<CPTVal> implements Named, Serializable, Clone
 		
 		return cpt;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((aboveMaxColor == null) ? 0 : aboveMaxColor.hashCode());
+		result = prime * result + ((belowMinColor == null) ? 0 : belowMinColor.hashCode());
+		result = prime * result + ((blender == null) ? 0 : blender.hashCode());
+		result = prime * result + ((gapColor == null) ? 0 : gapColor.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((nanColor == null) ? 0 : nanColor.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CPT other = (CPT) obj;
+		if (aboveMaxColor == null) {
+			if (other.aboveMaxColor != null)
+				return false;
+		} else if (!aboveMaxColor.equals(other.aboveMaxColor))
+			return false;
+		if (belowMinColor == null) {
+			if (other.belowMinColor != null)
+				return false;
+		} else if (!belowMinColor.equals(other.belowMinColor))
+			return false;
+		if (blender == null) {
+			if (other.blender != null)
+				return false;
+		} else if (!blender.equals(other.blender))
+			return false;
+		if (gapColor == null) {
+			if (other.gapColor != null)
+				return false;
+		} else if (!gapColor.equals(other.gapColor))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (nanColor == null) {
+			if (other.nanColor != null)
+				return false;
+		} else if (!nanColor.equals(other.nanColor))
+			return false;
+		return true;
+	}
 	
 }

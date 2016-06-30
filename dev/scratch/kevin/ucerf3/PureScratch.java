@@ -28,6 +28,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -461,6 +462,19 @@ public class PureScratch {
 				name, "."), '_', ',');
 		System.out.println(latlon);
 	}
+	
+	private static void test15() {
+		MeanUCERF2 erf = new MeanUCERF2();
+		erf.updateForecast();
+		System.out.println("Orig width: "+erf.getSource(90).getSourceSurface().getAveWidth());
+		erf.setParameter(MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME, true);
+		erf.updateForecast();
+		System.out.println("Corr width: "+erf.getSource(90).getSourceSurface().getAveWidth());
+	}
+	
+	private static void test16() {
+		System.out.println(MagUtils.magToMoment(7.8)/MagUtils.magToMoment(6.7));
+	}
 
 	/**
 	 * @param args
@@ -478,7 +492,9 @@ public class PureScratch {
 		//		test10();
 		//		test11();
 //		test13();
-		test14();
+//		test14();
+//		test15();
+		test16();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

@@ -1137,7 +1137,8 @@ public class MCERDataProductsCalc {
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_12_la_west";
 //			argStr += " --run-id 3876,3877,3870,3875,3879,3878,3882,3883,3884,3885,3880,3869,3873,3861";
 			argStr += " --run-id 3878";
-			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_main";
+//			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_main";
+			argStr += " --output-dir /tmp/mcer";
 //			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_la_basin_west";
 //			argStr += " --run-id 4083,4084,4085,4086,4087,4088,4237,4090";
