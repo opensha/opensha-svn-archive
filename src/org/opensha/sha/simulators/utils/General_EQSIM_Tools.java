@@ -215,6 +215,10 @@ public class General_EQSIM_Tools {
 		init(EQSIMv06FileReader.readGeometryFile(url.openStream()));
 	}
 	
+	public General_EQSIM_Tools(List<SimulatorElement> elements) {
+		init(rectElementsList);
+	}
+	
 	private void init(List<SimulatorElement> rectElementsList) {
 		// make sure it's sorted by section
 		for (int i=1; i<rectElementsList.size(); i++)

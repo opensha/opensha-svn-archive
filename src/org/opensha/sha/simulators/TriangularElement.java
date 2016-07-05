@@ -11,11 +11,13 @@ public class TriangularElement extends SimulatorElement {
 	
 	private Location center;
 	private double[] lengths;
+	
+	private TriangularElementSurface surf;
 
 	public TriangularElement(int id, Vertex[] vertices, String sectionName, int faultID, int sectionID,
 			int numAlongStrike, int numDownDip, double slipRate, double aseisFactor, FocalMechanism focalMechanism) {
 		super(id, vertices, sectionName, faultID, sectionID, numAlongStrike, numDownDip, slipRate, aseisFactor, focalMechanism);
-		Preconditions.checkArgument(vertices.length == 3, "TriangularElement: vertices.length should equal 4");
+		Preconditions.checkArgument(vertices.length == 3, "TriangularElement: vertices.length should equal 3");
 	}
 	
 	private synchronized double[] getLengths() {
@@ -49,9 +51,12 @@ public class TriangularElement extends SimulatorElement {
 	}
 
 	@Override
-	public RuptureSurface getSurface() {
-		// TODO Auto-generated method stub
-		return null;
+	public synchronized RuptureSurface getSurface() {
+		if (surf == null) {
+			Vertex[] v = getVertices();
+			surf = new TriangularElementSurface(v[0], v[1], v[2]);
+		}
+		return surf;
 	}
 	
 	/**

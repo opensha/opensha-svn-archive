@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -475,6 +476,15 @@ public class PureScratch {
 	private static void test16() {
 		System.out.println(MagUtils.magToMoment(7.8)/MagUtils.magToMoment(6.7));
 	}
+	
+	private static void test17() {
+		HashMap<double[], String> map = Maps.newHashMap();
+		double[] array1 = {1d, 2d};
+		double[] array2 = {2d, 3d};
+		double[] array3 = {4d, 5d};
+		map.put(array1, "array1");
+		System.out.println(map.get(array1));
+	}
 
 	/**
 	 * @param args
@@ -494,7 +504,8 @@ public class PureScratch {
 //		test13();
 //		test14();
 //		test15();
-		test16();
+//		test16();
+		test17();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
