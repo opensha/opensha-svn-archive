@@ -1,11 +1,26 @@
 package org.opensha.commons.data.xyz;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
+import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.exceptions.InvalidRangeException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.mapping.gmt.GMT_Map;
+import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.cpt.CPT;
+
+import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
+
+import scratch.UCERF3.analysis.FaultBasedMapGen;
 
 /**
  * This is a Geohgraphic Dataset on a regular grid, as defined by a GriddedRegion. Points
@@ -86,6 +101,145 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 	
 	public GriddedRegion getRegion() {
 		return region;
+	}
+	
+	public static GriddedGeoDataSet loadXYZFile(File file, boolean latitudeX)
+			throws FileNotFoundException, IOException {
+		int latCol, lonCol;
+		if (latitudeX) {
+			latCol = 0;
+			lonCol = 1;
+		} else {
+			latCol = 1;
+			lonCol = 0;
+		}
+		return loadXYZFile(file, latCol, lonCol, -1, 2);
+	}
+	
+	/**
+	 * This will attempt to load in data from a regular grid in either fastXY or fastYX format. Column indexes are zero based
+	 * and tell it which field in the file to use for latitude, longitude, depth (optional), and data.
+	 * @param file
+	 * @param latCol column index for the latitude field
+	 * @param lonCol column index for the longitude field
+	 * @param depthCol column index for the depth field, or -1 for constant zero depth
+	 * @param dataCol column index for the data field
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static GriddedGeoDataSet loadXYZFile(File file, int latCol, int lonCol, int depthCol, int dataCol)
+			throws FileNotFoundException, IOException {
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Double> vals = new ArrayList<Double>();
+		double minLat = Double.POSITIVE_INFINITY;
+		double maxLat = Double.NEGATIVE_INFINITY;
+		double minLon = Double.POSITIVE_INFINITY;
+		double maxLon = Double.NEGATIVE_INFINITY;
+		
+		// first just load in all location
+		for (String line: Files.readLines(file, Charset.defaultCharset())) {
+			if (line.startsWith("#"))
+				// comment line
+				continue;
+			
+			double lat = Double.NaN;
+			double lon = Double.NaN;
+			double depth = 0d;
+			double data = Double.NaN;
+			StringTokenizer tok = new StringTokenizer(line);
+			int index = 0;
+			while (index <= latCol || index <= lonCol || index <= depthCol || index <= dataCol) {
+				String valStr = tok.nextToken();
+				if (index == latCol)
+					lat = Double.parseDouble(valStr);
+				else if (index == lonCol)
+					lon = Double.parseDouble(valStr);
+				else if (index == depthCol)
+					depth = Double.parseDouble(valStr);
+				else if (index == dataCol)
+					data = Double.parseDouble(valStr);
+				index++;
+			}
+			Location loc = new Location(lat, lon, depth);
+			minLat = Math.min(minLat, lat);
+			maxLat = Math.max(maxLat, lat);
+			minLon = Math.min(minLon, lon);
+			maxLon = Math.max(maxLon, lon);
+			
+			locs.add(loc);
+			vals.add(data);
+		}
+		Preconditions.checkState(locs.size() > 4);
+		
+		// now determine ordering
+		Location loc1 = locs.get(0);
+		Location loc2 = locs.get(1);
+		boolean fastLongitude;
+		if ((float)loc1.getLatitude() != (float)loc2.getLatitude())
+			fastLongitude = false;
+		else
+			fastLongitude = true;
+//		System.out.println("Fast longitude: "+fastLongitude);
+//		System.out.println(loc1);
+//		System.out.println(loc2);
+		int numLat, numLon;
+		double latSpacing, lonSpacing;
+		if (fastLongitude) {
+			numLon = 0;
+			float prevLat = Float.NaN;
+			for (Location loc : locs) {
+				float lat = (float)loc.getLatitude();
+				if (Float.isNaN(prevLat))
+					prevLat = lat;
+				else if (prevLat != lat)
+					break;
+				numLon++;
+			}
+			Preconditions.checkState(locs.size() % numLon == 0, 
+					"Couldn't figure out gridding. Fast longitude, numLon=%s, count=%s", numLon, locs.size());
+			numLat = locs.size()/numLon;
+			lonSpacing = Math.abs(loc1.getLongitude() - loc2.getLongitude());
+			latSpacing = Math.abs(loc1.getLatitude() - locs.get(numLon).getLatitude());
+		} else {
+			numLat = 0;
+			float prevLon = Float.NaN;
+			for (Location loc : locs) {
+				float lon = (float)loc.getLongitude();
+				if (Float.isNaN(prevLon))
+					prevLon = lon;
+				else if (prevLon != lon)
+					break;
+				numLat++;
+			}
+			Preconditions.checkState(locs.size() % numLat == 0, 
+					"Couldn't figure out gridding. Fast latitude, numLat=%s, count=%s", numLat, locs.size());
+			numLon = locs.size()/numLat;
+			latSpacing = Math.abs(loc1.getLatitude() - loc2.getLatitude());
+			lonSpacing = Math.abs(loc1.getLongitude() - locs.get(numLat).getLongitude());
+		}
+		Location lowerLeft = new Location(minLat, minLon);
+		Location upperRight = new Location(maxLat+0.01*latSpacing, maxLon+0.01*lonSpacing); // pad just a bit
+		GriddedRegion reg = new GriddedRegion(lowerLeft, upperRight, latSpacing, lonSpacing, lowerLeft);
+//		System.out.println("Lat spacing: "+latSpacing);
+//		System.out.println("Lon spacing: "+lonSpacing);
+		Preconditions.checkState(reg.getNumLocations() == locs.size(),
+				"Region size doesn't match! Input has %s (%s x %s), reconstruction has %s",
+				locs.size(), numLat, numLon, reg.getNumLocations());
+		GriddedGeoDataSet dataset = new GriddedGeoDataSet(reg, latCol == 0);
+		for (int i=0; i<locs.size(); i++)
+			dataset.set(locs.get(i), vals.get(i));
+		return dataset;
+	}
+	
+	public static void main(String[] args) throws FileNotFoundException, IOException, GMT_MapException {
+		File file = new File("/home/kevin/workspace/scec_vdo_vtk/data/ShakeMapPlugin/Chino_Hills.txt");
+		GriddedGeoDataSet dataset = loadXYZFile(file, 1, 0, -1, 2);
+		
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(dataset.getMinZ(), dataset.getMaxZ());
+		GMT_Map map = FaultBasedMapGen.buildMap(
+				cpt, null, null, dataset, dataset.getRegion().getSpacing(), dataset.getRegion(), false, "Test");
+		FaultBasedMapGen.plotMap(null, null, true, map);
 	}
 
 }
