@@ -169,7 +169,7 @@ public class EventRecord {
 		// the rest of the line is comments
 	}
 	
-	private void addSlip(int id, double slip) {
+	public void addSlip(int id, double slip) {
 		int ind = numElements;
 		numElements++;
 		elementSlips = Doubles.ensureCapacity(elementSlips, numElements, element_array_padding);

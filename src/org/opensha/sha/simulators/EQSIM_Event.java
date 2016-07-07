@@ -9,6 +9,7 @@ import java.util.List;
 import org.opensha.commons.geo.Location;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
@@ -26,12 +27,17 @@ public class EQSIM_Event implements Comparable<EQSIM_Event>, Iterable<EventRecor
 	private List<EventRecord> records;
 
 	public EQSIM_Event(EventRecord eventRecord) {
-		this.records = Lists.newArrayList();
-		records.add(eventRecord);
-		this.event_id = eventRecord.getID();
-		this.magnitude=eventRecord.getMagnitude();
-		this.time=eventRecord.getTime();
-		this.duration=eventRecord.getDuration();
+		this(Lists.newArrayList(eventRecord));
+	}
+
+	public EQSIM_Event(List<EventRecord> records) {
+		this.records = records;
+		Preconditions.checkArgument(!records.isEmpty());
+		EventRecord firstRecord = records.get(0);
+		this.event_id = firstRecord.getID();
+		this.magnitude=firstRecord.getMagnitude();
+		this.time=firstRecord.getTime();
+		this.duration=firstRecord.getDuration();
 	}
 	
 	// for cloning/serialization purposes
@@ -65,12 +71,10 @@ public class EQSIM_Event implements Comparable<EQSIM_Event>, Iterable<EventRecor
 	public int compareTo(EQSIM_Event event) {
 		double thisTime = this.getTime();
 		double thatTime = event.getTime();
-		if(thisTime<thatTime)
-			return -1;
-		else if(thisTime>thatTime)
-			return 1;
-		else
-			return 0;  // they're equal
+		int cmp = Double.compare(thisTime, thatTime);
+		if (cmp == 0)
+			cmp = new Integer(event_id).compareTo(event.event_id);
+		return cmp;
 	}
 	
 	public void addEventRecord(EventRecord eventRecord){

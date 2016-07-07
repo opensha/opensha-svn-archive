@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 public class TriangularElement extends SimulatorElement {
 	
 	private Location center;
-	private double[] lengths;
+	private double[] lengths; // in meters
 	
 	private TriangularElementSurface surf;
 
@@ -26,7 +26,7 @@ public class TriangularElement extends SimulatorElement {
 			for (int i=0; i<3; i++) {
 				int i1 = i;
 				int i2 = i == 2 ? 0 : i+1;
-				lengths[i] = LocationUtils.linearDistanceFast(vertices[i1], vertices[i2]);
+				lengths[i] = LocationUtils.linearDistanceFast(vertices[i1], vertices[i2])*1000d; // in meters
 			}
 		}
 		return lengths;
@@ -34,6 +34,7 @@ public class TriangularElement extends SimulatorElement {
 
 	@Override
 	public synchronized double getArea() {
+		// calculate in m^2
 		double[] lengths = getLengths();
 		// use Heron's formula
 		double s = 0.5 * (lengths[0] + lengths[1] + lengths[2]);
