@@ -15,6 +15,7 @@ import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 
 import com.google.common.base.Preconditions;
@@ -137,7 +138,7 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 		double minLon = Double.POSITIVE_INFINITY;
 		double maxLon = Double.NEGATIVE_INFINITY;
 		
-		// first just load in all location
+		// first just load in all locations
 		for (String line: Files.readLines(file, Charset.defaultCharset())) {
 			if (line.startsWith("#"))
 				// comment line
@@ -184,45 +185,68 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 //		System.out.println(loc1);
 //		System.out.println(loc2);
 		int numLat, numLon;
-		double latSpacing, lonSpacing;
+		MinMaxAveTracker latSpacingTrack = new MinMaxAveTracker();
+		MinMaxAveTracker lonSpacingTrack = new MinMaxAveTracker();
 		if (fastLongitude) {
 			numLon = 0;
 			float prevLat = Float.NaN;
+			Location prevLoc = null;
 			for (Location loc : locs) {
 				float lat = (float)loc.getLatitude();
 				if (Float.isNaN(prevLat))
 					prevLat = lat;
 				else if (prevLat != lat)
 					break;
+				if (prevLoc != null)
+					lonSpacingTrack.addValue(Math.abs(loc.getLongitude() - prevLoc.getLongitude()));
+				prevLoc = loc;
 				numLon++;
 			}
 			Preconditions.checkState(locs.size() % numLon == 0, 
 					"Couldn't figure out gridding. Fast longitude, numLon=%s, count=%s", numLon, locs.size());
 			numLat = locs.size()/numLon;
-			lonSpacing = Math.abs(loc1.getLongitude() - loc2.getLongitude());
-			latSpacing = Math.abs(loc1.getLatitude() - locs.get(numLon).getLatitude());
+			prevLoc = locs.get(0);
+			for (int i=numLon; i<locs.size(); i+=numLon) {
+				Location loc = locs.get(i);
+				latSpacingTrack.addValue(Math.abs(loc.getLatitude() - prevLoc.getLatitude()));
+				prevLoc = loc;
+			}
 		} else {
 			numLat = 0;
 			float prevLon = Float.NaN;
+			Location prevLoc = null;
 			for (Location loc : locs) {
 				float lon = (float)loc.getLongitude();
 				if (Float.isNaN(prevLon))
 					prevLon = lon;
 				else if (prevLon != lon)
 					break;
+				if (prevLoc != null)
+					latSpacingTrack.addValue(Math.abs(loc.getLatitude() - prevLoc.getLatitude()));
+				prevLoc = loc;
 				numLat++;
 			}
 			Preconditions.checkState(locs.size() % numLat == 0, 
 					"Couldn't figure out gridding. Fast latitude, numLat=%s, count=%s", numLat, locs.size());
 			numLon = locs.size()/numLat;
-			latSpacing = Math.abs(loc1.getLatitude() - loc2.getLatitude());
-			lonSpacing = Math.abs(loc1.getLongitude() - locs.get(numLat).getLongitude());
+			prevLoc = locs.get(0);
+			for (int i=numLat; i<locs.size(); i+=numLat) {
+				Location loc = locs.get(i);
+				lonSpacingTrack.addValue(Math.abs(loc.getLongitude() - prevLoc.getLongitude()));
+				prevLoc = loc;
+			}
 		}
-		Location lowerLeft = new Location(minLat, minLon);
-		Location upperRight = new Location(maxLat+0.01*latSpacing, maxLon+0.01*lonSpacing); // pad just a bit
-		GriddedRegion reg = new GriddedRegion(lowerLeft, upperRight, latSpacing, lonSpacing, lowerLeft);
+		// values can be rounded, so use average lat/lon spacing among all columns to hopefully nail real average
+		double latSpacing = latSpacingTrack.getAverage();
+		double lonSpacing = lonSpacingTrack.getAverage();
 //		System.out.println("Lat spacing: "+latSpacing);
 //		System.out.println("Lon spacing: "+lonSpacing);
+//		System.out.println(latSpacingTrack);
+//		System.out.println(lonSpacingTrack);
+		Location lowerLeft = new Location(minLat, minLon);
+		Location upperRight = new Location(maxLat+0.1*latSpacing, maxLon+0.1*lonSpacing); // pad just a bit
+		GriddedRegion reg = new GriddedRegion(lowerLeft, upperRight, latSpacing, lonSpacing, lowerLeft);
+//		System.out.println("Data numLat="+numLat+", numLon="+numLon);
 		Preconditions.checkState(reg.getNumLocations() == locs.size(),
 				"Region size doesn't match! Input has %s (%s x %s), reconstruction has %s",
 				locs.size(), numLat, numLon, reg.getNumLocations());
@@ -235,6 +259,8 @@ public class GriddedGeoDataSet extends AbstractGeoDataSet {
 	public static void main(String[] args) throws FileNotFoundException, IOException, GMT_MapException {
 		File file = new File("/home/kevin/workspace/scec_vdo_vtk/data/ShakeMapPlugin/Chino_Hills.txt");
 		GriddedGeoDataSet dataset = loadXYZFile(file, 1, 0, -1, 2);
+//		File file = new File("/tmp/grid.xyz");
+//		GriddedGeoDataSet dataset = loadXYZFile(file, 1, 0, -1, 2);
 		
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(dataset.getMinZ(), dataset.getMaxZ());
 		GMT_Map map = FaultBasedMapGen.buildMap(
