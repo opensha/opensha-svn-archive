@@ -200,6 +200,10 @@ public class EventRecord {
 	
 	public int getSectionID() {return sectionID;}
 	
+	public void setSectionID(int sectionID) {
+		this.sectionID = sectionID;
+	}
+	
 	public double getMagnitude() { return magnitude;}
 	
 	public void setMagnitude(double mag) {
@@ -231,7 +235,7 @@ public class EventRecord {
 		return id;
 	}
 	
-	public int[] getElementIDs() {
+	public synchronized int[] getElementIDs() {
 		if (elementIDs.length > numElements) {
 			// trim down the array;
 			elementIDs = Arrays.copyOf(elementIDs, numElements);

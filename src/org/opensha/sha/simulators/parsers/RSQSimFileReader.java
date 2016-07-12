@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.calc.FaultMomentCalc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -42,6 +43,7 @@ import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.TriangularElement;
 import org.opensha.sha.simulators.Vertex;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
+import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -71,8 +73,8 @@ public class RSQSimFileReader {
 		
 		List<SimulatorElement> elements = Lists.newArrayList();
 		
-		int elemID = 0;
-		int vertexID = 0;
+		int elemID = 1;
+		int vertexID = 1;
 		
 		while (line != null) {
 			StringTokenizer tok = new StringTokenizer(line);
@@ -213,6 +215,32 @@ public class RSQSimFileReader {
 			line = reader.readLine();
 		}
 		
+		// see if this is a subsection based catalog
+		boolean subsections = true;
+		Map<String, Integer> faultIDsMap = Maps.newHashMap();
+		int curFaultID = 1;
+		for (SimulatorElement elem : elements) {
+			String sectName = elem.getSectionName();
+			if (sectName == null || !sectName.contains("Subsection")) {
+				subsections = false;
+				break;
+			}
+			String faultName = sectName.substring(0, sectName.indexOf("Subsection"));
+			while (faultName.endsWith(","))
+				faultName = faultName.substring(0, faultName.length()-1);
+			Integer faultID = faultIDsMap.get(faultName);
+			if (faultID == null) {
+				faultID = curFaultID++;
+				faultIDsMap.put(faultName, faultID);
+			}
+			// also add mapping from this subsection
+			faultIDsMap.put(sectName, faultID);
+		}
+		if (subsections) {
+			for (SimulatorElement elem : elements)
+				elem.setFaultID(faultIDsMap.get(elem.getSectionName()));
+		}
+		
 		return elements;
 	}
 	
@@ -280,6 +308,9 @@ public class RSQSimFileReader {
 		for (EQSIM_Event event : events)
 			magTrack.addValue(event.getMagnitude());
 		System.out.println("Mags: "+magTrack);
+		
+		RegionIden soCalIden = new RegionIden(new CaliforniaRegions.RELM_SOCAL());
+		soCalIden.getMatches(events);
 	}
 	
 	public static List<EQSIM_Event> readEventsFile(File file, List<SimulatorElement> elements) throws IOException {
@@ -387,7 +418,7 @@ public class RSQSimFileReader {
 	}
 	
 	private static boolean isValidPatchID(int patchID, List<SimulatorElement> elements) {
-		return patchID >= 0 && patchID < elements.size();
+		return patchID > 0 && patchID <= elements.size();
 	}
 	
 	/**
@@ -428,7 +459,6 @@ public class RSQSimFileReader {
 			tIn = new LittleEndianDataInputStream(tListStream);
 		}
 		
-		// <EventID, SectID, EventRecord>
 		// one EventRecord for each section, or one in total if elements don't have section information
 		int curEventID = -1;
 		Map<Integer, EventRecord> curRecordMap = null;
@@ -438,13 +468,13 @@ public class RSQSimFileReader {
 		while (true) {
 			try {
 				int eventID = eIn.readInt(); // 1-based, keep as is for now as it shouldn't matter
-				int patchID = pIn.readInt() - 1; // these are 1-based, covert to 0-based
+				int patchID = pIn.readInt(); // these are 1-based, covert to 0-based
 				double slip = dIn.readDouble(); // in meters
 				double time = tIn.readDouble(); // in seconds
 				
 				Preconditions.checkState(isValidPatchID(patchID, elements));
 				
-				SimulatorElement element = elements.get(patchID);
+				SimulatorElement element = elements.get(patchID-1);
 				Preconditions.checkState(element.getID() == patchID, "Elements not sequential");
 				double elementMoment = FaultMomentCalc.getMoment(element.getArea(), slip);
 				
@@ -466,6 +496,7 @@ public class RSQSimFileReader {
 					curRecordMap.put(element.getSectionID(), event);
 					event.setTime(time);
 					event.setMoment(0);
+					event.setSectionID(element.getSectionID());
 				}
 				
 				event.addSlip(patchID, slip);

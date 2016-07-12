@@ -104,6 +104,10 @@ public abstract class SimulatorElement {
 		return faultID;
 	}
 	
+	public void setFaultID(int faultID) {
+		this.faultID = faultID;
+	}
+	
 	public void setNumAlongStrike(int numAlongStrike) {
 		this.numAlongStrike = numAlongStrike;
 	}
