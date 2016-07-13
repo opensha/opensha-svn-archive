@@ -40,6 +40,7 @@ import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.GMT_MapGenerator;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.RunScript;
+import org.opensha.commons.util.ServerPrefUtils;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -68,19 +69,10 @@ import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 public class GMT_HazusMapServlet
 extends HttpServlet {
-
-	/*			opensha.usc.edu paths and URLs			*/
-	private static final String OPENSHA_GMT_URL_PATH = "http://opensha.usc.edu/";
-	public static final String OPENSHA_FILE_PATH = "/scratch/opensha/";
 	
-	/*			gravity.usc.edu paths and URLs			*/
-	private static final String GRAVITY_GMT_URL_PATH = "http://gravity.usc.edu/gmtWS/";
-	private static final String GRAVITY_FILE_PATH = "/opt/install/apache-tomcat-5.5.20/webapps/gmtWS/";
-	
-	private static final String GMT_URL_PATH = OPENSHA_GMT_URL_PATH;
-	private final static String FILE_PATH = OPENSHA_FILE_PATH;
-	private final static String GMT_DATA_DIR = "gmtData/";
 	private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
+	public static final String GMT_URL_PATH = "http://"+ServerPrefUtils.SERVER_PREFS.getHostName()+"/gmtData/";
+	public static final File GMT_DATA_DIR = new File(ServerPrefUtils.SERVER_PREFS.getTempDir(), "gmtData");
 	
 	private GMT_MapGenerator gmt = new GMT_MapGenerator();
 
@@ -97,11 +89,8 @@ extends HttpServlet {
 
 		try {
 			//all the user gmt stuff will be stored in this directory
-			File mainDir = new File(FILE_PATH + GMT_DATA_DIR);
-			//create the main directory if it does not exist already
-			if (!mainDir.isDirectory()) {
-				(new File(FILE_PATH + GMT_DATA_DIR)).mkdir();
-			}
+			if (!GMT_DATA_DIR.exists())
+				GMT_DATA_DIR.mkdir();
 
 			// get an input stream from the applet
 			ObjectInputStream inputFromApplet = new ObjectInputStream(request.
@@ -143,7 +132,7 @@ extends HttpServlet {
 	public static String createMap(GMT_MapGenerator gmt, GMT_Map maps[], String plotDirName, String metadata,
 			String metadataFileName) throws IOException, GMT_MapException {
 		//Name of the directory in which we are storing all the gmt data for the user
-		String newDir = null;
+		File newDir = null;
 		//gets the current time in milliseconds to be the new director for each user
 		String currentMilliSec = "" + System.currentTimeMillis();
 		if (plotDirName != null) {
@@ -155,15 +144,15 @@ extends HttpServlet {
 				f = new File(tempDirName);
 				++fileCounter;
 			}
-			newDir = FILE_PATH + GMT_DATA_DIR + f.getName();
+			newDir = new File(GMT_DATA_DIR, f.getName());
 		}
 		else {
 			plotDirName = currentMilliSec;
-			newDir = FILE_PATH + GMT_DATA_DIR + currentMilliSec;
+			newDir = new File(GMT_DATA_DIR, currentMilliSec+"");
 		}
 
 		//create a gmt directory for each user in which all his gmt files will be stored
-		(new File(newDir)).mkdir();
+		newDir.mkdir();
 		//reading the gmtScript file that user sent as the attachment and create
 		//a new gmt script inside the directory created for the user.
 		//The new gmt script file created also has one minor modification
@@ -195,7 +184,7 @@ extends HttpServlet {
 				imt = PGV_Param.NAME;
 				hazusPrefix = GMT_MapGeneratorForShakeMaps.PGV;
 			}
-			ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir);
+			ArrayList<String> gmtMapScript = gmt.getGMT_ScriptLines(map, newDir.getAbsolutePath());
 			
 			hazusFileNames.add(hazusPrefix + ".shp");
 			hazusFileNames.add(hazusPrefix + ".shx");
@@ -231,11 +220,11 @@ extends HttpServlet {
 		bw.close();
 
 		// create the Zip file for all the files generated
-		FileUtils.createZipFile(newDir);
+		FileUtils.createZipFile(newDir.getAbsolutePath());
 		
 		// create a HAZUS zip file
 		String hazusZipName = newDir + "/HAZUS.zip";
-		FileUtils.createZipFile(hazusZipName, newDir, hazusFileNames);
+		FileUtils.createZipFile(hazusZipName, newDir.getAbsolutePath(), hazusFileNames);
 		
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
