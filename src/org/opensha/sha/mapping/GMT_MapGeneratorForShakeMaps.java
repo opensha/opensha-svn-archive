@@ -125,7 +125,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
 		adjustableParams.addParameter(hazusShapeParam);
 		adjustableParams.addParameter(rupPlotParam);
-
 	}
 
 	private void setFileNames(String prefix) {
@@ -272,7 +271,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		xyzDataSet = sa03DataSet;
 		setFileNames(SCALE_LABEL);
 		maps[0] = getGMTMapSpecification(xyzDataSet);
-		String sa_03Image = this.JPG_FILE_NAME;
 
 		// Do 1.0-sec SA
 		imt="SA";
@@ -280,14 +278,12 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		xyzDataSet = sa10DataSet;
 		setFileNames(SCALE_LABEL);
 		maps[1] = getGMTMapSpecification(xyzDataSet);
-		String sa_10Image = this.JPG_FILE_NAME;
 
 		// PGA
 		imt="PGA";
 		SCALE_LABEL = PGA;
 		xyzDataSet = pgaDataSet;
 		setFileNames(SCALE_LABEL);
-		String pgaImage = this.JPG_FILE_NAME;
 		maps[2] = getGMTMapSpecification(xyzDataSet);
 
 		// Do 0.3-sec SA first
@@ -295,13 +291,40 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		SCALE_LABEL = PGV;
 		xyzDataSet = pgvDataSet;
 		setFileNames(SCALE_LABEL);
-		String pgvImage = this.JPG_FILE_NAME;
 		maps[3] = getGMTMapSpecification(xyzDataSet);
+		
+		String img[] = makeHazusFileSetUsingServlet(maps[0], maps[1], maps[2], maps[3], metadata, dirName);
+		imgWebAddr = img[0].substring(0, img[0].lastIndexOf("/"))+"/";
 
-
+		// set the filenames back to default
+		setFileNames(null);
+		return img;
+	}
+	
+	public static String[] makeHazusFileSetUsingServlet(GMT_Map sa03Map,GMT_Map sa10Map,
+			GMT_Map pgaMap,GMT_Map pgvMap, String metadata,String dirName)
+	throws GMT_MapException {
+		GMT_Map maps[] = new GMT_Map[4];
+		
+		GeoDataSet sa03DataSet = sa03Map.getGriddedData();
+		maps[0] = sa03Map;
+		String sa_03Image = sa03Map.getJPGFileName();
+		
+		GeoDataSet sa10DataSet = sa10Map.getGriddedData();
+		maps[1] = sa10Map;
+		String sa_10Image = sa10Map.getJPGFileName();
+		
+		GeoDataSet pgaDataSet = pgaMap.getGriddedData();
+		maps[2] = pgaMap;
+		String pgaImage = pgaMap.getJPGFileName();
+		
+		GeoDataSet pgvDataSet = pgvMap.getGriddedData();
+		maps[3] = pgvMap;
+		String pgvImage = pgvMap.getJPGFileName();
+		
 		String img[] = new String[4];
 		try{
-			imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
+			String imgWebAddr = openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
 					pgvDataSet, maps, metadata, dirName);
 			img[0] = new String(imgWebAddr + sa_03Image);
 			img[1] = new String(imgWebAddr + sa_10Image);
@@ -311,12 +334,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			e.printStackTrace();
 			throw new RuntimeException(e.getMessage());
 		}
-
-		// set the filenames back to default
-		setFileNames(null);
+		
 		return img;
 	}
-
 
 	/**
 	 * sets up the connection with the servlet on the server (gravity.usc.edu)
@@ -330,7 +350,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 	 * output files are generated
 	 * @throws RuntimeException
 	 */
-	protected String openServletConnection(GeoDataSet sa03_xyzDataVals,
+	protected static String openServletConnection(GeoDataSet sa03_xyzDataVals,
 			GeoDataSet sa10_xyzDataVals, GeoDataSet pga_xyzDataVals,
 			GeoDataSet pgv_xyzDataVals, GMT_Map maps[],String metadata,String dirName) throws RuntimeException{
 
@@ -743,9 +763,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		GMT_Map map =  super.getGMTMapSpecification(xyzData);
 
 		// temporary fix:
-		if(eqkRup.getRuptureSurface() instanceof EvenlyGriddedSurface)
+		if(eqkRup != null && eqkRup.getRuptureSurface() instanceof EvenlyGriddedSurface)
 			addRupture(map, (EvenlyGriddedSurface) eqkRup.getRuptureSurface(), eqkRup.getHypocenterLocation(), rupPlotParam.getValue());
-		else
+		else if (eqkRup != null)
 			System.out.println("Can't yet plot non-EvenlyGriddedSurface types in GMT_MapGeneratorForShakeMaps");
 
 		//				// make the file in the script:

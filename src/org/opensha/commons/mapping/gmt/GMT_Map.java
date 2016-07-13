@@ -329,7 +329,7 @@ public class GMT_Map implements Serializable {
 		return pdfFileName;
 	}
 
-	public void setPDFFileName(String psFileName) {
+	public void setPDFFileName(String pdfFileName) {
 		this.pdfFileName = pdfFileName;
 	}
 	

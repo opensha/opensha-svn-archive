@@ -20,7 +20,6 @@ import java.nio.IntBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -48,10 +47,8 @@ import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
 import com.google.common.io.LittleEndianDataInputStream;
 
 public class RSQSimFileReader {
@@ -118,7 +115,7 @@ public class RSQSimFileReader {
 					slipRate = slipRate*General_EQSIM_Tools.SECONDS_PER_YEAR;
 					
 					double aseisFactor = 0d;
-					FocalMechanism focalMechanism = null;
+					FocalMechanism focalMechanism = new FocalMechanism(Double.NaN, Double.NaN, rake); // TODO
 					
 					SimulatorElement elem = new TriangularElement(elemID++, vertices, sectName, -1, sectNum,
 							numAlongStrike, numDownDip, slipRate, aseisFactor, focalMechanism);
@@ -199,7 +196,7 @@ public class RSQSimFileReader {
 					slipRate = slipRate*General_EQSIM_Tools.SECONDS_PER_YEAR;
 					
 					double aseisFactor = 0d;
-					FocalMechanism focalMechanism = null;
+					FocalMechanism focalMechanism = new FocalMechanism(Double.NaN, Double.NaN, rake); // TODO
 					
 					boolean perfectRect = (float)l == (float)w;
 					
@@ -468,7 +465,7 @@ public class RSQSimFileReader {
 		while (true) {
 			try {
 				int eventID = eIn.readInt(); // 1-based, keep as is for now as it shouldn't matter
-				int patchID = pIn.readInt(); // these are 1-based, covert to 0-based
+				int patchID = pIn.readInt(); // 1-based, which matches readGeometry
 				double slip = dIn.readDouble(); // in meters
 				double time = tIn.readDouble(); // in seconds
 				

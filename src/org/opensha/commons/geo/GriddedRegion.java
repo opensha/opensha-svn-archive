@@ -938,6 +938,7 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		// range data
 		numLatNodes = latNodes.length;
 		numLonNodes = lonNodes.length;
+//		System.out.println("numLat="+numLatNodes+", numLon="+numLonNodes);
 		minGridLat = (numLatNodes != 0) ? latNodes[0] : Double.NaN;
 		maxGridLat = (numLatNodes != 0) ? latNodes[numLatNodes - 1]
 			: Double.NaN;

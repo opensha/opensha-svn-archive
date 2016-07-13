@@ -252,7 +252,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		return minDist;
 	}
 	
-	private static List<List<FaultSectionPrefData>> sortRupture(
+	public static List<List<FaultSectionPrefData>> sortRupture(
 			List<FaultSectionPrefData> fsd,
 			List<List<FaultSectionPrefData>> subSectsForFaults,
 			Map<IDPairing, Double> distsCache) {
