@@ -496,8 +496,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		// stop here is log was selected
 		if(map.isLogPlot())
 			throw new RuntimeException("You cannot make Hazus Shapefiles with log-plot selected!");
-
-		String HAZUS_SHAPE_FILE_GENERATOR = "/usr/local/tomcat/default/webapps/OpenSHA/hazus/contour";
+		
+		File hazusDir = new File(ServerPrefUtils.SERVER_PREFS.getTomcatDir().getParentFile().getParentFile(), "hazus");
+		String HAZUS_SHAPE_FILE_GENERATOR = new File(hazusDir, "contour").getAbsolutePath();
 		// Get the limits and discretization of the map
 		double minLat = map.getRegion().getMinLat();
 		double maxTempLat = map.getRegion().getMaxLat();
@@ -513,6 +514,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 		String region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
 		//		String imt = map.get
 		String commandLine;
+		gmtCommandLines.add("# HAZUS file generation\n");
+		gmtCommandLines.add("# set LD_LIBRARY_PATH for old GMT\n");
+		gmtCommandLines.add("ORIG_LD=$LD_LIBRARY_PATH\n");
+		gmtCommandLines.add("export LD_LIBRARY_PATH=/usr/local/gmt/4.5.14/lib/:$ORIG_LD\n");
 		//if the selected IMT is SA
 		if(imt.equals(SA_Param.NAME)){
 			commandLine = "${GMT_PATH}xyz2grd "+map.getXyzFileName()+" -Gtemp.grd=1 "+
@@ -541,6 +546,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 			throw new RuntimeException("IMT not supported to generate Shape File");
 		commandLine = COMMAND_PATH+"rm temp.grd";
 		gmtCommandLines.add(commandLine+"\n");
+		gmtCommandLines.add("export LD_LIBRARY_PATH=$ORIG_LD\n");
 	}
 
 	/**
