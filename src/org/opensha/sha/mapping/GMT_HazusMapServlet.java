@@ -228,8 +228,7 @@ extends HttpServlet {
 		
 		//URL path to folder where all GMT related files and map data file for this
 		//calculations reside.
-		String mapImagePath = GMT_URL_PATH + GMT_DATA_DIR +
-		plotDirName + SystemUtils.FILE_SEPARATOR;
+		String mapImagePath = GMT_URL_PATH + plotDirName + SystemUtils.FILE_SEPARATOR;
 		
 		return mapImagePath;
 	}
