@@ -777,7 +777,11 @@ public class ETAS_CatalogEALCalculator {
 //		File zipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_09_02-mojave_7/results.zip");
 //		File zipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_09_02-napa/results.zip");
 //		File zipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_09_02-spontaneous/results.zip");
-		File resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+		File resultsFile;
+		if (args.length == 1)
+			resultsFile = new File(args[0]);
+		else
+			resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
 		
 		boolean triggeredOnly = true;
