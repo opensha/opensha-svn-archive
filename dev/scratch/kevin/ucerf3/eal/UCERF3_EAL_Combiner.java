@@ -352,15 +352,16 @@ public class UCERF3_EAL_Combiner {
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_04_07-ucerf3-eal-calc-ASK2014-recalc");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
-		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+//		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
 //		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
+		File jobDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2016_06_06-ucerf3-90percent-wald");
 		MagDependentAperiodicityOptions[] covs = { null, MagDependentAperiodicityOptions.HIGH_VALUES,
 				MagDependentAperiodicityOptions.MID_VALUES, MagDependentAperiodicityOptions.LOW_VALUES };
-		String prefix = "CB_2014";
+//		String prefix = "CB_2014";
 //		String prefix = "ASK_2014";
 //		String prefix = "BSSA_2014";
 //		String prefix = "CY_2014";
-//		String prefix = "IDRISS_2014";
+		String prefix = "IDRISS_2014";
 		File rupLossesFile = new File(jobDir, prefix+"_fss_index.bin");
 		File rupGriddedFile = new File(jobDir, prefix+"_fss_gridded.bin");
 //		File validateDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2013_11_05-ucerf3-eal-calc-CB-2013-validate/");

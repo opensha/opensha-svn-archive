@@ -3585,7 +3585,21 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 
 	}
-
+	
+	public static TestScenario detectScenario(File directory) {
+		String dirName = directory.getName().toLowerCase();
+		if (dirName.contains("spontaneous")) {
+			System.out.println("Detected spontaneous");
+		} else {
+			for (TestScenario test : TestScenario.values()) {
+				if (dirName.contains(test.name().toLowerCase())) {
+					return test;
+				}
+			}
+			throw new IllegalStateException("Couldn't detect scenario from dir name: "+dirName);
+		}
+		return null;
+	}
 	
 	private static final String plotDirName = "plots";
 	private static final String catsDirName = "selected_catalogs";
@@ -3716,23 +3730,11 @@ public class ETAS_MultiSimAnalysisTools {
 		
 		for (int n=0; n<resultsZipFiles.size(); n++) {
 			File resultsFile = resultsZipFiles.get(n);
-//			TestScenario scenario = scenarios.get(n);
-			TestScenario scenario = null;
 			File directory = resultsFile.getParentFile();
 			System.out.println("Processing "+directory.getAbsolutePath());
-			String dirName = directory.getName().toLowerCase();
-			if (dirName.contains("spontaneous")) {
-				System.out.println("Detected spontaneous");
-			} else {
-				for (TestScenario test : TestScenario.values()) {
-					if (dirName.contains(test.name().toLowerCase())) {
-						scenario = test;
-						break;
-					}
-				}
-				Preconditions.checkState(scenario != null, "Couldn't detect scenario from dir name: "+dirName);
+			TestScenario scenario = detectScenario(directory);
+			if (scenario != null)
 				System.out.println("Detected scenario "+scenario.name());
-			}
 			
 			if (scenario != null && scenario.getFSS_Index() >= 0)
 				scenario.updateMag(fss.getRupSet().getMagForRup(scenario.getFSS_Index()));

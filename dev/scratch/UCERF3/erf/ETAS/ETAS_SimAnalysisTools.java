@@ -1910,6 +1910,8 @@ public class ETAS_SimAnalysisTools {
 	 * @return
 	 */
 	public static int getFSSIndex(ETAS_EqkRupture rup, FaultSystemSolutionERF erf) {
+		if (rup.getFSSIndex() >= 0)
+			return rup.getFSSIndex();
 		int nthIndex = rup.getNthERF_Index();
 		Preconditions.checkState(nthIndex >= 0, "No Nth rupture index!");
 		int sourceIndex;
