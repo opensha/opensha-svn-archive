@@ -851,6 +851,8 @@ public class ETAS_CatalogEALCalculator {
 		if (resultsFile.getParentFile().getName().startsWith("2016_02_19-mojave")) {
 			System.out.println("Changing scenario ID");
 			id_for_scenario = 9893;
+		} else {
+			id_for_scenario = 0;
 		}
 		
 		System.out.println("Calculating catalog losses");

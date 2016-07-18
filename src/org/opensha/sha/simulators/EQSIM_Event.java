@@ -236,7 +236,7 @@ public class EQSIM_Event implements Comparable<EQSIM_Event>, Iterable<EventRecor
 		if(hasElementSlipsAndIDs()) {
 			ArrayList<SimulatorElement> elementList = new ArrayList<SimulatorElement>();
 			for(EventRecord er:this) {
-				elementList.addAll(er.getRectangularElements());
+				elementList.addAll(er.getElements());
 			}
 			return elementList;
 		} else return null;
@@ -426,7 +426,7 @@ public class EQSIM_Event implements Comparable<EQSIM_Event>, Iterable<EventRecor
 //				int reorderedIndex = reorderedIndices.get(er_index);
 				EventRecord er = get(er_index);
 // System.out.println("er.getSectionID()="+er.getSectionID()+"\t"+"startDistanceAlong="+startDistanceAlong);
-				for(SimulatorElement rectElem : er.getRectangularElements()) {
+				for(SimulatorElement rectElem : er.getElements()) {
 					rectElemIndex += 1;
 					double aveDAS = rectElem.getAveDAS()*1000;	// convert to meters
 					if(flipER[er_index]) {	// index for flipER is not reordered!

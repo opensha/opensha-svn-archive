@@ -100,7 +100,7 @@ public class PaleoFitPlotter {
 	public static PlotSpec getSegRateComparisonSpec(
 				List<PaleoRateConstraint> paleoRateConstraint,
 				List<AveSlipConstraint> aveSlipConstraints,
-				InversionFaultSystemSolution sol) {
+				FaultSystemSolution sol) {
 			Preconditions.checkState(paleoRateConstraint.size() > 0, "Must have at least one rate constraint");
 			Preconditions.checkNotNull(sol, "Solution cannot me null!");
 			
@@ -230,16 +230,22 @@ public class PaleoFitPlotter {
 					paleoRtFunc.setName("(x="+x+") Solution paleo rates for: "+name);
 					aveSlipRtFunc.setName("(x="+x+") Solution ave slip prob visible rates for: "+name);
 					origRtFunc.setName("(x="+x+") Solution original rates for: "+name);
+					InversionFaultSystemSolution invSol = null;
+					if (sol instanceof InversionFaultSystemSolution)
+						invSol = (InversionFaultSystemSolution)sol;
 					for (int j=0; j<numSects; j++) {
 						int mySectID = minSect + j;
 						paleoRtFunc.set(j, getPaleoRateForSect(sol, mySectID, paleoProbModel));
 						origRtFunc.set(j, getPaleoRateForSect(sol, mySectID, null));
-						aveSlipRtFunc.set(j, getAveSlipProbRateForSect(sol, mySectID));
+						if (invSol != null)
+							aveSlipRtFunc.set(j, getAveSlipProbRateForSect(invSol, mySectID));
 					}
 					funcs.add(origRtFunc);
 					plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, origColor));
-					funcs.add(aveSlipRtFunc);
-					plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
+					if (invSol != null) {
+						funcs.add(aveSlipRtFunc);
+						plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, aveSlipColor));
+					}
 					funcs.add(paleoRtFunc);
 					plotChars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, paleoProbColor));
 					

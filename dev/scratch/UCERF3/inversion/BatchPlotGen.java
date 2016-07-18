@@ -54,7 +54,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 
 public class BatchPlotGen {
 	
-	private static ArrayList<double[]> partic_mag_ranges = new ArrayList<double[]>();
+	public static ArrayList<double[]> partic_mag_ranges = new ArrayList<double[]>();
 	static {
 		partic_mag_ranges.add(toArray(6d, 7d));
 		partic_mag_ranges.add(toArray(7d, 8d));

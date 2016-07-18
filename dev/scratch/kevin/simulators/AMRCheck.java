@@ -79,7 +79,7 @@ public class AMRCheck {
 			List<LocationList> tracesForEvent = Lists.newArrayList();
 			for (EventRecord rec : event) {
 				HashSet<Integer> ssIDs = new HashSet<Integer>();
-				for (SimulatorElement e : rec.getRectangularElements()) {
+				for (SimulatorElement e : rec.getElements()) {
 					ssIDs.add(elemToSubSectsMap.get(e.getID()));
 				}
 				List<Integer> ssIDsList = Lists.newArrayList(ssIDs);

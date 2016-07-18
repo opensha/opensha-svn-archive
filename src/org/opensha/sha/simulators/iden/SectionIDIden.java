@@ -2,13 +2,20 @@ package org.opensha.sha.simulators.iden;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.SimulatorElement;
+import org.opensha.sha.simulators.utils.RSQSimUtils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 /**
  * This is a simple rupture identifier implementation - it defines a match as any rupture that includes
@@ -21,13 +28,13 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 	private String name;
 	private HashSet<Integer> elementIDs;
 	
-	public static SectionIDIden getNSAF(List<SimulatorElement> elems) {
+	public static SectionIDIden getALLCAL2_NSAF(List<SimulatorElement> elems) {
 		// NOTE: no creeping
 		return new SectionIDIden("N. SAF", elems, parseNames(elems, "SAF-Mendo_Offs", "SAF-N_Coast_Of",
 				"SAF-N_Coast_On", "SAF-N_Mendocin", "SAF-N_Mid_Peni", "SAF-S_Cruz_Mts", "SAF-S_Mid_Peni"));
 	}
 	
-	public static SectionIDIden getSSAF(List<SimulatorElement> elems) {
+	public static SectionIDIden getALLCAL2_SSAF(List<SimulatorElement> elems) {
 		// NOTE: no parkfield or creeping
 //		return new SectionIDIden("S. SAF", elems, parseNames(elems, "SAF-Carrizo", "SAF-Cholame",
 //				"SAF-Coachella", "SAF-Mojave", "SAF-San_Bernar"));
@@ -36,12 +43,43 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 				"SAF-Coachella", "SAF-Mojave", "SAF-San_Bernar"));
 	}
 	
-	public static SectionIDIden getSanJacinto(List<SimulatorElement> elems) {
+	public static SectionIDIden getALLCAL2_SanJacinto(List<SimulatorElement> elems) {
 		return new SectionIDIden("San Jacinto", elems, parseNames(elems, "Anza", "San_Bernardino", "San_Jacinto"));
 	}
 	
-	public static SectionIDIden getElsinore(List<SimulatorElement> elems) {
+	public static SectionIDIden getALLCAL2_Elsinore(List<SimulatorElement> elems) {
 		return new SectionIDIden("Elsinore", elems, parseNames(elems, "Coyote_Mt.", "Glen_Ivy", "Julian", "Temecula" ,"Whittier"));
+	}
+	
+	public static SectionIDIden getUCERF3_SAF(FaultModels fm, List<FaultSectionPrefData> subSects, List<SimulatorElement> elems) {
+		return getUCERF3_byFaultName("San Andreas", fm, subSects, elems);
+	}
+	
+	public static RuptureIdentifier getUCERF3_SanJacinto(FaultModels fm, List<FaultSectionPrefData> subSects,
+			List<SimulatorElement> elems) {
+		return new LogicalOrRupIden(getUCERF3_byFaultName("San Jacinto (SB to C)", fm, subSects, elems),
+				getUCERF3_byFaultName("San Jacinto (CC to SM)", fm, subSects, elems));
+	}
+	
+	public static SectionIDIden getUCERF3_byFaultName(String name, FaultModels fm,
+			List<FaultSectionPrefData> subSects, List<SimulatorElement> elems) {
+		Map<String, List<Integer>> map = fm.getNamedFaultsMapAlt();
+		if (!map.containsKey(name)) {
+			String options = Joiner.on("'\n\t'").join(map.keySet());
+			throw new IllegalStateException("No mappings for fault '"+name+"'. Options:\n\t'"+options+"'");
+		}
+		Preconditions.checkState(elems != null && !elems.isEmpty(), "No elements supplied");
+		HashSet<Integer> parentIDs = new HashSet<Integer>(map.get(name));
+		
+		int subSectOffset = RSQSimUtils.getSubSectIndexOffset(elems, subSects);
+		List<Integer> sectIDs = Lists.newArrayList();
+		for (FaultSectionPrefData subSect : subSects) {
+			if (parentIDs.contains(subSect.getParentSectionId())) {
+				sectIDs.add(subSect.getSectionId()+subSectOffset);
+			}
+		}
+		
+		return new SectionIDIden(name, elems, sectIDs);
 	}
 	
 	public SectionIDIden(String name, List<SimulatorElement> elems, int sectionID) {
@@ -98,8 +136,12 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return name;
+	}
+	
+	public static void main(String[] args) {
+		getUCERF3_SanJacinto(FaultModels.FM3_1,
+				RSQSimUtils.getUCERF3SubSectsForComparison(FaultModels.FM3_1, DeformationModels.GEOLOGIC), null);
 	}
 
 }

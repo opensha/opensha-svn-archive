@@ -116,7 +116,7 @@ public class UCERF3ComparisonAnalysis {
 		}
 
 		@Override
-		public List<SimulatorElement> getRectangularElements() {
+		public List<SimulatorElement> getElements() {
 			return rupElems;
 		}
 		

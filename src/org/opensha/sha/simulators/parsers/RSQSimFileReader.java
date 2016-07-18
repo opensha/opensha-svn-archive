@@ -539,6 +539,10 @@ public class RSQSimFileReader {
 			rec.setMagnitude(mag);
 			rec.setTime(recordsForEvent.get(0).getTime()); // global according to class docs
 			rec.setID(eventID);
+			double recordArea = 0;
+			for (SimulatorElement elem : rec.getElements())
+				recordArea += elem.getArea();
+			rec.setArea(recordArea);
 			// TODO duration?
 		}
 		

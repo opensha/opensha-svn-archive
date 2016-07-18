@@ -268,6 +268,10 @@ public class EventRecord {
 	 */
 	public double getArea() {return area;}
 	
+	public void setArea(double area) {
+		this.area = area;
+	}
+	
 	/**
 	 * 
 	 * @return length in meters
@@ -368,7 +372,7 @@ public class EventRecord {
 		return maxVertex;
 	}
 	
-	public List<SimulatorElement> getRectangularElements() {
+	public List<SimulatorElement> getElements() {
 		List<SimulatorElement> re_list = Lists.newArrayList();
 		for(int elemID:getElementIDs())
 			re_list.add(rectElementsList.get(elemID-1));	// index is ID-1
