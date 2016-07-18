@@ -61,6 +61,16 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 				getUCERF3_byFaultName("San Jacinto (CC to SM)", fm, subSects, elems));
 	}
 	
+	public static RuptureIdentifier getUCERF3_Garlock(FaultModels fm, List<FaultSectionPrefData> subSects,
+			List<SimulatorElement> elems) {
+		return getUCERF3_byFaultName("Garlock", fm, subSects, elems);
+	}
+	
+	public static RuptureIdentifier getUCERF3_Elsinore(FaultModels fm, List<FaultSectionPrefData> subSects,
+			List<SimulatorElement> elems) {
+		return getUCERF3_byFaultName("Elsinore", fm, subSects, elems);
+	}
+	
 	public static SectionIDIden getUCERF3_byFaultName(String name, FaultModels fm,
 			List<FaultSectionPrefData> subSects, List<SimulatorElement> elems) {
 		Map<String, List<Integer>> map = fm.getNamedFaultsMapAlt();
