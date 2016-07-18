@@ -20,6 +20,7 @@ import java.nio.IntBuffer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -288,26 +289,27 @@ public class RSQSimFileReader {
 		System.out.println("Loaded "+elements.size()+" elements");
 //		for (Location loc : elements.get(0).getVertices())
 //			System.out.println(loc);
-		File eListFile = new File(dir, "UCERF3_35kyrs.eList");
-		File pListFile = new File(dir, "UCERF3_35kyrs.pList");
-		File dListFile = new File(dir, "UCERF3_35kyrs.dList");
-		File tListFile = new File(dir, "UCERF3_35kyrs.tList");
 		
-		System.out.println("Big endian? "+isBigEndian(pListFile, elements));
+		File eventsDir = new File("/home/kevin/Simulators/UCERF3_qlistbig2");
+//		File eventsDir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
 		
-		List<EQSIM_Event> events = readEventsFile(eListFile, pListFile, dListFile, tListFile, elements,
-				Lists.newArrayList(new MagRangeRuptureIdentifier(7d, 10d)));
+//		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3base_80yrs.pList"), elements);
+//		listFileDebug(new File(eventsDir, "UCERF3base_80yrs.eList"), 100, bigEndian, true);
+//		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3_35kyrs.pList"), elements);
+//		listFileDebug(new File(eventsDir, "UCERF3_35kyrs.eList"), 100, bigEndian, true);
+		
+		List<EQSIM_Event> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(7.5d, 10d)));
 		System.out.println("Loaded "+events.size()+" events");
-		double duration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
-		System.out.println("Duration: "+duration+" years");
-		System.out.println("\t"+events.get(0).getTimeInYears()+" to "+events.get(events.size()-1).getTimeInYears()+" years");
-		MinMaxAveTracker magTrack = new MinMaxAveTracker();
-		for (EQSIM_Event event : events)
-			magTrack.addValue(event.getMagnitude());
-		System.out.println("Mags: "+magTrack);
-		
-		RegionIden soCalIden = new RegionIden(new CaliforniaRegions.RELM_SOCAL());
-		soCalIden.getMatches(events);
+//		double duration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
+//		System.out.println("Duration: "+duration+" years");
+//		System.out.println("\t"+events.get(0).getTimeInYears()+" to "+events.get(events.size()-1).getTimeInYears()+" years");
+//		MinMaxAveTracker magTrack = new MinMaxAveTracker();
+//		for (EQSIM_Event event : events)
+//			magTrack.addValue(event.getMagnitude());
+//		System.out.println("Mags: "+magTrack);
+//		
+//		RegionIden soCalIden = new RegionIden(new CaliforniaRegions.RELM_SOCAL());
+//		soCalIden.getMatches(events);
 	}
 	
 	public static List<EQSIM_Event> readEventsFile(File file, List<SimulatorElement> elements) throws IOException {
@@ -458,7 +460,9 @@ public class RSQSimFileReader {
 		
 		// one EventRecord for each section, or one in total if elements don't have section information
 		int curEventID = -1;
-		Map<Integer, EventRecord> curRecordMap = null;
+		Map<Integer, EventRecord> curRecordMap = Maps.newHashMap();
+		
+		HashSet<Integer> eventIDsLoaded = new HashSet<>();
 		
 		List<EQSIM_Event> events = Lists.newArrayList();
 		
@@ -469,6 +473,9 @@ public class RSQSimFileReader {
 				double slip = dIn.readDouble(); // in meters
 				double time = tIn.readDouble(); // in seconds
 				
+//				if (eventID % 10000 == 0 && curEventID != eventID)
+//					System.out.println("Loading eventID="+eventID+". So far kept "+events.size()+" events");
+				
 				Preconditions.checkState(isValidPatchID(patchID, elements));
 				
 				SimulatorElement element = elements.get(patchID-1);
@@ -476,13 +483,16 @@ public class RSQSimFileReader {
 				double elementMoment = FaultMomentCalc.getMoment(element.getArea(), slip);
 				
 				if (eventID != curEventID) {
-					if (curRecordMap != null) {
+					if (!curRecordMap.isEmpty()) {
+						Preconditions.checkState(!eventIDsLoaded.contains(curEventID),
+								"Duplicate eventID found, file is out of order or corrupt: %s", curEventID);
+						eventIDsLoaded.add(curEventID);
 						EQSIM_Event event = buildEvent(curEventID, curRecordMap, rupIdens);
 						if (event != null)
 							// can be null if filters were supplied
 							events.add(event);
 					}
-					curRecordMap = Maps.newHashMap();
+					curRecordMap.clear();
 					curEventID = eventID;
 				}
 				
@@ -503,7 +513,10 @@ public class RSQSimFileReader {
 				break;
 			}
 		}
-		if (curRecordMap != null) {
+		if (!curRecordMap.isEmpty()) {
+			Preconditions.checkState(!eventIDsLoaded.contains(curEventID),
+					"Duplicate eventID found, file is out of order or corrupt: %s", curEventID);
+			eventIDsLoaded.add(curEventID);
 			EQSIM_Event event = buildEvent(curEventID, curRecordMap, rupIdens);
 			if (event != null)
 				// can be null if filters were supplied
@@ -517,6 +530,38 @@ public class RSQSimFileReader {
 		Collections.sort(events);
 		
 		return events;
+	}
+	
+	private static void listFileDebug(File file, int numToPrint, boolean bigEndian, boolean integer) throws IOException {
+		InputStream fin = new BufferedInputStream(new FileInputStream(file));
+		
+		System.out.println(file.getName()+" big endian? "+bigEndian);
+		
+		DataInput dataIn;
+		
+		if (bigEndian) {
+			dataIn = new DataInputStream(fin);
+		} else {
+			dataIn = new LittleEndianDataInputStream(fin);
+		}
+		
+		int count = 0;
+		while (true) {
+			try {
+				if (count == numToPrint)
+					break;
+				Object val;
+				if (integer)
+					val = dataIn.readInt();
+				else
+					val = dataIn.readDouble();
+				System.out.println(count+":\t"+val);
+				count++;
+			} catch (EOFException e) {
+				break;
+			}
+		}
+		((FilterInputStream)dataIn).close();
 	}
 	
 	private static EventRecordTimeComparator recordTimeComp = new EventRecordTimeComparator();
