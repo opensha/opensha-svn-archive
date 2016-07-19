@@ -462,7 +462,7 @@ public class RSQSimFileReader {
 		int curEventID = -1;
 		Map<Integer, EventRecord> curRecordMap = Maps.newHashMap();
 		
-		HashSet<Integer> eventIDsLoaded = new HashSet<>();
+		HashSet<Integer> eventIDsLoaded = new HashSet<Integer>();
 		
 		List<EQSIM_Event> events = Lists.newArrayList();
 		
