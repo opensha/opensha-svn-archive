@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.utils.RSQSimUtils;
 
@@ -27,6 +28,9 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 	
 	private String name;
 	private HashSet<Integer> elementIDs;
+	private HashSet<Integer> sectionIDs;
+	
+	private double momentFractForInclusion = 0;
 	
 	public static SectionIDIden getALLCAL2_NSAF(List<SimulatorElement> elems) {
 		// NOTE: no creeping
@@ -55,23 +59,30 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 		return getUCERF3_byFaultName("San Andreas", fm, subSects, elems);
 	}
 	
-	public static RuptureIdentifier getUCERF3_SanJacinto(FaultModels fm, List<FaultSectionPrefData> subSects,
+	public static SectionIDIden getUCERF3_SanJacinto(FaultModels fm, List<FaultSectionPrefData> subSects,
 			List<SimulatorElement> elems) {
-		return new LogicalOrRupIden(getUCERF3_byFaultName("San Jacinto (SB to C)", fm, subSects, elems),
-				getUCERF3_byFaultName("San Jacinto (CC to SM)", fm, subSects, elems));
+		List<Integer> sectIDs = Lists.newArrayList();
+		sectIDs.addAll(getUCERF3_sectIDsForFault("San Jacinto (SB to C)", fm, subSects, elems));
+		sectIDs.addAll(getUCERF3_sectIDsForFault("San Jacinto (CC to SM)", fm, subSects, elems));
+		return new SectionIDIden("San Jacinto", elems, sectIDs);
 	}
 	
-	public static RuptureIdentifier getUCERF3_Garlock(FaultModels fm, List<FaultSectionPrefData> subSects,
+	public static SectionIDIden getUCERF3_Garlock(FaultModels fm, List<FaultSectionPrefData> subSects,
 			List<SimulatorElement> elems) {
 		return getUCERF3_byFaultName("Garlock", fm, subSects, elems);
 	}
 	
-	public static RuptureIdentifier getUCERF3_Elsinore(FaultModels fm, List<FaultSectionPrefData> subSects,
+	public static SectionIDIden getUCERF3_Elsinore(FaultModels fm, List<FaultSectionPrefData> subSects,
 			List<SimulatorElement> elems) {
 		return getUCERF3_byFaultName("Elsinore", fm, subSects, elems);
 	}
 	
 	public static SectionIDIden getUCERF3_byFaultName(String name, FaultModels fm,
+			List<FaultSectionPrefData> subSects, List<SimulatorElement> elems) {
+		return new SectionIDIden(name, elems, getUCERF3_sectIDsForFault(name, fm, subSects, elems));
+	}
+	
+	private static List<Integer> getUCERF3_sectIDsForFault(String name, FaultModels fm,
 			List<FaultSectionPrefData> subSects, List<SimulatorElement> elems) {
 		Map<String, List<Integer>> map = fm.getNamedFaultsMapAlt();
 		if (!map.containsKey(name)) {
@@ -89,7 +100,7 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 			}
 		}
 		
-		return new SectionIDIden(name, elems, sectIDs);
+		return sectIDs;
 	}
 	
 	public SectionIDIden(String name, List<SimulatorElement> elems, int sectionID) {
@@ -103,6 +114,20 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 	public SectionIDIden(String name, List<SimulatorElement> elems, List<Integer> sectionIDs) {
 		this.name = name;
 		elementIDs = new HashSet<Integer>(getElemIDs(elems, sectionIDs));
+		this.sectionIDs = new HashSet<Integer>(sectionIDs);
+	}
+	
+	/**
+	 * By default, this identifier includes any event which ruptures any part of the given fault section. This method can be used
+	 * to specify a moment fraction (between 0 and 1) for inclusion. For example, if you supply 0.25, then only events with >= 25%
+	 * of their moment on the given fault will be included.
+	 * 
+	 * @param momentFractForInclusion
+	 */
+	public void setMomentFractForInclusion(double momentFractForInclusion) {
+		Preconditions.checkArgument(momentFractForInclusion >= 0 && momentFractForInclusion <= 1,
+				"moment fraction for inclusion must be in the range [0 1]: %s", momentFractForInclusion);
+		this.momentFractForInclusion = momentFractForInclusion;
 	}
 	
 	private static List<Integer> getElemIDs(List<SimulatorElement> elems, List<Integer> sectionIDs) {
@@ -138,6 +163,23 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 
 	@Override
 	public boolean isMatch(EQSIM_Event event) {
+		// true if at least one element matches
+		boolean elementMatch = isElementMatch(event);
+		if (momentFractForInclusion == 0 || !elementMatch)
+			return elementMatch;
+		// check moment on the given fault;
+		double momentOnFault = 0;
+		double totMoment = 0;
+		for (EventRecord rec : event) {
+			totMoment += rec.getMoment();
+			if (sectionIDs.contains(rec.getSectionID()))
+				momentOnFault += rec.getMoment();
+		}
+		double fract = momentOnFault/totMoment;
+		return fract >= momentFractForInclusion;
+	}
+	
+	private boolean isElementMatch(EQSIM_Event event) {
 		for (int elementID : event.getAllElementIDs())
 			if (elementIDs.contains(elementID))
 				return true;

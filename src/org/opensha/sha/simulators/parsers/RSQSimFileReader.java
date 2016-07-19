@@ -42,15 +42,20 @@ import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.TriangularElement;
 import org.opensha.sha.simulators.Vertex;
+import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.iden.SectionIDIden;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
+import org.opensha.sha.simulators.utils.RSQSimUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.LittleEndianDataInputStream;
+
+import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 public class RSQSimFileReader {
 	
@@ -290,16 +295,28 @@ public class RSQSimFileReader {
 //		for (Location loc : elements.get(0).getVertices())
 //			System.out.println(loc);
 		
-		File eventsDir = new File("/home/kevin/Simulators/UCERF3_qlistbig2");
-//		File eventsDir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
+//		File eventsDir = new File("/home/kevin/Simulators/UCERF3_qlistbig2");
+		File eventsDir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
 		
 //		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3base_80yrs.pList"), elements);
 //		listFileDebug(new File(eventsDir, "UCERF3base_80yrs.eList"), 100, bigEndian, true);
 //		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3_35kyrs.pList"), elements);
 //		listFileDebug(new File(eventsDir, "UCERF3_35kyrs.eList"), 100, bigEndian, true);
 		
-		List<EQSIM_Event> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(7.5d, 10d)));
+		List<EQSIM_Event> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(7d, 10d)));
 		System.out.println("Loaded "+events.size()+" events");
+		FaultModels fm = FaultModels.FM3_1;
+		SectionIDIden garlockIden = SectionIDIden.getUCERF3_Garlock(
+				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
+		SectionIDIden safIden = SectionIDIden.getUCERF3_SAF(
+				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
+		LogicalAndRupIden safSoCalIden = new LogicalAndRupIden(safIden, new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
+		for (double fract : new double[] {0d, 0.25, 0.5, 0.75}) {
+			garlockIden.setMomentFractForInclusion(fract);
+			System.out.println("Garlock M>=7 events with "+(float)(fract*100d)+" % moment: "+garlockIden.getMatches(events).size());
+			safIden.setMomentFractForInclusion(fract);
+			System.out.println("S.SAF M>=7 events with "+(float)(fract*100d)+" % moment: "+safSoCalIden.getMatches(events).size());
+		}
 //		double duration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
 //		System.out.println("Duration: "+duration+" years");
 //		System.out.println("\t"+events.get(0).getTimeInYears()+" to "+events.get(events.size()-1).getTimeInYears()+" years");
@@ -324,7 +341,7 @@ public class RSQSimFileReader {
 			for (File sub : file.listFiles()) {
 				if (sub.getName().endsWith(".eList")) {
 					System.out.println("Found eList file in directory: "+sub.getAbsolutePath());
-					return readEventsFile(sub, elements);
+					return readEventsFile(sub, elements, rupIdens);
 				}
 			}
 			throw new FileNotFoundException("Couldn't find eList file in given directory");
