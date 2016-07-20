@@ -34,7 +34,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
@@ -115,7 +115,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		rupIdens = Lists.newArrayList();
 		rupIdens.add(andIden);
 		
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
 		
 //		Region region = null;
 		Region region = new CaliforniaRegions.RELM_SOCAL();
@@ -127,8 +127,8 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			for (SimulatorElement elem : tools.getElementsList())
 				elementsInRegionsCache.put(elem.getID(), region.contains(elem.getCenterLocation()));
 			
-			List<EQSIM_Event> eventsInRegion = Lists.newArrayList();
-			for (EQSIM_Event e : events) {
+			List<SimulatorEvent> eventsInRegion = Lists.newArrayList();
+			for (SimulatorEvent e : events) {
 				for (int elemID : e.getAllElementIDs()) {
 					if (elementsInRegionsCache.get(elemID)) {
 						eventsInRegion.add(e);
@@ -166,7 +166,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		for (int r=0; r<rupSet.getNumRuptures(); r++)
 			subSectsToRupMap.put(new UniqueIndexSet(new HashSet<Integer>(rupSet.getSectionsIndicesForRup(r))), r);
 		Map<Integer, Integer> elemsIDsToSubSects = subSectBuilder.getElemIDToSubSectsMap();
-		for (EQSIM_Event e: events) {
+		for (SimulatorEvent e: events) {
 			HashSet<Integer> subSects = new HashSet<Integer>();
 			for (int elemID : e.getAllElementIDs())
 				subSects.add(elemsIDsToSubSects.get(elemID));
@@ -227,9 +227,9 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			
 			double randTrainEndTime = firstEventTimeYears+minDuration+randDuration;
 			double forecastEndTime = randTrainEndTime + forecastDuration;
-			List<EQSIM_Event> eventsBefore = Lists.newArrayList();
-			List<EQSIM_Event> eventsDuring = Lists.newArrayList();
-			for (EQSIM_Event e : events) {
+			List<SimulatorEvent> eventsBefore = Lists.newArrayList();
+			List<SimulatorEvent> eventsDuring = Lists.newArrayList();
+			for (SimulatorEvent e : events) {
 				if (e.getTimeInYears() <= randTrainEndTime)
 					eventsBefore.add(e);
 				else if (e.getTimeInYears() <= forecastEndTime)
@@ -271,7 +271,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 			// now log what actually happened
 			// do it this way to only count rups once even if they happen multiple times
 			HashSet<Integer> rupsOccurredThisTime = new HashSet<Integer>();
-			for (EQSIM_Event e : eventsDuring) {
+			for (SimulatorEvent e : eventsDuring) {
 				int rupIndex = simToRupIndex.get(e.getID());
 				rupsOccurredThisTime.add(rupIndex);
 			}
@@ -420,7 +420,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		return new FaultSystemSolution(rupSet, rates);
 	}
 	
-	private static void populateOpenIntervals(SubSectionBiulder builder, List<EQSIM_Event> events, double catalogTime,
+	private static void populateOpenIntervals(SubSectionBiulder builder, List<SimulatorEvent> events, double catalogTime,
 			int timeSpanStartYear) {
 		List<FaultSectionPrefData> subSects = builder.getSubSectsList();
 		// clear any open intervals
@@ -432,7 +432,7 @@ public class TimeDepFSS_ERF_Simulator_Test {
 		Map<Integer, Integer> elemToSubSectMap = builder.getElemIDToSubSectsMap();
 		
 		for (int i=events.size(); --i>=0;) {
-			EQSIM_Event e = events.get(i);
+			SimulatorEvent e = events.get(i);
 			double openInterval = catalogTime - e.getTimeInYears();
 			Preconditions.checkState(openInterval >= 0);
 			

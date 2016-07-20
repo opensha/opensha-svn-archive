@@ -2,7 +2,7 @@ package org.opensha.sha.simulators.iden;
 
 import java.util.Collection;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 
 import com.google.common.collect.Lists;
 
@@ -21,7 +21,7 @@ public class LogicalOrRupIden extends AbstractRuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		for (RuptureIdentifier rupIden : rupIdens)
 			if (rupIden.isMatch(event))
 				return true;

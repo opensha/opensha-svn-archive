@@ -3,7 +3,7 @@ package scratch.kevin.simulators.dists;
 import java.util.Collections;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -20,37 +20,37 @@ import com.google.common.collect.Lists;
 public enum RandomDistType {
 		NORMAL("Random Normal Dist", "rand_norm_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				return new NormalDistReturnPeriodProvider(rps);
 			}
 		},
 		EXPONENTIAL("Random Exponential Dist", "rand_exp_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				return new ExponentialDistReturnPeriodProvider(rps);
 			}
 		},
 		LOG_NORMAL("Random Log-Normal Dist", "rand_lognorm_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				return new LogNormalDistReturnPeriodProvider(rps);
 			}
 		},
 		POISSON("Random Poisson Dist", "rand_poisson_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				return new PoissonDistReturnPeriodProvider(rps);
 			}
 		},
 		ACTUAL("Random Actual Dist", "rand_actual_dist") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				return new ActualDistReturnPeriodProvider(rps);
 			}
 		},
 		STATE_BASED("N Dim. State Based", "rand_state_based") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				return new ActualDistReturnPeriodProvider(rps);
 			}
 
@@ -61,7 +61,7 @@ public enum RandomDistType {
 		},
 		PREFERRED_SYN("Random Preferred Synthetic", "rand_preferred") {
 			@Override
-			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+			public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				if (rupIden != null && rupIden instanceof ElementMagRangeDescription) {
 					List<Integer> ids = ((ElementMagRangeDescription)rupIden).getElementIDs();
 					if (ids.size() == 1 && ids.get(0) == ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID) {
@@ -95,12 +95,12 @@ public enum RandomDistType {
 			}
 		},
 		MOJAVE_DRIVER("Mojave Driver Dist", "rand_mojave_driver_dist") {
-			private List<EQSIM_Event> mojaveMatches;
+			private List<? extends SimulatorEvent> mojaveMatches;
 			ElementMagRangeDescription mojaveIden;
 			
 			@Override
 			public synchronized RandomReturnPeriodProvider instance(
-					RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+					RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
 				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
 				if (mojaveMatches == null) {
@@ -111,7 +111,7 @@ public enum RandomDistType {
 				if (elemIden.getElementIDs().contains(ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID))
 					return ACTUAL.instance(rupIden, rps, events);
 				
-				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
+				List<? extends SimulatorEvent> followerMatches = rupIden.getMatches(events);
 				return new FollowerReturnPeriodProvider(events, mojaveIden, mojaveMatches, rupIden, followerMatches, 10d, 1500);
 			}
 
@@ -121,14 +121,14 @@ public enum RandomDistType {
 			}
 		},
 		MOJAVE_COACHELLA_CODRIVER("Mojave/Coachella Co-Driver Dist", "rand_coach_mojave_codriver_dist") {
-			private List<EQSIM_Event> mojaveMatches;
+			private List<? extends SimulatorEvent> mojaveMatches;
 			ElementMagRangeDescription mojaveIden;
-			private List<EQSIM_Event> coachellaMatches;
+			private List<? extends SimulatorEvent> coachellaMatches;
 			ElementMagRangeDescription coachellaIden;
 			
 			@Override
 			public synchronized RandomReturnPeriodProvider instance(
-					RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+					RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
 				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
 				if (mojaveMatches == null) {
@@ -145,7 +145,7 @@ public enum RandomDistType {
 //					return ACTUAL.instance(rupIden, rps, events);
 					return new FollowerReturnPeriodProvider(events, coachellaIden, coachellaMatches, mojaveIden, mojaveMatches, 10d, 1500);
 				
-				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
+				List<? extends SimulatorEvent> followerMatches = rupIden.getMatches(events);
 				return new FollowerReturnPeriodProvider(events, mojaveIden, mojaveMatches, rupIden, followerMatches, 10d, 1500);
 			}
 
@@ -155,14 +155,14 @@ public enum RandomDistType {
 			}
 		},
 		SAN_JACINTO_COACHELLA_CODRIVER("San Jacinto/Coachella Co-Driver Dist", "rand_sj_coach_codriver_dist") {
-			private List<EQSIM_Event> sjMatches;
+			private List<? extends SimulatorEvent> sjMatches;
 			ElementMagRangeDescription sjIden;
-			private List<EQSIM_Event> coachellaMatches;
+			private List<? extends SimulatorEvent> coachellaMatches;
 			ElementMagRangeDescription coachellaIden;
 			
 			@Override
 			public synchronized RandomReturnPeriodProvider instance(
-					RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events) {
+					RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events) {
 				Preconditions.checkState(rupIden instanceof ElementMagRangeDescription);
 				ElementMagRangeDescription elemIden = (ElementMagRangeDescription)rupIden;
 				if (sjMatches == null) {
@@ -179,7 +179,7 @@ public enum RandomDistType {
 //					return ACTUAL.instance(rupIden, rps, events);
 					return new FollowerReturnPeriodProvider(events, coachellaIden, coachellaMatches, sjIden, sjMatches, 10d, 1500);
 				
-				List<EQSIM_Event> followerMatches = rupIden.getMatches(events);
+				List<? extends SimulatorEvent> followerMatches = rupIden.getMatches(events);
 				return new FollowerReturnPeriodProvider(events, sjIden, sjMatches, rupIden, followerMatches, 10d, 1500);
 			}
 
@@ -192,7 +192,7 @@ public enum RandomDistType {
 			@Override
 			public RandomReturnPeriodProvider instance(
 					RuptureIdentifier rupIden, double[] rps,
-					List<EQSIM_Event> events) {
+					List<? extends SimulatorEvent> events) {
 				final double rate = (rps.length+1d)/(events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears());
 				return new ProbabilisticReturnPeriodProvider() {
 					
@@ -207,7 +207,7 @@ public enum RandomDistType {
 					}
 					
 					@Override
-					public PossibleRupture getPossibleRupture(List<EQSIM_Event> prevEvents,
+					public PossibleRupture getPossibleRupture(List<SimulatorEvent> prevEvents,
 							double windowStart, double windowEnd) {
 						double duration = windowEnd - windowStart;
 						double prob = 1-Math.exp(-rate*duration);
@@ -225,7 +225,7 @@ public enum RandomDistType {
 			@Override
 			public RandomReturnPeriodProvider instance(
 					RuptureIdentifier rupIden, double[] rps,
-					List<EQSIM_Event> events) {
+					List<? extends SimulatorEvent> events) {
 				return null;
 			}
 
@@ -234,23 +234,23 @@ public enum RandomDistType {
 				return new CatalogBuilder() {
 					
 					@Override
-					public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
+					public List<SimulatorEvent> buildCatalog(List<? extends SimulatorEvent> events,
 							List<RandomReturnPeriodProvider> randomRPsList,
-							List<List<EQSIM_Event>> eventListsToResample, boolean trim) {
+							List<List<? extends SimulatorEvent>> eventListsToResample, boolean trim) {
 						
 						double startTime = events.get(0).getTime();
 						double endTime = events.get(events.size()-1).getTime();
 						
 						double duration = endTime - startTime;
 						
-						List<EQSIM_Event> randEvents = Lists.newArrayList();
-						for (EQSIM_Event event : events) {
+						List<SimulatorEvent> randEvents = Lists.newArrayList();
+						for (SimulatorEvent event : events) {
 							double newTime = Math.random()*duration + startTime;
 							randEvents.add(event.cloneNewTime( newTime, event.getID()));
 						}
 						Collections.sort(randEvents);
 						int eventID = 0;
-						for (EQSIM_Event e : randEvents)
+						for (SimulatorEvent e : randEvents)
 							e.setID(eventID++);
 						
 						return randEvents;
@@ -270,10 +270,10 @@ public enum RandomDistType {
 		public String getFNameAdd() {
 			return fNameAdd;
 		}
-		public abstract RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<EQSIM_Event> events);
+		public abstract RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, double[] rps, List<? extends SimulatorEvent> events);
 		
-		public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, List<EQSIM_Event> events) {
-			List<EQSIM_Event> matches = rupIden.getMatches(events);
+		public RandomReturnPeriodProvider instance(RuptureIdentifier rupIden, List<? extends SimulatorEvent> events) {
+			List<? extends SimulatorEvent> matches = rupIden.getMatches(events);
 			double[] rps = PeriodicityPlotter.getRPs(matches);
 			return instance(rupIden, rps, events);
 		}

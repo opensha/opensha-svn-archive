@@ -26,7 +26,7 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
@@ -61,7 +61,7 @@ public class BatchPlotGen {
 		File plotBaseDir = new File(dir, "plots_long");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		List<double[]> magRanges= Lists.newArrayList();
 		magRanges.add(toArray(7, 10));
@@ -153,7 +153,7 @@ public class BatchPlotGen {
 		}
 		
 		MinMaxAveTracker eventMagTrack = new MinMaxAveTracker();
-		for (EQSIM_Event e : events)
+		for (SimulatorEvent e : events)
 			eventMagTrack.addValue(e.getMagnitude());
 		double totalEventDuration = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
@@ -234,9 +234,9 @@ public class BatchPlotGen {
 				if (!plotDir.exists())
 					plotDir.mkdir();
 				
-				List<EQSIM_Event> matches = rupIden.getMatches(events);
+				List<? extends SimulatorEvent> matches = rupIden.getMatches(events);
 				MinMaxAveTracker matchMagTrack = new MinMaxAveTracker();
-				for (EQSIM_Event e : matches)
+				for (SimulatorEvent e : matches)
 					matchMagTrack.addValue(e.getMagnitude());
 				
 				System.out.println("Num Matches: "+matches.size());
@@ -282,14 +282,14 @@ public class BatchPlotGen {
 		private double mfdPlotMinMag;
 		private double delta;
 		private int mfdPlotNumMag;
-		private List<EQSIM_Event> events;
+		private List<? extends SimulatorEvent> events;
 		private RuptureIdentifier rupIden;
 		private String plotDirName;
 		private String plotTitle;
 		private File plotDir;
 		private double minWindowDurationYears;
 		private boolean randomizeEventTimes;
-		private List<EQSIM_Event> matches;
+		private List<? extends SimulatorEvent> matches;
 		private HashSet<Integer> elementsInRegion;
 		private ArrayList<EvenlyDiscretizedFunc> eventMFDs;
 		private ArrayList<PlotCurveCharacterstics> eventMFDChars;
@@ -303,10 +303,10 @@ public class BatchPlotGen {
 		private List<Color> mfdSpecialFaultColors;
 		
 		public RangePlotter(double mfdPlotMinMag, double delta,
-				int mfdPlotNumMag, List<EQSIM_Event> events,
+				int mfdPlotNumMag, List<? extends SimulatorEvent> events,
 				RuptureIdentifier rupIden, String plotDirName, String plotTitle,
 				File plotDir, double minWindowDurationYears,
-				boolean randomizeEventTimes, List<EQSIM_Event> matches,
+				boolean randomizeEventTimes, List<? extends SimulatorEvent> matches,
 				HashSet<Integer> elementsInRegion,
 				ArrayList<EvenlyDiscretizedFunc> eventMFDs,
 				ArrayList<PlotCurveCharacterstics> eventMFDChars,
@@ -546,12 +546,12 @@ public class BatchPlotGen {
 	}
 	
 	private static Map<Integer, Double> calcParticRates(
-			List<EQSIM_Event> events, double duration, double minMag, double maxMag) {
+			List<? extends SimulatorEvent> events, double duration, double minMag, double maxMag) {
 		Map<Integer, Double> rates = Maps.newHashMap();
 		
 		double eventRate = 1d/(duration*DAYS_PER_YEAR);
 		
-		for (EQSIM_Event e : events) {
+		for (SimulatorEvent e : events) {
 			double mag = e.getMagnitude();
 			if (mag < minMag || mag >= maxMag)
 				continue;

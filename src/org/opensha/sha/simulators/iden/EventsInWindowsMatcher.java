@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
@@ -14,20 +14,20 @@ import com.google.common.collect.Lists;
 public class EventsInWindowsMatcher {
 	
 	// inputs
-	private List<EQSIM_Event> events;
+	private List<? extends SimulatorEvent> events;
 	private RuptureIdentifier rupIden;
 	private double minWindowDurationYears;
 	private double windowDurationYears;
 	private boolean randomizeEventTimes;
 	
 	// outputs
-	private List<EQSIM_Event> eventsInWindows;
+	private List<SimulatorEvent> eventsInWindows;
 	private List<Double> timeFromStarts;
 	private List<TimeWindow> timeWindows;
 	private HashSet<Integer> matchIDs;
 	private double totalWindowDurationYears;
 	
-	public EventsInWindowsMatcher(List<EQSIM_Event> events,
+	public EventsInWindowsMatcher(List<? extends SimulatorEvent> events,
 			RuptureIdentifier rupIden,
 			double minWindowDurationYears,
 			double windowDurationYears,
@@ -41,7 +41,7 @@ public class EventsInWindowsMatcher {
 		update();
 	}
 	
-	private List<EQSIM_Event> update() {
+	private List<? extends SimulatorEvent> update() {
 		eventsInWindows = Lists.newArrayList();
 		timeFromStarts = Lists.newArrayList();
 		
@@ -52,11 +52,11 @@ public class EventsInWindowsMatcher {
 			double startTime = events.get(0).getTime();
 			double simDuration = General_EQSIM_Tools.getSimulationDuration(events);
 			
-			ArrayList<EQSIM_Event> randomizedEvents = new ArrayList<EQSIM_Event>();
+			ArrayList<SimulatorEvent> randomizedEvents = new ArrayList<SimulatorEvent>();
 			
-			for (EQSIM_Event e : events) {
+			for (SimulatorEvent e : events) {
 				double time = startTime+Math.random()*simDuration;
-				EQSIM_Event r = e.cloneNewTime(time, e.getID());
+				SimulatorEvent r = e.cloneNewTime(time, e.getID());
 				randomizedEvents.add(r);
 			}
 			
@@ -65,7 +65,7 @@ public class EventsInWindowsMatcher {
 			events = randomizedEvents;
 		}
 		
-		List<EQSIM_Event> matches = rupIden.getMatches(events);
+		List<? extends SimulatorEvent> matches = rupIden.getMatches(events);
 		
 		if (matches.isEmpty()) {
 			System.out.println("No matches found!");
@@ -87,7 +87,7 @@ public class EventsInWindowsMatcher {
 		// find the time windows and total time covered (accounting for overlap)
 		TimeWindow prev = null;
 		matchIDs = new HashSet<Integer>();
-		for (EQSIM_Event e : matches) {
+		for (SimulatorEvent e : matches) {
 			double start = e.getTime();
 			double end = start + duration;
 			start += minDuration; // do this afterward so that the end time doesn't get bumped back
@@ -122,7 +122,7 @@ public class EventsInWindowsMatcher {
 		int windowIndex = 0;
 		int numEventsInWindows = 0;
 		mainloop:
-		for (EQSIM_Event e : events) {
+		for (SimulatorEvent e : events) {
 			double time = e.getTime();
 			while (time > timeWindows.get(windowIndex).getEnd()) {
 				// while this event happened after the current window ends
@@ -177,7 +177,7 @@ public class EventsInWindowsMatcher {
 		return eventsInWindows;
 	}
 
-	public List<EQSIM_Event> getInputEvents() {
+	public List<? extends SimulatorEvent> getInputEvents() {
 		return events;
 	}
 
@@ -197,7 +197,7 @@ public class EventsInWindowsMatcher {
 		return randomizeEventTimes;
 	}
 
-	public List<EQSIM_Event> getEventsInWindows() {
+	public List<SimulatorEvent> getEventsInWindows() {
 		return eventsInWindows;
 	}
 	

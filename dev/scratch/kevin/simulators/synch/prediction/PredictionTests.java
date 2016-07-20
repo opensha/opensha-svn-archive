@@ -26,7 +26,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -255,32 +255,32 @@ public class PredictionTests {
 	 * @param rupIdens
 	 * @return
 	 */
-	private static List<EQSIM_Event> generateFakeData1(List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+	private static List<SimulatorEvent> generateFakeData1(List<SimulatorEvent> events, List<RuptureIdentifier> rupIdens,
 			long seed) {
 		Preconditions.checkState(rupIdens.size() == 2);
 		RuptureIdentifier iden1 = rupIdens.get(0);
 		RuptureIdentifier iden2 = rupIdens.get(1);
 		
 		// first find all unique events for each
-		List<EQSIM_Event> events1 = iden1.getMatches(events);
-		List<EQSIM_Event> events2 = iden2.getMatches(events);
+		List<SimulatorEvent> events1 = iden1.getMatches(events);
+		List<SimulatorEvent> events2 = iden2.getMatches(events);
 		
 		LogNormalDistReturnPeriodProvider riProv =
 				new LogNormalDistReturnPeriodProvider(PeriodicityPlotter.getRPs(events1));
 		riProv.setSeed(seed);
 		
-		HashSet<EQSIM_Event> events2Hash = new HashSet<EQSIM_Event>(events2);
+		HashSet<SimulatorEvent> events2Hash = new HashSet<SimulatorEvent>(events2);
 		
 		// remove duplicates
 		for (int i=events1.size(); --i>=0;) {
-			EQSIM_Event event = events1.get(i);
+			SimulatorEvent event = events1.get(i);
 			if (events2Hash.contains(event)) {
 				events1.remove(i);
 				Preconditions.checkState(events2.remove(event));
 			}
 		}
 		
-		List<EQSIM_Event> fakeEvents = Lists.newArrayList();
+		List<SimulatorEvent> fakeEvents = Lists.newArrayList();
 		
 		boolean includeFault2 = true;
 		
@@ -450,28 +450,28 @@ public class PredictionTests {
 	 * @param rupIdens
 	 * @return
 	 */
-	private static List<EQSIM_Event> generateFakeData2(List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+	private static List<SimulatorEvent> generateFakeData2(List<? extends SimulatorEvent> events, List<RuptureIdentifier> rupIdens,
 			double corr, double mean1, double sd1, double mean2, double sd2, long seed) {
 		Preconditions.checkState(rupIdens.size() == 2);
 		RuptureIdentifier iden1 = rupIdens.get(0);
 		RuptureIdentifier iden2 = rupIdens.get(1);
 		
 		// first find all unique events for each
-		List<EQSIM_Event> events1 = iden1.getMatches(events);
-		List<EQSIM_Event> events2 = iden2.getMatches(events);
+		List<? extends SimulatorEvent> events1 = iden1.getMatches(events);
+		List<? extends SimulatorEvent> events2 = iden2.getMatches(events);
 		
-		HashSet<EQSIM_Event> events2Hash = new HashSet<EQSIM_Event>(events2);
+		HashSet<SimulatorEvent> events2Hash = new HashSet<SimulatorEvent>(events2);
 		
 		// remove duplicates
 		for (int i=events1.size(); --i>=0;) {
-			EQSIM_Event event = events1.get(i);
+			SimulatorEvent event = events1.get(i);
 			if (events2Hash.contains(event)) {
 				events1.remove(i);
 				Preconditions.checkState(events2.remove(event));
 			}
 		}
 		
-		List<EQSIM_Event> fakeEvents = Lists.newArrayList();
+		List<SimulatorEvent> fakeEvents = Lists.newArrayList();
 		
 		double[] means = { Math.log(mean1), Math.log(mean2) };
 		double[][] covariances = new double[2][2];
@@ -548,7 +548,7 @@ public class PredictionTests {
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
 		if (fakeData)
 //			events = generateFakeData1(events, rupIdens, 0l);
 			events = generateFakeData2(events, rupIdens, 0.5, 100d, 30d, 100d, 30d, 0l);

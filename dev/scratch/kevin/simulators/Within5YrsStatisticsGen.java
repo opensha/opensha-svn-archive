@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.opensha.commons.data.CSVFile;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -30,7 +30,7 @@ public class Within5YrsStatisticsGen {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
 		
@@ -62,7 +62,7 @@ public class Within5YrsStatisticsGen {
 		double[] times = { 1, 5, 10 };
 		
 		for (boolean randomized : randoms) {
-			List<EQSIM_Event> theEvents;
+			List<? extends SimulatorEvent> theEvents;
 			if (randomized) {
 				System.out.println("\n\n******* RANDOMIZED ******\n");
 				theEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true);
@@ -91,12 +91,12 @@ public class Within5YrsStatisticsGen {
 		}
 	}
 	
-	private static void addStats(List<EQSIM_Event> events,
+	private static void addStats(List<? extends SimulatorEvent> events,
 			RuptureIdentifier targetIden, String targetName,
 			RuptureIdentifier givenIden, String givenName, double years,
 			CSVFile<String> probCSV, CSVFile<String> percentCSV) {
-		List<EQSIM_Event> targetMatches = targetIden.getMatches(events);
-		List<EQSIM_Event> givenMatches = givenIden.getMatches(events);
+		List<? extends SimulatorEvent> targetMatches = targetIden.getMatches(events);
+		List<? extends SimulatorEvent> givenMatches = givenIden.getMatches(events);
 		
 		System.out.println("target="+targetMatches.size()+"\tgiven="+givenMatches.size()
 				+"\tduration="+General_EQSIM_Tools.getSimulationDuration(events));
@@ -108,7 +108,7 @@ public class Within5YrsStatisticsGen {
 		
 		// find prob that target occurs before/after given
 		// only first match in each category is counted
-		for (EQSIM_Event given : givenMatches) {
+		for (SimulatorEvent given : givenMatches) {
 			double givenTime = given.getTimeInYears();
 			double givenBeforeTime = givenTime - years;
 			double givenAfterTime = givenTime + years;
@@ -117,7 +117,7 @@ public class Within5YrsStatisticsGen {
 			boolean hasCorupture = false;
 			boolean hasAfter = false;
 			
-			for (EQSIM_Event target : targetMatches) {
+			for (SimulatorEvent target : targetMatches) {
 				double targetTime = target.getTimeInYears();
 				if (targetTime < givenBeforeTime)
 					continue;
@@ -161,7 +161,7 @@ public class Within5YrsStatisticsGen {
 		int withinTargetBeforeNum = 0;
 		int withinTargetAfterNum = 0;
 		int withinTotal = 0;
-		for (EQSIM_Event target : targetMatches) {
+		for (SimulatorEvent target : targetMatches) {
 			double targetTime = target.getTimeInYears();
 			double minTime = targetTime - years;
 			double maxTime = targetTime + years;
@@ -170,7 +170,7 @@ public class Within5YrsStatisticsGen {
 			boolean hasCorupture = false;
 			boolean hasAfter = false;
 			
-			for (EQSIM_Event given : givenMatches) {
+			for (SimulatorEvent given : givenMatches) {
 				double givenTime = given.getTimeInYears();
 				
 				if (givenTime > maxTime)

@@ -62,6 +62,8 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.EQSIM_EventRecord;
+import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
@@ -290,7 +292,7 @@ public class OldGeneral_EQSIM_Tools {
 
 		eventList = new ArrayList<EQSIM_Event>();
 		EQSIM_Event currEvent = null;
-		EventRecord evRec = new EventRecord(rectElementsList); // this one never used, but created to compile
+		EQSIM_EventRecord evRec = new EQSIM_EventRecord(rectElementsList); // this one never used, but created to compile
 		int numEventRecs=0;
 		line = buffRead.readLine();
 		while (line != null) {
@@ -298,7 +300,7 @@ public class OldGeneral_EQSIM_Tools {
 			kindOfLine = Integer.parseInt(tok.nextToken());
 			if(kindOfLine ==200) {	// event record
 				try {
-					evRec = new EventRecord(line, rectElementsList);
+					evRec = new EQSIM_EventRecord(line, rectElementsList);
 				} catch (Exception e) {
 					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
 					line = buffRead.readLine();
@@ -572,7 +574,8 @@ public class OldGeneral_EQSIM_Tools {
 		if(Double.isNaN(magThresh)) {	// apply sqrt(area) > aveDDW
 			double totArea = 0;
 			double totLength = 0;
-			for(EventRecord evRec:event) {
+			for (int i=0; i<event.size(); i++) {
+				EQSIM_EventRecord evRec = event.get(i);
 				int sectIndex = evRec.getSectionID()-1;
 				double ddwForSect = areaForSections.get(sectIndex)/lengthForSections.get(sectIndex);
 				double lengthOnRec = evRec.getLength();	// length of rup on section
@@ -1352,7 +1355,8 @@ public class OldGeneral_EQSIM_Tools {
 				// compute min and max das on SAF
 				double minDAS = Double.MAX_VALUE;
 				double maxDAS = Double.NEGATIVE_INFINITY;
-				for(EventRecord rec:event) {
+				for (int i=0; i<event.size(); i++) {
+					EQSIM_EventRecord rec = event.get(i);
 					int sectIndex = rec.getSectionID()-1;
 					if(faultIDs_ForSections.get(sectIndex) == 1) {
 						if(rec.getMinDAS() < minDAS) 

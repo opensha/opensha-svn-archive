@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -72,7 +72,7 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		double mag = event.getMagnitude();
 		if (mag < minMag || mag >= maxMag)
 			return false;
@@ -131,28 +131,28 @@ public class ElementMagRangeDescription extends AbstractRuptureIdentifier {
 		Preconditions.checkState(eventFile.exists());
 		
 		General_EQSIM_Tools simTools = new General_EQSIM_Tools(geomFile);
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, simTools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, simTools.getElementsList());
 		
 		ElementMagRangeDescription descr = new ElementMagRangeDescription(null, 1267, 7.2, 7.5);
 		
-		List<EQSIM_Event> matches = descr.getMatches(events);
+		List<? extends SimulatorEvent> matches = descr.getMatches(events);
 		
 		System.out.println("Got "+matches.size()+" matches!");
 		HashSet<Integer> matchIDs = new HashSet<Integer>();
-		for (EQSIM_Event match : matches) {
+		for (SimulatorEvent match : matches) {
 			matchIDs.add(match.getID());
 			System.out.println(match.getID()+". mag="+match.getMagnitude()+", years="+match.getTimeInYears());
 		}
 		
 		System.out.println("Quickly Triggered Events (1 day):");
 		double day = 24*60*60;
-		for (EQSIM_Event e : events) {
+		for (SimulatorEvent e : events) {
 			if (matchIDs.contains(e.getID()))
 				continue;
 			if (e.getMagnitude() < 6.5)
 				continue;
 			double time = e.getTime();
-			for (EQSIM_Event m : matches) {
+			for (SimulatorEvent m : matches) {
 				double mtime = m.getTime();
 				if (time >= mtime && time <= (mtime + day)) {
 					System.out.println(e.getID()+". mag="+e.getMagnitude()+", years="+e.getTimeInYears());

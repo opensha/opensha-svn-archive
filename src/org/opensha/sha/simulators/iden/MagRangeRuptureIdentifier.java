@@ -2,7 +2,7 @@ package org.opensha.sha.simulators.iden;
 
 import java.util.Set;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 
 public class MagRangeRuptureIdentifier extends AbstractRuptureIdentifier {
 	
@@ -20,7 +20,7 @@ public class MagRangeRuptureIdentifier extends AbstractRuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		double mag = event.getMagnitude();
 		if (mag < minMag || mag >= maxMag)
 			return false;

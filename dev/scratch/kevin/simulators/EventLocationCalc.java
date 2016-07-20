@@ -1,7 +1,7 @@
 package scratch.kevin.simulators;
 
 import org.opensha.commons.geo.Location;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 
 public class EventLocationCalc {
 	

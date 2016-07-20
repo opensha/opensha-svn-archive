@@ -3,7 +3,7 @@ package org.opensha.sha.simulators.iden;
 import java.util.List;
 
 import org.opensha.commons.data.Named;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 
 public interface RuptureIdentifier extends Named {
 	
@@ -13,7 +13,7 @@ public interface RuptureIdentifier extends Named {
 	 * @param event
 	 * @return
 	 */
-	public boolean isMatch(EQSIM_Event event);
+	public boolean isMatch(SimulatorEvent event);
 	
 	/**
 	 * Returns a list of all events that are a match for this scenario, as defined by
@@ -21,6 +21,6 @@ public interface RuptureIdentifier extends Named {
 	 * @param events
 	 * @return
 	 */
-	public List<EQSIM_Event> getMatches(List<EQSIM_Event> events);
+	public <E extends SimulatorEvent> List<E> getMatches(List<E> events);
 
 }

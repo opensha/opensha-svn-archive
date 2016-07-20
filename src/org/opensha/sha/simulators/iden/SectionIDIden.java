@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.utils.RSQSimUtils;
@@ -162,7 +162,7 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		// true if at least one element matches
 		boolean elementMatch = isElementMatch(event);
 		if (momentFractForInclusion == 0 || !elementMatch)
@@ -179,7 +179,7 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 		return fract >= momentFractForInclusion;
 	}
 	
-	private boolean isElementMatch(EQSIM_Event event) {
+	private boolean isElementMatch(SimulatorEvent event) {
 		for (int elementID : event.getAllElementIDs())
 			if (elementIDs.contains(elementID))
 				return true;

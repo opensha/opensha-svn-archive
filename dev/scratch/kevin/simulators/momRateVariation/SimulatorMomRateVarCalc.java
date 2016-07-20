@@ -24,7 +24,8 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
+import org.opensha.sha.simulators.EQSIM_EventRecord;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -74,14 +75,14 @@ public class SimulatorMomRateVarCalc {
 		List<RuptureIdentifier> loadIdens = Lists.newArrayList();
 		// only so cal ruptures
 		loadIdens.add(new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, loadIdens, false).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, loadIdens, false).getEvents();
 		
 		// randomize
-		List<EQSIM_Event> trueRandom = Lists.newArrayList();
+		List<SimulatorEvent> trueRandom = Lists.newArrayList();
 		double start = events.get(0).getTime();
 		double end = events.get(events.size()-1).getTime();
 		int id = 0;
-		for (EQSIM_Event e : events)
+		for (SimulatorEvent e : events)
 			trueRandom.add(e.cloneNewTime((end-start)*Math.random()+start, id++));
 		Collections.sort(trueRandom);
 		
@@ -108,7 +109,7 @@ public class SimulatorMomRateVarCalc {
 		
 		// now write out time series for Matlab
 		for (int windowLen : windowLens) {
-			List<List<EQSIM_Event>> eventLists = Lists.newArrayList();
+			List<List<? extends SimulatorEvent>> eventLists = Lists.newArrayList();
 			List<String> prefixes = Lists.newArrayList();
 			eventLists.add(events);
 			prefixes.add("actual");
@@ -116,7 +117,7 @@ public class SimulatorMomRateVarCalc {
 			prefixes.add("random");
 			
 			for (int n=0; n<eventLists.size(); n++) {
-				List<EQSIM_Event> myEvents = eventLists.get(n);
+				List<? extends SimulatorEvent> myEvents = eventLists.get(n);
 				String prefix = prefixes.get(n);
 				
 				System.out.println("Generating timeseries for "+prefix+", "+windowLen+" yr");
@@ -162,7 +163,7 @@ public class SimulatorMomRateVarCalc {
 	}
 
 	static void writeMomRateTimeSeries(int windowLen,
-			List<EQSIM_Event> myEvents, File outputFile) throws IOException {
+			List<? extends SimulatorEvent> myEvents, File outputFile) throws IOException {
 		List<Double> yearsList = Lists.newArrayList();
 		double startYear = myEvents.get(0).getTimeInYears() + windowLen;
 		double endYear = myEvents.get(myEvents.size()-1).getTimeInYears() - windowLen;
@@ -177,7 +178,7 @@ public class SimulatorMomRateVarCalc {
 		MatrixIO.doubleArrayToFile(momRates, outputFile);
 	}
 	
-	private static void plotMomRateVar(List<EQSIM_Event> events, int windowLen, String name,
+	private static void plotMomRateVar(List<SimulatorEvent> events, int windowLen, String name,
 			int plotStartYears, int plotEndYears, boolean logSmooth, File outputFile) throws IOException {
 		int years = (int)General_EQSIM_Tools.getSimulationDurationYears(events);
 		double minTime = events.get(0).getTimeInYears();
@@ -187,7 +188,7 @@ public class SimulatorMomRateVarCalc {
 		// seconds
 		double startTime = events.get(0).getTime();
 		
-		for (EQSIM_Event e : events) {
+		for (SimulatorEvent e : events) {
 			double secsFromStart = e.getTime()-startTime;
 			int year = (int)(secsFromStart / General_EQSIM_Tools.SECONDS_PER_YEAR);
 			if (year == years)
@@ -256,8 +257,8 @@ public class SimulatorMomRateVarCalc {
 			gw.saveAsPNG(outputFile.getAbsolutePath());
 	}
 	
-	static int findFirstEventIndexAfter(double timeSecs, List<EQSIM_Event> events) {
-		EQSIM_Event fakeEvent = new EQSIM_Event(new EventRecord(null));
+	static int findFirstEventIndexAfter(double timeSecs, List<? extends SimulatorEvent> events) {
+		SimulatorEvent fakeEvent = new SimulatorEvent(new EQSIM_EventRecord(null));
 		fakeEvent.setTime(timeSecs);
 		int index = Collections.binarySearch(events, fakeEvent);
 		if (index < 0) {
@@ -270,7 +271,7 @@ public class SimulatorMomRateVarCalc {
 		return index;
 	}
 	
-	public static double calcWindowedMomentRate(List<EQSIM_Event> events, int windowLen,
+	public static double calcWindowedMomentRate(List<? extends SimulatorEvent> events, int windowLen,
 			double timeYears, double[] taper, boolean twoWay) {
 		double windowSecs = General_EQSIM_Tools.SECONDS_PER_YEAR*(double)windowLen;
 		double halfWindowSecs = windowSecs*0.5;
@@ -295,7 +296,7 @@ public class SimulatorMomRateVarCalc {
 		int index = findFirstEventIndexAfter(taperWindowStart, events);
 		double moment = 0;
 		for (int j=index; j<events.size(); j++) {
-			EQSIM_Event e = events.get(j);
+			SimulatorEvent e = events.get(j);
 			double t = e.getTime();
 			
 			Preconditions.checkState(t >= taperWindowStart);
@@ -324,7 +325,7 @@ public class SimulatorMomRateVarCalc {
 		return moment;
 	}
 	
-	public static double[] calcTaperedMomRates(List<EQSIM_Event> events, double[] years, double[] taper) {
+	public static double[] calcTaperedMomRates(List<? extends SimulatorEvent> events, double[] years, double[] taper) {
 		double startYear = years[0] - taper.length;
 		
 		int startIndex = findFirstEventIndexAfter(startYear, events);
@@ -335,7 +336,7 @@ public class SimulatorMomRateVarCalc {
 		
 		for (int i=startIndex; i<events.size(); i++) {
 			// find closest year
-			EQSIM_Event e = events.get(i);
+			SimulatorEvent e = events.get(i);
 			
 			double t = e.getTimeInYears();
 			
@@ -388,7 +389,7 @@ public class SimulatorMomRateVarCalc {
 		return momRates;
 	}
 	
-	static void plotMomRateVar(List<EQSIM_Event> events, int[] windowLens, String name,
+	static void plotMomRateVar(List<? extends SimulatorEvent> events, int[] windowLens, String name,
 			int plotStartYears, int plotEndYears, boolean hanningTaper, boolean twoWay, File outputFile)
 					throws IOException {
 //		int years = (int)General_EQSIM_Tools.getSimulationDurationYears(events);

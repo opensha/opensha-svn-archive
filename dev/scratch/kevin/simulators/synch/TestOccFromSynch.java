@@ -10,7 +10,7 @@ import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import com.google.common.base.Preconditions;
@@ -50,7 +50,7 @@ public class TestOccFromSynch {
 		String name1 = rupIdens.get(0).getName();
 		String name2 = rupIdens.get(1).getName();
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
 		
 		List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
 		

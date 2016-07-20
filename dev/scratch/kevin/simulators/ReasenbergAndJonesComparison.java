@@ -10,7 +10,7 @@ import java.util.List;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -25,16 +25,16 @@ public class ReasenbergAndJonesComparison {
 	// simulator times are in seconds
 	public static int SECONDS_IN_DAY = 24*60*60;
 	
-	private List<EQSIM_Event> events;
+	private List<? extends SimulatorEvent> events;
 	private RuptureIdentifier rupIden;
 	private double minDays;
 	private int maxDays;
 	
-	private List<EQSIM_Event> matches;
+	private List<? extends SimulatorEvent> matches;
 	private EvenlyDiscretizedFunc countFunc;
 	
 	public ReasenbergAndJonesComparison(
-			List<EQSIM_Event> events, RuptureIdentifier rupIden, double minDays, int maxDays) {
+			List<? extends SimulatorEvent> events, RuptureIdentifier rupIden, double minDays, int maxDays) {
 		this.events = events;
 		this.rupIden = rupIden;
 		this.minDays = minDays;
@@ -49,7 +49,7 @@ public class ReasenbergAndJonesComparison {
 		countFunc = new EvenlyDiscretizedFunc(1d, maxDays, 1d);
 		
 		double maxDuration = SECONDS_IN_DAY * maxDays;
-		for (EQSIM_Event match : matches) {
+		for (SimulatorEvent match : matches) {
 			double startTime = match.getTime()+match.getDuration();
 			double endTime = startTime+maxDuration;
 			startTime += minDays*SECONDS_IN_DAY;
@@ -57,7 +57,7 @@ public class ReasenbergAndJonesComparison {
 			double matchMag = match.getMagnitude();
 			int eventIndex = Collections.binarySearch(events, match);
 			for (int i=eventIndex+1; i<events.size(); i++) {
-				EQSIM_Event e = events.get(i);
+				SimulatorEvent e = events.get(i);
 				
 				if (match.getID() == e.getID())
 					continue;
@@ -220,7 +220,7 @@ public class ReasenbergAndJonesComparison {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		System.out.println("Calculating...");
 		double minDays = 0.01;
 		int maxDays = 365;

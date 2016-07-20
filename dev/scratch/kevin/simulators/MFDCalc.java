@@ -6,19 +6,19 @@ import java.util.List;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 
 public class MFDCalc {
 	
 	public static IncrementalMagFreqDist calcMFD(
-			List<EQSIM_Event> events, HashSet<Integer> elementsInRegion,
+			List<? extends SimulatorEvent> events, HashSet<Integer> elementsInRegion,
 			double duration, double minMag, int num, double delta) {
 		
 		IncrementalMagFreqDist mfd = new IncrementalMagFreqDist(minMag, num, delta);
 		double myMin = minMag-0.5*delta;
 		double myMax = mfd.getMaxX()+0.5*delta;
-		for (EQSIM_Event e : events) {
+		for (SimulatorEvent e : events) {
 			double mag = e.getMagnitude();
 			if (mag < myMin || mag > myMax)
 				continue;
@@ -37,7 +37,7 @@ public class MFDCalc {
 		return mfd;
 	}
 	
-	public static double getFractInsideRegion(EQSIM_Event e, HashSet<Integer> elementsInRegion) {
+	public static double getFractInsideRegion(SimulatorEvent e, HashSet<Integer> elementsInRegion) {
 		double tot = e.getNumElements();
 		double inside = 0d;
 		for (int elemID : e.getAllElementIDs())

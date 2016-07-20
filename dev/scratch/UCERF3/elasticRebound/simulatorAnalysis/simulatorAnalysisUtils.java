@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.eqsim_v04.OldGeneral_EQSIM_Tools;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 

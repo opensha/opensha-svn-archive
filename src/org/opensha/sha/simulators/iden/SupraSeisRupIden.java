@@ -1,6 +1,6 @@
 package org.opensha.sha.simulators.iden;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 public class SupraSeisRupIden extends AbstractRuptureIdentifier {
@@ -11,7 +11,7 @@ public class SupraSeisRupIden extends AbstractRuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		return tools.isEventSupraSeismogenic(event, Double.NaN);
 	}
 

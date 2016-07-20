@@ -21,7 +21,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 
 import com.google.common.base.Preconditions;

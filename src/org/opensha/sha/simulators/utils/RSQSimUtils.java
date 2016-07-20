@@ -20,8 +20,9 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.RuptureSurface;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.RSQSimEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.parsers.RSQSimFileReader;
@@ -47,7 +48,7 @@ import scratch.kevin.simulators.erf.SimulatorFaultSystemSolution;
 
 public class RSQSimUtils {
 
-	public static EqkRupture buildSubSectBasedRupture(EQSIM_Event event, List<FaultSectionPrefData> subSects,
+	public static EqkRupture buildSubSectBasedRupture(SimulatorEvent event, List<FaultSectionPrefData> subSects,
 			List<SimulatorElement> elements) {
 		int minElemSectID = getSubSectIndexOffset(elements, subSects);
 		double mag = event.getMagnitude();
@@ -100,7 +101,7 @@ public class RSQSimUtils {
 		return minElemSectID;
 	}
 	
-	private static List<List<FaultSectionPrefData>> getSectionsForRupture(EQSIM_Event event, int minElemSectID,
+	private static List<List<FaultSectionPrefData>> getSectionsForRupture(SimulatorEvent event, int minElemSectID,
 			List<FaultSectionPrefData> subSects, Map<IDPairing, Double> distsCache) {
 		HashSet<Integer> rupSectIDs = new HashSet<Integer>();
 
@@ -194,12 +195,12 @@ public class RSQSimUtils {
 	private static class RSQSimFaultSystemRupSet extends SlipEnabledRupSet {
 		
 		private final List<SimulatorElement> elements;
-		private final List<EQSIM_Event> events;
+		private final List<RSQSimEvent> events;
 		
 		private final int minElemSectID;
 		
 		private RSQSimFaultSystemRupSet(List<FaultSectionPrefData> subSects,
-				List<SimulatorElement> elements, List<EQSIM_Event> events) {
+				List<SimulatorElement> elements, List<RSQSimEvent> events) {
 			this.elements = elements;
 			this.events = events;
 			minElemSectID = getSubSectIndexOffset(elements, subSects);
@@ -215,7 +216,7 @@ public class RSQSimUtils {
 
 			System.out.print("Building ruptures...");
 			for (int i=0; i<events.size(); i++) {
-				EQSIM_Event e = events.get(i);
+				SimulatorEvent e = events.get(i);
 				mags[i] = e.getMagnitude();
 				rupAreas[i] = e.getArea();
 				rupLengths[i] = e.getLength();
@@ -289,7 +290,7 @@ public class RSQSimUtils {
 			List<Integer> sectIndexes = getSectionsIndicesForRup(rthRup);
 			double[] slips = new double[sectIndexes.size()];
 			
-			EQSIM_Event event = events.get(rthRup);
+			SimulatorEvent event = events.get(rthRup);
 			Map<Integer, EventRecord> sectIndexToRecordMap = Maps.newHashMap();
 			for (EventRecord rec : event) {
 				Integer sectIndex = getSectIndex(rec.getSectionID());
@@ -324,7 +325,7 @@ public class RSQSimUtils {
 		
 	}
 	
-	private static double[] buildRatesArray(List<EQSIM_Event> events) {
+	private static double[] buildRatesArray(List<? extends SimulatorEvent> events) {
 		double[] rates = new double[events.size()];
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		double rateEach = 1d/(durationYears);
@@ -350,7 +351,7 @@ public class RSQSimUtils {
 	}
 
 	public static SlipEnabledSolution buildFaultSystemSolution(List<FaultSectionPrefData> subSects,
-			List<SimulatorElement> elements, List<EQSIM_Event> events, double minMag) {
+			List<SimulatorElement> elements, List<RSQSimEvent> events, double minMag) {
 		
 		if (minMag > 0)
 			events = new MagRangeRuptureIdentifier(minMag, 10d).getMatches(events);
@@ -426,7 +427,7 @@ public class RSQSimUtils {
 		File tListFile = new File(dir, "UCERF3_35kyrs.tList");
 		
 		double minMag = 6d;
-		List<EQSIM_Event> events = RSQSimFileReader.readEventsFile(eListFile, pListFile, dListFile, tListFile, elements,
+		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eListFile, pListFile, dListFile, tListFile, elements,
 				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
 		
 		FaultModels fm = FaultModels.FM3_1;

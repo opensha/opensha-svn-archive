@@ -25,7 +25,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotWindow;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import scratch.kevin.markov.EmpiricalMarkovChain;
@@ -691,7 +691,7 @@ public class StateSpacePlotter {
 		for (List<RuptureIdentifier> idens : setIdens)
 			allIdens.addAll(idens);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens, true).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, allIdens, true).getEvents();
 		
 		for (int s=0; s<setIdens.size(); s++) {
 			List<RuptureIdentifier> rupIdens = setIdens.get(s);

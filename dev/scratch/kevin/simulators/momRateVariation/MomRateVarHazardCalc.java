@@ -51,7 +51,7 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.NGAWest_2014_Averaged_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.RegionIden;
@@ -94,7 +94,7 @@ public class MomRateVarHazardCalc {
 //		Region region = new CaliforniaRegions.RELM_TESTING();
 		loadIdens.add(new RegionIden(region));
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, loadIdens, false);
-		List<EQSIM_Event> events = loader.getEvents();
+		List<? extends SimulatorEvent> events = loader.getEvents();
 		List<SimulatorElement> elements = loader.getElements();
 		
 		// UCERF3
@@ -128,8 +128,8 @@ public class MomRateVarHazardCalc {
 			taper = SimulatorMomRateVarCalc.buildHanningTaper(windowLen);
 		
 		for (CatalogTypes type : types) {
-			List<EQSIM_Event> myEvents;
-			List<List<EQSIM_Event>> eventLists;
+			List<? extends SimulatorEvent> myEvents;
+			List<List<SimulatorEvent>> eventLists;
 			switch (type) {
 			case RSQSIM:
 				myEvents = events;
@@ -141,8 +141,8 @@ public class MomRateVarHazardCalc {
 				double maxDelta = 0d;
 				int maxDeltaIndex = -1;
 				for (int i=1; i<myEvents.size(); i++) {
-					EQSIM_Event e0 = myEvents.get(i-1);
-					EQSIM_Event e1 = myEvents.get(i);
+					SimulatorEvent e0 = myEvents.get(i-1);
+					SimulatorEvent e1 = myEvents.get(i);
 					double delta = e1.getTimeInYears() - e0.getTimeInYears();
 					if (delta > maxDelta) {
 						maxDelta = delta;
@@ -179,11 +179,11 @@ public class MomRateVarHazardCalc {
 				System.out.println("Working on "+prefix);
 				
 				if (poisson) {
-					List<EQSIM_Event> poissonEvents = Lists.newArrayList();
+					List<SimulatorEvent> poissonEvents = Lists.newArrayList();
 					double startSecs = myEvents.get(0).getTime();
 					double endSecs = myEvents.get(myEvents.size()-1).getTime();
 					double durationSecs = endSecs - startSecs;
-					for (EQSIM_Event e : myEvents) {
+					for (SimulatorEvent e : myEvents) {
 						double timeSeconds = startSecs + Math.random()*(durationSecs);
 						poissonEvents.add(e.cloneNewTime(timeSeconds, e.getID()));
 					}
@@ -279,7 +279,7 @@ public class MomRateVarHazardCalc {
 		
 	}
 
-	private static void doHazardCalc(File outputDir, List<EQSIM_Event> events,
+	private static void doHazardCalc(File outputDir, List<SimulatorEvent> events,
 			List<SimulatorElement> elements, double[] hazard_durations,
 			double hazardMinMag, double[] years, double[] momRates)
 			throws IOException {
@@ -350,8 +350,8 @@ public class MomRateVarHazardCalc {
 		}
 		DiscretizedFunc xVals = new IMT_Info().getDefaultHazardCurve(imr.getIntensityMeasure());
 		
-		List<EQSIM_Event> hazardEvents = Lists.newArrayList();
-		for (EQSIM_Event event : events)
+		List<SimulatorEvent> hazardEvents = Lists.newArrayList();
+		for (SimulatorEvent event : events)
 			if (event.getMagnitude() >= hazardMinMag)
 				hazardEvents.add(event);
 		
@@ -448,10 +448,10 @@ public class MomRateVarHazardCalc {
 	}
 	
 	private static SimulatorFaultSystemSolution buildFSS(
-			List<EQSIM_Event> allEvents, SubSectionBiulder subSectBuilder, double minMag,
+			List<SimulatorEvent> allEvents, SubSectionBiulder subSectBuilder, double minMag,
 			List<Integer> windowCenters, double[] years, double forecastDuration) {
 		
-		List<EQSIM_Event> includedEvents = Lists.newArrayList();
+		List<SimulatorEvent> includedEvents = Lists.newArrayList();
 		double includedDuration = 0;
 		
 		Preconditions.checkArgument(!windowCenters.isEmpty());
@@ -464,7 +464,7 @@ public class MomRateVarHazardCalc {
 			int startIndex = SimulatorMomRateVarCalc.findFirstEventIndexAfter(yearSecs, allEvents);
 			
 			for (int i=startIndex; i<allEvents.size(); i++) {
-				EQSIM_Event e = allEvents.get(i);
+				SimulatorEvent e = allEvents.get(i);
 				double t = e.getTimeInYears();
 				Preconditions.checkState(t >= year);
 				if (t > endYear)
@@ -500,7 +500,7 @@ public class MomRateVarHazardCalc {
 		return func;
 	}
 	
-	private static void doEventRateCalc(File outputDir, List<EQSIM_Event> events, double[] years,
+	private static void doEventRateCalc(File outputDir, List<? extends SimulatorEvent> events, double[] years,
 			double[] moRates, double minMag, double[] durations, int durationBefore) throws IOException {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -535,7 +535,7 @@ public class MomRateVarHazardCalc {
 		
 		// now gain func
 		int countAbove = 0;
-		for (EQSIM_Event e : events)
+		for (SimulatorEvent e : events)
 			if (e.getMagnitude() >= minMag)
 				countAbove++;
 		double simDuration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
@@ -581,7 +581,7 @@ public class MomRateVarHazardCalc {
 	}
 	
 	private static ArbitrarilyDiscretizedFunc calcEventRatesForMomRates(
-			List<EQSIM_Event> events, double[] years, double[] moRates, double minMag, double durationYears) {
+			List<? extends SimulatorEvent> events, double[] years, double[] moRates, double minMag, double durationYears) {
 		Preconditions.checkArgument(moRates.length == years.length);
 		
 		double maxMoRate = StatUtils.max(moRates);
@@ -604,7 +604,7 @@ public class MomRateVarHazardCalc {
 			double endYear = startYear + durationYears;
 			
 			for (int j=startEventIndex; j<events.size(); j++) {
-				EQSIM_Event e = events.get(j);
+				SimulatorEvent e = events.get(j);
 				double t = e.getTimeInYears();
 				if (t < startYear) {
 					startEventIndex = j;
@@ -631,7 +631,7 @@ public class MomRateVarHazardCalc {
 		return ret;
 	}
 	
-	private static void doMomRateCalc(File outputDir, List<EQSIM_Event> events, double[] years,
+	private static void doMomRateCalc(File outputDir, List<? extends SimulatorEvent> events, double[] years,
 			double[] moRates, double[] durations, int durationBefore) throws IOException {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -761,7 +761,7 @@ public class MomRateVarHazardCalc {
 	}
 	
 	private static UncertainArbDiscDataset calcMomRatesForMomRates(
-			List<EQSIM_Event> events, double[] years, double[] moRates, double durationYears) {
+			List<? extends SimulatorEvent> events, double[] years, double[] moRates, double durationYears) {
 		Preconditions.checkArgument(moRates.length == years.length);
 		
 		double maxMoRate = StatUtils.max(moRates);
@@ -793,7 +793,7 @@ public class MomRateVarHazardCalc {
 			double momentAfter = 0d;
 			
 			for (int j=startEventIndex; j<events.size(); j++) {
-				EQSIM_Event e = events.get(j);
+				SimulatorEvent e = events.get(j);
 				double t = e.getTimeInYears();
 				if (t < startYear) {
 					startEventIndex = j;

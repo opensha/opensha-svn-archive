@@ -44,7 +44,7 @@ import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -934,10 +934,10 @@ public class RecurrencePlotGen {
 				colors.add(Color.ORANGE);
 		
 		SimAnalysisCatLoader loader = new SimAnalysisCatLoader(true, null, true);
-		List<EQSIM_Event> events = loader.getEvents();
+		List<? extends SimulatorEvent> events = loader.getEvents();
 		List<SimulatorElement> elems = loader.getElements();
 		
-		List<List<List<EQSIM_Event>>> ucerf3Catalogs = null;
+		List<List<List<SimulatorEvent>>> ucerf3Catalogs = null;
 		FaultSystemSolution ucerf3Sol = null;
 		Map<Integer, SimulatorElement> ucerf3Elems = null;
 		int ucerf3StartYear = 2014;
@@ -959,13 +959,13 @@ public class RecurrencePlotGen {
 					// etas
 					File catFile = etasCatalogs[i-ucerf3Comparisons.length];
 					List<List<ETAS_EqkRupture>> etasCats = ETAS_CatalogIO.loadCatalogsBinary(catFile, 6d);
-					List<List<EQSIM_Event>> myCatalogs = UCERF3_ETASComparisons.loadUCERF3EtasCatalogs(
+					List<List<SimulatorEvent>> myCatalogs = UCERF3_ETASComparisons.loadUCERF3EtasCatalogs(
 							etasCats, ucerf3Sol, null, ucerf3Elems);
 					
 					ucerf3Catalogs.add(myCatalogs);
 				} else if (ucerf3Comparisons[i] == null) {
 					// poisson
-					List<List<EQSIM_Event>> myCatalogs = Lists.newArrayList();
+					List<List<SimulatorEvent>> myCatalogs = Lists.newArrayList();
 					int num;
 					if (doCalcMetrics)
 						num = 80;
@@ -978,7 +978,7 @@ public class RecurrencePlotGen {
 					
 					for (int j=0; j<num; j++) {
 						File binFile = new File(ucerf3Dir, "len_"+len+"_cat_"+j+".bin");
-						List<EQSIM_Event> u3Events;
+						List<SimulatorEvent> u3Events;
 						if (binFile.exists()) {
 							u3Events = UCERF3ComparisonAnalysis.loadUCERF3CatalogBinary(ucerf3Sol, ucerf3Elems, binFile);
 						} else {
@@ -990,7 +990,7 @@ public class RecurrencePlotGen {
 					ucerf3Catalogs.add(myCatalogs);
 				} else {
 					File ucerf3Dir = new File(ucerf3MainDir, ucerf3DirNames[i]);
-					List<List<EQSIM_Event>> myCatalogs = UCERF3ComparisonAnalysis.loadUCERF3Catalogs(
+					List<List<SimulatorEvent>> myCatalogs = UCERF3ComparisonAnalysis.loadUCERF3Catalogs(
 							ucerf3Dir, ucerf3Sol, null, ucerf3Elems, ucerf3StartYear);
 					
 					ucerf3Catalogs.add(myCatalogs);
@@ -1013,7 +1013,7 @@ public class RecurrencePlotGen {
 			
 			// for combined plots
 			List<List<int[]>> comboPlotPaths = Lists.newArrayList();
-			List<List<EQSIM_Event>> comboEventLists = null;
+			List<List<? extends SimulatorEvent>> comboEventLists = null;
 			List<Double> comboStartTimesForComparison = null;
 			if (doMomRateComparison) {
 				comboEventLists = Lists.newArrayList();
@@ -1046,14 +1046,14 @@ public class RecurrencePlotGen {
 					subDir = new File(outputDir, "rsqsim_standard");
 				Preconditions.checkState(subDir.exists() || subDir.mkdir());
 				
-				List<EQSIM_Event> myEvents;
+				List<? extends SimulatorEvent> myEvents;
 				
 				if (poisson) {
-					List<EQSIM_Event> trueRandom = Lists.newArrayList();
+					List<SimulatorEvent> trueRandom = Lists.newArrayList();
 					double start = events.get(0).getTime();
 					double end = events.get(events.size()-1).getTime();
 					int id = 0;
-					for (EQSIM_Event e : events)
+					for (SimulatorEvent e : events)
 						trueRandom.add(e.cloneNewTime((end-start)*Math.random()+start, id++));
 					Collections.sort(trueRandom);
 					myEvents = trueRandom;
@@ -1064,7 +1064,7 @@ public class RecurrencePlotGen {
 				File mySubDir = new File(subDir, faultNames);
 				Preconditions.checkState(mySubDir.exists() || mySubDir.mkdir());
 				
-				List<List<EQSIM_Event>> eventsForStatesList = null;
+				List<List<? extends SimulatorEvent>> eventsForStatesList = null;
 				if (doMomRateComparison)
 					eventsForStatesList = Lists.newArrayList();
 				
@@ -1159,7 +1159,7 @@ public class RecurrencePlotGen {
 				List<RuptureIdentifier> ucerf3Idens = UCERF3ComparisonAnalysis.buildUCERF3_EquivIdens(
 						rupIdens, elems, ucerf3Elems, ucerf3Sol.getRupSet());
 				for (int i=0; i<ucerf3Catalogs.size(); i++) {
-					List<List<EQSIM_Event>> catalogs = ucerf3Catalogs.get(i);
+					List<List<SimulatorEvent>> catalogs = ucerf3Catalogs.get(i);
 					
 					MagDependentAperiodicityOptions cov;
 					if (i < ucerf3Comparisons.length)
@@ -1195,7 +1195,7 @@ public class RecurrencePlotGen {
 						FileUtils.deleteRecursive(subDir);
 					Preconditions.checkState(subDir.mkdir());
 					
-					List<EQSIM_Event> preEvents = null;
+					List<SimulatorEvent> preEvents = null;
 					int skipStates = 0;
 					
 					if (cov != null || i>= ucerf3Comparisons.length) {
@@ -1210,7 +1210,7 @@ public class RecurrencePlotGen {
 					
 					List<List<int[]>> catalogPaths = Lists.newArrayList();
 					List<String> catalogNames = Lists.newArrayList();
-					List<List<EQSIM_Event>> catalogEventLists = null;
+					List<List<? extends SimulatorEvent>> catalogEventLists = null;
 					List<Double> catalogStartTimesForComparison = null;
 					if (doMomRateComparison) {
 						catalogEventLists = Lists.newArrayList();
@@ -1225,7 +1225,7 @@ public class RecurrencePlotGen {
 								threshFunc[m] = new EvenlyDiscretizedFunc(
 										threshFuncXVals.getMinX(), threshFuncXVals.size(), threshFuncXVals.getDelta());
 						double[][] data = null;
-						for (List<EQSIM_Event> catalog : catalogs) {
+						for (List<SimulatorEvent> catalog : catalogs) {
 							catalog = Lists.newArrayList(catalog);
 							if (preEvents != null)
 								catalog.addAll(0, preEvents);
@@ -1268,7 +1268,7 @@ public class RecurrencePlotGen {
 					
 					// now sort by duration
 					List<Double> durations = Lists.newArrayList();
-					for (List<EQSIM_Event> catalog : catalogs)
+					for (List<SimulatorEvent> catalog : catalogs)
 						durations.add(UCERF3ComparisonAnalysis.getDurationYears(catalog));
 					
 					// sort by duration decreasing
@@ -1279,7 +1279,7 @@ public class RecurrencePlotGen {
 						catalogs = catalogs.subList(0, numUCERF3Catalogs);
 					
 					for (int j=0; j<catalogs.size(); j++) {
-						List<EQSIM_Event> catalog = catalogs.get(j);
+						List<SimulatorEvent> catalog = catalogs.get(j);
 //						double origCatLen = UCERF3ComparisonAnalysis.getDurationYears(catalog);
 						if (preEvents != null) {
 							catalog.addAll(0, preEvents);
@@ -1291,7 +1291,7 @@ public class RecurrencePlotGen {
 //									+addedYears+" ("+approxAddedStates+" states)");
 						}
 						
-						List<List<EQSIM_Event>> eventsForStatesList = null;
+						List<List<? extends SimulatorEvent>> eventsForStatesList = null;
 						if (doMomRateComparison) {
 							eventsForStatesList = Lists.newArrayList();
 						}
@@ -1513,7 +1513,7 @@ public class RecurrencePlotGen {
 	 * @return
 	 */
 	private static double getStartYearForMomRateComparison(double distSpacing,
-			List<EQSIM_Event> catalog, List<List<EQSIM_Event>> eventsForStatesList) {
+			List<? extends SimulatorEvent> catalog, List<List<? extends SimulatorEvent>> eventsForStatesList) {
 		// first we need to detect the start time. this is <= to the first event time in eventsForStatesList
 		
 		// start by assuming that it is the time of the first event
@@ -1534,7 +1534,7 @@ public class RecurrencePlotGen {
 				continue;
 			double offset = i*distSpacing;
 			double windowStart = startTime + offset;
-			EQSIM_Event firstEvent = eventsForStatesList.get(i).get(0);
+			SimulatorEvent firstEvent = eventsForStatesList.get(i).get(0);
 			double t = firstEvent.getTimeInYears();
 			if (t < windowStart) {
 				// our start time is off, adjust
@@ -1550,7 +1550,7 @@ public class RecurrencePlotGen {
 			double offset = i*distSpacing;
 			double windowStart = startTime + offset;
 			double windowEnd = windowStart + distSpacing;
-			for (EQSIM_Event e : eventsForStatesList.get(i)) {
+			for (SimulatorEvent e : eventsForStatesList.get(i)) {
 				double t = e.getTimeInYears();
 				Preconditions.checkState(t >= windowStart && t <= windowEnd,
 						"Bad window detection at state %s. t=%s not in [%s %s]", i, t, windowStart, windowEnd);
@@ -1562,7 +1562,7 @@ public class RecurrencePlotGen {
 
 	private static void plotMultiRecurrence(double distSpacing, boolean normalize, DistanceMetric metric,
 			double threshold, List<List<int[]>> comboPlotPaths, List<String> comboPlotNames,
-			List<List<EQSIM_Event>> catalogs, List<Double> startTimesForComparison, File comboDir,
+			List<List<? extends SimulatorEvent>> catalogs, List<Double> startTimesForComparison, File comboDir,
 			List<String> idenNames) throws IOException {
 		int startIndex = 0;
 		int rotatedEndIndex = 500;
@@ -1613,7 +1613,7 @@ public class RecurrencePlotGen {
 					years[j] = startTimeForComparison + j*distSpacing;
 				// filter to So Cal
 				RegionIden iden = new RegionIden(region);
-				List<EQSIM_Event> events = iden.getMatches(catalogs.get(i));
+				List<? extends SimulatorEvent> events = iden.getMatches(catalogs.get(i));
 				double[] momRates = SimulatorMomRateVarCalc.calcTaperedMomRates(events, years, taper);
 				
 				EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(halfDelta, years.length, distSpacing);

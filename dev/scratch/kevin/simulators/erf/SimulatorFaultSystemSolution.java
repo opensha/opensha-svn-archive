@@ -17,7 +17,7 @@ import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
@@ -40,23 +40,23 @@ import scratch.UCERF3.utils.IDPairing;
 
 public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 	
-	private List<EQSIM_Event> events;
+	private List<? extends SimulatorEvent> events;
 	private SubSectionBiulder subSectBuilder;
 	
-	public static SimulatorFaultSystemSolution build(List<SimulatorElement> elements, List<EQSIM_Event> events,
+	public static SimulatorFaultSystemSolution build(List<SimulatorElement> elements, List<? extends SimulatorEvent> events,
 			double durationYears) {
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		return build(subSectBuilder, events, durationYears);
 	}
 	
-	public static SimulatorFaultSystemSolution build(SubSectionBiulder subSectBuilder, List<EQSIM_Event> events,
+	public static SimulatorFaultSystemSolution build(SubSectionBiulder subSectBuilder, List<? extends SimulatorEvent> events,
 			double durationYears)  {
 		FaultSystemRupSet rupSet = buildRupSet(subSectBuilder.getElements(), events, durationYears, subSectBuilder);
 		return new SimulatorFaultSystemSolution(rupSet, subSectBuilder, events, durationYears);
 	}
 	
 	SimulatorFaultSystemSolution(FaultSystemRupSet rupSet, SubSectionBiulder subSectBuilder,
-			List<EQSIM_Event> events, double durationYears) {
+			List<? extends SimulatorEvent> events, double durationYears) {
 		super(rupSet, buildRates(rupSet.getNumRuptures(), durationYears));
 		this.events = events;
 		this.subSectBuilder = subSectBuilder;
@@ -74,7 +74,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 			for (int j=0; j<inds.size(); j++)
 				elemMappedSlips.add(new ArrayList<Double>());
 			
-			EQSIM_Event e = events.get(i);
+			SimulatorEvent e = events.get(i);
 			
 			int[] elemIDs = e.getAllElementIDs();
 			double[] elemSlips = e.getAllElementSlips();
@@ -108,14 +108,14 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		return vals;
 	}
 	
-	static FaultSystemRupSet buildRupSet(List<SimulatorElement> elements, List<EQSIM_Event> events,
+	static FaultSystemRupSet buildRupSet(List<SimulatorElement> elements, List<SimulatorEvent> events,
 			double durationYears) {
 		System.out.print("Building FSD...");
 		SubSectionBiulder subSectBuilder = new SubSectionBiulder(elements);
 		return buildRupSet(elements, events, durationYears, subSectBuilder);
 	}
 	
-	static FaultSystemRupSet buildRupSet(List<SimulatorElement> elements, List<EQSIM_Event> events,
+	static FaultSystemRupSet buildRupSet(List<SimulatorElement> elements, List<? extends SimulatorEvent> events,
 			double durationYears, SubSectionBiulder subSectBuilder) {
 		List<FaultSectionPrefData> fsd = subSectBuilder.getSubSectsList();
 		Map<Integer, Integer> elemIDsMap = subSectBuilder.getElemIDToSubSectsMap();
@@ -162,7 +162,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 		
 		System.out.print("Building ruptures...");
 		for (int i=0; i<events.size(); i++) {
-			EQSIM_Event e = events.get(i);
+			SimulatorEvent e = events.get(i);
 			mags[i] = e.getMagnitude();
 			rupAreas[i] = e.getArea();
 			rupLengths[i] = e.getLength();
@@ -397,7 +397,7 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
@@ -439,8 +439,8 @@ public class SimulatorFaultSystemSolution extends FaultSystemSolution {
 			for (SimulatorElement elem : tools.getElementsList())
 				elementsInRegionsCache.put(elem.getID(), region.contains(elem.getCenterLocation()));
 			
-			List<EQSIM_Event> eventsInRegion = Lists.newArrayList();
-			for (EQSIM_Event e : events) {
+			List<SimulatorEvent> eventsInRegion = Lists.newArrayList();
+			for (SimulatorEvent e : events) {
 				for (int elemID : e.getAllElementIDs()) {
 					if (elementsInRegionsCache.get(elemID)) {
 						eventsInRegion.add(e);

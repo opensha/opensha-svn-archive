@@ -35,7 +35,7 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -85,13 +85,13 @@ public class FollowerReturnPeriodProvider implements
 	private long tot_count = 0;
 	private EvenlyDiscrXYZ_DataSet hitDataset;
 	
-	public FollowerReturnPeriodProvider(List<EQSIM_Event> events, RuptureIdentifier driver,
+	public FollowerReturnPeriodProvider(List<? extends SimulatorEvent> events, RuptureIdentifier driver,
 			RuptureIdentifier follower, double distDeltaYears, double maxTimeDiff) {
 		this(events, driver, driver.getMatches(events), follower, follower.getMatches(events), distDeltaYears, maxTimeDiff);
 	}
 	
-	public FollowerReturnPeriodProvider(List<EQSIM_Event> events, RuptureIdentifier driver, List<EQSIM_Event> driverMatches,
-			RuptureIdentifier follower, List<EQSIM_Event> followerMatches, double distDeltaYears, double maxTimeDiff) {
+	public FollowerReturnPeriodProvider(List<? extends SimulatorEvent> events, RuptureIdentifier driver, List<? extends SimulatorEvent> driverMatches,
+			RuptureIdentifier follower, List<? extends SimulatorEvent> followerMatches, double distDeltaYears, double maxTimeDiff) {
 		this.driver = driver;
 		this.follower = follower;
 		driverActualDist = new ActualDistReturnPeriodProvider(PeriodicityPlotter.getRPs(driverMatches));
@@ -124,14 +124,14 @@ public class FollowerReturnPeriodProvider implements
 //		combEvents.addAll(driverMatches);
 //		combEvents.addAll(followerMatches);
 //		Collections.sort(combEvents);
-		List<EQSIM_Event> combEvents = events;
+		List<? extends SimulatorEvent> combEvents = events;
 		
 		// TODO lets try this damn one
 		double maxTime = events.get(events.size()-1).getTimeInYears();
 		double startTime = events.get(0).getTimeInYears();
 		int numSteps = (int)((maxTime - startTime)/distDeltaYears);
 		
-		List<EQSIM_Event> prevEvents = Lists.newArrayList();
+		List<SimulatorEvent> prevEvents = Lists.newArrayList();
 		int eventIndex = 0;
 		
 		autoHitsData = new EvenlyDiscrXYZ_DataSet(num, num, discr_vals[0], discr_vals[0], distDeltaYears);
@@ -160,7 +160,7 @@ public class FollowerReturnPeriodProvider implements
 			double prevFollowerTime = Double.NaN;
 			double prevPrevFollowerTime = Double.NaN;
 			for (int i=prevEvents.size(); --i>=0;) {
-				EQSIM_Event e = prevEvents.get(i);
+				SimulatorEvent e = prevEvents.get(i);
 				double eTime = e.getTimeInYears();
 				Preconditions.checkState(!Double.isNaN(eTime));
 				if (driver.isMatch(e)) {
@@ -607,7 +607,7 @@ public class FollowerReturnPeriodProvider implements
 	}
 
 	@Override
-	public PossibleRupture getPossibleRupture(List<EQSIM_Event> prevEvents,
+	public PossibleRupture getPossibleRupture(List<SimulatorEvent> prevEvents,
 			double windowStart, double windowEnd) {
 		EventTimeType timeType = EventTimeType.WINDOW_CENTERED;
 		tot_count++;
@@ -620,7 +620,7 @@ public class FollowerReturnPeriodProvider implements
 		double prevFollowerTime = Double.NaN;
 		for (int i=prevEvents.size(); --i>=0;) {
 			Preconditions.checkState(Double.isNaN(prevFollowerTime) || Double.isNaN(prevDriverTime));
-			EQSIM_Event e = prevEvents.get(i);
+			SimulatorEvent e = prevEvents.get(i);
 			double eTime = e.getTimeInYears();
 			Preconditions.checkState(!Double.isNaN(eTime));
 			if (Double.isNaN(prevDriverTime) && driver.isMatch(e)) {
@@ -783,7 +783,7 @@ public class FollowerReturnPeriodProvider implements
 //		showDist(hitDataset, 1d);
 	}
 	
-	private void writeDistPDF(File file, List<EQSIM_Event> randomizedCat) throws IOException {
+	private void writeDistPDF(File file, List<SimulatorEvent> randomizedCat) throws IOException {
 		String followerName = follower.getName();
 		String driverName = driver.getName();
 		List<XYZPlotSpec> specs = Lists.newArrayList();
@@ -829,7 +829,7 @@ public class FollowerReturnPeriodProvider implements
 				new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		if (randomizedCat != null) {
 			HistogramFunction randFollowHist = new HistogramFunction(refHist.getMinX(), refHist.size(), refHist.getDelta());
-			List<EQSIM_Event> randMatches = follower.getMatches(randomizedCat);
+			List<SimulatorEvent> randMatches = follower.getMatches(randomizedCat);
 			for (double rp : PeriodicityPlotter.getRPs(randMatches))
 				if (rp <= maxVal)
 					randFollowHist.add(rp, 1d);
@@ -858,7 +858,7 @@ public class FollowerReturnPeriodProvider implements
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		boolean include_all = true;
 		
@@ -915,7 +915,7 @@ public class FollowerReturnPeriodProvider implements
 		
 		if (recover_debug) {
 			plotsEnabled = false;
-			List<EQSIM_Event> rand_events = RandomCatalogBuilder.getRandomResampledCatalog(
+			List<? extends SimulatorEvent> rand_events = RandomCatalogBuilder.getRandomResampledCatalog(
 					events, rupIdens, randDistType, true);
 			
 			RandomCatalogBuilder.getRandomResampledCatalog(
@@ -948,7 +948,7 @@ public class FollowerReturnPeriodProvider implements
 		List<File> pdfs = Lists.newArrayList();
 		
 		plotsEnabled = false;
-		List<EQSIM_Event> randomizedCat = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, randDistType, true);
+		List<SimulatorEvent> randomizedCat = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, randDistType, true);
 		plotsEnabled = true;
 		
 		for (int i=0; i<rupIdens.size(); i++) {

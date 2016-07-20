@@ -12,7 +12,7 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
@@ -33,7 +33,7 @@ public class MomentRateVariation {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		int years = (int)General_EQSIM_Tools.getSimulationDurationYears(events);
 		double minTime = events.get(0).getTimeInYears();
@@ -43,7 +43,7 @@ public class MomentRateVariation {
 		// seconds
 		double startTime = events.get(0).getTime();
 		
-		for (EQSIM_Event e : events) {
+		for (SimulatorEvent e : events) {
 			double secsFromStart = e.getTime()-startTime;
 			int year = (int)(secsFromStart / General_EQSIM_Tools.SECONDS_PER_YEAR);
 			if (year == years)

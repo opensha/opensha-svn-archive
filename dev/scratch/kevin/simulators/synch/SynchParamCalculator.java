@@ -40,7 +40,7 @@ import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
@@ -797,7 +797,7 @@ public class SynchParamCalculator {
 
 	private static class SynchRandTask implements Task {
 
-		private List<EQSIM_Event> events;
+		private List<SimulatorEvent> events;
 		private List<RuptureIdentifier> rupIdens;
 		private int[] lags;
 		private int numTrials;
@@ -807,7 +807,7 @@ public class SynchParamCalculator {
 		private RandomDistType dist;
 		private int t;
 
-		public SynchRandTask(List<EQSIM_Event> events,
+		public SynchRandTask(List<SimulatorEvent> events,
 				List<RuptureIdentifier> rupIdens, int[] lags, int numTrials,
 				double distSpacing, int nDims, double[][][][] gBars,
 				RandomDistType dist, int t) {
@@ -861,9 +861,9 @@ public class SynchParamCalculator {
 	}
 
 	private static int catLenMult = 1;
-	public static EmpiricalMarkovChain createRandomizedChain(List<EQSIM_Event> events,
+	public static EmpiricalMarkovChain createRandomizedChain(List<? extends SimulatorEvent> events,
 			List<RuptureIdentifier> rupIdens, RandomDistType dist, double distSpacing) {
-		List<EQSIM_Event> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
+		List<SimulatorEvent> randEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, dist, true, catLenMult);
 
 		EmpiricalMarkovChain chain = MarkovChainBuilder.build(distSpacing, randEvents, rupIdens);
 
@@ -871,7 +871,7 @@ public class SynchParamCalculator {
 	}
 
 	public static void writeSynchParamsStdDev(
-			File dir, List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens,
+			File dir, List<SimulatorEvent> events, List<RuptureIdentifier> rupIdens,
 			EmpiricalMarkovChain origChain, int[] lags, int numTrials, double distSpacing) throws IOException {
 		int nDims = rupIdens.size();
 
@@ -1578,7 +1578,7 @@ public class SynchParamCalculator {
 		csv.writeToFile(file);
 	}
 	
-	public static void writeSynchVsProbTable(File file, List<EQSIM_Event> events,
+	public static void writeSynchVsProbTable(File file, List<? extends SimulatorEvent> events,
 			List<RuptureIdentifier> idens, EmpiricalMarkovChain chain)
 					throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
@@ -1842,10 +1842,10 @@ public class SynchParamCalculator {
 		return probE1E2/(probE1*probE2);
 	}
 	
-	private static double calcProbGain(List<EQSIM_Event> events, RuptureIdentifier first,
+	private static double calcProbGain(List<SimulatorEvent> events, RuptureIdentifier first,
 			RuptureIdentifier second, double years, boolean includeCorupInGain) {
-		List<EQSIM_Event> firstMatches = first.getMatches(events);
-		List<EQSIM_Event> secondMatches = second.getMatches(events);
+		List<SimulatorEvent> firstMatches = first.getMatches(events);
+		List<SimulatorEvent> secondMatches = second.getMatches(events);
 		
 		double catStart = events.get(0).getTimeInYears();
 		double catEnd = events.get(events.size()-1).getTimeInYears();
@@ -1858,12 +1858,12 @@ public class SynchParamCalculator {
 		double totExpected = 0;
 		double totObserved = 0;
 		
-		for (EQSIM_Event firstE : firstMatches) {
+		for (SimulatorEvent firstE : firstMatches) {
 			double binStart = firstE.getTimeInYears();
 			double binEnd = binStart + years;
 			int numSecondMatches = 0;
 			for (int i=indexInSecond; i<secondMatches.size(); i++) {
-				EQSIM_Event secondE = secondMatches.get(i);
+				SimulatorEvent secondE = secondMatches.get(i);
 				double eventYears = secondE.getTimeInYears();
 				if (eventYears < binStart) {
 					indexInSecond = i;
@@ -1884,10 +1884,10 @@ public class SynchParamCalculator {
 		return totObserved / totExpected;
 	}
 	
-	private static double calcProbGainWithinWindow(List<EQSIM_Event> events, RuptureIdentifier first,
+	private static double calcProbGainWithinWindow(List<SimulatorEvent> events, RuptureIdentifier first,
 			RuptureIdentifier second, double years) {
-		List<EQSIM_Event> firstMatches = first.getMatches(events);
-		List<EQSIM_Event> secondMatches = second.getMatches(events);
+		List<SimulatorEvent> firstMatches = first.getMatches(events);
+		List<SimulatorEvent> secondMatches = second.getMatches(events);
 		
 		double catStart = events.get(0).getTimeInYears();
 		double catEnd = events.get(events.size()-1).getTimeInYears();
@@ -1900,12 +1900,12 @@ public class SynchParamCalculator {
 		double totExpected = 0;
 		double totObserved = 0;
 		
-		for (EQSIM_Event firstE : firstMatches) {
+		for (SimulatorEvent firstE : firstMatches) {
 			double binStart = firstE.getTimeInYears() - years;
 			double binEnd = binStart + years;
 			int numSecondMatches = 0;
 			for (int i=indexInSecond; i<secondMatches.size(); i++) {
-				EQSIM_Event secondE = secondMatches.get(i);
+				SimulatorEvent secondE = secondMatches.get(i);
 				double eventYears = secondE.getTimeInYears();
 				if (eventYears < binStart) {
 					indexInSecond = i;
@@ -2164,7 +2164,7 @@ public class SynchParamCalculator {
 		for (List<RuptureIdentifier> idens : setIdens)
 			allIdens.addAll(idens);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens, true).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, allIdens, true).getEvents();
 		
 		for (int s=0; s<setNames.size(); s++) {
 			String name = getDirName();
@@ -2184,7 +2184,7 @@ public class SynchParamCalculator {
 
 			List<RuptureIdentifier> rupIdens = setIdens.get(s);
 
-			List<EQSIM_Event> myEvents;
+			List<? extends SimulatorEvent> myEvents;
 			if (random)
 				myEvents = RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, RandomDistType.ACTUAL, true, catLenMult);
 			else

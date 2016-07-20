@@ -15,7 +15,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -33,7 +33,7 @@ public class EigenDecomp {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		List<RuptureIdentifier> rupIdens = Lists.newArrayList();
 		
@@ -58,13 +58,13 @@ public class EigenDecomp {
 		rupIdens.add(new ElementMagRangeDescription("Elsinore 7+",
 				ElementMagRangeDescription.ELSINORE_ELEMENT_ID, 7d, 10d));
 		
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
+		List<List<? extends SimulatorEvent>> matchesLists = Lists.newArrayList();
 		
 		for (RuptureIdentifier rupIden : rupIdens) 
 			matchesLists.add(rupIden.getMatches(events));
 		
 		List<Double> medianRPs = Lists.newArrayList();
-		for (List<EQSIM_Event> matches : matchesLists) {
+		for (List<? extends SimulatorEvent> matches : matchesLists) {
 			double[] rps = new double[matches.size()-1];
 			for (int i=1; i<matches.size(); i++)
 				rps[i-1] = matches.get(i).getTimeInYears()-matches.get(i-1).getTimeInYears();
@@ -79,11 +79,11 @@ public class EigenDecomp {
 		
 		// correlation from r to c within numYears
 		for (int r=0; r<rupIdens.size(); r++) {
-			List<EQSIM_Event> rMatches = matchesLists.get(r);
+			List<? extends SimulatorEvent> rMatches = matchesLists.get(r);
 			
 			int numR = rMatches.size();
 			for (int c=0; c<rupIdens.size(); c++) {
-				List<EQSIM_Event> cMatches = matchesLists.get(c);
+				List<? extends SimulatorEvent> cMatches = matchesLists.get(c);
 				
 				double numYears = medianRPs.get(c)*fractOfRPToLook;
 				if (hardCodedWindowLength > 0)
@@ -91,7 +91,7 @@ public class EigenDecomp {
 				
 				int numCFollowers = 0;
 				
-				for (EQSIM_Event rEvent : rMatches) {
+				for (SimulatorEvent rEvent : rMatches) {
 					double rTime = rEvent.getTimeInYears();
 					double windowStart;
 					if (includeBackwards)
@@ -99,7 +99,7 @@ public class EigenDecomp {
 					else
 						windowStart = rTime;
 					double windowEnd = rTime+numYears;
-					for (EQSIM_Event cEvent : cMatches) {
+					for (SimulatorEvent cEvent : cMatches) {
 						double cTime = cEvent.getTimeInYears();
 						if (cTime < windowStart)
 							continue;

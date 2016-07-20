@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.base.Preconditions;
@@ -37,7 +37,7 @@ public class ElementIden extends AbstractRuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		for (int elementID : elementIDs)
 			if (!Ints.contains(event.getAllElementIDs(), elementID))
 				return false;

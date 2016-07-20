@@ -14,7 +14,7 @@ import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
@@ -32,7 +32,7 @@ public class MPJSynchLagRand extends MPJTaskCalculator {
 	private List<double[][][]> gBarsList;
 	
 	private int numTrials;
-	private List<EQSIM_Event> events;
+	private List<? extends SimulatorEvent> events;
 	private List<RuptureIdentifier> rupIdens;
 	
 	private RandomDistType dist = RandomDistType.ACTUAL;

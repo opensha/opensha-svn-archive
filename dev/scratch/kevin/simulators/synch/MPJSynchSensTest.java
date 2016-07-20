@@ -22,7 +22,7 @@ import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
@@ -47,7 +47,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 	private Map<Double, List<double[][]>> gBarsTrialsMap;
 	
 	private int numTrials;
-	private List<EQSIM_Event> events;
+	private List<? extends SimulatorEvent> events;
 	private List<RuptureIdentifier> rupIdens;
 	
 	private RandomDistType dist = RandomDistType.ACTUAL;
@@ -356,7 +356,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 	private EmpiricalMarkovChain buildChain(double sensVal, boolean random) {
 		List<RuptureIdentifier> rupIdens = this.rupIdens;
 		double distSpacing = this.distSpacing;
-		List<EQSIM_Event> events = this.events;
+		List<SimulatorEvent> events = Lists.newArrayList(this.events);
 		double startTimeShift = 0d;
 		
 		switch (sensType) {
@@ -413,7 +413,7 @@ public class MPJSynchSensTest extends MPJTaskCalculator {
 				double newEnd = newStart + newLen;
 				
 				events = Lists.newArrayList();
-				for (EQSIM_Event event : this.events) {
+				for (SimulatorEvent event : this.events) {
 					if (event.getTime() < newStart)
 						continue;
 					if (event.getTime() > newEnd)

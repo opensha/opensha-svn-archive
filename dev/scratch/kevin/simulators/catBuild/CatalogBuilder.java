@@ -2,12 +2,12 @@ package scratch.kevin.simulators.catBuild;
 
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 
 import scratch.kevin.simulators.dists.RandomReturnPeriodProvider;
 
 public interface CatalogBuilder {
-	public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
+	public List<SimulatorEvent> buildCatalog(List<? extends SimulatorEvent> events,
 			List<RandomReturnPeriodProvider> randomRPsList,
-			List<List<EQSIM_Event>> eventListsToResample, boolean trim);
+			List<List<? extends SimulatorEvent>> eventListsToResample, boolean trim);
 }

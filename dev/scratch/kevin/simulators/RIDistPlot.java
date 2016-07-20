@@ -22,7 +22,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
@@ -46,7 +46,7 @@ public class RIDistPlot {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		File writeDir = new File(dir, "period_plots");
 		
@@ -70,7 +70,7 @@ public class RIDistPlot {
 		rupIdens.add(new ElementMagRangeDescription("San Jacinto 7+",
 				ElementMagRangeDescription.SAN_JACINTO__ELEMENT_ID, 7d, 10d));
 		
-		List<List<EQSIM_Event>> resampledCatalogs = Lists.newArrayList();
+		List<List<SimulatorEvent>> resampledCatalogs = Lists.newArrayList();
 		RandomDistType[] types = RandomDistType.values();
 		for (RandomDistType type : types)
 			resampledCatalogs.add(RandomCatalogBuilder.getRandomResampledCatalog(events, rupIdens, type, true));
@@ -88,7 +88,7 @@ public class RIDistPlot {
 			List<HistogramFunction> funcs = Lists.newArrayList();
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 			
-			List<EQSIM_Event> matches = rupIden.getMatches(events);
+			List<? extends SimulatorEvent> matches = rupIden.getMatches(events);
 			funcs.add(getHist(matches, null));
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, colors.remove(0)));
 			
@@ -114,7 +114,7 @@ public class RIDistPlot {
 			
 			List<String> line = Lists.newArrayList();
 			
-			List<EQSIM_Event> matches = rupIden.getMatches(events);
+			List<? extends SimulatorEvent> matches = rupIden.getMatches(events);
 			
 			double[] rps = PeriodicityPlotter.getRPs(matches);
 			double mean = StatUtils.mean(rps);
@@ -149,7 +149,7 @@ public class RIDistPlot {
 		System.gc();
 	}
 	
-	private static HistogramFunction getHist(List<EQSIM_Event> matches, RandomDistType type) {
+	private static HistogramFunction getHist(List<? extends SimulatorEvent> matches, RandomDistType type) {
 		double[] rps = PeriodicityPlotter.getRPs(matches);
 		HistogramFunction func = getHistFunc(rps);
 		String name;

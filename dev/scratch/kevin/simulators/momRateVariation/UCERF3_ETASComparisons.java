@@ -11,7 +11,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.SimulatorElement;
 
@@ -27,11 +27,11 @@ import scratch.kevin.simulators.momRateVariation.UCERF3ComparisonAnalysis.UCERF3
 
 public class UCERF3_ETASComparisons {
 	
-	public static List<List<EQSIM_Event>> loadUCERF3EtasCatalogs(List<List<ETAS_EqkRupture>> catalogs, FaultSystemSolution sol,
+	public static List<List<SimulatorEvent>> loadUCERF3EtasCatalogs(List<List<ETAS_EqkRupture>> catalogs, FaultSystemSolution sol,
 			Region region, Map<Integer, SimulatorElement> elems)
 					throws IOException {
 		
-		List<List<EQSIM_Event>> eventsList = Lists.newArrayList();
+		List<List<SimulatorEvent>> eventsList = Lists.newArrayList();
 		
 		for (List<ETAS_EqkRupture> catalog : catalogs)
 			eventsList.add(loadETASCatalogAsFakeSimEvents(sol, region, catalog, elems));
@@ -39,9 +39,9 @@ public class UCERF3_ETASComparisons {
 		return eventsList;
 	}
 	
-	private static List<EQSIM_Event> loadETASCatalogAsFakeSimEvents(FaultSystemSolution sol, Region region,
+	private static List<SimulatorEvent> loadETASCatalogAsFakeSimEvents(FaultSystemSolution sol, Region region,
 			List<ETAS_EqkRupture> catalog, Map<Integer, SimulatorElement> elems) throws IOException {
-		List<EQSIM_Event> events = Lists.newArrayList();
+		List<SimulatorEvent> events = Lists.newArrayList();
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		
@@ -70,7 +70,7 @@ public class UCERF3_ETASComparisons {
 			
 			EventRecord rec = new UCERF3EventRecord(elems, rupSet, rup.getFSSIndex(), secs);
 			
-			EQSIM_Event e = new EQSIM_Event(rec);
+			SimulatorEvent e = new SimulatorEvent(rec);
 			
 			events.add(e);
 		}
@@ -97,8 +97,8 @@ public class UCERF3_ETASComparisons {
 		
 		Map<Integer, SimulatorElement> elems = UCERF3ComparisonAnalysis.loadElements(sol.getRupSet());
 		
-		List<List<EQSIM_Event>> eventLists = loadUCERF3EtasCatalogs(catalogs, sol, region, elems);
-		List<EQSIM_Event> stitched = UCERF3ComparisonAnalysis.stitch(eventLists);
+		List<List<SimulatorEvent>> eventLists = loadUCERF3EtasCatalogs(catalogs, sol, region, elems);
+		List<SimulatorEvent> stitched = UCERF3ComparisonAnalysis.stitch(eventLists);
 		
 		for (int windowLen : windowLens) {
 			File outputFile = new File(outputDir, "ucerf3_etas_"+windowLen+"yr.bin");

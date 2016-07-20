@@ -3,22 +3,22 @@ package org.opensha.sha.simulators.iden;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 
 import com.google.common.collect.Lists;
 
 public abstract class AbstractRuptureIdentifier implements RuptureIdentifier {
 	
-	public static List<EQSIM_Event> getMatches(List<EQSIM_Event> events, RuptureIdentifier id) {
-		ArrayList<EQSIM_Event> matches = Lists.newArrayList();
-		for (EQSIM_Event event : events)
+	public static <E extends SimulatorEvent> List<E> getMatches(List<E> events, RuptureIdentifier id) {
+		ArrayList<E> matches = Lists.newArrayList();
+		for (E event : events)
 			if (id.isMatch(event))
 				matches.add(event);
 		return matches;
 	}
 
 	@Override
-	public List<EQSIM_Event> getMatches(List<EQSIM_Event> events) {
+	public <E extends SimulatorEvent> List<E> getMatches(List<E> events) {
 		return getMatches(events, this);
 	}
 

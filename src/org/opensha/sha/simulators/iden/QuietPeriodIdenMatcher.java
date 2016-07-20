@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -35,23 +35,23 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 	}
 
 	@Override
-	public boolean isMatch(EQSIM_Event event) {
+	public boolean isMatch(SimulatorEvent event) {
 		throw new IllegalStateException("Can't call this on QuietPeriod iden as we don't have the event list");
 	}
 
 	@Override
-	public List<EQSIM_Event> getMatches(List<EQSIM_Event> events) {
-		List<EQSIM_Event> matches = Lists.newArrayList(matchIden.getMatches(events));
+	public <E extends SimulatorEvent> List<E> getMatches(List<E> events) {
+		List<E> matches = Lists.newArrayList(matchIden.getMatches(events));
 		int origNum = matches.size();
 		HashSet<Integer> nonQuiets = new HashSet<Integer>();
 		
 		for (RuptureIdentifier quietIden : quietMatchIdens) {
 			// look for any ruptures within the window of any matches
-			List<EQSIM_Event> quietMatches = quietIden.getMatches(events);
+			List<E> quietMatches = quietIden.getMatches(events);
 			
 			int targetStartIndex = 0;
 			for (int i=0; i<matches.size(); i++) {
-				EQSIM_Event match = matches.get(i);
+				SimulatorEvent match = matches.get(i);
 				double matchTime = match.getTimeInYears();
 				double targetWindowStart = matchTime + allowedAftershockYears;
 				double targetWindowEnd = matchTime + quietYears;
@@ -98,7 +98,7 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		ElementMagRangeDescription mojaveCoachellCorupture = new ElementMagRangeDescription(
 				"SAF Mojave/Coachella Corupture", 6d, 10d,
@@ -137,12 +137,12 @@ public class QuietPeriodIdenMatcher implements RuptureIdentifier {
 		RuptureIdentifier quietIden = new QuietPeriodIdenMatcher(mojaveCoachellCorupture,
 				5, 150, quietIdens);
 		
-		List<EQSIM_Event> matches = quietIden.getMatches(events);
+		List<? extends SimulatorEvent> matches = quietIden.getMatches(events);
 		
-		for (EQSIM_Event e : matches)  {
+		for (SimulatorEvent e : matches)  {
 			System.out.println(e.getID()+": "+e.getTimeInYears()+" ("+e.getMagnitude()+")");
 			double time = e.getTimeInYears();
-			for (EQSIM_Event e1 : events) {
+			for (SimulatorEvent e1 : events) {
 				if (e1.getMagnitude() < 7)
 					continue;
 				double time2 = e1.getTimeInYears();

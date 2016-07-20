@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -21,7 +21,7 @@ public class SimAnalysisCatLoader {
 	
 	private List<RuptureIdentifier> rupIdens;
 	private List<Color> rupIdenColors;
-	private List<EQSIM_Event> events;
+	private List<? extends SimulatorEvent> events;
 	
 	private General_EQSIM_Tools tools;
 	
@@ -172,7 +172,7 @@ public class SimAnalysisCatLoader {
 		return rupIdenColors;
 	}
 
-	public List<EQSIM_Event> getEvents() {
+	public List<? extends SimulatorEvent> getEvents() {
 		return events;
 	}
 	
@@ -188,7 +188,7 @@ public class SimAnalysisCatLoader {
 		double minMag = Double.POSITIVE_INFINITY;
 		double maxMag = 0d;
 		List<Double> allMags = Lists.newArrayList();
-		for (EQSIM_Event e : load.getEvents()) {
+		for (SimulatorEvent e : load.getEvents()) {
 			double mag = e.getMagnitude();
 			if (!Double.isNaN(mag)) {
 				minMag = Math.min(minMag, mag);

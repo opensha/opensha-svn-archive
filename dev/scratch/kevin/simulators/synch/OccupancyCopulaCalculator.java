@@ -39,7 +39,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import com.google.common.base.Preconditions;
@@ -62,9 +62,9 @@ import scratch.kevin.simulators.SynchIdens;
 public class OccupancyCopulaCalculator {
 	
 	private RuptureIdentifier iden1;
-	private List<EQSIM_Event> events1;
+	private List<? extends SimulatorEvent> events1;
 	private RuptureIdentifier iden2;
-	private List<EQSIM_Event> events2;
+	private List<? extends SimulatorEvent> events2;
 	
 	private double highResTimeDelta = 0.02; // ~7 day time discretization
 //	private double highResTimeDelta = 0.1; // coarse day time discretization
@@ -86,18 +86,18 @@ public class OccupancyCopulaCalculator {
 	
 	private static double[] diags_to_plot = { 0, 50, 100, 150 };
 	
-	public OccupancyCopulaCalculator(List<EQSIM_Event> events, RuptureIdentifier iden1, RuptureIdentifier iden2) {
+	public OccupancyCopulaCalculator(List<? extends SimulatorEvent> events, RuptureIdentifier iden1, RuptureIdentifier iden2) {
 		this(iden1, iden1.getMatches(events), iden2, iden2.getMatches(events));
 	}
 	
-	public OccupancyCopulaCalculator(RuptureIdentifier iden1, List<EQSIM_Event> events1,
-			RuptureIdentifier iden2, List<EQSIM_Event> events2) {
+	public OccupancyCopulaCalculator(RuptureIdentifier iden1, List<? extends SimulatorEvent> events1,
+			RuptureIdentifier iden2, List<? extends SimulatorEvent> events2) {
 		this.iden1 = iden1;
 		this.events1 = events1;
 		this.iden2 = iden2;
 		this.events2 = events2;
 		
-		List<List<EQSIM_Event>> eventLists = Lists.newArrayList();
+		List<List<? extends SimulatorEvent>> eventLists = Lists.newArrayList();
 		eventLists.add(events1);
 		eventLists.add(events2);
 		
@@ -450,7 +450,7 @@ public class OccupancyCopulaCalculator {
 		File outputDir = new File("/home/kevin/Simulators/copula");
 		List<RuptureIdentifier> idens = SynchIdens.getStandardSoCal();
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, idens, true).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, idens, true).getEvents();
 		
 		int numCopulaBins = 50;
 		

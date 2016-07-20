@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -19,7 +19,7 @@ public class ScratchJFreeDebug {
 //		File eventFile = new File(dataDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
 		
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		tools.testTimePredictability(Double.NaN, false, null, false);
 	}

@@ -35,7 +35,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.StirlingGriddedSurface;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
@@ -94,14 +94,21 @@ public class UCERF3ComparisonAnalysis {
 	
 	static class UCERF3EventRecord extends EventRecord {
 		
+		private double magnitude;
+		private double moment;
+		private double area;
+		private double length;
+		
 		private List<SimulatorElement> rupElems;
 
 		public UCERF3EventRecord(Map<Integer, SimulatorElement> elems, FaultSystemRupSet rupSet, int rupIndex, double time) {
 			super(null);
 			
 			setID(rupIndex);
-			setMagnitude(rupSet.getMagForRup(rupIndex));
-			setMoment(MagUtils.magToMoment(rupSet.getMagForRup(rupIndex)));
+			magnitude = rupSet.getMagForRup(rupIndex);
+			moment = MagUtils.magToMoment(rupSet.getMagForRup(rupIndex));
+			area = rupSet.getAreaForRup(rupIndex);
+			length = rupSet.getLengthForRup(rupIndex);
 			setTime(time);
 			
 			rupElems = Lists.newArrayList();
@@ -118,6 +125,31 @@ public class UCERF3ComparisonAnalysis {
 		@Override
 		public List<SimulatorElement> getElements() {
 			return rupElems;
+		}
+
+		@Override
+		public double getMagnitude() {
+			return magnitude;
+		}
+
+		@Override
+		public double getDuration() {
+			return 0;
+		}
+
+		@Override
+		public double getLength() {
+			return length;
+		}
+
+		@Override
+		public double getArea() {
+			return area;
+		}
+
+		@Override
+		public double getMoment() {
+			return moment;
 		}
 		
 	}
@@ -167,9 +199,9 @@ public class UCERF3ComparisonAnalysis {
 		return ucerf3Idens;
 	}
 	
-	private static List<EQSIM_Event> loadCatalogAsFakeSimEvents(FaultSystemSolution sol, Region region,
+	private static List<SimulatorEvent> loadCatalogAsFakeSimEvents(FaultSystemSolution sol, Region region,
 			File eventFile, Map<Integer, SimulatorElement> elems, int startYear) throws IOException {
-		List<EQSIM_Event> events = Lists.newArrayList();
+		List<SimulatorEvent> events = Lists.newArrayList();
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		
@@ -224,9 +256,9 @@ public class UCERF3ComparisonAnalysis {
 			Preconditions.checkState(millis >= 0l);
 			double secs = (double)millis / 1000d;
 			
-			EventRecord rec = new UCERF3EventRecord(elems, rupSet, fssIndex, secs);
+			UCERF3EventRecord rec = new UCERF3EventRecord(elems, rupSet, fssIndex, secs);
 			
-			EQSIM_Event e = new EQSIM_Event(rec);
+			SimulatorEvent e = new SimulatorEvent(rec);
 			
 			events.add(e);
 		}
@@ -236,12 +268,12 @@ public class UCERF3ComparisonAnalysis {
 		return events;
 	}
 	
-	public static List<EQSIM_Event> calcPoissonCatalog(FaultSystemSolution sol,
+	public static List<SimulatorEvent> calcPoissonCatalog(FaultSystemSolution sol,
 			Map<Integer, SimulatorElement> elems, double duration) {
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		
-		List<EQSIM_Event> events = Lists.newArrayList();
+		List<SimulatorEvent> events = Lists.newArrayList();
 		
 		double expectedRate = 0d;
 		for (int fssIndex=0; fssIndex<sol.getRupSet().getNumRuptures(); fssIndex++) {
@@ -259,7 +291,7 @@ public class UCERF3ComparisonAnalysis {
 				double timeYears = Math.random()*duration;
 				double timeSecs = timeYears*General_EQSIM_Tools.SECONDS_PER_YEAR;
 				
-				events.add(new EQSIM_Event(new UCERF3EventRecord(elems, rupSet, fssIndex, timeSecs)));
+				events.add(new SimulatorEvent(new UCERF3EventRecord(elems, rupSet, fssIndex, timeSecs)));
 			}
 		}
 		
@@ -274,13 +306,13 @@ public class UCERF3ComparisonAnalysis {
 		return events;
 	}
 	
-	public static void writeUCERF3CatalogBinary(List<EQSIM_Event> events, File file) throws IOException {
+	public static void writeUCERF3CatalogBinary(List<SimulatorEvent> events, File file) throws IOException {
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 		
 		// num events
 		out.writeInt(events.size());
 		
-		for (EQSIM_Event event : events) {
+		for (SimulatorEvent event : events) {
 			EventRecord rec = event.get(0);
 			Preconditions.checkState(rec instanceof UCERF3EventRecord);
 			out.writeInt(rec.getID());
@@ -290,11 +322,11 @@ public class UCERF3ComparisonAnalysis {
 		out.close();
 	}
 	
-	public static List<EQSIM_Event> loadUCERF3CatalogBinary(FaultSystemSolution sol,
+	public static List<SimulatorEvent> loadUCERF3CatalogBinary(FaultSystemSolution sol,
 			Map<Integer, SimulatorElement> elems, File file) throws IOException {
 		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
 		
-		List<EQSIM_Event> events = Lists.newArrayList();
+		List<SimulatorEvent> events = Lists.newArrayList();
 		
 		int numEvents = in.readInt();
 		
@@ -304,7 +336,7 @@ public class UCERF3ComparisonAnalysis {
 			int fssIndex = in.readInt();
 			double timeSecs = in.readDouble();
 			
-			events.add(new EQSIM_Event(new UCERF3EventRecord(elems, rupSet, fssIndex, timeSecs)));
+			events.add(new SimulatorEvent(new UCERF3EventRecord(elems, rupSet, fssIndex, timeSecs)));
 		}
 		
 		in.close();
@@ -319,7 +351,7 @@ public class UCERF3ComparisonAnalysis {
 	 * @param events
 	 * @return
 	 */
-	private static double getRandomTimeBetween(List<EQSIM_Event> events) {
+	private static double getRandomTimeBetween(List<SimulatorEvent> events) {
 		// random int between 1 and size-1
 		int randIndex = r.nextInt(events.size()-1)+1;
 		double t0 = events.get(randIndex-1).getTime();
@@ -331,8 +363,8 @@ public class UCERF3ComparisonAnalysis {
 		return delta;
 	}
 	
-	static List<EQSIM_Event> stitch(List<List<EQSIM_Event>> eventsList) {
-		List<EQSIM_Event> stitched = Lists.newArrayList();
+	static List<SimulatorEvent> stitch(List<List<SimulatorEvent>> eventsList) {
+		List<SimulatorEvent> stitched = Lists.newArrayList();
 		
 		double timeSecs = 0;
 		
@@ -342,13 +374,13 @@ public class UCERF3ComparisonAnalysis {
 			if (i > 0)
 				timeSecs += getRandomTimeBetween(stitched);
 			
-			List<EQSIM_Event> events = eventsList.get(i);
+			List<SimulatorEvent> events = eventsList.get(i);
 //			Preconditions.checkState(events.get(0).getTime() == 0d, "Bad start time: %s", events.get(0).getTime());
 			
 			// start time of sub catalogs is not zero
 			double subStartTime = events.get(0).getTime();
 			
-			for (EQSIM_Event e : events)
+			for (SimulatorEvent e : events)
 				stitched.add(e.cloneNewTime(timeSecs+e.getTime()-subStartTime, id++));
 			
 			timeSecs = stitched.get(stitched.size()-1).getTime();
@@ -366,9 +398,9 @@ public class UCERF3ComparisonAnalysis {
 	 * @param elems
 	 * @return
 	 */
-	public static List<EQSIM_Event> getFakePreEvents(FaultSystemRupSet rupSet, List<RuptureIdentifier> u3Idens,
+	public static List<SimulatorEvent> getFakePreEvents(FaultSystemRupSet rupSet, List<RuptureIdentifier> u3Idens,
 			Map<Integer, SimulatorElement> elems, int startYear) {
-		List<EQSIM_Event> events = Lists.newArrayList();
+		List<SimulatorEvent> events = Lists.newArrayList();
 		
 		long startTime = new GregorianCalendar(startYear, 0, 1).getTimeInMillis();
 		
@@ -397,7 +429,7 @@ public class UCERF3ComparisonAnalysis {
 			
 			EventRecord rec = new UCERF3EventRecord(elems, rupSet, fssIndex, secs);
 			
-			EQSIM_Event e = new EQSIM_Event(rec);
+			SimulatorEvent e = new SimulatorEvent(rec);
 			
 			events.add(e);
 		}
@@ -407,18 +439,18 @@ public class UCERF3ComparisonAnalysis {
 		return events;
 	}
 	
-	public static List<List<EQSIM_Event>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
+	public static List<List<SimulatorEvent>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
 			Region region, Map<Integer, SimulatorElement> elems, int startYear) throws IOException {
 		return loadUCERF3Catalogs(mainDir, sol, region, elems, startYear, null);
 	}
 	
-	static List<List<EQSIM_Event>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
+	static List<List<SimulatorEvent>> loadUCERF3Catalogs(File mainDir, FaultSystemSolution sol,
 			Region region, Map<Integer, SimulatorElement> elems, int startYear, int[] windowLens)
 					throws IOException {
 		File[] batchDirs = mainDir.listFiles();
 		Arrays.sort(batchDirs, new FileNameComparator());
 		
-		List<List<EQSIM_Event>> eventsList = Lists.newArrayList();
+		List<List<SimulatorEvent>> eventsList = Lists.newArrayList();
 		
 		for (File batchDir : batchDirs) {
 			if (!batchDir.getName().startsWith("batch") || !batchDir.isDirectory())
@@ -429,7 +461,7 @@ public class UCERF3ComparisonAnalysis {
 			for (File threadDir : threadDirs) {
 				if (!threadDir.getName().contains("_run") || !threadDir.isDirectory())
 					continue;
-				List<EQSIM_Event> events = loadCatalogAsFakeSimEvents(
+				List<SimulatorEvent> events = loadCatalogAsFakeSimEvents(
 						sol, region, new File(threadDir, "sampledEventsData.txt"), elems, startYear);
 				double calcDuration = getDurationYears(events);
 				System.out.println("Loaded "+events.size()+" fake UCERF3 events, duration: "
@@ -453,7 +485,7 @@ public class UCERF3ComparisonAnalysis {
 		return eventsList;
 	}
 	
-	public static double getDurationYears(List<EQSIM_Event> events) {
+	public static double getDurationYears(List<SimulatorEvent> events) {
 		return events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
 	}
 	
@@ -492,13 +524,13 @@ public class UCERF3ComparisonAnalysis {
 		boolean doRecurrencePoisson = true;
 		
 		Map<Integer, SimulatorElement> elems = loadElements(sol.getRupSet());
-		List<List<EQSIM_Event>> eventsList = loadUCERF3Catalogs(mainDir, sol, region, elems, startYear);
+		List<List<SimulatorEvent>> eventsList = loadUCERF3Catalogs(mainDir, sol, region, elems, startYear);
 		
-		for (List<EQSIM_Event> events : eventsList)
+		for (List<SimulatorEvent> events : eventsList)
 			catalogLengths.add(getDurationYears(events));
 		
 		// now stitch
-		List<EQSIM_Event> stitched = stitch(eventsList);
+		List<SimulatorEvent> stitched = stitch(eventsList);
 		double calcDuration = stitched.get(stitched.size()-1).getTimeInYears() - stitched.get(0).getTimeInYears();
 		System.out.println("Loaded "+stitched.size()+" stitched UCERF3 events, duration: "+calcDuration+" years");
 		System.out.println("\tStitched Rate: "+(stitched.size()/calcDuration));
@@ -522,7 +554,7 @@ public class UCERF3ComparisonAnalysis {
 		
 		int numCatalogs = 3;
 		
-		List<EQSIM_Event> poissonEvents = null;
+		List<SimulatorEvent> poissonEvents = null;
 		if (doRecurrence && doRecurrencePoisson)
 			poissonEvents = calcPoissonCatalog(sol, elems, 30000d);
 		
@@ -556,21 +588,21 @@ public class UCERF3ComparisonAnalysis {
 				recurSubDir = new File(recurSubDir, Joiner.on("_").join(Lists.newArrayList(faults)));
 				Preconditions.checkState(recurSubDir.exists() || recurSubDir.mkdir());
 				
-				List<EQSIM_Event> preEvents = getFakePreEvents(sol.getRupSet(), rupIdens, elems, startYear);
+				List<SimulatorEvent> preEvents = getFakePreEvents(sol.getRupSet(), rupIdens, elems, startYear);
 				double oiBefore = preEvents.get(preEvents.size()-1).getTimeInYears();
 				Preconditions.checkState(oiBefore < 0);
 				int skipStates = (int)(-oiBefore/distSpacing + 0.5);
 				System.out.println("Fake event OI established at "+oiBefore+" years, skipping "+skipStates+" states");
 				
 				// sort individual catalogs by length
-				List<List<EQSIM_Event>> sortedLists = ComparablePairing.getSortedData(catalogLengths, eventsList);
+				List<List<SimulatorEvent>> sortedLists = ComparablePairing.getSortedData(catalogLengths, eventsList);
 				// reverse to get from longest to shortest
 				Collections.reverse(sortedLists);
 				if (numCatalogs > sortedLists.size())
 					numCatalogs = sortedLists.size();
 				
 				for (int i=0; i<numCatalogs; i++) {
-					List<EQSIM_Event> catalog = Lists.newArrayList(eventsList.get(i));
+					List<SimulatorEvent> catalog = Lists.newArrayList(eventsList.get(i));
 					double origCatLen = catalog.get(catalog.size()-1).getTimeInYears() - catalog.get(0).getTimeInYears();
 					// add in pre events so that it starts with a fully fleshed out open interval on each fault
 					catalog.addAll(0, preEvents);

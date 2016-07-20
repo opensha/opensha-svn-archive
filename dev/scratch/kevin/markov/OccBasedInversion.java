@@ -9,7 +9,7 @@ import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 
 import scratch.kevin.simulators.MarkovChainBuilder;
@@ -238,7 +238,7 @@ public class OccBasedInversion {
 //				SynchFaults.SAF_COACHELLA, SynchFaults.SAF_CHOLAME);
 //				SynchFaults.SAF_MOJAVE, SynchFaults.GARLOCK_WEST);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, rupIdens, true).getEvents();
 		
 		List<int[]> fullPath = MarkovChainBuilder.getStatesPath(distSpacing, events, rupIdens, 0d);
 		

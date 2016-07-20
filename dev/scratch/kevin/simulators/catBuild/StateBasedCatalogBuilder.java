@@ -21,7 +21,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZGraphPanel;
 import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.util.cpt.CPT;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
@@ -52,9 +52,9 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 	private double distSpacing;
 
 	@Override
-	public List<EQSIM_Event> buildCatalog(List<EQSIM_Event> events,
+	public List<SimulatorEvent> buildCatalog(List<? extends SimulatorEvent> events,
 			List<RandomReturnPeriodProvider> randomRPsList,
-			List<List<EQSIM_Event>> matchesLists, boolean trim) {
+			List<List<? extends SimulatorEvent>> matchesLists, boolean trim) {
 		
 		distSpacing = 10d;
 		
@@ -65,11 +65,11 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		stateTransitionDataset = chain.getStateTransitionDataset();
 		
 		// this is the randomized sequence of events for each fault from which to sample
-		List<List<EQSIM_Event>> eventsToReuse = Lists.newArrayList();
+		List<List<SimulatorEvent>> eventsToReuse = Lists.newArrayList();
 		int[] eventsToReuseIndexes = new int[matchesLists.size()];
 		for (int i=0; i<matchesLists.size(); i++) {
-			List<EQSIM_Event> matches = matchesLists.get(i);
-			List<EQSIM_Event> rand = Lists.newArrayList(matches);
+			List<? extends SimulatorEvent> matches = matchesLists.get(i);
+			List<SimulatorEvent> rand = Lists.newArrayList(matches);
 			Collections.shuffle(rand);
 			eventsToReuse.add(rand);
 			eventsToReuseIndexes[i] = 0;
@@ -84,7 +84,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		double startTime = events.get(0).getTimeInYears();
 		int numSteps = (int)((maxTime - startTime)/distSpacing);
 		
-		List<EQSIM_Event> randomizedEvents = Lists.newArrayList();
+		List<SimulatorEvent> randomizedEvents = Lists.newArrayList();
 		
 		System.out.println("Assembling random catalog");
 		
@@ -151,7 +151,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 							// remove any added events
 							double windowStart = startTime + distSpacing*(redoStep);
 							for (int i=randomizedEvents.size(); --i>=0;) {
-								EQSIM_Event e = randomizedEvents.get(i);
+								SimulatorEvent e = randomizedEvents.get(i);
 								if (e.getTimeInYears() > windowStart)
 									randomizedEvents.remove(i);
 								else
@@ -174,12 +174,12 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 			for (int n=0; n<curState.length; n++) {
 				if (curState[n] == 0) {
 					// state was reset to zero for this fault, this means a rupture happens in this window
-					List<EQSIM_Event> myEvents = eventsToReuse.get(n);
+					List<SimulatorEvent> myEvents = eventsToReuse.get(n);
 					if (eventsToReuseIndexes[n] == myEvents.size())
 						eventsToReuseIndexes[n] = 0;
 					
-					EQSIM_Event e = myEvents.get(eventsToReuseIndexes[n]++);
-					EQSIM_Event newE = e.cloneNewTime(rupTimeSecs, eventID++);
+					SimulatorEvent e = myEvents.get(eventsToReuseIndexes[n]++);
+					SimulatorEvent newE = e.cloneNewTime(rupTimeSecs, eventID++);
 					randomizedEvents.add(newE);
 					
 					counts[n]++;
@@ -236,8 +236,8 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		return states;
 	}
 	
-	private List<File> write2DDists(File writeDir, int index1, String name1, List<EQSIM_Event> matches1,
-			int index2, String name2, List<EQSIM_Event> matches2) throws IOException {
+	private List<File> write2DDists(File writeDir, int index1, String name1, List<? extends SimulatorEvent> matches1,
+			int index2, String name2, List<? extends SimulatorEvent> matches2) throws IOException {
 		String probFName = "prob_dists_"+PeriodicityPlotter.getFileSafeString(name1)+"_"+PeriodicityPlotter.getFileSafeString(name2);
 		File probFile = new File(writeDir, probFName+".pdf");
 		String synchFName = "synch_dists_"+PeriodicityPlotter.getFileSafeString(name1)+"_"+PeriodicityPlotter.getFileSafeString(name2);
@@ -267,7 +267,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 			}
 		}
 		
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
+		List<List<? extends SimulatorEvent>> matchesLists = Lists.newArrayList();
 		matchesLists.add(matches1);
 		matchesLists.add(matches2);
 		
@@ -561,7 +561,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		List<RuptureIdentifier> allIdens = Lists.newArrayList();
 		SimAnalysisCatLoader.loadElemMagIdens(all_elems, allIdens, null, minMag, maxMag);
 		
-		List<EQSIM_Event> events = new SimAnalysisCatLoader(true, allIdens, false).getEvents();
+		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, allIdens, false).getEvents();
 		
 		if (origScrambleDist != null) {
 			 events = RandomCatalogBuilder.getRandomResampledCatalog(events, allIdens, origScrambleDist, true);
@@ -600,7 +600,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		
 		List<File> pdfs = Lists.newArrayList();
 		
-		List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
+		List<List<? extends SimulatorEvent>> matchesLists = Lists.newArrayList();
 		for (int i=0; i<rupIdens.size(); i++)
 			matchesLists.add(rupIdens.get(i).getMatches(events));
 		
@@ -650,7 +650,7 @@ public class StateBasedCatalogBuilder implements CatalogBuilder {
 		// testing time
 		int m = Ints.indexOf(include_elems, ElementMagRangeDescription.SAF_MOJAVE_ELEMENT_ID);
 		int n = Ints.indexOf(include_elems, ElementMagRangeDescription.SAF_COACHELLA_ELEMENT_ID);
-		List<List<EQSIM_Event>> subMatchesLists = Lists.newArrayList();
+		List<List<? extends SimulatorEvent>> subMatchesLists = Lists.newArrayList();
 		subMatchesLists.add(matchesLists.get(m));
 		subMatchesLists.add(matchesLists.get(n));
 		StateBasedCatalogBuilder test = new StateBasedCatalogBuilder();

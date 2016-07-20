@@ -15,7 +15,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.EventsInWindowsMatcher;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -27,7 +27,7 @@ import com.google.common.collect.Lists;
 
 public class OmorisLawComparison {
 	
-	private static void doComparison(List<EQSIM_Event> events, RuptureIdentifier rupIden,
+	private static void doComparison(List<SimulatorEvent> events, RuptureIdentifier rupIden,
 			int maxDays, double magBin, double binWidth) {
 		
 	}
@@ -44,7 +44,7 @@ public class OmorisLawComparison {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		System.out.println("Calculating...");
 		double minWindowDays = 1d/24d;
 		int maxDays = 365;
@@ -119,7 +119,7 @@ public class OmorisLawComparison {
 				EventsInWindowsMatcher match =
 						new EventsInWindowsMatcher(events, rupIden, minWindowYears, windowLenYrs, randomize);
 				
-				List<EQSIM_Event> matches = match.getEventsInWindows();
+				List<SimulatorEvent> matches = match.getEventsInWindows();
 				List<Double> matchTimes = match.getEventTimesFromWindowStarts();
 				
 				for (int days=1; days<=maxDays; days++) {
@@ -140,13 +140,13 @@ public class OmorisLawComparison {
 					for (int m=0; m<mfd.size(); m++)
 						mfd.set(m, 0d);
 					
-					List<EQSIM_Event> eventsInWindows = Lists.newArrayList();
+					List<SimulatorEvent> eventsInWindows = Lists.newArrayList();
 					
 					for (int m=0; m<matches.size(); m++) {
 						double timeFromStart = matchTimes.get(m);
 						if (timeFromStart >= maxDurationSecs)
 							continue;
-						EQSIM_Event e = matches.get(m);
+						SimulatorEvent e = matches.get(m);
 						eventsInWindows.add(e);
 						if (timeFromStart < minDurationSecs)
 							continue;

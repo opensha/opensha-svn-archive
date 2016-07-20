@@ -36,7 +36,7 @@ import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.faultSurface.FaultTrace;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.parsers.EQSIMv06FileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
@@ -1207,7 +1207,7 @@ public class SimJunctionMapper {
 //			File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 			File eventFile = new File(simMainDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 			System.out.println("Loading events...");
-			List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+			List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 			
 			SimulatorFaultSystemSolution theSol = SimulatorFaultSystemSolution.build(tools.getElementsList(), events,
 					tools.getSimulationDurationYears());

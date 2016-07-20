@@ -36,8 +36,10 @@ import org.opensha.commons.geo.utm.UTM;
 import org.opensha.commons.geo.utm.WGS84;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.earthquake.FocalMechanism;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.RSQSimEvent;
+import org.opensha.sha.simulators.RSQSimEventRecord;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.TriangularElement;
@@ -305,16 +307,19 @@ public class RSQSimFileReader {
 //		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3_35kyrs.pList"), elements);
 //		listFileDebug(new File(eventsDir, "UCERF3_35kyrs.eList"), 100, bigEndian, true);
 		
-		List<EQSIM_Event> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(7d, 10d)));
+		List<RSQSimEvent> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(5d, 10d)));
 		System.out.println("Loaded "+events.size()+" events");
-		while (true) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		System.out.println("Duration: "+General_EQSIM_Tools.getSimulationDurationYears(events)+" years");
+		
+//		while (true) {
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+		
 //		FaultModels fm = FaultModels.FM3_1;
 //		SectionIDIden garlockIden = SectionIDIden.getUCERF3_Garlock(
 //				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
@@ -341,11 +346,11 @@ public class RSQSimFileReader {
 //		soCalIden.getMatches(events);
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File file, List<SimulatorElement> elements) throws IOException {
+	public static List<RSQSimEvent> readEventsFile(File file, List<SimulatorElement> elements) throws IOException {
 		return readEventsFile(file, elements, null);
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File file, List<SimulatorElement> elements,
+	public static List<RSQSimEvent> readEventsFile(File file, List<SimulatorElement> elements,
 			Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
 		// detect file names
 		if (file.isDirectory()) {
@@ -380,17 +385,17 @@ public class RSQSimFileReader {
 				new FileInputStream(tListFile), elements, rupIdens, isBigEndian(pListFile, elements));
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File eListFile, File pListFile, File dListFile, File tListFile,
+	public static List<RSQSimEvent> readEventsFile(File eListFile, File pListFile, File dListFile, File tListFile,
 			List<SimulatorElement> elements) throws IOException {
 		return readEventsFile(eListFile, pListFile, dListFile, tListFile, elements, null, isBigEndian(pListFile, elements));
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File eListFile, File pListFile, File dListFile, File tListFile,
+	public static List<RSQSimEvent> readEventsFile(File eListFile, File pListFile, File dListFile, File tListFile,
 			List<SimulatorElement> elements, Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
 		return readEventsFile(eListFile, pListFile, dListFile, tListFile, elements, rupIdens, isBigEndian(pListFile, elements));
 	}
 	
-	public static List<EQSIM_Event> readEventsFile(File eListFile, File pListFile, File dListFile, File tListFile,
+	public static List<RSQSimEvent> readEventsFile(File eListFile, File pListFile, File dListFile, File tListFile,
 			List<SimulatorElement> elements, Collection<? extends RuptureIdentifier> rupIdens, boolean bigEndian) throws IOException {
 		return readEventsFile(new FileInputStream(eListFile), new FileInputStream(pListFile), new FileInputStream(dListFile),
 				new FileInputStream(tListFile), elements, rupIdens, bigEndian);
@@ -461,7 +466,7 @@ public class RSQSimFileReader {
 	 * @return
 	 * @throws IOException
 	 */
-	private static List<EQSIM_Event> readEventsFile(
+	private static List<RSQSimEvent> readEventsFile(
 			InputStream eListStream, InputStream pListStream, InputStream dListStream, InputStream tListStream,
 			List<SimulatorElement> elements, Collection<? extends RuptureIdentifier> rupIdens, boolean bigEndian)
 					throws IOException {
@@ -489,11 +494,11 @@ public class RSQSimFileReader {
 		
 		// one EventRecord for each section, or one in total if elements don't have section information
 		int curEventID = -1;
-		Map<Integer, EventRecord> curRecordMap = Maps.newHashMap();
+		Map<Integer, RSQSimEventRecord> curRecordMap = Maps.newHashMap();
 		
 		HashSet<Integer> eventIDsLoaded = new HashSet<Integer>();
 		
-		List<EQSIM_Event> events = Lists.newArrayList();
+		List<RSQSimEvent> events = Lists.newArrayList();
 		
 		while (true) {
 			try {
@@ -516,7 +521,7 @@ public class RSQSimFileReader {
 						Preconditions.checkState(!eventIDsLoaded.contains(curEventID),
 								"Duplicate eventID found, file is out of order or corrupt: %s", curEventID);
 						eventIDsLoaded.add(curEventID);
-						EQSIM_Event event = buildEvent(curEventID, curRecordMap, rupIdens);
+						RSQSimEvent event = buildEvent(curEventID, curRecordMap, rupIdens);
 						if (event != null)
 							// can be null if filters were supplied
 							events.add(event);
@@ -526,9 +531,9 @@ public class RSQSimFileReader {
 				}
 				
 				// EventRecord for this individual fault section in this event
-				EventRecord event = curRecordMap.get(element.getSectionID());
+				RSQSimEventRecord event = curRecordMap.get(element.getSectionID());
 				if (event == null) {
-					event = new EventRecord(elements);
+					event = new RSQSimEventRecord(elements);
 					curRecordMap.put(element.getSectionID(), event);
 					event.setTime(time);
 					event.setMoment(0);
@@ -546,7 +551,7 @@ public class RSQSimFileReader {
 			Preconditions.checkState(!eventIDsLoaded.contains(curEventID),
 					"Duplicate eventID found, file is out of order or corrupt: %s", curEventID);
 			eventIDsLoaded.add(curEventID);
-			EQSIM_Event event = buildEvent(curEventID, curRecordMap, rupIdens);
+			RSQSimEvent event = buildEvent(curEventID, curRecordMap, rupIdens);
 			if (event != null)
 				// can be null if filters were supplied
 				events.add(event);
@@ -595,9 +600,9 @@ public class RSQSimFileReader {
 	
 	private static EventRecordTimeComparator recordTimeComp = new EventRecordTimeComparator();
 	
-	private static EQSIM_Event buildEvent(int eventID, Map<Integer, EventRecord> records,
+	private static RSQSimEvent buildEvent(int eventID, Map<Integer, RSQSimEventRecord> records,
 			Collection<? extends RuptureIdentifier> rupIdens) {
-		List<EventRecord> recordsForEvent = Lists.newArrayList(records.values());
+		List<RSQSimEventRecord> recordsForEvent = Lists.newArrayList(records.values());
 		
 		// sort records by time, earliest first
 		Collections.sort(recordsForEvent, recordTimeComp);
@@ -609,7 +614,7 @@ public class RSQSimFileReader {
 		double mag = MagUtils.momentToMag(totMoment);
 		
 		// set global properties in each record
-		for (EventRecord rec : recordsForEvent) {
+		for (RSQSimEventRecord rec : recordsForEvent) {
 			rec.setMagnitude(mag);
 			rec.setTime(recordsForEvent.get(0).getTime()); // global according to class docs
 			rec.setID(eventID);
@@ -620,7 +625,7 @@ public class RSQSimFileReader {
 			// TODO duration?
 		}
 		
-		EQSIM_Event event = new EQSIM_Event(recordsForEvent);
+		RSQSimEvent event = new RSQSimEvent(recordsForEvent);
 		
 		if (rupIdens != null) {
 			boolean keep = false;
@@ -636,10 +641,10 @@ public class RSQSimFileReader {
 		return event;
 	}
 	
-	private static class EventRecordTimeComparator implements Comparator<EventRecord> {
+	private static class EventRecordTimeComparator implements Comparator<RSQSimEventRecord> {
 
 		@Override
-		public int compare(EventRecord o1, EventRecord o2) {
+		public int compare(RSQSimEventRecord o1, RSQSimEventRecord o2) {
 			return Double.compare(o1.getTime(), o2.getTime());
 		}
 		

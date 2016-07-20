@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
@@ -37,30 +37,31 @@ public class RandomCatalogBuilder {
 		 * Use this option carefully.
 		 * @return
 		 */
-		public static List<EQSIM_Event> getRandomResampledCatalog(
-				List<EQSIM_Event> events, List<? extends RuptureIdentifier> rupIdens,
+		public static List<SimulatorEvent> getRandomResampledCatalog(
+				List<? extends SimulatorEvent> events, List<? extends RuptureIdentifier> rupIdens,
 				RandomDistType distType, boolean splitMultis) {
 			return getRandomResampledCatalog(events, rupIdens, distType, splitMultis, 1);
 		}
-		public static List<EQSIM_Event> getRandomResampledCatalog(
-				List<EQSIM_Event> events, List<? extends RuptureIdentifier> rupIdens,
+		public static List<SimulatorEvent> getRandomResampledCatalog(
+				List<? extends SimulatorEvent> events, List<? extends RuptureIdentifier> rupIdens,
 				RandomDistType distType, boolean splitMultis, int lengthMult) {
 			System.out.println("Generating randomized catalog. DistType: "+distType.getName());
 			
 			int numRupIdens = rupIdens.size();
-			List<List<EQSIM_Event>> matchesLists = Lists.newArrayList();
-			List<HashSet<EQSIM_Event>> matchesSets = Lists.newArrayList();
-			HashSet<EQSIM_Event> allEventsSet = new HashSet<EQSIM_Event>();
+			List<List<SimulatorEvent>> matchesLists = Lists.newArrayList();
+			List<HashSet<SimulatorEvent>> matchesSets = Lists.newArrayList();
+			HashSet<SimulatorEvent> allEventsSet = new HashSet<SimulatorEvent>();
 			Map<RuptureIdentifier, Integer> idenIndexMap = Maps.newHashMap();
 			
 			// set of all events that are a match for nothing
-			HashSet<EQSIM_Event> excludedEventsSet = new HashSet<EQSIM_Event>(events);
+			HashSet<SimulatorEvent> excludedEventsSet = new HashSet<SimulatorEvent>(events);
 			
 			for (int i=0; i<rupIdens.size(); i++) {
 				RuptureIdentifier rupIden = rupIdens.get(i);
-				List<EQSIM_Event> matches = rupIden.getMatches(events);
+				List<SimulatorEvent> matches = Lists.newArrayList();
+				matches.addAll(rupIden.getMatches(events));
 				matchesLists.add(matches);
-				matchesSets.add(new HashSet<EQSIM_Event>(matches));
+				matchesSets.add(new HashSet<SimulatorEvent>(matches));
 				allEventsSet.addAll(matches);
 				excludedEventsSet.removeAll(matches);
 				idenIndexMap.put(rupIden, i);
@@ -70,8 +71,8 @@ public class RandomCatalogBuilder {
 			
 			// now remove events involving multiple rup idens
 			List<HashSet<RuptureIdentifier>> multiSets = Lists.newArrayList();
-			List<List<EQSIM_Event>> multiEvents = Lists.newArrayList();
-			HashSet<EQSIM_Event> multiEventsSet = new HashSet<EQSIM_Event>();
+			List<List<SimulatorEvent>> multiEvents = Lists.newArrayList();
+			HashSet<SimulatorEvent> multiEventsSet = new HashSet<SimulatorEvent>();
 			
 			Map<RuptureIdentifier, List<Integer>> idenElemsListMap = null;
 			
@@ -98,7 +99,7 @@ public class RandomCatalogBuilder {
 				}
 			}
 			
-			for (EQSIM_Event e : allEventsSet) {
+			for (SimulatorEvent e : allEventsSet) {
 				HashSet<RuptureIdentifier> eventRupIdens = new HashSet<RuptureIdentifier>();
 				for (int i=0; i<numRupIdens; i++)
 					if (matchesSets.get(i).contains(e))
@@ -127,9 +128,9 @@ public class RandomCatalogBuilder {
 							}
 							
 							// now find the event record which is a match
-							EQSIM_Event newEvent = null;
+							SimulatorEvent newEvent = null;
 							for (EventRecord testRec : e) {
-								EQSIM_Event testEvent = new EQSIM_Event(testRec);
+								SimulatorEvent testEvent = new SimulatorEvent(testRec);
 								if (rupIden.isMatch(testEvent)) {
 									newEvent = testEvent;
 									break;
@@ -169,7 +170,7 @@ public class RandomCatalogBuilder {
 						}
 						if (match < 0) {
 							multiSets.add(eventRupIdens);
-							List<EQSIM_Event> eList = Lists.newArrayList();
+							List<SimulatorEvent> eList = Lists.newArrayList();
 							eList.add(e);
 							multiEvents.add(eList);
 						} else {
@@ -183,18 +184,18 @@ public class RandomCatalogBuilder {
 			System.out.println("Detected "+multiSets.size()+" combinations of multi-events!");
 			
 			// now build return periods
-			List<List<EQSIM_Event>> eventListsToResample = Lists.newArrayList();
+			List<List<? extends SimulatorEvent>> eventListsToResample = Lists.newArrayList();
 			List<RandomReturnPeriodProvider> randomRPsList = Lists.newArrayList();
 			
 			double totTime = General_EQSIM_Tools.getSimulationDurationYears(events);
 			
 			for (int i=0; i<rupIdens.size(); i++) {
-				List<EQSIM_Event> eventsToResample = Lists.newArrayList(matchesLists.get(i));
+				List<SimulatorEvent> eventsToResample = Lists.newArrayList(matchesLists.get(i));
 				Collections.sort(eventsToResample);
 				eventsToResample.removeAll(multiEventsSet);
 				double[] rps = PeriodicityPlotter.getRPs(eventsToResample);
 				if (lengthMult>1) {
-					List<EQSIM_Event> origEventsToResample = eventsToResample;
+					List<SimulatorEvent> origEventsToResample = eventsToResample;
 					eventsToResample = Lists.newArrayList();
 					for (int j=0; j<lengthMult; j++)
 						eventsToResample.addAll(origEventsToResample);
@@ -204,11 +205,11 @@ public class RandomCatalogBuilder {
 			}
 			
 			for (int i=0; i<multiEvents.size(); i++) {
-				List<EQSIM_Event> eventsToResample = Lists.newArrayList(multiEvents.get(i));
+				List<SimulatorEvent> eventsToResample = Lists.newArrayList(multiEvents.get(i));
 				Collections.sort(eventsToResample);
 				double[] rps = PeriodicityPlotter.getRPs(eventsToResample);
 				if (lengthMult>1) {
-					List<EQSIM_Event> origEventsToResample = eventsToResample;
+					List<SimulatorEvent> origEventsToResample = eventsToResample;
 					eventsToResample = Lists.newArrayList();
 					for (int j=0; j<lengthMult; j++)
 						eventsToResample.addAll(origEventsToResample);
@@ -217,24 +218,24 @@ public class RandomCatalogBuilder {
 				randomRPsList.add(RandomCatalogBuilder.getReturnPeriodProvider(null, distType, events, rps, totTime));
 			}
 			
-			List<EQSIM_Event> newList = distType.getBuilder().buildCatalog(
+			List<SimulatorEvent> newList = distType.getBuilder().buildCatalog(
 					events, randomRPsList, eventListsToResample, lengthMult <= 1);
 			int maxEventID = 0;
-			for (EQSIM_Event e : newList)
+			for (SimulatorEvent e : newList)
 				if (e.getID() > maxEventID)
 					maxEventID = e.getID();
 			
 			if (!excludedEventsSet.isEmpty()) {
 				System.out.println("Adding back in "+excludedEventsSet.size()+" external events");
 				if (distType == RandomDistType.ACTUAL) {
-					for (EQSIM_Event e : excludedEventsSet)
+					for (SimulatorEvent e : excludedEventsSet)
 						newList.add(e.cloneNewTime(e.getTime(), maxEventID++));
 				} else {
 					// just do a straight randomization
 					double start = newList.get(0).getTime();
 					double end = newList.get(newList.size()-1).getTime();
 					
-					for (EQSIM_Event e : excludedEventsSet) {
+					for (SimulatorEvent e : excludedEventsSet) {
 						double newTime = (end - start)*Math.random()+start;
 						newList.add(e.cloneNewTime(newTime, maxEventID++));
 					}
@@ -249,7 +250,7 @@ public class RandomCatalogBuilder {
 		}
 
 	public static RandomReturnPeriodProvider getReturnPeriodProvider(
-			RuptureIdentifier rupIden, RandomDistType distType, List<EQSIM_Event> events, double[] rps, double totTime) {
+			RuptureIdentifier rupIden, RandomDistType distType, List<? extends SimulatorEvent> events, double[] rps, double totTime) {
 		if (rps.length == 0) {
 			rps = new double[1];
 			rps[0] = totTime;

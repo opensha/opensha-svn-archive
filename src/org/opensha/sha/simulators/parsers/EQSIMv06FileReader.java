@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +22,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.simulators.EQSIM_Event;
-import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.EQSIM_EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.Vertex;
@@ -301,7 +300,7 @@ public class EQSIMv06FileReader {
 
 		List<EQSIM_Event> eventList = new ArrayList<EQSIM_Event>();
 		EQSIM_Event currEvent = null;
-		EventRecord evRec = null; // this one never used, but created to compile
+		EQSIM_EventRecord evRec = null; // this one never used, but created to compile
 		int numEventRecs=0;
 		line = buffRead.readLine();
 		while (line != null) {
@@ -309,7 +308,7 @@ public class EQSIMv06FileReader {
 			kindOfLine = Integer.parseInt(tok.nextToken());
 			if(kindOfLine ==200) {	// event record
 				try {
-					evRec = new EventRecord(line, rectElementsList);
+					evRec = new EQSIM_EventRecord(line, rectElementsList);
 				} catch (Exception e) {
 					System.err.println("Unable to parse line: "+line.trim()+" (error: "+e.getMessage()+")");
 					line = buffRead.readLine();

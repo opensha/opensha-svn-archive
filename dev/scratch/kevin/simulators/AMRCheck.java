@@ -19,7 +19,7 @@ import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
@@ -50,7 +50,7 @@ public class AMRCheck {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		List<SimulatorElement> elements = tools.getElementsList();
 		System.out.println("Done loading events.");
 		
@@ -60,7 +60,7 @@ public class AMRCheck {
 		// -5 here because we'er actually filtering out foreshocks
 		QuietPeriodIdenMatcher quietIden = new QuietPeriodIdenMatcher(sevenPlusIden, -5, 0, sevenPlusIden);
 		
-		List<EQSIM_Event> matches = quietIden.getMatches(events);
+		List<? extends SimulatorEvent> matches = quietIden.getMatches(events);
 		
 		System.out.println("# Matches: "+matches.size());
 		
@@ -75,7 +75,7 @@ public class AMRCheck {
 		
 		List<List<LocationList>> tracesForEvents = Lists.newArrayList();
 		for (int i=0; i<events.size(); i++) {
-			EQSIM_Event event = events.get(i);
+			SimulatorEvent event = events.get(i);
 			List<LocationList> tracesForEvent = Lists.newArrayList();
 			for (EventRecord rec : event) {
 				HashSet<Integer> ssIDs = new HashSet<Integer>();
@@ -117,7 +117,7 @@ public class AMRCheck {
 		int startInd = 0;
 		
 		for (int j=0; j<matches.size(); j++) {
-			EQSIM_Event e = matches.get(j);
+			SimulatorEvent e = matches.get(j);
 			if (j % 1000 == 0)
 				System.out.println("Processing match "+j);
 			double eventTime = e.getTimeInYears();
@@ -138,7 +138,7 @@ public class AMRCheck {
 			}
 			
 			for (int i=startInd; i<events.size(); i++) {
-				EQSIM_Event o = events.get(i);
+				SimulatorEvent o = events.get(i);
 				double oTime = o.getTimeInYears();
 				if (oTime < startTime) {
 					startInd = i;

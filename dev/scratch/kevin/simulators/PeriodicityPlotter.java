@@ -37,7 +37,7 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.gui.plot.GraphWindow;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.iden.ElementMagRangeDescription;
 import org.opensha.sha.simulators.iden.QuietPeriodIdenMatcher;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
@@ -68,7 +68,7 @@ public class PeriodicityPlotter {
 //		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.barall");
 		File eventFile = new File(dir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList());
 		
 		boolean doRandom = true;
 		boolean display = false;
@@ -161,7 +161,7 @@ public class PeriodicityPlotter {
 		ArrayList<EvenlyDiscretizedFunc> slidingWindows = null;
 		ArrayList<EvenlyDiscretizedFunc> randomizedSlidingWindows = null;
 		
-		List<EQSIM_Event> randomResampledCatalog = null;
+		List<SimulatorEvent> randomResampledCatalog = null;
 		for (boolean randomized : randoms)
 			if (randomized)
 				randomResampledCatalog = RandomCatalogBuilder.getRandomResampledCatalog(events, elemRupIdens, randDistType, randSplitMults);
@@ -354,14 +354,14 @@ public class PeriodicityPlotter {
 	
 	private static Color duplicateColor = Color.ORANGE.darker();
 
-	public static void plotPeriodsAndEvents(List<EQSIM_Event> events,
+	public static void plotPeriodsAndEvents(List<? extends SimulatorEvent> events,
 			boolean display, boolean displayEventTimes, File writeDir,
 			List<RuptureIdentifier> rupIdens,
 			List<Color> colors, boolean randomized) throws IOException {
 		int[] dimensions = { 1000, 500 };
 		
 		HashSet<Integer> duplicates = new HashSet<Integer>();
-		Map<Integer, EQSIM_Event> eventsMap = Maps.newHashMap();
+		Map<Integer, SimulatorEvent> eventsMap = Maps.newHashMap();
 		List<HashSet<Integer>> idsList = Lists.newArrayList();
 		
 		ArrayList<DiscretizedFunc> allPeriodFuncs = Lists.newArrayList();
@@ -392,7 +392,7 @@ public class PeriodicityPlotter {
 			
 			ArrayList<Double> rpList = Lists.newArrayList();
 			
-			for (EQSIM_Event match : rupIden.getMatches(events)) {
+			for (SimulatorEvent match : rupIden.getMatches(events)) {
 				double time = match.getTimeInYears();
 				labelFunc.set(time, labelY);
 				Integer id = match.getID();
@@ -465,7 +465,7 @@ public class PeriodicityPlotter {
 			ArbitrarilyDiscretizedFunc overlayFunc = new ArbitrarilyDiscretizedFunc();
 			HashSet<Integer> ids = idsList.get(i);
 			for (Integer id : ids) {
-				EQSIM_Event event = eventsMap.get(id);
+				SimulatorEvent event = eventsMap.get(id);
 				if (duplicates.contains(id))
 					duplicates.add(id);
 				else
@@ -477,7 +477,7 @@ public class PeriodicityPlotter {
 		}
 		
 		for (Integer id : duplicates) {
-			EQSIM_Event event = eventsMap.get(id);
+			SimulatorEvent event = eventsMap.get(id);
 			duplicateFunc.set(event.getTimeInYears(), event.getMagnitude());
 		}
 		duplicateFunc.setName("Duplicates");
@@ -587,7 +587,7 @@ public class PeriodicityPlotter {
 	}
 	
 	private static void plotTimeBetweenIdens(File writeDir, boolean display, boolean randomized,
-			List<EQSIM_Event> events, RuptureIdentifier iden1,
+			List<? extends SimulatorEvent> events, RuptureIdentifier iden1,
 			RuptureIdentifier iden2) throws IOException {
 		String name1 = iden1.getName();
 		String name2 = iden2.getName();
@@ -595,21 +595,21 @@ public class PeriodicityPlotter {
 		HistogramFunction hist = new HistogramFunction(5d, 50, 10d);
 		HistogramFunction absHist = new HistogramFunction(5d, 50, 10d);
 		
-		List<EQSIM_Event> matches1 = iden1.getMatches(events);
-		List<EQSIM_Event> matches2 = iden2.getMatches(events);
-		HashSet<EQSIM_Event> matches1set = new HashSet<EQSIM_Event>(matches1);
-		HashSet<EQSIM_Event> matches2set = new HashSet<EQSIM_Event>(matches2);
+		List<? extends SimulatorEvent> matches1 = iden1.getMatches(events);
+		List<? extends SimulatorEvent> matches2 = iden2.getMatches(events);
+		HashSet<SimulatorEvent> matches1set = new HashSet<SimulatorEvent>(matches1);
+		HashSet<SimulatorEvent> matches2set = new HashSet<SimulatorEvent>(matches2);
 		
 		int numWithin5years = 0;
 		int numAfterWithin5years = 0;
 		int totalNum = 0;
 		int numCoruptures = 0;
 		
-		for (EQSIM_Event event1 : matches1) {
+		for (SimulatorEvent event1 : matches1) {
 			double timeYears1 = event1.getTimeInYears();
 			double waitingTime = -1;
 			double absMin = Double.MAX_VALUE;
-			for (EQSIM_Event event2 : matches2) {
+			for (SimulatorEvent event2 : matches2) {
 				double timeYears2 = event2.getTimeInYears();
 				double absWaitingTime = Math.abs(timeYears2 - timeYears1);
 				if (absWaitingTime < absMin)
@@ -678,9 +678,9 @@ public class PeriodicityPlotter {
 		HistogramFunction absMatrixHist = new HistogramFunction(5d, 100, 10d);
 		HistogramFunction absBothMatrixHist = new HistogramFunction(5d, 100, 10d);
 		
-		for (EQSIM_Event event1 : matches1) {
+		for (SimulatorEvent event1 : matches1) {
 			double timeYears1 = event1.getTimeInYears();
-			for (EQSIM_Event event2 : matches2) {
+			for (SimulatorEvent event2 : matches2) {
 				double timeYears2 = event2.getTimeInYears();
 				
 				double timeDelta = timeYears1 - timeYears2;
@@ -721,16 +721,16 @@ public class PeriodicityPlotter {
 				display, randomized, funcs, chars, plotTitle, "Years", "Number", allRanges, null);
 	}
 	
-	private static PlotSpec getCDF_Func(int ind1, String name1, List<EQSIM_Event> matches1,
-			int ind2, String name2, List<EQSIM_Event> matches2, double plotYears, double binWidth) {
+	private static PlotSpec getCDF_Func(int ind1, String name1, List<? extends SimulatorEvent> matches1,
+			int ind2, String name2, List<? extends SimulatorEvent> matches2, double plotYears, double binWidth) {
 		HistogramFunction matrixHist = new HistogramFunction(-plotYears-0.5*binWidth, (int)(plotYears*2d/binWidth)+1, binWidth);
 		HistogramFunction corupHist = new HistogramFunction(-plotYears, (int)(plotYears*2d/binWidth), binWidth);
 		double matHistMin = matrixHist.getMinX() - 0.5*binWidth;
 		double matHistMax = matrixHist.getMaxX() + 0.5*binWidth;
 		
-		for (EQSIM_Event event1 : matches1) {
+		for (SimulatorEvent event1 : matches1) {
 			double timeYears1 = event1.getTimeInYears();
-			for (EQSIM_Event event2 : matches2) {
+			for (SimulatorEvent event2 : matches2) {
 				double timeYears2 = event2.getTimeInYears();
 				
 				double timeDelta = timeYears2 - timeYears1;
@@ -771,7 +771,7 @@ public class PeriodicityPlotter {
 	}
 	
 	public static Map<IDPairing, HistogramFunction[]> plotACDF_CCDFs(File writeDir,
-			List<EQSIM_Event> events, List<RuptureIdentifier> idens,
+			List<? extends SimulatorEvent> events, List<RuptureIdentifier> idens,
 			RandomDistType randDistType, Map<IDPairing, HistogramFunction[]> origCorrHists,
 			double plotYears, double binWidth)
 					throws IOException {
@@ -782,7 +782,7 @@ public class PeriodicityPlotter {
 				writeDir.mkdir();
 		}
 		
-		List<List<EQSIM_Event>> matchesList = Lists.newArrayList();
+		List<List<? extends SimulatorEvent>> matchesList = Lists.newArrayList();
 		for (RuptureIdentifier iden : idens)
 			matchesList.add(iden.getMatches(events));
 		
@@ -803,10 +803,10 @@ public class PeriodicityPlotter {
 		List<PlotSpec> specs = Lists.newArrayList();
 		for (int i=0; i<idens.size(); i++) {
 			String name1 = idens.get(i).getName();
-			List<EQSIM_Event> matches1 = matchesList.get(i);
+			List<? extends SimulatorEvent> matches1 = matchesList.get(i);
 			for (int j=i; j<idens.size(); j++) {
 				String name2 = idens.get(j).getName();
-				List<EQSIM_Event> matches2 = matchesList.get(j);
+				List<? extends SimulatorEvent> matches2 = matchesList.get(j);
 				
 				PlotSpec spec = getCDF_Func(i, name1, matches1, j, name2, matches2, plotYears, binWidth);
 				
@@ -901,7 +901,7 @@ public class PeriodicityPlotter {
 				
 				for (boolean swap : swaps) {
 					String name1, name2;
-					List<EQSIM_Event> matches1, matches2;
+					List<? extends SimulatorEvent> matches1, matches2;
 					IDPairing pair;
 					if (swap) {
 						name1 = idens.get(j).getName();
@@ -924,10 +924,10 @@ public class PeriodicityPlotter {
 					double matHistMax = matrixHist.getMaxX() + 0.5*binWidth;
 					
 					int startK = 0;
-					for (EQSIM_Event event1 : matches1) {
+					for (SimulatorEvent event1 : matches1) {
 						double timeYears1 = event1.getTimeInYears();
 						for (int k=startK; k<matches2.size(); k++) {
-							EQSIM_Event event2 = matches2.get(k);
+							SimulatorEvent event2 = matches2.get(k);
 							double timeYears2 = event2.getTimeInYears();
 							if (timeYears2 < timeYears1)
 								continue;
@@ -1114,10 +1114,10 @@ public class PeriodicityPlotter {
 				rollingSpecs.add(new ArrayList<PlotSpec>());
 			
 			while (windowEnd <= lastEvent) {
-				List<List<EQSIM_Event>> subMatchesList = Lists.newArrayList();
-				for (List<EQSIM_Event> matches : matchesList) {
-					List<EQSIM_Event> subMatches = Lists.newArrayList();
-					for (EQSIM_Event e : matches) {
+				List<List<SimulatorEvent>> subMatchesList = Lists.newArrayList();
+				for (List<? extends SimulatorEvent> matches : matchesList) {
+					List<SimulatorEvent> subMatches = Lists.newArrayList();
+					for (SimulatorEvent e : matches) {
 						double time = e.getTimeInYears();
 						if (time < windowStart)
 							continue;
@@ -1129,7 +1129,7 @@ public class PeriodicityPlotter {
 				}
 				
 				for (int i=0; i<subMatchesList.size(); i++) {
-					List<EQSIM_Event> matches = subMatchesList.get(i);
+					List<? extends SimulatorEvent> matches = subMatchesList.get(i);
 					String name = idens.get(i).getName();
 					PlotSpec spec = getCDF_Func(i, name, matches, i, name, matches, plotYears, binWidth);
 					spec.setTitle(name+" Rolling Autocorrelations ("+(int)windowLen+" year binning)");
@@ -1185,8 +1185,8 @@ public class PeriodicityPlotter {
 		for (int i=0; i<idens.size(); i++) {
 			HistogramFunction hist = new HistogramFunction(0.5*delta, (int)((endTime-startTime)/delta), delta);
 			
-			List<EQSIM_Event> matches = matchesList.get(i);
-			for (EQSIM_Event e : matches) {
+			List<? extends SimulatorEvent> matches = matchesList.get(i);
+			for (SimulatorEvent e : matches) {
 				double t = e.getTimeInYears()-startTime;
 				if (t < hist.getMaxX()+0.5*delta)
 					hist.add(t, 1d);
@@ -1276,8 +1276,8 @@ public class PeriodicityPlotter {
 	
 	private static ArrayList<EvenlyDiscretizedFunc> plotSlidingWindowCounts(File writeDir, boolean display, boolean randomized,
 			double[] windowLengths, double xInc,
-			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens) throws IOException {
-		List<List<EQSIM_Event>> eventLists = Lists.newArrayList();
+			List<? extends SimulatorEvent> events, List<RuptureIdentifier> rupIdens) throws IOException {
+		List<List<? extends SimulatorEvent>> eventLists = Lists.newArrayList();
 		
 		double totEventTime = General_EQSIM_Tools.getSimulationDurationYears(events);
 		
@@ -1315,7 +1315,7 @@ public class PeriodicityPlotter {
 				double minTime = x-halfLength;
 				double maxTime = x+halfLength;
 				for (int i=0; i<numRupIdens; i++) {
-					List<EQSIM_Event> idenEvents = eventLists.get(i);
+					List<? extends SimulatorEvent> idenEvents = eventLists.get(i);
 					for (int e=eventIndexesToStart[i]; e<idenEvents.size(); e++) {
 						double t = idenEvents.get(e).getTimeInYears();
 						if (t < minTime) {
@@ -1342,11 +1342,11 @@ public class PeriodicityPlotter {
 		return funcs;
 	}
 	
-	public static double[] getRPs(List<EQSIM_Event> matches) {
+	public static double[] getRPs(List<? extends SimulatorEvent> matches) {
 		List<Double> rps = Lists.newArrayList();
 		
 		double prevTime = -1;
-		for (EQSIM_Event e : matches) {
+		for (SimulatorEvent e : matches) {
 			double time = e.getTimeInYears();
 			
 			if (prevTime >= 0)
@@ -1359,14 +1359,14 @@ public class PeriodicityPlotter {
 	}
 	
 	private static void plotInterEventBetweenAllDist(File writeDir, boolean display, boolean randomized,
-			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens) throws IOException {
-		HashSet<EQSIM_Event> matchesSet = new HashSet<EQSIM_Event>();
+			List<? extends SimulatorEvent> events, List<RuptureIdentifier> rupIdens) throws IOException {
+		HashSet<SimulatorEvent> matchesSet = new HashSet<SimulatorEvent>();
 		
 		for (RuptureIdentifier rupIden : rupIdens)
-			for (EQSIM_Event e : rupIden.getMatches(events))
+			for (SimulatorEvent e : rupIden.getMatches(events))
 				matchesSet.add(e);
 		
-		List<EQSIM_Event> matches = Lists.newArrayList(matchesSet);
+		List<SimulatorEvent> matches = Lists.newArrayList(matchesSet);
 		Collections.sort(matches);
 		
 		HistogramFunction hist = new HistogramFunction(5d, 20, 10d);
@@ -1374,7 +1374,7 @@ public class PeriodicityPlotter {
 		double prevTime = matches.get(0).getTimeInYears();
 		
 		for (int i=1; i<matches.size(); i++) {
-			EQSIM_Event e = matches.get(i);
+			SimulatorEvent e = matches.get(i);
 			
 			double timeDelta = e.getTimeInYears()-prevTime;
 			
@@ -1401,7 +1401,7 @@ public class PeriodicityPlotter {
 	}
 	
 	private static void plotOmoriDecay(File writeDir, boolean display, boolean randomized,
-			List<EQSIM_Event> events, RuptureIdentifier rupIden, double[] minMags, double maxDays)
+			List<? extends SimulatorEvent> events, RuptureIdentifier rupIden, double[] minMags, double maxDays)
 					throws IOException {
 		
 		String idenName = rupIden.getName();
@@ -1410,7 +1410,7 @@ public class PeriodicityPlotter {
 			idenName = idenName.substring(0, idenName.indexOf("7")).trim();
 		
 		System.out.println("Plotting Omori "+idenName);
-		List<EQSIM_Event> matches = rupIden.getMatches(events);
+		List<? extends SimulatorEvent> matches = rupIden.getMatches(events);
 		
 		double maxYears = maxDays / BatchPlotGen.DAYS_PER_YEAR;
 		
@@ -1430,12 +1430,12 @@ public class PeriodicityPlotter {
 			double minMag = minMags[m];
 			HistogramFunction hist = new HistogramFunction(0.5d, (int)Math.ceil(maxDays), 1d);
 			
-			for (EQSIM_Event match : matches) {
+			for (SimulatorEvent match : matches) {
 				double matchTime = match.getTimeInYears();
 				double maxTime = matchTime + maxYears;
 				
 				for (int i=startEventI; i<events.size(); i++) {
-					EQSIM_Event e = events.get(i);
+					SimulatorEvent e = events.get(i);
 					if (e.getID() == match.getID()) {
 						startEventI = i;
 						continue;
@@ -1508,14 +1508,14 @@ public class PeriodicityPlotter {
 	}
 	
 	private static void makeMultiRecurrPlots(File dir, boolean display, double mag,
-			List<EQSIM_Event> events, List<RuptureIdentifier> rupIdens)
+			List<? extends SimulatorEvent> events, List<RuptureIdentifier> rupIdens)
 					throws IOException {
-		HashSet<EQSIM_Event> matches = new HashSet<EQSIM_Event>();
+		HashSet<SimulatorEvent> matches = new HashSet<SimulatorEvent>();
 		
 		for (RuptureIdentifier rupIden : rupIdens)
 			matches.addAll(rupIden.getMatches(events));
 		
-		List<EQSIM_Event> matchesList = Lists.newArrayList(matches);
+		List<SimulatorEvent> matchesList = Lists.newArrayList(matches);
 		Collections.sort(matchesList);
 		
 		double delta = 2.5d;
@@ -1570,7 +1570,7 @@ public class PeriodicityPlotter {
 	}
 	
 	private static void plotConditionalProbs(File dir, boolean display,
-			List<EQSIM_Event> events, List<EQSIM_Event> randomizedEvents, RuptureIdentifier targetIden,
+			List<? extends SimulatorEvent> events, List<? extends SimulatorEvent> randomizedEvents, RuptureIdentifier targetIden,
 			RuptureIdentifier givenIden, double maxTimeYears, boolean includeInitialCorupture)
 					throws IOException {
 		ArbitrarilyDiscretizedFunc cumulativeFunc = getCumulativeProbDist(
@@ -1622,19 +1622,19 @@ public class PeriodicityPlotter {
 	}
 
 	public static ArbitrarilyDiscretizedFunc getCumulativeProbDist(
-			List<EQSIM_Event> events, RuptureIdentifier targetIden,
+			List<? extends SimulatorEvent> events, RuptureIdentifier targetIden,
 			RuptureIdentifier givenIden,double maxTimeYears,
 			boolean includeInitialCorupture) {
-		List<EQSIM_Event> targetMatches = targetIden.getMatches(events);
-		List<EQSIM_Event> givenMatches = givenIden.getMatches(events);
+		List<? extends SimulatorEvent> targetMatches = targetIden.getMatches(events);
+		List<? extends SimulatorEvent> givenMatches = givenIden.getMatches(events);
 		System.out.println("Target matches: "+targetMatches.size());
 		System.out.println("Given matches: "+givenMatches.size());
 		
 		HashSet<Integer> coruptures = null;
 		if (!includeInitialCorupture) {
 			coruptures = new HashSet<Integer>();
-			for (EQSIM_Event e1 : targetMatches)
-				for (EQSIM_Event e2 : givenMatches)
+			for (SimulatorEvent e1 : targetMatches)
+				for (SimulatorEvent e2 : givenMatches)
 					if (e1.getID() == e2.getID())
 						coruptures.add(e1.getID());
 		}
@@ -1649,13 +1649,13 @@ public class PeriodicityPlotter {
 		else
 			yVal = 1d/(double)(givenMatches.size() - coruptures.size());
 		
-		for (EQSIM_Event given : givenMatches) {
+		for (SimulatorEvent given : givenMatches) {
 			double givenTime = given.getTimeInYears();
 			double targetMaxTime = givenTime + maxTimeYears;
 			if (!includeInitialCorupture && coruptures.contains(given.getID()))
 				continue;
 			for (int i=targetStartIndex; i<targetMatches.size(); i++) {
-				EQSIM_Event target = targetMatches.get(i);
+				SimulatorEvent target = targetMatches.get(i);
 				double targetTime = target.getTimeInYears();
 				if (targetTime < givenTime) {
 					targetStartIndex = i;

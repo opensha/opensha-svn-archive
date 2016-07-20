@@ -65,7 +65,9 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.imr.param.PropagationEffectParams.DistanceRupParameter;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.EQSIM_EventRecord;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RectangularElement;
 import org.opensha.sha.simulators.SimulatorElement;
@@ -303,7 +305,7 @@ public class General_EQSIM_Tools {
 	 * @param magThresh - set as Double.NaN to use down-dip-width
 	 * @return
 	 */
-	public boolean isEventSupraSeismogenic(EQSIM_Event event, double magThresh) {
+	public boolean isEventSupraSeismogenic(SimulatorEvent event, double magThresh) {
 		boolean supraSeis = false;
 		if(Double.isNaN(magThresh)) {	// apply sqrt(area) > aveDDW
 			double totArea = 0;
@@ -439,7 +441,7 @@ public class General_EQSIM_Tools {
 		ArbIncrementalMagFreqDist mfd = new ArbIncrementalMagFreqDist(minMag, maxMag, numMag);
 		
 		double simDurr = getSimulationDurationYears();
-		for(EQSIM_Event event : eventList) {
+		for(SimulatorEvent event : eventList) {
 			mfd.addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
 		mfd.setName("Total Simulator Incremental Mag Freq Dist");
@@ -520,7 +522,7 @@ public class General_EQSIM_Tools {
 		}
 		
 		double simDurr = getSimulationDurationYears();
-		for(EQSIM_Event event : eventList) {
+		for(SimulatorEvent event : eventList) {
 			int sectionIndex = sectionID_indexMap.get(event.get(0).getSectionID());	// nucleates on first (0th) event record 
 			mfdList.get(sectionIndex).addResampledMagRate(event.getMagnitude(), 1.0/simDurr, true);
 		}
@@ -585,7 +587,7 @@ public class General_EQSIM_Tools {
 	 */
 	public int getNumEventsWithElementSlipData() {
 		int numTrue =0;
-		for (EQSIM_Event event : eventList) {
+		for (SimulatorEvent event : eventList) {
 			if(event.hasElementSlipsAndIDs()) numTrue +=1;
 		}
 		return numTrue;
@@ -622,7 +624,7 @@ public class General_EQSIM_Tools {
 		System.out.println("Event Times have been randomized");
 		double firstEventTime=eventList.get(0).getTime();
 		double simDurInSec = eventList.get(eventList.size()-1).getTime() - firstEventTime;
-		for(EQSIM_Event event:eventList)
+		for(SimulatorEvent event:eventList)
 			event.setTime(firstEventTime+Math.random()*simDurInSec);
 		Collections.sort(eventList);
 	}
@@ -636,7 +638,7 @@ public class General_EQSIM_Tools {
 		double startTime=eventList.get(0).getTime();
 		int numYears = (int)getSimulationDurationYears();
 		EvenlyDiscretizedFunc evPerYear = new EvenlyDiscretizedFunc(0.0, numYears+1, 1.0);
-		for(EQSIM_Event event :eventList) {
+		for(SimulatorEvent event :eventList) {
 			int year = (int)((event.getTime()-startTime)/SECONDS_PER_YEAR);
 			evPerYear.add(year, 1.0);
 		}
@@ -660,7 +662,9 @@ public class General_EQSIM_Tools {
 				// compute min and max das on SAF
 				double minDAS = Double.MAX_VALUE;
 				double maxDAS = Double.NEGATIVE_INFINITY;
-				for(EventRecord rec:event) {
+//				for(EventRecord rec:event) {
+				for (int i=0; i<event.size(); i++) {
+					EQSIM_EventRecord rec = event.get(i);
 					int sectIndex = sectionID_indexMap.get(rec.getSectionID());
 					if(faultIDs_ForSections.get(sectIndex) == 1) {
 						if(rec.getMinDAS() < minDAS) 
@@ -853,7 +857,7 @@ public class General_EQSIM_Tools {
 		double[] aveRI_ForElement = new double[rectElementsList.size()];
 		double[] aveSlipForElement = new double[rectElementsList.size()];
 		int[] numEventsForElement = new int[rectElementsList.size()];
-		for(EQSIM_Event event:eventList) {
+		for(SimulatorEvent event:eventList) {
 			double eventTime = event.getTime();
 			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, supraSeisMagThresh)) {  
 				double[] slips = event.getAllElementSlips();
@@ -1598,7 +1602,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	
 	public void checkThatAllEventRecordsHaveSlips() {
 		System.out.println("checkThatAllEventRecordsHaveSlips");
-		for(EQSIM_Event event:eventList) {
+		for(SimulatorEvent event:eventList) {
 			if(event.hasElementSlipsAndIDs()) {
 				for(int i=0; i<event.size();i++) {
 					EventRecord er = event.get(i);
@@ -1623,7 +1627,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 
 		// loop over all events
 		int i=-1;
-		for(EQSIM_Event event:eventList) {
+		for(SimulatorEvent event:eventList) {
 			i++;
 			if(event.hasElementSlipsAndIDs() && isEventSupraSeismogenic(event, magThresh)) {
 
@@ -1658,7 +1662,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		System.out.println("Events that involve more than one section:");
 		System.out.println("\t\tEvID\t# Sect\tMag\tSections involved...");
 		int num =0;
-		for(EQSIM_Event event:eventList) {
+		for(SimulatorEvent event:eventList) {
 			if(event.size()>1) {
 				num += 1;
 				double mag = Math.round(event.getMagnitude()*100.0)/100.0;
@@ -1678,9 +1682,9 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		return getSimulationDuration(eventList);
 	}
 	
-	public static double getSimulationDuration(List<EQSIM_Event> events) {
-		EQSIM_Event firstEvent = events.get(0);
-		EQSIM_Event lastEvent = events.get(events.size()-1);
+	public static double getSimulationDuration(List<? extends SimulatorEvent> events) {
+		SimulatorEvent firstEvent = events.get(0);
+		SimulatorEvent lastEvent = events.get(events.size()-1);
 		double startTime = firstEvent.getTime();
 		double endTime = lastEvent.getTime()+lastEvent.getDuration(); // TODO worth adjusting for duration?
 		return (endTime - startTime);
@@ -1698,7 +1702,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	 * 
 	 * @return simulation duration in years
 	 */
-	public static double getSimulationDurationYears(List<EQSIM_Event> events) {
+	public static double getSimulationDurationYears(List<? extends SimulatorEvent> events) {
 		return getSimulationDuration(events)/SECONDS_PER_YEAR;
 	}
 	
@@ -1715,7 +1719,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		double[] imposedSlipRate = new double[rectElementsList.size()];
 		int[] numEvents = new int[rectElementsList.size()];
 		// loop over all events
-		for(EQSIM_Event event:eventList) {
+		for(SimulatorEvent event:eventList) {
 			if(event.hasElementSlipsAndIDs()) {
 				double[] slips = event.getAllElementSlips();
 				int[] elemIDs = event.getAllElementIDs();
@@ -1966,7 +1970,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	 */
 	public double[] getRecurIntervalsForElement(int elemID, double magThresh) {
 		ArrayList<Double> eventTimes = new ArrayList<Double>();
-		for(EQSIM_Event event:eventList)
+		for(SimulatorEvent event:eventList)
 			if(event.hasElementSlipsAndIDs())
 				if(Ints.contains(event.getAllElementIDs(), elemID) && isEventSupraSeismogenic(event, magThresh))
 					eventTimes.add(event.getTimeInYears());
@@ -2347,7 +2351,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 		ArbIncrementalMagFreqDist mfd_doesNot = new ArbIncrementalMagFreqDist(4, 8.5, 46);
 		mfd_doesNot.setName("Does Not Rup Completely Down Dip");
 		mfd_doesNot.setTolerance(1.0);
-		for(EQSIM_Event event:eventList) {
+		for(SimulatorEvent event:eventList) {
 			double mag = event.getMagnitude();
 			if(mag<4) continue;
 			if(isEventSupraSeismogenic(event, Double.NaN)) {
@@ -2452,7 +2456,7 @@ if(norm_tpInterval1 < 0  && goodSample) {
 	 * @param faultID
 	 * @return
 	 */
-	public boolean doesEventUtilizedFault(EQSIM_Event event, int faultID) {
+	public boolean doesEventUtilizedFault(SimulatorEvent event, int faultID) {
 		boolean answer = false;
 		for(EventRecord eventRecord: event) {
 			if(faultIDs_ForSections.get(sectionID_indexMap.get(eventRecord.getSectionID())) == faultID) {

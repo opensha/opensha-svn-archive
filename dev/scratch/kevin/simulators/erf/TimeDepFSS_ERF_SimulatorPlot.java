@@ -21,7 +21,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
@@ -207,7 +207,7 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 		rupIdens = Lists.newArrayList();
 		rupIdens.add(andIden);
 		
-		List<EQSIM_Event> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
+		List<? extends SimulatorEvent> events = EQSIMv06FileReader.readEventsFile(eventFile, tools.getElementsList(), rupIdens);
 		
 //		Region region = null;
 		Region region = new CaliforniaRegions.RELM_SOCAL();
@@ -219,8 +219,8 @@ public class TimeDepFSS_ERF_SimulatorPlot {
 			for (SimulatorElement elem : tools.getElementsList())
 				elementsInRegionsCache.put(elem.getID(), region.contains(elem.getCenterLocation()));
 			
-			List<EQSIM_Event> eventsInRegion = Lists.newArrayList();
-			for (EQSIM_Event e : events) {
+			List<SimulatorEvent> eventsInRegion = Lists.newArrayList();
+			for (SimulatorEvent e : events) {
 				for (int elemID : e.getAllElementIDs()) {
 					if (elementsInRegionsCache.get(elemID)) {
 						eventsInRegion.add(e);

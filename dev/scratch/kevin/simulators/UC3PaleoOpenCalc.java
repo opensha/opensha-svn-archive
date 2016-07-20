@@ -27,7 +27,7 @@ import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
-import org.opensha.sha.simulators.EQSIM_Event;
+import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.iden.ElementIden;
 import org.opensha.sha.simulators.iden.LogicalAndRupIden;
@@ -238,7 +238,7 @@ public class UC3PaleoOpenCalc {
 	}
 	
 	private static EvenlyDiscretizedFunc calcSimulator(double startYear, double endYear, double deltaYears,
-			List<EQSIM_Event> events, List<PaleoOpenIden> idens, RandomDistType randType) throws IOException {
+			List<? extends SimulatorEvent> events, List<PaleoOpenIden> idens, RandomDistType randType) throws IOException {
 		EvenlyDiscretizedFunc func = createFunc(startYear, endYear, deltaYears);
 		
 		if (randType != null)
@@ -279,10 +279,10 @@ public class UC3PaleoOpenCalc {
 		return func;
 	}
 	
-	private static List<double[]> calcIdenEventTimes(List<EQSIM_Event> events, List<? extends RuptureIdentifier> idens) {
+	private static List<double[]> calcIdenEventTimes(List<? extends SimulatorEvent> events, List<? extends RuptureIdentifier> idens) {
 		List<double[]> idenEventTimes = Lists.newArrayList();
 		for (int i=0; i<idens.size(); i++) {
-			List<EQSIM_Event> matches = idens.get(i).getMatches(events);
+			List<? extends SimulatorEvent> matches = idens.get(i).getMatches(events);
 			double[] times = new double[matches.size()];
 			for (int j=0; j<matches.size(); j++)
 				times[j] = matches.get(j).getTimeInYears();
@@ -411,7 +411,7 @@ public class UC3PaleoOpenCalc {
 		boolean supraSeismo = true;
 		File eventFile = new File(simDir, "eqs.ALLCAL2_RSQSim_sigma0.5-5_b=0.015.long.barall");
 		System.out.println("Loading events...");
-		List<EQSIM_Event> events;
+		List<? extends SimulatorEvent> events;
 		if (supraSeismo) {
 			RuptureIdentifier supraSeismoIden = new SupraSeisRupIden(tools);
 			RuptureIdentifier andIden = new LogicalAndRupIden(supraSeismoIden, new LogicalOrRupIden(idens));
