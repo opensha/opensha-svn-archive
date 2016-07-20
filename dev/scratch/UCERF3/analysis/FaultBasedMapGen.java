@@ -58,6 +58,7 @@ import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SlipEnabledSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
@@ -209,7 +210,7 @@ public class FaultBasedMapGen {
 		makeFaultPlot(cpt, getTraces(faults), values, region, saveDir, prefix+"_target_slip", display, false, "Target Slip Rate (mm/yr)");
 	}
 	
-	public static void plotSolutionSlipRates(InversionFaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display)
+	public static void plotSolutionSlipRates(SlipEnabledSolution sol, Region region, File saveDir, String prefix, boolean display)
 			throws GMT_MapException, RuntimeException, IOException {
 		CPT cpt = getSlipRateCPT();
 		List<FaultSectionPrefData> faults = sol.getRupSet().getFaultSectionDataList();
@@ -325,7 +326,7 @@ public class FaultBasedMapGen {
 
 
 	
-	public static void plotSolutionSlipMisfit(InversionFaultSystemSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio)
+	public static void plotSolutionSlipMisfit(SlipEnabledSolution sol, Region region, File saveDir, String prefix, boolean display, boolean logRatio)
 			throws GMT_MapException, RuntimeException, IOException {
 		List<FaultSectionPrefData> faults = sol.getRupSet().getFaultSectionDataList();
 		double[] solSlips = sol.calcSlipRateForAllSects();

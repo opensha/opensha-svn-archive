@@ -513,7 +513,8 @@ public class BatchPlotGen {
 		}
 		if (!hasPaleoFaultBasedPlots) {
 			try {
-				CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, sol,
+				Map<String, List<Integer>> namedFaultsMap = sol.getRupSet().getFaultModel().getNamedFaultsMapAlt();
+				CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol,
 						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
 			} catch (Exception e) {
 				e.printStackTrace();

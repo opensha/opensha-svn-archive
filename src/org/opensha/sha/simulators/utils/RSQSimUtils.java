@@ -2,7 +2,6 @@ package org.opensha.sha.simulators.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Region;
@@ -32,24 +30,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import scratch.UCERF3.FaultSystemRupSet;
-import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SlipEnabledRupSet;
+import scratch.UCERF3.SlipEnabledSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.BatchPlotGen;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
-import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
-import scratch.UCERF3.inversion.InversionFaultSystemSolution;
-import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
-import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.DeformationModelFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
-import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoProbabilityModel;
 import scratch.kevin.simulators.erf.SimulatorFaultSystemSolution;
 
 public class RSQSimUtils {
@@ -197,122 +190,186 @@ public class RSQSimUtils {
 		}
 		return sects;
 	}
+	
+	private static class RSQSimFaultSystemRupSet extends SlipEnabledRupSet {
+		
+		private final List<SimulatorElement> elements;
+		private final List<EQSIM_Event> events;
+		
+		private final int minElemSectID;
+		
+		private RSQSimFaultSystemRupSet(List<FaultSectionPrefData> subSects,
+				List<SimulatorElement> elements, List<EQSIM_Event> events) {
+			this.elements = elements;
+			this.events = events;
+			minElemSectID = getSubSectIndexOffset(elements, subSects);
+			
+			// for each rup
+			double[] mags = new double[events.size()];
+			double[] rupRakes = new double[events.size()];
+			double[] rupAreas = new double[events.size()];
+			double[] rupLengths = new double[events.size()];
+			List<List<Integer>> sectionForRups = Lists.newArrayList();
 
-	public static FaultSystemSolution buildFaultSystemSolution(List<FaultSectionPrefData> subSects,
+			Map<IDPairing, Double> distsCache = Maps.newHashMap();
+
+			System.out.print("Building ruptures...");
+			for (int i=0; i<events.size(); i++) {
+				EQSIM_Event e = events.get(i);
+				mags[i] = e.getMagnitude();
+				rupAreas[i] = e.getArea();
+				rupLengths[i] = e.getLength();
+				
+				List<List<FaultSectionPrefData>> subSectsForFaults = getSectionsForRupture(e, minElemSectID, subSects, distsCache);
+
+				List<Double> rakes = Lists.newArrayList();
+				List<Integer> rupSectIndexes = Lists.newArrayList();
+				for (List<FaultSectionPrefData> faultList : subSectsForFaults) {
+					for (FaultSectionPrefData subSect : faultList) {
+						rupSectIndexes.add(subSect.getSectionId());
+						rakes.add(subSect.getAveRake());
+					}
+				}
+				sectionForRups.add(rupSectIndexes);
+
+				double avgRake = FaultUtils.getAngleAverage(rakes);
+				if (avgRake > 180)
+					avgRake -= 360;
+				rupRakes[i] = avgRake;
+			}
+			System.out.println("DONE.");
+
+			// for each section
+			double[] sectSlipRates = new double[subSects.size()];
+			double[] sectSlipRateStdDevs = null;
+			double[] sectAreas = new double[subSects.size()];
+
+			for (int s=0; s<subSects.size(); s++) {
+				FaultSectionPrefData sect = subSects.get(s);
+				sectSlipRates[s] = sect.getReducedAveSlipRate()/1e3; // in meters
+				sectAreas[s] = sect.getReducedDownDipWidth()*sect.getTraceLength()*1e6; // in meters
+			}
+
+			String info = "Fault Simulators Solution\n"
+					+ "# Elements: "+elements.size()+"\n"
+					+ "# Sub Sections: "+subSects.size()+"\n"
+					+ "# Events/Rups: "+events.size();
+//					+ "Duration: "+durationYears+"\n"
+//					+ "Indv. Rup Rate: "+(1d/durationYears);
+			
+			init(subSects, sectSlipRates, sectSlipRateStdDevs, sectAreas,
+					sectionForRups, mags, rupRakes, rupAreas, rupLengths, info);
+		}
+		
+		private int getSectIndex(int elemSectionID) {
+			return elemSectionID - minElemSectID;
+		}
+
+		@Override
+		public double getAveSlipForRup(int rupIndex) {
+			double[] slipOnSects = getSlipOnSectionsForRup(rupIndex);
+			// area average
+			double avg = 0d;
+			List<Integer> sectIndexes = getSectionsIndicesForRup(rupIndex);
+			for (int i=0; i<slipOnSects.length; i++)
+				avg += slipOnSects[i]/getAreaForSection(sectIndexes.get(i));
+			return avg;
+		}
+
+		@Override
+		public double[] getAveSlipForAllRups() {
+			double[] slips = new double[getNumRuptures()];
+			for (int r=0; r<slips.length; r++)
+				slips[r] = getAveSlipForRup(r);
+			return slips;
+		}
+
+		@Override
+		protected double[] calcSlipOnSectionsForRup(int rthRup) {
+			List<Integer> sectIndexes = getSectionsIndicesForRup(rthRup);
+			double[] slips = new double[sectIndexes.size()];
+			
+			EQSIM_Event event = events.get(rthRup);
+			Map<Integer, EventRecord> sectIndexToRecordMap = Maps.newHashMap();
+			for (EventRecord rec : event) {
+				Integer sectIndex = getSectIndex(rec.getSectionID());
+				Preconditions.checkState(!sectIndexToRecordMap.containsKey(sectIndex),
+						"Multiple EventRecord's with the same section ID");
+				sectIndexToRecordMap.put(sectIndex, rec);
+			}
+			
+			for (int i=0; i<sectIndexes.size(); i++) {
+				int sectIndex = sectIndexes.get(i);
+				EventRecord record = sectIndexToRecordMap.get(sectIndex);
+				Preconditions.checkNotNull(record);
+				
+				double[] elemSlips = record.getElementSlips();
+				List<SimulatorElement> elems = record.getElements();
+				Preconditions.checkState(elemSlips.length == elems.size());
+				
+				double sumSlipTimesArea = 0;
+				
+				for (int e=0; e<elemSlips.length; e++) {
+					sumSlipTimesArea += elemSlips[e] * elems.get(e).getArea();
+				}
+				
+				double sectArea = getAreaForSection(sectIndex); // m^2
+				
+				// now scale to actual subsection area
+				slips[i] = sumSlipTimesArea/sectArea;
+			}
+			
+			return slips;
+		}
+		
+	}
+	
+	private static double[] buildRatesArray(List<EQSIM_Event> events) {
+		double[] rates = new double[events.size()];
+		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
+		double rateEach = 1d/(durationYears);
+		for (int i=0; i<rates.length; i++)
+			rates[i] = rateEach;
+		return rates;
+	}
+	
+	private static class RSQSimFaultSystemSolution extends SlipEnabledSolution {
+		
+		private RSQSimFaultSystemRupSet rupSet;
+		
+		public RSQSimFaultSystemSolution(RSQSimFaultSystemRupSet rupSet) {
+			super(rupSet, buildRatesArray(rupSet.events));
+			this.rupSet = rupSet;
+		}
+
+		@Override
+		public SlipEnabledRupSet getRupSet() {
+			return rupSet;
+		}
+		
+	}
+
+	public static SlipEnabledSolution buildFaultSystemSolution(List<FaultSectionPrefData> subSects,
 			List<SimulatorElement> elements, List<EQSIM_Event> events, double minMag) {
-		int minElemSectID = getSubSectIndexOffset(elements, subSects);
 		
 		if (minMag > 0)
 			events = new MagRangeRuptureIdentifier(minMag, 10d).getMatches(events);
 		
-		// for each rup
-		double[] mags = new double[events.size()];
-		double[] rupRakes = new double[events.size()];
-		double[] rupAreas = new double[events.size()];
-		double[] rupLengths = new double[events.size()];
-		double[] rates = new double[events.size()];
-		double durationYears = General_EQSIM_Tools.getSimulationDurationYears(events);
-		double rateEach = 1d/(durationYears);
-		List<List<Integer>> sectionForRups = Lists.newArrayList();
-
-		Comparator<FaultSectionPrefData> fsdIndexSorter = new Comparator<FaultSectionPrefData>() {
-
-			@Override
-			public int compare(FaultSectionPrefData o1, FaultSectionPrefData o2) {
-				return new Integer(o1.getSectionId()).compareTo(new Integer(o2.getSectionId()));
-			}
-		};
-
-		// cache sub section distances, used for rupture section ordering later
-		//				System.out.print("Caching Distances...");
-		Map<IDPairing, Double> distsCache = Maps.newHashMap();
-		//				for (int i=0; i<fsd.size(); i++) {
-		//					for (int j=i+1; j<fsd.size(); j++) {
-		//						if (i == j)
-		//							continue;
-		//						double minDist = Double.POSITIVE_INFINITY;
-		//						for (Location loc1 : fsd.get(i).getFaultTrace()) {
-		//							for (Location loc2 : fsd.get(j).getFaultTrace()) {
-		//								double dist = LocationUtils.horzDistance(loc1, loc2);
-		//								if (dist < minDist)
-		//									minDist = dist;
-		//							}
-		//						}
-		//						IDPairing pair = new IDPairing(i, j);
-		//						distsCache.put(pair, minDist);
-		//						distsCache.put(pair.getReversed(), minDist);
-		//					}
-		//				}
-		//				System.out.println("DONE.");
-
-		//				Table<String, String, Double> distsCache = HashBasedTable.create();
-
-		System.out.print("Building ruptures...");
-		for (int i=0; i<events.size(); i++) {
-			EQSIM_Event e = events.get(i);
-			mags[i] = e.getMagnitude();
-			rupAreas[i] = e.getArea();
-			rupLengths[i] = e.getLength();
-			rates[i] = rateEach;
-			
-			List<List<FaultSectionPrefData>> subSectsForFaults = getSectionsForRupture(e, minElemSectID, subSects, distsCache);
-
-			List<Double> rakes = Lists.newArrayList();
-			List<Integer> rupSectIndexes = Lists.newArrayList();
-			for (List<FaultSectionPrefData> faultList : subSectsForFaults) {
-				for (FaultSectionPrefData subSect : faultList) {
-					rupSectIndexes.add(subSect.getSectionId());
-					rakes.add(subSect.getAveRake());
-				}
-			}
-			sectionForRups.add(rupSectIndexes);
-
-			double avgRake = FaultUtils.getAngleAverage(rakes);
-			if (avgRake > 180)
-				avgRake -= 360;
-			rupRakes[i] = avgRake;
-		}
-		System.out.println("DONE.");
-
-		// for each section
-		double[] sectSlipRates = new double[subSects.size()];
-		double[] sectSlipRateStdDevs = null;
-		double[] sectAreas = new double[subSects.size()];
-
-		for (int s=0; s<subSects.size(); s++) {
-			FaultSectionPrefData sect = subSects.get(s);
-			sectSlipRates[s] = sect.getReducedAveSlipRate();
-			sectAreas[s] = sect.getReducedDownDipWidth()*sect.getTraceLength()*1e6; // in meters
-		}
-
-		String info = "Fault Simulators Solution\n"
-				+ "# Elements: "+elements.size()+"\n"
-				+ "# Sub Sections: "+subSects.size()+"\n"
-				+ "# Events/Rups: "+events.size()+"\n"
-				+ "Duration: "+durationYears+"\n"
-				+ "Indv. Rup Rate: "+(1d/durationYears);
-
-		FaultSystemRupSet rupSet = new FaultSystemRupSet(subSects, sectSlipRates, sectSlipRateStdDevs, sectAreas,
-				sectionForRups,mags, rupRakes, rupAreas, rupLengths, info);
-		FaultSystemSolution sol = new FaultSystemSolution(rupSet, rates);
-		return sol;
+		RSQSimFaultSystemRupSet rupSet = new RSQSimFaultSystemRupSet(subSects, elements, events);
+		return new RSQSimFaultSystemSolution(rupSet);
 	}
 	
-	public static void writeUCERF3ComparisonPlots(FaultSystemSolution sol, FaultModels fm, DeformationModels dm,
+	public static void writeUCERF3ComparisonPlots(SlipEnabledSolution sol, FaultModels fm, DeformationModels dm,
 			File dir, String prefix) throws GMT_MapException, RuntimeException, IOException {
-//		InversionFaultSystemRupSet invRupSet = new InversionFaultSystemRupSet(
-//				sol.getRupSet(), LogicTreeBranch.fromValues(fm, dm), null, null, null, null, null);
-//		invRupSet.getSlipOnSectionsForRup(rthRup)
-//		InversionFaultSystemSolution invSol = new InversionFaultSystemSolution(invRupSet, sol.getRateForAllRups());
 		Region region = new CaliforniaRegions.RELM_TESTING();
 
 		// map plots
 		FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
-//		FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
-//		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
-//		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
+		FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
+		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
 //		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getRupSet().getFaultModel(), dir);
 		for (double[] range : BatchPlotGen.partic_mag_ranges) {
 			FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
@@ -350,12 +407,13 @@ public class RSQSimUtils {
 //						new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME), UCERF3_PaleoProbabilityModel.load());
 		CommandLineInversionRunner.writeParentSectionMFDPlots(sol,
 						new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME));
-//		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, sol,
-//						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
+		Map<String, List<Integer>> namedFaultsMap = fm.getNamedFaultsMapAlt();
+		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol,
+						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
 		CommandLineInversionRunner.writeRupPairingSmoothnessPlot(sol, prefix, dir);
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException {
 		File dir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
 		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
 		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
@@ -367,11 +425,18 @@ public class RSQSimUtils {
 		File dListFile = new File(dir, "UCERF3_35kyrs.dList");
 		File tListFile = new File(dir, "UCERF3_35kyrs.tList");
 		
+		double minMag = 6d;
 		List<EQSIM_Event> events = RSQSimFileReader.readEventsFile(eListFile, pListFile, dListFile, tListFile, elements,
-				Lists.newArrayList(new MagRangeRuptureIdentifier(7d, 10d)));
+				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
 		
-		FaultSystemSolution sol = buildFaultSystemSolution(getUCERF3SubSectsForComparison(
-				FaultModels.FM3_1, DeformationModels.ZENGBB), elements, events, 6d);
+		FaultModels fm = FaultModels.FM3_1;
+		DeformationModels dm = DeformationModels.ZENGBB;
+		SlipEnabledSolution sol = buildFaultSystemSolution(getUCERF3SubSectsForComparison(
+				fm, dm), elements, events, minMag);
+		
+		File plotDir = new File(dir, "ucerf3_fss_comparison_plots");
+		Preconditions.checkState(plotDir.exists() ||  plotDir.mkdir());
+		writeUCERF3ComparisonPlots(sol, fm, dm, plotDir, "rsqsim_comparison");
 	}
 
 }

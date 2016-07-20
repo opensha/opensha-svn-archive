@@ -221,8 +221,9 @@ public class RunInversion {
 		List<AveSlipConstraint> aveSlipConstraints;
 		try {
 			aveSlipConstraints = AveSlipConstraint.load(rupSet.getFaultSectionDataList());
+			Map<String, List<Integer>> namedFaultsMap = rupSet.getFaultModel().getNamedFaultsMapAlt();
 			Map<String, PlotSpec[]> plotSpecs =
-					PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(paleoRateConstraints, aveSlipConstraints, solution);
+					PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, solution);
 			// display SAF plots
 			PlotSpec plotSpec = plotSpecs.get("San Andreas")[2];
 			GraphWindow gw = new GraphWindow(plotSpec);

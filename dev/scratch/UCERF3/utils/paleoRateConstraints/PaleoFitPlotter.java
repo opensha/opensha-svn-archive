@@ -41,6 +41,8 @@ import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.FaultSystemSolutionFetcher;
+import scratch.UCERF3.SlipEnabledRupSet;
+import scratch.UCERF3.SlipEnabledSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
@@ -330,8 +332,8 @@ public class PaleoFitPlotter {
 		return rate;
 	}
 	
-	static double getAveSlipProbRateForSect(InversionFaultSystemSolution sol, int sectIndex) {
-		InversionFaultSystemRupSet rupSet = sol.getRupSet();
+	static double getAveSlipProbRateForSect(SlipEnabledSolution sol, int sectIndex) {
+		SlipEnabledRupSet rupSet = sol.getRupSet();
 		double rate = 0;
 		for (int rupID : rupSet.getRupturesForSection(sectIndex)) {
 			int sectIndexInRup = rupSet.getSectionsIndicesForRup(rupID).indexOf(sectIndex);
@@ -359,13 +361,13 @@ public class PaleoFitPlotter {
 		private Map<Integer, double[]> aveSlipRatesMap;
 		private Map<Integer, double[]> aveSlipsMap;
 		private Map<Integer, double[]> avePaleoSlipsMap;
-		private LogicTreeBranch branch;
+//		private LogicTreeBranch branch;
 		
 		private List<Map<Integer, double[]>> allArraysList;
 		
 		private double weight;
 		
-		private DataForPaleoFaultPlots(double weight, LogicTreeBranch branch) {
+		private DataForPaleoFaultPlots(double weight) {
 			origSlipsMap = Maps.newHashMap();
 			targetSlipsMap = Maps.newHashMap();
 			solSlipsMap = Maps.newHashMap();
@@ -386,11 +388,11 @@ public class PaleoFitPlotter {
 			allArraysList.add(avePaleoSlipsMap);
 			
 			this.weight = weight;
-			this.branch = branch;
+//			this.branch = branch;
 		}
 		
 		public static DataForPaleoFaultPlots build(
-				InversionFaultSystemSolution sol,
+				SlipEnabledSolution sol,
 				Map<String, List<Integer>> namedFaultsMap,
 				Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap,
 				Map<Integer, List<FaultSectionPrefData>> allParentsMap,
@@ -408,7 +410,7 @@ public class PaleoFitPlotter {
 		}
 		
 		public static DataForPaleoFaultPlots build(
-				InversionFaultSystemSolution sol,
+				SlipEnabledSolution sol,
 				Map<String, List<Integer>> namedFaultsMap,
 				Map<String, List<PaleoRateConstraint>> namedFaultConstraintsMap,
 				Map<Integer, List<FaultSectionPrefData>> allParentsMap,
@@ -417,7 +419,7 @@ public class PaleoFitPlotter {
 				double[] aveSlipsData,
 				double[] aveSlipsPaleoObsData) {
 			
-			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight, sol.getLogicTreeBranch());
+			DataForPaleoFaultPlots data = new DataForPaleoFaultPlots(weight);
 			
 			Stopwatch watch = Stopwatch.createUnstarted();
 			Stopwatch paleoWatch = Stopwatch.createUnstarted();
@@ -502,9 +504,9 @@ public class PaleoFitPlotter {
 	public static Map<String, PlotSpec[]> getFaultSpecificPaleoPlotSpec(
 			List<PaleoRateConstraint> paleoRateConstraint,
 			List<AveSlipConstraint> aveSlipConstraints,
-			InversionFaultSystemSolution sol) {
-		InversionFaultSystemRupSet rupSet = sol.getRupSet();
-		Map<String, List<Integer>> namedFaultsMap = rupSet.getFaultModel().getNamedFaultsMapAlt();
+			Map<String, List<Integer>> namedFaultsMap,
+			SlipEnabledSolution sol) {
+		SlipEnabledRupSet rupSet = sol.getRupSet();
 		
 		// create new list since we might modify it
 		paleoRateConstraint = Lists.newArrayList(paleoRateConstraint);
@@ -1278,7 +1280,8 @@ public class PaleoFitPlotter {
 		if (!plotDir.exists())
 			plotDir.mkdir();
 		
-		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraint, aveSlipConstraints, sol, plotDir);
+		Map<String, List<Integer>> namedFaultsMap = sol.getRupSet().getFaultModel().getNamedFaultsMapAlt();
+		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraint, aveSlipConstraints, namedFaultsMap, sol, plotDir);
 	}
 
 }

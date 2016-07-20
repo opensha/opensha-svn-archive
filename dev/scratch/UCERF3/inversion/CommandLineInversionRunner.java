@@ -54,6 +54,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.SlipEnabledSolution;
 import scratch.UCERF3.analysis.CompoundFSSPlots;
 import scratch.UCERF3.analysis.FaultSpecificSegmentationPlotGen;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
@@ -717,8 +718,9 @@ public class CommandLineInversionRunner {
 					
 					// Paleo fault based plots
 					try {
+						Map<String, List<Integer>> namedFaultsMap = rupSet.getFaultModel().getNamedFaultsMapAlt();
 						writePaleoFaultPlots(
-								paleoRateConstraints, aveSlipConstraints, sol, new File(subDir,
+								paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol, new File(subDir,
 										PALEO_FAULT_BASED_DIR_NAME));
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -1647,10 +1649,11 @@ public class CommandLineInversionRunner {
 
 	public static void writePaleoFaultPlots(
 			List<PaleoRateConstraint> paleoRateConstraints,
-			List<AveSlipConstraint> aveSlipConstraints, InversionFaultSystemSolution sol, File dir)
+			List<AveSlipConstraint> aveSlipConstraints,
+			Map<String, List<Integer>> namedFaultsMap, SlipEnabledSolution sol, File dir)
 					throws IOException {
 		Map<String, PlotSpec[]> specs = PaleoFitPlotter.getFaultSpecificPaleoPlotSpec(
-				paleoRateConstraints, aveSlipConstraints, sol);
+				paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol);
 		
 		writePaleoFaultPlots(specs, null, dir);
 	}

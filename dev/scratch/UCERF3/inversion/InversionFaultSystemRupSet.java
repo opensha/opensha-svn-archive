@@ -31,6 +31,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
+import scratch.UCERF3.SlipEnabledRupSet;
 import scratch.UCERF3.analysis.DeformationModelsCalc;
 import scratch.UCERF3.analysis.FaultSystemRupSetCalc;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
@@ -75,7 +76,7 @@ import scratch.UCERF3.utils.SectionMFD_constraint;
  * @author Field, Milner, Page, & Powers
  *
  */
-public class InversionFaultSystemRupSet extends FaultSystemRupSet {
+public class InversionFaultSystemRupSet extends SlipEnabledRupSet {
 
 	protected final static boolean D = false;  // for debugging
 	//	static boolean applySubSeismoMomentReduction = true; // set to false to turn off reductions to slip rate from subseismogenic-rup moment
@@ -447,12 +448,6 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	}
 
 	// Ave Slip and Slip On Sections Methods
-	
-	@Override
-	public void clearCache() {
-		super.clearCache();
-		rupSectionSlipsCache.clear();
-	}
 
 	@Override
 	public void copyCacheFrom(FaultSystemRupSet rupSet) {
@@ -467,52 +462,20 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 		}
 	}
 	
-	/**
-	 * This gives average slip (SI units: m) for the given rupture
-	 * @param rupIndex
-	 * @return
+	/* (non-Javadoc)
+	 * @see scratch.UCERF3.inversion.SlipEnabledRupSet#getAveSlipForRup(int)
 	 */
+	@Override
 	public double getAveSlipForRup(int rupIndex) {
 		return rupMeanSlip[rupIndex];
 	}
 
-	/**
-	 * This gives average slip (SI units: m) for the each rupture
-	 * @return
+	/* (non-Javadoc)
+	 * @see scratch.UCERF3.inversion.SlipEnabledRupSet#getAveSlipForAllRups()
 	 */
+	@Override
 	public double[] getAveSlipForAllRups() {
 		return rupMeanSlip;
-	}
-
-	/**
-	 * This gives the average slip (SI untis: m) on each section for all ruptures
-	 * @return
-	 */
-	public List<double[]> getSlipOnSectionsForAllRups() {
-		ArrayList<double[]> slips = new ArrayList<double[]>();
-		for (int rupIndex=0; rupIndex<getNumRuptures(); rupIndex++)
-			slips.add(getSlipOnSectionsForRup(rupIndex));
-		return slips;
-	}
-
-	protected ConcurrentMap<Integer, double[]> rupSectionSlipsCache = Maps.newConcurrentMap();
-
-	/**
-	 * This gives the slip (SI untis: m) on each section for the rth rupture
-	 * @return
-	 */
-	public double[] getSlipOnSectionsForRup(int rthRup) {
-		double[] slips = rupSectionSlipsCache.get(rthRup);
-		if (slips == null) {
-			synchronized (rupSectionSlipsCache) {
-				slips = rupSectionSlipsCache.get(rthRup);
-				if (slips != null)
-					return slips;
-				slips = calcSlipOnSectionsForRup(rthRup);
-				rupSectionSlipsCache.putIfAbsent(rthRup, slips);
-			}
-		}
-		return slips;
 	}
 
 	private static EvenlyDiscretizedFunc taperedSlipPDF, taperedSlipCDF;
@@ -528,6 +491,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 	 * This has been spot checked, but needs a formal test.
 	 *
 	 */
+	@Override
 	protected double[] calcSlipOnSectionsForRup(int rthRup) {
 
 		SlipAlongRuptureModels slipModelType = getSlipAlongRuptureModel();
@@ -587,7 +551,7 @@ public class InversionFaultSystemRupSet extends FaultSystemRupSet {
 				sectMoRate, aveSlip);
 	}
 
-	public double[] calcSlipOnSectionsForRup(int rthRup,
+	private double[] calcSlipOnSectionsForRup(int rthRup,
 			SlipAlongRuptureModels slipModelType,
 			double[] sectArea, double[] sectMoRate, double aveSlip) {
 		double[] slipsForRup = new double[sectArea.length];

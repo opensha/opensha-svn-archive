@@ -288,15 +288,17 @@ public class RSQSimFileReader {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
-		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
+		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
+//		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
+		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		List<SimulatorElement> elements = readGeometryFile(geomFile, 11, 'S');
 		System.out.println("Loaded "+elements.size()+" elements");
 //		for (Location loc : elements.get(0).getVertices())
 //			System.out.println(loc);
 		
 //		File eventsDir = new File("/home/kevin/Simulators/UCERF3_qlistbig2");
-		File eventsDir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
+//		File eventsDir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
+		File eventsDir = dir;
 		
 //		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3base_80yrs.pList"), elements);
 //		listFileDebug(new File(eventsDir, "UCERF3base_80yrs.eList"), 100, bigEndian, true);
@@ -305,18 +307,28 @@ public class RSQSimFileReader {
 		
 		List<EQSIM_Event> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(7d, 10d)));
 		System.out.println("Loaded "+events.size()+" events");
-		FaultModels fm = FaultModels.FM3_1;
-		SectionIDIden garlockIden = SectionIDIden.getUCERF3_Garlock(
-				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
-		SectionIDIden safIden = SectionIDIden.getUCERF3_SAF(
-				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
-		LogicalAndRupIden safSoCalIden = new LogicalAndRupIden(safIden, new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
-		for (double fract : new double[] {0d, 0.25, 0.5, 0.75}) {
-			garlockIden.setMomentFractForInclusion(fract);
-			System.out.println("Garlock M>=7 events with "+(float)(fract*100d)+" % moment: "+garlockIden.getMatches(events).size());
-			safIden.setMomentFractForInclusion(fract);
-			System.out.println("S.SAF M>=7 events with "+(float)(fract*100d)+" % moment: "+safSoCalIden.getMatches(events).size());
+		while (true) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+//		FaultModels fm = FaultModels.FM3_1;
+//		SectionIDIden garlockIden = SectionIDIden.getUCERF3_Garlock(
+//				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
+//		SectionIDIden safIden = SectionIDIden.getUCERF3_SAF(
+//				fm, RSQSimUtils.getUCERF3SubSectsForComparison(fm, fm.getFilterBasis()), elements);
+//		LogicalAndRupIden safSoCalIden = new LogicalAndRupIden(safIden, new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
+//		System.out.println("Num M>=7 events on both Garlock AND S.SAF: "+
+//				new LogicalAndRupIden(safSoCalIden, garlockIden).getMatches(events).size());
+//		for (double fract : new double[] {0d, 0.25, 0.5, 0.75, 1d}) {
+//			garlockIden.setMomentFractForInclusion(fract);
+//			System.out.println("Garlock M>=7 events with "+(float)(fract*100d)+" % moment: "+garlockIden.getMatches(events).size());
+//			safIden.setMomentFractForInclusion(fract);
+//			System.out.println("S.SAF M>=7 events with "+(float)(fract*100d)+" % moment: "+safSoCalIden.getMatches(events).size());
+//		}
 //		double duration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
 //		System.out.println("Duration: "+duration+" years");
 //		System.out.println("\t"+events.get(0).getTimeInYears()+" to "+events.get(events.size()-1).getTimeInYears()+" years");
