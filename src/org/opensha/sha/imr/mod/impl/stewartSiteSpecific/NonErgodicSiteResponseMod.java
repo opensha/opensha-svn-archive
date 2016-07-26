@@ -28,6 +28,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014;
 import org.opensha.sha.imr.attenRelImpl.ngaw2.IMT;
 import org.opensha.sha.imr.mod.AbstractAttenRelMod;
+import org.opensha.sha.imr.mod.impl.IML_DependentAttenRelMod;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGV_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PeriodParam;
@@ -43,7 +44,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
-public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements ParameterChangeListener {
+public class NonErgodicSiteResponseMod extends IML_DependentAttenRelMod implements ParameterChangeListener {
 	
 	private static final boolean D = false;
 	private static final boolean DD = D && false;
@@ -134,6 +135,9 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 //		allowedRefIMTs.add(PGV_Param.NAME);
 //		allowedRefIMTs.add(SA_Param.NAME);
 //	}
+	
+	private DoubleParameter rhoParam;
+	
 	private static final String REF_IMT_DEFAULT = PGA_Param.NAME;
 	private static final String REF_IMT_OF_INTEREST = "IMT of Interst";
 	private StringParameter refIMTParam;
@@ -196,6 +200,12 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		plotInterpParam = new ButtonParameter("Interpolation", "Plot Interpolation");
 		plotInterpParam.addParameterChangeListener(this);
 		paramList.addParameter(plotInterpParam);
+		
+		// TODO name
+		rhoParam = new DoubleParameter("lnZ, lnX correlation", 0d, 1d, new Double(0.65));
+		rhoParam.setInfo("Correlation between surface intensity measure and the reference intensity measure.");
+		// don't need to listen for changes
+		paramList.addParameter(rhoParam);
 		
 		refIMTParam = new StringParameter("Reference IMT", Lists.newArrayList(REF_IMT_DEFAULT, REF_IMT_OF_INTEREST));
 		refIMTParam.setValue(REF_IMT_DEFAULT);
@@ -445,9 +455,9 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		Preconditions.checkArgument(refIMTParam.isAllowed(refIMT), "Value is not allowed: %s", refIMT);
 		refIMTParam.setValue(refIMT);
 	}
-
+	
 	@Override
-	public double getModMean(ScalarIMR imr) {
+	public double getModMean(ScalarIMR imr, double iml) {
 		checkUpdateRefIMRSiteParams(imr);
 		String origIMT = imt.getName();
 		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
@@ -460,22 +470,8 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		}
 		if (DD) System.out.println("Orig Mean, "+origIMT+", u_X="+Math.exp(u_lnX));
 		
-		// now set to to ref IMT
-		String refIMT = refIMTParam.getValue();
-		double x_ref;
-		if (!refIMT.equals(REF_IMT_OF_INTEREST)) {
-			if (DD) System.out.println("Setting to reference IMT: "+refIMT);
-			imr.setIntensityMeasure(refIMT);
-			Preconditions.checkState(imr.getIntensityMeasure().getName().equals(refIMT));
-			double x_ref_ln = imr.getMean();
-			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-			if (DD) System.out.println("Ref IMT, "+refIMT+", x_ref="+x_ref);
-			// set back to orig IMT
-			imr.setIntensityMeasure(imt);
-			Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
-		} else {
-			x_ref = Math.exp(u_lnX);
-		}
+		double x_ref = calcXref(imr, iml);
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(origIMT));
 		
 		double[] params = getCurParams(imr);
 		double f1 = params[periodParams.getParamIndex(Params.F1)];
@@ -497,9 +493,43 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		
 		return u_lnX + ln_y;
 	}
+
+	private double calcXref(ScalarIMR imr, double iml) {
+		double x_ref;
+		String refIMT = refIMTParam.getValue();
+		double sd_x_ref;
+		if (!refIMT.equals(REF_IMT_OF_INTEREST)) {
+			// now set to to ref IMT
+			if (DD) System.out.println("Setting to reference IMT: "+refIMT);
+			imr.setIntensityMeasure(refIMT);
+			Preconditions.checkState(imr.getIntensityMeasure().getName().equals(refIMT));
+			double x_ref_ln = imr.getMean();
+			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
+			sd_x_ref = imr.getStdDev();
+			if (DD) System.out.println("Ref IMT, "+refIMT+", x_ref="+x_ref+", sd_x_ref="+sd_x_ref);
+			// set back to orig IMT
+			imr.setIntensityMeasure(imt);
+		} else {
+			x_ref = Math.exp(imr.getMean());
+			sd_x_ref = imr.getStdDev();
+		}
+		
+		double rho = rhoParam.getValue();
+		if (rho > 0) {
+			imr.setIntensityMeasureLevel(iml);
+			double epsilon = imr.getEpsilon(); // epsilon from the reference IMR for the IMT of interest
+			x_ref = x_ref * Math.exp(rho*epsilon*sd_x_ref);
+		}
+		return x_ref;
+	}
 	
 	@Override
-	public double getModStdDev(ScalarIMR imr) {
+	protected boolean isCurrentlyIML_Dependent() {
+		return rhoParam.getValue() > 0;
+	}
+
+	@Override
+	public double getModStdDev(ScalarIMR imr, double iml) {
 		checkUpdateRefIMRSiteParams(imr);
 		// get values for the IMT of interest
 		StringParameter imrTypeParam = (StringParameter) imr.getParameter(StdDevTypeParam.NAME);
@@ -524,21 +554,8 @@ public class NonErgodicSiteResponseMod extends AbstractAttenRelMod implements Pa
 		if (DD) System.out.println("Calculating std dev with f2="+f2+", f3="+f3+", F="+F
 				+", phiS2S="+phiS2S+", phiLnY="+phiLnY+", phiSS="+phiSS+", usePhiSS="+usePhiSS);
 		
-		// now set to ref IMT
-		String refIMT = refIMTParam.getValue();
-		double x_ref;
-		if (!refIMT.equals(REF_IMT_OF_INTEREST)) {
-			if (DD) System.out.println("Setting to reference IMT: "+refIMT);
-			imr.setIntensityMeasure(refIMT);
-			double x_ref_ln = imr.getMean();
-			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-			if (DD) System.out.println("x_ref="+x_ref);
-			// set back to orig IMT
-			imr.setIntensityMeasure(imt);
-		} else {
-			double x_ref_ln = imr.getMean();
-			x_ref = Math.exp(x_ref_ln); // ref IMR, must be linear
-		}
+		double x_ref = calcXref(imr, iml);
+		Preconditions.checkState(imr.getIntensityMeasure().getName().equals(imt.getName()));
 		
 		double term1 = Math.pow((f2*x_ref)/(x_ref+f3) + 1, 2);
 		double term2;

@@ -5,6 +5,9 @@ import java.util.EnumSet;
 import java.util.Map;
 
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.exceptions.IMRException;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.param.ParamLinker;
 import org.opensha.commons.param.Parameter;
@@ -138,6 +141,25 @@ public class ModAttenuationRelationship extends AttenuationRelationship implemen
 		Preconditions.checkNotNull(mod, "Mod is null!");
 		checkUpdateIMT();
 		return mod.getModStdDev(imr);
+	}
+
+	@Override
+	public double getExceedProbability() throws ParameterException, IMRException {
+		double iml = ((Double) im.getValue()).doubleValue();
+		ArbitrarilyDiscretizedFunc imls = new ArbitrarilyDiscretizedFunc();
+		imls.set(iml, 1d);
+		return getExceedProbabilities(imls).getY(0);
+	}
+
+	@Override
+	public double getExceedProbability(double iml) throws ParameterException, IMRException {
+		return super.getExceedProbability(iml);
+	}
+
+	@Override
+	public DiscretizedFunc getExceedProbabilities(DiscretizedFunc intensityMeasureLevels) throws ParameterException {
+		checkUpdateIMT();
+		return mod.getModExceedProbabilities(getCurrentIMR(), intensityMeasureLevels);
 	}
 
 	@Override
