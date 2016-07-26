@@ -341,6 +341,11 @@ public class PointSource13b extends ProbEqkSource {
 			super(loc);
 		}
 		
+	  @Override
+	  public double getAveRupTopDepth() {
+	    return getDepth();
+	  }
+
 		@Override
 		public double getDepth() {
 			// overridden to not key depth to point location
