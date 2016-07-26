@@ -54,6 +54,8 @@ public class FileParameterEditor extends AbstractParameterEditor<File> implement
 				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			else
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			if (getParameter() instanceof FileParameter)
+				chooser.setFileHidingEnabled(!((FileParameter)getParameter()).isShowHiddenFiles());
 			int retVal = chooser.showOpenDialog(this);
 			if (retVal == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();

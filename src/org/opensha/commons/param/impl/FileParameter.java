@@ -16,6 +16,7 @@ public class FileParameter extends AbstractParameter<File> {
 	private FileParameterEditor editor;
 	private File initialDir;
 	private boolean directorySelect = false;
+	private boolean showHiddenFiles = false;
 	
 	public FileParameter(String name) {
 		this(name, null);
@@ -58,6 +59,14 @@ public class FileParameter extends AbstractParameter<File> {
 
 	public void setDirectorySelect(boolean directorySelect) {
 		this.directorySelect = directorySelect;
+	}
+	
+	public boolean isShowHiddenFiles() {
+		return showHiddenFiles;
+	}
+	
+	public void setShowHiddenFiles(boolean showHiddenFiles) {
+		this.showHiddenFiles = showHiddenFiles;
 	}
 
 }
