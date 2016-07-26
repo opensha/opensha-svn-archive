@@ -12,6 +12,7 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotElement;
 import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.jfreechart.tornado.TornadoDiagram;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
@@ -44,7 +45,12 @@ public class UCERF3_EALHistGen {
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_16-ucerf3-99percent-wills");
 //		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
-		File origRunDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
+		
+		Map<String, File> runDirs = Maps.newHashMap();
+		String runCategoryName = "Vs30";
+		runDirs.put("Wills", new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller"));
+		runDirs.put("Wald", new File("/home/kevin/OpenSHA/UCERF3/eal/2016_06_06-ucerf3-90percent-wald"));
+		double inflationMultiplier = 10d/9d;
 		
 		String units = "$ Billions";
 		double multiplier = 1d/1e6;
@@ -54,16 +60,11 @@ public class UCERF3_EALHistGen {
 //		double multiplier = 1;
 //		double delta = 1;
 		
+		multiplier *= inflationMultiplier;
+		
 		File plotDir = new File("/tmp/eal_plot");
 		if (!plotDir.exists())
 			plotDir.mkdir();
-		
-		Map<AttenRelRef, File> imrResultsDirMap = Maps.newHashMap();
-		imrResultsDirMap.put(AttenRelRef.CB_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.CY_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.ASK_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.BSSA_2014, origRunDir);
-		imrResultsDirMap.put(AttenRelRef.IDRISS_2014, origRunDir);
 		
 		Map<AttenRelRef, Double> imrWeightsMap = Maps.newHashMap();
 		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
@@ -80,47 +81,66 @@ public class UCERF3_EALHistGen {
 		String gmpeCategoryName = "GMPE";
 		String probModelCategoryName = "ProbModel";
 		
-		for (AttenRelRef ref : imrResultsDirMap.keySet()) {
-			File resultDir = imrResultsDirMap.get(ref);
-			for (MagDependentAperiodicityOptions cov : covs) {
-				String covName;
-				if (cov == null)
-					covName = "POISSON";
-				else
-					covName = cov.name();
-				filesTable.put(ref, covName, new File(resultDir, ref.name()+"_"+covName+"_eals.csv"));
-			}
-		}
-		
 		BranchSensitivityHistogram hist = new BranchSensitivityHistogram("EAL ("+units+")");
 		
-		for (Cell<AttenRelRef, String, File> cell : filesTable.cellSet()) {
-			AttenRelRef imr = cell.getRowKey();
-			String imrName = imr.name();
-			String probModelName = cell.getColumnKey();
-			File csvFile = cell.getValue();
-			CSVFile<String> csv = CSVFile.readFile(csvFile, true);
+		for (String runName : runDirs.keySet()) {
+			File runDir = runDirs.get(runName);
 			
-			double imrWeight = imrWeightsMap.get(imr);
-			MagDependentAperiodicityOptions cov;
-			if (probModelName.equals("POISSON"))
-				cov = null;
-			else
-				cov = MagDependentAperiodicityOptions.valueOf(probModelName);
-			double probModelWeight = FaultSystemSolutionERF.getWeightForCOV(cov);
+			Map<AttenRelRef, File> imrResultsDirMap = Maps.newHashMap();
+			imrResultsDirMap.put(AttenRelRef.CB_2014, runDir);
+			imrResultsDirMap.put(AttenRelRef.CY_2014, runDir);
+			imrResultsDirMap.put(AttenRelRef.ASK_2014, runDir);
+			imrResultsDirMap.put(AttenRelRef.BSSA_2014, runDir);
+			imrResultsDirMap.put(AttenRelRef.IDRISS_2014, runDir);
 			
-			for (int row=1; row<csv.getNumRows(); row++) {
-				List<String> line = csv.getLine(row);
-				LogicTreeBranch branch = fromLine(line);
-				double weight = Double.parseDouble(line.get(1));
-				double eal = Double.parseDouble(line.get(2)); // total eal
+			for (AttenRelRef ref : imrResultsDirMap.keySet()) {
+				File resultDir = imrResultsDirMap.get(ref);
+				for (MagDependentAperiodicityOptions cov : covs) {
+					String covName;
+					if (cov == null)
+						covName = "POISSON";
+					else
+						covName = cov.name();
+					filesTable.put(ref, covName, new File(resultDir, ref.name()+"_"+covName+"_eals.csv"));
+				}
+			}
+			
+			for (Cell<AttenRelRef, String, File> cell : filesTable.cellSet()) {
+				AttenRelRef imr = cell.getRowKey();
+				String imrName = imr.name();
+				String probModelName = cell.getColumnKey();
+				File csvFile = cell.getValue();
+				CSVFile<String> csv = CSVFile.readFile(csvFile, true);
 				
-				eal *= multiplier;
+				double imrWeight = imrWeightsMap.get(imr);
+				MagDependentAperiodicityOptions cov;
+				if (probModelName.equals("POISSON"))
+					cov = null;
+				else
+					cov = MagDependentAperiodicityOptions.valueOf(probModelName);
+				double probModelWeight = FaultSystemSolutionERF.getWeightForCOV(cov);
 				
-				// IMR & prob model weights
-				weight *= imrWeight * probModelWeight;
-				
-				hist.addValues(branch, eal, weight, gmpeCategoryName, imrName, probModelCategoryName, probModelName);
+				for (int row=1; row<csv.getNumRows(); row++) {
+					List<String> line = csv.getLine(row);
+					LogicTreeBranch branch = fromLine(line);
+					double weight = Double.parseDouble(line.get(1));
+					double eal = Double.parseDouble(line.get(2)); // total eal
+					
+					eal *= multiplier;
+					
+					// IMR & prob model weights
+					weight *= imrWeight * probModelWeight;
+					
+					String[] extraVals;
+					if (runDirs.size() == 1)
+						extraVals = new String[] {
+								gmpeCategoryName, imrName, probModelCategoryName, probModelName};
+					else
+						extraVals = new String[] {
+								gmpeCategoryName, imrName, probModelCategoryName, probModelName, runCategoryName, runName};
+					
+					hist.addValues(branch, eal, weight, extraVals);
+				}
 			}
 		}
 		
@@ -135,6 +155,8 @@ public class UCERF3_EALHistGen {
 		}
 		names.add(probModelCategoryName);
 		names.add(gmpeCategoryName);
+		if (runDirs.size() > 1)
+			names.add(runCategoryName);
 		for (String name : names) {
 			PlotSpec histSpec = specs.get(name);
 			if (histSpec == null) {
@@ -189,10 +211,16 @@ public class UCERF3_EALHistGen {
 		
 		hist.getStaticsticsCSV().writeToFile(new File(plotDir, "eal_branch_sens_stats.csv"));
 		
-		hist.getTornadoDiagram("EAL Sensitivity", true).getHeadlessPlot(500, 600).saveAsPDF(
+		TornadoDiagram tornadoShift = hist.getTornadoDiagram("EAL Sensitivity", true);
+		tornadoShift.getHeadlessPlot(500, 600).saveAsPDF(
 				new File(plotDir, "eal_branch_sens_tornado_meanshift.pdf").getAbsolutePath());
-		hist.getTornadoDiagram("EAL Sensitivity", false).getHeadlessPlot(500, 600).saveAsPDF(
+		tornadoShift.getHeadlessPlot(500, 600).saveAsPNG(
+				new File(plotDir, "eal_branch_sens_tornado_meanshift.png").getAbsolutePath());
+		TornadoDiagram tornado = hist.getTornadoDiagram("EAL Sensitivity", false);
+		tornado.getHeadlessPlot(500, 600).saveAsPDF(
 				new File(plotDir, "eal_branch_sens_tornado_mean.pdf").getAbsolutePath());
+		tornado.getHeadlessPlot(500, 600).saveAsPNG(
+				new File(plotDir, "eal_branch_sens_tornado_mean.png").getAbsolutePath());
 	}
 	
 	private static LogicTreeBranch fromLine(List<String> line) {

@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -64,6 +65,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
@@ -72,7 +74,6 @@ public class ETAS_CatalogEALCalculator {
 	
 	private UCERF3_BranchAvgLossFetcher fetcher;
 	private List<List<ETAS_EqkRupture>> catalogs;
-	private List<Double> prevLosses = Lists.newArrayList();
 	private FaultModels fm;
 	
 	// for getting fss index from Ned's "Nth" index
@@ -89,14 +90,24 @@ public class ETAS_CatalogEALCalculator {
 	
 	private static int id_for_scenario = 0;
 	
+	private static List<List<ETAS_EqkRupture>> loadCatalogs(File resultsBinFile) throws IOException {
+		Preconditions.checkArgument(resultsBinFile.exists(), "catalog file doesn't exist");
+		
+		return loadCatalogs(resultsBinFile, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05);
+	}
+	
 	public ETAS_CatalogEALCalculator(UCERF3_BranchAvgLossFetcher fetcher, FaultSystemSolution meanSol,
 			FaultModels fm, File resultsBinFile) throws IOException, DocumentException {
+		this(fetcher, meanSol, fm, loadCatalogs(resultsBinFile));
+	}
+	
+	public ETAS_CatalogEALCalculator(UCERF3_BranchAvgLossFetcher fetcher, FaultSystemSolution meanSol,
+			FaultModels fm, List<List<ETAS_EqkRupture>> catalogs) throws IOException, DocumentException {
 		this.fetcher = fetcher;
 		this.fm = fm;
 		
-		Preconditions.checkArgument(resultsBinFile.exists(), "catalog file doesn't exist");
+		this.catalogs = catalogs;
 		
-		catalogs = loadCatalogs(resultsBinFile, AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF-0.05);
 		Preconditions.checkState(!catalogs.isEmpty(), "No catalogs loaded!");
 		System.out.println("Loaded "+catalogs.size()+" catalogs");
 		
@@ -212,7 +223,6 @@ public class ETAS_CatalogEALCalculator {
 				attenRelRef, region);
 		
 		List<DiscretizedFunc> catalogDists = Lists.newArrayList();
-		prevLosses = Lists.newArrayList();
 		
 		for (int i = 0; i < catalogs.size(); i++) {
 			List<ETAS_EqkRupture> catalog = catalogs.get(i);
@@ -294,10 +304,9 @@ public class ETAS_CatalogEALCalculator {
 						"chain weights don't sum to 1: "+sumWeight+" ("+lossChains.size()+" chains)");
 			}
 			
-			double meanLoss = 0d;
-			for (Point2D pt : func)
-				meanLoss += pt.getX()*pt.getY();
-			prevLosses.add(meanLoss);
+//			double meanLoss = 0d;
+//			for (Point2D pt : func)
+//				meanLoss += pt.getX()*pt.getY();
 			
 			catalogDists.add(func);
 		}
@@ -507,9 +516,15 @@ public class ETAS_CatalogEALCalculator {
 		}
 	}
 	
-	public HistogramFunction getLossHist(List<DiscretizedFunc> catalogDists, double delta, boolean isLog10) {
-		Range range = calcSmartHistRange(catalogDists, delta, isLog10);
-		int num = (int)Math.round((range.getUpperBound()-range.getLowerBound())/delta) + 1;
+	public static HistogramFunction getLossHist(List<DiscretizedFunc> catalogDists, double delta, boolean isLog10) {
+		int num = -1;
+		Range range = null;
+		while (num == -1 || num == 1) {
+			range = calcSmartHistRange(catalogDists, delta, isLog10);
+			num = (int)Math.round((range.getUpperBound()-range.getLowerBound())/delta) + 1;
+			if (num == 1)
+				delta /= 2d;
+		}
 		return getLossHist(catalogDists, range.getLowerBound(), num, delta, isLog10);
 	}
 	
@@ -519,7 +534,7 @@ public class ETAS_CatalogEALCalculator {
 	 * @param delta
 	 * @return
 	 */
-	public Range calcSmartHistRange(List<DiscretizedFunc> catalogDists, double delta, boolean isLog10) {
+	public static Range calcSmartHistRange(List<DiscretizedFunc> catalogDists, double delta, boolean isLog10) {
 		MinMaxAveTracker xTrack = new MinMaxAveTracker();
 		for (DiscretizedFunc func : catalogDists) {
 			xTrack.addValue(func.getMinX());
@@ -541,7 +556,7 @@ public class ETAS_CatalogEALCalculator {
 		return new Range(min, max);
 	}
 	
-	public HistogramFunction getLossHist(List<DiscretizedFunc> catalogDists,
+	public static HistogramFunction getLossHist(List<DiscretizedFunc> catalogDists,
 			double minX, int numX, double deltaX, boolean isLog10) {
 		HistogramFunction lossHist = new HistogramFunction(minX, numX, deltaX);
 		
@@ -574,7 +589,7 @@ public class ETAS_CatalogEALCalculator {
 				if (loss > distMax)
 					// above max, put in last bin
 					lossHist.add(lossHist.size()-1, weight);
-				else if (loss < distMin)
+				else if (loss < distMin || lossHist.size() == 1)
 					// below min, put in first bin
 					lossHist.add(0, weight);
 				else
@@ -586,7 +601,7 @@ public class ETAS_CatalogEALCalculator {
 		
 		double sumY = lossHist.calcSumOfY_Vals();
 //		System.out.println("Sum Y values: "+sumY);
-		Preconditions.checkState((float)sumY == 1f, "loss hist sum of y vals doesn't equal 1: "+(float)sumY);
+		Preconditions.checkState(DataUtils.getPercentDiff(sumY, 1d) < 0.1, "loss hist sum of y vals doesn't equal 1: "+(float)sumY);
 		
 		System.out.println("Mean loss: "+StatUtils.mean(lossVals));
 		System.out.println("Median loss: "+DataUtils.median(lossVals));
@@ -594,8 +609,8 @@ public class ETAS_CatalogEALCalculator {
 		return lossHist;
 	}
 	
-	public void writeLossHist(File outputDir, String outputPrefix, HistogramFunction lossHist, boolean isLogX,
-			String xAxisLabel, double xAxisScale, double maxX) throws IOException {
+	public static void writeLossHist(File outputDir, String outputPrefix, HistogramFunction lossHist, boolean isLogX,
+			boolean triggeredOnly, String xAxisLabel, double xAxisScale, double maxX) throws IOException {
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
@@ -648,6 +663,7 @@ public class ETAS_CatalogEALCalculator {
 				myPrefix += "_triggered";
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
+			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
 		}
 		
 		// now loss excedence
@@ -682,10 +698,11 @@ public class ETAS_CatalogEALCalculator {
 				myPrefix += "_triggered";
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
+			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
 		}
 	}
 	
-	public void writePrevLossesToCSV(File csvFile) throws IOException {
+	public void writeLossesToCSV(File csvFile, List<DiscretizedFunc> catalogLosses) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		double cutoffMag = AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF;
@@ -693,7 +710,9 @@ public class ETAS_CatalogEALCalculator {
 				"# M>="+(float)cutoffMag, "Max Mag");
 		
 		for (int i=0; i<catalogs.size(); i++) {
-			double totLoss = prevLosses.get(i);
+			double totLoss = 0d;
+			for (Point2D pt : catalogLosses.get(i))
+				totLoss += pt.getX()*pt.getY();
 			int numFSSRups = 0;
 			int numAbove = 0;
 			double maxMag = 0;
@@ -783,6 +802,7 @@ public class ETAS_CatalogEALCalculator {
 		else
 			resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
+//				+ "2016_02_25-surprise_valley_5p0-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
 		
 		boolean triggeredOnly = true;
 		
@@ -792,26 +812,43 @@ public class ETAS_CatalogEALCalculator {
 				+ "COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip");
 
 		// directory which contains EAL data
+		File ealMainDir = new File("/home/kevin/OpenSHA/UCERF3/eal");
+		if (!ealMainDir.exists())
+			ealMainDir = new File("/home/scec-02/kmilner/ucerf3/eal");
+		Preconditions.checkState(ealMainDir.exists(), "Directory doesn't exist: %s", ealMainDir.getAbsolutePath());
+		
+		// constants for all catalogs
+//		double xAxisScale = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
+		String xAxisLabel = "$ (Billions)";
+		double maxX = 200;
+		double deltaX = 1e6;
+		double thousandsToBillions = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
+		
+		double inflationScalar = 1d/0.9d;
+		
+		double xAxisScale = thousandsToBillions*inflationScalar;
+		
+		List<File> dataDirs = Lists.newArrayList();
+		
+		dataDirs.add(new File(ealMainDir, "2014_05_28-ucerf3-99percent-wills-smaller"));
+		dataDirs.add(new File(ealMainDir, "2016_06_06-ucerf3-90percent-wald"));
 		
 		// CEA proxy wald
-//		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_05-ucerf3-eal-calc-wald-vs30");
+//		File dataDir = new File(ealMainDir, "2014_05_05-ucerf3-eal-calc-wald-vs30");
 //		String xAxisLabel = "$ (Billions)";
 //		double xAxisScale = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
 //		double maxX = 120;
 //		double deltaX = 1e6;
 //		String catOutputDirName = "cea_proxy_wald";
 		
-		// 99% Wills
-//		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
-		File dataDir = new File("/home/scec-02/kmilner/ucerf3/eal/2014_05_28-ucerf3-99percent-wills-smaller");
-		String xAxisLabel = "$ (Billions)";
-		double xAxisScale = 1d/1e6; // portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
-		double maxX = 200;
-		double deltaX = 1e6;
-		String catOutputDirName = "ca_99_wills";
+//		// 99% Wills
+//		File dataDir = new File(ealMainDir, "2014_05_28-ucerf3-99percent-wills-smaller");
+//		
+//		
+//		String catOutputDirName = "ca_99_wills";
 		
 		// Fatality portfolio
-//		File dataDir = new File("/home/kevin/OpenSHA/UCERF3/eal/2014_05_28-ucerf3-fatality-smaller");
+//		File dataDir = new File(ealMainDir, "2014_05_28-ucerf3-fatality-smaller");
 //		String xAxisLabel = "Fatalities";
 //		double xAxisScale = 1d;
 //		double maxX = 3000;
@@ -819,7 +856,12 @@ public class ETAS_CatalogEALCalculator {
 //		String catOutputDirName = "fatalities_wills";
 
 		// IMR for which EAL data has already been computed
-		AttenRelRef attenRelRef = AttenRelRef.BSSA_2014;
+		Map<AttenRelRef, Double> imrWeightsMap = Maps.newHashMap();
+		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.CY_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.ASK_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.BSSA_2014, 0.22);
+		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
 
 		// Fault model of interest
 		FaultModels fm = FaultModels.FM3_1;
@@ -835,16 +877,13 @@ public class ETAS_CatalogEALCalculator {
 				new File("dev/scratch/UCERF3/data/scratch/"
 						+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
 		
-		UCERF3_BranchAvgLossFetcher fetcher = new UCERF3_BranchAvgLossFetcher(trueMeanSolFile, cfss, dataDir);
+		File lossOutputDir = new File(resultsFile.getParentFile(), "loss_results");
+		Preconditions.checkState(lossOutputDir.exists() || lossOutputDir.mkdir());
 		
-		ETAS_CatalogEALCalculator calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, resultsFile);
-		calc.setTriggeredOnly(triggeredOnly);
+		List<List<DiscretizedFunc>> lossDistsList = Lists.newArrayList();
+		List<Double> lossWeights = Lists.newArrayList();
+		
 		TestScenario scenario = ETAS_MultiSimAnalysisTools.detectScenario(resultsFile.getParentFile());
-		if (scenario.getFSS_Index() >= 0)
-			calc.setTriggerFaultRup(scenario.getFSS_Index());
-		else
-			calc.setTriggerGridRup(scenario.getLocation(), scenario.getMagnitude());
-		
 		if (scenario != null && scenario.getFSS_Index() >= 0)
 			scenario.updateMag(baSol.getRupSet().getMagForRup(scenario.getFSS_Index()));
 		
@@ -855,18 +894,108 @@ public class ETAS_CatalogEALCalculator {
 			id_for_scenario = 0;
 		}
 		
-		System.out.println("Calculating catalog losses");
-		List<DiscretizedFunc> lossDists = calc.getLossDists(attenRelRef);
+		List<List<ETAS_EqkRupture>> catalogs = null;
 		
-		boolean isLog10 = false;
-		HistogramFunction lossHist = calc.getLossHist(lossDists, deltaX, isLog10);
-		File outputDir = new File(resultsFile.getParentFile(), "outputs_"+catOutputDirName);
-		if (!outputDir.exists())
-			outputDir.mkdir();
-//		calc.writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10);
-		calc.writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10, xAxisLabel, xAxisScale, maxX);
+		ETAS_CatalogEALCalculator calc = null;
 		
-		calc.writePrevLossesToCSV(new File(outputDir, attenRelRef.name()+"_losses.csv"));
+		boolean isLog10 = false; // x axis
+		
+		for (int i=0; i<dataDirs.size(); i++) {
+			File dataDir = dataDirs.get(i);
+			System.out.println("Handling data dir: "+dataDir.getAbsolutePath());
+			
+			UCERF3_BranchAvgLossFetcher fetcher = new UCERF3_BranchAvgLossFetcher(trueMeanSolFile, cfss, dataDir);
+			
+			if (catalogs == null) {
+				calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, resultsFile);
+				catalogs = calc.catalogs;
+			} else {
+				calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, catalogs);
+			}
+			calc.setTriggeredOnly(triggeredOnly);
+			if (scenario.getFSS_Index() >= 0)
+				calc.setTriggerFaultRup(scenario.getFSS_Index());
+			else
+				calc.setTriggerGridRup(scenario.getLocation(), scenario.getMagnitude());
+			
+			List<List<DiscretizedFunc>> myLossDists = Lists.newArrayList();
+			List<Double> myWeights = Lists.newArrayList();
+			
+			File outputDir = new File(lossOutputDir, dataDir.getName());
+			if (!outputDir.exists())
+				outputDir.mkdir();
+			
+			for (AttenRelRef attenRelRef : imrWeightsMap.keySet()) {
+				double imrWeight = imrWeightsMap.get(attenRelRef);
+				
+				System.out.println("Calculating catalog losses");
+				List<DiscretizedFunc> lossDists = calc.getLossDists(attenRelRef);
+				
+				myLossDists.add(lossDists);
+				myWeights.add(imrWeight);
+				
+				HistogramFunction lossHist = getLossHist(lossDists, deltaX, isLog10);
+//				writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10);
+				writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
+				
+				calc.writeLossesToCSV(new File(outputDir, attenRelRef.name()+"_losses.csv"), lossDists);
+			}
+			
+			// combined for all atten rels
+			if (imrWeightsMap.size() > 1) {
+				List<DiscretizedFunc> imrCombined = getCombinedLossDists(myLossDists, myWeights);
+				HistogramFunction lossHist = getLossHist(imrCombined, deltaX, isLog10);
+				writeLossHist(outputDir, "gmpes_combined", lossHist, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
+				calc.writeLossesToCSV(new File(outputDir, "gmpes_combined_losses.csv"), imrCombined);
+			}
+			
+			lossDistsList.addAll(myLossDists);
+			lossWeights.addAll(myWeights);
+		}
+		// combine
+		if (lossDistsList.size() > 1) {
+			File outputDir = new File(lossOutputDir, "combined");
+			if (!outputDir.exists())
+				outputDir.mkdir();
+			
+			List<DiscretizedFunc> combined = getCombinedLossDists(lossDistsList, lossWeights);
+			HistogramFunction lossHist = getLossHist(combined, deltaX, isLog10);
+			writeLossHist(outputDir, "gmpes_combined", lossHist, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
+			calc.writeLossesToCSV(new File(outputDir, "gmpes_combined_losses.csv"), combined);
+		}
+	}
+	
+	private static List<DiscretizedFunc> getCombinedLossDists(List<List<DiscretizedFunc>> lossDistsList, List<Double> lossWeights) {
+		List<DiscretizedFunc> combinedLosses = Lists.newArrayList();
+		
+		for (int i=0; i<lossDistsList.get(0).size(); i++)
+			combinedLosses.add(new ArbitrarilyDiscretizedFunc());
+		
+		double totWeight = 0d;
+		for (double weight : lossWeights)
+			totWeight += weight;
+		
+		for (int i=0; i<lossDistsList.size(); i++) {
+			List<DiscretizedFunc> lossDists = lossDistsList.get(i);
+			double weight = lossWeights.get(i)/totWeight;
+			
+			Preconditions.checkState(lossDists.size() == combinedLosses.size());
+			
+			for (int n=0; n<combinedLosses.size(); n++) {
+				DiscretizedFunc combined = combinedLosses.get(n);
+				for (Point2D pt : lossDists.get(n)) {
+					double x = pt.getX();
+					double y = pt.getY()*weight;
+					int xInd = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(x, combined);
+					if (xInd < 0)
+						combined.set(x, y);
+					else
+						combined.set(x, y + combined.getY(xInd));
+				}
+			}
+		}
+		
+		return combinedLosses;
 	}
 
 }
