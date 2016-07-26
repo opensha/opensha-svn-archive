@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.dom4j.Document;
+import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Region;
+import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.XMLUtils;
@@ -289,6 +291,7 @@ public class RSQSimUtils {
 		protected double[] calcSlipOnSectionsForRup(int rthRup) {
 			List<Integer> sectIndexes = getSectionsIndicesForRup(rthRup);
 			double[] slips = new double[sectIndexes.size()];
+			double[] slipsNotNormalized = new double[sectIndexes.size()];
 			
 			SimulatorEvent event = events.get(rthRup);
 			Map<Integer, EventRecord> sectIndexToRecordMap = Maps.newHashMap();
@@ -318,9 +321,24 @@ public class RSQSimUtils {
 				
 				// now scale to actual subsection area
 				slips[i] = sumSlipTimesArea/sectArea;
+				
+				slipsNotNormalized[i] = sumSlipTimesArea/record.getArea();
 			}
 			
-			return slips;
+			if (event.getMagnitude() > 7.9) {
+				EvenlyDiscretizedFunc subSectMapped = new EvenlyDiscretizedFunc(0, slips.length, 1d);
+				EvenlyDiscretizedFunc actualMapped = new EvenlyDiscretizedFunc(0, slips.length, 1d);
+				
+				for (int i=0; i<slips.length; i++) {
+					subSectMapped.set(i, slips[i]);
+					actualMapped.set(i, slipsNotNormalized[i]);
+				}
+				
+				new GraphWindow(Lists.newArrayList(subSectMapped, actualMapped), "Rup "+event.getID());
+			}
+			
+//			return slips;
+			return slipsNotNormalized;
 		}
 		
 	}
@@ -415,19 +433,18 @@ public class RSQSimUtils {
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException {
-		File dir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
-		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
+//		File dir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
+//		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
+		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
+		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
 		System.out.println("Loaded "+elements.size()+" elements");
 //		for (Location loc : elements.get(0).getVertices())
 //			System.out.println(loc);
-		File eListFile = new File(dir, "UCERF3_35kyrs.eList");
-		File pListFile = new File(dir, "UCERF3_35kyrs.pList");
-		File dListFile = new File(dir, "UCERF3_35kyrs.dList");
-		File tListFile = new File(dir, "UCERF3_35kyrs.tList");
+		File eventDir = dir;
 		
 		double minMag = 6d;
-		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eListFile, pListFile, dListFile, tListFile, elements,
+		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eventDir, elements,
 				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
 		
 		FaultModels fm = FaultModels.FM3_1;
@@ -435,7 +452,7 @@ public class RSQSimUtils {
 		SlipEnabledSolution sol = buildFaultSystemSolution(getUCERF3SubSectsForComparison(
 				fm, dm), elements, events, minMag);
 		
-		File plotDir = new File(dir, "ucerf3_fss_comparison_plots");
+		File plotDir = new File(eventDir, "ucerf3_fss_comparison_plots");
 		Preconditions.checkState(plotDir.exists() ||  plotDir.mkdir());
 		writeUCERF3ComparisonPlots(sol, fm, dm, plotDir, "rsqsim_comparison");
 	}

@@ -73,6 +73,9 @@ public class RSQSimFileReader {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		
 		String line = reader.readLine();
+		// strip header lines
+		while (line != null && line.startsWith("#"))
+			line = reader.readLine();
 		
 		boolean triangular = isTriangular(line);
 		
@@ -258,7 +261,7 @@ public class RSQSimFileReader {
 		
 		StringTokenizer tok = new StringTokenizer(line);
 		int num = tok.countTokens();
-		Preconditions.checkState(num >= 9 && num <= 13);
+		Preconditions.checkState(num >= 9);
 		
 		if (num > 11)
 			// always triangular
@@ -290,9 +293,13 @@ public class RSQSimFileReader {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
-//		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
-		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
+//		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
+////		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
+//		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
+		
+		File dir = new File("/home/kevin/Simulators/bruce/rundir1420");
+		File geomFile = new File(dir, "zfault_Deepen.in");
+		
 		List<SimulatorElement> elements = readGeometryFile(geomFile, 11, 'S');
 		System.out.println("Loaded "+elements.size()+" elements");
 //		for (Location loc : elements.get(0).getVertices())
@@ -500,12 +507,15 @@ public class RSQSimFileReader {
 		
 		List<RSQSimEvent> events = Lists.newArrayList();
 		
+		int eventID, patchID;
+		double slip, time;
+		
 		while (true) {
 			try {
-				int eventID = eIn.readInt(); // 1-based, keep as is for now as it shouldn't matter
-				int patchID = pIn.readInt(); // 1-based, which matches readGeometry
-				double slip = dIn.readDouble(); // in meters
-				double time = tIn.readDouble(); // in seconds
+				eventID = eIn.readInt(); // 1-based, keep as is for now as it shouldn't matter
+				patchID = pIn.readInt(); // 1-based, which matches readGeometry
+				slip = dIn.readDouble(); // in meters
+				time = tIn.readDouble(); // in seconds
 				
 //				if (eventID % 10000 == 0 && curEventID != eventID)
 //					System.out.println("Loading eventID="+eventID+". So far kept "+events.size()+" events");

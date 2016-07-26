@@ -75,6 +75,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.attenRelImpl.CB_2008_AttenRel;
 import org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel;
 import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Joiner;
@@ -485,6 +486,29 @@ public class PureScratch {
 		map.put(array1, "array1");
 		System.out.println(map.get(array1));
 	}
+	
+	private static void test18() {
+		double[] bVals = { -1d, 0d, 0.5d, 1d, 1.5d, 2d };
+		
+		List<DiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		List<Color> colors = GraphWindow.generateDefaultColors();
+		
+		for (int i=0; i<bVals.length; i++) {
+			double b = bVals[i];
+			DiscretizedFunc mfd = new GutenbergRichterMagFreqDist(b, 1d, 5d, 9d, 50);
+			funcs.add(mfd);
+			mfd.setName("b="+(float)b);
+			Color c = colors.get(i % colors.size());
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+		}
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, "MFDs", "Mag", "Incr rate");
+		spec.setLegendVisible(true);
+		GraphWindow gw = new GraphWindow(spec);
+		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
+	}
 
 	/**
 	 * @param args
@@ -505,7 +529,8 @@ public class PureScratch {
 //		test14();
 //		test15();
 //		test16();
-		test17();
+//		test17();
+		test18();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
