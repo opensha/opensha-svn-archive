@@ -1297,7 +1297,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if (map.getCptFile() != null) {
 			cptFile = SCEC_GMT_DATA_PATH + map.getCptFile();
 		} else {
-			cptFile = "cptFile.cpt";
+			cptFile = map.getCustomCptFileName();
 			CPT cpt = map.getCpt();
 			try {
 				cpt.writeCPTFile(dir + cptFile);

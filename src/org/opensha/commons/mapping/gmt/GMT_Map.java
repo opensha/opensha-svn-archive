@@ -43,6 +43,7 @@ public class GMT_Map implements Serializable {
 	private Region region;
 	
 	private String cptFile = null;
+	private String cptCustomFileName = "cptFile.cpt";
 	private CPT cpt = null;
 	private boolean rescaleCPT = true;
 	private double griddedDataInc;
@@ -170,6 +171,14 @@ public class GMT_Map implements Serializable {
 
 	public void setCptFile(String cptFile) {
 		this.cptFile = cptFile;
+	}
+	
+	public void setCustomCptFileName(String cptCustomFileName) {
+		this.cptCustomFileName = cptCustomFileName;
+	}
+	
+	public String getCustomCptFileName() {
+		return cptCustomFileName;
 	}
 
 	public CPT getCpt() {
