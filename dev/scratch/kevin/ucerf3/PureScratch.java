@@ -566,7 +566,7 @@ public class PureScratch {
 	}
 	
 	private static double partProbForParents(FaultSystemSolution sol, double mag, List<Integer> parentSects, double[] fractInSoCal) {
-		HashSet<Integer> rups = new HashSet<>();
+		HashSet<Integer> rups = new HashSet<Integer>();
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		for (int parent : parentSects)
 			rups.addAll(rupSet.getRupturesForParentSection(parent));
