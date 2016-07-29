@@ -55,8 +55,10 @@ import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
+import scratch.UCERF3.erf.mean.TrueMeanBuilder;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
+import scratch.UCERF3.logicTree.LogicTreeBranch;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.kevin.ucerf3.eal.UCERF3_BranchAvgLossFetcher;
@@ -877,6 +879,18 @@ public class ETAS_CatalogEALCalculator {
 				new File("dev/scratch/UCERF3/data/scratch/"
 						+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL.zip"));
 		
+		FaultSystemSolution trueMeanSol = FaultSystemIO.loadSol(trueMeanSolFile);
+		Map<LogicTreeBranch, List<Integer>> branchMappings = TrueMeanBuilder.loadRuptureMappings(trueMeanSolFile);
+		
+		calculate(resultsFile, triggeredOnly, xAxisLabel, maxX, deltaX, xAxisScale, dataDirs, imrWeightsMap, fm, baSol,
+				cfss, trueMeanSol, branchMappings);
+	}
+
+	public static void calculate(File resultsFile, boolean triggeredOnly, String xAxisLabel, double maxX,
+			double deltaX, double xAxisScale, List<File> dataDirs, Map<AttenRelRef, Double> imrWeightsMap,
+			FaultModels fm, FaultSystemSolution baSol, CompoundFaultSystemSolution cfss,
+			FaultSystemSolution trueMeanSol, Map<LogicTreeBranch, List<Integer>> branchMappings)
+			throws IOException, DocumentException {
 		File lossOutputDir = new File(resultsFile.getParentFile(), "loss_results");
 		Preconditions.checkState(lossOutputDir.exists() || lossOutputDir.mkdir());
 		
@@ -904,7 +918,7 @@ public class ETAS_CatalogEALCalculator {
 			File dataDir = dataDirs.get(i);
 			System.out.println("Handling data dir: "+dataDir.getAbsolutePath());
 			
-			UCERF3_BranchAvgLossFetcher fetcher = new UCERF3_BranchAvgLossFetcher(trueMeanSolFile, cfss, dataDir);
+			UCERF3_BranchAvgLossFetcher fetcher = new UCERF3_BranchAvgLossFetcher(trueMeanSol, branchMappings, cfss, dataDir);
 			
 			if (catalogs == null) {
 				calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, resultsFile);

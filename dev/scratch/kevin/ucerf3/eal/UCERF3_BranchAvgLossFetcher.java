@@ -48,15 +48,15 @@ public class UCERF3_BranchAvgLossFetcher {
 	 */
 	public UCERF3_BranchAvgLossFetcher(File trueMeanSolFile, CompoundFaultSystemSolution cfss, File... ealDataDirs)
 			throws IOException, DocumentException {
+		this(FaultSystemIO.loadSol(trueMeanSolFile), TrueMeanBuilder.loadRuptureMappings(trueMeanSolFile), cfss, ealDataDirs);
+	}
+	
+	public UCERF3_BranchAvgLossFetcher(FaultSystemSolution trueMeanSol, Map<LogicTreeBranch, List<Integer>> branchMappings,
+			CompoundFaultSystemSolution cfss, File... ealDataDirs) throws IOException, DocumentException {
 		Preconditions.checkState(ealDataDirs.length > 0, "Must supply at least one data dir");
 		this.ealDataDirs = ealDataDirs;
-		
-		System.out.println("Loading true mean solution and mappings from: "+trueMeanSolFile.getAbsolutePath());
-		Preconditions.checkState(trueMeanSolFile.exists(),
-				"True mean sol file doesn't exist: "+trueMeanSolFile.getAbsolutePath());
-		trueMeanSol = FaultSystemIO.loadSol(trueMeanSolFile);
-		branchMappings = TrueMeanBuilder.loadRuptureMappings(trueMeanSolFile);
-		
+		this.trueMeanSol = trueMeanSol;
+		this.branchMappings = branchMappings;
 		this.cfss = cfss;
 	}
 	

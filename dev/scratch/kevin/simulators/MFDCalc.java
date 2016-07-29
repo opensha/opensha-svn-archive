@@ -11,6 +11,7 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
@@ -23,6 +24,7 @@ import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import com.google.common.collect.Lists;
 
+import org.opensha.sha.simulators.EQSIM_Event;
 import org.opensha.sha.simulators.RSQSimEvent;
 import org.opensha.sha.simulators.SimulatorElement;
 
@@ -96,30 +98,31 @@ public class MFDCalc {
 			num++;
 		return num;
 	}
-
-	/**
-	 * @param args
-	 * @throws IOException 
-	 */
-	public static void main(String[] args) throws IOException {
-		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
-		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
-		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
-		Region[] regions =  { new CaliforniaRegions.RELM_SOCAL(), new CaliforniaRegions.RELM_TESTING() };
-		File eventDir = new File("/home/kevin/Simulators/UCERF3_interns/combine340");
-		double minMag = 5d;
-		int num = 51;
+	
+	public static void writeMFDPlots(List<SimulatorElement> elements, List<? extends SimulatorEvent> events, File outputDir,
+			Region... regions) throws IOException {
+		if (regions.length == 0)
+			regions = new Region[] { null };
+		
+		double duration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
+		double minMag = 10d;
+		for (SimulatorEvent e : events)
+			minMag = Math.min(minMag, e.getMagnitude());
+		// round minMag
+		minMag = (int)(minMag*100d + 0.5)/100d;
 		double delta = 0.1;
-		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eventDir, elements,
-				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
-		double duration = General_EQSIM_Tools.getSimulationDurationYears(events);
+		int num = (int)((8.5d - minMag)/delta + 0.5);
 		
 		for (Region reg : regions) {
-			HashSet<Integer> elementsInRegion = getElementsInsideRegion(elements, reg);
+			HashSet<Integer> elementsInRegion;
+			if (reg == null)
+				elementsInRegion = null;
+			else
+				elementsInRegion = getElementsInsideRegion(elements, reg);
 			IncrementalMagFreqDist mfd = calcMFD(events, elementsInRegion, duration, minMag+0.5*delta, num, delta);
 			
 			double magMean = 0d;
-			for (RSQSimEvent e : events)
+			for (SimulatorEvent e : events)
 				magMean += e.getMagnitude();
 			magMean /= events.size();
 			double magComplete = minMag;
@@ -136,23 +139,57 @@ public class MFDCalc {
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 			funcs.add(mfd);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
-			mfd.setName("RSQSim");
+			mfd.setName("Catalog");
 			funcs.add(grMFD);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
 			grMFD.setName("G-R b="+(float)bVal);
 			
-			String title = (int)(duration+0.5)+" yr MFD, "+reg.getName();
+			String title = (int)(duration+0.5)+" yr MFD";
+			if (reg != null)
+				title += ", "+reg.getName();
 			String xAxisLabel = "Magnitude";
 			String yAxisLabel = "Incremental Rate (1/yr)";
 			PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 			spec.setLegendVisible(true);
 			
-			GraphWindow gw = new GraphWindow(spec);
-			gw.setYLog(true);
-			gw.setAxisRange(minMag, 8.2, 1e-7, 1e1);
-			gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
-			gw.saveAsPNG("/tmp/mfd_rsqsim_"+reg.getName().replaceAll(" ", "_")+".png");
+			HeadlessGraphPanel gp = new HeadlessGraphPanel();
+			gp.setTickLabelFontSize(18);
+			gp.setAxisLabelFontSize(20);
+			gp.setPlotLabelFontSize(21);
+			gp.setBackgroundColor(Color.WHITE);
+			
+			gp.setUserBounds(minMag, mfd.getMaxX()+0.5*delta, 1e-7, 1e1);
+			gp.drawGraphPanel(spec, false, true);
+			gp.getChartPanel().setSize(1000, 800);
+			
+			String prefix = "mfd";
+			if (reg == null)
+				prefix += "_all";
+			else
+				prefix += "_"+reg.getName().replaceAll(" ", "_");
+			File file = new File(outputDir, prefix);
+			
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		}
+	}
+
+	/**
+	 * @param args
+	 * @throws IOException 
+	 */
+	public static void main(String[] args) throws IOException {
+		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
+		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
+		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
+		Region[] regions =  { new CaliforniaRegions.RELM_SOCAL(), new CaliforniaRegions.RELM_TESTING() };
+		File eventDir = new File("/home/kevin/Simulators/UCERF3_interns/combine340");
+		double minMag = 5d;
+		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eventDir, elements,
+				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
+		
+		writeMFDPlots(elements, events, new File("/tmp"), regions);
 	}
 
 }

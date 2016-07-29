@@ -29,6 +29,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.region.CaliforniaRegions.RELM_SOCAL;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
@@ -509,6 +510,72 @@ public class PureScratch {
 		GraphWindow gw = new GraphWindow(spec);
 		gw.setDefaultCloseOperation(GraphWindow.EXIT_ON_CLOSE);
 	}
+	
+	private static void test19() throws IOException, DocumentException {
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultModels fm = FaultModels.FM3_1;
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		RELM_SOCAL soCalReg = new CaliforniaRegions.RELM_SOCAL();
+		
+		double statewide = 0d;
+		double soCal = 0d;
+		double[] fractInSoCal = rupSet.getFractRupsInsideRegion(soCalReg, true);
+		for (int r=0; r<rupSet.getNumRuptures(); r++) {
+			if (rupSet.getMagForRup(r) >= 7) {
+				double rate = sol.getRateForRup(r);
+				statewide += rate;
+				soCal += rate*fractInSoCal[r];
+			}
+		}
+		
+		
+		Map<String, List<Integer>> map = fm.getNamedFaultsMapAlt();
+		List<Integer> safSects = map.get("San Andreas");
+		List<Integer> sjSects = map.get("San Jacinto (SB to C)");
+		sjSects.addAll(map.get("San Jacinto (CC to SM)"));
+		
+		Map<Integer, FaultSectionPrefData> sectMap = fm.fetchFaultSectionsMap();
+		
+//		System.out.println("SSAF sects before removal: "+safSects.size());
+//		
+//		for (int i=safSects.size(); --i>=0;) {
+//			FaultSectionPrefData sect = sectMap.get(safSects.get(i));
+//			boolean inside = false;
+//			for (Location loc : sect.getFaultTrace()) {
+//				if (soCalReg.contains(loc)) {
+//					inside = true;
+//					break;
+//				}
+//			}
+//			if (!inside)
+//				safSects.remove(i);
+//		}
+//		
+//		System.out.println("SSAF sects after removal: "+safSects.size());
+		
+		System.out.println("Statewide: "+statewide+" (RI: "+(1d/statewide)+")");
+		System.out.println("SoCal: "+soCal+" (RI: "+(1d/soCal)+")");
+		
+		double ssaf = partProbForParents(sol, 7d, safSects, fractInSoCal);
+		double sj = partProbForParents(sol, 7d, sjSects, fractInSoCal);
+		System.out.println("sSAF: "+ssaf+" (RI: "+(1d/ssaf)+")");
+		System.out.println("SJF: "+sj+" (RI: "+(1d/sj)+")");
+	}
+	
+	private static double partProbForParents(FaultSystemSolution sol, double mag, List<Integer> parentSects, double[] fractInSoCal) {
+		HashSet<Integer> rups = new HashSet<>();
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		for (int parent : parentSects)
+			rups.addAll(rupSet.getRupturesForParentSection(parent));
+		double sum = 0d;
+		for (int r : rups)
+			if (rupSet.getMagForRup(r) >= mag)
+				sum += sol.getRateForRup(r)*fractInSoCal[r];
+		return sum;
+	}
 
 	/**
 	 * @param args
@@ -530,7 +597,8 @@ public class PureScratch {
 //		test15();
 //		test16();
 //		test17();
-		test18();
+//		test18();
+		test19();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

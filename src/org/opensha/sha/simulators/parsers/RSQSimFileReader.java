@@ -297,8 +297,11 @@ public class RSQSimFileReader {
 ////		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
 //		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		
-		File dir = new File("/home/kevin/Simulators/bruce/rundir1420");
-		File geomFile = new File(dir, "zfault_Deepen.in");
+//		File dir = new File("/home/kevin/Simulators/bruce/rundir1420");
+//		File geomFile = new File(dir, "zfault_Deepen.in");
+		
+		File dir = new File("/home/kevin/Simulators/UCERF3_interns/UCERF3state");
+		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		
 		List<SimulatorElement> elements = readGeometryFile(geomFile, 11, 'S');
 		System.out.println("Loaded "+elements.size()+" elements");

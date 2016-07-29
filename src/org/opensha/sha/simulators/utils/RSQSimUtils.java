@@ -26,6 +26,8 @@ import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EventRecord;
 import org.opensha.sha.simulators.RSQSimEvent;
 import org.opensha.sha.simulators.SimulatorElement;
+import org.opensha.sha.simulators.iden.EventTimeIdentifier;
+import org.opensha.sha.simulators.iden.LogicalAndRupIden;
 import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.parsers.RSQSimFileReader;
 
@@ -46,6 +48,7 @@ import scratch.UCERF3.utils.IDPairing;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
 import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.kevin.simulators.MFDCalc;
 import scratch.kevin.simulators.erf.SimulatorFaultSystemSolution;
 
 public class RSQSimUtils {
@@ -325,17 +328,17 @@ public class RSQSimUtils {
 				slipsNotNormalized[i] = sumSlipTimesArea/record.getArea();
 			}
 			
-			if (event.getMagnitude() > 7.9) {
-				EvenlyDiscretizedFunc subSectMapped = new EvenlyDiscretizedFunc(0, slips.length, 1d);
-				EvenlyDiscretizedFunc actualMapped = new EvenlyDiscretizedFunc(0, slips.length, 1d);
-				
-				for (int i=0; i<slips.length; i++) {
-					subSectMapped.set(i, slips[i]);
-					actualMapped.set(i, slipsNotNormalized[i]);
-				}
-				
-				new GraphWindow(Lists.newArrayList(subSectMapped, actualMapped), "Rup "+event.getID());
-			}
+//			if (event.getMagnitude() > 7.9) {
+//				EvenlyDiscretizedFunc subSectMapped = new EvenlyDiscretizedFunc(0, slips.length, 1d);
+//				EvenlyDiscretizedFunc actualMapped = new EvenlyDiscretizedFunc(0, slips.length, 1d);
+//				
+//				for (int i=0; i<slips.length; i++) {
+//					subSectMapped.set(i, slips[i]);
+//					actualMapped.set(i, slipsNotNormalized[i]);
+//				}
+//				
+//				new GraphWindow(Lists.newArrayList(subSectMapped, actualMapped), "Rup "+event.getID());
+//			}
 			
 //			return slips;
 			return slipsNotNormalized;
@@ -435,8 +438,10 @@ public class RSQSimUtils {
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException {
 //		File dir = new File("/home/kevin/Simulators/UCERF3_35kyrs");
 //		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
-		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
-		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
+//		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
+//		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
+		File dir = new File("/home/kevin/Simulators/bruce/rundir1435");
+		File geomFile = new File(dir, "zfault_Deepen.in");
 		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
 		System.out.println("Loaded "+elements.size()+" elements");
 //		for (Location loc : elements.get(0).getVertices())
@@ -445,7 +450,10 @@ public class RSQSimUtils {
 		
 		double minMag = 6d;
 		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eventDir, elements,
-				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
+				Lists.newArrayList(new LogicalAndRupIden(new EventTimeIdentifier(5000d, Double.POSITIVE_INFINITY, true),
+						new MagRangeRuptureIdentifier(minMag, 10d))));
+		double duration = events.get(events.size()-1).getTimeInYears() - events.get(0).getTimeInYears();
+		System.out.println("First event time: "+events.get(0).getTimeInYears()+", duration: "+duration);
 		
 		FaultModels fm = FaultModels.FM3_1;
 		DeformationModels dm = DeformationModels.ZENGBB;
@@ -454,6 +462,9 @@ public class RSQSimUtils {
 		
 		File plotDir = new File(eventDir, "ucerf3_fss_comparison_plots");
 		Preconditions.checkState(plotDir.exists() ||  plotDir.mkdir());
+		MFDCalc.writeMFDPlots(elements, events, plotDir, new CaliforniaRegions.RELM_SOCAL(),
+				new CaliforniaRegions.RELM_NOCAL(), new CaliforniaRegions.LA_BOX(), new CaliforniaRegions.NORTHRIDGE_BOX(),
+				new CaliforniaRegions.SF_BOX(), new CaliforniaRegions.RELM_TESTING());
 		writeUCERF3ComparisonPlots(sol, fm, dm, plotDir, "rsqsim_comparison");
 	}
 
