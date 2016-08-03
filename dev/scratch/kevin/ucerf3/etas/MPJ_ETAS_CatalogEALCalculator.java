@@ -49,6 +49,7 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 		
 		String resultsFileName = cmd.getOptionValue("results-file-name");
 		
+		resultsFiles = Lists.newArrayList();
 		for (String line : Files.readLines(inputFile, Charset.defaultCharset())) {
 			line = line.trim();
 			if (line.isEmpty() || line.startsWith("#"))
@@ -123,8 +124,6 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 		
 	}
 	
-
-	
 	public static Options createOptions() {
 		Options ops = MPJTaskCalculator.createOptions();
 		
@@ -170,25 +169,8 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 			
 			args = cmd.getArgs();
 			
-			if (args.length != 2) {
-				System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(MPJ_ETAS_CatalogEALCalculator.class)
-						+" [options] <input-dir> <output-dir>");
-				abortAndExit(2);
-			}
-			
-			File inputDir = new File(args[0]);
-			Preconditions.checkArgument(inputDir.exists(),
-					"input directory doesn't exist: "+inputDir.getAbsolutePath());
-			File outputDir = new File(args[1]);
-			Preconditions.checkArgument(outputDir.exists() || outputDir.mkdir(),
-					"output directory doesn't exist: "+outputDir.getAbsolutePath());
-			
-			// TODO
-//			MPJ_ETAS_CatalogEALCalculator driver = new MPJ_ETAS_CatalogEALCalculator(cmd, inputDir, outputDir);
-//			driver.run();
-//			
-//			if (driver.rank == 0 && driver.binaryOutput)
-//				driver.consolidateBinary();
+			MPJ_ETAS_CatalogEALCalculator driver = new MPJ_ETAS_CatalogEALCalculator(cmd);
+			driver.run();
 			
 			finalizeMPJ();
 			
