@@ -84,6 +84,20 @@ import org.opensha.sha.imr.mod.impl.stewartSiteSpecific.NonErgodicSiteResponseGM
 public enum AttenRelRef implements Named {
 
 	// PRODUCTION
+	
+	ASK_2014(ASK_2014_Wrapper.class,org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2014.NAME,  org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2014.SHORT_NAME, PRODUCTION),
+	
+	BSSA_2014(BSSA_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014.SHORT_NAME, PRODUCTION),
+	
+	CB_2014(CB_2014_Wrapper.class,org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2014.SHORT_NAME, PRODUCTION),
+	
+	CY_2014(CY_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2014.SHORT_NAME, PRODUCTION),
+	
+	IDRISS_2014(Idriss_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.SHORT_NAME, PRODUCTION),
+	
+	NGAWest_2014_AVG(NGAWest_2014_Averaged_AttenRel.class, NGAWest_2014_Averaged_AttenRel.NAME, NGAWest_2014_Averaged_AttenRel.SHORT_NAME, PRODUCTION),
+	
+	NGAWest_2014_AVG_NOIDRISS(NGAWest_2014_Averaged_AttenRel_NoIdriss.class, NGAWest_2014_Averaged_AttenRel_NoIdriss.NAME, NGAWest_2014_Averaged_AttenRel_NoIdriss.SHORT_NAME, PRODUCTION),
 
 	/** [NGA] Campbell & Bozorgnia (2008) */
 	CB_2008(CB_2008_AttenRel.class, CB_2008_AttenRel.NAME, CB_2008_AttenRel.SHORT_NAME, PRODUCTION),
@@ -210,21 +224,7 @@ public enum AttenRelRef implements Named {
 	/** Cybershake fake attnuation relation */
 	CYBERSHAKE(CyberShakeIMR.class, CyberShakeIMR.NAME, CyberShakeIMR.SHORT_NAME, EXPERIMENTAL),
 	
-	ASK_2014(ASK_2014_Wrapper.class,org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2014.NAME,  org.opensha.sha.imr.attenRelImpl.ngaw2.ASK_2014.SHORT_NAME, EXPERIMENTAL),
-	
-	BSSA_2014(BSSA_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.BSSA_2014.SHORT_NAME, EXPERIMENTAL),
-	
-	CB_2014(CB_2014_Wrapper.class,org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.CB_2014.SHORT_NAME, EXPERIMENTAL),
-	
-	CY_2014(CY_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.CY_2014.SHORT_NAME, EXPERIMENTAL),
-	
 	GK_2014(GK_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.GK_2014.SHORT_NAME, EXPERIMENTAL),
-	
-	IDRISS_2014(Idriss_2014_Wrapper.class, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.NAME, org.opensha.sha.imr.attenRelImpl.ngaw2.Idriss_2014.SHORT_NAME, EXPERIMENTAL),
-	
-	NGAWest_2014_AVG(NGAWest_2014_Averaged_AttenRel.class, NGAWest_2014_Averaged_AttenRel.NAME, NGAWest_2014_Averaged_AttenRel.SHORT_NAME, EXPERIMENTAL),
-	
-	NGAWest_2014_AVG_NOIDRISS(NGAWest_2014_Averaged_AttenRel_NoIdriss.class, NGAWest_2014_Averaged_AttenRel_NoIdriss.NAME, NGAWest_2014_Averaged_AttenRel_NoIdriss.SHORT_NAME, EXPERIMENTAL),
 	
 	MOD_ATTEN_REL(ModAttenuationRelationship.class, ModAttenuationRelationship.NAME, ModAttenuationRelationship.SHORT_NAME, EXPERIMENTAL),
 	

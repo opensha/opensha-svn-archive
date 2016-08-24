@@ -233,19 +233,6 @@ public abstract class AbstractERF implements
 		this.parameterChangeFlag = flag;
 	}
 
-	/**
-	 * Update the forecast and save it in serialized mode into a file
-	 * @return
-	 */
-	public String updateAndSaveForecast() {
-		throw new UnsupportedOperationException(
-		"updateAndSaveForecast() not supported");
-	}
-
-
-
-
-
 	public static final String XML_METADATA_NAME = "ERF";
 	
 	protected static void baseERF_ToXML(BaseERF erf, Element erfEl) {

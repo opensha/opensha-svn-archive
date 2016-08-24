@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.util.FileUtils;
 import org.opensha.sha.earthquake.ERF;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 
@@ -172,15 +174,21 @@ public class Cybershake_OpenSHA_DBApplication {
 	 * @param erfId
 	 * @param siteDB object
 	 */
-	private void putSiteListInfoInDB(ArrayList<CybershakeSite> sites, ERF forecast,int erfId, CybershakeSiteInfo2DB siteDB, boolean checkAdd){
+	private void putSiteListInfoInDB(List<CybershakeSite> sites, ERF forecast,int erfId, CybershakeSiteInfo2DB siteDB, boolean checkAdd){
 		ArrayList<int[]> newRups = new ArrayList<int[]>();
 		int i=0;
 		int numSites = sites.size();
 		for (CybershakeSite newsite : sites) {
 			System.out.println("Doing Site " + newsite.name + " (" + newsite.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + ")");
 			System.out.println("Putting location into DB");
-			int siteId= siteDB.putCybershakeLocationInDB(newsite.name, newsite.short_name, newsite.lat, newsite.lon);
-			siteId = siteDB.getCybershakeSiteId(newsite.short_name);
+			int siteId= siteDB.putCybershakeLocationInDB(newsite);
+			Preconditions.checkState(siteId >= 0);
+			CybershakeSite inserted = siteDB.getSiteFromDB(newsite.short_name);
+			if (inserted.type_id <= 0 && newsite.type_id > 0) {
+				siteDB.getSitesDB().setSiteType(siteId, newsite.type_id);
+				System.out.println("Setting site type ID for site "+siteId+" to "+newsite.type_id);
+			}
+//			siteId = siteDB.getCybershakeSiteId(newsite.short_name);
 			System.out.println("Putting regional bounds into DB");
 			siteDB.putCyberShakeLocationRegionalBounds(forecast, erfId, siteId, newsite.lat, newsite.lon, false);
 			System.out.println("Putting Source Rupture info into DB");
@@ -355,6 +363,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		HOST_NAME = "moment.usc.edu";
 		boolean doIt = true;
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
@@ -386,6 +395,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		app.setSiteInfoObject(siteDB);
 		
 		///////////////// INSERT ERF //////////////////////
+		/*
 		
 		GriddedRegion region = null;
 		
@@ -429,12 +439,15 @@ public class Cybershake_OpenSHA_DBApplication {
 		sites.add(sites2db.getSiteFromDB(1000));
 		sites.add(sites2db.getSiteFromDB(1001));
 		app.insertNewERFForSites(sites, erfDB, erfName, erfDescription, false);
-		
+		*/
 		/////////////// ADD SITES //////////////////////
 		
-//		boolean checkAdd = false;
+		boolean checkAdd = false;
 		
-//		ArrayList<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
+		List<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
+//		site_list.addAll(loadSitesFromCSV(new File("/tmp/all_but_10km_short_names.csv")));
+		site_list.addAll(loadSitesFromCSV(new File("/tmp/20km_10km_5km_sites.csv")));
+//		site_list = site_list.subList(0, 1);
 //		site_list.add(new CybershakeSite(33.88110, -118.17568, "Lighthipe", "LTP"));
 //		site_list.add(new CybershakeSite(34.10647, -117.09822, "Seven Oaks Dam", "SVD"));
 //		site_list.add(new CybershakeSite(34.557, -118.125, "Lake Palmdale", "LAPD"));
@@ -442,12 +455,30 @@ public class Cybershake_OpenSHA_DBApplication {
 //		site_list.add(new CybershakeSite(33.93088, -118.17881, "Seven Ten-Ninety Interchange ", "STNI"));
 //		site_list.add(new CybershakeSite(34.019200, -118.28600, "CyberShake Verification Test - USC", "TEST"));
 		
-//		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
+		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
 		
 		db.destroy();
 		
 		System.out.println("Done!");
 		
 		System.exit(0);
+	}
+	
+	private static List<CybershakeSite> loadSitesFromCSV(File cvsFile) throws IOException {
+		CSVFile<String> csv = CSVFile.readFile(cvsFile, true);
+		
+		 List<CybershakeSite> sites = Lists.newArrayList();
+		
+		for (int row=0; row<csv.getNumRows(); row++) {
+			int typeID = Integer.parseInt(csv.get(row, 0));
+			String name = csv.get(row, 1);
+			String shortName = csv.get(row, 2);
+			double lat = Double.parseDouble(csv.get(row, 3));
+			double lon = Double.parseDouble(csv.get(row, 4));
+			
+			sites.add(new CybershakeSite(-1, lat, lon, name, shortName, typeID));
+		}
+		
+		return sites;
 	}
 }

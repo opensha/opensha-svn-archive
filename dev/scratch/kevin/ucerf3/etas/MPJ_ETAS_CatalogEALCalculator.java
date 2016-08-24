@@ -37,6 +37,8 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 	private FaultSystemSolution trueMeanSol;
 	private Map<LogicTreeBranch, List<Integer>> branchMappings;
 	private List<File> dataDirs;
+	
+	private double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d };
 
 	public MPJ_ETAS_CatalogEALCalculator(CommandLine cmd) throws IOException, DocumentException {
 		super(cmd);
@@ -115,7 +117,7 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 			File resultsFile = resultsFiles.get(index);
 			
 			ETAS_CatalogEALCalculator.calculate(resultsFile, triggeredOnly, xAxisLabel, maxX, deltaX, xAxisScale,
-					dataDirs, imrWeightsMap, fm, baSol, cfss, trueMeanSol, branchMappings);
+					dataDirs, imrWeightsMap, fm, baSol, cfss, trueMeanSol, branchMappings, durations);
 		}
 	}
 

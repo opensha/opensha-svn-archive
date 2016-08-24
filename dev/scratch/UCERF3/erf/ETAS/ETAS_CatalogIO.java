@@ -816,8 +816,10 @@ public class ETAS_CatalogIO {
 		for (File inputFile : inputFiles) {
 //			List<List<ETAS_EqkRupture>> subCatalogs = loadCatalogs(inputFile);
 			for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, 0d)) {
-				double duration = ETAS_MultiSimAnalysisTools.calcDurationYears(catalog);
-				if (duration < minDuration) {
+				double duration = 0;
+				if (!catalog.isEmpty())
+					duration = ETAS_MultiSimAnalysisTools.calcDurationYears(catalog);
+				if (minDuration > 0 && duration < minDuration) {
 					skipped++;
 				} else {
 					count++;
@@ -829,6 +831,33 @@ public class ETAS_CatalogIO {
 		out.close();
 		
 		System.out.println("Wrote "+count+" catalogs (skipped "+skipped+")");
+		
+		// now fix the catalog count
+		RandomAccessFile raFile = new RandomAccessFile(outputFile, "rw");
+		raFile.seek(0l);
+		raFile.writeInt(count);
+		raFile.close();
+	}
+	
+	public static void binaryCatalogsFilterByMag(File inputFile, File outputFile, double minMag)
+			throws ZipException, IOException {
+		int count = 0;
+		
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile), buffer_len));
+
+		// write number of catalogs as int
+		out.writeInt(-1); // will overwrite later
+		
+		for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, minMag)) {
+			if (count % 1000 == 0)
+				System.out.println("Processing catalog "+count);
+			count++;
+			writeCatalogBinary(out, catalog);
+		}
+
+		out.close();
+		
+		System.out.println("Wrote "+count+" catalogs");
 		
 		// now fix the catalog count
 		RandomAccessFile raFile = new RandomAccessFile(outputFile, "rw");
@@ -882,11 +911,29 @@ public class ETAS_CatalogIO {
 //			writeEventDataToFile(eventFile, loadCatalog(eventFile));
 //		}
 		
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k");
+		binaryCatalogsFilterByMag(new File(dir, "results_descendents_100k.bin"), new File(dir, "results_descendents_m5.bin"), 5d);
+		
 //		File binFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-//				+ "2015_11_09-spontaneous-1000yr-full_td-noApplyLTR/results_m4.bin");
-//		List<List<ETAS_EqkRupture>> catalogs = loadCatalogsBinary(binFile, 5d);
-//		for (int i=0; i<5; i++)
-//			writeEventDataToFile(new File(binFile.getParentFile(), "catalog_"+i+"_m5.txt"), catalogs.get(i));
+//				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin");
+//		File binFile = new File("/home/scec-00/kmilner/ucerf3_etas_results_stampede/"
+//				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results.bin");
+//		int cnt = 0;
+//		File asciiDir = new File(binFile.getParentFile(), "ascii");
+//		Preconditions.checkState(asciiDir.exists() || asciiDir.mkdir());
+//		for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(binFile, 0d)) {
+//			if (cnt == 100)
+//				break;
+//			writeEventDataToFile(new File(asciiDir, "catalog_"+cnt+".txt"), catalog);
+//			cnt++;
+//		}
+		
+		
+//		List<List<ETAS_EqkRupture>> catalogs = loadCatalogsBinary(binFile, 4d);
+////		for (int i=0; i<5; i++)
+//		for (int i=0; i<catalogs.size(); i++)
+//			writeEventDataToFile(new File(asciiDir, "catalog_"+i+"m4.txt"), catalogs.get(i));
 		
 //		File testFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2015_12_08-spontaneous-1000yr-full_td-noApplyLTR/results_m4_first200.bin");
@@ -895,12 +942,12 @@ public class ETAS_CatalogIO {
 //		System.exit(0);
 		
 //		File baseDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
-		File baseDir = new File("/auto/scec-00/kmilner/ucerf3_etas_results_stampede/");
-		mergeBinary(new File(new File(baseDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR"), "results.bin"),
-				0, new File[] {
-						new File(new File(baseDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR"), "results_first1000.bin"),
-						new File(new File(baseDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR"), "results_4000more.bin")
-				});
+//		File baseDir = new File("/auto/scec-00/kmilner/ucerf3_etas_results_stampede/");
+//		mergeBinary(new File(new File(baseDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR"), "results.bin"),
+//				0, new File[] {
+//						new File(new File(baseDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR"), "results_first1000.bin"),
+//						new File(new File(baseDir, "2015_12_09-spontaneous-30yr-full_td-noApplyLTR"), "results_4000more.bin")
+//				});
 
 		//		File resultsZipFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 		//				+ "2015_08_07-mojave_m7-poisson-grCorr/results_m4.zip");

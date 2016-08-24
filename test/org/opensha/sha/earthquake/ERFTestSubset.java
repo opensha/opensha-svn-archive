@@ -69,11 +69,6 @@ public class ERFTestSubset implements ERF {
 	}
 
 	@Override
-	public String updateAndSaveForecast() {
-		return baseERF.updateAndSaveForecast();
-	}
-
-	@Override
 	public void updateForecast() {
 		baseERF.updateForecast();
 	}

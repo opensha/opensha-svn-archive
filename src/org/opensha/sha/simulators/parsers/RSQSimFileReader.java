@@ -57,6 +57,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.LittleEndianDataInputStream;
 
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 
 public class RSQSimFileReader {
@@ -300,7 +301,8 @@ public class RSQSimFileReader {
 //		File dir = new File("/home/kevin/Simulators/bruce/rundir1420");
 //		File geomFile = new File(dir, "zfault_Deepen.in");
 		
-		File dir = new File("/home/kevin/Simulators/UCERF3_interns/UCERF3state");
+//		File dir = new File("/home/kevin/Simulators/UCERF3_interns/UCERF3sigmahigh");
+		File dir = new File("/home/kevin/Simulators/UCERF3_interns/combine340");
 		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		
 		List<SimulatorElement> elements = readGeometryFile(geomFile, 11, 'S');
@@ -317,9 +319,31 @@ public class RSQSimFileReader {
 //		boolean bigEndian = isBigEndian(new File(eventsDir, "UCERF3_35kyrs.pList"), elements);
 //		listFileDebug(new File(eventsDir, "UCERF3_35kyrs.eList"), 100, bigEndian, true);
 		
-		List<RSQSimEvent> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(5d, 10d)));
+		List<RSQSimEvent> events = readEventsFile(eventsDir, elements, Lists.newArrayList(new MagRangeRuptureIdentifier(7d, 10d)));
 		System.out.println("Loaded "+events.size()+" events");
 		System.out.println("Duration: "+General_EQSIM_Tools.getSimulationDurationYears(events)+" years");
+		
+		SectionIDIden safIden = SectionIDIden.getUCERF3_SAF(FaultModels.FM3_1,
+				RSQSimUtils.getUCERF3SubSectsForComparison(FaultModels.FM3_1, DeformationModels.GEOLOGIC), elements);
+		RuptureIdentifier ssafIden = new LogicalAndRupIden(safIden, new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
+		List<RSQSimEvent> safEvents = ssafIden.getMatches(events);
+		
+		double delta = 5d;
+		for (int i=0; i<safEvents.size()-3; i++) {
+			RSQSimEvent e1 = safEvents.get(i);
+			RSQSimEvent e2 = safEvents.get(i+1);
+			RSQSimEvent e3 = safEvents.get(i+2);
+			double t1 = e1.getTimeInYears();
+			double t2 = e2.getTimeInYears();
+			double t3 = e3.getTimeInYears();
+			double myDelta = t3 - t1;
+			if (myDelta < delta) {
+				System.out.println("****************");
+				System.out.println(e1.getID()+" M"+(float)e1.getMagnitude());
+				System.out.println(e2.getID()+" M"+(float)e1.getMagnitude()+" "+(float)(t2-t1)+" yrs later");
+				System.out.println(e3.getID()+" M"+(float)e3.getMagnitude()+" "+(float)(t3-t2)+" yrs later");
+			}
+		}
 		
 //		while (true) {
 //			try {

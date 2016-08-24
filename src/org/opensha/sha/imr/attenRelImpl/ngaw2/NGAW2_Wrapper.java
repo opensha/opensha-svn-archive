@@ -82,7 +82,7 @@ public class NGAW2_Wrapper extends AttenuationRelationship implements ParameterC
 
 	@Override
 	public String getName() {
-		return gmpe.getName()+" EXPERIMENTAL";
+		return gmpe.getName();
 	}
 
 	@Override

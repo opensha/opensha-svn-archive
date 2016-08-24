@@ -7,9 +7,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +66,7 @@ import org.opensha.commons.util.cpt.CPT;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
@@ -82,6 +86,7 @@ import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
@@ -94,8 +99,11 @@ import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
+import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 
 public class ETAS_MultiSimAnalysisTools {
@@ -3415,6 +3423,235 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, "cond_hypo_dist.txt").getAbsolutePath());
 	}
 	
+	private static void plotScalesOfHazardChange(List<List<ETAS_EqkRupture>> catalogs, TestScenario scenario,
+			long ot, FaultSystemSolutionERF erf, File outputDir, String name) throws IOException {
+		outputDir = new File(outputDir, "scales_of_hazard_change");
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
+		
+		double[] times = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d, 30d, 100d };
+		// evenly discretized in log space from min to max
+		EvenlyDiscretizedFunc evenlyDiscrTimes = new EvenlyDiscretizedFunc(
+				Math.log(times[0]), Math.log(times[times.length-1]), 20);
+		ArbitrarilyDiscretizedFunc timesFunc = new ArbitrarilyDiscretizedFunc();
+		for (Point2D pt : evenlyDiscrTimes)
+			timesFunc.set(Math.exp(pt.getX()), 0);
+		for (double x : times)
+			timesFunc.set(x, 0);
+		
+		double minDist = 30d;
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		HashSet<Integer> parentSects = new HashSet<Integer>();
+		Map<Integer, String> parentSectNamesMap = Maps.newHashMap();
+		List<Location> scenarioLocs = Lists.newArrayList();
+		if (scenario.getFSS_Index() >= 0)
+			scenarioLocs.addAll(rupSet.getSurfaceForRupupture(scenario.getFSS_Index(), 1d, false).getUpperEdge());
+		else
+			scenarioLocs.add(scenario.getLocation());
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataList()) {
+			for (Location loc : sect.getFaultTrace()) {
+				for (Location scenarioLoc : scenarioLocs) {
+					if (LocationUtils.horzDistanceFast(scenarioLoc, loc) < minDist) {
+						parentSects.add(sect.getParentSectionId());
+						parentSectNamesMap.put(sect.getParentSectionId(), sect.getParentSectionName());
+						break;
+					}
+				}
+			}
+		}
+		
+		double[] mags = {0d, 6.7, 7d, 7.5d};
+		
+		int startYear = calcYearForOT(ot);
+		System.out.println("Detected start year: "+startYear);
+		
+		for (double mag : mags) {
+			System.out.println("Calculating scales of change for M>="+mag);
+			Map<Integer, HashSet<Integer>> rupsForParents = Maps.newHashMap();
+			Map<Integer, ArbitrarilyDiscretizedFunc> parentFuncsTI = Maps.newHashMap();
+			Map<Integer, ArbitrarilyDiscretizedFunc> parentFuncsTD = Maps.newHashMap();
+			Map<Integer, ArbitrarilyDiscretizedFunc> parentFuncsETAS = Maps.newHashMap();
+			for (int parentID : parentSects) {
+				HashSet<Integer> rups = new HashSet<Integer>();
+				for (int rup : rupSet.getRupturesForParentSection(parentID)) {
+					if (rupSet.getMagForRup(rup) >= mag)
+						rups.add(rup);
+				}
+				rupsForParents.put(parentID, rups);
+				ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+				func.setName("UCERF3-TI");
+				parentFuncsTI.put(parentID, func);
+				func = new ArbitrarilyDiscretizedFunc();
+				func.setName("UCERF3-TD");
+				parentFuncsTD.put(parentID, func);
+				func = new ArbitrarilyDiscretizedFunc();
+				func.setName("UCERF3-ETAS");
+				parentFuncsETAS.put(parentID, func);
+			}
+			
+			for (int t=0; t<timesFunc.size(); t++) {
+				double duration = timesFunc.getX(t);
+				System.out.println("Calculating duration: "+duration+" yrs");
+				// calc UCERF3-TI
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+				erf.getTimeSpan().setDuration(duration);
+				erf.updateForecast();
+				Preconditions.checkState(erf.getTimeSpan().getDuration() == duration);
+				for (Integer parentID : parentSects)
+					parentFuncsTI.get(parentID).set(duration, calcParticipationProb(erf, rupsForParents.get(parentID)));
+				// calc UCERF3-TD
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
+				erf.setParameter(HistoricOpenIntervalParam.NAME,
+						(double)(startYear-1875));
+				erf.getTimeSpan().setDuration(duration);
+				erf.getTimeSpan().setStartTime(startYear);
+				if (scenario.getFSS_Index() >= 0) {
+					// use the start time of the ERF, not the scenario time. our haphazard use of fractional
+					// days (365.25 days/yr to account for leap years) can lead to the scenario happening slightly
+					// after the ERF start time, which makes the ERF ignore elastic rebound. Fix this by using
+					// the ERF start time
+					long myOT = erf.getTimeSpan().getStartTimeCalendar().getTime().getTime();
+					if (t == 0)
+						System.out.println("Setting date of occurance for rup "+scenario.getFSS_Index()+" to "+myOT);
+					erf.setFltSystemSourceOccurranceTimeForFSSIndex(scenario.getFSS_Index(), myOT);
+				}
+				erf.updateForecast();
+				Preconditions.checkState(erf.getTimeSpan().getDuration() == duration);
+				for (Integer parentID : parentSects)
+					parentFuncsTD.get(parentID).set(duration, calcParticipationProb(erf, rupsForParents.get(parentID)));
+				// calc UCERF3-ETAS
+				
+				long maxOT = ot + (long)(duration*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+				for (Integer parentID : parentSects) {
+					HashSet<Integer> rups = rupsForParents.get(parentID);
+					int numWith = 0;
+					for (List<ETAS_EqkRupture> catalog : catalogs) {
+						boolean found = false;
+						for (ETAS_EqkRupture rup : catalog) {
+							if (rup.getOriginTime() > maxOT)
+								break;
+							if (rup.getFSSIndex() >= 0 && rups.contains(rup.getFSSIndex())) {
+								found = true;
+								break;
+							}
+						}
+						if (found)
+							numWith++;
+					}
+					double prob = (double)numWith/catalogs.size();
+					double tdProb = parentFuncsTD.get(parentID).getY(duration);
+					parentFuncsETAS.get(parentID).set(duration, prob + tdProb); // include background rate
+				}
+			}
+			
+			for (Integer parentID : parentSects) {
+				if (rupsForParents.get(parentID).isEmpty())
+					continue;
+				String parentName = parentSectNamesMap.get(parentID);
+				String prefix = parentName.replaceAll("\\W+", "_");
+				String yAxisLabel;
+				if (mag == 0) {
+					prefix += "_supra_seis";
+					yAxisLabel = "Supra Seis Participation Prob";
+				} else {
+					prefix += "_m"+(float)mag;
+					yAxisLabel = "M≥"+(float)mag+" Participation Prob";
+				}
+				File file = new File(outputDir, prefix);
+				
+				List<XY_DataSet> funcs = Lists.newArrayList();
+				List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+				
+				funcs.add(parentFuncsTI.get(parentID));
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				
+				funcs.add(parentFuncsTD.get(parentID));
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+				
+				funcs.add(parentFuncsETAS.get(parentID));
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+				
+				double minProb = 1d;
+				for (XY_DataSet func : funcs)
+					minProb = Math.min(minProb, func.getMinY());
+				minProb *= 0.5;
+				
+				List<XYTextAnnotation> annotations = Lists.newArrayList();
+				
+				// add lines for times of interest
+				for (double time : times) {
+					String label;
+					if (time < 1d) {
+						int days = (int)(time*365.25 + 0.5);
+						if (days == 30)
+							label = "1 mo";
+						else if (days == 7)
+							label = "1 wk";
+						else
+							label = days+" d";
+					} else {
+						label = (int)time+" yr";
+					}
+					DefaultXY_DataSet xy = new DefaultXY_DataSet();
+					xy.set(time, minProb);
+					xy.set(time, 1d);
+					funcs.add(xy);
+					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GRAY));
+					
+					XYTextAnnotation ann = new XYTextAnnotation(label, time, 0.9);
+					ann.setTextAnchor(TextAnchor.TOP_LEFT);
+					ann.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+					annotations.add(ann);
+				}
+				
+				PlotSpec spec = new PlotSpec(funcs, chars, parentName, "Time (years)", yAxisLabel);
+				spec.setPlotAnnotations(annotations);
+				spec.setLegendVisible(true);
+				
+				HeadlessGraphPanel gp = new HeadlessGraphPanel();
+				gp.setxAxisInverted(true);
+				gp.setUserBounds(times[0], times[times.length-1], minProb, 1d);
+				
+				setFontSizes(gp);
+				
+				gp.drawGraphPanel(spec, true, true);
+				gp.getChartPanel().setSize(1000, 800);
+				gp.saveAsPNG(file.getAbsolutePath()+".png");
+				gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+				gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			}
+		}
+	}
+	
+	private static double calcParticipationProb(FaultSystemSolutionERF erf, HashSet<Integer> rups) {
+		List<Double> probs = Lists.newArrayList();
+		
+		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
+			if (rups.contains(erf.getFltSysRupIndexForSource(sourceID))) {
+				probs.add(erf.getSource(sourceID).computeTotalProb());
+			}
+		}
+		
+		Preconditions.checkState(rups.size() == probs.size());
+		
+		return FaultSysSolutionERF_Calc.calcSummedProbs(probs);
+	}
+	
+	private static int calcYearForOT(long ot) {
+		int closest = 0;
+		long diff = Long.MAX_VALUE;
+		for (int year=2000; year<2100; year++) {
+			long myOT = Math.round((year-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+			long myDiff = myOT - ot;
+			if (myDiff < 0l)
+				myDiff = -myDiff;
+			if (myDiff < diff) {
+				diff = myDiff;
+				closest = year;
+			}
+		}
+		return closest;
+	}
+	
 	private static ETAS_ParameterList loadEtasParamsFromMetadata(Element root)
 			throws DocumentException, MalformedURLException {
 		Element paramsEl = root.element(ETAS_ParameterList.XML_METADATA_NAME);
@@ -3615,37 +3852,39 @@ public class ETAS_MultiSimAnalysisTools {
 		File mainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		double minLoadMag = -1;
 		
-//		boolean plotMFDs = true;
-//		boolean plotExpectedComparison = false;
-//		boolean plotSectRates = false;
-//		boolean plotTemporalDecay = false;
-//		boolean plotDistanceDecay = false;
-//		boolean plotMaxMagHist = false;
-//		boolean plotGenerations = false;
-//		boolean plotGriddedNucleation = false;
-//		boolean writeTimeFromPrevSupra = false;
-//		boolean plotSectScatter = false;
-//		boolean plotGridScatter = false;
-//		boolean plotStationarity = false;
-//		boolean plotSubSectRecurrence = false;
-//		boolean plotCondDist = false;
-//		boolean writeCatsForViz = false;
-		
-		boolean plotMFDs = true;
+		boolean plotMFDs = false;
 		boolean plotExpectedComparison = false;
-		boolean plotSectRates = true;
-		boolean plotTemporalDecay = true;
-		boolean plotDistanceDecay = true;
-		boolean plotMaxMagHist = true;
-		boolean plotGenerations = true;
-		boolean plotGriddedNucleation = true;
-		boolean writeTimeFromPrevSupra = true;
-		boolean plotSectScatter = true;
-		boolean plotGridScatter = true;
-		boolean plotStationarity = true;
-		boolean plotSubSectRecurrence = true;
+		boolean plotSectRates = false;
+		boolean plotTemporalDecay = false;
+		boolean plotDistanceDecay = false;
+		boolean plotMaxMagHist = false;
+		boolean plotGenerations = false;
+		boolean plotGriddedNucleation = false;
+		boolean writeTimeFromPrevSupra = false;
+		boolean plotSectScatter = false;
+		boolean plotGridScatter = false;
+		boolean plotStationarity = false;
+		boolean plotSubSectRecurrence = false;
 		boolean plotCondDist = false;
 		boolean writeCatsForViz = false;
+		boolean plotScalesHazard = true;
+		
+//		boolean plotMFDs = true;
+//		boolean plotExpectedComparison = false;
+//		boolean plotSectRates = true;
+//		boolean plotTemporalDecay = true;
+//		boolean plotDistanceDecay = true;
+//		boolean plotMaxMagHist = true;
+//		boolean plotGenerations = true;
+//		boolean plotGriddedNucleation = true;
+//		boolean writeTimeFromPrevSupra = true;
+//		boolean plotSectScatter = true;
+//		boolean plotGridScatter = true;
+//		boolean plotStationarity = true;
+//		boolean plotSubSectRecurrence = true;
+//		boolean plotCondDist = false;
+//		boolean writeCatsForViz = false;
+//		boolean plotScalesHazard = false;
 		
 		boolean useDefaultETASParamsIfMissing = true;
 		boolean useActualDurations = true; // only applies to spontaneous runs
@@ -3686,8 +3925,8 @@ public class ETAS_MultiSimAnalysisTools {
 //			resultsZipFiles.add(new File(mainDir, "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
 //			resultsZipFiles.add(new File(mainDir, "2016_02_11-spontaneous-1000yr-no_ert-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
 			
-			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
-			id_for_scenario = 9893;
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
+//			id_for_scenario = 9893;
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m5-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 //			id_for_scenario = 9893;
@@ -3703,6 +3942,11 @@ public class ETAS_MultiSimAnalysisTools {
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 //			id_for_scenario = 9893;
+			
+			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5.bin"));
+			id_for_scenario = 9893;
+			
+//			resultsZipFiles.add(new File(mainDir, "2016_02_24-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined/results_descendents.bin"));
 			
 //			names.add("30yr Full TD");
 //			resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
@@ -3844,7 +4088,9 @@ public class ETAS_MultiSimAnalysisTools {
 			int skippedDuration = 0;
 			for (int i=catalogs.size(); --i>=0;) {
 				List<ETAS_EqkRupture> catalog = catalogs.get(i);
-				double myDuration = calcDurationYears(catalog);
+				double myDuration = 0;
+				if (!catalog.isEmpty())
+					myDuration = calcDurationYears(catalog);
 				if (myDuration < minDurationForInclusion && scenario == null) {
 					catalogs.remove(i);
 					skippedDuration++;
@@ -4091,6 +4337,15 @@ public class ETAS_MultiSimAnalysisTools {
 				writeTimeFromPrevSupraHist(catalogs, outputDir);
 			}
 			
+			if (scenario != null && plotScalesHazard) {
+				erf = new FaultSystemSolutionERF(fss);
+				erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
+				erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+				erf.getTimeSpan().setDuration(1d);
+				erf.updateForecast();
+				plotScalesOfHazardChange(childrenCatalogs, scenario, ot, erf, outputDir, name);
+			}
+			
 			writeHTML(parentDir, scenario, name, params, catalogs, inputDuration, durationTrack);
 		}
 	}
@@ -4118,27 +4373,7 @@ public class ETAS_MultiSimAnalysisTools {
 		fw.write("<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
 				+scenName+"</h1>\n");
 		fw.write("<br>\n");
-		fw.write("<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:"+html_w_px+";\">\n");
-		if (scenario != null) {
-			fw.write("<h2>Scenario Information</h2>\n");
-			fw.write("<b>Name:</b> "+scenario.name()+"<br>\n");
-			fw.write("<b>Magnitude:</b> "+scenario.getMagnitude()+"<br>\n");
-			fw.write("<b>Supra-seismogenic? </b> "+(scenario.getFSS_Index()>=0)+"<br>\n");
-			fw.write("<br>\n");
-		}
-		
-		fw.write("<h2>Simulation Information</h2>\n");
-		fw.write("<b>Num Catalogs:</b> "+catalogs.size()+"<br>\n");
-		fw.write("<b>Simulation Input Duration:</b> "+(float)inputDuration+" years<br>\n");
-		fw.write("<b>Actual Duration:</b> min="+(float)durationTrack.getMin()
-		+", max="+(float)durationTrack.getMax()+", avg="+(float)durationTrack.getAverage()+" years<br>\n");
-		fw.write("<br>\n");
-		if (params != null) {
-			fw.write("<h3>ETAS Parameters</h3>\n");
-			for (Parameter<?> param : params)
-				fw.write("<b>"+param.getName()+":</b> "+param.getValue()+"<br>\n");
-			fw.write("<br>\n");
-		}
+		writeMetadataHTML(fw, scenario, params, catalogs, inputDuration, durationTrack);
 		
 		File plotDir = new File(outputDir, plotDirName);
 		if (plotDir.exists()) {
@@ -4201,6 +4436,201 @@ public class ETAS_MultiSimAnalysisTools {
 		fw.write("</p>\n");
 		
 		fw.close();
+	}
+	
+	private static void writeMetadataHTML(FileWriter fw, TestScenario scenario, ETAS_ParameterList params,
+			List<List<ETAS_EqkRupture>> catalogs, double inputDuration, MinMaxAveTracker durationTrack)
+					throws IOException {
+		fw.write("<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:"+html_w_px+";\">\n");
+		if (scenario != null) {
+			fw.write("<h2>Scenario Information</h2>\n");
+			fw.write("<b>Name:</b> "+scenario.name()+"<br>\n");
+			fw.write("<b>Magnitude:</b> "+scenario.getMagnitude()+"<br>\n");
+			fw.write("<b>Supra-seismogenic? </b> "+(scenario.getFSS_Index()>=0)+"<br>\n");
+			fw.write("<br>\n");
+		}
+		
+		fw.write("<h2>Simulation Information</h2>\n");
+		fw.write("<b>Num Catalogs:</b> "+catalogs.size()+"<br>\n");
+		fw.write("<b>Simulation Input Duration:</b> "+(float)inputDuration+" years<br>\n");
+		fw.write("<b>Actual Duration:</b> min="+(float)durationTrack.getMin()
+		+", max="+(float)durationTrack.getMax()+", avg="+(float)durationTrack.getAverage()+" years<br>\n");
+		fw.write("<br>\n");
+		if (params != null) {
+			fw.write("<h3>ETAS Parameters</h3>\n");
+			for (Parameter<?> param : params)
+				fw.write("<b>"+param.getName()+":</b> "+param.getValue()+"<br>\n");
+			fw.write("<br>\n");
+		}
+		fw.write("</p>\n");
+	}
+	
+	public static void writePaperHTML(File scenariosFile, File inputDir, File outputDir) throws IOException,
+	DocumentException {
+		String resultFileName = "results_descendents.bin";
+		
+		String urlBase = "http://zero.usc.edu/ftp/UCERF3-ETAS/scenarios";
+		Table<TestScenario, U3ETAS_ProbabilityModelOptions, String> dirNameMap = HashBasedTable.create();
+		
+		for (String dirName : Files.readLines(scenariosFile, Charset.defaultCharset())) {
+			dirName = dirName.trim();
+			if (dirName.startsWith("#") || dirName.isEmpty())
+				continue;
+			System.out.println("Processing "+dirName);
+			File dir = new File(inputDir, dirName);
+			Preconditions.checkState(dir.exists(), "Directory not found: "+dir.getAbsolutePath());
+			File resultsFile = new File(dir, resultFileName);
+			Preconditions.checkState(resultsFile.exists(), "Results file not found: "+resultsFile.getAbsolutePath());
+			File origPlotDir = new File(dir, "plots");
+			Preconditions.checkArgument(origPlotDir.exists(), "Plot dir not found: "+origPlotDir.getAbsolutePath());
+			
+			File myOutput = new File(outputDir, dirName);
+			Preconditions.checkArgument(myOutput.exists() || myOutput.mkdir());
+			
+			TestScenario scenario = detectScenario(dir);
+			
+			File metadataFile = new File(resultsFile.getParentFile(), "metadata.xml");
+			System.out.println("Metadatafile: "+metadataFile.getAbsolutePath());
+			Element metadataRootEl = null;
+			ETAS_ParameterList params;
+			if (metadataFile.exists()) {
+				System.out.println("Loading ETAS params from metadata file: "+metadataFile.getAbsolutePath());
+				Document doc = XMLUtils.loadDocument(metadataFile);
+				metadataRootEl = doc.getRootElement();
+				params = loadEtasParamsFromMetadata(metadataRootEl);
+			} else {
+//				params = null;
+				throw new IllegalStateException("couldn't load params");
+			}
+			dirNameMap.put(scenario, params.getU3ETAS_ProbModel(), dirName);
+			
+			Long ot;
+			double inputDuration;
+			if (metadataRootEl != null) {
+				Element paramsEl = metadataRootEl.element(MPJ_ETAS_Simulator.OTHER_PARAMS_EL_NAME);
+				ot = Long.parseLong(paramsEl.attributeValue("ot"));
+				inputDuration = Double.parseDouble(paramsEl.attributeValue("duration"));
+			} else {
+				System.out.println("WARNING: Assuming 1 year 2014");
+				ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+				inputDuration = 1d;
+			}
+			
+			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(resultsFile, 4d);
+			MinMaxAveTracker durationTrack = new MinMaxAveTracker();
+			for (List<ETAS_EqkRupture> catalog : catalogs) {
+				if (catalog.isEmpty())
+					durationTrack.addValue(0d);
+				else
+					durationTrack.addValue(calcDurationYears(catalog));
+			}
+			
+			String name;
+			if (scenario == null)
+				name = "";
+			else
+				name = scenario+" ";
+			name += (int)inputDuration+"yr";
+			if (params != null)
+				name += " "+params.getU3ETAS_ProbModel();
+			
+			writePaperHTML(origPlotDir, myOutput, scenario, name, params, catalogs, inputDuration, durationTrack);
+		}
+		
+		// now write table
+		List<TestScenario> scenarios = Lists.newArrayList(dirNameMap.rowKeySet());
+		Collections.sort(scenarios, new Comparator<TestScenario>() {
+
+			@Override
+			public int compare(TestScenario o1, TestScenario o2) {
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
+		
+		FileWriter fw = new FileWriter(new File(outputDir, "index.html"));
+		
+		for (TestScenario scenario : scenarios) {
+			String line = scenario.toString()+":";
+			if (dirNameMap.contains(scenario, U3ETAS_ProbabilityModelOptions.FULL_TD)) {
+				String link = urlBase+"/"+dirNameMap.get(scenario, U3ETAS_ProbabilityModelOptions.FULL_TD);
+				line += " <a href=\""+link+"\">Full TD</a>";
+			}
+			if (dirNameMap.contains(scenario, U3ETAS_ProbabilityModelOptions.NO_ERT)) {
+				String link = urlBase+"/"+dirNameMap.get(scenario, U3ETAS_ProbabilityModelOptions.NO_ERT);
+				line += " <a href=\""+link+"\">No ERT</a>";
+			}
+			fw.write(line+"<br>\n");
+		}
+		
+		fw.close();
+	}
+	
+	private static void copyFiles(File fromDir, File toDir, String pattern) throws IOException {
+		for (File file : fromDir.listFiles()) {
+			if (file.getName().contains(pattern))
+				Files.copy(file, new File(toDir, file.getName()));
+		}
+	}
+	
+	private static void writePaperHTML(File origPlotDir, File outputDir, TestScenario scenario, String scenName,
+			ETAS_ParameterList params, List<List<ETAS_EqkRupture>> catalogs,
+			double inputDuration, MinMaxAveTracker durationTrack)
+					throws IOException {
+		System.out.println("Writing HTML");
+		
+		FileWriter headerFW = new FileWriter(new File(outputDir, "HEADER.html"));
+		FileWriter footerFW = new FileWriter(new File(outputDir, "README.html"));
+		
+		headerFW.write("<h1 style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal;\">"
+				+scenName+"</h1>\n");
+		headerFW.write("<br>\n");
+		
+		writeMetadataHTML(footerFW, scenario, params, catalogs, inputDuration, durationTrack);
+		footerFW.close();
+		
+		headerFW.write("<p style=\"font-family:'HelveticaNeue-Light', sans-serif; font-weight:normal; width:"+html_w_px+";\">\n");
+		
+		headerFW.write("<b>Plots are divided into 3 categories:</b><br>\n");
+		headerFW.write("<b>full_children_*:</b> Plots that include all generations of child events<br>\n");
+		headerFW.write("<b>primary_*:</b> Plots that only consider primary aftershocks<br>\n");
+		headerFW.write("<b>(other):</b> Plots where both are included or separation is not applicable<br>\n");
+		
+		headerFW.write("<br>\n");
+		headerFW.write("<b>MFD Plots:</b><br>\n");
+//		headerFW.write("<b>*_mfd_cumulative.*:</b> Cumulative magnitude frequency distributious across all catalogs<br>\n");
+//		headerFW.write("<b>*_mfd_incremental.*:</b> Incremental magnitude frequency distributious across all catalogs<br>\n");
+		copyFiles(origPlotDir, outputDir, "consolidated_aftershocks_mag_num_cumulative");
+		headerFW.write("<b>consolidated_aftershocks_mag_num_cumulative.*:</b> Cumulative magnitude frequency distributious across all catalogs<br>\n");
+		headerFW.write("<b>consolidated_aftershocks_mag_num_incremental.*:</b> Incremental magnitude frequency distributious across all catalogs<br>\n");
+		headerFW.write("<br>\n");
+		headerFW.write("<b>Decay Plots:</b><br>\n");
+		copyFiles(origPlotDir, outputDir, "_dist_decay_trigger");
+		headerFW.write("<b>*_dist_decay_trigger.*:</b> Distance decay of each child rupture from the trigger location on "
+				+ "the parent rupture<br>\n");
+		copyFiles(origPlotDir, outputDir, "_temporal_decay");
+		headerFW.write("<b>*_temporal_decay.*:</b> Temporal decay of each child rupture relative to its parent<br>\n");
+		headerFW.write("<br>\n");
+		headerFW.write("<b>Map Based Plots:</b><br>\n");
+		copyFiles(origPlotDir, outputDir, "_sect_partic");
+		headerFW.write("<b>*_sect_partic.*:</b> Map view of supra-seismogenic fault section participation rates<br>\n");
+		copyFiles(origPlotDir, outputDir, "_sect_trigger");
+		headerFW.write("<b>*_sect_trigger.*:</b> Map view of supra-seismogenic fault section trigger rates<br>\n");
+		copyFiles(origPlotDir, outputDir, "_gridded_nucl_");
+		headerFW.write("<b>*_gridded_nucl_m*.*:</b> Map view of gridded nucleation rates<br>\n");
+//		headerFW.write("<br>\n");
+//		headerFW.write("<b>Other Misc Plots:</b><br>\n");
+//		headerFW.write("<b>max_mag_hist.*:</b> Histogram of maximum magnitude triggered rupture across all catalogs<br>\n");
+//		headerFW.write("<b>full_children_generations.*:</b> Number of aftershocks of each generation<br>\n");
+		
+//		if (minMag >= 3d) {
+//			headerFW.write("<br>\n");
+//			headerFW.write("<b>NOTE: due to the number or aftershocks, only M&ge;"
+//					+(float)minMag+" ruptures are considered in these plots</b><br>\n");
+//		}
+		
+		headerFW.write("</p>\n");
+		
+		headerFW.close();
 	}
 
 }

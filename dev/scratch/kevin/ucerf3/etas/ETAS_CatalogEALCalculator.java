@@ -38,6 +38,7 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.FileNameComparator;
+import org.opensha.commons.util.cpt.CPT;
 import org.opensha.nshmp2.erf.source.PointSource13b;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.cybershake.etas.ETASModProbConfig.ETAS_CyberShake_Scenarios;
@@ -76,6 +77,7 @@ public class ETAS_CatalogEALCalculator {
 	
 	private UCERF3_BranchAvgLossFetcher fetcher;
 	private List<List<ETAS_EqkRupture>> catalogs;
+	private long startTime;
 	private FaultModels fm;
 	
 	// for getting fss index from Ned's "Nth" index
@@ -109,6 +111,10 @@ public class ETAS_CatalogEALCalculator {
 		this.fm = fm;
 		
 		this.catalogs = catalogs;
+		startTime = Long.MAX_VALUE;
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			if (!catalog.isEmpty())
+				startTime = Long.min(startTime, catalog.get(0).getOriginTime());
 		
 		Preconditions.checkState(!catalogs.isEmpty(), "No catalogs loaded!");
 		System.out.println("Loaded "+catalogs.size()+" catalogs");
@@ -216,7 +222,13 @@ public class ETAS_CatalogEALCalculator {
 	 * rather than a single value.
 	 * @throws IOException
 	 */
-	public synchronized List<DiscretizedFunc> getLossDists(AttenRelRef attenRelRef) throws IOException {
+	public synchronized List<DiscretizedFunc> getLossDists(AttenRelRef attenRelRef, double durationYears) throws IOException {
+		Map<Double, List<DiscretizedFunc>> vals = getLossDists(attenRelRef, new double[] {durationYears});
+		return vals.get(durationYears);
+	}
+	
+	public synchronized Map<Double, List<DiscretizedFunc>> getLossDists(AttenRelRef attenRelRef, double[] durations)
+			throws IOException {
 		// conditional loss distributions (x=loss, y=weight) for each rupture
 		DiscretizedFunc[] condLossDists = fetcher.getFaultLosses(attenRelRef, fm, true);
 		// mag/loss distributions at each grid node (x=mag, y=loss)
@@ -224,123 +236,135 @@ public class ETAS_CatalogEALCalculator {
 		DiscretizedFunc[] griddedMagLossDists = fetcher.getGriddedMagLossDists(
 				attenRelRef, region);
 		
-		List<DiscretizedFunc> catalogDists = Lists.newArrayList();
+		Map<Double, List<DiscretizedFunc>> distsMap = Maps.newHashMap();
 		
-		for (int i = 0; i < catalogs.size(); i++) {
-			List<ETAS_EqkRupture> catalog = catalogs.get(i);
-			List<Double> singleLosses = Lists.newArrayList();
-			List<DiscretizedFunc> lossDists = Lists.newArrayList();
+		for (double durationYears : durations) {
+			long maxTime = Long.MAX_VALUE;
+			if (durationYears > 00 && !Double.isInfinite(durationYears))
+				maxTime = startTime + (long)(durationYears*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
 			
-			if (triggeredOnly)
-				catalog = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, id_for_scenario);
+			List<DiscretizedFunc> catalogDists = Lists.newArrayList();
 			
-			for (ETAS_EqkRupture rup : catalog) {
-				int fssIndex = getFSSIndex(rup);
+			for (int i = 0; i < catalogs.size(); i++) {
+				List<ETAS_EqkRupture> catalog = catalogs.get(i);
+				List<Double> singleLosses = Lists.newArrayList();
+				List<DiscretizedFunc> lossDists = Lists.newArrayList();
 				
-				double mag = rup.getMag();
+				if (triggeredOnly)
+					catalog = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, id_for_scenario);
+				
+				for (ETAS_EqkRupture rup : catalog) {
+					if (rup.getOriginTime() > maxTime)
+						break;
+					int fssIndex = getFSSIndex(rup);
+					
+					double mag = rup.getMag();
+					
+					if (fssIndex >= 0) {
+						// fault based source
+						double solMag = meanSol.getRupSet().getMagForRup(fssIndex);
+						Preconditions.checkState((float)mag == (float)solMag, "Bad fault mag! %s != %s", mag, solMag);
+						if (condLossDists[fssIndex].size() == 0)
+							continue;
+						lossDists.add(condLossDists[fssIndex]);
+						// make sure weights sum to 1
+						double sumY = 0;
+						for (Point2D pt : condLossDists[fssIndex])
+							sumY += pt.getY();
+						Preconditions.checkState((float)sumY == 1f, "rup losses don't sum to 1: "+(float)sumY);
+					} else {
+						// grid source
+						double loss = calcGridSourceLoss(rup, region, griddedMagLossDists, "Catalog "+i);
+						// single loss value with weight=1
+						singleLosses.add(loss);
+					}
+				}
+				
+				// first sum up all single losses (easy)
+				double totSingleLosses = 0d;
+				for (double loss : singleLosses)
+					totSingleLosses += loss;
+				
+				if (rup_mean_loss) {
+					for (DiscretizedFunc lossDist : lossDists) {
+						double loss = 0;
+						double sumWeight = 0;
+						for (Point2D pt : lossDist) {
+							sumWeight += pt.getY();
+							loss += pt.getX()*pt.getY();
+						}
+						Preconditions.checkState((float)sumWeight == 1f, "Weights don't sum to 1: "+(float)sumWeight);
+						totSingleLosses += loss;
+					}
+				}
+				
+				ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+				if (lossDists.isEmpty() || rup_mean_loss) {
+					// only point sources
+					func.set(totSingleLosses, 1d);
+				} else {
+					// calculate expected number of loss dists for verification
+					int expectedNum = 1;
+					for (DiscretizedFunc lossDist : lossDists)
+						expectedNum *= lossDist.size();
+					
+					List<LossChain> lossChains = getLossChains(totSingleLosses, lossDists);
+					Preconditions.checkState(lossChains.size() == expectedNum,
+							"expected "+expectedNum+" chains, got "+lossChains.size());
+					
+					double sumWeight = 0d;
+					for (LossChain chain : lossChains) {
+						double weight = chain.weight;
+						double loss = chain.totLoss;
+						sumWeight += weight;
+						int xInd = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(loss, func);
+						if (xInd < 0)
+							func.set(loss, weight);
+						else
+							func.set(loss, weight + func.getY(xInd));
+					}
+					Preconditions.checkState((float)sumWeight == 1f,
+							"chain weights don't sum to 1: "+sumWeight+" ("+lossChains.size()+" chains)");
+				}
+				
+//				double meanLoss = 0d;
+//				for (Point2D pt : func)
+//					meanLoss += pt.getX()*pt.getY();
+				
+				catalogDists.add(func);
+			}
+			
+			if (triggerRup != null) {
+				int fssIndex = getFSSIndex(triggerRup);
+				
+				double mag = triggerRup.getMag();
+				
+				double triggerLoss;
 				
 				if (fssIndex >= 0) {
 					// fault based source
-					double solMag = meanSol.getRupSet().getMagForRup(fssIndex);
-					Preconditions.checkState((float)mag == (float)solMag, "Bad fault mag! %s != %s", mag, solMag);
-					if (condLossDists[fssIndex].size() == 0)
-						continue;
-					lossDists.add(condLossDists[fssIndex]);
+					Preconditions.checkState((float)mag == (float)meanSol.getRupSet().getMagForRup(fssIndex));
 					// make sure weights sum to 1
+					double meanLoss = 0;
 					double sumY = 0;
-					for (Point2D pt : condLossDists[fssIndex])
+					for (Point2D pt : condLossDists[fssIndex]) {
 						sumY += pt.getY();
-					Preconditions.checkState((float)sumY == 1f, "rup losses don't sum to 1: "+(float)sumY);
+						meanLoss += pt.getX()*pt.getY();
+					}
+					Preconditions.checkState((float)sumY == 1f || condLossDists[fssIndex].size()==0,
+							"rup losses don't sum to 1: "+(float)sumY+" ("+condLossDists[fssIndex].size()+"");
+					triggerLoss = meanLoss;
 				} else {
 					// grid source
-					double loss = calcGridSourceLoss(rup, region, griddedMagLossDists, "Catalog "+i);
-					// single loss value with weight=1
-					singleLosses.add(loss);
+					triggerLoss = calcGridSourceLoss(triggerRup, region, griddedMagLossDists, "TRIGGER");
 				}
+				System.out.println("Trigger M"+(float)mag+" rupture loss: "+triggerLoss);
 			}
 			
-			// first sum up all single losses (easy)
-			double totSingleLosses = 0d;
-			for (double loss : singleLosses)
-				totSingleLosses += loss;
-			
-			if (rup_mean_loss) {
-				for (DiscretizedFunc lossDist : lossDists) {
-					double loss = 0;
-					double sumWeight = 0;
-					for (Point2D pt : lossDist) {
-						sumWeight += pt.getY();
-						loss += pt.getX()*pt.getY();
-					}
-					Preconditions.checkState((float)sumWeight == 1f, "Weights don't sum to 1: "+(float)sumWeight);
-					totSingleLosses += loss;
-				}
-			}
-			
-			ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-			if (lossDists.isEmpty() || rup_mean_loss) {
-				// only point sources
-				func.set(totSingleLosses, 1d);
-			} else {
-				// calculate expected number of loss dists for verification
-				int expectedNum = 1;
-				for (DiscretizedFunc lossDist : lossDists)
-					expectedNum *= lossDist.size();
-				
-				List<LossChain> lossChains = getLossChains(totSingleLosses, lossDists);
-				Preconditions.checkState(lossChains.size() == expectedNum,
-						"expected "+expectedNum+" chains, got "+lossChains.size());
-				
-				double sumWeight = 0d;
-				for (LossChain chain : lossChains) {
-					double weight = chain.weight;
-					double loss = chain.totLoss;
-					sumWeight += weight;
-					int xInd = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(loss, func);
-					if (xInd < 0)
-						func.set(loss, weight);
-					else
-						func.set(loss, weight + func.getY(xInd));
-				}
-				Preconditions.checkState((float)sumWeight == 1f,
-						"chain weights don't sum to 1: "+sumWeight+" ("+lossChains.size()+" chains)");
-			}
-			
-//			double meanLoss = 0d;
-//			for (Point2D pt : func)
-//				meanLoss += pt.getX()*pt.getY();
-			
-			catalogDists.add(func);
+			distsMap.put(durationYears, catalogDists);
 		}
 		
-		if (triggerRup != null) {
-			int fssIndex = getFSSIndex(triggerRup);
-			
-			double mag = triggerRup.getMag();
-			
-			double triggerLoss;
-			
-			if (fssIndex >= 0) {
-				// fault based source
-				Preconditions.checkState((float)mag == (float)meanSol.getRupSet().getMagForRup(fssIndex));
-				// make sure weights sum to 1
-				double meanLoss = 0;
-				double sumY = 0;
-				for (Point2D pt : condLossDists[fssIndex]) {
-					sumY += pt.getY();
-					meanLoss += pt.getX()*pt.getY();
-				}
-				Preconditions.checkState((float)sumY == 1f || condLossDists[fssIndex].size()==0,
-						"rup losses don't sum to 1: "+(float)sumY+" ("+condLossDists[fssIndex].size()+"");
-				triggerLoss = meanLoss;
-			} else {
-				// grid source
-				triggerLoss = calcGridSourceLoss(triggerRup, region, griddedMagLossDists, "TRIGGER");
-			}
-			System.out.println("Trigger M"+(float)mag+" rupture loss: "+triggerLoss);
-		}
-		
-		return catalogDists;
+		return distsMap;
 	}
 	
 	private double calcGridSourceLoss(ETAS_EqkRupture rup, GriddedRegion region,
@@ -518,16 +542,27 @@ public class ETAS_CatalogEALCalculator {
 		}
 	}
 	
-	public static HistogramFunction getLossHist(List<DiscretizedFunc> catalogDists, double delta, boolean isLog10) {
+	public static Map<Double, HistogramFunction> getLossHist(Map<Double, List<DiscretizedFunc>> catalogDists, double delta, boolean isLog10) {
+		double maxDuration = 0d;
+		List<DiscretizedFunc> longestDists = null;
+		for (double duration : catalogDists.keySet()) {
+			if (duration > maxDuration) {
+				maxDuration = duration;
+				longestDists = catalogDists.get(duration);
+			}
+		}
 		int num = -1;
 		Range range = null;
 		while (num == -1 || num == 1) {
-			range = calcSmartHistRange(catalogDists, delta, isLog10);
+			range = calcSmartHistRange(longestDists, delta, isLog10);
 			num = (int)Math.round((range.getUpperBound()-range.getLowerBound())/delta) + 1;
 			if (num == 1)
 				delta /= 2d;
 		}
-		return getLossHist(catalogDists, range.getLowerBound(), num, delta, isLog10);
+		Map<Double, HistogramFunction> hists = Maps.newHashMap();
+		for (double duration : catalogDists.keySet())
+			hists.put(duration, getLossHist(catalogDists.get(duration), range.getLowerBound(), num, delta, isLog10));
+		return hists;
 	}
 	
 	/**
@@ -611,33 +646,93 @@ public class ETAS_CatalogEALCalculator {
 		return lossHist;
 	}
 	
-	public static void writeLossHist(File outputDir, String outputPrefix, HistogramFunction lossHist, boolean isLogX,
+	private static String getDurationLabel(double duration) {
+		if (duration >= 1d) {
+			if (duration == Math.floor(duration))
+				return (int)duration+" yr";
+			return (float)duration+" yr";
+		}
+		// check for months
+		double oneMonth = 30d/365.25;
+		double months = duration/oneMonth;
+		if (months == Math.floor(months))
+			return (int)(months)+" mo";
+		double oneWeek = 7d/365.25;
+		if (duration == oneWeek)
+			return "1 wk";
+		double days = duration*365.25;
+		if (days == Math.floor(days))
+			return (int)(days)+" day";
+		return (float)(days)+" day";
+	}
+	
+	public static void writeLossHist(File outputDir, String outputPrefix, Map<Double, HistogramFunction> lossHists, boolean isLogX,
 			boolean triggeredOnly, String xAxisLabel, double xAxisScale, double maxX) throws IOException {
+		lossHists = Maps.newHashMap(lossHists);
 		if (!outputDir.exists())
 			outputDir.mkdir();
 		
 //		double logMinY = (1d/catalogs.size())/10d; // one order of magnitude below the smallest possible
-		double logMinY = 1e-4;
+		double logMinY = 1e-5;
 		
 		List<PlotElement> elems = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		if (xAxisScale != 1d && xAxisScale != 0d) {
-			HistogramFunction newLossHist = new HistogramFunction(
-					lossHist.getMinX()*xAxisScale, lossHist.size(), lossHist.getDelta()*xAxisScale);
-			System.out.println("Scaled minX: "+newLossHist.getMinX()+" maxX="+newLossHist.getMaxX());
-			for (int i=0; i<lossHist.size(); i++)
-				newLossHist.set(i, lossHist.getY(i));
-			lossHist = newLossHist;
-		}
+		List<Double> durations = Lists.newArrayList();
+		for (Double duration : lossHists.keySet())
+			durations.add(duration);
+		Collections.sort(durations);
+		Collections.reverse(durations); // order from biggest to smallest
+		double minDur = durations.get(durations.size()-1);
+		double maxDur = durations.get(0);
 		
-		elems.add(lossHist);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, Color.BLACK));
+		CPT logDurCPT = null;
+		if (lossHists.size() > 1)
+			logDurCPT = new CPT(Math.log(minDur), Math.log(maxDur), Color.GRAY, Color.BLACK);
+		
+		double histsMinX = Double.POSITIVE_INFINITY;
+		double histsMaxX = Double.NEGATIVE_INFINITY;
+		double histsMinY = Double.POSITIVE_INFINITY;
+		double histsMaxY = Double.NEGATIVE_INFINITY;
+		
+		for (double duration : durations) {
+			HistogramFunction lossHist = lossHists.get(duration);
+			
+			if (xAxisScale != 1d && xAxisScale != 0d) {
+				HistogramFunction newLossHist = new HistogramFunction(
+						lossHist.getMinX()*xAxisScale, lossHist.size(), lossHist.getDelta()*xAxisScale);
+				System.out.println("Scaled minX: "+newLossHist.getMinX()+" maxX="+newLossHist.getMaxX());
+				for (int i=0; i<lossHist.size(); i++)
+					newLossHist.set(i, lossHist.getY(i));
+				lossHist = newLossHist;
+				lossHists.put(duration, lossHist); // we made a copy of the map so this doesn't modify the original
+			}
+			
+			lossHist.setName(getDurationLabel(duration));
+			
+			elems.add(lossHist);
+			Color c;
+			if (logDurCPT == null)
+				c = Color.BLACK;
+			else
+				c = logDurCPT.getColor((float)Math.log(duration));
+			if (duration == maxDur)
+				chars.add(new PlotCurveCharacterstics(PlotLineType.HISTOGRAM, 1f, c));
+			else
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+			
+			histsMinX = Math.min(histsMinX, lossHist.getMinX()-0.5*lossHist.getDelta());
+			histsMaxX = Math.max(histsMaxX, lossHist.getMaxX()+0.5*lossHist.getDelta());
+			histsMinY = Math.min(histsMinY, lossHist.getMinY());
+			histsMaxY = Math.max(histsMinY, lossHist.getMaxY());
+		}
 		
 		if (isLogX)
 			xAxisLabel = "Log10("+xAxisLabel+")";
 		
 		PlotSpec spec = new PlotSpec(elems, chars, "Simulated Loss Distribution", xAxisLabel, "Frequency");
+		if (durations.size() > 1)
+			spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		
@@ -646,10 +741,14 @@ public class ETAS_CatalogEALCalculator {
 		gp.setAxisLabelFontSize(20);
 		gp.setPlotLabelFontSize(21);
 		
-		double minX = lossHist.getMinX()-0.5*lossHist.getDelta();
+//		double minX = lossHist.getMinX()-0.5*lossHist.getDelta();
+//		if (!Doubles.isFinite(maxX) || maxX <= 0)
+//			maxX = lossHist.getMaxX()+0.5*lossHist.getDelta();
+//		double maxY = lossHist.getMaxY()*1.2;
+		double minX = histsMinX;
 		if (!Doubles.isFinite(maxX) || maxX <= 0)
-			maxX = lossHist.getMaxX()+0.5*lossHist.getDelta();
-		double maxY = lossHist.getMaxY()*1.2;
+			maxX = histsMaxX;
+		double maxY = histsMaxY*1.2;
 		
 		for (boolean logY : new boolean[] {false, true}) {
 			if (logY)
@@ -669,20 +768,38 @@ public class ETAS_CatalogEALCalculator {
 		}
 		
 		// now loss excedence
-		HistogramFunction cumDist = lossHist.getCumulativeDistFunctionWithHalfBinOffset();
-		// convert to exceedance
-		for (int i=0; i<cumDist.size(); i++)
-			cumDist.set(i, 1d-cumDist.getY(i));
-		
 		elems = Lists.newArrayList();
 		chars = Lists.newArrayList();
 		
-		elems.add(cumDist);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		double maxCumY = 0d;
+		
+		for (double duration : durations) {
+			HistogramFunction lossHist = lossHists.get(duration);
+			
+			HistogramFunction cumDist = lossHist.getCumulativeDistFunctionWithHalfBinOffset();
+			// convert to exceedance
+			for (int i=0; i<cumDist.size(); i++)
+				cumDist.set(i, 1d-cumDist.getY(i));
+			
+			cumDist.setName(getDurationLabel(duration));
+			
+			Color c;
+			if (logDurCPT == null)
+				c = Color.BLACK;
+			else
+				c = logDurCPT.getColor((float)Math.log(duration));
+			
+			elems.add(cumDist);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, c));
+			
+			maxCumY = Math.max(maxCumY, cumDist.getMaxY());
+		}
 		
 		spec = new PlotSpec(elems, chars, "Simulated Loss Exceedance Probabilities", xAxisLabel, "Exceedance Prob");
+		if (durations.size() > 1)
+			spec.setLegendVisible(true);
 		
-		maxY = cumDist.getMaxY()*1.2;
+		maxY = maxCumY*1.2;
 		if (maxY > 1d)
 			maxY = 1.05;
 		
@@ -704,7 +821,39 @@ public class ETAS_CatalogEALCalculator {
 		}
 	}
 	
-	public void writeLossesToCSV(File csvFile, List<DiscretizedFunc> catalogLosses) throws IOException {
+	public void writeLossesToCSV(File dir, String prefix, Map<Double, List<DiscretizedFunc>> lossDists) throws IOException {
+//		for (double duration : lossDists.keySet()) {
+//			File csvFile = new File(dir, prefix+"_"+getDurationLabel(duration).replaceAll(" ", "")+".csv");
+//			writeLossesToCSV(csvFile, lossDists.get(duration));
+//		}
+		List<Double> durations = Lists.newArrayList(lossDists.keySet());
+		Collections.sort(durations);
+		
+		// write maximum
+		double maxDur = durations.get(durations.size()-1);
+		File csvFile = new File(dir, prefix+"_"+getDurationLabel(maxDur).replaceAll(" ", "")+".csv");
+		writeLossesToCSV(csvFile, lossDists.get(maxDur));
+		
+		// now write combined csv
+		CSVFile<String> csv = new CSVFile<>(true);
+		List<String> header = Lists.newArrayList("Index");
+		for (double duration : durations)
+			header.add(duration+"");
+		csv.addLine(header);
+		for (int i=0; i<catalogs.size(); i++) {
+			List<String> line = Lists.newArrayList(i+"");
+			for (double duration : durations) {
+				double totLoss = 0d;
+				for (Point2D pt : lossDists.get(duration).get(i))
+					totLoss += pt.getX()*pt.getY();
+				line.add(totLoss+"");
+			}
+			csv.addLine(line);
+		}
+		csv.writeToFile(new File(dir, prefix+"_combined.csv"));
+	}
+	
+	public void writeLossesToCSV(File csvFile, List<DiscretizedFunc> lossDists) throws IOException {
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		double cutoffMag = AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF;
@@ -713,7 +862,7 @@ public class ETAS_CatalogEALCalculator {
 		
 		for (int i=0; i<catalogs.size(); i++) {
 			double totLoss = 0d;
-			for (Point2D pt : catalogLosses.get(i))
+			for (Point2D pt : lossDists.get(i))
 				totLoss += pt.getX()*pt.getY();
 			int numFSSRups = 0;
 			int numAbove = 0;
@@ -803,8 +952,11 @@ public class ETAS_CatalogEALCalculator {
 			resultsFile = new File(args[0]);
 		else
 			resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
+//				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
+				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5.bin");
 //				+ "2016_02_25-surprise_valley_5p0-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
+		
+		double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d };
 		
 		boolean triggeredOnly = true;
 		
@@ -883,18 +1035,18 @@ public class ETAS_CatalogEALCalculator {
 		Map<LogicTreeBranch, List<Integer>> branchMappings = TrueMeanBuilder.loadRuptureMappings(trueMeanSolFile);
 		
 		calculate(resultsFile, triggeredOnly, xAxisLabel, maxX, deltaX, xAxisScale, dataDirs, imrWeightsMap, fm, baSol,
-				cfss, trueMeanSol, branchMappings);
+				cfss, trueMeanSol, branchMappings, durations);
 	}
 
 	public static void calculate(File resultsFile, boolean triggeredOnly, String xAxisLabel, double maxX,
 			double deltaX, double xAxisScale, List<File> dataDirs, Map<AttenRelRef, Double> imrWeightsMap,
 			FaultModels fm, FaultSystemSolution baSol, CompoundFaultSystemSolution cfss,
-			FaultSystemSolution trueMeanSol, Map<LogicTreeBranch, List<Integer>> branchMappings)
-			throws IOException, DocumentException {
+			FaultSystemSolution trueMeanSol, Map<LogicTreeBranch, List<Integer>> branchMappings,
+			double[] durations) throws IOException, DocumentException {
 		File lossOutputDir = new File(resultsFile.getParentFile(), "loss_results");
 		Preconditions.checkState(lossOutputDir.exists() || lossOutputDir.mkdir());
 		
-		List<List<DiscretizedFunc>> lossDistsList = Lists.newArrayList();
+		List<Map<Double, List<DiscretizedFunc>>> lossDistsList = Lists.newArrayList();
 		List<Double> lossWeights = Lists.newArrayList();
 		
 		TestScenario scenario = ETAS_MultiSimAnalysisTools.detectScenario(resultsFile.getParentFile());
@@ -932,7 +1084,7 @@ public class ETAS_CatalogEALCalculator {
 			else
 				calc.setTriggerGridRup(scenario.getLocation(), scenario.getMagnitude());
 			
-			List<List<DiscretizedFunc>> myLossDists = Lists.newArrayList();
+			List<Map<Double, List<DiscretizedFunc>>> myLossDists = Lists.newArrayList();
 			List<Double> myWeights = Lists.newArrayList();
 			
 			File outputDir = new File(lossOutputDir, dataDir.getName());
@@ -943,24 +1095,24 @@ public class ETAS_CatalogEALCalculator {
 				double imrWeight = imrWeightsMap.get(attenRelRef);
 				
 				System.out.println("Calculating catalog losses");
-				List<DiscretizedFunc> lossDists = calc.getLossDists(attenRelRef);
+				Map<Double, List<DiscretizedFunc>> lossDists = calc.getLossDists(attenRelRef, durations);
 				
 				myLossDists.add(lossDists);
 				myWeights.add(imrWeight);
 				
-				HistogramFunction lossHist = getLossHist(lossDists, deltaX, isLog10);
+				Map<Double, HistogramFunction> lossHists = getLossHist(lossDists, deltaX, isLog10);
 //				writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10);
-				writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
+				writeLossHist(outputDir, attenRelRef.name(), lossHists, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
 				
-				calc.writeLossesToCSV(new File(outputDir, attenRelRef.name()+"_losses.csv"), lossDists);
+				calc.writeLossesToCSV(outputDir, attenRelRef.name()+"_losses", lossDists);
 			}
 			
 			// combined for all atten rels
 			if (imrWeightsMap.size() > 1) {
-				List<DiscretizedFunc> imrCombined = getCombinedLossDists(myLossDists, myWeights);
-				HistogramFunction lossHist = getLossHist(imrCombined, deltaX, isLog10);
-				writeLossHist(outputDir, "gmpes_combined", lossHist, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
-				calc.writeLossesToCSV(new File(outputDir, "gmpes_combined_losses.csv"), imrCombined);
+				Map<Double, List<DiscretizedFunc>> imrCombined = getCombinedLossDists(myLossDists, myWeights);
+				Map<Double, HistogramFunction> lossHists = getLossHist(imrCombined, deltaX, isLog10);
+				writeLossHist(outputDir, "gmpes_combined", lossHists, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
+				calc.writeLossesToCSV(outputDir, "gmpes_combined_losses", imrCombined);
 			}
 			
 			lossDistsList.addAll(myLossDists);
@@ -972,39 +1124,48 @@ public class ETAS_CatalogEALCalculator {
 			if (!outputDir.exists())
 				outputDir.mkdir();
 			
-			List<DiscretizedFunc> combined = getCombinedLossDists(lossDistsList, lossWeights);
-			HistogramFunction lossHist = getLossHist(combined, deltaX, isLog10);
-			writeLossHist(outputDir, "gmpes_combined", lossHist, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
-			calc.writeLossesToCSV(new File(outputDir, "gmpes_combined_losses.csv"), combined);
+			Map<Double, List<DiscretizedFunc>> combined = getCombinedLossDists(lossDistsList, lossWeights);
+			Map<Double, HistogramFunction> lossHists = getLossHist(combined, deltaX, isLog10);
+			writeLossHist(outputDir, "gmpes_combined", lossHists, isLog10, triggeredOnly, xAxisLabel, xAxisScale, maxX);
+			calc.writeLossesToCSV(outputDir, "gmpes_combined_losses", combined);
 		}
 	}
 	
-	private static List<DiscretizedFunc> getCombinedLossDists(List<List<DiscretizedFunc>> lossDistsList, List<Double> lossWeights) {
-		List<DiscretizedFunc> combinedLosses = Lists.newArrayList();
+	private static Map<Double, List<DiscretizedFunc>> getCombinedLossDists(
+			List<Map<Double, List<DiscretizedFunc>>> lossDistsList, List<Double> lossWeights) {
+		Map<Double, List<DiscretizedFunc>> combinedLosses = Maps.newHashMap();
 		
-		for (int i=0; i<lossDistsList.get(0).size(); i++)
-			combinedLosses.add(new ArbitrarilyDiscretizedFunc());
+		for (double duration : lossDistsList.get(0).keySet()) {
+			List<DiscretizedFunc> list = Lists.newArrayList();
+			for (int i=0; i<lossDistsList.get(0).get(duration).size(); i++) {
+				list.add(new ArbitrarilyDiscretizedFunc());
+			}
+			combinedLosses.put(duration, list);
+		}
 		
 		double totWeight = 0d;
 		for (double weight : lossWeights)
 			totWeight += weight;
 		
 		for (int i=0; i<lossDistsList.size(); i++) {
-			List<DiscretizedFunc> lossDists = lossDistsList.get(i);
+			Map<Double, List<DiscretizedFunc>> lossDistsMap = lossDistsList.get(i);
 			double weight = lossWeights.get(i)/totWeight;
 			
-			Preconditions.checkState(lossDists.size() == combinedLosses.size());
-			
-			for (int n=0; n<combinedLosses.size(); n++) {
-				DiscretizedFunc combined = combinedLosses.get(n);
-				for (Point2D pt : lossDists.get(n)) {
-					double x = pt.getX();
-					double y = pt.getY()*weight;
-					int xInd = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(x, combined);
-					if (xInd < 0)
-						combined.set(x, y);
-					else
-						combined.set(x, y + combined.getY(xInd));
+			for (double duration : lossDistsMap.keySet()) {
+				List<DiscretizedFunc> lossDists = lossDistsMap.get(duration);
+				Preconditions.checkState(lossDists.size() == combinedLosses.get(duration).size());
+				
+				for (int n=0; n<combinedLosses.get(duration).size(); n++) {
+					DiscretizedFunc combined = combinedLosses.get(duration).get(n);
+					for (Point2D pt : lossDists.get(n)) {
+						double x = pt.getX();
+						double y = pt.getY()*weight;
+						int xInd = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(x, combined);
+						if (xInd < 0)
+							combined.set(x, y);
+						else
+							combined.set(x, y + combined.getY(xInd));
+					}
 				}
 			}
 		}

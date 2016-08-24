@@ -61,11 +61,6 @@ public interface BaseERF extends Named, Serializable, Comparable<BaseERF> {
 	public void updateForecast();
 
 	/**
-	 * Update and save the serialized forecast into a file
-	 */
-	public String updateAndSaveForecast();
-
-	/**
 	 * This method sets the time-span field
 	 * @param time
 	 */

@@ -390,11 +390,11 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		if (!isTimeDepCompatible() && !isPoisson()) {
 			if (warn) {
 				String title = "Setting Probability Model to Poisson";
-				String message = "The given parameterization is not compatible with time dependence."
-						+ " When multiple fault models are used, or upper depth tolerance < 10,\n"
-						+ " MeanUCERF3 creates multiple instances of each subsection, each of which\n"
-						+ " has a portion of the rate, and thus a longer recurrence interval. This throws\n"
-						+ " off the BPT calculations which use the subsection recurrence interval.\n"
+				String message = "The given parameterization is not compatible with time dependence.\n"
+						+ "When multiple fault models are used, or upper depth tolerance < 10,\n"
+						+ "MeanUCERF3 creates multiple instances of each subsection, each of which\n"
+						+ "has a portion of the rate, and thus a longer recurrence interval. This throws\n"
+						+ "off the BPT calculations which use the subsection recurrence interval.\n"
 						+ "\nIt has now been set to Poisson.";
 				JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
 			}

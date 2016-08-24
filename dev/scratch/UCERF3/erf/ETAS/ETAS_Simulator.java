@@ -1485,7 +1485,7 @@ public class ETAS_Simulator {
 	 *
 	 */
 	public enum TestScenario {
-		// IMPORTANT: DO NOT REMOVE SCENARIOS from this list if we have used them in the past and want figure reproducibility.
+		// IMPORTANT: DO NOT REMOVE OR RENAME SCENARIOS from this list if we have used them in the past and want figure reproducibility.
 		// these are used by the plotting code.
 		MOJAVE_M7pt4("MojaveM7.4", 193830),		// SourceIndex=193816	fssIndex=193830	Inversion Src #193830; 18 SECTIONS BETWEEN San Andreas (San Bernardino N), Subsection 2 AND San Andreas (Mojave S), Subsection 0	mag=7.391156552897243
 		MOJAVE_M7pt8("MojaveM7.8", 18366),
@@ -1526,7 +1526,7 @@ public class ETAS_Simulator {
 		SAF_PENINSULA_M6p3("SAF_PeninsulaM6pt3", 122568),  // Inversion Src #122568; 2 SECTIONS BETWEEN San Andreas (Peninsula) 2011 CFM, Subsection 12 AND San Andreas (Peninsula) 2011 CFM, Subsection 11
 		SAF_PENINSULA_M7("SAF_PeninsulaM7", 119367),  // Inversion Src #119367; 9 SECTIONS BETWEEN San Andreas (North Coast) 2011 CFM, Subsection 1 AND San Andreas (Peninsula) 2011 CFM, Subsection 9
 		HAYWIRED_M7("HaywiredM7pt1", 101499);  // SourceIndex=101485	Inversion Src #101499; 14 SECTIONS BETWEEN Hayward (So) 2011 CFM, Subsection 2 AND Hayward (No) 2011 CFM, Subsection 7	mag=7.09
-		// IMPORTANT: DO NOT REMOVE SCENARIOS from this list if we have used them in the past and want figure reproducibility.
+		// IMPORTANT: DO NOT REMOVE OR RENAME SCENARIOS from this list if we have used them in the past and want figure reproducibility.
 		// these are used by the plotting code.
 				
 		private String name;

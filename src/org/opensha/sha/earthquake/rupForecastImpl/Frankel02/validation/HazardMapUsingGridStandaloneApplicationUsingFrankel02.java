@@ -251,9 +251,9 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
        //creating ArbitrarilyDiscretizedFunc to be send to the server
        setX_ValuesForHazardCurve();
        //gets the instance of the selected ERF
-       String eqkRupForecastLocation = forecast.updateAndSaveForecast();
-       System.out.println("Location for Eqk is:"+eqkRupForecastLocation);
-       sendParametersToServlet(griddedRegionSites, attenRel, eqkRupForecastLocation);
+//       String eqkRupForecastLocation = forecast.updateAndSaveForecast();
+//       System.out.println("Location for Eqk is:"+eqkRupForecastLocation);
+//       sendParametersToServlet(griddedRegionSites, attenRel, eqkRupForecastLocation);
 
      }
    }catch(ParameterException ee){

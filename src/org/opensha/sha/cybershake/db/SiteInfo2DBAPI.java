@@ -28,13 +28,10 @@ public interface SiteInfo2DBAPI {
 	
 	/**
 	 * Inserts the new site in the database table CyberShake_Sites
-	 * @param siteName
-	 * @param siteShortName
-	 * @param lat
-	 * @param lon
+	 * @param site
 	 * @return the Site Id for the last inserted Site
 	 */
-	public int insertSite(String siteName, String siteShortName,double lat,double lon);
+	public int insertSite(CybershakeSite site);
 	
 	/**
 	 * Inserts the rupture ids that correspond to a given site within gven cutoff distance

@@ -131,18 +131,26 @@ public class MFDCalc {
 			// estimate b
 			double bVal = Math.log10(Math.E) /(magMean - (magComplete-0.5*magPrecision));
 			System.out.println("Estimated b-value: "+bVal);
-			GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(bVal, 1d, mfd.getMinX(), mfd.getMaxX(), mfd.size());
-			double totCmlRate = mfd.getCumRateDistWithOffset().getY(0);
-			grMFD.scaleToCumRate(0, totCmlRate);
+			
+			double[] bVals = { bVal, 1d, 1.5d, 2d };
 			
 			List<DiscretizedFunc> funcs = Lists.newArrayList();
 			List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 			funcs.add(mfd);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
 			mfd.setName("Catalog");
-			funcs.add(grMFD);
-			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
-			grMFD.setName("G-R b="+(float)bVal);
+			
+			double totCmlRate = mfd.getCumRateDistWithOffset().getY(0);
+			for (double b : bVals) {
+				GutenbergRichterMagFreqDist grMFD = new GutenbergRichterMagFreqDist(b, 1d, mfd.getMinX(), mfd.getMaxX(), mfd.size());
+				grMFD.scaleToCumRate(0, totCmlRate);
+				funcs.add(grMFD);
+				if (b == bVal)
+					chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.BLUE));
+				else
+					chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.GRAY));
+				grMFD.setName("G-R b="+(float)b);
+			}
 			
 			String title = (int)(duration+0.5)+" yr MFD";
 			if (reg != null)
@@ -180,12 +188,12 @@ public class MFDCalc {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
+		File dir = new File("/home/kevin/Simulators/UCERF3_interns/UCERF3sigmahigh");
 		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
 		Region[] regions =  { new CaliforniaRegions.RELM_SOCAL(), new CaliforniaRegions.RELM_TESTING() };
-		File eventDir = new File("/home/kevin/Simulators/UCERF3_interns/combine340");
-		double minMag = 5d;
+		File eventDir = dir;
+		double minMag = 5.5d;
 		List<RSQSimEvent> events = RSQSimFileReader.readEventsFile(eventDir, elements,
 				Lists.newArrayList(new MagRangeRuptureIdentifier(minMag, 10d)));
 		

@@ -36,7 +36,7 @@ public class CybershakeSiteManager {
 		
 		// CyberShake_Sites table
 		System.out.println("Inserting site record");
-		csSite2db.putCybershakeLocationInDB(site.name, site.short_name, site.lat, site.lon);
+		csSite2db.putCybershakeLocationInDB(site);
 		int siteID = csSite2db.getCybershakeSiteId(site.short_name);
 		if (siteID < 0) {
 			System.out.println("Error inserting site record!");

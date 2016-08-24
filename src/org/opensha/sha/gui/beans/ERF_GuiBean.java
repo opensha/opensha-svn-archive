@@ -381,21 +381,6 @@ ParameterChangeListener{
 	}
 
 	/**
-	 * Save the selected forecast into a file
-	 *
-	 * @return
-	 * @throws InvocationTargetException
-	 */
-	public String saveSelectedERF() throws InvocationTargetException {
-		getSelectedERF_Instance();
-
-		//save the updated forecast in the file as the binary object.
-		String location = eqkRupForecast.updateAndSaveForecast();
-		//if (this.showProgressBar) progress.dispose();
-		return location;
-	}
-
-	/**
 	 * It sees whether selected ERF is a Epistemic list.
 	 * @return : true if selected ERF is a epistemic list, else false
 	 */

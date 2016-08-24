@@ -72,8 +72,8 @@ public class CybershakeSiteInfo2DB {
 	 * @param siteLon
 	 * @return the SiteId from the database
 	 */
-	public int  putCybershakeLocationInDB(String siteName,String siteShortName,double siteLat,double siteLon){
-	    return site2db.insertSite(siteName, siteShortName, siteLat, siteLon);
+	public int  putCybershakeLocationInDB(CybershakeSite site){
+	    return site2db.insertSite(site);
 	}
 	
 	/**
@@ -532,6 +532,10 @@ public class CybershakeSiteInfo2DB {
 	 */
 	public List<CybershakeSite> getAllSitesFromDB() {
 		return site2db.getAllSitesFromDB();
+	}
+	
+	public SiteInfo2DB getSitesDB() {
+		return site2db;
 	}
 	
 	public static void main(String args[]) {

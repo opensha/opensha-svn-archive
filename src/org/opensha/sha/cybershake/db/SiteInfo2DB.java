@@ -60,13 +60,17 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param lon
 	 * @return the Site Id for the last inserted Site
 	 */
-	public int insertSite(String siteName, String siteShortName, double lat,
-			double lon) {
+	public int insertSite(CybershakeSite site) {
 //		generate the SQL to be inserted in the Sites table
+		String idField;
+		if (site.type_id >= 0)
+			idField = "'"+site.type_id+"'";
+		else
+			idField = "NULL";
 		String sql = "INSERT into CyberShake_Sites"+ 
-		             "(CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon)"+
-		             "VALUES('"+siteName+"','"+siteShortName+"','"+
-		(float)lat+"','"+(float)lon+"')";
+		             "(CS_Site_Name,CS_Short_Name,CS_Site_Lat,CS_Site_Lon,CS_Site_Type_ID)"+
+		             "VALUES('"+site.name+"','"+site.short_name+"','"+
+		             (float)site.lat+"','"+(float)site.lon+"',"+idField+")";
 		try {
 			dbaccess.insertUpdateOrDeleteData(sql);
 		} catch (SQLException e) {
@@ -75,8 +79,8 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 			} else {
 				e.printStackTrace();
 			}
-		}		
-		return getSiteId(siteShortName);
+		}
+		return getSiteId(site.short_name);
 		
 	}
 	
@@ -143,26 +147,21 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @return
 	 */
 	public double getSiteCutoffDistance(int siteID){
-//		 gets the last auto increment id from Sites table
+		//		 gets the last auto increment id from Sites table
 		if (CybershakeSiteInfo2DB.FORCE_CUTOFF)
 			return CybershakeSiteInfo2DB.CUT_OFF_DISTANCE;
-		 String sql = "SELECT Cutoff_Dist from CyberShake_Site_Regions where CS_Site_ID=" + siteID;
-		 ResultSet rs = null;
+		String sql = "SELECT Cutoff_Dist from CyberShake_Site_Regions where CS_Site_ID=" + siteID;
 		try {
-			rs = dbaccess.selectData(sql);
+			ResultSet rs = dbaccess.selectData(sql);
+			rs.first();
+			double dist = rs.getDouble("Cutoff_Dist");
+			rs.close();
+			return dist;
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			//			e1.printStackTrace();
+			System.out.println("Using default cut off distance");
 		}
-			try {
-				rs.first();
-				double dist = rs.getDouble("Cutoff_Dist");
-				rs.close();
-				return dist;
-				
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		if (siteID == 73)
 			// TEST site
 			return 20;

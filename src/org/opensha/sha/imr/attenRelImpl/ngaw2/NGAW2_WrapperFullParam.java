@@ -116,7 +116,7 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 
 	@Override
 	public String getName() {
-		return gmpe.getName()+" EXPERIMENTAL";
+		return gmpe.getName();
 	}
 
 	@Override
