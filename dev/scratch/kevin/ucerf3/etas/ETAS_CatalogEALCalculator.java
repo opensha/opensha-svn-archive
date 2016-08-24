@@ -835,7 +835,7 @@ public class ETAS_CatalogEALCalculator {
 		writeLossesToCSV(csvFile, lossDists.get(maxDur));
 		
 		// now write combined csv
-		CSVFile<String> csv = new CSVFile<>(true);
+		CSVFile<String> csv = new CSVFile<String>(true);
 		List<String> header = Lists.newArrayList("Index");
 		for (double duration : durations)
 			header.add(duration+"");
