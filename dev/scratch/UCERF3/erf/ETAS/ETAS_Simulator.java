@@ -1773,11 +1773,43 @@ public class ETAS_Simulator {
 	}
 
 	
+	
+	public static void tempTestGainResult() {
+		
+		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
+		double[] td_rates = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 6.7);
+		
+		
+		// this will reset sections involved in scenario
+		buildScenarioRup(TestScenario.MOJAVE_M7, erf);
+		double[] td_postScen_rates = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 6.7);
+
+		
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		double[] ti_rates = FaultSysSolutionERF_Calc.calcParticipationRateForAllSects(erf, 6.7);
+
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		for(int i=0;i<ti_rates.length;i++)
+			System.out.println(td_rates[i]+"\t"+td_postScen_rates[i]+"\t"+ti_rates[i]+"\t"+rupSet.getFaultSectionData(i).getName());
+
+	}
+
+	
+
+
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		tempTestGainResult();
+//		System.exit(0);
+
+
 		
 //		// Haywired scenario:
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),825,830);
