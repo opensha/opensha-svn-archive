@@ -325,6 +325,38 @@
     <servlet-name>CVM4i26_1_0</servlet-name>
     <url-pattern>/SiteData/CVM4i26_1_0</url-pattern>
   </servlet-mapping>
+  
+  <!-- * CVM_CCAi6 2.5 * -->
+  <servlet>
+    <servlet-name>CVM_CCAi6_2_5</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.CVM_CCAi6BasinDepthTo2_5_Servlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>CVM_CCAi6_2_5</servlet-name>
+    <url-pattern>/SiteData/CVM_CCAi6_2_5</url-pattern>
+  </servlet-mapping>
+  
+  <!-- * CVM_CCAi6 1.0 * -->
+  <servlet>
+    <servlet-name>CVM_CCAi6_1_0</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.CVM_CCAi6BasinDepthTo1_0_Servlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>CVM_CCAi6_1_0</servlet-name>
+    <url-pattern>/SiteData/CVM_CCAi6_1_0</url-pattern>
+  </servlet-mapping>
 
   <!-- * CVM Vs30 * -->
   <servlet>
