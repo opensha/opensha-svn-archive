@@ -364,7 +364,6 @@ public class Cybershake_OpenSHA_DBApplication {
 	 */
 	public static void main(String[] args) throws IOException {
 		HOST_NAME = "moment.usc.edu";
-		boolean doIt = true;
 		Cybershake_OpenSHA_DBApplication app = new Cybershake_OpenSHA_DBApplication();
 		//NSHMP2002_ToDB erfDB = new NSHMP2002_ToDB(db);
 		// String erfDescription = "NSHMP 2002 (Frankel02) Earthquake Rupture Forecast Model";
@@ -446,7 +445,8 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		List<CybershakeSite> site_list = new ArrayList<CybershakeSite>();
 //		site_list.addAll(loadSitesFromCSV(new File("/tmp/all_but_10km_short_names.csv")));
-		site_list.addAll(loadSitesFromCSV(new File("/tmp/20km_10km_5km_sites.csv")));
+//		site_list.addAll(loadSitesFromCSV(new File("/tmp/20km_10km_5km_sites.csv")));
+		site_list.addAll(loadSitesFromCSV(new File("/tmp/new_sites.csv")));
 //		site_list = site_list.subList(0, 1);
 //		site_list.add(new CybershakeSite(33.88110, -118.17568, "Lighthipe", "LTP"));
 //		site_list.add(new CybershakeSite(34.10647, -117.09822, "Seven Oaks Dam", "SVD"));

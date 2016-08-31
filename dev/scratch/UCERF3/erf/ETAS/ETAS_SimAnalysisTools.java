@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TimeZone;
 
@@ -73,6 +75,7 @@ import scratch.kevin.ucerf3.etas.MPJ_ETAS_Simulator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 
@@ -1983,6 +1986,61 @@ public class ETAS_SimAnalysisTools {
 		
 		return ret;
 	}
+	
+	public static List<ETAS_EqkRupture> getAboveMagPreservingChain(List<ETAS_EqkRupture> catalog, double minMag) {
+		Map<Integer, ETAS_EqkRupture> catalogMap = Maps.newHashMap();
+		int minID = Integer.MAX_VALUE;
+		for (ETAS_EqkRupture rup : catalog) {
+			catalogMap.put(rup.getID(), rup);
+			if (rup.getID() < minID)
+				minID = rup.getID();
+		}
+		
+		HashSet<Integer> idsForInclusion = new HashSet<Integer>();
+		
+		for (ETAS_EqkRupture rup : catalog) {
+			Integer id = rup.getID();
+			double mag = rup.getMag();
+			if (mag >= minMag) {
+				idsForInclusion.add(id);
+				// now add any previous events in the chain
+				while (rup.getParentID() >= 0) {
+					Integer parentID = rup.getParentID();
+					if (parentID < minID)
+						// historical or scenario event
+						break;
+					if (idsForInclusion.contains(parentID))
+						// already been through this chain
+						break;
+					idsForInclusion.add(parentID);
+					rup = catalogMap.get(parentID);
+					Preconditions.checkNotNull(rup,
+							"Chain broken, no rup found for id=%s, filtered input catalog?", parentID);
+				}
+			}
+		}
+		
+		List<ETAS_EqkRupture> ret = Lists.newArrayList();
+		
+		for (Integer id : idsForInclusion)
+			ret.add(catalogMap.get(id));
+		
+		// now sort
+		Collections.sort(ret, eventComparator);
+		
+		return ret;
+	}
+	
+	public static final Comparator<ETAS_EqkRupture> eventComparator = new Comparator<ETAS_EqkRupture>() {
+
+		@Override
+		public int compare(ETAS_EqkRupture o1, ETAS_EqkRupture o2) {
+			int ret = new Long(o1.getOriginTime()).compareTo(o2.getOriginTime());
+			if (ret == 0)
+				ret = new Integer(o1.getID()).compareTo(o2.getID());
+			return ret;
+		}
+	};
 	
 	/**
 	 * This will return a catalog that contains only ruptures that are direct children of the given parent ID,

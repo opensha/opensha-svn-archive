@@ -1520,6 +1520,7 @@ public class ETAS_Simulator {
 		CENTRAL_VALLEY_M3("Central Valley M3", new Location(37.622,-119.993,5.8), 3.0), // Central Valley - farthest from faults
 		CENTRAL_VALLEY_M5p0("Central Valley M5", new Location(37.622,-119.993,5.8), 5.0), // Central Valley - farthest from faults
 		ZAYANTE_VERGELES_M5p5("Zayante-Vergeles M5pt5", new Location(36.71779, -121.59369, 6.49000), 5.5), // writeLocationAtCenterOfSectionSurf(erf, 2605);	// Zayante-Vergeles 2011 CFM, Subsection 7; 36.71779, -121.59369, 6.49000; lowest char factor on more than one section
+		SAN_JACINTO_0_M4p8("San Jacinto (Borrego) M4pt8", new Location(33.1917, -116.17999, 7.41061), 4.8),	// San Jacinto (Borrego), Subsection 0	33.1917, -116.17999, 7.41061
 		SAN_JACINTO_0_M5p5("San Jacinto (Borrego) M5pt5", new Location(33.1917, -116.17999, 7.41061), 5.5),	// San Jacinto (Borrego), Subsection 0	33.1917, -116.17999, 7.41061
 		MENDOCINO_12_M5p5("Mendocino M5pt5", new Location(40.38540, -125.01342, 6.0), 5.5),	// Mendocino, Subsection 12	40.38540, -125.01342, 6.0
 		SAF_PENINSULA_M5p5("SAF_PeninsulaM5pt5", new Location(37.72793, -122.54861, 7.0), 5.5),  // San Andreas (Peninsula) 2011 CFM, Subsection 12	37.72793, -122.54861, 7.0

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
@@ -814,6 +816,7 @@ public class ETAS_CatalogIO {
 		out.writeInt(-1); // will overwrite later
 		
 		for (File inputFile : inputFiles) {
+			System.out.println("Handling "+inputFile.getAbsolutePath());
 //			List<List<ETAS_EqkRupture>> subCatalogs = loadCatalogs(inputFile);
 			for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, 0d)) {
 				double duration = 0;
@@ -839,8 +842,61 @@ public class ETAS_CatalogIO {
 		raFile.close();
 	}
 	
-	public static void binaryCatalogsFilterByMag(File inputFile, File outputFile, double minMag)
+	public static void unionBinary(File outputFile, File... inputFiles)
 			throws ZipException, IOException {
+		Preconditions.checkArgument(inputFiles.length > 1);
+		
+		BinarayCatalogsIterable[] iterables = new BinarayCatalogsIterable[inputFiles.length];
+		List<Iterator<List<ETAS_EqkRupture>>> iterators = Lists.newArrayList();
+		for (int i=0; i<inputFiles.length; i++) {
+			iterables[i] = getBinaryCatalogsIterable(inputFiles[i], 0d);
+			iterators.add(iterables[i].iterator());
+		}
+		
+		int numCatalogs = iterables[0].getNumCatalogs();
+		
+		for (int i=1; i<inputFiles.length; i++)
+			Preconditions.checkState(iterables[i].getNumCatalogs() == numCatalogs);
+		
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile), buffer_len));
+		
+		long uniqueRups = 0;
+		long totalRups = 0;
+
+		// write number of catalogs as int
+		out.writeInt(numCatalogs);
+		
+		for (int i=0; i<numCatalogs; i++) {
+			if (i % 1000 == 0)
+				System.out.println("Processing catalog "+i);
+			Map<Integer, ETAS_EqkRupture> catalogMap = Maps.newHashMap();
+			for (Iterator<List<ETAS_EqkRupture>> it : iterators) {
+				List<ETAS_EqkRupture> catalog = it.next();
+				for (ETAS_EqkRupture rup : catalog) {
+					Integer id = rup.getID();
+					if (catalogMap.containsKey(id))
+						Preconditions.checkState(catalogMap.get(id).getOriginTime() == rup.getOriginTime(),
+								"Trying to union between different catalogs");
+					else
+						catalogMap.put(id, rup);
+				}
+				totalRups += catalog.size();
+			}
+			uniqueRups += catalogMap.size();
+			List<ETAS_EqkRupture> catalog = Lists.newArrayList(catalogMap.values());
+			Collections.sort(catalog, ETAS_SimAnalysisTools.eventComparator);
+			writeCatalogBinary(out, catalog);
+		}
+
+		out.close();
+		
+		double keptPercent = 100d*uniqueRups/(double)(totalRups);
+		
+		System.out.println("Union complete. "+(float)keptPercent+"% of ruptures kept");
+	}
+	
+	public static void binaryCatalogsFilterByMag(File inputFile, File outputFile, double minMag,
+			boolean preserveChain) throws ZipException, IOException {
 		int count = 0;
 		
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile), buffer_len));
@@ -848,11 +904,23 @@ public class ETAS_CatalogIO {
 		// write number of catalogs as int
 		out.writeInt(-1); // will overwrite later
 		
-		for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, minMag)) {
-			if (count % 1000 == 0)
-				System.out.println("Processing catalog "+count);
-			count++;
-			writeCatalogBinary(out, catalog);
+		if (preserveChain) {
+			// we need to include events below the minimum magnitude that are part of a chain leading to an
+			// event which is above the minimum magnitude
+			for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, 0d)) {
+				if (count % 1000 == 0)
+					System.out.println("Processing catalog "+count);
+				catalog = ETAS_SimAnalysisTools.getAboveMagPreservingChain(catalog, minMag);
+				count++;
+				writeCatalogBinary(out, catalog);
+			}
+		} else {
+			for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, minMag)) {
+				if (count % 1000 == 0)
+					System.out.println("Processing catalog "+count);
+				count++;
+				writeCatalogBinary(out, catalog);
+			}
 		}
 
 		out.close();
@@ -912,8 +980,9 @@ public class ETAS_CatalogIO {
 //		}
 		
 		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k");
-		binaryCatalogsFilterByMag(new File(dir, "results_descendents_100k.bin"), new File(dir, "results_descendents_m5.bin"), 5d);
+//				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k");
+				+ "2016_08_24-spontaneous-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined");
+		binaryCatalogsFilterByMag(new File(dir, "results_m4.bin"), new File(dir, "results_m5.bin"), 5d, false);
 		
 //		File binFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin");

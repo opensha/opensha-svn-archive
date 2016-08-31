@@ -158,7 +158,7 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 	
 	// TimeSpan stuff:
 	protected final static double DURATION_DEFAULT = 30;	// years
-	protected final static double DURATION_MIN = 0.001;
+	protected final static double DURATION_MIN = 0.0001;
 	public final static double DURATION_MAX = 100000;
 	public final static int START_TIME_DEFAULT = 2014;
 	protected final static int START_TIME_MIN = 1800;	// prob model calc now handles case when this is before date of last event

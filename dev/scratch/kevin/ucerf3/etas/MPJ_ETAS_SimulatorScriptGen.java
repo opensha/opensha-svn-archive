@@ -53,16 +53,16 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int hours = 24;
 //		int nodes = 60;
 		
+//		double duration = 10;
+//		int numSims = 25000;
+//		int hours = 24;
+//		int nodes = 60;
+		
+		// for scenarios
 		double duration = 10;
 		int numSims = 25000;
 		int hours = 24;
 		int nodes = 60;
-		
-		// for scenarios
-//		double duration = 10;
-//		int numSims = 10000;
-//		int hours = 24;
-//		int nodes = 60;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -71,6 +71,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+//		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
 //				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7pt4, TestScenario.MOJAVE_M7pt8};
@@ -78,14 +79,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //					TestScenario.SAF_PENINSULA_M5p5, TestScenario.SAF_PENINSULA_M6p3, TestScenario.SAF_PENINSULA_M7};
 //		TestScenario[] scenarios = {TestScenario.SURPRISE_VALLEY_5p5, TestScenario.CENTRAL_VALLEY_M5p5};
 //		boolean includeSpontaneous = true;
-//		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
-//		boolean includeSpontaneous = false;
+		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
+		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
-		TestScenario[] scenarios = { null };
-		boolean includeSpontaneous = true;
+//		TestScenario[] scenarios = { null };
+//		boolean includeSpontaneous = true;
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
@@ -104,12 +105,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean applySubSeisForSupraNucl = true;
 		
 //		String nameAdd = null;
-		String nameAdd = "25krun4";
+		String nameAdd = "25krun1";
+//		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
 //		String nameAdd = "4000more";
 //		String nameAdd = "mc10-applyGrGridded";
 //		String nameAdd = "FelzerParams-mc20";
+		boolean nameAddAtEnd = true;
 		
 		boolean histCatalog = true;
 		int startYear = 2012;
@@ -203,7 +206,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					else
 						grStr = "";
 					String jobName = dateStr+"-"+scenarioName;
-					if (nameAdd != null && !nameAdd.isEmpty())
+					if (nameAdd != null && !nameAdd.isEmpty() && !nameAddAtEnd)
 						jobName += "-"+nameAdd;
 //					jobName += "-"+probModel.name().toLowerCase()+"-maxChar"+(float)maxCharFactor;
 					jobName += "-"+probModel.name().toLowerCase()+grStr;
@@ -219,6 +222,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						jobName += "-scale"+(float)totRateScaleFactor;
 					if (!includeSpontaneous)
 						jobName += "-noSpont";
+					
+					if (nameAdd != null && !nameAdd.isEmpty() && nameAddAtEnd)
+						jobName += "-"+nameAdd;
 					
 					File localJobDir = new File(localDir, jobName);
 					if (!localJobDir.exists())
@@ -293,12 +299,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					List<String> consolidationLines = null;
 					if (writeConsolidate) {
 						consolidationLines = Lists.newArrayList();
-						consolidationLines.add("# M4 consolidation");
+//						consolidationLines.add("# M4 consolidation");
 						File resultsDir = new File(remoteJobDir, "results");
-						File m4File = new File(remoteJobDir, "results_m4.bin");
-						consolidationLines.add(mpjWrite.buildCommand(ETAS_CatalogIO.class.getName(),
-								resultsDir.getAbsolutePath()+" "+m4File.getAbsolutePath()+" 4"));
-						consolidationLines.add("");
+						File m4File = new File(remoteJobDir, "results_m4_preserve.bin");
+//						consolidationLines.add(mpjWrite.buildCommand(ETAS_CatalogIO.class.getName(),
+//								resultsDir.getAbsolutePath()+" "+m4File.getAbsolutePath()+" 4"));
+//						consolidationLines.add("");
 						File resultsFile = new File(remoteJobDir, "results.bin");
 						if (scenario == null) {
 							if (!binary) {
@@ -314,6 +320,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 							consolidationLines.add(mpjWrite.buildCommand(ETAS_BinaryCatalogFilterDependents.class.getName(),
 									resultsFile.getAbsolutePath()+" "+descendentsFile.getAbsolutePath()+" 0"));
 						}
+						// build m4 file, preserving descendents
+						consolidationLines.add("# create results_m4_preserve.bin binary file");
+						consolidationLines.add(mpjWrite.buildCommand(ETAS_BinaryCatalogFilterByMag.class.getName(),
+								resultsFile.getAbsolutePath()+" "+m4File.getAbsolutePath()+" 4 true"));
 						
 						if (bundleConsolidate) {
 							String lastLine = script.get(script.size()-1);

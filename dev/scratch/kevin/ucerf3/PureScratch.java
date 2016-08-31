@@ -80,6 +80,7 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -93,6 +94,7 @@ import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
@@ -576,6 +578,51 @@ public class PureScratch {
 				sum += sol.getRateForRup(r)*fractInSoCal[r];
 		return sum;
 	}
+	
+	private static void test20() throws IOException {
+//		File file = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/"
+//				+ "results_descendents_m5_preserve.bin");
+//		File file = new File("/tmp/results_descendents.bin");
+		File file = new File("/tmp/results_descendents_m5_preserve.bin");
+//		File file = new File("/tmp/results_m5_preserve.bin");
+		int scenID = 9893;
+		
+//		List<ETAS_EqkRupture> catalog = ETAS_CatalogIO.getBinaryCatalogsIterable(file, 0d).iterator().next();
+//		checkCatalog(catalog, scenID);
+//		System.out.println("DONE");
+		
+		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(file);
+		for (int i=0; i<catalogs.size(); i++) {
+			checkCatalog(catalogs.get(0), scenID);
+		}
+		System.out.println("DONE");
+	}
+	
+	private static void checkCatalog(List<ETAS_EqkRupture> catalog, int scenID) {
+		List<ETAS_EqkRupture> children = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, scenID);
+		if (catalog.size() != children.size()) {
+			System.out.println("*** Original ***");
+			printCatalog(catalog);
+			System.out.println("*** Children ***");
+			printCatalog(children);
+		}
+		Preconditions.checkState(catalog.size() == children.size(),
+				"not the same! %s != %s", catalog.size(), children.size());
+		// now test filter preserve
+		double minMag = 5d;
+		List<ETAS_EqkRupture> childrenAbove = ETAS_SimAnalysisTools.getAboveMagPreservingChain(children, minMag);
+		List<ETAS_EqkRupture> childrenAbove2 = ETAS_SimAnalysisTools.getChildrenFromCatalog(childrenAbove, scenID);
+		Preconditions.checkState(childrenAbove.size() == childrenAbove2.size(),
+				"not the same after above mag check! %s != %s", childrenAbove.size(), childrenAbove2.size());
+//		printCatalog(childrenAbove2);
+	}
+	
+	private static void printCatalog(List<ETAS_EqkRupture> catalog) {
+		System.out.println("ID\tMag\tGen\tParent");
+		for (ETAS_EqkRupture rup : catalog)
+			System.out.println(rup.getID()+"\t"+(float)rup.getMag()+"\t"+rup.getGeneration()+"\t"+rup.getParentID());
+	}
 
 	/**
 	 * @param args
@@ -598,7 +645,8 @@ public class PureScratch {
 //		test16();
 //		test17();
 //		test18();
-		test19();
+//		test19();
+		test20();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

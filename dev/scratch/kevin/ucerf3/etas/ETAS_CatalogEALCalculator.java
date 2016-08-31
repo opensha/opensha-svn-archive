@@ -927,6 +927,8 @@ public class ETAS_CatalogEALCalculator {
 			}
 		}
 	}
+	
+	static final double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d, 30d, 50d, 100d };
 
 	public static void main(String[] args) throws IOException, DocumentException {
 //		File parentDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-la_habra/");
@@ -953,12 +955,11 @@ public class ETAS_CatalogEALCalculator {
 		else
 			resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
-				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5.bin");
+//				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5.bin");
 //				+ "2016_02_25-surprise_valley_5p0-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
+				+ "2016_08_24-spontaneous-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5.bin");
 		
-		double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d };
-		
-		boolean triggeredOnly = true;
+		boolean triggeredOnly = false;
 		
 		// true mean FSS which includes rupture mapping information. this must be the exact file used to calculate EALs
 		File trueMeanSolFile = new File("dev/scratch/UCERF3/data/scratch/"
@@ -1075,14 +1076,32 @@ public class ETAS_CatalogEALCalculator {
 			if (catalogs == null) {
 				calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, resultsFile);
 				catalogs = calc.catalogs;
+				// trim durations
+				List<Double> myDurations = Lists.newArrayList();
+				double maxDuration = 0d;
+				for (List<ETAS_EqkRupture> catalog : catalogs)
+					if (!catalog.isEmpty())
+						maxDuration = Math.max(maxDuration, ETAS_MultiSimAnalysisTools.calcDurationYears(catalog));
+				Preconditions.checkState(maxDuration > 0);
+				System.out.println("Max catalog direction detected: "+maxDuration);
+				// pad max duration by 50%
+				maxDuration *= 1.5;
+				System.out.println("All durations <= "+maxDuration+" will be considered");
+				for (double duration : durations)
+					if (duration <= maxDuration)
+						myDurations.add(duration);
+				Collections.sort(myDurations);
+				durations = Doubles.toArray(myDurations);
 			} else {
 				calc = new ETAS_CatalogEALCalculator(fetcher, baSol, fm, catalogs);
 			}
 			calc.setTriggeredOnly(triggeredOnly);
-			if (scenario.getFSS_Index() >= 0)
-				calc.setTriggerFaultRup(scenario.getFSS_Index());
-			else
-				calc.setTriggerGridRup(scenario.getLocation(), scenario.getMagnitude());
+			if (scenario != null) {
+				if (scenario.getFSS_Index() >= 0)
+					calc.setTriggerFaultRup(scenario.getFSS_Index());
+				else
+					calc.setTriggerGridRup(scenario.getLocation(), scenario.getMagnitude());
+			}
 			
 			List<Map<Double, List<DiscretizedFunc>>> myLossDists = Lists.newArrayList();
 			List<Double> myWeights = Lists.newArrayList();

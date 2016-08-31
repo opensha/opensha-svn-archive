@@ -15,6 +15,7 @@ import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
@@ -54,7 +55,7 @@ public class CyberShakeBaseMapGen {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
 			System.exit(2);
 		}
 		
@@ -92,6 +93,8 @@ public class CyberShakeBaseMapGen {
 			imrs.add(imr);
 		}
 		
+		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
+		
 		List<SiteData<?>> provs = Lists.newArrayList();
 		provs.add(new WillsMap2006());
 		boolean nullBasin = false;
@@ -101,6 +104,10 @@ public class CyberShakeBaseMapGen {
 		} else if (cvmName.toLowerCase().equals("cvm4i26")) {
 			provs.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		} else if (cvmName.toLowerCase().equals("ccai6")) {
+			provs.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+			provs.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
 		} else if (cvmName.toLowerCase().equals("cvmh")) {
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
@@ -120,7 +127,6 @@ public class CyberShakeBaseMapGen {
 			System.err.println("Unknown basin model: "+cvmName);
 		}
 		
-		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
 		ArrayList<Site> sites = HazusJobWriter.loadSites(provs, region.getNodeList(), imrs, nullBasin, constrainBasinMin, null);
 		
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();

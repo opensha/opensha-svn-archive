@@ -16,14 +16,37 @@ import scratch.UCERF3.utils.FaultSystemIO;
 public class UCERF3_RSQSimTuningFileGen {
 
 	public static void main(String[] args) throws IOException, DocumentException {
+//		FaultSystemSolution sol = FaultSystemIO.loadSol(
+//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+//						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//		String solName = "fm3p1_branch_avg";
 		FaultSystemSolution sol = FaultSystemIO.loadSol(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-		double[] rates = sol.calcParticRateForAllSects(0d, 10d);
+						+ "FM3_1_GEOL_MEAN_BRANCH_AVG_SOL.zip"));
+		String solName = "fm3p1_geol";
+		
+		double minMag = 0d;
+		
+		double[] rates = sol.calcParticRateForAllSects(minMag, 10d);
+		
+		String magStr;
+		String magFileStr;
+		if (minMag > 0) {
+			String m;
+			if (minMag == (double)((int)minMag))
+				m = (int)minMag+"";
+			else
+				m = (float)minMag+"";
+			magStr = "M>="+m;
+			magFileStr = "m"+m;
+		} else {
+			magStr = "Supra-Seismogenic";
+			magFileStr = "supra_seis";
+		}
 		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		csv.addLine("Subsection Index", "Parent Section ID", "Subsection Name",
-				"Supra-Seismogenic Participation Rate", "Supra-Seismogenic Participation RI");
+				magStr+" Participation Rate", magStr+" Participation RI");
 		
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		Preconditions.checkState(rates.length == rupSet.getNumSections());
@@ -36,7 +59,8 @@ public class UCERF3_RSQSimTuningFileGen {
 			csv.addLine(s+"", sect.getParentSectionId()+"", sect.getName(), rates[s]+"", ri+"");
 		}
 		
-		csv.writeToFile(new File("/tmp/sub_sect_ris_for_tuning.csv"));
+		String fName = solName+"_sub_sect_"+magFileStr+"_ris_for_tuning.csv";
+		csv.writeToFile(new File("/tmp/"+fName));
 	}
 
 }

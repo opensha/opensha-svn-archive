@@ -37,6 +37,7 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 	private FaultSystemSolution trueMeanSol;
 	private Map<LogicTreeBranch, List<Integer>> branchMappings;
 	private List<File> dataDirs;
+	private boolean triggeredOnly;
 	
 	private double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d };
 
@@ -91,9 +92,10 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 		imrWeightsMap.put(AttenRelRef.ASK_2014, 0.22);
 		imrWeightsMap.put(AttenRelRef.BSSA_2014, 0.22);
 		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
+		
+		triggeredOnly = cmd.hasOption("triggered-only");
 	}
 	
-	private static boolean triggeredOnly = true;
 	private static String xAxisLabel = "$ (Billions)";
 	private static double maxX = 200;
 	private static double deltaX = 1e6;
@@ -157,6 +159,10 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 		Option dataDirs = new Option("d", "data-dirs", true, "Data directories (comma separated)");
 		dataDirs.setRequired(true);
 		ops.addOption(dataDirs);
+		
+		Option trigOnly = new Option("tr", "triggered-only", false, "If supplied, only triggered ruptures will be considered");
+		trigOnly.setRequired(false);
+		ops.addOption(trigOnly);
 		
 		return ops;
 	}
