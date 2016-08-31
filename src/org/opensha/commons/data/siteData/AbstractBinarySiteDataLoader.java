@@ -127,10 +127,12 @@ public abstract class AbstractBinarySiteDataLoader extends AbstractSiteData<Doub
 	
 	public Double getValue(Location loc) throws IOException {
 		if (useServlet) {
+			double val = servlet.getValue(loc);
+			if (Double.isNaN(val))
+				return val;
 			if (isBasinDepth())
-				return certifyMinMaxBasinDepth(servlet.getValue(loc));
-			else
-				return servlet.getValue(loc);
+				return certifyMinMaxBasinDepth(val);
+			return val;
 		} else {
 			long pos = calc.calcClosestLocationFileIndex(loc);
 			
@@ -149,6 +151,8 @@ public abstract class AbstractBinarySiteDataLoader extends AbstractSiteData<Doub
 		double val = floatBuff.get(0);
 		
 		if (isBasinDepth()) {
+			if (val < 0)
+				return Double.NaN;
 			// convert to KM
 			Double dobVal = (double)val / 1000d;
 			return certifyMinMaxBasinDepth(dobVal);
