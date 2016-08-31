@@ -171,6 +171,8 @@ public abstract class AbstractBinarySiteDataLoader extends AbstractSiteData<Doub
 	}
 
 	public final boolean isValueValid(Double val) {
+		if (isBasinDepth() && val < 0)
+			return false;
 		return val != null && !Double.isNaN(val);
 	}
 

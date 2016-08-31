@@ -53,8 +53,8 @@ public class CVM_CCAi6BasinDepth extends AbstractBinarySiteDataLoader {
 	public static final String DEPTH_2_5_FILE = "src/resources/data/site/CCAi6/depth_2.5.bin";
 	public static final String DEPTH_1_0_FILE = "src/resources/data/site/CCAi6/depth_1.0.bin";
 	
-	public static final String SERVLET_2_5_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CCAi6_2_5";
-	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CCAi6_1_0";
+	public static final String SERVLET_2_5_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVM_CCAi6_2_5";
+	public static final String SERVLET_1_0_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL() + "SiteData/CVM_CCAi6_1_0";
 	
 	/**
 	 * Constructor for creating a CVM accessor using servlets
@@ -143,7 +143,13 @@ public class CVM_CCAi6BasinDepth extends AbstractBinarySiteDataLoader {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		CVM_CCAi6BasinDepth local = new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5, false);
+		CVM_CCAi6BasinDepth local = new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0, false);
+		
+		Location outside = new Location(35, -122.5);
+		double outsideVal = local.getValue(outside);
+		System.out.println("Val: "+outsideVal+", valid? "+local.isValueValid(outsideVal));
+		
+		System.exit(0);
 		
 		FileWriter fw = new FileWriter(new File("/tmp/cvm_grid_locs.txt"));
 		System.out.println("Expected Lat Bounds: "+local.calc.getMinLat()+"=>"+local.calc.getMaxLat());
