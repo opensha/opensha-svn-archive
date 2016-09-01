@@ -112,9 +112,12 @@ public class ETAS_CatalogEALCalculator {
 		
 		this.catalogs = catalogs;
 		startTime = Long.MAX_VALUE;
-		for (List<ETAS_EqkRupture> catalog : catalogs)
-			if (!catalog.isEmpty())
-				startTime = Long.min(startTime, catalog.get(0).getOriginTime());
+		for (List<ETAS_EqkRupture> catalog : catalogs) {
+			if (!catalog.isEmpty()) {
+				if (catalog.get(0).getOriginTime() < startTime)
+					startTime = catalog.get(0).getOriginTime();
+			}
+		}
 		
 		Preconditions.checkState(!catalogs.isEmpty(), "No catalogs loaded!");
 		System.out.println("Loaded "+catalogs.size()+" catalogs");
