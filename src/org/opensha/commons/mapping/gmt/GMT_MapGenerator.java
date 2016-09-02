@@ -1583,30 +1583,33 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if (googleearth && griddedData != null) {
 			gmtCommandLines.add("## Google earth files ##");
 			System.out.println("Making Google Earth files!");
-			String gEarth_psFileName = "gEarth_" + psFileName;
-			rmFiles.add(gEarth_psFileName);
+			String gEarth_pngFileName = "gEarth.png";
+			rmFiles.add(gEarth_pngFileName);
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
 			String gEarth_kmz_name = "./map.kmz";
 			gmtCommandLines.add("# Make PS file for google earth");
+			String aArg = " -A"+gEarth_pngFileName+"=PNG";
 			if (!map.isUseGMTSmoothing()) {
-				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + gEarth_proj +
-				" -C"+cptFile+" "+"-Ts"+dpi+ region + " > " + gEarth_psFileName;
+//				commandLine="${GMT_PATH}grdview "+ grdFileName + xOff + yOff + gEarth_proj +
+//				" -C"+cptFile+" "+"-Ts"+dpi+ region + " > " + gEarth_psFileName;
+				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
+						aArg+" -C"+cptFile+" "+" -E"+dpi+ region;
 				gmtCommandLines.add(commandLine);
 			}
 			else if (map.getTopoResolution() == null) {
 				commandLine="${GMT_PATH}grdimage "+ grdFileName + xOff + yOff + gEarth_proj +
-				" -C"+cptFile+" "+" -E"+dpi+ region + " > " + gEarth_psFileName;
+						aArg+" -C"+cptFile+" "+" -E"+dpi+ region;
 				gmtCommandLines.add(commandLine);
 			}
 			else {
 				commandLine="${GMT_PATH}grdimage "+tempFilePrefix+"HiResData.grd " + xOff + yOff + gEarth_proj +
-				" -I"+tempFilePrefix+"Inten.grd -C"+cptFile+" "+ "-E"+
-				dpi+ region + " > " + gEarth_psFileName;
+						aArg+" -I"+tempFilePrefix+"Inten.grd -C"+cptFile+" "+ "-E"+
+						dpi+ region;
 				gmtCommandLines.add(commandLine);
 			}
 
 			commandLine = JAVA_PATH + " -Xmx4G -cp " + JAVA_CLASSPATH + " " + GMT_KML_Generator.class.getName() + " " + 
-						gEarth_psFileName + " " + gEarth_kmz_name +
+						gEarth_pngFileName + " " + gEarth_kmz_name +
 						" " + minLat + " " + maxLat + " " + minLon + " " + maxLon;
 			gmtCommandLines.add(commandLine);
 		}

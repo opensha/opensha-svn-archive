@@ -29,6 +29,8 @@ import java.util.StringTokenizer;
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.io.Files;
+
 public class GMT_KML_Generator {
 	
 	String psFile;
@@ -87,7 +89,12 @@ public class GMT_KML_Generator {
 		
 		String pngFileName = "map.png";
 		String absPNGFileName = tempDir.getAbsolutePath()+File.separator+pngFileName;
-		extract(absPNGFileName);
+		if (psFile.toLowerCase().endsWith(".png")) {
+			// it's already a PNG, no need to extract
+			Files.copy(new File(psFile), new File(absPNGFileName));
+		} else {
+			extract(absPNGFileName);
+		}
 		zipFiles.add(pngFileName);
 		
 		String kmlFileName = "map.kml";
@@ -142,9 +149,9 @@ public class GMT_KML_Generator {
 			minLat = bounds[2];
 			maxLat = bounds[3];
 		} else {
-			System.err.println("USAGE: GMT_KML_Generator ps_file kmz_file minLat maxLat minLon maxLon");
+			System.err.println("USAGE: GMT_KML_Generator ps/png_file kmz_file minLat maxLat minLon maxLon");
 			System.err.println("\t-- OR --");
-			System.err.println("USAGE: GMT_KML_Generator ps_file kmz_file -R<minLon>/<maxLon>/<minLat>/<maxLat>");
+			System.err.println("USAGE: GMT_KML_Generator ps/png_file kmz_file -R<minLon>/<maxLon>/<minLat>/<maxLat>");
 			System.exit(2);
 		}
 		
