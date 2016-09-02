@@ -23,13 +23,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.mapping.gmt.raster.RasterExtractor;
 import org.opensha.commons.util.FileUtils;
-
-import com.google.common.io.Files;
 
 public class GMT_KML_Generator {
 	
@@ -91,7 +90,8 @@ public class GMT_KML_Generator {
 		String absPNGFileName = tempDir.getAbsolutePath()+File.separator+pngFileName;
 		if (psFile.toLowerCase().endsWith(".png")) {
 			// it's already a PNG, no need to extract
-			Files.copy(new File(psFile), new File(absPNGFileName));
+			Files.copy(new File(psFile).toPath(), new File(absPNGFileName).toPath());
+//			Files.copy(new File(psFile), new File(absPNGFileName));
 		} else {
 			extract(absPNGFileName);
 		}
