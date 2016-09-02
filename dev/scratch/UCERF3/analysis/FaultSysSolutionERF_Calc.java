@@ -59,6 +59,7 @@ import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
@@ -145,6 +146,7 @@ import scratch.UCERF3.griddedSeismicity.SmallMagScaling;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
 import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
+import scratch.UCERF3.inversion.InversionTargetMFDs;
 import scratch.UCERF3.logicTree.APrioriBranchWeightProvider;
 import scratch.UCERF3.logicTree.BranchWeightProvider;
 import scratch.UCERF3.logicTree.LogicTreeBranch;
@@ -737,6 +739,71 @@ public class FaultSysSolutionERF_Calc {
 		}
 		return rates;
 	}
+	
+	
+	/**
+	 * The gives the effective participation rates for events greater than or equal to minMag
+	 * and less than maxMag for each point in the supplied GriddedRegion, where fault-based ruptures
+	 * are mapped onto the associated grid nodes.
+	 * 
+	 * NOTE - the mapping probably isn't exactly correct (not clear the best way), but it should be fine because
+	 * fault-polygon areas will be hidden behind finite faults in the intended use of this method; other uses
+	 * should consider this more carefully.
+	 * @param erf - it's assumed that erf.updateForecast() has already been called
+	 * @param griddedRegion
+	 * @param minMag
+	 * @param maxMag
+	 * @return GriddedGeoDataSet - X-axis is set as Latitude, and Y-axis is Longitude
+	 */
+	public static GriddedGeoDataSet calcParticipationProbInGriddedRegionFltMapped(FaultSystemSolutionERF erf, GriddedRegion griddedRegion,
+			double minMag, double maxMag) {
+		
+		IncludeBackgroundOption origOption = (IncludeBackgroundOption)erf.getParameter(IncludeBackgroundParam.NAME).getValue();
+		
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		FaultPolyMgr polyManager = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);	// this works for U3, but not generalized
+		double duration = erf.getTimeSpan().getDuration();
+		
+		// Get Gridded Seis Rates
+		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
+		erf.updateForecast();
+		// Note that this treats ruptures as point sources if that's how specified in the ERF
+		GriddedGeoDataSet combinedData = ERF_Calculator.getParticipationRatesInRegion(erf, griddedRegion, minMag, maxMag);
+		
+		
+		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+		erf.updateForecast();
+		
+		for (int sourceID=0; sourceID<erf.getNumFaultSystemSources(); sourceID++) {
+			int invIndex = erf.getFltSysRupIndexForSource(sourceID);
+			for (ProbEqkRupture rup : erf.getSource(sourceID)) {
+				double mag = rup.getMag();
+				if (mag < minMag || mag > maxMag)
+					continue;
+				double rupRate = rup.getMeanAnnualRate(duration);
+				for (int s : rupSet.getSectionsIndicesForRup(invIndex)) {
+					Map<Integer, Double> nodeFracts = polyManager.getNodeFractions(s);
+					for (int n : nodeFracts.keySet()) {
+						double prevRate = combinedData.get(n);
+						combinedData.set(n, prevRate+rupRate*nodeFracts.get(n));
+					}
+				}
+			}
+		}
+		
+		// Convert to prob of one or more
+		for (int n=0; n<combinedData.size(); n++) {
+			double nodeRate = combinedData.get(n);
+			combinedData.set(n, 1.0-Math.exp(-nodeRate*duration));
+		}
+		
+		erf.setParameter(IncludeBackgroundParam.NAME, origOption);
+		erf.updateForecast();
+
+		return combinedData;
+
+	}
+
 
 	
 	/**
@@ -964,6 +1031,65 @@ public class FaultSysSolutionERF_Calc {
 		}
 	}
 
+
+	
+	
+	
+	public static void makeBackgroundImageForSCEC_VDO(GeoDataSet data, GriddedRegion griddedRegion, File outputDir,
+			String plotFileName, boolean display, CPT cpt, double minValue, double maxValue) throws Exception {
+		
+		if(!outputDir.exists())
+			outputDir.mkdir();
+
+		// this is required for any 0 spots
+		cpt.setBelowMinColor(cpt.getMinColor());
+		// convert any NaN holes in the middle to the min color
+		for (int index=0; index<data.size(); index++)
+			if (!Doubles.isFinite(data.get(index)))
+				data.set(index, minValue);
+		
+		GMT_Map map = new GMT_Map(griddedRegion, data, griddedRegion.getSpacing(), cpt);
+		map.setCustomScaleMax(null);
+		map.setCustomScaleMax(null);
+		map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
+		map.setUseGMTSmoothing(true);
+		map.setDpi(300);
+		map.setBlackBackground(false);
+		map.setGenerateKML(true);
+		map.setCustomLabel("Label");
+		map.setRescaleCPT(true);
+		map.setCustomScaleMin(minValue);
+		map.setCustomScaleMax(maxValue);
+		
+		GMT_MapGenerator gmt = new GMT_MapGenerator();
+		gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.LOG_PLOT_NAME).setValue(false);
+		gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME).setValue(false);
+		
+		String url = gmt.makeMapUsingServlet(map, "metadata", null);
+		System.out.println(url);
+		String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
+		String baseURL = url.substring(0, url.lastIndexOf('/')+1);
+		
+		File pngFile = new File(outputDir, plotFileName+".png");
+		FileUtils.downloadURL(baseURL+"map.png", pngFile);
+		
+		File pdfFile = new File(outputDir, plotFileName+".pdf");
+		FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
+		
+		// download KMZ file
+		File kmzFile = new File(outputDir, plotFileName+".kmz");
+		FileUtils.downloadURL(baseURL+"map.kmz", kmzFile);
+		
+		// now extract projected file
+		ZipFile zip = new ZipFile(kmzFile);
+		ZipEntry entry = zip.getEntry("map.png");
+		FileOutputStream fout = new FileOutputStream(new File(outputDir, plotFileName+"_scec_vdo.png"));
+		FileUtils.copyInputStream(new BufferedInputStream(zip.getInputStream(entry)), new BufferedOutputStream(fout));
+		
+		if (display) {
+			new ImageViewerWindow(url,metadata, true);
+		}
+	}
 
 	
 	/**

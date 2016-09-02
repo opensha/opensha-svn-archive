@@ -28,6 +28,7 @@ import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_TESTING_GRIDDED;
+import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -1810,6 +1811,24 @@ public class ETAS_Simulator {
 //		tempTestGainResult();
 //		System.exit(0);
 
+		
+		FaultSystemSolutionERF_ETAS erf_test = getU3_ETAS_ERF(2014,1);
+		GriddedRegion griddedRegion = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.1);
+		System.out.println("Making Data");
+		GriddedGeoDataSet data = FaultSysSolutionERF_Calc.calcParticipationProbInGriddedRegionFltMapped(erf_test, griddedRegion, 6.7, 10.0);
+		for(int i=0;i<data.size();i++)
+			data.set(i, Math.log10(data.get(i)));
+		try {
+			System.out.println("Making Plot");
+			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+			double minValue = -7;
+			double maxValue = -2;
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(data, griddedRegion, new File("tempHere090216"), "testPlot", 
+					true, cpt, minValue, maxValue);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.exit(0);
 
 		
 //		// Haywired scenario:
