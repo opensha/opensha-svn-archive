@@ -1583,7 +1583,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("## Google earth files ##");
 			System.out.println("Making Google Earth files!");
 			String gEarth_pngFileName = "gEarth.png";
-			rmFiles.add(gEarth_pngFileName);
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
 			String gEarth_kmz_name = "./map.kmz";
 			gmtCommandLines.add("# Make PS file for google earth");
