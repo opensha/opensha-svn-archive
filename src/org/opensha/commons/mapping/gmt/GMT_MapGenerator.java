@@ -1148,7 +1148,6 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if (googleearth) {
 			System.out.println("Making Google Earth files!");
 			String gEarth_psFileName = "gEarth_" + PS_FILE_NAME;
-			rmFiles.add(gEarth_psFileName);
 			String gEarth_proj = " -JQ180/"+plotWdth+"i ";
 			String gEarth_kmz_name = "./map.kmz";
 			if(!(Boolean)gmtSmoothingParam.getValue()) {	// note that this forces topo resolution to none (TOPO_RESOLUTION_NONE)
