@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipException;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.Document;
@@ -3965,11 +3966,119 @@ public class ETAS_MultiSimAnalysisTools {
 	private static final String plotDirName = "plots";
 	private static final String catsDirName = "selected_catalogs";
 	
+	
+	private static void makeImagesForSciencePaperFig1() {
+		
+		System.out.println("Loading file");
+		File resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5_preserve.bin");
+		List<List<ETAS_EqkRupture>> catalogs=null;
+		try {
+			catalogs = ETAS_CatalogIO.loadCatalogs(resultsFile, 6.7, true);
+		} catch (ZipException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+        double duration = 7/365.25;
+		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+        long maxOT = ot + (long)(duration*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+        
+        int fssIndex = 193821;	// the M7 Mojave scenario
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014,duration);
+		int srcID = erf.getSrcIndexForFltSysRup(fssIndex);
+		erf.setFltSystemSourceOccurranceTime(srcID, ot);
+		erf.updateForecast();
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		
+		GriddedRegion griddedRegion = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.1);
+		FaultPolyMgr polyManager = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);	// this works for U3, but not generalized
+		double[] zCount = new double[griddedRegion.getNodeCount()];
+
+		System.out.println("Looping over catalog");
+        for (List<ETAS_EqkRupture> catalog : catalogs) {
+            for (ETAS_EqkRupture rup : catalog) {
+                if (rup.getOriginTime() > maxOT)
+                    break;
+                if (rup.getFSSIndex() >= 0) {
+                    // fault system rupture
+    				for (int s : rupSet.getSectionsIndicesForRup(rup.getFSSIndex())) {
+    					Map<Integer, Double> nodeFracts = polyManager.getNodeFractions(s);
+    					for (int n : nodeFracts.keySet()) {
+    						zCount[n] += nodeFracts.get(n);
+     					}
+    				}
+                } else {
+                    // gridded rupture
+//                	if(rup.getGeneration()==1)
+                	zCount[griddedRegion.indexForLocation(rup.getHypocenterLocation())] += 1;
+                	
+//                	if(rup.getMag()<6.7) {
+//                    	zCount[griddedRegion.indexForLocation(rup.getHypocenterLocation())] += 1;
+//                	}
+//                	else { // spread over neighboring cells
+//                       	Location loc = rup.getHypocenterLocation();
+//                    	// smoothe over neighboring cells
+//                    	double totWt=0;
+//                    	for(int i=-1;i<=1;i++) {
+//                        	for(int j=-1;j<=1;j++) {
+//                        		Location newLoc = new Location(loc.getLatitude()+i*0.1, loc.getLongitude()+j*0.1, 0.0);
+//                        		double wt = 0.5/8;
+//                        		if(i==0 & j==0)
+//                        			wt = 0.5;
+//                        		zCount[griddedRegion.indexForLocation(newLoc)] += wt;
+//                        		totWt += wt;
+//                        	}
+//                    	}
+//                    	if(totWt<0.9999 || totWt>1.0001)
+//                    		throw new RuntimeException("");
+//                	}
+                }
+            }
+        }
+        
+		GriddedGeoDataSet triggerData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet ratioData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+
+		System.out.println("Making Long Term Data");
+		GriddedGeoDataSet longTermTD_data = FaultSysSolutionERF_Calc.calcParticipationProbInGriddedRegionFltMapped(erf, griddedRegion, 6.7, 10.0);
+
+        for(int n=0;n<zCount.length;n++) {
+        	triggerData.set(n, Math.log10(zCount[n]/100000d));  // 100k simulations
+        	double value = Math.log10((zCount[n]/100000d)/longTermTD_data.get(n) + 1);
+        	if(Double.isNaN(value))
+        		value = 0.0;
+        	ratioData.set(n, value);  // 100k simulations
+        	longTermTD_data.set(n,Math.log10(longTermTD_data.get(n)));
+        }
+        
+        boolean includeTopo=false;
+        
+		System.out.println("Making Plots");
+		try {
+			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+			double minValue = -8;
+			double maxValue = -2;
+			File dir = new File("SciFig1_BackgroundImages");
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, griddedRegion, dir, "triggerData", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(longTermTD_data, griddedRegion, dir, "longTermTD_data", true, cpt, minValue, maxValue, includeTopo);
+			CPT cpt_ratio = GMT_CPT_Files.UCERF3_RATIOS.instance();
+			minValue = -3;
+			maxValue = 3;
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(ratioData, griddedRegion, dir, "ratioData", true, cpt_ratio, minValue, maxValue, includeTopo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
 		if (args.length == 0 && new File("/Users/field/").exists()) {
 			// now will run by default on your machine Ned
-			nedsAnalysis();
+//			nedsAnalysis();
+			makeImagesForSciencePaperFig1();
 			System.exit(-1);
 		}
 		

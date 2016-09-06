@@ -1036,7 +1036,7 @@ public class FaultSysSolutionERF_Calc {
 	
 	
 	public static void makeBackgroundImageForSCEC_VDO(GeoDataSet data, GriddedRegion griddedRegion, File outputDir,
-			String plotFileName, boolean display, CPT cpt, double minValue, double maxValue) throws Exception {
+			String plotFileName, boolean display, CPT cpt, double minValue, double maxValue, boolean includeTopo) throws Exception {
 		
 		if(!outputDir.exists())
 			outputDir.mkdir();
@@ -1051,7 +1051,10 @@ public class FaultSysSolutionERF_Calc {
 		GMT_Map map = new GMT_Map(griddedRegion, data, griddedRegion.getSpacing(), cpt);
 		map.setCustomScaleMax(null);
 		map.setCustomScaleMax(null);
-		map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
+		if(includeTopo) {
+			map.setTopoResolution(TopographicSlopeFile.SRTM_30_PLUS);
+			plotFileName += "_withTopo";
+		}
 		map.setUseGMTSmoothing(true);
 		map.setDpi(300);
 		map.setBlackBackground(false);

@@ -1823,8 +1823,8 @@ public class ETAS_Simulator {
 			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
 			double minValue = -7;
 			double maxValue = -2;
-			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(data, griddedRegion, new File("tempHere090216"), "testPlot", 
-					true, cpt, minValue, maxValue);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(data, griddedRegion, new File("test2_090216"), "testPlot2", 
+					true, cpt, minValue, maxValue, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
