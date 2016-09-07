@@ -102,7 +102,7 @@ public class GMT_InterpolationSettings implements Serializable {
 	}
 	
 	public String getSearchArg() {
-		return "-S"+(float)getSearchRadius();
+		return "-S\""+(float)getSearchRadius()+" \""; // surround in quotes, otherwise unit detection but in GMT 5
 	}
 
 }

@@ -79,10 +79,10 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //	public static final Color OUTSIDE_REGION_COLOR = Color.WHITE;
 	
 	public static CPT getHazardCPT() throws IOException {
-		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/resources/cpt/MaxSpectrum2.cpt"));
 //		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-//				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
+//				"/resources/cpt/MaxSpectrum2.cpt"));
+		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+				"/org/opensha/sha/cybershake/conf/cpt/cptFile_hazard_input.cpt"));
 		cpt.setNanColor(OUTSIDE_REGION_COLOR);
 		return cpt;
 	}
@@ -224,7 +224,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			gmtCommandLines.add("# do GMT interpolation on the scatter data");
 			commandLine = "${GMT_PATH}surface "+ interpXYZName +" -G"+ interpUnsampledGRD+ " -I"+interpGridSpacing
 							+region+interpSettings.getConvergenceArg()+" "+interpSettings.getSearchArg()
-							+" "+interpSettings.getTensionArg()+" -: -H0";
+							+" "+interpSettings.getTensionArg()+" -: -h0";
 			gmtCommandLines.add(commandLine);
 			// resample the interpolation
 			

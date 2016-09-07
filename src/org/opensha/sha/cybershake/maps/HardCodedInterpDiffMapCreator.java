@@ -485,6 +485,7 @@ public class HardCodedInterpDiffMapCreator {
 				
 				FileUtils.downloadURL(addr+"interpolated_marks.150.png", new File(downloadDir, prefix+"_marks.png"));
 				FileUtils.downloadURL(addr+"interpolated.150.png", new File(downloadDir, prefix+".png"));
+				FileUtils.downloadURL(addr+"interpolated.ps", new File(downloadDir, prefix+".ps"));
 				if (downloadBasemap && baseMapIMR != null)
 					FileUtils.downloadURL(addr+"basemap.150.png", new File(downloadDir,
 							baseMapIMR.getShortName()+"_"+imtPrefix+".png"));
