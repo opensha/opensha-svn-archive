@@ -47,6 +47,29 @@ public class FSSRupsInRegionCache implements RupInRegionCache {
 		FaultSystemSolutionERF fssERF = (FaultSystemSolutionERF)erf;
 		FaultSystemSolution sol = fssERF.getSolution();
 		Preconditions.checkNotNull(sol, "FSS ERF has null solution");
+		
+		double erfGridSpacing = (Double)fssERF.getParameter(FaultGridSpacingParam.NAME).getValue();
+		
+		RuptureSurface surf = rup.getRuptureSurface();
+		int invIndex;
+		if (srcIndex >= fssERF.getNumFaultSystemSources())
+			invIndex = -1;
+		else
+			invIndex = fssERF.getFltSysRupIndexForSource(srcIndex);
+		if (invIndex >= 0 && source instanceof FaultRuptureSource) {
+			Preconditions.checkState(source.getName().contains(invIndex+""),
+					"Bad mapping of inv index "+invIndex+" for source name: "+source.getName());
+			return isRupInRegion(sol, invIndex, region, erfGridSpacing);
+		}
+		for (Location loc : surf
+				.getEvenlyDiscritizedListOfLocsOnSurface())
+			if (region.contains(loc))
+				return true;
+		return false;
+	}
+	
+	public boolean isRupInRegion(FaultSystemSolution sol, int fssIndex, Region region, double surfGridSpacing) {
+		Preconditions.checkArgument(fssIndex >= 0 && fssIndex < sol.getRupSet().getNumRuptures());
 		synchronized (this) {
 			// check if the solution has changed
 			if (numRups != sol.getRupSet().getNumRuptures()) {
@@ -58,12 +81,11 @@ public class FSSRupsInRegionCache implements RupInRegionCache {
 		synchronized (region) {
 			if (!sectsInRegions.containsKey(region)) {
 				// calculate sections in regions
-				double erfGridSpacing = (Double)fssERF.getParameter(FaultGridSpacingParam.NAME).getValue();
 				FaultSystemRupSet rupSet = sol.getRupSet();
 				boolean[] sects = new boolean[rupSet.getNumSections()];
 				for (int i=0; i<sects.length; i++) {
 					FaultSectionPrefData sect = rupSet.getFaultSectionData(i);
-					StirlingGriddedSurface surf = sect.getStirlingGriddedSurface(erfGridSpacing, false, true);
+					StirlingGriddedSurface surf = sect.getStirlingGriddedSurface(surfGridSpacing, false, true);
 					boolean inside = false;
 					for (Location loc : surf.getEvenlyDiscritizedListOfLocsOnSurface()) {
 						if (region.contains(loc)) {
@@ -77,57 +99,43 @@ public class FSSRupsInRegionCache implements RupInRegionCache {
 			}
 		}
 		boolean[] sects = sectsInRegions.get(region);
-		RuptureSurface surf = rup.getRuptureSurface();
-		int invIndex;
-		if (srcIndex >= fssERF.getNumFaultSystemSources())
-			invIndex = -1;
-		else
-			invIndex = fssERF.getFltSysRupIndexForSource(srcIndex);
-		if (invIndex >= 0 && source instanceof FaultRuptureSource) {
-			Preconditions.checkState(source.getName().contains(invIndex+""),
-					"Bad mapping of inv index "+invIndex+" for source name: "+source.getName());
-			ConcurrentMap<Integer, Boolean> regRupMap = rupMap
-					.get(region);
-			ConcurrentMap<Integer, Boolean> regSectMap = sectMap
-					.get(region);
-			if (regRupMap == null) {
-				regRupMap = Maps.newConcurrentMap();
-				rupMap.putIfAbsent(region, regRupMap);
-				// in case another thread put it in
-				// first
-				regRupMap = rupMap.get(region);
-			}
-			if (regSectMap == null) {
-				regSectMap = Maps.newConcurrentMap();
-				sectMap.putIfAbsent(region, regSectMap);
-				// in case another thread put it in
-				// first
-				regSectMap = sectMap.get(region);
-			}
-			Boolean inside = regRupMap.get(invIndex);
-			if (inside == null) {
-				inside = false;
-				for (int index : sol.getRupSet().getSectionsIndicesForRup(invIndex)) {
-					if (sects[index]) {
-						inside = true;
-						break;
-					}
-				}
-//				for (Location loc : surf
-//						.getEvenlyDiscritizedListOfLocsOnSurface())
-//					if (region.contains(loc)) {
-//						inside = true;
-//						break;
-//					}
-				regRupMap.putIfAbsent(invIndex, inside);
-			}
-			return inside;
+
+		ConcurrentMap<Integer, Boolean> regRupMap = rupMap
+				.get(region);
+		ConcurrentMap<Integer, Boolean> regSectMap = sectMap
+				.get(region);
+		if (regRupMap == null) {
+			regRupMap = Maps.newConcurrentMap();
+			rupMap.putIfAbsent(region, regRupMap);
+			// in case another thread put it in
+			// first
+			regRupMap = rupMap.get(region);
 		}
-		for (Location loc : surf
-				.getEvenlyDiscritizedListOfLocsOnSurface())
-			if (region.contains(loc))
-				return true;
-		return false;
+		if (regSectMap == null) {
+			regSectMap = Maps.newConcurrentMap();
+			sectMap.putIfAbsent(region, regSectMap);
+			// in case another thread put it in
+			// first
+			regSectMap = sectMap.get(region);
+		}
+		Boolean inside = regRupMap.get(fssIndex);
+		if (inside == null) {
+			inside = false;
+			for (int index : sol.getRupSet().getSectionsIndicesForRup(fssIndex)) {
+				if (sects[index]) {
+					inside = true;
+					break;
+				}
+			}
+			//				for (Location loc : surf
+			//						.getEvenlyDiscritizedListOfLocsOnSurface())
+			//					if (region.contains(loc)) {
+			//						inside = true;
+			//						break;
+			//					}
+			regRupMap.putIfAbsent(fssIndex, inside);
+		}
+		return inside;
 	}
 
 }

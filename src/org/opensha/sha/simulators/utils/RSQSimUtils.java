@@ -383,25 +383,6 @@ public class RSQSimUtils {
 	
 	public static void writeUCERF3ComparisonPlots(SlipEnabledSolution sol, FaultModels fm, DeformationModels dm,
 			File dir, String prefix) throws GMT_MapException, RuntimeException, IOException {
-		Region region = new CaliforniaRegions.RELM_TESTING();
-
-		// map plots
-		FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
-		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
-//		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getRupSet().getFaultModel(), dir);
-		for (double[] range : BatchPlotGen.partic_mag_ranges) {
-			FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
-//			FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
-		}
-		FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
-		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 0, 10);
-		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7, 10);
-		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7.5, 10);
-		
 		// regular plots
 //		CommandLineInversionRunner.writeMFDPlots(sol, dir, prefix);
 		
@@ -424,7 +405,7 @@ public class RSQSimUtils {
 				CommandLineInversionRunner.getPaleoConstraints(fm, sol.getRupSet());
 		List<AveSlipConstraint> aveSlipConstraints = AveSlipConstraint.load(sol.getRupSet().getFaultSectionDataList());
 //		CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, dir, prefix);
-//		CommandLineInversionRunner.writeSAFSegPlots(sol, dir, prefix);
+		CommandLineInversionRunner.writeSAFSegPlots(sol, fm, dir, prefix);
 //		CommandLineInversionRunner.writePaleoCorrelationPlots(sol,
 //						new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME), UCERF3_PaleoProbabilityModel.load());
 		CommandLineInversionRunner.writeParentSectionMFDPlots(sol,
@@ -433,6 +414,24 @@ public class RSQSimUtils {
 		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol,
 						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
 		CommandLineInversionRunner.writeRupPairingSmoothnessPlot(sol, prefix, dir);
+
+		// map plots
+		Region region = new CaliforniaRegions.RELM_TESTING();
+		FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSolutionSlipRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
+		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
+//		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getRupSet().getFaultModel(), dir);
+		for (double[] range : BatchPlotGen.partic_mag_ranges) {
+			FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
+//			FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
+		}
+		FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 0, 10);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7, 10);
+		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7.5, 10);
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException {
@@ -440,8 +439,10 @@ public class RSQSimUtils {
 //		File geomFile = new File(dir, "UCERF3.1km.tri.flt");
 //		File dir = new File("/home/kevin/Simulators/UCERF3_125kyrs");
 //		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
-		File dir = new File("/home/kevin/Simulators/bruce/rundir1435");
-		File geomFile = new File(dir, "zfault_Deepen.in");
+//		File dir = new File("/home/kevin/Simulators/bruce/rundir1435");
+//		File geomFile = new File(dir, "zfault_Deepen.in");
+		File dir = new File("/home/kevin/Simulators/UCERF3_JG_supraSeisGeo2");
+		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
 		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
 		System.out.println("Loaded "+elements.size()+" elements");
 //		for (Location loc : elements.get(0).getVertices())
@@ -456,15 +457,15 @@ public class RSQSimUtils {
 		System.out.println("First event time: "+events.get(0).getTimeInYears()+", duration: "+duration);
 		
 		FaultModels fm = FaultModels.FM3_1;
-		DeformationModels dm = DeformationModels.ZENGBB;
+		DeformationModels dm = DeformationModels.GEOLOGIC;
 		SlipEnabledSolution sol = buildFaultSystemSolution(getUCERF3SubSectsForComparison(
 				fm, dm), elements, events, minMag);
 		
 		File plotDir = new File(eventDir, "ucerf3_fss_comparison_plots");
 		Preconditions.checkState(plotDir.exists() ||  plotDir.mkdir());
-		MFDCalc.writeMFDPlots(elements, events, plotDir, new CaliforniaRegions.RELM_SOCAL(),
-				new CaliforniaRegions.RELM_NOCAL(), new CaliforniaRegions.LA_BOX(), new CaliforniaRegions.NORTHRIDGE_BOX(),
-				new CaliforniaRegions.SF_BOX(), new CaliforniaRegions.RELM_TESTING());
+//		MFDCalc.writeMFDPlots(elements, events, plotDir, new CaliforniaRegions.RELM_SOCAL(),
+//				new CaliforniaRegions.RELM_NOCAL(), new CaliforniaRegions.LA_BOX(), new CaliforniaRegions.NORTHRIDGE_BOX(),
+//				new CaliforniaRegions.SF_BOX(), new CaliforniaRegions.RELM_TESTING());
 		writeUCERF3ComparisonPlots(sol, fm, dm, plotDir, "rsqsim_comparison");
 	}
 

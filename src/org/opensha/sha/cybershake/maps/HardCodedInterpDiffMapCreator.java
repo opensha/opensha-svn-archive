@@ -330,9 +330,9 @@ public class HardCodedInterpDiffMapCreator {
 //			String imtLabel = "0.5sec SA";
 //			Double customMax = 3d;
 			
-			int imTypeID = 94;
-			String imtLabel = "0.2sec SA";
-			Double customMax = 3d;
+//			int imTypeID = 94;
+//			String imtLabel = "0.2sec SA";
+//			Double customMax = 3d;
 			
 //			int imTypeID = 26; // 2 sec SA, GEOM
 //			String imtLabel = "2sec SA";
@@ -346,9 +346,9 @@ public class HardCodedInterpDiffMapCreator {
 //			String imtLabel = "5sec SA";
 //			Double customMax = 0.6;
 			
-//			int imTypeID = 1; // 10 sec SA, GEOM
-//			String imtLabel = "10sec SA";
-//			Double customMax = 0.4;
+			int imTypeID = 1; // 10 sec SA, GEOM
+			String imtLabel = "10sec SA";
+			Double customMax = 0.4;
 			
 			String prefix = "study_15_12";
 //			String prefix = "study_15_4";
@@ -415,8 +415,8 @@ public class HardCodedInterpDiffMapCreator {
 			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(35);
-//			List<Integer> compDatasetIDs = Lists.newArrayList(57);
-			List<Integer> compDatasetIDs = null;
+			List<Integer> compDatasetIDs = Lists.newArrayList(57);
+//			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;
@@ -506,7 +506,9 @@ public class HardCodedInterpDiffMapCreator {
 					compPrefix += "_"+imtPrefix;
 					
 					FileUtils.downloadURL(diff+"interpolated_marks.150.png", new File(downloadDir, compPrefix+"_diff.png"));
+					FileUtils.downloadURL(diff+"interpolated_marks.ps", new File(downloadDir, compPrefix+"_diff.ps"));
 					FileUtils.downloadURL(ratio+"interpolated_marks.150.png", new File(downloadDir, compPrefix+"_ratio.png"));
+					FileUtils.downloadURL(ratio+"interpolated_marks.ps", new File(downloadDir, compPrefix+"_ratio.ps"));
 				}
 			}
 			

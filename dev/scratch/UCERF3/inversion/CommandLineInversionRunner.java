@@ -1026,7 +1026,11 @@ public class CommandLineInversionRunner {
 	 * @throws IOException
 	 */
 	public static void writeSAFSegPlots(InversionFaultSystemSolution sol, File dir, String prefix) throws IOException {
-		List<Integer> parentSects = FaultSpecificSegmentationPlotGen.getSAFParents(sol.getRupSet().getFaultModel());
+		writeSAFSegPlots(sol, sol.getRupSet().getFaultModel(), dir, prefix);
+	}
+	
+	public static void writeSAFSegPlots(FaultSystemSolution sol, FaultModels fm, File dir, String prefix) throws IOException {
+		List<Integer> parentSects = FaultSpecificSegmentationPlotGen.getSAFParents(fm);
 
 		writeSAFSegPlot(sol, dir, prefix, parentSects, 0, false);
 		writeSAFSegPlot(sol, dir, prefix, parentSects, 7, false);
@@ -1034,7 +1038,7 @@ public class CommandLineInversionRunner {
 
 	}
 
-	public static void writeSAFSegPlot(InversionFaultSystemSolution sol, File dir, String prefix,
+	public static void writeSAFSegPlot(FaultSystemSolution sol, File dir, String prefix,
 			List<Integer> parentSects, double minMag, boolean endsOnly) throws IOException {
 		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(parentSects, sol, minMag, endsOnly);
 		

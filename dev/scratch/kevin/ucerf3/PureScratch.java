@@ -106,7 +106,9 @@ import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.UCERF3.utils.LastEventData;
 import scratch.UCERF3.utils.MatrixIO;
 import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
 import scratch.UCERF3.utils.finiteFaultMap.FiniteFaultMappingData;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
 import scratch.kevin.cybershake.ucerf3.CSDownsampledSolCreator;
 
 public class PureScratch {
@@ -623,6 +625,41 @@ public class PureScratch {
 		for (ETAS_EqkRupture rup : catalog)
 			System.out.println(rup.getID()+"\t"+(float)rup.getMag()+"\t"+rup.getGeneration()+"\t"+rup.getParentID());
 	}
+	
+	private static void test21() {
+		ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
+		func1.set(1d, 2d);
+		List<ArbitrarilyDiscretizedFunc> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		funcs.add(func1);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		PlotSpec spec1 = new PlotSpec(funcs, chars, "Spec 1", "x", "y");
+		PlotSpec spec2 = new PlotSpec(funcs, chars, "Spec 2", "x", "y");
+		GraphWindow gw = new GraphWindow(spec1, false);
+		gw.setXLog(true);
+		gw.addTab(spec2);
+		gw.setVisible(true);
+	}
+	
+	private static void test22() throws IOException, DocumentException {
+//		File solFile = new File("/home/kevin/Documents/2016_SCEC_AM/ucerf3/FM3_1_ref_slip_high.zip");
+		File solFile = new File("/home/kevin/Documents/2016_SCEC_AM/ucerf3/FM3_1_ref_paleo_high.zip");
+//		File solFile = new File("/home/kevin/Documents/2016_SCEC_AM/ucerf3/FM3_1_ref.zip");
+		InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(solFile);
+		File outputDir = new File(solFile.getParentFile(), solFile.getName().replace(".zip", ""));
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
+		ArrayList<PaleoRateConstraint> paleoRateConstraints =
+				CommandLineInversionRunner.getPaleoConstraints(sol.getRupSet().getFaultModel(), sol.getRupSet());
+		System.out.println(paleoRateConstraints.size()+" paleo constraints");
+		List<AveSlipConstraint> aveSlipConstraints = AveSlipConstraint.load(sol.getRupSet().getFaultSectionDataList());
+		System.out.println(aveSlipConstraints.size()+" ave slip constraints");
+		Map<String, List<Integer>> namedFaultsMap = sol.getRupSet().getFaultModel().getNamedFaultsMapAlt();
+		for (String name : Lists.newArrayList(namedFaultsMap.keySet())) {
+			if (!name.contains("ndreas"))
+				namedFaultsMap.remove(name);
+		}
+		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol, outputDir);
+	}
 
 	/**
 	 * @param args
@@ -646,7 +683,9 @@ public class PureScratch {
 //		test17();
 //		test18();
 //		test19();
-		test20();
+//		test20();
+		test21();
+//		test22();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

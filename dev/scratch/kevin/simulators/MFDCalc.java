@@ -344,12 +344,18 @@ public class MFDCalc {
 	 * @throws DocumentException 
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
-		File internDir = new File("/home/kevin/Simulators/UCERF3_interns");
-		File geomFile = new File(new File(internDir, "sigmahigh"), "UCERF3.D3.1.1km.tri.2.flt");
-		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
+//		File internDir = new File("/home/kevin/Simulators/UCERF3_interns");
+//		File outputDir = internDir;
+//		File geomFile = new File(new File(internDir, "sigmahigh"), "UCERF3.D3.1.1km.tri.2.flt");
+//		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
+//		
+//		File[] eventDirs = { new File(internDir, "base"), new File(internDir, "sigmahigh"),
+//				new File(internDir, "sigmalow"), new File(internDir, "state")};
 		
-		File[] eventDirs = { new File(internDir, "base"), new File(internDir, "sigmahigh"),
-				new File(internDir, "sigmalow"), new File(internDir, "state")};
+		File outputDir = new File("/home/kevin/Simulators/bruce/rundir1435");
+		File geomFile = new File(outputDir, "zfault_Deepen.in");
+		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
+		File[] eventDirs = { outputDir };
 		
 		double minMag = 5d;
 		
@@ -357,7 +363,7 @@ public class MFDCalc {
 				+ "/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "FM3_1_GEOL_MEAN_BRANCH_AVG_SOL.zip"));
 		
-		writeMFDPlots(elements, internDir, "total_mfds", null, minMag, fssForComparison, eventDirs);
+		writeMFDPlots(elements, outputDir, "total_mfds", null, minMag, fssForComparison, eventDirs);
 		
 //		File dir = new File("/home/kevin/Simulators/UCERF3_interns/UCERF3sigmahigh");
 //		Region[] regions =  { new CaliforniaRegions.RELM_SOCAL(), new CaliforniaRegions.RELM_TESTING() };

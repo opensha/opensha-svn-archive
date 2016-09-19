@@ -268,7 +268,8 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 		}
 		if(prefBlendProbModelsCalc != null) {
 			for(ProbabilityModelsCalc calc : prefBlendProbModelsCalc.keySet()) {
-				calc.setFltSystemRupOccurranceTime(fltSysRupIndex, epoch);
+				if (calc != null) // will be null for Poisson
+					calc.setFltSystemRupOccurranceTime(fltSysRupIndex, epoch);
 			}
 		}
 		// do this to make sure the probability will be updated even if nothing else changes
@@ -290,7 +291,8 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 		}
 		if(prefBlendProbModelsCalc != null) {
 			for(ProbabilityModelsCalc calc : prefBlendProbModelsCalc.keySet()) {
-				calc.setFltSectRupOccurranceTime(sectIndex, epoch);
+				if (calc != null) // will be null for Poisson
+					calc.setFltSectRupOccurranceTime(sectIndex, epoch);
 			}
 		}
 		// do this to make sure the probability will be updated even if nothing else changes

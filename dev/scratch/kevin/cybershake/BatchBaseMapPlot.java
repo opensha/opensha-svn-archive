@@ -11,9 +11,11 @@ import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.xyz.AbstractGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -27,12 +29,15 @@ import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.cybershake.ModProbConfig;
 import org.opensha.sha.cybershake.bombay.ModProbConfigFactory;
 import org.opensha.sha.cybershake.bombay.ScenarioBasedModProbConfig;
+import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
 import org.opensha.sha.cybershake.maps.GMT_InterpolationSettings;
 import org.opensha.sha.cybershake.maps.HardCodedInterpDiffMapCreator;
 import org.opensha.sha.cybershake.maps.InterpDiffMap;
 import org.opensha.sha.cybershake.maps.ProbGainCalc;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
 import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
+
+import com.google.common.collect.Lists;
 
 public class BatchBaseMapPlot {
 
@@ -54,36 +59,63 @@ public class BatchBaseMapPlot {
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-5sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-pga");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_05_27-cvm4i26-cs-nga-2sec");
-		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_06_12-cvm4i26-cs-nga-10sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_06_12-cvm4i26-cs-nga-10sec");
+		File dir = new File("/home/kevin/CyberShake/baseMaps/2016_08_31-ccai6-cs-nga2avg-3sec");
+		
+		boolean ratios = true;
+		
+		List<SiteData<Double>> siteDatas = Lists.newArrayList();
+		siteDatas.add(new WillsMap2006());
+//		siteDatas.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+//		siteDatas.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		siteDatas.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		siteDatas.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		
+//		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
+		Region region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_REGION();
 		
 //		String imtFileLabel = "1sec";
-//		String label = "1sec SA, 2% in 50 yrs";
+//		String label = "1sec SA";
 //		Double customMax = 3d; // for 1 sec
 		
 //		String imtFileLabel = "2sec";
-//		String label = "2sec SA, 2% in 50 yrs";
+//		String label = "2sec SA";
 //		Double customMax = 1.4; // for 2 sec
 		
 //		String imtFileLabel = "pga";
-//		String label = "PGA, 2% in 50 yrs";
+//		String label = "PGA";
 //		Double customMax = 3d; // for PGA
 		
-//		String imtFileLabel = "3sec";
-//		String label = "3sec SA, 2% in 50 yrs";
-//		Double customMax = 1.4; // for 3 sec
+		String imtFileLabel = "3sec";
+		String label = "3sec SA";
+		Double customMax = 1.4; // for 3 sec
 		
 //		String imtFileLabel = "5sec";
-//		String label = "5sec SA, 2% in 50 yrs";
+//		String label = "5sec SA";
 //		Double customMax = 1d; // for 5 sec
 		
-		String imtFileLabel = "10sec";
-		String label = "10sec SA, 2% in 50 yrs";
-		Double customMax = 0.6d; // for 10 sec
+//		String imtFileLabel = "10sec";
+//		String label = "10sec SA";
+//		Double customMax = 0.6d; // for 10 sec
 		
 		boolean isProbAt_IML = false;
-		double val = 0.0004;
+//		double val = 0.0004;
+//		String probLabel = "2% in 50 yrs";
+//		String probFileLabel = "2p_in_50";
+//		double val = 0.0002;
+//		String probLabel = "1% in 50 yrs";
+//		String probFileLabel = "1p_in_50";
+		double val = 0.0001;
+		String probLabel = "1% in 100 yrs";
+		String probFileLabel = "1p_in_100";
+		
+		label += ", "+probLabel;
 		
 		Double customMin = 0d;
+		
+		List<GeoDataSet> maps = Lists.newArrayList();
+		
+		List<String> names = Lists.newArrayList();
 		
 		for (File subDir : dir.listFiles()) {
 			// this will be the IMR name
@@ -96,16 +128,21 @@ public class BatchBaseMapPlot {
 			if (!binFile.exists())
 				continue;
 			
-			File outputFile = new File(dir, name.toLowerCase()+"_"+imtFileLabel+"_2p_in_50.png");
-			if (outputFile.exists())
+			File outputFile = new File(dir, name.toLowerCase()+"_"+imtFileLabel+"_"+probFileLabel+".png");
+			boolean skip = outputFile.exists();
+			if (!ratios && skip)
 				continue;
 			
-			System.out.println("Plotting "+name);
+			System.out.println("Loading "+name);
 			
 			BinaryHazardCurveReader reader = new BinaryHazardCurveReader(binFile.getAbsolutePath());
 			Map<Location, ArbitrarilyDiscretizedFunc> curves = reader.getCurveMap();
 			
 			GeoDataSet baseMap = HazardDataSetLoader.extractPointFromCurves(curves, isProbAt_IML, val);
+			maps.add(baseMap);
+			names.add(name);
+			if (skip)
+				continue;
 //			int nanCount = 0;
 //			for (int i=0; i<baseMap.size(); i++) {
 //				if (Double.isNaN(baseMap.get(i))) {
@@ -128,16 +165,56 @@ public class BatchBaseMapPlot {
 			String metadata = "isProbAt_IML: " + isProbAt_IML + "\n" +
 					"val: " + val + "\n";
 			
-			plot(outputFile, baseMap, customMin, customMax, name+" "+label, metadata);
+			System.out.println("Plotting "+name);
+			plot(outputFile, baseMap, region, customMin, customMax, name+" "+label, metadata);
 		}
 		
 		// now site data
-		checkMakeSiteDataPlot(new WillsMap2006(), dir);
-		checkMakeSiteDataPlot(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0), dir);
-		checkMakeSiteDataPlot(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5), dir);
+		for (SiteData<Double> data : siteDatas)
+			checkMakeSiteDataPlot(data, region, dir);
+		
+		if (ratios && maps.size() > 1) {
+			for (int i=0; i<maps.size(); i++) {
+				GeoDataSet map1 = maps.get(i);
+				String name1 = names.get(i);
+				for (int j=i+1; j<maps.size(); j++) {
+					GeoDataSet map2 = maps.get(j);
+					String name2 = names.get(j);
+					
+					String fName = "ratio_"+name1+"_"+name2+"_"+probFileLabel+".png";
+					File outputFile = new File(dir, fName);
+					if (outputFile.exists())
+						continue;
+					
+					System.out.println("Calculating ratio: "+name1+" vs "+name2);
+					
+					GeoDataSet ratio = GeoDataSetMath.divide(map1, map2);
+					int numIdentical = 0;
+					for (int k=0; k<ratio.size(); k++)
+						if (ratio.get(k) == 1)
+							numIdentical++;
+					if (numIdentical == ratio.size())
+						System.out.println("They're identical!");
+					else
+						System.out.println(numIdentical+"/"+ratio.size()+" numerically identical");
+					
+					System.out.println("Plotting ratio");
+					
+					plot(outputFile, ratio, region, null, null, label+" Ratio", "asdf", true);
+				}
+			}
+		}
 	}
 	
-	private static void plot(File outputFile, GeoDataSet baseMap, Double customMin, Double customMax, String label, String metadata) throws IOException, ClassNotFoundException {
+	private static void plot(File outputFile, GeoDataSet baseMap, Region region,
+			Double customMin, Double customMax, String label, String metadata)
+					throws IOException, ClassNotFoundException {
+		plot(outputFile, baseMap, region, customMin, customMax, label, metadata, false);
+	}
+	
+	private static void plot(File outputFile, GeoDataSet baseMap, Region region,
+			Double customMin, Double customMax, String label, String metadata, boolean ratio)
+					throws IOException, ClassNotFoundException {
 		
 		double baseMapRes = 0.005;
 		System.out.println("Loading basemap...");
@@ -147,11 +224,14 @@ public class BatchBaseMapPlot {
 		
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
-		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 		
 		InterpDiffMapType[] mapTypes = {InterpDiffMapType.BASEMAP};
 		
-		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+		CPT cpt;
+		if (ratio)
+			cpt = CyberShake_GMT_MapGenerator.getRatioCPT();
+		else
+			cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
 				"/resources/cpt/MaxSpectrum2.cpt"));
 		
 		InterpDiffMap map = new InterpDiffMap(region, baseMap, baseMapRes, cpt, scatterData, interpSettings, mapTypes);
@@ -163,7 +243,8 @@ public class BatchBaseMapPlot {
 		map.setCustomScaleMin(customMin);
 		map.setCustomScaleMax(customMax);
 		
-		
+		if (ratio)
+			map.setRescaleCPT(false);
 		
 		System.out.println("Making map...");
 		String url = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
@@ -171,7 +252,7 @@ public class BatchBaseMapPlot {
 		FileUtils.downloadURL(url+"/basemap.150.png", outputFile);
 	}
 	
-	private static void checkMakeSiteDataPlot(SiteData<Double> prov, File dir) throws IOException, ClassNotFoundException {
+	private static void checkMakeSiteDataPlot(SiteData<Double> prov, Region region, File dir) throws IOException, ClassNotFoundException {
 		String shortType;
 		Double customMin, customMax;
 		if (prov.getDataType().equals(SiteData.TYPE_VS30)) {
@@ -194,14 +275,13 @@ public class BatchBaseMapPlot {
 		if (outputFile.exists())
 			return;
 		
-		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 		GriddedRegion gridReg = new GriddedRegion(region, 0.005, null);
 		List<Double> vals = prov.getValues(gridReg.getNodeList());
 		GriddedGeoDataSet data = new GriddedGeoDataSet(gridReg, false);
 		for (int i=0; i<vals.size(); i++)
 			data.set(i, vals.get(i));
 		
-		plot(outputFile, data, customMin, customMax, prov.getShortName()+" "+shortType, prov.getMetadata());
+		plot(outputFile, data, region, customMin, customMax, prov.getShortName()+" "+shortType, prov.getMetadata());
 	}
 
 }

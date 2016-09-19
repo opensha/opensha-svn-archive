@@ -65,6 +65,7 @@ import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM_Vs30;
 import org.opensha.commons.data.siteData.impl.ConstantValueDataProvider;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
@@ -253,6 +254,23 @@ public class HazardCurvePlotter {
 		return providers;
 	}
 	
+	public static List<SiteData<?>> getCCA_1D_Providers() {
+		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
+		
+		if ("".isEmpty())
+			throw new IllegalStateException("Need actual CCA 1-D values!");
+		
+		// CCA LA 1D model.
+		providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
+				SiteData.TYPE_FLAG_INFERRED, 0.0225d, "CCA 1-D LA model", "CCA-1D"));
+		providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
+				SiteData.TYPE_FLAG_INFERRED, 3.500d, "CCA 1-D LA model", "CCA-1D"));
+		providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
+				SiteData.TYPE_FLAG_INFERRED, 843.189d, "CCA 1-D LA model Vs30", "CCA-1D"));
+		
+		return providers;
+	}
+	
 	private OrderedSiteDataProviderList getProviders(int velModelID) {
 		if (dataProviders == null) {
 			dataProviders = createProviders(velModelID, useCVMVs30);
@@ -284,6 +302,8 @@ public class HazardCurvePlotter {
 					SiteData.TYPE_FLAG_INFERRED, 2886d, "Hadley-Kanamori 1D model Vs30", "HK-1D"));
 		} else if (velModelID == 8) {
 			providers.addAll(getBBP_1D_Providers());
+		} else if (velModelID == 9) {
+			providers.addAll(getCCA_1D_Providers());
 		} else {
 			if (useCVMVs30) {
 				if (velModelID == 5) {
@@ -346,6 +366,20 @@ public class HazardCurvePlotter {
 				/*		CVM4i26 Depth to 1.0					 */
 				try {
 					providers.add(new CachedSiteDataWrapper<Double>(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			} else if (velModelID == 10) {
+				/*		CVM4i26 Depth to 2.5					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5)));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+
+				/*		CVM4i26 Depth to 1.0					 */
+				try {
+					providers.add(new CachedSiteDataWrapper<Double>(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0)));
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}

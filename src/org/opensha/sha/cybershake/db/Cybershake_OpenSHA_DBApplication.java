@@ -44,8 +44,10 @@ import com.google.common.collect.Lists;
  */
 public class Cybershake_OpenSHA_DBApplication {
 
-	
-	public static String HOST_NAME = System.getProperty("cybershake.db.host", "focal.usc.edu");
+	public static String PRODUCTION_HOST_NAME = "moment.usc.edu";
+	public static String ARCHIVE_HOST_NAME = "focal.usc.edu";
+	public static String HOST_NAME = System.getProperty("cybershake.db.host", PRODUCTION_HOST_NAME);
+//	public static String HOST_NAME = System.getProperty("cybershake.db.host", "focal.usc.edu");
 	public static String DATABASE_NAME = System.getProperty("cybershake.db.name", "CyberShake");
 	public static final DBAccess db = new DBAccess(HOST_NAME,DATABASE_NAME);
 	

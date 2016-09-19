@@ -79,12 +79,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //					TestScenario.SAF_PENINSULA_M5p5, TestScenario.SAF_PENINSULA_M6p3, TestScenario.SAF_PENINSULA_M7};
 //		TestScenario[] scenarios = {TestScenario.SURPRISE_VALLEY_5p5, TestScenario.CENTRAL_VALLEY_M5p5};
 //		boolean includeSpontaneous = true;
-		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
+//		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
 		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		boolean includeSpontaneous = true;
-//		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
+		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = { null };
 //		boolean includeSpontaneous = true;
 		
@@ -105,7 +105,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean applySubSeisForSupraNucl = true;
 		
 //		String nameAdd = null;
-		String nameAdd = "25krun1";
+		String nameAdd = "25krun3";
 //		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
@@ -131,8 +131,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			nameAdd += "quick_test";
 		}
 		
-		String dateStr = df.format(new Date());
-//		String dateStr = "2016_02_22";
+//		String dateStr = df.format(new Date());
+		String dateStr = "2016_06_15";
 		
 		boolean timeIndep = false;
 		

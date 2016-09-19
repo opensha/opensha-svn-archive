@@ -41,6 +41,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.CommandLineInversionRunner;
+import scratch.UCERF3.inversion.InversionFaultSystemRupSet;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
 import scratch.UCERF3.inversion.UCERF2_ComparisonSolutionFetcher;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -58,7 +59,7 @@ public class FaultSpecificSegmentationPlotGen {
 		gw.setVisible(true);
 	}
 	
-	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, InversionFaultSystemSolution sol,
+	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, FaultSystemSolution sol,
 			double minMag, boolean endsOnly) throws IOException {
 		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
 		
@@ -72,7 +73,7 @@ public class FaultSpecificSegmentationPlotGen {
 		return gp;
 	}
 	
-	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, InversionFaultSystemSolution sol, double minMag, boolean endsOnly) {
+	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		// first assemble subsections by parent
 		Map<Integer, List<FaultSectionPrefData>> subSectsByParent = Maps.newHashMap();
@@ -307,7 +308,7 @@ public class FaultSpecificSegmentationPlotGen {
 					List<Integer> sectsForRup = rupSet.getSectionsIndicesForRup(rupIndex);
 					boolean stoppingPoint = false;
 					
-					if (sectIndex == sectsForRup.get(0) && !sects.contains(sectsForRup.get(1)))
+					if (sectsForRup.size() == 1 || sectIndex == sectsForRup.get(0) && !sects.contains(sectsForRup.get(1)))
 						stoppingPoint = true;
 					else if (sectIndex == sectsForRup.get(sectsForRup.size()-1) && !sects.contains(sectsForRup.get(sectsForRup.size()-2)))
 						stoppingPoint = true;
@@ -323,7 +324,7 @@ public class FaultSpecificSegmentationPlotGen {
 						}
 						ends.add(sectIndex);
 						endLocs.add(loc);
-						if (ends.size() > 2) {
+						if (sol instanceof InversionFaultSystemSolution && ends.size() > 2) {
 							String endsStr = null;
 							for (int i=0; i<ends.size(); i++) {
 								if (i == 0)
@@ -432,8 +433,18 @@ public class FaultSpecificSegmentationPlotGen {
 	}
 	
 	private static boolean hasConnectionOnOtherParent(List<Integer> parents,
-			FaultSectionPrefData subSect, InversionFaultSystemSolution sol) {
-		List<Integer> connections = sol.getRupSet().getCloseSectionsList(subSect.getSectionId());
+			FaultSectionPrefData subSect, FaultSystemSolution sol) {
+		Collection<Integer> connections;
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		if (rupSet instanceof InversionFaultSystemRupSet) {
+			connections = ((InversionFaultSystemRupSet)rupSet).getCloseSectionsList(subSect.getSectionId());
+		} else {
+			connections = new HashSet<Integer>();
+			for (int rupIndex : rupSet.getRupturesForSection(subSect.getSectionId())) {
+				for (int sectIndex : rupSet.getSectionsIndicesForRup(rupIndex))
+					connections.add(sectIndex);
+			}
+		}
 		int parentID = subSect.getParentSectionId();
 		for (int connection : connections) {
 			int connectionParent = sol.getRupSet().getFaultSectionData(connection).getParentSectionId();

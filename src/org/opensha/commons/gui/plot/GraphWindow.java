@@ -3,8 +3,10 @@ package org.opensha.commons.gui.plot;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -13,19 +15,23 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import org.jfree.data.Range;
+import org.opensha.commons.util.CustomFileFilter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FileUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
@@ -42,13 +48,17 @@ public class GraphWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private GraphWidget widget;
+	private List<GraphWidget> widgets;
+	
+	private JPanel mainPanel;
+	private JTabbedPane widgetTabPane;
 	
 	protected JMenuBar menuBar = new JMenuBar();
 	protected JMenu fileMenu = new JMenu();
 
 	protected JMenuItem fileExitMenu = new JMenuItem();
 	protected JMenuItem fileSaveMenu = new JMenuItem();
+	protected JMenuItem fileSaveAllMenu = new JMenuItem();
 	protected JMenuItem filePrintMenu = new JCheckBoxMenuItem();
 	protected JToolBar jToolBar = new JToolBar();
 
@@ -103,12 +113,15 @@ public class GraphWindow extends JFrame {
 	}
 	
 	public GraphWindow(GraphWidget widget, final boolean display) {
-		this.widget = widget;
-		JPanel mainPanel = new JPanel(new BorderLayout());
+		mainPanel = new JPanel(new BorderLayout());
+		
+		widgets = Lists.newArrayList();
+		addTab(widget);
 		
 		fileMenu.setText("File");
 		fileExitMenu.setText("Exit");
 		fileSaveMenu.setText("Save");
+		fileSaveAllMenu.setText("Save All");
 		filePrintMenu.setText("Print");
 
 		fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -120,6 +133,12 @@ public class GraphWindow extends JFrame {
 		fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				fileSaveMenu_actionPerformed(e);
+			}
+		});
+		
+		fileSaveAllMenu.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fileSaveAllMenu_actionPerformed(e);
 			}
 		});
 
@@ -147,6 +166,7 @@ public class GraphWindow extends JFrame {
 
 		menuBar.add(fileMenu);
 		fileMenu.add(fileSaveMenu);
+		fileMenu.add(fileSaveAllMenu);
 		fileMenu.add(filePrintMenu);
 		fileMenu.add(fileExitMenu);
 
@@ -190,7 +210,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setXAxisLabel(xAxisLabel);
+				getGraphWidget().setXAxisLabel(xAxisLabel);
 			}
 		});
 	}
@@ -200,13 +220,53 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setYAxisLabel(yAxisLabel);
+				getGraphWidget().setYAxisLabel(yAxisLabel);
 			}
 		});
 	}
 	
+	public void addTab(PlotSpec spec) {
+		addTab(new GraphWidget(spec));
+	}
+	
+	public void addTab(GraphWidget widget) {
+		Preconditions.checkState(!widgets.contains(widget));
+		if (widgets.size() == 1 && widgetTabPane == null) {
+			// switch to tabs
+			widgetTabPane = new JTabbedPane();
+			mainPanel.remove(widgets.get(0));
+			String title = widgets.get(0).getPlotSpec().getTitle();
+			if (title == null || title.isEmpty())
+				title = "(no title)";
+			widgetTabPane.addTab(title, widgets.get(0));
+			mainPanel.add(widgetTabPane, BorderLayout.CENTER);
+		}
+		widgets.add(widget);
+		if (widgets.size() > 1) {
+			String title = widget.getPlotSpec().getTitle();
+			if (title == null || title.isEmpty())
+				title = "(no title)";
+			widgetTabPane.addTab(title, widget);
+			Preconditions.checkState(widgetTabPane.getTabCount() == widgets.size());
+			widgetTabPane.setSelectedIndex(widgets.size()-1);
+		}
+	}
+	
+	public void setSelectedTab(final int index) {
+		doGUIThreadSafe(new Runnable() {
+
+			@Override
+			public void run() {
+				widgetTabPane.setSelectedIndex(index);
+			}
+			
+		});
+	}
+	
 	public GraphWidget getGraphWidget() {
-		return widget;
+		if (widgetTabPane == null)
+			return widgets.get(0);
+		return widgets.get(widgetTabPane.getSelectedIndex());
 	}
 	
 	private static final PlotCurveCharacterstics PLOT_CHAR1 = new PlotCurveCharacterstics(PlotLineType.SOLID,
@@ -279,9 +339,33 @@ public class GraphWindow extends JFrame {
 	 */
 	protected  void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
 		try {
-			widget.save();
+			getGraphWidget().save();
 		}
 		catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+					JOptionPane.OK_OPTION);
+			return;
+		}
+	}
+	
+	protected void fileSaveAllMenu_actionPerformed(ActionEvent actionEvent) {
+		try {
+			JFileChooser chooser = new JFileChooser();
+			
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			int option = chooser.showSaveDialog(this);
+			if (option == JFileChooser.APPROVE_OPTION) {
+				File dir = chooser.getSelectedFile();
+				for (GraphWidget widget : widgets) {
+					String title = widget.getPlotLabel();
+					String fname = title.replaceAll("\\W+", "_");
+					String prefix = new File(dir, fname).getAbsolutePath();
+					widget.saveAsPNG(prefix+".png");
+					widget.saveAsPDF(prefix+".pdf");
+					widget.saveAsTXT(prefix+".txt");
+				}
+			}
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
 					JOptionPane.OK_OPTION);
 			return;
@@ -294,7 +378,7 @@ public class GraphWindow extends JFrame {
 	 * @param actionEvent ActionEvent
 	 */
 	protected  void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
-		widget.print();
+		getGraphWidget().print();
 	}
 
 	protected  void closeButton_actionPerformed(ActionEvent actionEvent) {
@@ -302,12 +386,12 @@ public class GraphWindow extends JFrame {
 	}
 
 	protected  void printButton_actionPerformed(ActionEvent actionEvent) {
-		widget.print();
+		getGraphWidget().print();
 	}
 
 	protected  void saveButton_actionPerformed(ActionEvent actionEvent) {
 		try {
-			widget.save();
+			getGraphWidget().save();
 		}
 		catch (IOException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
@@ -322,7 +406,7 @@ public class GraphWindow extends JFrame {
 			@Override
 			public void run() {
 				try {
-					widget.saveAsPDF(fileName);
+					getGraphWidget().saveAsPDF(fileName);
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
@@ -336,7 +420,7 @@ public class GraphWindow extends JFrame {
 			@Override
 			public void run() {
 				try {
-					widget.saveAsPNG(fileName);
+					getGraphWidget().saveAsPNG(fileName);
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}
@@ -350,7 +434,7 @@ public class GraphWindow extends JFrame {
 	 * @throws IOException 
 	 */
 	public void saveAsTXT(String fileName) throws IOException {
-		widget.saveAsTXT(fileName);
+		getGraphWidget().saveAsTXT(fileName);
 	}
 
 	public void setXLog(final boolean xLog) {
@@ -358,7 +442,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setX_Log(xLog);
+				getGraphWidget().setX_Log(xLog);
 			}
 		});
 	}
@@ -368,7 +452,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setY_Log(yLog);
+				getGraphWidget().setY_Log(yLog);
 			}
 		});
 	}
@@ -378,7 +462,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setAxisRange(xMin, xMax, yMin, yMax);
+				getGraphWidget().setAxisRange(xMin, xMax, yMin, yMax);
 			}
 		});
 	}
@@ -388,7 +472,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setAxisRange(xRange, yRange);
+				getGraphWidget().setAxisRange(xRange, yRange);
 			}
 		});
 	}
@@ -398,7 +482,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setPlotSpec(plotSpec);
+				getGraphWidget().setPlotSpec(plotSpec);
 			}
 		});
 	}
@@ -409,7 +493,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setPlotChars(curveCharacteristics);
+				getGraphWidget().setPlotChars(curveCharacteristics);
 			}
 		});
 	}
@@ -419,7 +503,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.togglePlot();
+				getGraphWidget().togglePlot();
 			}
 		});
 	}
@@ -429,7 +513,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setPlotLabel(plotTitle);
+				getGraphWidget().setPlotLabel(plotTitle);
 			}
 		});
 	}
@@ -439,7 +523,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setPlotLabelFontSize(fontSize);
+				getGraphWidget().setPlotLabelFontSize(fontSize);
 			}
 		});
 	}
@@ -449,7 +533,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setTickLabelFontSize(fontSize);
+				getGraphWidget().setTickLabelFontSize(fontSize);
 			}
 		});
 	}
@@ -459,7 +543,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setAxisLabelFontSize(fontSize);
+				getGraphWidget().setAxisLabelFontSize(fontSize);
 			}
 		});
 	}
@@ -469,7 +553,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setX_AxisRange(minX, maxX);
+				getGraphWidget().setX_AxisRange(minX, maxX);
 			}
 		});
 	}
@@ -479,13 +563,13 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setX_AxisRange(xRange);
+				getGraphWidget().setX_AxisRange(xRange);
 			}
 		});
 	}
 	
 	public Range getX_AxisRange() {
-		return widget.getX_AxisRange();
+		return getGraphWidget().getX_AxisRange();
 	}
 
 	public void setY_AxisRange(final double minY, final double maxY) {
@@ -493,7 +577,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setY_AxisRange(minY, maxY);
+				getGraphWidget().setY_AxisRange(minY, maxY);
 			}
 		});
 	}
@@ -503,13 +587,13 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setY_AxisRange(yRange);
+				getGraphWidget().setY_AxisRange(yRange);
 			}
 		});
 	}
 	
 	public Range getY_AxisRange() {
-		return widget.getY_AxisRange();
+		return getGraphWidget().getY_AxisRange();
 	}
 
 	public void setAllLineTypes(final PlotLineType line, final PlotSymbol symbol) {
@@ -517,7 +601,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				for (PlotCurveCharacterstics pchar : widget.getPlottingFeatures()) {
+				for (PlotCurveCharacterstics pchar : getGraphWidget().getPlottingFeatures()) {
 					pchar.setLineType(line);
 					pchar.setSymbol(symbol);
 				}
@@ -530,7 +614,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setAutoRange();
+				getGraphWidget().setAutoRange();
 			}
 		});
 	}
@@ -540,7 +624,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.setGriddedFuncAxesTicks(histogramAxesTicks);
+				getGraphWidget().setGriddedFuncAxesTicks(histogramAxesTicks);
 			}
 		});
 	}
@@ -550,7 +634,7 @@ public class GraphWindow extends JFrame {
 			
 			@Override
 			public void run() {
-				widget.drawGraph();
+				getGraphWidget().drawGraph();
 			}
 		});
 	}
