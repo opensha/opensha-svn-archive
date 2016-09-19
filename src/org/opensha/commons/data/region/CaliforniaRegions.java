@@ -111,6 +111,7 @@ public class CaliforniaRegions {
 		public RELM_COLLECTION() {
 			super(readCoords("RELM_collection.coords"), 
 					BorderType.MERCATOR_LINEAR);
+			this.setName("RELM_COLLECTION Region");
 		}
 	}
 
@@ -271,6 +272,7 @@ public class CaliforniaRegions {
 		public CYBERSHAKE_MAP_REGION() {
 			super(readCoords("CyberShake_Map.coords"), 
 					BorderType.MERCATOR_LINEAR);
+			this.setName("CyberShake Map Region");
 		}
 	}
 	
@@ -292,6 +294,7 @@ public class CaliforniaRegions {
 		public CYBERSHAKE_CCA_MAP_REGION() {
 			super(readCoords("CyberShake_Map_CCA.coords"), 
 					BorderType.MERCATOR_LINEAR);
+			this.setName("CyberShake CCA Map Region");
 		}
 	}
 	
