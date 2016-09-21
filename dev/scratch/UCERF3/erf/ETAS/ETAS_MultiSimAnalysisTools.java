@@ -4231,10 +4231,20 @@ public class ETAS_MultiSimAnalysisTools {
 	private static final String catsDirName = "selected_catalogs";
 	
 	
-	private static void makeImagesForSciencePaperFig1() {
+	
+	/**
+	 * 
+	 * set full_TD true to make FULL_TD case; otherwise it's NO_ERT (filenames differe accordingly)
+	 */
+	private static void makeImagesForSciencePaperFig1(boolean full_td) {
 		
 		System.out.println("Loading file");
-		File resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5_preserve.bin");
+		File resultsFile = null;
+		if(full_td)
+			resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5_preserve.bin");
+		else
+			resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_descendents_m5_preserve.bin");
+
 		List<List<ETAS_EqkRupture>> catalogs=null;
 		try {
 			catalogs = ETAS_CatalogIO.loadCatalogs(resultsFile, 6.7, true);
@@ -4306,6 +4316,11 @@ public class ETAS_MultiSimAnalysisTools {
 
 		System.out.println("Making Long Term Data");
 		GriddedGeoDataSet longTermTD_data = FaultSysSolutionERF_Calc.calcParticipationProbInGriddedRegionFltMapped(erf, griddedRegion, 6.7, 10.0);
+		
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		System.out.println("Making Time Ind. Data");
+		GriddedGeoDataSet timeInd_data = FaultSysSolutionERF_Calc.calcParticipationProbInGriddedRegionFltMapped(erf, griddedRegion, 6.7, 10.0);
 
         for(int n=0;n<zCount.length;n++) {
         	triggerData.set(n, Math.log10(zCount[n]/100000d));  // 100k simulations
@@ -4314,6 +4329,7 @@ public class ETAS_MultiSimAnalysisTools {
         		value = 0.0;
         	ratioData.set(n, value);  // 100k simulations
         	longTermTD_data.set(n,Math.log10(longTermTD_data.get(n)));
+        	timeInd_data.set(n,Math.log10(timeInd_data.get(n)));
         }
         
         boolean includeTopo=false;
@@ -4323,10 +4339,16 @@ public class ETAS_MultiSimAnalysisTools {
 			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
 			double minValue = -8;
 			double maxValue = -2;
-			File dir = new File("SciFig1_BackgroundImages");
+			File dir = null;
+			if(full_td)
+				dir = new File("SciFig1_FULL_TD_BackgroundImages");
+			else
+				dir = new File("SciFig1_NO_ERT_BackgroundImages");
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, griddedRegion, dir, "triggerData", true, cpt, minValue, maxValue, includeTopo);
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(longTermTD_data, griddedRegion, dir, "longTermTD_data", true, cpt, minValue, maxValue, includeTopo);
-			CPT cpt_ratio = GMT_CPT_Files.UCERF3_RATIOS.instance();
+			maxValue = -3;
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(timeInd_data, griddedRegion, dir, "timeInd_data", true, cpt, minValue, maxValue, includeTopo);
+			CPT cpt_ratio = GMT_CPT_Files.UCERF3_ETAS_GAIN.instance();
 			minValue = -3;
 			maxValue = 3;
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(ratioData, griddedRegion, dir, "ratioData", true, cpt_ratio, minValue, maxValue, includeTopo);
@@ -4342,7 +4364,8 @@ public class ETAS_MultiSimAnalysisTools {
 		if (args.length == 0 && new File("/Users/field/").exists()) {
 			// now will run by default on your machine Ned
 //			nedsAnalysis();
-			makeImagesForSciencePaperFig1();
+			makeImagesForSciencePaperFig1(true);
+			makeImagesForSciencePaperFig1(false);
 			System.exit(-1);
 		}
 		
