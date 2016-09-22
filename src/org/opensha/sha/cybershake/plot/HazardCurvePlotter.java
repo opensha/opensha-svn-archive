@@ -257,16 +257,13 @@ public class HazardCurvePlotter {
 	public static List<SiteData<?>> getCCA_1D_Providers() {
 		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
 		
-		if ("".isEmpty())
-			throw new IllegalStateException("Need actual CCA 1-D values!");
-		
-		// CCA LA 1D model.
+		// CCA LA 1D model, via e-mail from David Gill 9/22/16
 		providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_2_5,
-				SiteData.TYPE_FLAG_INFERRED, 0.0225d, "CCA 1-D LA model", "CCA-1D"));
+				SiteData.TYPE_FLAG_INFERRED, 0.0d, "CCA 1-D model", "CCA-1D"));
 		providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_DEPTH_TO_1_0,
-				SiteData.TYPE_FLAG_INFERRED, 3.500d, "CCA 1-D LA model", "CCA-1D"));
+				SiteData.TYPE_FLAG_INFERRED, 5.110d, "CCA 1-D model", "CCA-1D"));
 		providers.add(new ConstantValueDataProvider<Double>(SiteData.TYPE_VS30,
-				SiteData.TYPE_FLAG_INFERRED, 843.189d, "CCA 1-D LA model Vs30", "CCA-1D"));
+				SiteData.TYPE_FLAG_INFERRED, 1987.291d, "CCA 1-D model Vs30", "CCA-1D"));
 		
 		return providers;
 	}
@@ -1877,14 +1874,12 @@ public class HazardCurvePlotter {
 						printHelp(options, appName);
 					}
 				} catch (ParseException e1) {
-					// TODO Auto-generated catch block
-//				e1.printStackTrace();
+//					e1.printStackTrace();
 				}
 				System.err.println(e.getMessage());
 				printUsage(options, appName);
 //			e.printStackTrace();
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				printUsage(options, appName);
 			}
