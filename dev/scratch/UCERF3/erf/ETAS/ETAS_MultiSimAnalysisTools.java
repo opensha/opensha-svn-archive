@@ -4255,11 +4255,11 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 		
         double duration = 7/365.25;
-		Long ot = Math.round((2014.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2014
+		Long ot = Math.round((2012.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2012
         long maxOT = ot + (long)(duration*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
         
         int fssIndex = 193821;	// the M7 Mojave scenario
-		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2014,duration);
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012,duration);
 		int srcID = erf.getSrcIndexForFltSysRup(fssIndex);
 		erf.setFltSystemSourceOccurranceTime(srcID, ot);
 		erf.updateForecast();
