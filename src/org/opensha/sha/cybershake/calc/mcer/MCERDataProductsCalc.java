@@ -283,6 +283,7 @@ public class MCERDataProductsCalc {
 	public void calc(List<Integer> runIDs) throws IOException {
 		for (int runID : runIDs) {
 			CybershakeRun run = runs2db.getRun(runID);
+			Preconditions.checkNotNull(run, "Run not found: %s", runID);
 			CybershakeSite site = sites2db.getSiteFromDB(run.getSiteID());
 			
 			doCalc(run, site);
@@ -1136,7 +1137,8 @@ public class MCERDataProductsCalc {
 //			argStr += " --run-id 4516,4517,4518,4519,4520,4521,4522,4523";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_12_la_west";
 //			argStr += " --run-id 3876,3877,3870,3875,3879,3878,3882,3883,3884,3885,3880,3869,3873,3861";
-			argStr += " --run-id 3878";
+//			argStr += " --run-id 3878";
+			argStr += " --run-id 3877,3870";
 //			argStr += " --output-dir /home/kevin/CyberShake/MCER/mcer_data_products/study_15_4_main";
 			argStr += " --output-dir /tmp/mcer";
 //			argStr += " --run-id 4067,4068,4069,4217,4218,4219,4220,4221";
@@ -1162,8 +1164,12 @@ public class MCERDataProductsCalc {
 					+ "src/org/opensha/sha/cybershake/conf/bssa2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cb2014.xml,"
 					+ "src/org/opensha/sha/cybershake/conf/cy2014.xml";
+//			argStr += " --atten-rel-file /tmp/gmpe_no_trunk/ask2014.xml,"
+//					+ "/tmp/gmpe_no_trunk/bssa2014.xml,"
+//					+ "/tmp/gmpe_no_trunk/cb2014.xml,"
+//					+ "/tmp/gmpe_no_trunk/cy2014.xml";
 			argStr += " --period "+all_periods;
-			argStr += " --disaggregate";
+//			argStr += " --disaggregate";
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_downsampled.xml";
 			// for UCERF3 GMPE
 //			argStr += " --gmpe-erf-file src/org/opensha/sha/cybershake/conf/MeanUCERF3_full.xml";
@@ -1172,6 +1178,8 @@ public class MCERDataProductsCalc {
 			argStr += " --weight-average";
 			argStr += " --nehrp-mcer";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
+			
+			Cybershake_OpenSHA_DBApplication.setHostName(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 		}
 		
 		DBAccess db = null;

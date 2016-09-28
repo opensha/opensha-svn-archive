@@ -175,8 +175,9 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 					vals.add(val);
 				}
 			} catch (IOException e) {
-				System.out.println("IOException...skipping provider: " + provider.getShortName());
-				continue;
+				throw new RuntimeException("IOException with "+provider.getShortName(), e);
+//				System.out.println("IOException...skipping provider: " + provider.getShortName());
+//				continue;
 			}
 		}
 		
@@ -239,8 +240,9 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 					completedTypes.add(type);
 				}
 			} catch (IOException e) {
-				System.out.println("IOException...skipping provider: " + provider.getShortName());
-				continue;
+				throw new RuntimeException("IOException with "+provider.getShortName(), e);
+//				System.out.println("IOException...skipping provider: " + provider.getShortName());
+//				continue;
 			}
 		}
 		
@@ -358,18 +360,19 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 	 * 
 	 * <UL>
 	 * <LI> 1. Wills 2006 (servlet access)
-	 * <LI> 2. Wills 2000 (servlet access)
-	 * <LI> 3. Topographic Slope Vs30 (Wald and Allen 2007/2008) (servlet access)
-	 * <LI> 4. CVM 4 Depth 2.5 (servlet access)
-	 * <LI> 5. CVM 4 Depth 1.0 (servlet access)
-	 * <LI> 6. CVMH Depth 2.5
-	 * <LI> 7. CVMH Depth 1.0
-	 * <LI> 8. CVM 4 Iteration 26 Depth 2.5 (servlet access)
-	 * <LI> 9. CVM 4 Iteration 26 Depth 1.0 (servlet access)
-	 * <LI> 10. USGS Bay Area Depth 2.5 (servlet access)
-	 * <LI> 11. USGS Bay Area Depth 1.0 (servlet access)
-	 * <LI> 12. Vs30 from CVMs (servlet access)
-	 * <LI> 13. CVM 2 Depth 2.5 (servlet access)
+	 * <LI> 2. Topographic Slope Vs30 (Wald and Allen 2007/2008) (servlet access)
+	 * <LI> 3. CVM 4 Iteration 26 Depth 2.5 (servlet access)
+	 * <LI> 4. CVM 4 Iteration 26 Depth 1.0 (servlet access)
+	 * <LI> 5. CVM CCA Iteration 6 Depth 2.5 (servlet access)
+	 * <LI> 6. CVM CCA Iteration 6 Depth 1.0 (servlet access)
+	 * <LI> 7. CVM 4 Depth 2.5 (servlet access)
+	 * <LI> 8. CVM 4 Depth 1.0 (servlet access)
+	 * <LI> 9. CVM H 11.9.1 Depth 2.5
+	 * <LI> 10. CVM H 11.9.1 Depth 1.0
+	 * <LI> 11. USGS Bay Area Depth 2.5 (servlet access)
+	 * <LI> 12. USGS Bay Area Depth 1.0 (servlet access)
+	 * <LI> 13. Vs30 from CVMs (servlet access)
+	 * <LI> 14. CVM 2 Depth 2.5 (servlet access)
 	 * </UL>
 	 * 
 	 * @return
@@ -383,11 +386,33 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		/*		Wills 2000			*/
-		providers.add(new WillsMap2000());
 		/*		Topographic Slope	*/
 		try {
 			providers.add(new WaldAllenGlobalVs30());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM 4i26 Depth 2.5		*/
+		try {
+			providers.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM 4i26 Depth 1.0		*/
+		try {
+			providers.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM CCA i6 Depth 2.5		*/
+		try {
+			providers.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*		CVM CCA i6 Depth 1.0		*/
+		try {
+			providers.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -415,18 +440,6 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		/*		CVM 4i26 Depth 2.5		*/
-		try {
-			providers.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		/*		CVM 4i26 Depth 1.0		*/
-		try {
-			providers.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		/*		CCA i6 Depth 2.5		*/
 		try {
 			providers.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
@@ -451,6 +464,8 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		int numEnabled = providers.size();
+		// below here disabled by default
 		/*		Vs30 from CVMs		*/
 		try {
 			providers.add(new CVM_Vs30(CVM_Vs30.CVM_DEFAULT));
@@ -463,8 +478,14 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		/*		Wills 2000			*/
+		providers.add(new WillsMap2000());
 		
-		return new OrderedSiteDataProviderList(providers);
+		OrderedSiteDataProviderList list = new OrderedSiteDataProviderList(providers);
+		for (int i=numEnabled; i<list.size(); i++)
+			list.setEnabled(i, false);
+		
+		return list;
 	}
 	
 	/**

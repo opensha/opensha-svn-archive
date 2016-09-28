@@ -28,7 +28,7 @@ public class ServerPrefUtils {
 	/**
 	 * Hostname for all development services
 	 */
-	static final String OPENSHA_SERVER_DEV_HOST = "zero.usc.edu";
+	static final String OPENSHA_SERVER_DEV_HOST = "opensha.usc.edu";
 	
 //	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/usr/local/tomcat/default/webapps";
 	static final String OPENSHA_TOMCAT_WEBAPPS_DIR = "/var/lib/tomcat/webapps/";

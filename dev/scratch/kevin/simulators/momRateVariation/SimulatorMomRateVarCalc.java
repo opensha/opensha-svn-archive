@@ -27,8 +27,12 @@ import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.simulators.SimulatorEvent;
 import org.opensha.sha.simulators.EQSIM_EventRecord;
 import org.opensha.sha.simulators.EventRecord;
+import org.opensha.sha.simulators.SimulatorElement;
+import org.opensha.sha.simulators.iden.LogicalAndRupIden;
+import org.opensha.sha.simulators.iden.MagRangeRuptureIdentifier;
 import org.opensha.sha.simulators.iden.RegionIden;
 import org.opensha.sha.simulators.iden.RuptureIdentifier;
+import org.opensha.sha.simulators.parsers.RSQSimFileReader;
 import org.opensha.sha.simulators.utils.General_EQSIM_Tools;
 
 import scratch.UCERF3.utils.MatrixIO;
@@ -66,16 +70,30 @@ public class SimulatorMomRateVarCalc {
 //			new GraphWindow(funcs, "Taper", chars);
 //		}
 		
-		File oDir = new File("/tmp/mom_rate");
-		Preconditions.checkState(oDir.exists() || oDir.mkdir());
+//		File oDir = new File("/tmp/mom_rate");
+//		Preconditions.checkState(oDir.exists() || oDir.mkdir());
 		
-		List<RuptureIdentifier> idens = SynchIdens.getStandardSoCal();
+//		List<RuptureIdentifier> idens = SynchIdens.getStandardSoCal();
 		
 		// don't use idens in loading, but rather
 		List<RuptureIdentifier> loadIdens = Lists.newArrayList();
 		// only so cal ruptures
 		loadIdens.add(new RegionIden(new CaliforniaRegions.RELM_SOCAL()));
-		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, loadIdens, false).getEvents();
+//		List<? extends SimulatorEvent> events = new SimAnalysisCatLoader(true, loadIdens, false).getEvents();
+//		File mainDir = new File("/home/kevin/Simulators/UCERF3_interns");
+////		String catName = "base";
+////		String catName = "sigmahigh";
+//		String catName = "sigmalow";
+//		File dir = new File(mainDir, catName);
+		File dir = new File("/home/kevin/Simulators/UCERF3_JG_supraSeisGeo2");
+		File oDir = new File(dir, "mom_rate_time_series");
+		Preconditions.checkState(oDir.exists() || oDir.mkdir());
+		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");
+		
+		List<SimulatorElement> elements = RSQSimFileReader.readGeometryFile(geomFile, 11, 'S');
+		loadIdens.add(new MagRangeRuptureIdentifier(5d, 10d));
+		loadIdens = LogicalAndRupIden.buildAsList(loadIdens);
+		List<? extends SimulatorEvent> events = RSQSimFileReader.readEventsFile(dir, elements, loadIdens);
 		
 		// randomize
 		List<SimulatorEvent> trueRandom = Lists.newArrayList();

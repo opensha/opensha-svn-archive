@@ -21,6 +21,7 @@ public class ETAS_BinaryCatalogFilterDependents {
 		if (args.length < 2 || args.length > 3) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(ETAS_BinaryCatalogFilterDependents.class)
 						+" <input-binary-file> <output-binary-file> [<trigger-id>]");
+			System.exit(2);
 		}
 		
 		File inputFile = new File(args[0]);
@@ -49,10 +50,15 @@ public class ETAS_BinaryCatalogFilterDependents {
 			// write number of catalogs as int
 			out.writeInt(numCatalogs); // will overwrite later
 			
+			int catalogIndex = 0;
+			
 			for (List<ETAS_EqkRupture> catalog : iterable) {
 				inNumRups += catalog.size();
 				List<ETAS_EqkRupture> children = ETAS_SimAnalysisTools.getChildrenFromCatalog(catalog, triggerParentID);
 				outNumRups += children.size();
+				
+				if (catalogIndex++ % 1000 == 0)
+					System.out.println("Processing catalog "+catalogIndex);
 				
 				ETAS_CatalogIO.writeCatalogBinary(out, children);
 			}

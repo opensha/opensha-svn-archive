@@ -660,6 +660,29 @@ public class PureScratch {
 		}
 		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol, outputDir);
 	}
+	
+	private static void test23() {
+		double duration = 30d;
+		double prob = 0.217;
+		
+		// prob = 1 - Math.exp(-rate*duration)
+		// Math.exp(-rate*duration) = 1 - prob
+		// -rate*duration = Math.log(1 - prob)
+		// rate = -duration*Math.log(1 - prob)
+		
+		double rate = -Math.log(1 - prob)/duration;
+		
+		System.out.println("Annual rate: "+rate);
+		
+		double targetDuration = 7d/365.25;
+		double targetRate = targetDuration*rate;
+		double targetProb = 1 - Math.exp(-rate*targetDuration);
+		
+		System.out.println("1-week rate: "+targetRate);
+		System.out.println("1-week prob: "+targetProb);
+		
+		
+	}
 
 	/**
 	 * @param args
@@ -684,8 +707,9 @@ public class PureScratch {
 //		test18();
 //		test19();
 //		test20();
-		test21();
+//		test21();
 //		test22();
+		test23();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

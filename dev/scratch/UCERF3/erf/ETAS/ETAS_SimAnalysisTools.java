@@ -650,8 +650,17 @@ public class ETAS_SimAnalysisTools {
 		
 		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 		
+		System.out.println("Orig MFD");
+		System.out.println(mfd);
+		
 		double totalNum = expNumForM2p5*Math.pow(10d,mainshockMag-2.5);
+		
+		System.out.println("Total Num: "+totalNum);
+		
 		mfd.scaleToCumRate(0, totalNum);
+		
+		System.out.println("Scaled MFD");
+		System.out.println(mfd);
 		
 		return mfd;
 

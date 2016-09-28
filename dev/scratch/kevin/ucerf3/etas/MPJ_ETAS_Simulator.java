@@ -111,7 +111,6 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private boolean imposeGR = false;
 	
 	private static final int START_YEAR_DEFAULT = 2014;
-	private int startYear = START_YEAR_DEFAULT;
 	
 	private boolean metadataOnly = false;
 
@@ -162,11 +161,16 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			sols[i] = FaultSystemIO.loadSol(solFile);
 		
 		// if we have a triggered event
-		if (cmd.hasOption("start-year"))
-			startYear = Integer.parseInt(cmd.getOptionValue("start-year"));
-		if (rank == 0)
-			debug("Start year: "+startYear);
-		ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		if (cmd.hasOption("millis")) {
+			ot = Long.parseLong(cmd.getOptionValue("millis"));
+		} else {
+			int startYear = START_YEAR_DEFAULT;
+			if (cmd.hasOption("start-year"))
+				startYear = Integer.parseInt(cmd.getOptionValue("start-year"));
+			if (rank == 0)
+				debug("Start year: "+startYear);
+			ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		}
 		
 		fssScenarioRupID = -1;
 		
@@ -502,7 +506,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				}
 
 				debug("Instantiationg ERF");
-				FaultSystemSolutionERF_ETAS erf = buildERF(sol, timeIndep, duration, startYear);
+				FaultSystemSolutionERF_ETAS erf = buildERF_millis(sol, timeIndep, duration, ot);
 
 				if (fssScenarioRupID >= 0) {
 					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
@@ -667,6 +671,12 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	
 	public static FaultSystemSolutionERF_ETAS buildERF(FaultSystemSolution sol, boolean timeIndep, double duration,
 			int startYear) {
+		long ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		return buildERF_millis(sol, timeIndep, duration, ot);
+	}
+	
+	public static FaultSystemSolutionERF_ETAS buildERF_millis(FaultSystemSolution sol, boolean timeIndep, double duration,
+			long ot) {
 		FaultSystemSolutionERF_ETAS erf = new FaultSystemSolutionERF_ETAS(sol);
 		// set parameters
 		erf.getParameter(IncludeBackgroundParam.NAME).setValue(IncludeBackgroundOption.INCLUDE);
@@ -677,9 +687,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
 		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
 		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		if (!timeIndep)
+		if (!timeIndep) {
+			double startYear = 1970d + (double)ot/(double)ProbabilityModelsCalc.MILLISEC_PER_YEAR;
 			erf.getParameter(HistoricOpenIntervalParam.NAME).setValue(startYear-1875d);
-		erf.getTimeSpan().setStartTimeInMillis(Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR)+1);
+		}
+		erf.getTimeSpan().setStartTimeInMillis(ot+1);
 		erf.getTimeSpan().setDuration(duration);
 		return erf;
 	}
@@ -734,7 +746,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		triggerMag.setRequired(false);
 		ops.addOption(triggerMag);
 		
-		Option triggerRake = new Option("m", "trigger-rake", true, "Trigger rake for point source (used with --trigger-loc, default=0)");
+		Option triggerRake = new Option("tr", "trigger-rake", true, "Trigger rake for point source (used with --trigger-loc, default=0)");
 		triggerRake.setRequired(false);
 		ops.addOption(triggerRake);
 		
@@ -749,6 +761,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option startYear = new Option("y", "start-year", true, "Start year for simulation (Default: "+START_YEAR_DEFAULT+")");
 		startYear.setRequired(false);
 		ops.addOption(startYear);
+		
+		Option millis = new Option("millis", "millis", true, "Start time for simulation in epoch milliseconds (Default uses --start-year)");
+		millis.setRequired(false);
+		ops.addOption(millis);
 		
 		Option numSims = new Option("n", "num", true, "Number of simulations");
 		numSims.setRequired(true);

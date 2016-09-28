@@ -1,12 +1,21 @@
 package org.opensha.sha.simulators.iden;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.opensha.sha.simulators.SimulatorEvent;
 
 import com.google.common.collect.Lists;
 
 public class LogicalAndRupIden extends AbstractRuptureIdentifier {
+	
+	public static List<RuptureIdentifier> buildAsList(Collection<RuptureIdentifier> rupIdens) {
+		List<RuptureIdentifier> idens = Lists.newArrayList();
+		
+		idens.add(new LogicalAndRupIden(rupIdens));
+		
+		return idens;
+	}
 	
 	private Collection<RuptureIdentifier> rupIdens;
 

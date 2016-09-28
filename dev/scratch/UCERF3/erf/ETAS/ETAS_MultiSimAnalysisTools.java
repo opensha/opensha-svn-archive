@@ -191,8 +191,8 @@ public class ETAS_MultiSimAnalysisTools {
 	private static double mfdMinMag = 2.55;
 	private static double mfdDelta = 0.1;
 	private static int mfdNumMag = 66;
-	private static double mfdMinY = 1e-4;
-	private static double mfdMaxY = 1e4;
+	public static double mfdMinY = 1e-4;
+	public static double mfdMaxY = 1e4;
 	
 	private static int calcNumMagToTrim(List<List<ETAS_EqkRupture>> catalogs) {
 		double minMag = mfdMinMag;
@@ -562,13 +562,13 @@ public class ETAS_MultiSimAnalysisTools {
 		return ret;
 	}
 	
-	private static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs, File outputDir,
+	public static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs, File outputDir,
 			String name, String prefix, TestScenario scenario, double expNumForM2p5, FaultSystemSolution fss)
 					throws IOException {
 		plotMagNum(catalogs, outputDir, name, prefix, scenario, expNumForM2p5, fss, Long.MAX_VALUE);
 	}
 	
-	private static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name,
+	public static void plotMagNum(List<List<ETAS_EqkRupture>> catalogs, File outputDir, String name,
 			String prefix, TestScenario scenario, double expNumForM2p5, FaultSystemSolution fss, long maxOT)
 					throws IOException {
 		double minMag = mfdMinMag;
@@ -3435,7 +3435,7 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, "cond_hypo_dist.txt").getAbsolutePath());
 	}
 	
-	private static void plotScalesOfHazardChange(
+	public static void plotScalesOfHazardChange(
 			List<List<ETAS_EqkRupture>> childrenCatalogs, List<List<ETAS_EqkRupture>> catalogs,
 			TestScenario scenario, long ot, FaultSystemSolutionERF erf, File outputDir, String name,
 			double inputDuration, boolean rates, boolean subSects) throws IOException {
@@ -3487,17 +3487,28 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 		}
 		
-		boolean xAxisInverted = true;
+		boolean xAxisInverted = false;
+//		int numX = 20;
+//		int numX = 40;
+		int etasNumX = 80;
+		int u3NumX = 20;
 		
 		double[] times = { 1d/(365.25*24), 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d, 30d, 100d };
 		// evenly discretized in log space from min to max
 		EvenlyDiscretizedFunc evenlyDiscrTimes = new EvenlyDiscretizedFunc(
-				Math.log(times[0]), Math.log(times[times.length-1]), 20);
-		ArbitrarilyDiscretizedFunc timesFunc = new ArbitrarilyDiscretizedFunc();
+				Math.log(times[0]), Math.log(times[times.length-1]), etasNumX);
+		ArbitrarilyDiscretizedFunc etasTimesFunc = new ArbitrarilyDiscretizedFunc();
 		for (Point2D pt : evenlyDiscrTimes)
-			timesFunc.set(Math.exp(pt.getX()), 0);
+			etasTimesFunc.set(Math.exp(pt.getX()), 0);
 		for (double x : times)
-			timesFunc.set(x, 0);
+			etasTimesFunc.set(x, 0);
+		evenlyDiscrTimes = new EvenlyDiscretizedFunc(
+				Math.log(times[0]), Math.log(times[times.length-1]), u3NumX);
+		ArbitrarilyDiscretizedFunc u3TimesFunc = new ArbitrarilyDiscretizedFunc();
+		for (Point2D pt : evenlyDiscrTimes)
+			u3TimesFunc.set(Math.exp(pt.getX()), 0);
+		for (double x : times)
+			u3TimesFunc.set(x, 0);
 		
 		double minDist = 30d;
 		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
@@ -3528,7 +3539,8 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 		
 //		double[] mags = {0d, 6.7, 7d, 7.5d};
-		double[] mags = {0d};
+		double[] mags = {0d, 6.7};
+//		double[] mags = {0d};
 		
 		int startYear = calcYearForOT(ot);
 		System.out.println("Detected start year: "+startYear);
@@ -3592,8 +3604,8 @@ public class ETAS_MultiSimAnalysisTools {
 			Preconditions.checkState(erf.getTimeSpan().getDuration() == 1d);
 			for (Integer sectID : sects) {
 				double annualRate = calcParticipationRate(erf, rupsForSect.get(sectID), 1d);
-				for (int t=0; t<timesFunc.size(); t++) {
-					double duration = timesFunc.getX(t);
+				for (int t=0; t<etasTimesFunc.size(); t++) {
+					double duration = etasTimesFunc.getX(t);
 					double rateForDuration = annualRate * duration;
 					double val;
 					if (rates)
@@ -3619,8 +3631,9 @@ public class ETAS_MultiSimAnalysisTools {
 				erf.setFltSystemSourceOccurranceTimeForFSSIndex(scenario.getFSS_Index(), myOT);
 			}
 			
-			for (int t=0; t<timesFunc.size(); t++) {
-				double duration = timesFunc.getX(t);
+			System.out.println("Calculating UCERF3-TD ("+u3TimesFunc.size()+" points)");
+			for (int t=0; t<u3TimesFunc.size(); t++) {
+				double duration = u3TimesFunc.getX(t);
 				System.out.println("Calculating duration: "+duration+" yrs");
 				erf.getTimeSpan().setDuration(duration);
 				erf.getTimeSpan().setStartTime(startYear);
@@ -3635,13 +3648,17 @@ public class ETAS_MultiSimAnalysisTools {
 					}
 					funcsTD.get(parentID).set(duration, val);
 				}
-				// calc UCERF3-ETAS
-				
+			}
+			
+			System.out.println("Calculating UCERF3-ETAS ("+etasTimesFunc.size()+" points)");
+			for (int t=0; t<etasTimesFunc.size(); t++) {
+				double duration = etasTimesFunc.getX(t);
 				long maxOT = ot + (long)(duration*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
 				for (Integer parentID : sects) {
 					HashSet<Integer> rups = rupsForSect.get(parentID);
 					double etasProb = calcETASPartic(childrenCatalogs, ot, maxOT, rups, rates);
-					double tdProb = funcsTD.get(parentID).getY(duration);
+//					double tdProb = funcsTD.get(parentID).getY(duration);
+					double tdProb = funcsTD.get(parentID).getInterpolatedY_inLogXLogYDomain(duration);
 					double sum;
 					if (rates)
 						sum = etasProb + tdProb;
@@ -3757,10 +3774,13 @@ public class ETAS_MultiSimAnalysisTools {
 					chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.GRAY));
 					
 					XYTextAnnotation ann = new XYTextAnnotation(label, time, 0.9);
-					if (i == 0 && xAxisInverted || i == (times.length-1) && !xAxisInverted)
+					if (i == 0 && xAxisInverted || i == (times.length-1) && !xAxisInverted) {
 						ann.setTextAnchor(TextAnchor.TOP_RIGHT);
-					else
+						if (!xAxisInverted)
+							ann.setY(0.4); // put it below
+					} else {
 						ann.setTextAnchor(TextAnchor.TOP_LEFT);
+					}
 					ann.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 					annotations.add(ann);
 				}
@@ -3769,7 +3789,7 @@ public class ETAS_MultiSimAnalysisTools {
 					Preconditions.checkState(func.size() > 0, "Empty func with name: %s", func.getName());
 				}
 				
-				PlotSpec spec = new PlotSpec(funcs, chars, sectName, "Time (years)", yAxisLabel);
+				PlotSpec spec = new PlotSpec(funcs, chars, sectName, "Forecast Timespan (years)", yAxisLabel);
 				spec.setPlotAnnotations(annotations);
 				spec.setLegendVisible(true);
 				
@@ -4028,8 +4048,11 @@ public class ETAS_MultiSimAnalysisTools {
 		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		minY = 1e-6;
 		if (!rates)
 			maxY = 1d;
+		else
+			maxY = 1e1;
 		gp.setUserBounds(minMag, tiMFD.getMaxX(), minY, maxY);
 		
 		setFontSizes(gp);
@@ -4391,8 +4414,8 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean plotCondDist = false || forcePlot;
 		boolean writeCatsForViz = false || forcePlot;
 		boolean plotScalesHazard = false && !forcePlot;
-		boolean plotRegionOneWeek = false && !forcePlot;
-		boolean plotMFDOneWeek = false && !forcePlot;
+		boolean plotRegionOneWeek = true && !forcePlot;
+		boolean plotMFDOneWeek = true && !forcePlot;
 		
 //		boolean plotMFDs = true;
 //		boolean plotExpectedComparison = false;
@@ -4469,20 +4492,28 @@ public class ETAS_MultiSimAnalysisTools {
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 //			id_for_scenario = 9893;
 			
-//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m4_preserve.bin"));
-			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin"));
-			id_for_scenario = 9893;
+////			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m4_preserve.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin"));
+//			id_for_scenario = 9893;
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_descendents_m4_preserve.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_m5_preserve.bin"));
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_24-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined/results_descendents.bin"));
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin"));
 //			resultsZipFiles.add(new File(mainDir, "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5_preserve.bin"));
 			
+//			resultsZipFiles.add(new File(mainDir, "2016_06_15-haywired_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined/results_m5_preserve.bin"));
+			
 //			resultsZipFiles.add(new File(mainDir, "2016_08_30-san_jacinto_0_m4p8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5_preserve.bin"));
+			resultsZipFiles.add(new File(mainDir, "2016_08_30-san_jacinto_0_m4p8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin"));
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5_preserve.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin"));
+			
+//			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined-plus100kNoSpont/results_descendents_m4_preserve.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined-plus300kNoSpont/results_descendents_m4_preserve.bin"));
 			
 //			names.add("30yr Full TD");
 //			resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
@@ -4584,6 +4615,13 @@ public class ETAS_MultiSimAnalysisTools {
 			name += (int)inputDuration+"yr";
 			if (params != null)
 				name += " "+params.getU3ETAS_ProbModel();
+			
+			if (scenario != null) {
+				System.out.println("Scenario: "+scenario);
+				System.out.println("\tMag: "+scenario.getMagnitude());
+				System.out.println("\tFSS Index: "+scenario.getFSS_Index());
+				System.out.println("\tHypo: "+scenario.getLocation());
+			}
 			
 			if (!outputDir.exists()) {
 				// see if old dirs exist;
@@ -4896,7 +4934,7 @@ public class ETAS_MultiSimAnalysisTools {
 				erf.getTimeSpan().setDuration(1d);
 				erf.updateForecast();
 				boolean rates = false;
-				boolean subSects = true;
+				boolean subSects = false;
 				
 				if (plotScalesHazard)
 					plotScalesOfHazardChange(childrenCatalogs, catalogs, scenario, ot, erf, outputDir, name,
@@ -4909,8 +4947,12 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			if (scenario != null && plotMFDOneWeek) {
 				long maxOT = ot + ProbabilityModelsCalc.MILLISEC_PER_DAY*7;
+				if (scenario.getMagnitude() < 6) {
+					mfdMinY = 1e-6;
+					mfdMaxY = 1e2;
+				}
 				plotMagNum(childrenCatalogs, outputDir, name, "one_week_consolidated_aftershocks",
-						scenario, 0d, fss, maxOT);
+						scenario, 0.058, fss, maxOT);
 			}
 			
 			writeHTML(parentDir, scenario, name, params, catalogs, inputDuration, durationTrack);

@@ -59,10 +59,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int nodes = 60;
 		
 		// for scenarios
+//		double duration = 10;
+//		int numSims = 25000;
+//		int hours = 24;
+//		int nodes = 60;
 		double duration = 10;
-		int numSims = 25000;
+		int numSims = 100000;
 		int hours = 24;
-		int nodes = 60;
+		int nodes = 100;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -80,13 +84,18 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		TestScenario[] scenarios = {TestScenario.SURPRISE_VALLEY_5p5, TestScenario.CENTRAL_VALLEY_M5p5};
 //		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
-		boolean includeSpontaneous = true;
+//		boolean includeSpontaneous = false;
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		boolean includeSpontaneous = true;
-		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
-//		TestScenario[] scenarios = { null };
+//		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
+		TestScenario[] scenarios = { null };
 //		boolean includeSpontaneous = true;
+//		String customCatalog = null;
+//		long customOT = Long.MIN_VALUE;
+		boolean includeSpontaneous = false;
+		String customCatalog = "2016_bombay_swarm.txt";
+		long customOT = 1474920000000l;
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
@@ -104,8 +113,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean gridSeisCorr = true;
 		boolean applySubSeisForSupraNucl = true;
 		
-//		String nameAdd = null;
-		String nameAdd = "25krun3";
+		String nameAdd = null;
+//		String nameAdd = "100krun2";
 //		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
@@ -131,8 +140,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			nameAdd += "quick_test";
 		}
 		
-//		String dateStr = df.format(new Date());
-		String dateStr = "2016_06_15";
+		String dateStr = df.format(new Date());
+//		String dateStr = "2016_06_15";
+//		String dateStr = "2016_02_24";
 		
 		boolean timeIndep = false;
 		
@@ -187,10 +197,17 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 		for (TestScenario scenario : scenarios) {
 			String scenarioName;
-			if (scenario == null)
-				scenarioName = "spontaneous";
-			else
+			if (scenario == null) {
+				if (customCatalog != null && !customCatalog.isEmpty()) {
+					scenarioName = customCatalog;
+					if (scenarioName.contains("."))
+						scenarioName = scenarioName.substring(0, scenarioName.indexOf("."));
+				} else {
+					scenarioName = "spontaneous";
+				}
+			} else {
 				scenarioName = scenario.name().toLowerCase();
+			}
 			if (duration > 1d) {
 				if (duration == Math.floor(duration))
 					scenarioName += "-"+(int)duration+"yr";
@@ -253,7 +270,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 							+args_continue_newline+"--sol-file "+remoteSolFile.getAbsolutePath();
 					
 					argz += args_continue_newline+"--duration "+(float)duration;
-					argz += args_continue_newline+"--start-year "+startYear;
+					if (customOT > Long.MIN_VALUE)
+						argz += args_continue_newline+"--millis "+customOT;
+					else
+						argz += args_continue_newline+"--start-year "+startYear;
 					
 					argz += args_continue_newline+"--prob-model "+probModel.name();
 					
@@ -285,10 +305,15 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						if (scenario.getMagnitude() > 0)
 							argz += args_continue_newline+"--trigger-mag "+(float)scenario.getMagnitude();
 					}
-					if (histCatalogFile != null)
-						argz += args_continue_newline+"--trigger-catalog "+histCatalogFile.getAbsolutePath();
-					if (rupSurfacesFile != null)
-						argz += args_continue_newline+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
+					if (customCatalog != null && !customCatalog.isEmpty()) {
+						File myHistFile = new File(remoteJobDir, customCatalog);
+						argz += args_continue_newline+"--trigger-catalog "+myHistFile.getAbsolutePath();
+					} else {
+						if (histCatalogFile != null)
+							argz += args_continue_newline+"--trigger-catalog "+histCatalogFile.getAbsolutePath();
+						if (rupSurfacesFile != null)
+							argz += args_continue_newline+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
+					}
 					if (!includeSpontaneous)
 						argz += args_continue_newline+"--no-spontaneous";
 					
