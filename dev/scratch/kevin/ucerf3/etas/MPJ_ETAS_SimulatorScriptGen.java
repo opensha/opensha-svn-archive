@@ -95,7 +95,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		long customOT = Long.MIN_VALUE;
 		boolean includeSpontaneous = false;
 		String customCatalog = "2016_bombay_swarm.txt";
-		long customOT = 1474920000000l;
+//		long customOT = 1474920000000l;
+		long customOT = 1474990200000l;
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,

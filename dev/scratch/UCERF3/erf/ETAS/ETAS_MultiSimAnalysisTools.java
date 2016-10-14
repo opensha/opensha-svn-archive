@@ -182,6 +182,7 @@ public class ETAS_MultiSimAnalysisTools {
 		XY_DataSetList funcsList = new XY_DataSetList();
 		List<Double> relativeWeights = Lists.newArrayList();
 		for (int i=0; i<mfds.length; i++) {
+			Preconditions.checkNotNull(mfds[i]);
 			funcsList.add(mfds[i]);
 			relativeWeights.add(1d);
 		}
@@ -329,15 +330,15 @@ public class ETAS_MultiSimAnalysisTools {
 				myDuration = calcDurationYears(catalog);
 			else
 				myDuration = duration;
-			if (myDuration == 0)
-				continue;
-			double rateEach = 1d/myDuration;
-			
-			for (ETAS_EqkRupture rup : catalog) {
-				subMFDs[i].addResampledMagRate(rup.getMag(), rateEach, true);
+			if (myDuration > 0) {
+				double rateEach = 1d/myDuration;
+				
+				for (ETAS_EqkRupture rup : catalog) {
+					subMFDs[i].addResampledMagRate(rup.getMag(), rateEach, true);
+				}
+//				for (int n=0; n<mfd.size(); n++)
+//					mfd.add(n, subMFDs[i].getY(n)*rate);
 			}
-//			for (int n=0; n<mfd.size(); n++)
-//				mfd.add(n, subMFDs[i].getY(n)*rate);
 			cmlSubMFDs[i] = subMFDs[i].getCumRateDistWithOffset();
 		}
 		
@@ -1370,6 +1371,8 @@ public class ETAS_MultiSimAnalysisTools {
 	 * @param data
 	 */
 	private static void populateHistWithInfo(HistogramFunction hist, double[] data) {
+		if (data.length == 0)
+			return;
 		for (double val : data)
 			hist.add(val, 1d);
 		
@@ -4245,7 +4248,10 @@ public class ETAS_MultiSimAnalysisTools {
 					return test;
 				}
 			}
-			throw new IllegalStateException("Couldn't detect scenario from dir name: "+dirName);
+			if (dirName.contains("swarm"))
+				System.out.println("Detected swarm, treating as spontaneous");
+			else
+				throw new IllegalStateException("Couldn't detect scenario from dir name: "+dirName);
 		}
 		return null;
 	}
@@ -4783,6 +4789,8 @@ public class ETAS_MultiSimAnalysisTools {
 				ETAS_Simulator.correctGriddedSeismicityRatesInERF(fss, false, gridSeisCorrValsArray);
 			}
 			
+			boolean swarm = resultsFile.getParentFile().getName().contains("swarm");
+			
 			if (plotMFDs) {
 				System.out.println("Plotting MFDs");
 				
@@ -4897,12 +4905,13 @@ public class ETAS_MultiSimAnalysisTools {
 				plotGriddedNucleationScatter(catalogs, duration, erf, outputDir);
 			}
 			
-			if (plotStationarity && (duration > 1d || duration < 0) && triggerParentID < 0 && catalogs.size() >= 500) {
+			if (plotStationarity && (duration > 1d || duration < 0) && triggerParentID < 0
+					&& catalogs.size() >= 500 && !swarm) {
 				System.out.println("Plotting stationarity");
 				plotStationarity(catalogs, duration, outputDir);
 			}
 			
-			if (plotSubSectRecurrence && (duration > 1d || duration < 0) && triggerParentID < 0) {
+			if (plotSubSectRecurrence && (duration > 1d || duration < 0) && triggerParentID < 0 && !swarm) {
 				System.out.println("Plotting sub section recurrence");
 				int[] sectIndexes = {
 						1922, // parkfield 2
@@ -4912,7 +4921,7 @@ public class ETAS_MultiSimAnalysisTools {
 					plotSubSectRecurrenceHist(catalogs, fss.getRupSet(), sectIndex, outputDir, Double.NaN);
 			}
 			
-			if (plotCondDist && (duration > 1d || duration < 0) && triggerParentID < 0) {
+			if (plotCondDist && (duration > 1d || duration < 0) && triggerParentID < 0 && !swarm) {
 				System.out.println("Plotting conditional hypocenter distribution");
 				plotConditionalHypocenterDist(catalogs, outputDir, fss.getRupSet());
 			}
@@ -4922,7 +4931,7 @@ public class ETAS_MultiSimAnalysisTools {
 				writeCatalogsForViz(childrenCatalogs, scenario, new File(parentDir, catsDirName), 5);
 			}
 			
-			if (scenario == null && writeTimeFromPrevSupra) {
+			if (scenario == null && writeTimeFromPrevSupra && !swarm) {
 				System.out.println("Plotting time since last supra");
 				writeTimeFromPrevSupraHist(catalogs, outputDir);
 			}

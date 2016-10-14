@@ -51,6 +51,7 @@ import org.opensha.refFaultParamDb.dao.db.PrefFaultSectionDataDB_DAO;
 import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
+import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -683,6 +684,73 @@ public class PureScratch {
 		
 		
 	}
+	
+	private static void test24() {
+//		double probability = 0.21707605530773;
+		double probability = 0.113;
+		double duration = 30d;
+		double annualRate = -Math.log(1 - probability)/duration;
+		
+		double weeklyRate = annualRate *7d/365.25;
+		System.out.println("Annual rate: "+annualRate);
+		System.out.println("Weekly rate: "+weeklyRate);
+	}
+	
+	private static void test25() {
+		DiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+		func.set(1.0E-4, 3.65255E-4);
+		func.set(1.3E-4,  3.457038E-4);
+		func.set(1.6E-4,  3.2601133E-4);
+		func.set(2.0E-4,  3.011314E-4);
+		func.set(2.5E-4,  2.733292E-4);
+		func.set(3.2E-4,  2.4073821E-4);
+		func.set(4.0E-4,  2.111737E-4);
+		func.set(5.0E-4,  1.8285471E-4);
+		func.set(6.3E-4,  1.5588816E-4);
+		func.set(7.9E-4,  1.3244183E-4);
+		func.set(0.001,   1.11381836E-4);
+		func.set(0.00126, 9.397233E-5);
+		func.set(0.00158, 7.973755E-5);
+		func.set(0.002,   6.7452595E-5);
+		func.set(0.00251, 5.764316E-5);
+		func.set(0.00316, 4.932694E-5);
+		func.set(0.00398, 4.2291384E-5);
+		func.set(0.00501, 3.6282872E-5);
+		func.set(0.00631, 3.1062427E-5);
+		func.set(0.00794, 2.6521913E-5);
+		func.set(0.01,    2.254247E-5);
+		func.set(0.01259, 1.9099985E-5);
+		func.set(0.01585, 1.6150763E-5);
+		func.set(0.01995, 1.3649939E-5);
+		func.set(0.02512, 1.15329385E-5);
+		func.set(0.03162, 9.743127E-6);
+		func.set(0.03981, 8.220153E-6);
+		func.set(0.05012, 6.9222365E-6);
+		func.set(0.0631,  5.814752E-6);
+		func.set(0.07943, 4.8654542E-6);
+		func.set(0.1,     4.03794E-6);
+		func.set(0.12589, 3.2988742E-6);
+		func.set(0.15849, 2.6238315E-6);
+		func.set(0.19953, 2.0062375E-6);
+		func.set(0.25119, 1.4563641E-6);
+		func.set(0.31623, 9.925378E-7);
+		func.set(0.39811, 6.2928785E-7);
+		func.set(0.50119, 3.6850898E-7);
+		func.set(0.63096, 1.9821493E-7);
+		func.set(0.79433, 9.7517116E-8);
+		func.set(1.0,     4.3739632E-8);
+		func.set(1.25893, 1.7841097E-8);
+		func.set(1.58489, 6.6055765E-9);
+		func.set(1.99526, 2.2166786E-9);
+		func.set(2.51189, 6.7364303E-10);
+		func.set(3.16228, 1.8535695E-10);
+		func.set(3.98107, 4.619971E-11);
+		func.set(5.01187, 1.04463105E-11);
+		func.set(6.30957, 2.1446178E-12);
+		func.set(7.94328, 3.9890313E-13);
+		func.set(10.0,    6.550316E-14);
+		AbstractMCErProbabilisticCalc.calcRTGM(func);
+	}
 
 	/**
 	 * @param args
@@ -709,7 +777,9 @@ public class PureScratch {
 //		test20();
 //		test21();
 //		test22();
-		test23();
+//		test23();
+//		test24();
+		test25();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

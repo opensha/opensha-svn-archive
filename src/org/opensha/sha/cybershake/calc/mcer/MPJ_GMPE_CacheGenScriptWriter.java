@@ -10,6 +10,7 @@ import java.util.List;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
+import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.sha.imr.param.OtherParams.Component;
 
 import com.google.common.base.Preconditions;
@@ -29,9 +30,22 @@ public class MPJ_GMPE_CacheGenScriptWriter {
 		
 		jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+jobName;
 		
-		int memGigs = 26;
-		int ppn = 16;
-		File remoteDir = new File("/work/00950/kevinm/cybershake/mcer_cache_gen");
+		BatchScriptWriter pbsWrite;
+		
+//		int memGigs = 26;
+//		int ppn = 16;
+//		File remoteDir = new File("/work/00950/kevinm/cybershake/mcer_cache_gen");
+//		pbsWrite = new StampedeScriptWriter();
+//		File javaBin = StampedeScriptWriter.JAVA_BIN;
+//		File fmpjHome = StampedeScriptWriter.FMPJ_HOME;
+		
+		int memGigs = 10;
+		int ppn = 8;
+		File remoteDir = new File("/home/scec-02/kmilner/cybershake/mcer_cache_gen");
+		pbsWrite = new USC_HPCC_ScriptWriter();
+		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
+		File fmpjHome = USC_HPCC_ScriptWriter.FMPJ_HOME;
+		
 		File remoteJobDir = new File(remoteDir, jobName);
 		File localDir = new File("/home/kevin/CyberShake/MCER/gmpe_cache_gen");
 		File localJobDir = new File(localDir, jobName);
@@ -44,8 +58,7 @@ public class MPJ_GMPE_CacheGenScriptWriter {
 		classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
 		
 		FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(
-				StampedeScriptWriter.JAVA_BIN, memGigs*1024, classpath, StampedeScriptWriter.FMPJ_HOME, false);
-		BatchScriptWriter pbsWrite = new StampedeScriptWriter();
+				javaBin, memGigs*1024, classpath, fmpjHome, false);
 		
 		String argz = "--output-dir "+remoteJobDir.getAbsolutePath();
 		argz += " --erf-file "+confDir.getAbsolutePath()+"/"+erfFileName;

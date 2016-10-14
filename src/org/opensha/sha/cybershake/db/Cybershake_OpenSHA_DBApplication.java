@@ -381,10 +381,11 @@ public class Cybershake_OpenSHA_DBApplication {
 			db.setIgnoreInserts(true);
 		
 		boolean highRes = true;
+		boolean ddwAdjust = false;
 		System.out.println("Creating and Updating ERF...");
-		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, highRes);
-//		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m");
-//		erfDB.setFileBased(erfDir);
+		MeanUCERF2_ToDB erfDB  = new MeanUCERF2_ToDB(db, highRes, ddwAdjust);
+		File erfDir = new File("/home/kevin/CyberShake/UCERF2_200m_noDDW");
+		erfDB.setFileBased(erfDir, true);
 		String erfName = erfDB.getERF_Instance().getName();
 		String erfDescription;
 		if (highRes)
@@ -392,10 +393,17 @@ public class Cybershake_OpenSHA_DBApplication {
 		else
 			erfDescription = "Mean UCERF 2 - Single Branch Earthquake Rupture Forecast FINAL";
 		
+		if (ddwAdjust) {
+			erfDescription += ", No DDW Adjustment";
+			if (!highRes)
+				// already added if it is high res
+				erfName += ", No DDW";
+		}
+		
 		ERF forecast = erfDB.getERF_Instance();
 		System.out.println("ERF NAME: " + erfName);
-		int erfId = erfDB.getInserted_ERF_ID(erfName);
-		System.out.println("ERF ID: " + erfId);
+//		int erfId = erfDB.getInserted_ERF_ID(erfName);
+//		System.out.println("ERF ID: " + erfId);
 		
 //		System.exit(0);
 		
@@ -403,7 +411,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		app.setSiteInfoObject(siteDB);
 		
 		///////////////// INSERT ERF //////////////////////
-		/*
+		
 		
 		GriddedRegion region = null;
 		
@@ -418,7 +426,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		
 		// this inserts it
 		// TODO deal with rakes along strike before inserting UCERF3
-//		erfDB.insertForecaseInDB(erfName, erfDescription, region);
+		erfDB.insertForecaseInDB(erfName, erfDescription, region);
 		
 		// if you have to reinsert a rupture surface for some reason, do this
 //		int erfID = 35;
@@ -427,8 +435,8 @@ public class Cybershake_OpenSHA_DBApplication {
 //		erfDB.insertSrcRupInDB(forecast, erfID, sourceID, ruptureID);
 		
 		// this inserts the site info
-//		siteDB.setMatchSourceNames(false);
-//		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
+		siteDB.setMatchSourceNames(false);
+		app.insertNewERFForAllSites(erfDB, erfName, erfDescription);
 		
 		SiteInfo2DB sites2db = new SiteInfo2DB(db);
 		ArrayList<CybershakeSite> sites = Lists.newArrayList();
@@ -439,16 +447,17 @@ public class Cybershake_OpenSHA_DBApplication {
 //		sites.add(sites2db.getSiteFromDB("s758"));
 //		sites.add(sites2db.getSiteFromDB("s778"));
 //		sites.add(sites2db.getSiteFromDB("STNI"));
-//		sites.add(sites2db.getSiteFromDB("SBSM"));
-//		sites.add(sites2db.getSiteFromDB("USC"));
+		sites.add(sites2db.getSiteFromDB("SBSM"));
+		sites.add(sites2db.getSiteFromDB("USC"));
 ////		sites.add(sites2db.getSiteFromDB(73));
 ////		sites.add(sites2db.getSiteFromDB(978));
-		sites.add(sites2db.getSiteFromDB(999));
-		sites.add(sites2db.getSiteFromDB(1000));
-		sites.add(sites2db.getSiteFromDB(1001));
+//		sites.add(sites2db.getSiteFromDB(999));
+//		sites.add(sites2db.getSiteFromDB(1000));
+//		sites.add(sites2db.getSiteFromDB(1001));
 		app.insertNewERFForSites(sites, erfDB, erfName, erfDescription, false);
-		*/
+		
 		/////////////// ADD SITES //////////////////////
+		/*
 		
 		boolean checkAdd = false;
 		
@@ -465,6 +474,8 @@ public class Cybershake_OpenSHA_DBApplication {
 //		site_list.add(new CybershakeSite(34.019200, -118.28600, "CyberShake Verification Test - USC", "TEST"));
 		
 		app.putSiteListInfoInDB(site_list, forecast, erfId, siteDB, checkAdd);
+		
+		*/
 		
 		db.destroy();
 		

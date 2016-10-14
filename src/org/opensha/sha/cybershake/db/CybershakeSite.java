@@ -19,6 +19,8 @@
 
 package org.opensha.sha.cybershake.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 
 import org.opensha.commons.geo.Location;
@@ -112,5 +114,16 @@ public class CybershakeSite {
 		if (id != other.id)
 			return false;
 		return true;
+	}
+	
+	public static CybershakeSite fromResultSet(ResultSet rs) throws SQLException {
+		int siteID = rs.getInt("CS_Site_ID");
+		double lat = rs.getDouble("CS_Site_Lat");
+		double lon = rs.getDouble("CS_Site_Lon");
+		String longName = rs.getString("CS_Site_Name");
+		String shortName = rs.getString("CS_Short_Name");
+		int typeID = rs.getInt("CS_Site_Type_ID");
+
+		return new CybershakeSite(siteID, lat, lon, longName, shortName, typeID);
 	}
 }

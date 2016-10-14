@@ -34,6 +34,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
@@ -932,6 +933,7 @@ public class DataUtils {
 	 * @return median of the sorted array of values
 	 */
 	public static double median_sorted(double[] sorted) {
+		Preconditions.checkState(sorted.length > 0, "must have at least one value");
 		if (sorted.length % 2 == 1)
 			return sorted[(sorted.length+1)/2-1];
 		else

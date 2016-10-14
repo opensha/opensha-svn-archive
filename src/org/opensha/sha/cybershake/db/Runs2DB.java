@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -412,6 +413,48 @@ public class Runs2DB {
 //		for (CybershakeVelocityModel vel : vels)
 //			System.out.println("Loaded vel model: "+vel);
 		return sgts;
+	}
+	
+	/**
+	 * Fetches all runs which have a hazard curve completed and inserted into the database for any IM, with the given dataset ID
+	 * @param datasetID
+	 * @return
+	 */
+	public List<CybershakeRun> getCompletedRunsForDataset(int datasetID) {
+		return getCompletedRunsForDataset(datasetID, -1);
+	}
+	
+	/**
+	 * Fetches all runs which have a hazard curve completed and inserted into the database for the given IM, with the given dataset ID
+	 * @param datasetID
+	 * @param imTypeID IM type of interest
+	 * @return
+	 */
+	public List<CybershakeRun> getCompletedRunsForDataset(int datasetID, int imTypeID) {
+		String sql = "SELECT C.Run_ID FROM CyberShake_Runs R JOIN Hazard_Curves C ON R.Run_ID=C.Run_ID "
+				+ "WHERE C.Hazard_Dataset_ID="+datasetID;
+		if (imTypeID >= 0)
+			sql += " AND C.IM_Type_ID="+imTypeID;
+		
+		ArrayList<CybershakeRun> runs = new ArrayList<CybershakeRun>();
+		
+		try {
+			ResultSet rs = db.selectData(sql);
+			boolean valid = rs.first();
+			
+			while (valid) {
+				CybershakeRun run = CybershakeRun.fromResultSet(rs);
+				runs.add(run);
+				
+				valid = rs.next();
+			}
+			
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return runs;
 	}
 	
 	public static void main(String args[]) {

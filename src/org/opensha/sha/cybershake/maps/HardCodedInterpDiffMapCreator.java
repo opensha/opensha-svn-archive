@@ -374,7 +374,7 @@ public class HardCodedInterpDiffMapCreator {
 			
 			/* the main dataset(s) that we're plotting */
 			
-			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
+			// CVM-S4i26, AWP GPU w/ Stochastic HF, 1 Hz (Study 15.12)
 			int velModelID = 5;
 			List<Integer> datasetIDs = Lists.newArrayList(61);
 			

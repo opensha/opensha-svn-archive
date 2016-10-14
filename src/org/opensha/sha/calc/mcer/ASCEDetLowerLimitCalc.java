@@ -22,26 +22,49 @@ private static TLDataLoader tlData;
 		// convert vs30 from m/s to ft/s
 		vs30 *= 3.2808399;
 		double fa, fv;
+		// these were the previous values, via e-mail from C.B. Crouse on 2/3/2015
+//		if (vs30 > 5000) {
+//			// site class A
+//			fa = 0.8;
+//			fv = 0.8;
+//		} else if (vs30 > 2500) {
+//			// site class B
+//			fa = 1.0;
+//			fv = 1.0;
+//		} else if (vs30 > 1200) {
+//			// site class C
+//			fa = 1.0;
+//			fv = 1.3;
+//		} else if (vs30 > 600) {
+//			// site class D
+//			fa = 1.0;
+//			fv = 1.5;
+//		} else {
+//			// site class E
+//			fa = 0.9;
+//			fv = 2.4;
+//		}
+		// new values via e-mail from C.B. Crouse on 10/12/2016
 		if (vs30 > 5000) {
 			// site class A
 			fa = 0.8;
 			fv = 0.8;
 		} else if (vs30 > 2500) {
 			// site class B
-			fa = 1.0;
-			fv = 1.0;
+			fa = 0.9;
+			fv = 0.8;
 		} else if (vs30 > 1200) {
 			// site class C
-			fa = 1.0;
-			fv = 1.3;
+			fa = 1.2;
+			fv = 1.4;
 		} else if (vs30 > 600) {
 			// site class D
 			fa = 1.0;
-			fv = 1.5;
+			fv = 2.5;
 		} else {
 			// site class E
-			fa = 0.9;
-			fv = 2.4;
+			fa = 1.0;
+			fv = 4.0;
 		}
 		
 		synchronized (MCERDataProductsCalc.class) {

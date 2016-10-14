@@ -62,7 +62,7 @@ public class CyberShakeUCERFWrapper_ERF extends AbstractERF {
 		if (erf == null) {
 			try {
 				if (hiResParam.getValue()) {
-					erf = MeanUCERF2_ToDB.createUCERF2_200mERF();
+					erf = MeanUCERF2_ToDB.createUCERF2_200mERF(true);
 				} else {
 					Document doc = XMLUtils.loadDocument(this.getClass().getResource("/"+ERF_XML_FILE));
 					Element root = doc.getRootElement();

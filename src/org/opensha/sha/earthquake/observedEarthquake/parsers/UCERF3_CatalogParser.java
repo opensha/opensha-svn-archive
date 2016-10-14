@@ -76,12 +76,16 @@ public class UCERF3_CatalogParser {
 		File file = new File("/home/kevin/OpenSHA/UCERF3/UCERF3CatalogVersion1.txt");
 		double momPast100 = 0d;
 		Region reg = new CaliforniaRegions.RELM_SOCAL();
+		int numAbove = 0;
 		for (ObsEqkRupture rup : loadCatalog(file)) {
 //			System.out.println(rup);
 			int year = rup.getOriginTimeCal().get(Calendar.YEAR);
 			if (year > 1912 && reg.contains(rup.getHypocenterLocation()))
 				momPast100 += MagUtils.magToMoment(rup.getMag());
+			if (rup.getMag() >= 6.5)
+				numAbove++;
 		}
+		System.out.println(numAbove+" above 6.5");
 		System.out.println("Total Moment Past 100 yr: "+momPast100);
 		System.out.println("As rate: "+(momPast100)/100d);
 	}

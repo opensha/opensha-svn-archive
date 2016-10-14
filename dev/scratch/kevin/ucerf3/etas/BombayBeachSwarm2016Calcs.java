@@ -8,26 +8,41 @@ import org.dom4j.DocumentException;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
+import org.opensha.sha.earthquake.calc.ERF_Calculator;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 import com.google.common.base.Preconditions;
 
 import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
 
 public class BombayBeachSwarm2016Calcs {
 
 	public static void main(String[] args) throws IOException, DocumentException {
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2016_09_26-2016_bombay_swarm-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont");
+//		long ot = 1474920000000l;
+//		File binFile = new File(dir, "results.bin");
+		
 		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2016_09_26-2016_bombay_swarm-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont");
+				+ "2016_09_29-2016_bombay_swarm-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont");
+		long ot = 1474990200000l;
 		File binFile = new File(dir, "results.bin");
 		
-		long ot = 1474920000000l;
+		
 		long oneWeekOT = ot + 7*ProbabilityModelsCalc.MILLISEC_PER_DAY;
 		
 		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(binFile);
@@ -49,24 +64,65 @@ public class BombayBeachSwarm2016Calcs {
 		
 		double[] radii = { 200d, 150d, 100d, 50d, 25d };
 		
+		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		File fssFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		FaultSystemSolution fss = FaultSystemIO.loadSol(fssFile);
 		
+		double duration = 7d/365.25;
+		
+		FaultSystemSolutionERF tdERF = MPJ_ETAS_Simulator.buildERF_millis(fss, false, duration, ot);
+		tdERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
+		double startYear = 1970d + (double)ot/(double)ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+		tdERF.getParameter(HistoricOpenIntervalParam.NAME).setValue(startYear-1875d);
+		tdERF.getTimeSpan().setStartTimeInMillis(ot+1);
+		tdERF.getTimeSpan().setDuration(duration);
+		tdERF.updateForecast();
+		FaultSystemSolutionERF tiERF = MPJ_ETAS_Simulator.buildERF_millis(fss, true, duration, ot);
+		tiERF.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		tiERF.getTimeSpan().setDuration(duration);
+		tiERF.updateForecast();
+		
+		System.out.println("*** One Week Circular Region Nucleation Rates ***");
+		
 		for (double radius : radii) {
 			Region region = new Region(new Location(33.298, -115.713), radius);
 			
-			IncrementalMagFreqDist nuclMFD = fss.calcNucleationMFD_forRegion(region, 5.05, 9.05, 0.1, true);
+			IncrementalMagFreqDist tdNuclMFD = ERF_Calculator.getMagFreqDistInRegionFaster(tdERF, region, 4.05, 51, 0.1, true);
+			IncrementalMagFreqDist tiNuclMFD = ERF_Calculator.getMagFreqDistInRegionFaster(tiERF, region, 4.05, 51, 0.1, true);
 			// scale to 1 week
-			nuclMFD.scale(7d/365.25);
-			EvenlyDiscretizedFunc nuclCmlMFD = nuclMFD.getCumRateDistWithOffset();
+			tdNuclMFD.scale(duration);
+			tiNuclMFD.scale(duration);
+			
+			EvenlyDiscretizedFunc tdNuclCmlMFD = tdNuclMFD.getCumRateDistWithOffset();
+			EvenlyDiscretizedFunc tiNuclCmlMFD = tiNuclMFD.getCumRateDistWithOffset();
+			
+//			IncrementalMagFreqDist nuclMFD = fss.calcNucleationMFD_forRegion(region, 4.05, 9.05, 0.1, true);
+//			// scale to 1 week
+//			nuclMFD.scale(7d/365.25);
+//			EvenlyDiscretizedFunc nuclCmlMFD = nuclMFD.getCumRateDistWithOffset();
+			
+			System.out.println("Radius: "+(float)radius+" km");
+			System.out.println("\tUCERF3-TD:\tM>=4.3:\t"+(float)tdNuclCmlMFD.getY(4.3d)+"\tM>=7:\t"+(float)tdNuclCmlMFD.getY(7d));
+			System.out.println("\tUCERF3-TI:\tM>=4.3:\t"+(float)tiNuclCmlMFD.getY(4.3d)+"\tM>=7:\t"+(float)tiNuclCmlMFD.getY(7d));
 			
 //			System.out.println("1 week Cumulative Nucleation MFD:");
 //			System.out.println(nuclCmlMFD);
-			double m7 = nuclCmlMFD.getY(7d);
-			
-			System.out.println((float)radius+"km: "+(float)m7);
+//			double m7 = nuclCmlMFD.getY(7d);
+//			
+//			System.out.println((float)radius+"km: "+(float)m7);
 		}
+		
+		int parentID = 295;
+		double tdCoachPartic = FaultSysSolutionERF_Calc.calcParticipationRateForParentSect(tdERF, parentID, 7d)*duration;
+		double tdCoachNucl = FaultSysSolutionERF_Calc.calcNucleationRateForParentSect(tdERF, parentID, 7d)*duration;
+		
+		double tiCoachPartic = FaultSysSolutionERF_Calc.calcParticipationRateForParentSect(tiERF, parentID, 7d)*duration;
+		double tiCoachNucl = FaultSysSolutionERF_Calc.calcNucleationRateForParentSect(tiERF, parentID, 7d)*duration;
+		
+		System.out.println("*** Coachella 1 Week M>=7 Rates ***");
+		System.out.println("UCERF3-TD: partic: "+(float)tdCoachPartic+"\tnucl: "+(float)tdCoachNucl);
+		System.out.println("UCERF3-TI: partic: "+(float)tiCoachPartic+"\tnucl: "+(float)tiCoachNucl);
 	}
 
 }

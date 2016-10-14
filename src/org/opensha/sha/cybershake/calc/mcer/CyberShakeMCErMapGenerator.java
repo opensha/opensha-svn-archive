@@ -277,7 +277,7 @@ public class CyberShakeMCErMapGenerator {
 		return sites;
 	}
 	
-	private static void writeSitesFile(File file, List<Site> sites) throws IOException {
+	static void writeSitesFile(File file, List<Site> sites) throws IOException {
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
 		

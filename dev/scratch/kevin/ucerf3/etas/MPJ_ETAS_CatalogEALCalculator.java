@@ -38,6 +38,7 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 	private Map<LogicTreeBranch, List<Integer>> branchMappings;
 	private List<File> dataDirs;
 	private boolean triggeredOnly;
+	private boolean allSubDurations = false;
 	
 	private double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d };
 
@@ -94,15 +95,18 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 		imrWeightsMap.put(AttenRelRef.IDRISS_2014, 0.12);
 		
 		triggeredOnly = cmd.hasOption("triggered-only");
+		allSubDurations = cmd.hasOption("sub-durations");
 	}
 	
 	private static String xAxisLabel = "$ (Billions)";
 	private static double maxX = 200;
-	private static double deltaX = 1e6;
+	
 	// portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
 	private static double thousandsToBillions = 1d/1e6;
 	
 	private static double inflationScalar = 1d/0.9d;
+//	private static double deltaX = 1e6/inflationScalar;
+	private static double deltaX = 1; // now delta is after scaling, so 1 here means 1 billion
 	
 	private static double xAxisScale = thousandsToBillions*inflationScalar;
 	
@@ -119,7 +123,7 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 			File resultsFile = resultsFiles.get(index);
 			
 			ETAS_CatalogEALCalculator.calculate(resultsFile, triggeredOnly, xAxisLabel, maxX, deltaX, xAxisScale,
-					dataDirs, imrWeightsMap, fm, baSol, cfss, trueMeanSol, branchMappings, durations);
+					dataDirs, imrWeightsMap, fm, baSol, cfss, trueMeanSol, branchMappings, durations, allSubDurations);
 		}
 	}
 
@@ -163,6 +167,10 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 		Option trigOnly = new Option("tr", "triggered-only", false, "If supplied, only triggered ruptures will be considered");
 		trigOnly.setRequired(false);
 		ops.addOption(trigOnly);
+		
+		Option allSubDurs = new Option("sub", "sub-durations", false, "If supplied, all sub durations will be calculated");
+		allSubDurs.setRequired(false);
+		ops.addOption(allSubDurs);
 		
 		return ops;
 	}

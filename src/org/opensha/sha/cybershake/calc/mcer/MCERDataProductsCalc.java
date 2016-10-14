@@ -977,7 +977,7 @@ public class MCERDataProductsCalc {
 		}
 	}
 	
-	private static String getValIfPresent(DiscretizedFunc func, double period) {
+	static String getValIfPresent(DiscretizedFunc func, double period) {
 		if (func.hasX(period))
 			return func.getY(period)+"";
 		return "";

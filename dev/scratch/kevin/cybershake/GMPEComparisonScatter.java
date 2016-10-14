@@ -60,18 +60,17 @@ public class GMPEComparisonScatter {
 		magRanges.add(new Range(6d, 7d));
 		distRanges.add(new Range(0d, 70d));
 		
-		List<String> siteNames = Lists.newArrayList("CCP", "COO", "LADT", "LAPD", "P22", "PAS", "s429",
-				"s603", "s684", "s758", "SBSM", "SMCA", "STNI", "WNGC");
 //		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter");
-		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter_15_12");
+//		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter_15_12");
+		File outputDir = new File("/home/kevin/CyberShake/gmpe_comparison_scatter_GP_2015_vs_2014");
 		
 //		List<Double> periods = Lists.newArrayList(3d, 5d, 10d);
-		List<Double> periods = Lists.newArrayList(0.2, 0.5, 3d, 5d, 10d);
+//		List<Double> periods = Lists.newArrayList(0.2, 0.5, 3d, 5d, 10d);
+		List<Double> periods = Lists.newArrayList(3d, 5d, 10d);
 		
 		CyberShakeComponent comp = CyberShakeComponent.RotD50;
 		CyberShakeComponent compForRunID = CyberShakeComponent.GEOM_MEAN;
-//		int datasetID = 57;
-		int datasetID = 61;
+
 		
 		DBAccess db = null;
 		try {
@@ -85,13 +84,23 @@ public class GMPEComparisonScatter {
 			Runs2DB runs2db = new Runs2DB(db);
 			SiteInfo2DB sites2db = new SiteInfo2DB(db);
 			
-			RunIDFetcher fetch = new RunIDFetcher(db, datasetID,
-					amps2db.getIMs(periods, IMType.SA, compForRunID).get(0).getID());
+			/* For fetching by site name, single dataset ID */
+////			int datasetID = 57;
+//			int datasetID = 61;
+//			List<String> siteNames = Lists.newArrayList("CCP", "COO", "LADT", "LAPD", "P22", "PAS", "s429",
+//					"s603", "s684", "s758", "SBSM", "SMCA", "STNI", "WNGC");
+//			RunIDFetcher fetch = new RunIDFetcher(db, datasetID,
+//					amps2db.getIMs(periods, IMType.SA, compForRunID).get(0).getID());
+//			List<Integer> runIDs = Lists.newArrayList();
+//			for (String siteName : siteNames)
+//				runIDs.add(fetch.getRunID(siteName));
 			
-			for (String csSiteName : siteNames) {
-				int runID = fetch.getRunID(csSiteName);
+			/* For use with run IDs (multiple datasets */
+			List<Integer> runIDs = Lists.newArrayList(4683, 4686, 4681, 4685);
+			
+			for (int runID : runIDs) {
 				CybershakeRun run = runs2db.getRun(runID);
-				CybershakeSite csSite = fetch.getSite(csSiteName);
+				CybershakeSite csSite = sites2db.getSiteFromDB(run.getSiteID());
 				System.out.println("CS Site: "+csSite+", run "+runID);
 				Location loc = csSite.createLocation();
 				
@@ -212,6 +221,7 @@ public class GMPEComparisonScatter {
 							funcs.add(fit);
 							chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 3f, Color.GREEN.darker()));
 							
+							String csSiteName = csSite.short_name;
 							String prefix = csSiteName+"_mag"+rangeFileName(magRange)+"_dist"+rangeFileName(distRange)
 									+"_"+periodStr+"s_run"+runID;
 							

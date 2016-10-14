@@ -35,30 +35,38 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 	public MeanUCERF2_ToDB(DBAccess db){
 		this(db, false);
 	}
-
-	public MeanUCERF2_ToDB(DBAccess db, boolean hiRes){
-		super(db);
-		if (hiRes)
-			eqkRupForecast = createUCERF2_200mERF();
-		else
-			eqkRupForecast = createUCERF2ERF();
+	
+	public MeanUCERF2_ToDB(DBAccess db, boolean hiRes) {
+		this(db, hiRes, true);
 	}
 
-	/**
-	 * Create NSHMP 02 ERF instance
-	 *
-	 */
+	public MeanUCERF2_ToDB(DBAccess db, boolean hiRes, boolean ddwAdjust) {
+		super(db);
+		if (hiRes)
+			eqkRupForecast = createUCERF2_200mERF(ddwAdjust);
+		else
+			eqkRupForecast = createUCERF2ERF(ddwAdjust);
+	}
+
 	public static AbstractERF createUCERF2ERF() {
+		return createUCERF2ERF(true);
+	}
+	
+	public static AbstractERF createUCERF2ERF(boolean ddwAdjust) {
 
 
 		AbstractERF eqkRupForecast = new MeanUCERF2();
 
-		eqkRupForecast = setMeanUCERF_CyberShake_Settings(eqkRupForecast);
+		eqkRupForecast = setMeanUCERF_CyberShake_Settings(eqkRupForecast, ddwAdjust);
 
 		return eqkRupForecast;
 	}
-
+	
 	public static AbstractERF setMeanUCERF_CyberShake_Settings(AbstractERF eqkRupForecast) {
+		return setMeanUCERF_CyberShake_Settings(eqkRupForecast, true);
+	}
+
+	public static AbstractERF setMeanUCERF_CyberShake_Settings(AbstractERF eqkRupForecast, boolean ddwAdjust) {
 		// exclude Background seismicity
 		eqkRupForecast.getAdjustableParameterList().getParameter(
 				UCERF2.BACK_SEIS_NAME).setValue(UCERF2.BACK_SEIS_EXCLUDE);
@@ -71,7 +79,7 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 		// Cybershake DDW(down dip correction) correction
 		eqkRupForecast.getAdjustableParameterList().getParameter(
 				MeanUCERF2.CYBERSHAKE_DDW_CORR_PARAM_NAME).setValue(
-						new Boolean(true));
+						new Boolean(ddwAdjust));
 
 		// Set Poisson Probability model
 		eqkRupForecast.getAdjustableParameterList().getParameter(
@@ -87,15 +95,15 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 		return eqkRupForecast;
 	}
 	
-	public static AbstractERF createUCERF2_200mERF() {
+	public static AbstractERF createUCERF2_200mERF(boolean ddwAdjust) {
 		double hiResSpacing = 0.2;
 		final int discrPnts = (int)(1.0/hiResSpacing);
 		
 		// first get regular ERF
-		AbstractERF regERF = createUCERF2ERF();
+		AbstractERF regERF = createUCERF2ERF(ddwAdjust);
 		// set high res: 200m
 		UCERF2.GRID_SPACING = hiResSpacing;
-		AbstractERF hiResERF = createUCERF2ERF();
+		AbstractERF hiResERF = createUCERF2ERF(ddwAdjust);
 		UCERF2.GRID_SPACING = 1.0;
 		
 		Preconditions.checkState(regERF.getNumSources() == hiResERF.getNumSources());
@@ -222,7 +230,10 @@ public class MeanUCERF2_ToDB extends ERF2DB {
 		System.out.println("Done building interpolated ERF, interpolated "
 				+interpolatedCnt+"/"+regERF.getNumSources()+" sources");
 		Preconditions.checkState(combSourceList.size() == regERF.getNumSources());
-		final String name = regERF.getName()+" "+(int)(hiResSpacing*1000d)+"m";
+		String ddwSt = "";
+		if (!ddwAdjust)
+			ddwSt = ", No DDW";
+		final String name = regERF.getName()+" "+(int)(hiResSpacing*1000d)+"m"+ddwSt;
 		final ParameterList adjustParams = regERF.getAdjustableParameterList();
 		final TimeSpan regTimeSpan = regERF.getTimeSpan();
 		AbstractERF meanERF = new AbstractERF() {

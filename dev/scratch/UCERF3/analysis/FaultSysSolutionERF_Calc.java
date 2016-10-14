@@ -740,6 +740,136 @@ public class FaultSysSolutionERF_Calc {
 		return rates;
 	}
 	
+	/**
+	 * Calculates participation rate above the given magnitude for the given parent section
+	 * @param erf
+	 * @param parentID
+	 * @param minMag
+	 * @return
+	 */
+	public static double calcParticipationRateForParentSect(FaultSystemSolutionERF erf, int parentID, double minMag) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		double duration = erf.getTimeSpan().getDuration();
+		
+		HashSet<Integer> rupIndexes = new HashSet<Integer>(rupSet.getRupturesForParentSection(parentID));
+		
+		double rate = 0;
+
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			if (!rupIndexes.contains(fssRupIndex))
+				continue;
+			for (ProbEqkRupture rup : erf.getSource(s)) {
+				if (rup.getMag() >= minMag)
+					rate += rup.getMeanAnnualRate(duration);
+			}
+		}
+		return rate;
+	}
+	
+	/**
+	 * Calculates participation rate above the given magnitude for the given parent sections
+	 * @param erf
+	 * @param parentIDs
+	 * @param minMag
+	 * @return
+	 */
+	public static double calcParticipationRateForParentSects(
+			FaultSystemSolutionERF erf, List<Integer> parentIDs, double minMag) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		double duration = erf.getTimeSpan().getDuration();
+		
+		HashSet<Integer> rupIndexes = new HashSet<Integer>();
+		for (Integer parentID : parentIDs)
+			rupIndexes.addAll(rupSet.getRupturesForParentSection(parentID));
+		
+		double rate = 0;
+
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			if (!rupIndexes.contains(fssRupIndex))
+				continue;
+			for (ProbEqkRupture rup : erf.getSource(s)) {
+				if (rup.getMag() >= minMag)
+					rate += rup.getMeanAnnualRate(duration);
+			}
+		}
+		return rate;
+	}
+	
+	/**
+	 * Calculates participation probability above the given magnitude for the given parent sections
+	 * @param erf
+	 * @param parentIDs
+	 * @param minMag
+	 * @return
+	 */
+	public static double calcParticipationProbForParentSects(
+			FaultSystemSolutionERF erf, List<Integer> parentIDs, double minMag) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		double duration = erf.getTimeSpan().getDuration();
+		
+		HashSet<Integer> rupIndexes = new HashSet<Integer>();
+		for (Integer parentID : parentIDs)
+			rupIndexes.addAll(rupSet.getRupturesForParentSection(parentID));
+		
+		List<Double> probs = Lists.newArrayList();
+
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			if (!rupIndexes.contains(fssRupIndex))
+				continue;
+			for (ProbEqkRupture rup : erf.getSource(s)) {
+				if (rup.getMag() >= minMag)
+					probs.add(rup.getProbability());
+			}
+		}
+		return calcSummedProbs(probs);
+	}
+	
+	/**
+	 * Calculates nucleation rate above the given magnitude for the given parent section
+	 * @param erf
+	 * @param parentID
+	 * @param minMag
+	 * @return
+	 */
+	public static double calcNucleationRateForParentSect(FaultSystemSolutionERF erf, int parentID, double minMag) {
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+
+		double duration = erf.getTimeSpan().getDuration();
+		
+		HashSet<Integer> rupIndexes = new HashSet<Integer>(rupSet.getRupturesForParentSection(parentID));
+		
+		double rate = 0;
+
+		for(int s=0; s<erf.getNumFaultSystemSources();s++) {
+			int fssRupIndex = erf.getFltSysRupIndexForSource(s);
+			if (!rupIndexes.contains(fssRupIndex))
+				continue;
+			
+			double rupArea = rupSet.getAreaForRup(fssRupIndex);
+			double rupAreaOnParent = 0d;
+			for(FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(fssRupIndex)) {
+				if (sect.getParentSectionId() == parentID)
+					rupAreaOnParent += rupSet.getAreaForSection(sect.getSectionId());
+			}
+			Preconditions.checkState(rupAreaOnParent > 0);
+			Preconditions.checkState(rupAreaOnParent <= rupArea);
+			
+			double nuclFract = rupAreaOnParent/rupArea;
+			
+			for (ProbEqkRupture rup : erf.getSource(s)) {
+				if (rup.getMag() >= minMag)
+					rate += nuclFract*rup.getMeanAnnualRate(duration);
+			}
+		}
+		return rate;
+	}
+	
 	
 	/**
 	 * The gives the effective participation rates for events greater than or equal to minMag
