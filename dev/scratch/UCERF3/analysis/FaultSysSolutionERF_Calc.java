@@ -776,7 +776,7 @@ public class FaultSysSolutionERF_Calc {
 	 * @return
 	 */
 	public static double calcParticipationRateForParentSects(
-			FaultSystemSolutionERF erf, List<Integer> parentIDs, double minMag) {
+			FaultSystemSolutionERF erf, double minMag, int... parentIDs) {
 		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
 
 		double duration = erf.getTimeSpan().getDuration();
@@ -807,10 +807,8 @@ public class FaultSysSolutionERF_Calc {
 	 * @return
 	 */
 	public static double calcParticipationProbForParentSects(
-			FaultSystemSolutionERF erf, List<Integer> parentIDs, double minMag) {
+			FaultSystemSolutionERF erf, double minMag, int... parentIDs) {
 		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
-
-		double duration = erf.getTimeSpan().getDuration();
 		
 		HashSet<Integer> rupIndexes = new HashSet<Integer>();
 		for (Integer parentID : parentIDs)
