@@ -1,0 +1,86 @@
+package scratch.pagem;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.dom4j.DocumentException;
+import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.gui.plot.PlotSpec;
+import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
+import scratch.UCERF3.enumTreeBranches.DeformationModels;
+import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.InversionModels;
+import scratch.UCERF3.enumTreeBranches.MaxMagOffFault;
+import scratch.UCERF3.enumTreeBranches.MomentRateFixes;
+import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
+import scratch.UCERF3.enumTreeBranches.SlipAlongRuptureModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.inversion.laughTest.LaughTestFilter;
+import scratch.UCERF3.simulatedAnnealing.SerialSimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.SimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.ThreadedSimulatedAnnealing;
+import scratch.UCERF3.simulatedAnnealing.completion.CompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.IterationCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.ProgressTrackingCompletionCriteria;
+import scratch.UCERF3.simulatedAnnealing.completion.TimeCompletionCriteria;
+import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.UCERF3.utils.UCERF3_DataUtils;
+import scratch.UCERF3.utils.aveSlip.AveSlipConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoFitPlotter;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoProbabilityModel;
+import scratch.UCERF3.utils.paleoRateConstraints.PaleoRateConstraint;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
+import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
+import cern.colt.matrix.tdouble.DoubleMatrix2D;
+
+
+/**
+ * This class generates UCERF3-TD participation probs for multiple parent section IDs, without double counting.
+ * See Skype message with Kevin Oct 14, 2016
+ *
+ */
+
+public class U3TD_Participation_Probs {
+
+
+	public static void main(String[] args) throws IOException, DocumentException {
+		
+		FaultSystemSolution sol;
+		   
+		// Make sure this is the updated version that includes the date of last event data in it
+		// From: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
+		// Last updated: 10/15/2015
+		sol = FaultSystemIO.loadSol(
+			           new File("/Users/pagem/Desktop/"
+			           + "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_PREF_BLEND);
+		erf.getTimeSpan().setStartTime(2014); // start year
+		erf.setParameter(HistoricOpenIntervalParam.NAME, // historical open interval
+		erf.getTimeSpan().getStartTimeYear()-1875d);
+		
+		erf.getTimeSpan().setDuration(30d);
+		
+		erf.updateForecast();
+		
+		double prob = FaultSysSolutionERF_Calc.calcParticipationProbForParentSects(erf, 6d, 1);
+		
+		System.out.println("Participation probability = " + prob);
+		
+	}
+
+
+}
+
