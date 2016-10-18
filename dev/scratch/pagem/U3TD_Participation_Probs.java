@@ -3,12 +3,14 @@ package scratch.pagem;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.eq.MagUtils;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.GraphWindow;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
@@ -65,6 +67,20 @@ public class U3TD_Participation_Probs {
 			           + "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		List<FaultSectionPrefData> faultSectionData = sol.getRupSet().getFaultSectionDataList();
+		
+		// Print list of all parent section numbers and names
+		// ListIterator<FaultSectionPrefData> faultSectionDataIterator = faultSectionData.listIterator();
+		// int prevIndex=0;
+		// while (faultSectionDataIterator.hasNext()) {			
+		//	int nextIndex = faultSectionDataIterator.nextIndex();
+		//	if (faultSectionData.get(nextIndex).getParentSectionId() != prevIndex) {
+		//		System.out.println(faultSectionData.get(nextIndex).getParentSectionId()+"\t"+faultSectionData.get(nextIndex).getParentSectionName());
+		//	}
+		//	faultSectionDataIterator.next();	
+		//	prevIndex = faultSectionData.get(nextIndex).getParentSectionId();
+		// }
+
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_PREF_BLEND);
 		erf.getTimeSpan().setStartTime(2014); // start year
@@ -75,10 +91,32 @@ public class U3TD_Participation_Probs {
 		
 		erf.updateForecast();
 		
-		double prob = FaultSysSolutionERF_Calc.calcParticipationProbForParentSects(erf, 6d, 1);
+		// Add up participation probs for multiple parent sections
+		// Arguments: erf, minimum magnitude, parent section IDs (one or more)
+		double minMag = 6.7;
+		int[] parentIDs = {32, 285, 300, 287}; 
+		double prob = FaultSysSolutionERF_Calc.calcParticipationProbForParentSects(erf, minMag, parentIDs);
 		
+		// Print parent section IDs, names, and total participation probability
+		for (int i=0; i<parentIDs.length; i++) {
+			int parID=parentIDs[i];
+			ListIterator<FaultSectionPrefData> faultSectionDataIterator = faultSectionData.listIterator();
+			boolean parentSectFound=false;
+			while (!parentSectFound && faultSectionDataIterator.hasNext()) {				
+				int nextIndex = faultSectionDataIterator.nextIndex();
+				if (faultSectionData.get(nextIndex).getParentSectionId()==parID) {
+					parentSectFound=true;
+					System.out.println(faultSectionData.get(nextIndex).getParentSectionId()+"\t"+faultSectionData.get(nextIndex).getParentSectionName());
+				}
+				faultSectionDataIterator.next();	
+			}
+			
+		}
+		System.out.println("\nTime span = "+erf.getTimeSpan().getDuration()+" "+erf.getTimeSpan().getDurationUnits());
+		System.out.println("Minimum magnitude = " + minMag);
 		System.out.println("Participation probability = " + prob);
 		
+			
 	}
 
 
