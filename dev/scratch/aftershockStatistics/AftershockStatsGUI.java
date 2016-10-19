@@ -34,6 +34,7 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
+import org.json.simple.JSONObject;
 import org.opensha.commons.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
@@ -59,6 +60,7 @@ import org.opensha.commons.gui.plot.jfreechart.xyzPlot.XYZPlotSpec;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
+import org.opensha.commons.param.editor.impl.GriddedParameterListEditor;
 import org.opensha.commons.param.editor.impl.ParameterListEditor;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
@@ -72,6 +74,7 @@ import org.opensha.commons.param.impl.ParameterListParameter;
 import org.opensha.commons.param.impl.RangeParameter;
 import org.opensha.commons.param.impl.StringParameter;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
+import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
@@ -90,7 +93,9 @@ import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 import com.lowagie.text.Font;
 
+import gov.usgs.earthquake.product.Product;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
+import scratch.aftershockStatistics.pdl.OAF_Publisher;
 
 public class AftershockStatsGUI extends JFrame implements ParameterChangeListener {
 	
@@ -1540,9 +1545,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 				progress.updateProgress(i, models.size(), "Calculating "+name+"...");
 			
 			USGS_AftershockForecast forecast = new USGS_AftershockForecast(model, eventDate, startDate);
-			JTable jTable = new JTable(forecast.getTableModel());
-			jTable.getTableHeader().setFont(jTable.getTableHeader().getFont().deriveFont(Font.BOLD));
-			forecastTablePane.addTab(name, jTable);
+			forecastTablePane.addTab(name, new ForecastTablePanel(forecast));
 			System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+"s to compute aftershock table for "+name);
 			watch.stop();
 		}
@@ -1554,6 +1557,83 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 					"USGS Forecast Table");
 		else
 			Preconditions.checkState(tabbedPane.getTabCount() > forecast_table_tab_index, "Plots added out of order");
+	}
+	
+	private class ForecastTablePanel extends JPanel implements ParameterChangeListener {
+		
+		private USGS_AftershockForecast forecast;
+		
+		private ButtonParameter exportButton;
+		private ButtonParameter publishButton;
+		
+		private JFileChooser chooser;
+		
+		public ForecastTablePanel(USGS_AftershockForecast forecast) {
+			this.forecast = forecast;
+			setLayout(new BorderLayout());
+			
+			ParameterList params = new ParameterList();
+			exportButton = new ButtonParameter("JSON", "Export JSON");
+			exportButton.addParameterChangeListener(this);
+			params.addParameter(exportButton);
+			publishButton = new ButtonParameter("USGS PDL", "Publish Forecast");
+			publishButton.addParameterChangeListener(this);
+			params.addParameter(publishButton);
+			
+			this.add(new GriddedParameterListEditor(params, 1, params.size()), BorderLayout.NORTH);
+			JTable jTable = new JTable(forecast.getTableModel());
+			jTable.getTableHeader().setFont(jTable.getTableHeader().getFont().deriveFont(Font.BOLD));
+			this.add(jTable, BorderLayout.CENTER);
+		}
+
+		@Override
+		public void parameterChange(ParameterChangeEvent event) {
+			if (event.getParameter() == exportButton) {
+				if (chooser == null)
+					chooser = new JFileChooser();
+				int ret = chooser.showSaveDialog(this);
+				if (ret == JFileChooser.APPROVE_OPTION) {
+					File file = chooser.getSelectedFile();
+					JSONObject json = null;
+					try {
+						json = forecast.buildJSON();
+					} catch (Exception e) {
+						e.printStackTrace();
+						String message = ClassUtils.getClassNameWithoutPackage(e.getClass())+": "+e.getMessage();
+						JOptionPane.showMessageDialog(this, message, "Error building JSON", JOptionPane.ERROR_MESSAGE);
+					}
+					if (json != null) {
+						try {
+							FileWriter fw = new FileWriter(file);
+							fw.write(json.toJSONString());
+							fw.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+							String message = ClassUtils.getClassNameWithoutPackage(e.getClass())+": "+e.getMessage();
+							JOptionPane.showMessageDialog(this, message, "Error writing JSON", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				}
+			} else if (event.getParameter() == publishButton) {
+				Product product = null;
+				try {
+					product = OAF_Publisher.createProduct(mainshock.getEventId(), forecast);
+				} catch (Exception e) {
+					e.printStackTrace();
+					String message = ClassUtils.getClassNameWithoutPackage(e.getClass())+": "+e.getMessage();
+					JOptionPane.showMessageDialog(this, message, "Error building product", JOptionPane.ERROR_MESSAGE);
+				}
+				if (product != null) {
+					try {
+						OAF_Publisher.sendProduct(product);
+					} catch (Exception e) {
+						e.printStackTrace();
+						String message = ClassUtils.getClassNameWithoutPackage(e.getClass())+": "+e.getMessage();
+						JOptionPane.showMessageDialog(this, message, "Error sending product", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+		}
 	}
 	
 	private class CalcStep {

@@ -8,6 +8,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -183,6 +186,66 @@ public class USGS_AftershockForecast {
 			}
 			
 		};
+	}
+	
+	@SuppressWarnings("unchecked")
+	public JSONObject buildJSON() {
+		JSONObject json = new JSONObject();
+		
+		json.put("creationTime", System.currentTimeMillis()); // TODO is this what we want here?
+		long maxEndDate = 0l;
+		for (GregorianCalendar endDate : endDates)
+			if (endDate.getTimeInMillis() > maxEndDate)
+				maxEndDate = endDate.getTimeInMillis();
+		json.put("expireTime", maxEndDate);
+
+		// MODEL
+		JSONObject modelJSON = new JSONObject();
+		String name = "Reasenberg-Jones (1989, 1994) aftershock model";
+		if (model instanceof RJ_AftershockModel_Bayesian)
+			name += " (Bayesian Combination)";
+		else if (model instanceof RJ_AftershockModel_Generic)
+			name += " (Generic)";
+		else if (model instanceof RJ_AftershockModel_SequenceSpecific)
+			name += " (Sequence Specific)";
+		modelJSON.put("name", name);
+		modelJSON.put("reference", "#url");
+		JSONObject modelParams = new JSONObject();
+		// return AftershockStatsCalc.getExpectedNumEvents(getMaxLikelihood_a(), b, magMain, magMin, getMaxLikelihood_p(), getMaxLikelihood_c(), tMinDays, tMaxDays);
+		modelParams.put("a", model.getMaxLikelihood_a());
+		modelParams.put("b", model.get_b());
+		modelParams.put("magMain", model.getMainShockMag());
+		modelParams.put("p", model.getMaxLikelihood_p());
+		modelParams.put("c", model.getMaxLikelihood_c());
+		modelJSON.put("parameters", modelParams);
+		json.put("model", modelJSON);
+		
+		// FORECAST
+		JSONArray forecastsJSON = new JSONArray();
+		for (int i=0; i<durations.length; i++) {
+			JSONObject forecastJSON = new JSONObject();
+			
+			forecastJSON.put("timeStart", startDate.getTimeInMillis());
+			forecastJSON.put("timeEnd", endDates[i].getTimeInMillis());
+			forecastJSON.put("label", durations[i].label);
+			
+			JSONArray magBins = new JSONArray();
+			for (int m=0; m<minMags.length; m++) {
+				JSONObject magBin = new JSONObject();
+				magBin.put("magnitude", minMags[m]);
+				magBin.put("p95minimum", numEventsLower.get(durations[i], minMags[m]));
+				magBin.put("p95maximum", numEventsUpper.get(durations[i], minMags[m]));
+				magBin.put("probability", probs.get(durations[i], minMags[m]));
+				magBins.add(magBin);
+			}
+			
+			forecastJSON.put("bins", magBins);
+			
+			forecastsJSON.add(forecastJSON);
+		}
+		json.put("forecast", forecastsJSON);
+		
+		return json;
 	}
 
 }

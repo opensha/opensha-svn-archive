@@ -74,6 +74,8 @@ public class OafSendExample {
 	 *
 	 */
 	public static void main (String [] args) throws Exception {
+		if ("".isEmpty())
+			throw new RuntimeException("Probably shouldn't actually run this example from Eric");
 		Product product;
 		ProductSender sender;
 
