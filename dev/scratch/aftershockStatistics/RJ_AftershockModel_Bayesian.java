@@ -33,7 +33,7 @@ import com.google.common.base.Preconditions;
  * This represents a Reasenberg-Jones (1989, 1994) aftershock model where the a-value distribution is the Bayesian
  * combination of two given models, and where b, p, and c are held fixed (and they must be the same in each model).
  * 
- * a-value discretizatio is the smallest between the two given models, and the a-value range if union of the two.
+ * a-value discretization is the smallest between the two given models, and the a-value range if union of the two.
  * 
  * Note also that the Gaussian distribution is renormalized so that values sum to 1.0 over the final range of
  * a-values represented.
