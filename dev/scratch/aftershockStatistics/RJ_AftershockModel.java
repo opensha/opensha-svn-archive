@@ -90,7 +90,8 @@ public abstract class RJ_AftershockModel {
 	
 	/**
 	 * This computes the distribution of the number of M≥5.0 events given all a, p, and c values, as well as the associated
-	 * weight for each set of values.
+	 * weight for each set of values.  This is used as a reference function that can be scaled to other magnitudes for greater
+	 * efficiency.
 	 * @param tMinDays
 	 * @param tMaxDays
 	 */
@@ -188,10 +189,11 @@ public abstract class RJ_AftershockModel {
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getMeanCumNumMFD(double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		// get the reference MFD, which we will scale to the mean
 		EvenlyDiscretizedFunc mfd = getModalCumNumMFD(minMag, maxMag, numMag, tMinDays, tMaxDays);
 		double m5val = mfd.getInterpolatedY(5.0);
 		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
-		mfd.scale(numMag5_DistributionFunc.getMean()/m5val);
+		mfd.scale(numMag5_DistributionFunc.getMean()/m5val);	// scale MFD to the mean at M5
 		mfd.setName("Mean Num Events");
 		mfd.setInfo("Cumulative distribution (greater than or equal to each magnitude)");
 		return mfd;
@@ -210,9 +212,11 @@ public abstract class RJ_AftershockModel {
 	 * @return
 	 */
 	public EvenlyDiscretizedFunc getCumNumMFD_Fractile(double fractile, double minMag, double maxMag, int numMag, double tMinDays, double tMaxDays) {
+		// get the reference MFD, which we will scale
 		EvenlyDiscretizedFunc mfd = getModalCumNumMFD(minMag, maxMag, numMag, tMinDays, tMaxDays);
+		// get the modal value at M5
 		double m5val;
-		if (minMag > 5 || maxMag < 5)
+		if (minMag > 5 || maxMag < 5)	// in case requested range does not include M5
 			m5val = getModalCumNumMFD(5d, 5d, 1, tMinDays, tMaxDays).getY(0);
 		else
 			m5val = mfd.getInterpolatedY(5.0);
@@ -256,7 +260,15 @@ public abstract class RJ_AftershockModel {
 	}
 
 	
-	
+	/**
+	 * This provides the cumulative number for the given fractiles, where aleatory variability
+	 * is included in the result based on a Poisson distribution.
+	 * @param fractileArray
+	 * @param mag
+	 * @param tMinDays
+	 * @param tMaxDays
+	 * @return
+	 */
 	public double[] getCumNumFractileWithAleatory(double[] fractileArray, double mag, double tMinDays, double tMaxDays) {
 		// compute the distribution for the expected num aftershocks with M≥5 (which we will scale to other magnitudes)
 		computeNumMag5_DistributionFunc(tMinDays, tMaxDays);
@@ -281,11 +293,8 @@ public abstract class RJ_AftershockModel {
 			int maxLoopVal = poissDist.inverseCumulativeProbability(0.9999);
 			if(maxLoopVal>cumDistFunc.size()-1)
 				maxLoopVal=cumDistFunc.size()-1;
-//			for(int j=0;j<cumDistFunc.size();j++) {
 			for(int j=minLoopVal;j<=maxLoopVal;j++) {
 				distFunc[j] += poissDist.probability(j)*wt;
-//				double newVal = cumDistFunc.getY(j) + poissDist.cumulativeProbability(j)*wt;
-//				cumDistFunc.set(j,newVal);
 			}
 			
 		}
