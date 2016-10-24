@@ -11,12 +11,19 @@
 # "USGS/CGS 2002 Adj. Cal. ERF"
 # "WGCEP UCERF 1.0 (2005)"
 # "GEM1 CEUS ERF"
+# "Mean UCERF3"
+# "Mean UCERF3 FM3.1"
+# "Mean UCERF3 FM3.2"
 # 
+# Notes on UCERF3: If Mean UCERF3 FM3.1 or FM3.2 are selected, you can also append the start year and duration in order to use UCERF3-TD.
+# Example: "Mean UCERF3 FM3.1 2014 30" for 30 year forecast starting in 2014. This only works for fault model specific Mean UCERF3 forecasts.
+# Additionally, much more memory is required for UCERF3. It is recommended that you run it with -Xmx2G or greater.
+# Finally, the UCERF3 model requires a fast internet connection when run for the first time with any given configuration as it downloads model files.
 WGCEP (2007) UCERF2 - Single Branch
 #
 # Second line indicates how to handle background seismicity.  Options are "Include", "Exclude", and "Only Background".
 Exclude
-# Third line defines rupture offset for floating ruptures
+# Third line defines rupture offset for floating ruptures. Not applicable to UCERF3, but a value is still required.
 # (between 1 and 100 km; 5 km is generally best)
 5
 #
@@ -24,7 +31,12 @@ Exclude
 3
 # One the next N lines, identify the N attenuation 
 # relationships from the following options
-# (first four are final NGAs):
+# (first five are final NGA-West2 relationships, followed by 2008 NGA-West releationships):
+# "Abrahamson, Silva & Kamai (2014)"
+# "Boore, Stewart, Seyhan & Atkinson (2014)"
+# "Campbell & Bozorgnia (2014)"
+# "Chiou & Youngs (2014)"
+# "Idriss (2014)"
 # "Campbell & Bozorgnia (2008)"
 # "Boore & Atkinson (2008)"
 # "Abrahamson & Silva (2008)"
@@ -45,8 +57,8 @@ Exclude
 # "Baturay and Stewart (2003)"
 # "Bazzuro and Cornell (2004)"
 # "Goulet Et. Al. (2006)"
-# Click links at bottom of following link for some details:
-# http://www.opensha.org/documentation/glossary/AttenuationRelationship.html
+# Click links at side of following link for some details:
+# http://www.opensha.org/glossary-attenuationRelation
 Boore & Atkinson (2008)
 Chiou & Youngs (2008)
 Campbell & Bozorgnia (2008)

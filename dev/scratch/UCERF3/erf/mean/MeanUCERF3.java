@@ -102,7 +102,9 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 	
 	private Map<Integer, List<LastEventData>> lastEventData;
 	
-	private enum Presets {
+	public static boolean show_progress = true;
+	
+	public enum Presets {
 		FM3_1_BRANCH_AVG("FM3.1 Branch Averaged", FaultModels.FM3_1, UPPER_DEPTH_TOL_MAX, true, 1d, RAKE_BASIS_MEAN),
 		FM3_1_MAG_VAR("FM3.1 BA w/ Alt Mags", FaultModels.FM3_1, UPPER_DEPTH_TOL_MAX, true, 0d, RAKE_BASIS_MEAN),
 		FM3_2_BRANCH_AVG("FM3.2 Branch Averaged", FaultModels.FM3_2, UPPER_DEPTH_TOL_MAX, true, 1d, RAKE_BASIS_MEAN),
@@ -598,7 +600,8 @@ public class MeanUCERF3 extends FaultSystemSolutionERF {
 		CalcProgressBar progress = null;
 		// try to show progress bar
 		try {
-			progress = new CalcProgressBar("Downloading MeanUCERF3 Files", "downloading "+fName);
+			if (show_progress)
+				progress = new CalcProgressBar("Downloading MeanUCERF3 Files", "downloading "+fName);
 		} catch (Throwable t) {}
 		String url = DOWNLOAD_URL+fName;
 //		if (!ignoreErrors)
