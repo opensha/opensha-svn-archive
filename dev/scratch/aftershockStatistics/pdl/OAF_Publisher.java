@@ -20,7 +20,7 @@ public class OAF_Publisher {
 	
 	public static Product createProduct(String eventID, USGS_AftershockForecast model) {
 		String source = "opensha-oaf-"+eventID;
-		String type = "forecast";
+		String type = "oaf";
 		String code = source+":"+type;
 		
 		Product product;
