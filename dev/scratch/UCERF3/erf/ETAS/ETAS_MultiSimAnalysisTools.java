@@ -666,7 +666,7 @@ public class ETAS_MultiSimAnalysisTools {
 			funcs.add(myPrimaryFunc);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 1f, Color.GREEN.darker()));
 			
-			getFractilePlotFuncs(mySubMagNums, fractiles, funcs, chars, csvFile,
+			XY_DataSet meanFunc = getFractilePlotFuncs(mySubMagNums, fractiles, funcs, chars, csvFile,
 					Color.BLACK, Color.BLUE, Color.CYAN, null, myAtFunc, myPrimaryFunc);
 			
 			if (myRegionalGR != null) {
@@ -694,6 +694,57 @@ public class ETAS_MultiSimAnalysisTools {
 			gp.saveAsPNG(new File(outputDir, myPrefix+".png").getAbsolutePath());
 			gp.saveAsPDF(new File(outputDir, myPrefix+".pdf").getAbsolutePath());
 			gp.saveAsTXT(new File(outputDir, myPrefix+".txt").getAbsolutePath());
+			
+			if (cumulative) {
+				// do mean conf plot
+				
+				funcs = Lists.newArrayList();
+				chars = Lists.newArrayList();
+				
+				ArbitrarilyDiscretizedFunc upperFunc = new ArbitrarilyDiscretizedFunc();
+				upperFunc.setName("Upper 95%");
+				ArbitrarilyDiscretizedFunc lowerFunc = new ArbitrarilyDiscretizedFunc();
+				lowerFunc.setName("Lower 95%");
+				
+				for (int i=0; i<meanFunc.size(); i++) {
+					double x = meanFunc.getX(i);
+					double y = meanFunc.getY(i);
+					
+					if (y >= 1d) {
+						upperFunc.set(x, y);
+						lowerFunc.set(x, y);
+					} else {
+						double[] conf = ETAS_Utils.getBinomialProportion95confidenceInterval(y, catalogs.size());
+						lowerFunc.set(x, conf[0]);
+						upperFunc.set(x, conf[1]);
+					}
+				}
+				
+				funcs.add(lowerFunc);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
+				
+				funcs.add(upperFunc);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
+				
+				funcs.add(meanFunc);
+				chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+				
+				spec = new PlotSpec(funcs, chars, name, "Magnitude", yAxisLabel);
+				spec.setLegendVisible(true);
+				
+				gp = new HeadlessGraphPanel();
+				gp.setUserBounds(myPrimaryFunc.getMinX(), subMagNums[0].getMaxX(), mfdMinY, mfdMaxY);
+				gp.setLegendFontSize(20);
+				
+				setFontSizes(gp, 10);
+				
+				gp.drawGraphPanel(spec, false, true);
+				gp.getChartPanel().setSize(1000, 800);
+				gp.saveAsPNG(new File(outputDir, myPrefix+"_mean_with_conf.png").getAbsolutePath());
+				gp.saveAsPDF(new File(outputDir, myPrefix+"_mean_with_conf.pdf").getAbsolutePath());
+				gp.saveAsTXT(new File(outputDir, myPrefix+"_mean_with_conf.txt").getAbsolutePath());
+				
+			}
 		}
 	}
 	
@@ -708,7 +759,7 @@ public class ETAS_MultiSimAnalysisTools {
 				fractileColor, medianColor, modeColor, sdomColor);
 	}
 
-	private static void getFractilePlotFuncs(EvenlyDiscretizedFunc[] allFuncs, double[] fractiles,
+	private static XY_DataSet getFractilePlotFuncs(EvenlyDiscretizedFunc[] allFuncs, double[] fractiles,
 			List<XY_DataSet> funcs, List<PlotCurveCharacterstics> chars, File csvFile,
 			Color fractileColor, Color medianColor, Color modeColor, Color sdomColor,
 			EvenlyDiscretizedFunc... otherCSVFuncs) throws IOException {
@@ -834,6 +885,8 @@ public class ETAS_MultiSimAnalysisTools {
 			
 			csv.writeToFile(csvFile);
 		}
+		
+		return meanFunc;
 	}
 	
 	public static void plotAftershockRateVsLogTimeHistForRup(List<List<ETAS_EqkRupture>> catalogs,
@@ -3465,13 +3518,15 @@ public class ETAS_MultiSimAnalysisTools {
 //		// round duration
 //		maxDuration = (double)(int)(maxDuration + 0.5);
 		boolean containsSpontaneous = false;
-		for (List<ETAS_EqkRupture> catalog : catalogs) {
-			if (containsSpontaneous)
-				break;
-			for (ETAS_EqkRupture rup : catalog) {
-				if (rup.getGeneration() == 0) {
-					containsSpontaneous = true;
+		if (catalogs != null) {
+			for (List<ETAS_EqkRupture> catalog : catalogs) {
+				if (containsSpontaneous)
 					break;
+				for (ETAS_EqkRupture rup : catalog) {
+					if (rup.getGeneration() == 0) {
+						containsSpontaneous = true;
+						break;
+					}
 				}
 			}
 		}
@@ -4404,7 +4459,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean isCLI = args.length > 0;
 		boolean forcePlot = isCLI;
 		
-		boolean plotMFDs = false || forcePlot;
+		boolean plotMFDs = true || forcePlot;
 		boolean plotExpectedComparison = false || forcePlot;
 		boolean plotSectRates = false || forcePlot;
 		boolean plotTemporalDecay = false || forcePlot;
@@ -4420,7 +4475,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean plotCondDist = false || forcePlot;
 		boolean writeCatsForViz = false || forcePlot;
 		boolean plotScalesHazard = false && !forcePlot;
-		boolean plotRegionOneWeek = true && !forcePlot;
+		boolean plotRegionOneWeek = false && !forcePlot;
 		boolean plotMFDOneWeek = true && !forcePlot;
 		
 //		boolean plotMFDs = true;
@@ -4498,11 +4553,11 @@ public class ETAS_MultiSimAnalysisTools {
 //			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin"));
 //			id_for_scenario = 9893;
 			
-////			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m4_preserve.bin"));
-//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin"));
+//			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m4_preserve.bin"));
+////			resultsZipFiles.add(new File(mainDir, "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin"));
 //			id_for_scenario = 9893;
 			
-//			resultsZipFiles.add(new File(mainDir, "2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_descendents_m4_preserve.bin"));
+// 			resultsZipFiles.add(new File(mainDir, "2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_descendents_m4_preserve.bin"));
 //			resultsZipFiles.add(new File(mainDir, "2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_m5_preserve.bin"));
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_02_24-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined/results_descendents.bin"));
@@ -4516,10 +4571,12 @@ public class ETAS_MultiSimAnalysisTools {
 			resultsZipFiles.add(new File(mainDir, "2016_08_30-san_jacinto_0_m4p8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin"));
 			
 //			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5_preserve.bin"));
-//			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin"));
+			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin"));
 			
-//			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined-plus100kNoSpont/results_descendents_m4_preserve.bin"));
+			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined-plus100kNoSpont/results_descendents_m4_preserve.bin"));
 //			resultsZipFiles.add(new File(mainDir, "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined-plus300kNoSpont/results_descendents_m4_preserve.bin"));
+			
+//			resultsZipFiles.add(new File(mainDir, "2016_02_24-bombay_beach_m4pt8-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-noSpont-combined/results_descendents.bin"));
 			
 //			names.add("30yr Full TD");
 //			resultsZipFiles.add(new File(mainDir, "2016_02_18-spontaneous-30yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin"));
