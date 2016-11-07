@@ -146,7 +146,7 @@ public class STREC_DataWrapper extends AbstractSiteData<TectonicRegime> {
 		} finally {
 			if (tempDir != null) {
 				if (D) System.out.println("Deleting "+tempDir.getAbsolutePath());
-				FileUtils.deleteDirectory(tempDir);
+//				FileUtils.deleteDirectory(tempDir);
 			}
 		}
 		return ret;
