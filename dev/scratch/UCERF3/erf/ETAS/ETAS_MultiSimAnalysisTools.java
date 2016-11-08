@@ -4320,14 +4320,16 @@ public class ETAS_MultiSimAnalysisTools {
 	 * 
 	 * set full_TD true to make FULL_TD case; otherwise it's NO_ERT (filenames differe accordingly)
 	 */
-	private static void makeImagesForSciencePaperFig1(boolean full_td) {
+	private static void makeImagesForSciencePaperFig1(int model) {
 		
 		System.out.println("Loading file");
 		File resultsFile = null;
-		if(full_td)
+		if(model==0)
 			resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5_preserve.bin");
-		else
+		else if(model==1)
 			resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/results_descendents_m5_preserve.bin");
+		else if (model==2)
+			resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_02_22-mojave_m7-10yr-BothModels/results_descendents_m5_preserve_merged_with_100k_full_td.bin");
 
 		List<List<ETAS_EqkRupture>> catalogs=null;
 		try {
@@ -4424,10 +4426,12 @@ public class ETAS_MultiSimAnalysisTools {
 			double minValue = -8;
 			double maxValue = -2;
 			File dir = null;
-			if(full_td)
+			if(model==0)
 				dir = new File("SciFig1_FULL_TD_BackgroundImages");
-			else
+			else if(model==1)
 				dir = new File("SciFig1_NO_ERT_BackgroundImages");
+			else
+				dir = new File("SciFig1_BOTH_BackgroundImages");
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, griddedRegion, dir, "triggerData", true, cpt, minValue, maxValue, includeTopo);
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(longTermTD_data, griddedRegion, dir, "longTermTD_data", true, cpt, minValue, maxValue, includeTopo);
 			maxValue = -3;
@@ -4448,8 +4452,9 @@ public class ETAS_MultiSimAnalysisTools {
 		if (args.length == 0 && new File("/Users/field/").exists()) {
 			// now will run by default on your machine Ned
 //			nedsAnalysis();
-			makeImagesForSciencePaperFig1(true);
-			makeImagesForSciencePaperFig1(false);
+//			makeImagesForSciencePaperFig1(0);
+//			makeImagesForSciencePaperFig1(1);
+			makeImagesForSciencePaperFig1(2);
 			System.exit(-1);
 		}
 		
