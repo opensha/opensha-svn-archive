@@ -104,7 +104,7 @@ public class HazardDecompositionPlotter {
 		
 		Map<String, List<Integer>> combSourceMap = getCombinedSources(erf);
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		Runs2DB run2db = new Runs2DB(db); 
 		CybershakeSiteInfo2DB csSite2db = new CybershakeSiteInfo2DB(db);
 		SiteInfo2DB site2db = new SiteInfo2DB(db);

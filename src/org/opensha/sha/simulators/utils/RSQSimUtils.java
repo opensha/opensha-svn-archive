@@ -401,22 +401,28 @@ public class RSQSimUtils {
 //			}
 //		}
 		
+		System.out.println("Loading paleo/slip constraints");
 		ArrayList<PaleoRateConstraint> paleoRateConstraints =
 				CommandLineInversionRunner.getPaleoConstraints(fm, sol.getRupSet());
 		List<AveSlipConstraint> aveSlipConstraints = AveSlipConstraint.load(sol.getRupSet().getFaultSectionDataList());
 //		CommandLineInversionRunner.writePaleoPlots(paleoRateConstraints, aveSlipConstraints, sol, dir, prefix);
+		System.out.println("Writing SAF Seg plots");
 		CommandLineInversionRunner.writeSAFSegPlots(sol, fm, dir, prefix);
 //		CommandLineInversionRunner.writePaleoCorrelationPlots(sol,
 //						new File(dir, CommandLineInversionRunner.PALEO_CORRELATION_DIR_NAME), UCERF3_PaleoProbabilityModel.load());
+		System.out.println("Writing parent sect MFD plots");
 		CommandLineInversionRunner.writeParentSectionMFDPlots(sol,
 						new File(dir, CommandLineInversionRunner.PARENT_SECT_MFD_DIR_NAME));
 		Map<String, List<Integer>> namedFaultsMap = fm.getNamedFaultsMapAlt();
+		System.out.println("Writing paleo fault based plots");
 		CommandLineInversionRunner.writePaleoFaultPlots(paleoRateConstraints, aveSlipConstraints, namedFaultsMap, sol,
 						new File(dir, CommandLineInversionRunner.PALEO_FAULT_BASED_DIR_NAME));
-		CommandLineInversionRunner.writeRupPairingSmoothnessPlot(sol, prefix, dir);
+//		System.out.println("Writing rup pairing smoothness plots");
+//		CommandLineInversionRunner.writeRupPairingSmoothnessPlot(sol, prefix, dir);
 
 		// map plots
 		Region region = new CaliforniaRegions.RELM_TESTING();
+		System.out.println("Plotting slip rates");
 		FaultBasedMapGen.plotOrigNonReducedSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotOrigCreepReducedSlipRates(sol, region, dir, prefix, false);
 		FaultBasedMapGen.plotTargetSlipRates(sol, region, dir, prefix, false);
@@ -424,14 +430,18 @@ public class RSQSimUtils {
 		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, true);
 		FaultBasedMapGen.plotSolutionSlipMisfit(sol, region, dir, prefix, false, false);
 //		FaultSystemSolution ucerf2 = getUCERF2Comparision(sol.getRupSet().getFaultModel(), dir);
+		System.out.println("Plotting participation rates");
 		for (double[] range : BatchPlotGen.partic_mag_ranges) {
 			FaultBasedMapGen.plotParticipationRates(sol, region, dir, prefix, false, range[0], range[1]);
 //			FaultBasedMapGen.plotParticipationRatios(sol, ucerf2, region, dir, prefix, false, range[0], range[1], true);
 		}
+		System.out.println("Plotting sect pair");
 		FaultBasedMapGen.plotSectionPairRates(sol, region, dir, prefix, false);
+		System.out.println("Plotting segmentation");
 		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 0, 10);
 		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7, 10);
 		FaultBasedMapGen.plotSegmentation(sol, region, dir, prefix, false, 7.5, 10);
+		System.out.println("DONE");
 	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException {

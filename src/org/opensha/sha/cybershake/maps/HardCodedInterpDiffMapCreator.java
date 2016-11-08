@@ -66,7 +66,7 @@ public class HardCodedInterpDiffMapCreator {
 	protected static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val,
 			List<Integer> datasetIDs, int imTypeID, Collection<Integer> siteTypes) {
 		Preconditions.checkArgument(!datasetIDs.isEmpty(), "Must supply at least one dataset ID");
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		ArbDiscrGeoDataSet scatterData = new ArbDiscrGeoDataSet(true);
 		for (int datasetID : datasetIDs) {
 			HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
@@ -121,7 +121,7 @@ public class HardCodedInterpDiffMapCreator {
 	
 	private static ArbDiscrGeoDataSet loadCustomMapCurves(ModProbConfig config, int imTypeID,
 			boolean isProbAt_IML, double val) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		int datasetID = config.getHazardDatasetID(35, 3, 5, 1, null);
 		if (datasetID < 0)
@@ -174,7 +174,7 @@ public class HardCodedInterpDiffMapCreator {
 		curveDir += "Curves";
 		File curveDirFile = new File(curveDir);
 		if (curveDirFile.exists()) {
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			Runs2DB runs2db = new Runs2DB(db);
 			ArrayList<CybershakeRun> runs = runs2db.getRuns();
 			CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
@@ -210,7 +210,7 @@ public class HardCodedInterpDiffMapCreator {
 			int velModelID,
 			int imTypeID) throws SQLException {
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		AttenRels2DB ar2db = new AttenRels2DB(db);
 		int attenRelID = ar2db.getAttenRelID(imr);

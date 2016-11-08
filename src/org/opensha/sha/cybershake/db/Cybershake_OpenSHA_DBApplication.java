@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.opensha.commons.data.CSVFile;
@@ -34,6 +35,7 @@ import org.opensha.sha.earthquake.ERF;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 
 /**
@@ -49,13 +51,33 @@ public class Cybershake_OpenSHA_DBApplication {
 	public static String HOST_NAME = System.getProperty("cybershake.db.host", PRODUCTION_HOST_NAME);
 //	public static String HOST_NAME = System.getProperty("cybershake.db.host", "focal.usc.edu");
 	public static String DATABASE_NAME = System.getProperty("cybershake.db.name", "CyberShake");
-	public static DBAccess db = new DBAccess(HOST_NAME, DATABASE_NAME);
+//	private static DBAccess db;
+	private static Map<String, DBAccess> dbs = Maps.newHashMap();
 	
-	public static void setHostName(String hostName) {
-		HOST_NAME = hostName;
-		if (db != null)
-			db.destroy();
-		db = new DBAccess(HOST_NAME, DATABASE_NAME);
+	public static DBAccess getDB() {
+		return getDB(HOST_NAME);
+	}
+	
+	public static DBAccess getDB(String hostName) {
+		Preconditions.checkNotNull(hostName);
+		synchronized (Cybershake_OpenSHA_DBApplication.class) {
+			if (!hostName.equals(HOST_NAME))
+				HOST_NAME = hostName;
+			if (!dbs.containsKey(hostName))
+				dbs.put(hostName, new DBAccess(hostName, DATABASE_NAME));
+			return dbs.get(hostName);
+		}
+	}
+	
+	public static void destroyAllDBs() {
+		synchronized (Cybershake_OpenSHA_DBApplication.class) {
+			List<String> hosts = Lists.newArrayList(dbs.keySet());
+			for (String hostName : hosts) {
+				DBAccess db = dbs.get(hostName);
+				db.destroy();
+				dbs.remove(hostName);
+			}
+		}
 	}
 	
 	CybershakeSiteInfo2DB csSiteDB = null;
@@ -71,7 +93,7 @@ public class Cybershake_OpenSHA_DBApplication {
 		/**
 	     * Site List for Cybershake
 	     */
-		CybershakeSiteInfo2DB sites = new CybershakeSiteInfo2DB(db);
+		CybershakeSiteInfo2DB sites = new CybershakeSiteInfo2DB(getDB());
 		
 		//USC
 		System.out.println("Doing Site USC");
@@ -250,7 +272,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	 */
 	private CybershakeSiteInfo2DB getSiteInfoObject() {
 		if (csSiteDB == null)
-			csSiteDB = new CybershakeSiteInfo2DB(db);
+			csSiteDB = new CybershakeSiteInfo2DB(getDB());
 		return csSiteDB;
 	}
 	
@@ -297,7 +319,7 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	public List<CybershakeSite> getAllSites(int minIndex) {
-		SiteInfo2DB siteInfoDB = new SiteInfo2DB(db);
+		SiteInfo2DB siteInfoDB = new SiteInfo2DB(getDB());
 		
 		List<CybershakeSite> sites = siteInfoDB.getAllSitesFromDB();
 		
@@ -332,7 +354,7 @@ public class Cybershake_OpenSHA_DBApplication {
 			System.out.println("Doing Site " + site.name + " (" + site.short_name + "), " + ++i + " of " + numSites + " (" + getPercent(i, numSites) + " %)");
 			if (site.id < 0) {
 				if (siteInfoDB == null)
-					siteInfoDB = new SiteInfo2DB(db);
+					siteInfoDB = new SiteInfo2DB(getDB());
 				site.id = siteInfoDB.getSiteId(site.short_name);
 			}
 			System.out.println("Putting regional bounds into DB");
@@ -349,15 +371,20 @@ public class Cybershake_OpenSHA_DBApplication {
 	}
 	
 	public static DBAccess getAuthenticatedDBAccess(boolean exitOnCancel, boolean allowReadOnly) throws IOException {
+		return getAuthenticatedDBAccess(exitOnCancel, allowReadOnly, HOST_NAME);
+	}
+	
+	public static DBAccess getAuthenticatedDBAccess(boolean exitOnCancel, boolean allowReadOnly, String hostName)
+			throws IOException {
 		UserAuthDialog auth = new UserAuthDialog(null, exitOnCancel, allowReadOnly);
 		auth.setVisible(true);
 		auth.validate();
 		DBAccess db;
 		if (auth.isReadOnly()) {
-			db = new DBAccess(HOST_NAME,DATABASE_NAME);
+			db = new DBAccess(hostName, DATABASE_NAME);
 			db.setReadOnly(true);
 		} else {
-			db = new DBAccess(HOST_NAME,DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
+			db = new DBAccess(hostName, DATABASE_NAME, auth.getUsername(), new String(auth.getPassword()));
 			db.setReadOnly(false);
 		}
 		return db;

@@ -931,7 +931,7 @@ public class SiteInfo2DB implements SiteInfo2DBAPI {
 	 * @param args
 	 */
 	public static void main(String args[]) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		SiteInfo2DB siteDB = new SiteInfo2DB(db);
 //		siteDB.isRupInDB(33, 0, 9);
 		List<CybershakeSiteType> types = siteDB.getSiteTypes();

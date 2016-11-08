@@ -441,12 +441,15 @@ public class ETAS_CatalogIO {
 		List<List<ETAS_EqkRupture>> catalogs = Lists.newArrayList();
 
 		int numCatalogs = in.readInt();
+		int printMod = 1000;
+		if (numCatalogs >= 100000)
+			printMod = 10000;
 
 		Preconditions.checkState(numCatalogs > 0, "Bad num catalogs: %s", numCatalogs);
 
 		for (int i=0; i<numCatalogs; i++) {
 			catalogs.add(doLoadCatalogBinary(in, minMag));
-			if ((i+1) % 1000 == 0)
+			if ((i+1) % printMod == 0)
 				System.out.println("Loaded "+(i+1)+"/"+numCatalogs+" catalogs (and counting)...");
 		}
 		System.out.println("Loaded "+catalogs.size()+" catalogs");

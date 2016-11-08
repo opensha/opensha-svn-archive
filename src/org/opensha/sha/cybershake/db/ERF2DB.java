@@ -1149,7 +1149,7 @@ public  class ERF2DB implements ERF2DBAPI{
 	}
 
 	public static void main(String args[]) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		ERF2DB erf2db = new ERF2DB(db);
 		String name = "Ventura-Pitas Point";
 		//		  System.out.println(name + ": " + erf2db.getSourceIDFromName(34, name));

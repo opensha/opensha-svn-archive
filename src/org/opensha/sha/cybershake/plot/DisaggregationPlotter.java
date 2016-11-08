@@ -127,7 +127,7 @@ public class DisaggregationPlotter {
 	}
 	
 	private void initDB() {
-		db = Cybershake_OpenSHA_DBApplication.db;
+		db = Cybershake_OpenSHA_DBApplication.getDB();
 		runs2db = new Runs2DB(db);
 		curve2db = new HazardCurve2DB(db);
 		amps2db = new PeakAmplitudesFromDB(db);

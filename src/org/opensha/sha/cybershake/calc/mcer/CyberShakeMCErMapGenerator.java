@@ -79,7 +79,7 @@ public class CyberShakeMCErMapGenerator {
 	public static void calculateMaps(int datasetID, CyberShakeComponent component, double period,
 			ERF erf, ERF gmpeERF, List<AttenuationRelationship> gmpes, File outputDir, boolean weightAverage, File gmpeCacheDir)
 					throws IOException, GMT_MapException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		CybershakeIM im = CyberShakeMCErProbabilisticCalc.getIMsForPeriods(db, component, Lists.newArrayList(period)).get(0);
 		

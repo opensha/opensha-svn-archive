@@ -24,6 +24,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.UncertainArbDiscDataset;
 import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.opensha.commons.gui.plot.jfreechart.JFreeLogarithmicAxis;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
@@ -55,7 +56,12 @@ public class XYShadedUncertainLineRenderer extends AbstractXYItemRenderer {
 			return;
 		}
 		
+//		System.out.println("Rendering uncertain!");
+		
 		UncertainArbDiscDataset uData = (UncertainArbDiscDataset)((DiscretizedFunctionXYDataSet)dataset).getXYDataset(series);
+		
+		boolean logX = domainAxis instanceof JFreeLogarithmicAxis;
+		boolean logY = rangeAxis instanceof JFreeLogarithmicAxis;
 		
 		// find starting item number
 		int lastIndexBefore = -1;
@@ -85,12 +91,12 @@ public class XYShadedUncertainLineRenderer extends AbstractXYItemRenderer {
 //		System.out.println("Drawing a polygon!");
 		
 		List<Point2D> outline = Lists.newArrayList();
-		outline.add(uData.get(lastIndexBefore));
+		outline.add(getLogCompatible(logX, logY, uData.get(lastIndexBefore)));
 		for (int i=lastIndexBefore; i<=firstIndexAfter; i++)
-			outline.add(new Point2D.Double(uData.getX(i), uData.getUpperY(i)));
-		outline.add(uData.get(firstIndexAfter));
+			outline.add(getLogCompatible(logX, logY, new Point2D.Double(uData.getX(i), uData.getUpperY(i))));
+		outline.add(getLogCompatible(logX, logY, uData.get(firstIndexAfter)));
 		for (int i=firstIndexAfter+1; --i>=lastIndexBefore;)
-			outline.add(new Point2D.Double(uData.getX(i), uData.getLowerY(i)));
+			outline.add(getLogCompatible(logX, logY, new Point2D.Double(uData.getX(i), uData.getLowerY(i))));
 		
 		Polygon p = XYSolidBarRenderer.buildPolygon(dataArea, plot, domainAxis, rangeAxis,
 				outline);
@@ -105,6 +111,20 @@ public class XYShadedUncertainLineRenderer extends AbstractXYItemRenderer {
 			g2.setPaint(fillColor);
 		}
 		g2.fillPolygon(p);
+	}
+	
+	private static Point2D getLogCompatible(boolean logX, boolean logY, Point2D pt) {
+		if (!logX && !logY)
+			return pt;
+		double x = pt.getX(), y = pt.getY();
+//		if (logX) {
+//			x = Math.log10(x);
+//		}
+		if (logY) {
+			y = Math.max(y, GraphPanel.LOG_Y_MIN_VAL);
+//			y = Math.log10(Math.max(y, GraphPanel.LOG_Y_MIN_VAL));
+		}
+		return new Point2D.Double(x, y);
 	}
 	
 	public static void main(String[] args) {

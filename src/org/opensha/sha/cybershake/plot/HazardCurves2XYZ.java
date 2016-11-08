@@ -133,7 +133,7 @@ public class HazardCurves2XYZ {
 			}
 		}
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		HazardCurves2XYZ xyz = new HazardCurves2XYZ(db, 35, 3, 5, 1, 21, typeIDs);
 		
 		boolean isProbAt_IML = false;

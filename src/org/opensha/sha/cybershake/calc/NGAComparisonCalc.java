@@ -130,7 +130,7 @@ public class NGAComparisonCalc {
 		}
 		
 		// this is needed to get the CyberShake site list from the database
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		PeakAmplitudesFromDB amps2db = new PeakAmplitudesFromDB(db);
 		

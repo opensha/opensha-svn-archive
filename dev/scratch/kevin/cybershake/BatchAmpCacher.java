@@ -58,7 +58,7 @@ public class BatchAmpCacher {
 		DBAccess db = null;
 		int exitCode = 0;
 		try {
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 			
 			ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 			

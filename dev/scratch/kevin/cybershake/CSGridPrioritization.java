@@ -323,7 +323,7 @@ public class CSGridPrioritization {
 		boolean isProbAt_IML = false;
 		double level = 0.0004;
 		int imTypeID = 21;
-		CSGridPrioritization grid = new CSGridPrioritization(Cybershake_OpenSHA_DBApplication.db, isProbAt_IML, level, imTypeID);
+		CSGridPrioritization grid = new CSGridPrioritization(Cybershake_OpenSHA_DBApplication.getDB(), isProbAt_IML, level, imTypeID);
 		ArrayList<CybershakeDiffSite> list = grid.getMasterPriorityList();
 		grid.printArray(true, true);
 		

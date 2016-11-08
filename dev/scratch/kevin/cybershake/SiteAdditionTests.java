@@ -42,7 +42,7 @@ import com.google.common.collect.Maps;
 public class SiteAdditionTests {
 
 	public static void main(String[] args) throws IOException, GMT_MapException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		

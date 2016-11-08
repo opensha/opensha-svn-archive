@@ -133,7 +133,7 @@ public class RupVarProbModifierTest implements RuptureVariationProbabilityModifi
 		double bundleFactor = 0.01d;
 		int minAmps = 0;
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db,
 				new File("/home/kevin/CyberShake/MCER/.amps_cache"), erf);

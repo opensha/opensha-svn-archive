@@ -148,7 +148,7 @@ public class MCERDataProductsCalc {
 	
 	public MCERDataProductsCalc(ERF erf, List<AttenuationRelationship> gmpes,
 			CyberShakeComponent comp, List<Double> periods, File outputDir) throws IOException {
-		init(db = Cybershake_OpenSHA_DBApplication.db, erf, gmpes, null, comp, periods, outputDir, false, null, false);
+		init(db = Cybershake_OpenSHA_DBApplication.getDB(), erf, gmpes, null, comp, periods, outputDir, false, null, false);
 	}
 	
 	public MCERDataProductsCalc(CommandLine cmd) throws IOException, DocumentException, InvocationTargetException {
@@ -192,7 +192,7 @@ public class MCERDataProductsCalc {
 		
 		disaggregate = cmd.hasOption("disaggregate");
 		
-		init(Cybershake_OpenSHA_DBApplication.db, erf, attenRels, gmpeERF, comp, periods, outputDir,
+		init(Cybershake_OpenSHA_DBApplication.getDB(), erf, attenRels, gmpeERF, comp, periods, outputDir,
 				cmd.hasOption("weight-average"), gmpeCacheDir, includeNEHRP);
 	}
 	
@@ -1179,7 +1179,7 @@ public class MCERDataProductsCalc {
 			argStr += " --nehrp-mcer";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 			
-			Cybershake_OpenSHA_DBApplication.setHostName(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
+			Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 		}
 		
 		DBAccess db = null;

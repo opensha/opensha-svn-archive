@@ -121,7 +121,7 @@ public class EEWCalc implements RuptureVariationProbabilityModifier {
 			ArrayList<Integer> ims = new ArrayList<Integer>();
 			ims.add(21);
 			
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			
 			RupHyposWithinCutoff rups =
 				new RupHyposWithinCutoff(db, hypoLocation, maxDistance, sourceNameConstr, useDepth, minMag);

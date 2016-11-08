@@ -45,7 +45,7 @@ public class MCErMapGenerator {
 //		ArbDiscrGeoDataSet detData = new ArbDiscrGeoDataSet(true);
 //		ArbDiscrGeoDataSet detLowerLimit = new ArbDiscrGeoDataSet(true);
 //		
-//		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+//		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 //		
 //		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
 //		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, MCERDataProductsCalc.cacheDir, erf);
@@ -381,7 +381,7 @@ public class MCErMapGenerator {
 //	public static void generateGMPEOnlyMaps(List<ERF> erfs, List<String> erfNames, List<AttenuationRelationship> gmpes,
 //			int datasetID, int imTypeID, double period, SiteData<Double> vs30Prov, File outputDir)
 //					throws GMT_MapException, IOException {
-//		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+//		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 //		HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
 //		
 //		List<CybershakeSite> sites = fetcher.getCurveSites();

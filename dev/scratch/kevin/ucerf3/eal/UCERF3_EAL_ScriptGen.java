@@ -8,6 +8,7 @@ import org.dom4j.Element;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
+import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.earthquake.param.BackgroundRupParam;
 import org.opensha.sha.earthquake.param.BackgroundRupType;
@@ -35,24 +36,29 @@ public class UCERF3_EAL_ScriptGen {
 //		String runSubDirName = "2014_05_19-ucerf3-fatality";
 //		String runSubDirName = "2014_05_28-ucerf3-99percent-wills-smaller";
 //		String runSubDirName = "2014_05_28-ucerf3-fatality-smaller";
-		String runSubDirName = "2016_06_06-ucerf3-90percent-wald";
+//		String runSubDirName = "2016_10_06-ucerf3-90percent-wills-san-bernardino";
+		String runSubDirName = "2016_10_21-ucerf3-90percent-wald-coachella-valley";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-//		BatchScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
-//		File remoteDir = new File("/auto/scec-02/kmilner/ucerf3/curves/MeanUCERF3-curves");
-//		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
-//		File mpjHome = USC_HPCC_ScriptWriter.FMPJ_HOME;
-//		int maxHeapMB = 9000;
-		
-		BatchScriptWriter pbsWrite = new StampedeScriptWriter();
-		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/eal");
+		BatchScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
+		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/eal");
 		File remoteSubDir = new File(remoteMainDir, runSubDirName);
-		File javaBin = StampedeScriptWriter.JAVA_BIN;
-		File mpjHome = StampedeScriptWriter.FMPJ_HOME;
-		int maxHeapMB = 26000;
+		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
+		File mpjHome = USC_HPCC_ScriptWriter.FMPJ_HOME;
+		int maxHeapMB = 12000;
+		int bundleSize = 10;
+		
+//		BatchScriptWriter pbsWrite = new StampedeScriptWriter();
+//		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/eal");
+//		File remoteSubDir = new File(remoteMainDir, runSubDirName);
+//		File javaBin = StampedeScriptWriter.JAVA_BIN;
+//		File mpjHome = StampedeScriptWriter.FMPJ_HOME;
+//		int maxHeapMB = 26000;
+//		int numThreads = -1
+//		int bundleSize = -1;
 		
 		String meanSolFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip";
 		File meanSolFile = new File(remoteMainDir, meanSolFileName);
@@ -68,8 +74,10 @@ public class UCERF3_EAL_ScriptGen {
 //		String portfolioFileName = "Porter (10 May 2014) CA 99pct portfolio 2013 values Wills Vs30.txt";
 //		String portfolioFileName = "Porter (16 May 2014) SCEC UCERF3 CA fatality portfolio.txt"; // fatality portfolio, Wills Vs30
 //		String portfolioFileName = "Porter-22-May-14-CA-CAS4-90pct-Wills.txt"; // smaller fatality portfolio, Wills Vs30
-//		String portfolioFileName = "Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // smaller 99%
-		String portfolioFileName = "Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // smaller 99%, Wald version
+//		String portfolioFileName = "Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // smaller 90%
+//		String portfolioFileName = "Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // smaller 90%, Wald version
+//		String portfolioFileName = "san_bernardino_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, san bernardino city
+		String portfolioFileName = "coachella_valley_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, Coachella Valley (20km circle, Rancho Mirage)
 		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,
@@ -80,7 +88,8 @@ public class UCERF3_EAL_ScriptGen {
 //				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));
 		
 		int mins = 24*60;
-		int nodes = 80;
+//		int nodes = 80;
+		int nodes = 20;
 		int ppn = 8;
 		String queue = null;
 		
@@ -113,7 +122,11 @@ public class UCERF3_EAL_ScriptGen {
 			
 			File remoteOutput = new File(remoteSubDir, name+".bin");
 			
-			String jobArgs = "--vuln-file \""+vulnFile.getAbsolutePath()+"\" \""+portfolioFile.getAbsolutePath()+"\" "
+			String bundleArg = "";
+			if (bundleSize > 0)
+				bundleArg = "--max-dispatch "+bundleSize+" ";
+			
+			String jobArgs = bundleArg+"--vuln-file \""+vulnFile.getAbsolutePath()+"\" \""+portfolioFile.getAbsolutePath()+"\" "
 					+remoteXML.getAbsolutePath()+" "+remoteOutput.getAbsolutePath();
 			
 			File jobFile = new File(writeDir, name+".pbs");

@@ -148,7 +148,7 @@ public class ComponentCalcAndPlotter {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		ComponentCalcAndPlotter plotter = new ComponentCalcAndPlotter(Cybershake_OpenSHA_DBApplication.db);
+		ComponentCalcAndPlotter plotter = new ComponentCalcAndPlotter(Cybershake_OpenSHA_DBApplication.getDB());
 		plotter.calc("s724", "/home/kevin/CyberShake/singleComponentCurves");
 		plotter.calc("s726", "/home/kevin/CyberShake/singleComponentCurves");
 		plotter.calc("s768", "/home/kevin/CyberShake/singleComponentCurves");

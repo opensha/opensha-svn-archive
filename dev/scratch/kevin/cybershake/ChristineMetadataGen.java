@@ -64,7 +64,7 @@ public class ChristineMetadataGen {
 			siteDataProvs.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			siteDataNames.add("CVMS-4.26 Z2.5 (km)");
 			
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 //			PeakAmplitudesFromDB amps2db = new PeakAmplitudesFromDB(db);
 			dbForAmps = new DBAccess("moment.usc.edu", Cybershake_OpenSHA_DBApplication.DATABASE_NAME);
 			PeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(

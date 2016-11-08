@@ -218,7 +218,7 @@ extends ControlPanel implements ParameterChangeListener {
 	}
 	
 	public void doinit() {
-		db = org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication.db;
+		db = org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication.getDB();
 		csSites = new CybershakeSiteInfo2DB(db);
 		curve2db = new HazardCurve2DB(db);
 		erf2db = new ERF2DB(db);

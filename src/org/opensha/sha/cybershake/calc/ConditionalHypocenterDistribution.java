@@ -427,7 +427,7 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		int imTypeID = 21; // geom mean, 3s SA
 		String xAxisLabel = "3s SA";
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		Runs2DB runs2db = new Runs2DB(db);
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		

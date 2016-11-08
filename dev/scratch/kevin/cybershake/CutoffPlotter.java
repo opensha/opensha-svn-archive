@@ -41,7 +41,7 @@ public class CutoffPlotter {
 	public static void main(String[] args) throws SQLException {
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(
 				db, new File("/home/kevin/CyberShake/MCER/.amps_cache"), erf);
 		Runs2DB runs2db = new Runs2DB(db);

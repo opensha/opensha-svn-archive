@@ -475,7 +475,7 @@ public class CSDownsampledSolCreator {
 		OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(5); // CVM-S4.26
 		
 		List<CybershakeSite> curveSites = Lists.newArrayList();
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		curveSites.add(sites2db.getSiteFromDB("STNI"));
 		curveSites.add(sites2db.getSiteFromDB("SBSM"));

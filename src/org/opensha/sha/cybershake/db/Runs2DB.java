@@ -458,10 +458,10 @@ public class Runs2DB {
 	}
 	
 	public static void main(String args[]) {
-		Runs2DB runs2db = new Runs2DB(Cybershake_OpenSHA_DBApplication.db);
+		Runs2DB runs2db = new Runs2DB(Cybershake_OpenSHA_DBApplication.getDB());
 		ArrayList<CybershakeRun> runs = runs2db.getRuns();
 		
-		SiteInfo2DB sites2db = new SiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+		SiteInfo2DB sites2db = new SiteInfo2DB(Cybershake_OpenSHA_DBApplication.getDB());
 		
 		String str = null;
 		for (CybershakeRun run : runs) {

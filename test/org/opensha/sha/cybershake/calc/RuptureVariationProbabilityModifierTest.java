@@ -49,7 +49,7 @@ public class RuptureVariationProbabilityModifierTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		db = Cybershake_OpenSHA_DBApplication.db;
+		db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		xVals = Lists.newArrayList();
 		for (Point2D pt : new IMT_Info().getDefaultHazardCurve(SA_Param.NAME))

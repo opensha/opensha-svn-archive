@@ -255,9 +255,18 @@ public class UGMS_WebToolCalc {
 		if (cmd.hasOption("class")) {
 			// site class specified
 			siteClassName = cmd.getOptionValue("class").toUpperCase();
-			Preconditions.checkState(vs30Map.containsKey(siteClassName), "Unknown site class: %s", siteClassName);
+			Double match = null;
+			for (String key : vs30Map.keySet()) {
+				if (key.toUpperCase().equals(siteClassName)) {
+					match = vs30Map.get(key);
+					break;
+				}
+			}
+			if (siteClassName.equals("AORB"))
+				siteClassName = "AorB"; // for bin file matching
+			Preconditions.checkState(match != null, "Unknown site class: %s", siteClassName);
 			Preconditions.checkState(!cmd.hasOption("vs30"), "Can't specify site class and Vs30!");
-			userVs30 = vs30Map.get(siteClassName);
+			userVs30 = match;
 		} else if (cmd.hasOption("vs30")) {
 			double vs30 = Double.parseDouble(cmd.getOptionValue("vs30"));
 			double minDiff = Double.POSITIVE_INFINITY;
@@ -612,8 +621,8 @@ public class UGMS_WebToolCalc {
 			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results";
 			argStr += " --cs-dir /home/kevin/CyberShake/MCER/.amps_cache";
 			argStr += " --output-dir /tmp/ugms_web_tool";
-			argStr += " --vs30 455";
-//			argStr += " --class CCD";
+//			argStr += " --vs30 455";
+			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
 			
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);

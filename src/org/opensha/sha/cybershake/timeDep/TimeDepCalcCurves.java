@@ -13,7 +13,7 @@ public class TimeDepCalcCurves {
 	 */
 	public static void main(String[] args) {
 		try {
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			ArrayList<Integer> ims = new ArrayList<Integer>();
 			ims.add(21);
 			CalcCurves calc = new CalcCurves(db, ims);

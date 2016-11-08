@@ -33,7 +33,7 @@ public class SingleCurveDebugTest {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		double increaseMultFactor = 1000;
 		

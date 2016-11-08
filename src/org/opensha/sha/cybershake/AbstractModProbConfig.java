@@ -10,7 +10,7 @@ import org.opensha.sha.cybershake.db.HazardDataset2DB;
 
 public abstract class AbstractModProbConfig implements ModProbConfig {
 	
-	protected final DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+	protected final DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 	
 	private int probModelID;
 	private int timeSpanID;

@@ -957,6 +957,8 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			plotMaxY = Math.max(plotMaxY, cmlGR.getY(cmlGR.getClosestXIndex(plotMinMag)));
 		}
 		
+		removeEmptyFuncs(funcs, chars);
+		
 		PlotSpec spec = new PlotSpec(funcs, chars, "Aftershock Mag Num Dist", "Magnitude", "Count");
 		spec.setLegendVisible(true);
 		
@@ -975,6 +977,15 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 					"Aftershock Magnitude vs Number Distribution");
 		else
 			Preconditions.checkState(tabbedPane.getTabCount() > mag_num_tab_index, "Plots added out of order");
+	}
+	
+	private static void removeEmptyFuncs(List<? extends XY_DataSet> funcs, List<PlotCurveCharacterstics> chars) {
+		for (int i=funcs.size(); --i>=0;) {
+			if (funcs.get(i).size() == 0) {
+				funcs.remove(i);
+				chars.remove(i);
+			}
+		}
 	}
 	
 	private double getTimeSinceMainshock(ObsEqkRupture rup) {

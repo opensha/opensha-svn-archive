@@ -12,7 +12,7 @@ public class CloseSitesFinder {
 
 	public static void main(String[] args) {
 		HazardCurveFetcher fetch = new HazardCurveFetcher(
-				Cybershake_OpenSHA_DBApplication.db, 35, 21);
+				Cybershake_OpenSHA_DBApplication.getDB(), 35, 21);
 		
 		List<CybershakeSite> sites = fetch.getCurveSites();
 		
@@ -54,7 +54,7 @@ public class CloseSitesFinder {
 		for (int i=0; i<counts.length; i++)
 			System.out.println(cutoffs[i]+" km: "+counts[i]+" pairs");
 		
-		Cybershake_OpenSHA_DBApplication.db.destroy();
+		Cybershake_OpenSHA_DBApplication.getDB().destroy();
 	}
 
 }

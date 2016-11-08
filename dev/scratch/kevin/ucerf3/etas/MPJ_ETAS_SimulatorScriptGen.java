@@ -9,7 +9,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
@@ -31,8 +33,13 @@ public class MPJ_ETAS_SimulatorScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		
-		boolean stampede = true;
-		int threads = 2;
+		boolean stampede = false;
+//		int threads = 1;
+//		String queue = null;
+//		String pbsNameAdd = null;
+		int threads = 6;
+		String queue = "scec";
+		String pbsNameAdd = "-scec";
 		boolean smallTest = false;
 		
 		boolean writeConsolidate = true;
@@ -59,14 +66,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int nodes = 60;
 		
 		// for scenarios
-//		double duration = 10;
+		double duration = 10;
 //		int numSims = 25000;
 //		int hours = 24;
 //		int nodes = 60;
-		double duration = 10;
 		int numSims = 100000;
 		int hours = 24;
-		int nodes = 100;
+//		int nodes = 100;
+		int nodes = 30;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -83,28 +90,35 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //					TestScenario.SAF_PENINSULA_M5p5, TestScenario.SAF_PENINSULA_M6p3, TestScenario.SAF_PENINSULA_M7};
 //		TestScenario[] scenarios = {TestScenario.SURPRISE_VALLEY_5p5, TestScenario.CENTRAL_VALLEY_M5p5};
 //		boolean includeSpontaneous = true;
+		
+		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
+		boolean includeSpontaneous = false;
+		
 //		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
 //		boolean includeSpontaneous = false;
+		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
 //				TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
 //		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
-		TestScenario[] scenarios = { null };
+//		TestScenario[] scenarios = { null };
 //		boolean includeSpontaneous = true;
-//		String customCatalog = null;
-//		long customOT = Long.MIN_VALUE;
-		boolean includeSpontaneous = false;
-		String customCatalog = "2016_bombay_swarm.txt";
-//		long customOT = 1474920000000l;
-		long customOT = 1474990200000l;
+		String customCatalog = null;
+		long customOT = Long.MIN_VALUE;
+		
+//		TestScenario[] scenarios = { null };
+//		boolean includeSpontaneous = false;
+//		String customCatalog = "2016_bombay_swarm.txt";
+////		long customOT = 1474920000000l;
+//		long customOT = 1474990200000l;
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-		double totRateScaleFactor = 1.14;
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
-//		double totRateScaleFactor = 1.0;
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+//		double totRateScaleFactor = 1.14;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };
@@ -114,8 +128,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean gridSeisCorr = true;
 		boolean applySubSeisForSupraNucl = true;
 		
-		String nameAdd = null;
-//		String nameAdd = "100krun2";
+//		String nameAdd = null;
+		String nameAdd = "100krun3";
 //		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
@@ -125,11 +139,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean nameAddAtEnd = true;
 		
 		boolean histCatalog = true;
+		if (!includeSpontaneous)
+			histCatalog = false;
 		int startYear = 2012;
-		String queue = null;
 		int mins = hours*60;
 		
-		if (smallTest) {
+		if (smallTest && stampede) {
 			queue = "development";
 			numSims = 200;
 			nodes = 10;
@@ -141,8 +156,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			nameAdd += "quick_test";
 		}
 		
-		String dateStr = df.format(new Date());
-//		String dateStr = "2016_06_15";
+//		String dateStr = df.format(new Date());
+		String dateStr = "2016_11_02";
 //		String dateStr = "2016_02_24";
 		
 		boolean timeIndep = false;
@@ -157,7 +172,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			ppn = 8;
 		
 		File remoteDir, remoteSolFile, cacheDir;
-		FastMPJShellScriptWriter mpjWrite;
+		JavaShellScriptWriter mpjWrite;
 		BatchScriptWriter pbsWrite;
 		
 		if (stampede) {
@@ -167,17 +182,23 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
 					null, StampedeScriptWriter.FMPJ_HOME, false);
-			mpjWrite.setUseLaunchWrapper(true);
+			((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
 			pbsWrite = new StampedeScriptWriter();
 			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
 		} else {
-			memGigs = 9;
+			if (queue == null)
+				memGigs = 9;
+			else
+				memGigs = 60;
 			remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim");
 			remoteSolFile = new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/"
 					+ "2013_05_10-ucerf3p3-production-10runs/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
-			mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+//			mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
+//					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+//			((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
+			mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
+					null, USC_HPCC_ScriptWriter.MPJ_HOME, false);
 			pbsWrite = new USC_HPCC_ScriptWriter();
 			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
 		}
@@ -255,7 +276,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					subClasspath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));
 					mpjWrite.setClasspath(subClasspath);
 					
-					File pbsFile = new File(localJobDir, jobName+".pbs");
+					String pbsName = jobName;
+					if (pbsNameAdd != null)
+						pbsName += pbsNameAdd;
+					pbsName += ".pbs";
+					File pbsFile = new File(localJobDir, pbsName);
 					
 					String argz;
 					
@@ -263,7 +288,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						argz = args_continue_newline+"--min-dispatch "+threads
 								+" --max-dispatch "+threads+" --exact-dispatch "+threads;
 					} else {
-						argz = args_continue_newline+"--min-dispatch 1 --max-dispatch "+threads;
+						argz = args_continue_newline+"--min-dispatch 1 --max-dispatch "+threads*3;
 					}
 					
 					argz += args_continue_newline+"--threads "+threads
@@ -368,7 +393,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
 					pbsWrite.writeScript(pbsFile, script);
 					
-					if (writeConsolidate && !bundleConsolidate) {
+					if (writeConsolidate && !bundleConsolidate && stampede) {
 						// write consolidation script as well (separately)
 						script = Lists.newArrayList();
 						

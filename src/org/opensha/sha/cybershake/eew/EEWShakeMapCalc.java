@@ -246,7 +246,7 @@ public class EEWShakeMapCalc {
 			String sourceNameConstr = null;
 			boolean useDepth = false;
 			
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			
 			RupHyposWithinCutoff rups =
 				new RupHyposWithinCutoff(db, hypoLocation, maxDistance, sourceNameConstr, useDepth, minMag);

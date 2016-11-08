@@ -49,7 +49,7 @@ public class GMPEBackSeisSpectrumCompare {
 //				0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0);
 ////		List<Double> periods = Lists.newArrayList(2.0,3.0,4.0,5.0,7.5,10.0);
 //		
-//		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+//		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 //		Runs2DB runs2db = new Runs2DB(db);
 //		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 //		CyberShakeComponent comp = CyberShakeComponent.RotD100;

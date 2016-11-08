@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 public class GMPE_ScenarioComparisonCalc {
 
 	public static void main(String[] args) throws IOException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 //		Double forceVs30 = null;
 		Double forceVs30 = 760d;

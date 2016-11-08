@@ -228,7 +228,7 @@ public class HardCodedScenarioShakeMapGen {
 		if (file.exists()) {
 			return ArbDiscrGeoDataSet.loadXYZFile(file.getAbsolutePath(), true);
 		} else {
-			ShakeMapComputation calc = new ShakeMapComputation(Cybershake_OpenSHA_DBApplication.db);
+			ShakeMapComputation calc = new ShakeMapComputation(Cybershake_OpenSHA_DBApplication.getDB());
 			
 			GeoDataSet xyz = calc.getShakeMap(datasetID, erfID, rupVarScenID, imTypeID,
 					sourceID, rupID, hypo);

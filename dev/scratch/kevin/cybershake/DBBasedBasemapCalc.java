@@ -18,7 +18,7 @@ public class DBBasedBasemapCalc {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		int datasetID = 1;
 		int imTypeID = 21;

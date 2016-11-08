@@ -63,7 +63,7 @@ public class MappingInputFileGenerator {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		MappingInputFileGenerator gen = new MappingInputFileGenerator(Cybershake_OpenSHA_DBApplication.db);
+		MappingInputFileGenerator gen = new MappingInputFileGenerator(Cybershake_OpenSHA_DBApplication.getDB());
 		
 //		boolean isProbAt_IML = false;
 //		double level = 0.0004;

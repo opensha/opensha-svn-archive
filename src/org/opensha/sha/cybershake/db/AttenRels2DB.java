@@ -183,7 +183,7 @@ public class AttenRels2DB {
 	
 	public static void main(String[] args) throws IOException {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, false);
-//		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+//		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		try {
 			AttenRels2DB atten2db = new AttenRels2DB(db);
 			ScalarIMR imr = AttenRelRef.IDRISS_2014.instance(null);

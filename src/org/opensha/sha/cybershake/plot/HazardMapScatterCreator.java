@@ -383,7 +383,7 @@ public class HazardMapScatterCreator {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			
 			int rupVarScenID = Integer.parseInt(args[1]);
 			System.out.println("Rupture Variation Scenario ID: " + rupVarScenID);

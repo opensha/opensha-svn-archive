@@ -77,7 +77,7 @@ public class ShakeOutScenarioFinder {
 		Location loc = new Location(34.02, -117.95, 12.5);
 		double mag = 7.1;
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		ERF2DB erf2db = new ERF2DB(db);
 		

@@ -247,7 +247,7 @@ public class BulkCSCurveReplacer {
 		if (doInsert)
 			db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, false);
 		else
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		ArrayList<Integer> runs = new ArrayList<Integer>();
 		runs.add(228);

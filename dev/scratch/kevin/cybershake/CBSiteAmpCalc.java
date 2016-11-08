@@ -84,7 +84,7 @@ public class CBSiteAmpCalc {
 ////		double[] vs30s = {1524d, 762d, 488d, 265d};
 ////		boolean[] nullBasins = {true};
 //		
-//		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+//		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 //		Runs2DB runs2db = new Runs2DB(db);
 //		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 //		CyberShakeComponent comp = CyberShakeComponent.RotD100;

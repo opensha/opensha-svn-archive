@@ -184,7 +184,7 @@ public class CyberShakeIMR extends AttenuationRelationship implements ParameterC
 	}
 
 	private void initDB() {
-		db = Cybershake_OpenSHA_DBApplication.db;
+		db = Cybershake_OpenSHA_DBApplication.getDB();
 		site2db = new SiteInfo2DB(db);
 		ampsDB = new PeakAmplitudesFromDB(db);
 		runs2db = new Runs2DB(db);

@@ -211,7 +211,7 @@ public class HazardCurveFetcher {
 	public static void main(String args[]) throws IOException {
 		String outDir = "/home/kevin/CyberShake/curve_data";
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		System.out.println("1");
 		

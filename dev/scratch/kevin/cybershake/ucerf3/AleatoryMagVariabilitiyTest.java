@@ -72,7 +72,7 @@ public class AleatoryMagVariabilitiyTest {
 		int velModelID = 5;
 		
 		List<CybershakeSite> curveSites = Lists.newArrayList();
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
 		curveSites.add(sites2db.getSiteFromDB("STNI"));
 		curveSites.add(sites2db.getSiteFromDB("SBSM"));

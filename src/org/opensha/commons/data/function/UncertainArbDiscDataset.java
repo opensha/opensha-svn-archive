@@ -38,8 +38,8 @@ public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
 			
 			Preconditions.checkArgument((float)x == (float)lowerFunc.getX(i), "X inconsistent in lower func");
 			Preconditions.checkArgument((float)x == (float)upperFunc.getX(i), "X inconsistent in lower func");
-			Preconditions.checkArgument((float)y >= (float)lowerY, "Lower func must be <= mean func: %s ! <= %s", lowerY, y);
-			Preconditions.checkArgument((float)y <= (float)upperY, "Upper func must be >= mean func: %s ! >= %s", upperY, y);
+			Preconditions.checkArgument((float)y >= (float)lowerY, "Lower func must be <= mean func: %s ! <= %s, x=%s", lowerY, y, x);
+			Preconditions.checkArgument((float)y <= (float)upperY, "Upper func must be >= mean func: %s ! >= %s, x=%s", upperY, y, x);
 		}
 	}
 	

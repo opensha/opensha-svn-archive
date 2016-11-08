@@ -1106,15 +1106,16 @@ public class ETAS_CatalogEALCalculator {
 		else
 			resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
-//				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m5_preserve.bin");
+				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin");
 //				+ "2016_02_25-surprise_valley_5p0-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
 //				+ "2016_08_24-spontaneous-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5.bin");
-				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin");
+//				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin");
+//				+ "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5_preserve.bin");
 		
 		boolean triggeredOnly = false;
 		if (args.length > 1)
 			triggeredOnly = Boolean.parseBoolean(args[1]);
-		boolean allSubDurations = false;
+		boolean allSubDurations = resultsFile.getParentFile().getName().contains("1000yr");
 		if (args.length > 2)
 			allSubDurations = Boolean.parseBoolean(args[2]);
 		
@@ -1145,8 +1146,13 @@ public class ETAS_CatalogEALCalculator {
 		
 		List<File> dataDirs = Lists.newArrayList();
 		
-		dataDirs.add(new File(ealMainDir, "2014_05_28-ucerf3-99percent-wills-smaller"));
-		dataDirs.add(new File(ealMainDir, "2016_06_06-ucerf3-90percent-wald"));
+//		dataDirs.add(new File(ealMainDir, "2014_05_28-ucerf3-99percent-wills-smaller"));
+//		dataDirs.add(new File(ealMainDir, "2016_06_06-ucerf3-90percent-wald"));
+		dataDirs.add(new File(ealMainDir, "2016_10_18-ucerf3-90percent-wald-san-bernardino"));
+//		dataDirs.add(new File(ealMainDir, "2016_10_21-ucerf3-90percent-wald-coachella-valley"));
+		
+		if (dataDirs.get(0).getName().contains("san-bernardino") || dataDirs.get(0).getName().contains("coachella"))
+			maxX = 50;
 		
 		// CEA proxy wald
 //		File dataDir = new File(ealMainDir, "2014_05_05-ucerf3-eal-calc-wald-vs30");
@@ -1310,7 +1316,7 @@ public class ETAS_CatalogEALCalculator {
 			lossWeights.addAll(myWeights);
 		}
 		// combine
-		if (lossDistsList.size() > 1) {
+		if (dataDirs.size() > 1) {
 			File outputDir = new File(lossOutputDir, "combined");
 			if (!outputDir.exists())
 				outputDir.mkdir();

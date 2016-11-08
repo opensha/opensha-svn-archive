@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 public class DBBenchmark {
 
 	public static void main(String[] args) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		PeakAmplitudesFromDB amps2db = new PeakAmplitudesFromDB(db);
 		
 		CybershakeIM im = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);

@@ -55,7 +55,7 @@ public class GMPEComparisonPlotter {
 		
 		String siteShortName = "USC";
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		SiteInfo2DB sites2db = new SiteInfo2DB(db);
 		CybershakeSite site = sites2db.getSiteFromDB(siteShortName);
 		

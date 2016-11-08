@@ -1855,7 +1855,7 @@ public class HazardCurvePlotter {
 					printHelp(options, appName);
 				}
 				
-				HazardCurvePlotter plotter = new HazardCurvePlotter(Cybershake_OpenSHA_DBApplication.db);
+				HazardCurvePlotter plotter = new HazardCurvePlotter(Cybershake_OpenSHA_DBApplication.getDB());
 				
 				boolean success = plotter.plotCurvesFromOptions(cmd);
 				

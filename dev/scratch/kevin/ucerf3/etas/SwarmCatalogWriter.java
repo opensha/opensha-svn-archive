@@ -101,11 +101,16 @@ public class SwarmCatalogWriter {
 	}
 
 	public static void main(String[] args) throws IOException {
+//		Region region = new Region(new Location(33.298, -115.713), 30d);
+//		long startTime = 1474889900000l;
+//		long endTime = 1474990200000l;
+////		long endTime = Long.MIN_VALUE;
+//		File outputFile = new File("/tmp/2016_bombay_swarm.txt");
 		Region region = new Region(new Location(33.298, -115.713), 30d);
-		long startTime = 1474889900000l;
-		long endTime = 1474990200000l;
+		long startTime = 1237593600000l;
+		long endTime = 1238630400000l;
 //		long endTime = Long.MIN_VALUE;
-		File outputFile = new File("/tmp/bombay_swarm.txt");
+		File outputFile = new File("/tmp/2009_bombay_swarm.txt");
 		
 		ObsEqkRupList events = fetchEvents(region, startTime, endTime, 2.5d);
 		events.sortByOriginTime();

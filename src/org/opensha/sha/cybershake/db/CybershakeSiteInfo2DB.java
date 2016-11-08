@@ -540,7 +540,7 @@ public class CybershakeSiteInfo2DB {
 	
 	public static void main(String args[]) {
 		
-		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.getDB());
 		
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		erf.updateForecast();

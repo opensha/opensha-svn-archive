@@ -97,7 +97,7 @@ public class ClosestRupsToLoc {
 		for (Record rec: recs) {
 			if (id != 35) {
 				if (csSite == null)
-					csSite = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+					csSite = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.getDB());
 				int newID = csSite.getMatchedCSSourceID(erf, id, rec.sourceID);
 				System.out.println("ERF 35=" + rec.sourceID + " ERF "+id+"=" + newID);
 			}

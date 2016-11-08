@@ -149,7 +149,7 @@ public class HazardCurvePointDifferences {
 			if (inputFile != null) {
 				prov = new CyberShakeValueProvider(inputFile);
 			} else {
-				DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+				DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 				HazardCurveFetcher fetcher = new HazardCurveFetcher(db, 35, 3, 5, 1, imTypeID);
 				
 				prov = new CyberShakeValueProvider(fetcher, typeIDs, isProbAt_IML, level);

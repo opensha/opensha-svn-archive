@@ -72,7 +72,7 @@ public class GMPE_CS_DistributionComparisonPlotter {
 		
 		DBAccess db = null;
 		try {
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 			ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 			ProbEqkSource source = erf.getSource(sourceID);
 			List<Integer> rupIDs = Lists.newArrayList();

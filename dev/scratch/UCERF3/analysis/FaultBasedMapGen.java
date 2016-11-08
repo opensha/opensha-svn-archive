@@ -871,7 +871,7 @@ public class FaultBasedMapGen {
 		plotMap(saveDir, prefix, display, map);
 	}
 
-	public static void plotMap(File saveDir, String prefix, boolean display,
+	public static String plotMap(File saveDir, String prefix, boolean display,
 			GMT_Map map) throws GMT_MapException, IOException {
 		if (gmt == null) {
 			gmt = new GMT_MapGenerator();
@@ -881,9 +881,8 @@ public class FaultBasedMapGen {
 		
 		String url = gmt.makeMapUsingServlet(map, "metadata", null);
 		System.out.println(url);
+		String baseURL = url.substring(0, url.lastIndexOf('/')+1);
 		if (saveDir != null) {
-			String baseURL = url.substring(0, url.lastIndexOf('/')+1);
-			
 			File pngFile = new File(saveDir, prefix+".png");
 			FileUtils.downloadURL(baseURL+"map.png", pngFile);
 			
@@ -900,6 +899,8 @@ public class FaultBasedMapGen {
 			String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
 			new ImageViewerWindow(url,metadata, true);
 		}
+		
+		return baseURL;
 	}
 	
 	public static void makeFaultKML(CPT cpt, List<LocationList> faults, double[] values,

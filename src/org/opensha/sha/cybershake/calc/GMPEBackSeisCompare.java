@@ -62,7 +62,7 @@ public class GMPEBackSeisCompare {
 		backERF.setParameter(UCERF2.BACK_SEIS_NAME, UCERF2.BACK_SEIS_ONLY);
 		backERF.updateForecast();
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		Runs2DB run2db = new Runs2DB(db); 
 		CybershakeSiteInfo2DB site2db = new CybershakeSiteInfo2DB(db);
 		

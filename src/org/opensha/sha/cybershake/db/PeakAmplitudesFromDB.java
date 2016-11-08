@@ -619,7 +619,7 @@ public class PeakAmplitudesFromDB implements PeakAmplitudesFromDBAPI {
 	}
 
 	public static void main(String args[]) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		PeakAmplitudesFromDB amps = new PeakAmplitudesFromDB(db);
 		
 //		ArrayList<CybershakeIM> ims = amps.getSupportedIMForPeriods(ListUtils.wrapInList(0.1d),

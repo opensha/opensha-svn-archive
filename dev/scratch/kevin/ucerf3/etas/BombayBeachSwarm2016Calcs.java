@@ -38,9 +38,11 @@ public class BombayBeachSwarm2016Calcs {
 //		File binFile = new File(dir, "results.bin");
 		
 		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2016_09_29-2016_bombay_swarm-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont");
+//				+ "2016_09_29-2016_bombay_swarm-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont");
+				+ "2016_10_25-2016_bombay_swarm-24yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined");
 		long ot = 1474990200000l;
-		File binFile = new File(dir, "results.bin");
+//		File binFile = new File(dir, "results.bin");
+		File binFile = new File(dir, "results_300k.bin");
 		
 		
 		long oneWeekOT = ot + 7*ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -59,15 +61,26 @@ public class BombayBeachSwarm2016Calcs {
 		
 		ETAS_MultiSimAnalysisTools.plotMagNum(catalogs, plotDir, name, "one_week", null, 0, null, oneWeekOT);
 		
-//		ETAS_MultiSimAnalysisTools.plotScalesOfHazardChange(catalogs, null, TestScenario.BOMBAY_BEACH_M4pt8, ot,
-//				erf, outputDir, name, inputDuration, rates, subSects);
-		
-		double[] radii = { 200d, 150d, 100d, 50d, 25d };
-		
 		AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF = 2.55;
 		File fssFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
 				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 		FaultSystemSolution fss = FaultSystemIO.loadSol(fssFile);
+		
+		// use the old bombay beach scenario here, just used for finding nearby sections so it's fine to use
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(fss);
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
+		erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+		erf.getTimeSpan().setDuration(1d);
+		erf.updateForecast();
+		boolean rates = false;
+		boolean subSects = false;
+		ETAS_MultiSimAnalysisTools.plotScalesOfHazardChange(catalogs, null, TestScenario.BOMBAY_BEACH_M4pt8,
+				ot, erf, plotDir, name, 10d, rates, subSects);
+		
+//		ETAS_MultiSimAnalysisTools.plotScalesOfHazardChange(catalogs, null, TestScenario.BOMBAY_BEACH_M4pt8, ot,
+//				erf, outputDir, name, inputDuration, rates, subSects);
+		
+		double[] radii = { 200d, 150d, 100d, 50d, 25d };
 		
 		double duration = 7d/365.25;
 		

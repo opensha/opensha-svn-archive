@@ -12,7 +12,7 @@ public class ClosestCyberShakeSiteFinder {
 		Location loc = new Location(34.04288, -118.36893);
 		double maxDist = 2d; // km
 		
-		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.getDB());
 		
 		for (CybershakeSite site : sites2db.getAllSitesFromDB()) {
 			Location testLoc = site.createLocation();

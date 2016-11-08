@@ -115,7 +115,7 @@ public class BombayBeachHazardCurveCalc implements RuptureVariationProbabilityMo
 	
 	public static void main(String args[]) {
 		try {
-			DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			
 //			String sourceNameConstr = "andreas";
 //			BombayBeachHazardCurveCalc calc = new BombayBeachHazardCurveCalc(db, 1000d, BOMBAY_LOC,

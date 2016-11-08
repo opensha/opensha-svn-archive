@@ -791,7 +791,7 @@ public class HazardCurve2DB {
 		}
 		System.exit(0);
 		
-		HazardCurve2DB hc = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.db);
+		HazardCurve2DB hc = new HazardCurve2DB(Cybershake_OpenSHA_DBApplication.getDB());
 		
 		System.out.println("ID: " + hc.getHazardCurveID(2, 34, 3, 5, 1, 21));
 		System.out.println("ID: " + hc.getHazardCurveID(26, 34, 3, 5, 1, 21));

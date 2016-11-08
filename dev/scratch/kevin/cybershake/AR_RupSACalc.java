@@ -58,7 +58,7 @@ public class AR_RupSACalc {
 		int rupID = 7;
 		double period = 10d;
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		SiteInfo2DB site2db = new SiteInfo2DB(db);
 		

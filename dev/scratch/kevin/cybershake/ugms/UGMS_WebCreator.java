@@ -35,7 +35,7 @@ public class UGMS_WebCreator {
 		
 		boolean[] finalMCER = { true, false };
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		try {
 			SiteInfo2DB sites2db = new SiteInfo2DB(db);
 			

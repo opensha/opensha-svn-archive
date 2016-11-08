@@ -120,7 +120,7 @@ import com.ibm.icu.text.DecimalFormat;
 
 public class ETASCurveCalc {
 	
-	protected DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+	protected DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 	
 	private static final File amps_cache_dir = new File("/home/kevin/CyberShake/MCER/.amps_cache");
 	private static String gmpe_cache_prefix;
@@ -932,7 +932,7 @@ public class ETASCurveCalc {
 		if (logPlot)
 			valForMissing = Math.pow(10d, valForMissing);
 		
-		ShakeMapComputation calc = new ShakeMapComputation(Cybershake_OpenSHA_DBApplication.db);
+		ShakeMapComputation calc = new ShakeMapComputation(Cybershake_OpenSHA_DBApplication.getDB());
 		calc.setValForMissing(valForMissing);
 		
 		AttenuationRelationship imr = null;

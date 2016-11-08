@@ -80,7 +80,7 @@ public class RVDownsampleModTest implements RuptureVariationProbabilityModifier 
 		File outputDir = new File("/tmp/cs_rv_downsample");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(
 				db, new File("/home/kevin/CyberShake/MCER/.amps_cache"), erf);

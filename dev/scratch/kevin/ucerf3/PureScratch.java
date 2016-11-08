@@ -751,6 +751,11 @@ public class PureScratch {
 		func.set(10.0,    6.550316E-14);
 		AbstractMCErProbabilisticCalc.calcRTGM(func);
 	}
+	
+	private static void test26() {
+		double[] ret = ETAS_Utils.getBinomialProportion95confidenceInterval(0.0, 100000);
+		System.out.println(ret[0]+" "+ret[1]);
+	}
 
 	/**
 	 * @param args
@@ -779,7 +784,8 @@ public class PureScratch {
 //		test22();
 //		test23();
 //		test24();
-		test25();
+//		test25();
+		test26();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

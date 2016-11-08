@@ -746,7 +746,7 @@ public class TaperedHypocenterRupVarProbModifier implements
 		// now lets plot an actual RV
 //		ERF erf = MeanUCERF2_ToDB.createUCERF2_200mERF();
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		TaperedHypocenterRupVarProbModifier mod = new TaperedHypocenterRupVarProbModifier(taperType, erf, db);
 		
 		List<Integer> runIDs = Lists.newArrayList();

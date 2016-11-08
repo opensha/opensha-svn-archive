@@ -117,7 +117,7 @@ public class NorthridgeCSComparison {
 		
 		DBAccess db = null;
 		try {
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 			ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 			List<Integer> rupIDs = Lists.newArrayList();
 			ProbEqkSource source = erf.getSource(sourceID);

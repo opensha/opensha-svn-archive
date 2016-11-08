@@ -69,7 +69,7 @@ public class SpeedTestComparisonGen {
 		provList.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		provList.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		
-		HazardCurveFetcher fetcher = new HazardCurveFetcher(Cybershake_OpenSHA_DBApplication.db, 38, 21);
+		HazardCurveFetcher fetcher = new HazardCurveFetcher(Cybershake_OpenSHA_DBApplication.getDB(), 38, 21);
 		
 		System.out.println("Fetcher has "+fetcher.getCurveSites().size()+" sites");
 

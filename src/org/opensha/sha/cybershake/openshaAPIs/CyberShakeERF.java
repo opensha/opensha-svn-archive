@@ -65,7 +65,7 @@ public class CyberShakeERF extends AbstractERF {
 	
 	private void checkInitDB() {
 		if (db == null) {
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 			erf2db = new ERF2DB(db);
 			ampsDB = new PeakAmplitudesFromDB(db);
 		}

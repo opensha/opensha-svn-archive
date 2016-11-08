@@ -241,7 +241,7 @@ public class CyberShakeMCErDeterministicCalc extends AbstractMCErDeterministicCa
 		if (!cacheDir.exists())
 			cacheDir.mkdir();
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.db;
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 		

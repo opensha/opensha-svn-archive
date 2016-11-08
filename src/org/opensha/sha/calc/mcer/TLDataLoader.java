@@ -86,7 +86,7 @@ public class TLDataLoader {
 //				CSVFile.readStream(TLDataLoader.class.getResourceAsStream("/resources/data/site/USGS_TL/tl-nodes.csv"), true),
 //				CSVFile.readStream(TLDataLoader.class.getResourceAsStream("/resources/data/site/USGS_TL/tl-attributes.csv"), true));
 //		
-//		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.db);
+//		CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(Cybershake_OpenSHA_DBApplication.getDB());
 //		int numWith = 0;
 //		int total = 0;
 //		for (CybershakeSite site : sites2db.getAllSitesFromDB()) {

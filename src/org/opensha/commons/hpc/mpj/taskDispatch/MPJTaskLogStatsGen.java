@@ -6,12 +6,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +63,6 @@ public class MPJTaskLogStatsGen {
 		Map<Node, Date> lastHeardFromMap = Maps.newHashMap();
 		Map<Node, List<CalcBatch>> nodeBatches = Maps.newHashMap();
 		
-		String line;
 		
 		// used to detect midnight transitions
 		Date prevDate = null;
@@ -72,7 +74,9 @@ public class MPJTaskLogStatsGen {
 		
 		boolean nodeZeroDirect = false;
 		
-		while ((line = read.readLine()) != null) {
+//		String line;
+//		while ((line = read.readLine()) != null) {
+		for (String line : new LogFileIterable(read)) {
 			if (line.contains("DispatcherThread]:")) {
 				if (line.contains("getting batch with ")) {
 					line = line.substring(line.indexOf("]:")+2, line.indexOf(" left"));
@@ -297,6 +301,83 @@ public class MPJTaskLogStatsGen {
 		}
 	}
 	
+	private static class LogFileIterable implements Iterable<String> {
+		
+		private BufferedReader read;
+		
+		public LogFileIterable(BufferedReader read) {
+			this.read = read;
+		}
+
+		@Override
+		public Iterator<String> iterator() {
+			return new LogFileIterator(read);
+		}
+		
+	}
+	
+	private static class LogFileIterator implements Iterator<String> {
+		
+		private BufferedReader read;
+		private LinkedList<String> queue;
+		
+		final int buffer_size = 10;
+		
+		public LogFileIterator(BufferedReader read) {
+			this.read = read;
+			
+			queue = new LinkedList<String>();
+		}
+		
+		private void checkFillQueue() {
+			if (queue.isEmpty()) {
+				while (queue.size() < buffer_size) {
+					try {
+						String line = read.readLine();
+						if (line == null)
+							// we're done
+							break;
+						List<String> extraLines = null;
+						while (line.lastIndexOf('[') > 0) {
+							// have an extra line that was merged in with the previous
+							int ind = line.lastIndexOf('[');
+							String subLine = line.substring(ind);
+							if (subLine.contains("]:")) {
+								// it's a valid extra log line
+								
+								// trim away the extra part
+								line = line.substring(0, ind);
+								if (extraLines == null)
+									extraLines = Lists.newArrayList();
+								extraLines.add(0, subLine);
+							} else {
+								break;
+							}
+						}
+						queue.add(line);
+						if (extraLines != null)
+							queue.addAll(extraLines);
+					} catch (IOException e) {
+						throw ExceptionUtils.asRuntimeException(e);
+					}
+				}
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			checkFillQueue();
+			return !queue.isEmpty();
+		}
+
+		@Override
+		public String next() {
+			checkFillQueue();
+			return queue.pop();
+		}
+		
+	}
+	
 	private static int max(int[] vals) {
 		int max = 0;
 		for (int val : vals)
@@ -328,6 +409,8 @@ public class MPJTaskLogStatsGen {
 		nodeBatches = newNodeBatches;
 		
 		long timeStepMillis = 1000l*60l; // step forward in minutes
+		if (timeStepMillis > avgMillis)
+			timeStepMillis = avgMillis;
 		
 		Date curDate = new Date(simStartDate.getTime());
 		

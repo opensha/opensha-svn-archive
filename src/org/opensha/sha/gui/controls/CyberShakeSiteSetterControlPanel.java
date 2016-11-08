@@ -103,7 +103,7 @@ public class CyberShakeSiteSetterControlPanel extends ControlPanel implements
 		frame = new JFrame();
 		frame.setTitle("Set Site for CyberShake Calculations");
 		
-		db = Cybershake_OpenSHA_DBApplication.db;
+		db = Cybershake_OpenSHA_DBApplication.getDB();
 		csSites = new CybershakeSiteInfo2DB(db);
 		amps2db = new PeakAmplitudesFromDB(db);
 		erf2db = new ERF2DB(db);

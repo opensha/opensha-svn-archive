@@ -369,7 +369,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 	}
 	
 	public static void main(String[] args) {
-		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(Cybershake_OpenSHA_DBApplication.db,
+		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(Cybershake_OpenSHA_DBApplication.getDB(),
 				new File("/tmp/amp_cache"), MeanUCERF2_ToDB.createUCERF2ERF());
 		CybershakeIM im = new CybershakeIM(146, IMType.SA, 3d, null, CyberShakeComponent.RotD100);
 		int runID = 2703;
@@ -382,7 +382,7 @@ public class CachedPeakAmplitudesFromDB extends PeakAmplitudesFromDB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			Cybershake_OpenSHA_DBApplication.db.destroy();
+			Cybershake_OpenSHA_DBApplication.getDB().destroy();
 		}
 	}
 

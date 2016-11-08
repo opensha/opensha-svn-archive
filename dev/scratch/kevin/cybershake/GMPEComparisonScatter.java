@@ -49,6 +49,7 @@ import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.util.SiteTranslator;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class GMPEComparisonScatter {
@@ -74,7 +75,7 @@ public class GMPEComparisonScatter {
 		
 		DBAccess db = null;
 		try {
-			db = Cybershake_OpenSHA_DBApplication.db;
+			db = Cybershake_OpenSHA_DBApplication.getDB();
 			ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
 			
 			ScalarIMR gmpe = AttenRelRef.NGAWest_2014_AVG_NOIDRISS.instance(null);
@@ -94,32 +95,44 @@ public class GMPEComparisonScatter {
 //			List<Integer> runIDs = Lists.newArrayList();
 //			for (String siteName : siteNames)
 //				runIDs.add(fetch.getRunID(siteName));
+//			List<Integer> compRunIDs = null;
 			
 			/* For use with run IDs (multiple datasets */
-			List<Integer> runIDs = Lists.newArrayList(4683, 4686, 4681, 4685);
+//			List<Integer> runIDs = Lists.newArrayList(4683, 4686, 4681, 4685);
+//			List<Integer> compRunIDs = null;
+			List<Integer> runIDs = Lists.newArrayList(4683, 4681);
+			List<Integer> compRunIDs = Lists.newArrayList(4686, 4685);
 			
-			for (int runID : runIDs) {
+			Preconditions.checkState(compRunIDs == null || compRunIDs.size() == runIDs.size());
+			
+			for (int r=0; r<runIDs.size(); r++) {
+				int runID = runIDs.get(r);
+				int compRunID = -1;
+				if (compRunIDs != null)
+					compRunID = compRunIDs.get(r);
 				CybershakeRun run = runs2db.getRun(runID);
 				CybershakeSite csSite = sites2db.getSiteFromDB(run.getSiteID());
 				System.out.println("CS Site: "+csSite+", run "+runID);
 				Location loc = csSite.createLocation();
 				
-				int velModelID = run.getVelModelID();
-				Site site = new Site(loc);
-				gmpe.setParamDefaults();
-				for (Parameter<?> param : gmpe.getSiteParams())
-					if (!site.containsParameter(param))
-						site.addParameter((Parameter<?>)param.clone());
 				gmpe.setIntensityMeasure(SA_Param.NAME);
-				OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(velModelID);
-				List<SiteDataValue<?>> datas = provs.getAllAvailableData(site.getLocation());
-				SiteTranslator trans = new SiteTranslator();
-				System.out.println("Site data:");
-				for (Parameter<?> param : site) {
-					trans.setParameterValue(param, datas);
-					System.out.println("\t"+param.getName()+": "+param.getValue());
+				if (compRunIDs == null) {
+					int velModelID = run.getVelModelID();
+					Site site = new Site(loc);
+					gmpe.setParamDefaults();
+					for (Parameter<?> param : gmpe.getSiteParams())
+						if (!site.containsParameter(param))
+							site.addParameter((Parameter<?>)param.clone());
+					OrderedSiteDataProviderList provs = HazardCurvePlotter.createProviders(velModelID);
+					List<SiteDataValue<?>> datas = provs.getAllAvailableData(site.getLocation());
+					SiteTranslator trans = new SiteTranslator();
+					System.out.println("Site data:");
+					for (Parameter<?> param : site) {
+						trans.setParameterValue(param, datas);
+						System.out.println("\t"+param.getName()+": "+param.getValue());
+					}
+					gmpe.setSite(site);
 				}
-				gmpe.setSite(site);
 				
 				List<Integer> sourceIDs = sites2db.getSrcIdsForSite(run.getSiteID(), run.getERFID());
 				
@@ -156,10 +169,21 @@ public class GMPEComparisonScatter {
 										// convert to G
 										csVals.set(i, csVals.get(i)/HazardCurveComputation.CONVERSION_TO_G);
 									double csMean = logAverage(csVals);
-									gmpe.setEqkRupture(rup);
-									double gmpeMean = Math.exp(gmpe.getMean());
-									
-									xy.set(gmpeMean, csMean);
+									if (compRunIDs == null) {
+										gmpe.setEqkRupture(rup);
+										double gmpeMean = Math.exp(gmpe.getMean());
+										
+										xy.set(gmpeMean, csMean);
+									} else {
+										// CS vs CS
+										csVals = amps2db.getIM_Values(compRunID, sourceID, rupID, im);
+										for (int i=0; i<csVals.size(); i++)
+											// convert to G
+											csVals.set(i, csVals.get(i)/HazardCurveComputation.CONVERSION_TO_G);
+										double csMean2 = logAverage(csVals);
+										
+										xy.set(csMean, csMean2);
+									}
 								}
 							}
 							System.out.println("Found "+xy.size()+" comparisons");
@@ -225,10 +249,20 @@ public class GMPEComparisonScatter {
 							String prefix = csSiteName+"_mag"+rangeFileName(magRange)+"_dist"+rangeFileName(distRange)
 									+"_"+periodStr+"s_run"+runID;
 							
+							String xAxisLabel, yAxisLabel;
+							
+							if (compRunID >= 0) {
+								prefix += "_vs_"+compRunID;
+								xAxisLabel = "CyberShake run "+runID+" "+periodStr+"s SA (g)";
+								yAxisLabel = "CyberShake run "+compRunID+" "+periodStr+"s SA (g)";
+							} else {
+								xAxisLabel = "Empirical "+periodStr+"s SA (g)";
+								yAxisLabel = "CyberShake "+periodStr+"s SA (g)";
+							}
+							
 							String title = csSiteName;
 							
-							PlotSpec spec = new PlotSpec(funcs, chars, title,
-									"Empirical "+periodStr+"s SA (g)", "CyberShake "+periodStr+"s SA (g)");
+							PlotSpec spec = new PlotSpec(funcs, chars, title, xAxisLabel, yAxisLabel);
 							
 							// bottom up
 							List<String> annLines = Lists.newArrayList();
