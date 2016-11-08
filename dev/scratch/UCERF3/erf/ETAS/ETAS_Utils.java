@@ -1121,7 +1121,7 @@ public class ETAS_Utils {
 		if(conf[0]<0 || p==0)
 			conf[0]=0;
 		conf[1] = (2*n*p + z*z + temp)/(2*(n+z*z));
-		if(conf[1]>1)
+		if(conf[1]>1 || p==1)
 			conf[1]=1;
 		return conf;
 	}
