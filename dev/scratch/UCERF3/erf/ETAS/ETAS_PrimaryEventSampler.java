@@ -6648,9 +6648,9 @@ System.exit(0);
 		double[] relSrcProbs = getRelativeTriggerProbOfEachSource(aveCubeSamplerForRup, 0.99, rupture);
 		
 		// this is for the Poisson cases
-		plotPrimayEventOverlap(rupture, relSrcProbs, subDirName, 10000, rupInfo);
-		plotPrimayEventsThatTouchParent(rupture, relSrcProbs, subDirName, 10000, rupInfo);
-		plotMostLikelyTriggeredFSS_Ruptures(rupture, relSrcProbs, subDirName, 100, rupInfo);
+//		plotPrimayEventOverlap(rupture, relSrcProbs, subDirName, 10000, rupInfo);
+//		plotPrimayEventsThatTouchParent(rupture, relSrcProbs, subDirName, 10000, rupInfo);
+//		plotMostLikelyTriggeredFSS_Ruptures(rupture, relSrcProbs, subDirName, 100, rupInfo);
 
 		long st = System.currentTimeMillis();
 		List<EvenlyDiscretizedFunc> expectedPrimaryMFDsForScenarioList = ETAS_SimAnalysisTools.getExpectedPrimaryMFDs_ForRup(rupInfo, 
