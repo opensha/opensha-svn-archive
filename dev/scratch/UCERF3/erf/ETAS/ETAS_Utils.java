@@ -1626,9 +1626,8 @@ public class ETAS_Utils {
 
 
 	/**
-	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total MFD (sub+supra) to
-	 * have the same expected number of primary aftershocks as a perfect GR (extrapolated from the sub MFD to the max-non-zero-mag
-	 * of the supra MFD).
+	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total supra rate
+	 * to equal the perfect GR extrapolation.
 	 * 
 	 * @param supraSeisMFD
 	 * @param subSeisMFD
@@ -1748,6 +1747,76 @@ public class ETAS_Utils {
 	}
 	
 	
+	
+	/**
+	 * This returns the amount by which the supra-seismogenic MFD has to be scaled in order for the total supra rate
+	 * to equal the perfect GR extrapolation.
+	 * 
+	 * @param supraSeisMFD
+	 * @param subSeisMFD
+	 * @return
+	 */
+	public static double getScalingFactorToImposeGR_supraRatesAboveMag(IncrementalMagFreqDist supraSeisMFD, IncrementalMagFreqDist subSeisMFD, double magThresh, boolean debug) {
+		if (supraSeisMFD.getMaxY() == 0d || subSeisMFD.getMaxY() == 0d)
+			// fix for empty cells, weird solutions (such as UCERF2 mapped) with zero rate faults, or zero subSeis MFDs because section outside gridded seis region
+			return 1d;
+
+		double minMag = subSeisMFD.getMinMagWithNonZeroRate();
+		
+		double maxMagWithNonZeroRate = supraSeisMFD.getMaxMagWithNonZeroRate();
+		if(Double.isNaN(maxMagWithNonZeroRate)) {
+			System.out.println("ISSUE: maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+			return 1d;
+		}
+		if(maxMagWithNonZeroRate<magThresh) {
+			System.out.println("ISSUE: maxMagWithNonZeroRate<magThresh; "+maxMagWithNonZeroRate);
+			return 1d;			
+		}
+		int numMag = (int)Math.round((maxMagWithNonZeroRate-minMag)/supraSeisMFD.getDelta()) + 1;
+		Preconditions.checkState(numMag > 1 || minMag == maxMagWithNonZeroRate,
+				"only have 1 bin but min != max: "+minMag+" != "+maxMagWithNonZeroRate+"\n"+supraSeisMFD);
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(1.0, 1.0, minMag, maxMagWithNonZeroRate, numMag);
+		gr.scaleToIncrRate(minMag, subSeisMFD.getY(minMag));
+
+		double result=Double.NaN;
+		try {
+			result = gr.getCumRate(magThresh)/supraSeisMFD.getCumRate(magThresh);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error: "+magThresh+"\t"+supraSeisMFD.getName());
+			System.out.println(supraSeisMFD);
+			System.exit(0);
+		}
+
+		if(debug) {
+			supraSeisMFD.setName("supraSeisMFD");
+			supraSeisMFD.setInfo("magThresh="+magThresh+"\nminMag="+minMag);
+			subSeisMFD.setName("subSeisMFD");
+			ArrayList<EvenlyDiscretizedFunc> funcs = new ArrayList<EvenlyDiscretizedFunc>();
+			funcs.add(supraSeisMFD);
+			funcs.add(subSeisMFD);
+			funcs.add(gr);
+			EvenlyDiscretizedFunc cumGR = gr.getCumRateDistWithOffset();
+			cumGR.setName("cumGR");
+			funcs.add(cumGR);
+			EvenlyDiscretizedFunc cumSupraSeisMFD = supraSeisMFD.getCumRateDistWithOffset();
+			cumSupraSeisMFD.setName("cumSupraSeisMFD");
+			funcs.add(cumSupraSeisMFD);
+			EvenlyDiscretizedFunc cumSupraSeisMFD_scaled = cumSupraSeisMFD.deepClone();
+			cumSupraSeisMFD_scaled.scale(result);
+			cumSupraSeisMFD_scaled.setName("cumSupraSeisMFD_scaled");
+			funcs.add(cumSupraSeisMFD_scaled);
+			GraphWindow graph = new GraphWindow(funcs, "getScalingFactorToImposeGR_supraRates "+result);
+			graph.setX_AxisLabel("Mag");
+			graph.setY_AxisLabel("Incr Rate");
+			graph.setYLog(true);
+			System.out.println("minMag="+minMag+" ;magThresh="+magThresh+"; maxMagWithNonZeroRate="+maxMagWithNonZeroRate);
+			System.out.println("result="+result);
+		}
+
+		return result;
+	}
+
 	
 	
 	/**

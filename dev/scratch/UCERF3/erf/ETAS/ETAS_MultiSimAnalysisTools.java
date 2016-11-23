@@ -4514,7 +4514,9 @@ public class ETAS_MultiSimAnalysisTools {
 			e.printStackTrace();
 		}
 		
-        double duration = 7/365.25;
+		// for 30-year result - hard coded overide
+//        double duration = 7/365.25;
+        double duration = 30;
 		Long ot = Math.round((2012.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2012
         long maxOT = ot + (long)(duration*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
         
@@ -4609,6 +4611,11 @@ public class ETAS_MultiSimAnalysisTools {
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, griddedRegion, dir, "triggerData", true, cpt, minValue, maxValue, includeTopo);
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(longTermTD_data, griddedRegion, dir, "longTermTD_data", true, cpt, minValue, maxValue, includeTopo);
 			maxValue = -3;
+			
+			// for 30-year result - hard coded overide
+			minValue = -5;
+			maxValue = 0;
+
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(timeInd_data, griddedRegion, dir, "timeInd_data", true, cpt, minValue, maxValue, includeTopo);
 			CPT cpt_ratio = GMT_CPT_Files.UCERF3_ETAS_GAIN.instance();
 			minValue = -3;
