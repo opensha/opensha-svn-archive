@@ -88,7 +88,7 @@ public class ComcatAccessor {
 		}
 	}
 	
-	private static final double day_millis = 24d*60d*60d*1000d;
+	static final double day_millis = 24d*60d*60d*1000d;
 	
 	/**
 	 * Fetch all aftershocks of the given event. Returned list will not contain the mainshock
@@ -117,6 +117,8 @@ public class ComcatAccessor {
 		long endTime = eventTime + (long)(maxDays*day_millis);
 		query.setStartTime(new Date(startTime));
 		query.setEndTime(new Date(endTime));
+		
+		Preconditions.checkState(startTime < System.currentTimeMillis(), "Start time is before now!");
 		
 		query.setMinLatitude(new BigDecimal(region.getMinLat()));
 		query.setMaxLatitude(new BigDecimal(region.getMaxLat()));

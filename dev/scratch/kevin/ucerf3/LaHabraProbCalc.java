@@ -133,6 +133,7 @@ public class LaHabraProbCalc {
 		Region reg = new Region(new Location(33.9225, -117.9352), 100d);
 		checkCatalog(reg, true);
 		checkCatalog(reg, false);
+//		System.exit(0);
 		
 		FaultSystemSolution sol = FaultSystemIO.loadSol(new File(
 				"/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"

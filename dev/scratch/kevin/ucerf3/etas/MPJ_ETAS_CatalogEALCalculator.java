@@ -41,6 +41,8 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 	private boolean allSubDurations = false;
 	
 	private double[] durations = { 1d/365.25, 7d/365.25, 30/365.25, 1d, 10d };
+	
+	private double maxX = 200;
 
 	public MPJ_ETAS_CatalogEALCalculator(CommandLine cmd) throws IOException, DocumentException {
 		super(cmd);
@@ -87,6 +89,10 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 			dataDirs.add(dir);
 		}
 		
+		Preconditions.checkState(!dataDirs.isEmpty());
+		if (dataDirs.get(0).getName().contains("san-bernardino") || dataDirs.get(0).getName().contains("coachella"))
+			maxX = 50;
+		
 		imrWeightsMap = Maps.newHashMap();
 		imrWeightsMap.put(AttenRelRef.CB_2014, 0.22);
 		imrWeightsMap.put(AttenRelRef.CY_2014, 0.22);
@@ -99,7 +105,6 @@ public class MPJ_ETAS_CatalogEALCalculator extends MPJTaskCalculator {
 	}
 	
 	private static String xAxisLabel = "$ (Billions)";
-	private static double maxX = 200;
 	
 	// portfolio units are in thousands (1e3), so convert to billions by dividing by 1e6
 	private static double thousandsToBillions = 1d/1e6;

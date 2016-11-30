@@ -545,6 +545,23 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		Double maxDays = dataEndTimeParam.getValue();
 		validateParameter(maxDays, "end time");
 		
+		// check that end date is before current time
+		long eventTime = mainshock.getOriginTime();
+		long startTime = eventTime + (long)(minDays*ComcatAccessor.day_millis);
+		long endTime = eventTime + (long)(maxDays*ComcatAccessor.day_millis);
+		
+		Preconditions.checkState(startTime < System.currentTimeMillis(), "Start time is before now!");
+		
+		if (endTime > System.currentTimeMillis()) {
+			double calcMaxDays = (System.currentTimeMillis() - startTime)/ComcatAccessor.day_millis;
+			System.out.println("WARNING: End time after current time. Setting max days to: "+calcMaxDays);
+			dataEndTimeParam.setValue(calcMaxDays);
+			dataEndTimeParam.getEditor().refreshParamEditor();
+			maxDays = calcMaxDays;
+			validateParameter(maxDays, "end time");
+		}
+		
+		
 		if (regionTypeParam.getValue().isCircular()
 				&& regionCenterTypeParam.getValue() == RegionCenterType.CENTROID) {
 			// first with hypocenter

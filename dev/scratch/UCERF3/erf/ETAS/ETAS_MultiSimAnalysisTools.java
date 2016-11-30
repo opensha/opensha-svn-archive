@@ -1444,11 +1444,11 @@ public class ETAS_MultiSimAnalysisTools {
 	public static void plotCubeNucleationRates(List<List<ETAS_EqkRupture>> catalogs, double duration,
 			File outputDir, String name, String prefix, double[] mags)
 					throws IOException, GMT_MapException {
-		plotCubeNucleationRates(catalogs, catalogs.size(), duration, outputDir, name, prefix, mags, false);
+		plotCubeNucleationRates(catalogs, catalogs.size(), duration, Long.MAX_VALUE, outputDir, name, prefix, mags, false);
 	}
 	
 	public static void plotCubeNucleationRates(Iterable<List<ETAS_EqkRupture>> catalogs, int numCatalogs,
-			double duration, File outputDir, String name, String prefix, double[] mags, boolean downloadZip)
+			double duration, long maxOT, File outputDir, String name, String prefix, double[] mags, boolean downloadZip)
 					throws IOException, GMT_MapException {
 		double discr = 0.02;
 		GriddedRegion reg = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(),
@@ -1478,6 +1478,8 @@ public class ETAS_MultiSimAnalysisTools {
 			double rateEach = 1d/(numCatalogs*myDuration);
 			
 			for (ETAS_EqkRupture rup : catalog) {
+				if (maxOT > 0 && rup.getOriginTime() > maxOT)
+					break;
 				double mag = rup.getMag();
 				Location loc = rup.getHypocenterLocation();
 				int index = reg.indexForLocation(loc);
@@ -1521,7 +1523,11 @@ public class ETAS_MultiSimAnalysisTools {
 			Preconditions.checkState(minZ < maxZ, "minZ=%s >= maxZ=%s", minZ, maxZ);
 			
 			double mag = mags[i];
-			String label = "Log10("+name+" M>="+(float)mag+" Nucleation Rate)";
+			String label = "Log10("+name+" M>="+(float)mag;
+			if (duration == 1d)
+				label += " Expected Num)";
+			else
+				label += " Nucleation Rate)";
 			String myPrefix = prefix+"_m"+(float)mag;
 			String baseURL = FaultBasedMapGen.plotMap(outputDir, myPrefix, false,
 					FaultBasedMapGen.buildMap(cpt.rescale(minZ, maxZ), null, null,

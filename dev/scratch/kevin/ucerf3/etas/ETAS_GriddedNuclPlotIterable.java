@@ -13,9 +13,9 @@ import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 public class ETAS_GriddedNuclPlotIterable {
 
 	public static void main(String[] args) throws IOException, GMT_MapException {
-		if (args.length != 5) {
+		if (args.length < 5 || args.length > 6) {
 			System.err.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(ETAS_GriddedNuclPlotIterable.class)
-					+" <bin-file> <output-dir> <duration> <name> <prefix>");
+					+" <bin-file> <output-dir> <duration> <name> <prefix> [<maxOT>]");
 			System.exit(2);
 		}
 		File catFile = new File(args[0]);
@@ -30,8 +30,12 @@ public class ETAS_GriddedNuclPlotIterable {
 		
 		double[] mags = { 2.5 };
 		
+		long maxOT = Long.MIN_VALUE;
+		if (args.length == 6)
+			maxOT = Long.parseLong(args[5]);
+		
 		ETAS_MultiSimAnalysisTools.plotCubeNucleationRates(catalogs, numCatalogs,
-				duration, outputDir, name, prefix, mags, true);
+				duration, maxOT, outputDir, name, prefix, mags, true);
 	}
 
 }

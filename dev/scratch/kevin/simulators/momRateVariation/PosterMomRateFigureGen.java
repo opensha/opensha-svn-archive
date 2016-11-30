@@ -36,13 +36,14 @@ public class PosterMomRateFigureGen {
 //		boolean[] yAxisLabels = {false, true, false};
 //		String[] names = {"RSQSim", "RSQSim Poisson", "UCERF3-TD"};
 //		Color[] colors = {Color.RED, Color.BLUE, new Color(64, 128, 64)};
-		String[] prefixes = {"actual", "random", "ucerf3_mid", "ucerf3_etas"};
-		boolean[] yAxisLabels = {false, true, false, false};
-		String[] names = {"RSQSim", "RSQSim Poisson", "UCERF3-TD", "UCERF3-ETAS"};
-		Color[] colors = {Color.RED, Color.BLUE, new Color(64, 128, 64), Color.CYAN};
+		String[] prefixes = {"actual", "random", "u3sighi", "ucerf3_mid", "ucerf3_etas"};
+		boolean[] yAxisLabels = {false, false, true, false, false};
+		String[] names = {"RSQSim", "RSQSim Poisson", "RSQSim-U3 (Prelim.)", "UCERF3-TD", "UCERF3-ETAS"};
+		Color[] colors = {new Color(64, 128, 64), Color.BLUE, Color.RED, Color.CYAN.darker(), Color.MAGENTA.darker()};
 		
 		Range xRange = new Range(0, length);
-		Range yRange = new Range(1e18, 1e20);
+//		Range yRange = new Range(1e18, 1e20);
+		Range yRange = new Range(5e17, 1e20);
 		
 		List<double[]> series = Lists.newArrayList();
 		
@@ -108,7 +109,7 @@ public class PosterMomRateFigureGen {
 		for (int i=0; i<specs.size(); i++)
 			yRanges.add(yRange);
 		gp.drawGraphPanel(specs, false, true, xRanges, yRanges);
-		gp.getChartPanel().setSize(1200, 700);
+		gp.getChartPanel().setSize(1200, 900);
 		gp.saveAsPNG(new File(outputDir, "combined_time_series.png").getAbsolutePath());
 		gp.saveAsPDF(new File(outputDir, "combined_time_series.pdf").getAbsolutePath());
 	}

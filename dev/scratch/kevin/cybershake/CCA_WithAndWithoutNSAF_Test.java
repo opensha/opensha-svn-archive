@@ -10,6 +10,7 @@ import java.util.List;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -18,6 +19,7 @@ import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
 import org.opensha.sha.cybershake.calc.RuptureProbabilityModifier;
+import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeSite;
@@ -37,7 +39,13 @@ import com.google.common.collect.Lists;
 public class CCA_WithAndWithoutNSAF_Test implements RuptureProbabilityModifier {
 
 	public static void main(String[] args) throws IOException {
-		int runID = 4675;
+//		int runID = 4675; // PARK, 1-D
+//		int runID = 4715; // PARK, 3-D
+//		int runID = 4717; // s1207, 3-D
+//		int runID = 4719; // s1252, CCA
+//		int runID = 4723; // s1252, S4.26
+		int runID = 4724; // s1250, S4.26
+//		int runID = 4725; // s1250, CCA
 		int[] imTypeIDs = {167, 162, 158, 152};
 		
 		File outputDir = new File("/home/kevin/CyberShake/cca_without_nsaf");
@@ -48,6 +56,8 @@ public class CCA_WithAndWithoutNSAF_Test implements RuptureProbabilityModifier {
 		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.PRODUCTION_HOST_NAME);
 		
 		HazardCurveComputation calc = new HazardCurveComputation(db);
+		MeanUCERF2 erf = (MeanUCERF2) MeanUCERF2_ToDB.createUCERF2ERF();
+		calc.setPeakAmpsAccessor(new CachedPeakAmplitudesFromDB(db, null, erf));
 		Runs2DB runs2db = new Runs2DB(db);
 		HazardCurve2DB curves2db = new HazardCurve2DB(db);
 		
@@ -58,10 +68,15 @@ public class CCA_WithAndWithoutNSAF_Test implements RuptureProbabilityModifier {
 		for (Point2D pt : new IMT_Info().getDefaultHazardCurve(SA_Param.NAME))
 			xVals.add(pt.getX());
 		
-		CCA_WithAndWithoutNSAF_Test probMod = new CCA_WithAndWithoutNSAF_Test();
+		CCA_WithAndWithoutNSAF_Test probMod = new CCA_WithAndWithoutNSAF_Test(erf);
 		
-		double minDist = probMod.calcDistance(site.createLocation());
+		Location loc = site.createLocation();
+		double minDist = probMod.calcDistance(loc);
+		double z10 = new CVM_CCAi6BasinDepth(CVM_CCAi6BasinDepth.TYPE_DEPTH_TO_1_0).getValue(loc);
+		double z25 = new CVM_CCAi6BasinDepth(CVM_CCAi6BasinDepth.TYPE_DEPTH_TO_2_5).getValue(loc);
 		System.out.println("Min dist: "+minDist);
+		System.out.println("Z1.0: "+z10);
+		System.out.println("Z2.5: "+z25);
 		
 		for (int imTypeID : imTypeIDs) {
 			CybershakeIM imType = curves2db.getIMFromID(imTypeID);
@@ -118,8 +133,10 @@ public class CCA_WithAndWithoutNSAF_Test implements RuptureProbabilityModifier {
 	}
 	
 	private HashSet<Integer> nsafSources;
+	private MeanUCERF2 erf;
 	
-	private CCA_WithAndWithoutNSAF_Test() {
+	private CCA_WithAndWithoutNSAF_Test(MeanUCERF2 erf) {
+		this.erf = erf;
 //		127	N. San Andreas
 //		33	N. San Andreas;SAN
 //		34	N. San Andreas;SAN+SAP
@@ -146,7 +163,6 @@ public class CCA_WithAndWithoutNSAF_Test implements RuptureProbabilityModifier {
 	
 	public double calcDistance(Location loc) {
 		// use the full N. SAF char source, source 39
-		MeanUCERF2 erf = (MeanUCERF2) MeanUCERF2_ToDB.createUCERF2ERF();
 		Site site = new Site(loc);
 		return erf.getSource(39).getMinDistance(site);
 	}

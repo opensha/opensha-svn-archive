@@ -910,7 +910,9 @@ public class ETAS_CatalogIO {
 		if (preserveChain) {
 			// we need to include events below the minimum magnitude that are part of a chain leading to an
 			// event which is above the minimum magnitude
-			for (List<ETAS_EqkRupture> catalog : getBinaryCatalogsIterable(inputFile, 0d)) {
+			BinarayCatalogsIterable it = getBinaryCatalogsIterable(inputFile, 0d);
+			System.out.println("Input has "+it.getNumCatalogs()+" catalogs");
+			for (List<ETAS_EqkRupture> catalog : it) {
 				if (count % 1000 == 0)
 					System.out.println("Processing catalog "+count);
 				catalog = ETAS_SimAnalysisTools.getAboveMagPreservingChain(catalog, minMag);

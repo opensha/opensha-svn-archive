@@ -85,7 +85,8 @@ public class SimulatorMomRateVarCalc {
 ////		String catName = "sigmahigh";
 //		String catName = "sigmalow";
 //		File dir = new File(mainDir, catName);
-		File dir = new File("/home/kevin/Simulators/UCERF3_JG_supraSeisGeo2");
+//		File dir = new File("/home/kevin/Simulators/UCERF3_JG_supraSeisGeo2");
+		File dir = new File("/home/kevin/Simulators/UCERF3_interns/sigmahigh");
 		File oDir = new File(dir, "mom_rate_time_series");
 		Preconditions.checkState(oDir.exists() || oDir.mkdir());
 		File geomFile = new File(dir, "UCERF3.D3.1.1km.tri.2.flt");

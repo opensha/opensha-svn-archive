@@ -338,17 +338,17 @@ public class HardCodedInterpDiffMapCreator {
 //			String imtLabel = "2sec SA";
 //			Double customMax = 1.0;
 			
-//			int imTypeID = 21; // 3 sec SA, GEOM
-//			String imtLabel = "3sec SA";
-//			Double customMax = 1.0;
+			int imTypeID = 21; // 3 sec SA, GEOM
+			String imtLabel = "3sec SA";
+			Double customMax = 1.0;
 			
 //			int imTypeID = 11; // 5 sec SA, GEOM
 //			String imtLabel = "5sec SA";
 //			Double customMax = 0.6;
 			
-			int imTypeID = 1; // 10 sec SA, GEOM
-			String imtLabel = "10sec SA";
-			Double customMax = 0.4;
+//			int imTypeID = 1; // 10 sec SA, GEOM
+//			String imtLabel = "10sec SA";
+//			Double customMax = 0.4;
 			
 			String prefix = "study_15_12";
 //			String prefix = "study_15_4";
@@ -415,8 +415,8 @@ public class HardCodedInterpDiffMapCreator {
 			
 			// comparison dataset for ratio maps
 //			List<Integer> compDatasetIDs = Lists.newArrayList(35);
-			List<Integer> compDatasetIDs = Lists.newArrayList(57);
-//			List<Integer> compDatasetIDs = null;
+//			List<Integer> compDatasetIDs = Lists.newArrayList(57);
+			List<Integer> compDatasetIDs = null;
 			// color bar limits for hazard maps (can be null to auto scale)
 			// in G
 			Double customMin = 0d;
@@ -447,11 +447,11 @@ public class HardCodedInterpDiffMapCreator {
 			ModProbConfig config = null;
 			// GMPE that we are using for the basemap
 			// options: NGA 2008 average, or one of the 4: CB 2008, CY 2008, BA 2008, AS 2008
-			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
+//			ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
-//			ScalarIMR baseMapIMR = null;
+			ScalarIMR baseMapIMR = null;
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);
@@ -460,9 +460,10 @@ public class HardCodedInterpDiffMapCreator {
 //			ScalarIMR baseMapIMR = AttenRelRef.IDRISS_2014.instance(null);
 			boolean downloadBasemap = true;
 			// GMPE params
-			baseMapIMR.setParamDefaults();
-			if (baseMapIMR != null)
+			if (baseMapIMR != null) {
+				baseMapIMR.setParamDefaults();
 				setTruncation(baseMapIMR, 3.0);
+			}
 			// always leave false, used for previous study
 			boolean probGain = false;
 			

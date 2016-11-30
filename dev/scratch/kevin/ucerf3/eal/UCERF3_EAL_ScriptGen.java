@@ -36,8 +36,10 @@ public class UCERF3_EAL_ScriptGen {
 //		String runSubDirName = "2014_05_19-ucerf3-fatality";
 //		String runSubDirName = "2014_05_28-ucerf3-99percent-wills-smaller";
 //		String runSubDirName = "2014_05_28-ucerf3-fatality-smaller";
-//		String runSubDirName = "2016_10_06-ucerf3-90percent-wills-san-bernardino";
-		String runSubDirName = "2016_10_21-ucerf3-90percent-wald-coachella-valley";
+//		String runSubDirName = "2016_10_06-ucerf3-90percent-wald-san-bernardino";
+//		String runSubDirName = "2016_10_21-ucerf3-90percent-wald-coachella-valley";
+//		String runSubDirName = "2016_11_28-ucerf3-90percent-wills-san-bernardino";
+		String runSubDirName = "2016_11_28-ucerf3-90percent-wills-coachella-valley";
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
@@ -77,7 +79,9 @@ public class UCERF3_EAL_ScriptGen {
 //		String portfolioFileName = "Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // smaller 90%
 //		String portfolioFileName = "Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // smaller 90%, Wald version
 //		String portfolioFileName = "san_bernardino_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, san bernardino city
-		String portfolioFileName = "coachella_valley_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, Coachella Valley (20km circle, Rancho Mirage)
+//		String portfolioFileName = "coachella_valley_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, Coachella Valley (20km circle, Rancho Mirage)
+//		String portfolioFileName = "san_bernardino_Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // 90% Wills, san bernardino city
+		String portfolioFileName = "coachella_valley_Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // 90% Wills, Coachella Valley (20km circle, Rancho Mirage)
 		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,

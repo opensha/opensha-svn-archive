@@ -75,10 +75,10 @@ public class ETAS_SciPaperFigures {
 		File bb2016NoERT_desc = new File(mainDir,	// 400K
 				"2016_10_27-2016_bombay_swarm-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-noSpont-combined/results.bin");
 		// San Jacinto M4.8
-		File sjFullTD_desc = new File(mainDir,	// 100K
-				"2016_08_30-san_jacinto_0_m4p8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_descendents.bin");
-		File sjNoERT_desc = new File(mainDir,	// 100K
-				"2016_08_26-san_jacinto_0_m4p8-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined/results_descendents.bin");
+		File sjFullTD_desc = new File(mainDir,	// 400K
+				"2016_11_02-san_jacinto_0_m4p8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined/results_descendents.bin");
+		File sjNoERT_desc = new File(mainDir,	// 400K
+				"2016_11_02-san_jacinto_0_m4p8-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-noSpont-combined/results_descendents.bin");
 		// Mojave M7
 		File mojaveFullTD_desc = new File(mainDir,	// 100K
 				"2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_descendents_m4_preserve.bin");
@@ -98,9 +98,9 @@ public class ETAS_SciPaperFigures {
 		File haywiredNoERT_all = new File(mainDir,	// 100K
 				"2016_06_15-haywired_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined/results_m5_preserve.bin");
 		
-		boolean doFig2 = true; // Bombay/SJ MFD
-		boolean doFig3 = false; // Mojave/Haywired MFD
-		boolean doFig4 = false; // Mojave/Haywired Region MFD
+		boolean doFig2 = false; // Bombay/SJ MFD
+		boolean doFig3 = true; // Mojave/Haywired MFD
+		boolean doFig4 = true; // Mojave/Haywired Region MFD
 		boolean doFig5 = true; // Scales of Hazard
 		
 		FaultSystemSolutionERF erf = null;

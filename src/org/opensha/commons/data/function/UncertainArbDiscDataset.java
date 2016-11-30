@@ -1,5 +1,8 @@
 package org.opensha.commons.data.function;
 
+import java.awt.geom.Point2D;
+import java.util.Iterator;
+
 import org.jfree.data.Range;
 
 import com.google.common.base.Preconditions;
@@ -81,6 +84,35 @@ public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
 	
 	public double getLowerMinY() {
 		return lowerFunc.getMinY();
+	}
+	
+	public String toString(){
+		StringBuffer b = new StringBuffer();
+
+		b.append("Name: " + getName() + '\n');
+		b.append("Num Points: " + size() + '\n');
+		b.append("Info: " + getInfo() + "\n\n");
+		b.append("X, Y Data:" + '\n');
+		b.append(getMetadataString()+ '\n');
+		return b.toString();
+	}
+	
+	/**
+	 *
+	 * @return value of each point in the function in String format
+	 */
+	@Override
+	public String getMetadataString(){
+		StringBuffer b = new StringBuffer();
+		
+		for (int i=0; i<size(); i++) {
+			double x = getX(i);
+			double mean = getY(i);
+			double lower = getLowerY(i);
+			double upper = getUpperY(i);
+			b.append((float)x+"\t"+(float)mean+"\t["+(float)lower+"\t"+(float)upper+"]\n");
+		}
+		return b.toString();
 	}
 	
 }
