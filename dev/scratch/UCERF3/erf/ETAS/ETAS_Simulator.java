@@ -1097,6 +1097,18 @@ public class ETAS_Simulator {
 
 		ETAS_EqkRupture scenarioRup = buildScenarioRup(scenario, erf);
 		
+		
+		System.out.println("trace of scenario:");
+		RuptureSurface surf = scenarioRup.getRuptureSurface();
+		LocationList topRowLocs = surf.getEvenlyDiscritizedUpperEdge();
+		LocationList bottomRowLocs = surf.getEvenlyDiscritizedLowerEdge();
+		for(int i=0;i<topRowLocs.size();i++) {
+			double lat = (topRowLocs.get(i).getLatitude() + bottomRowLocs.get(i).getLatitude())/2;
+			double lon = (topRowLocs.get(i).getLongitude() + bottomRowLocs.get(i).getLongitude())/2;
+			System.out.println(lon+"\t"+lat);
+		}
+		System.exit(1);;
+		
 		// TEST RIGHT HERE
 //		erf.setFltSectOccurranceTime(1848, scenarioRup.getOriginTime());
 //		erf.setFltSectOccurranceTime(1847, scenarioRup.getOriginTime());
@@ -1835,7 +1847,7 @@ public class ETAS_Simulator {
 //		writeInfoAboutSourceWithThisFirstAndLastSection(getU3_ETAS_ERF(2014,1.0),825,830);
 //		System.exit(0);
 		
-		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
+//		FaultSystemSolutionERF_ETAS erf = getU3_ETAS_ERF(2014,10.0);	
 //		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
 //		erf.updateForecast();
 //		
@@ -1882,8 +1894,10 @@ public class ETAS_Simulator {
 		params.setImposeGR(false);	
 		params.setApplyGridSeisCorr(true);
 		params.setApplySubSeisForSupraNucl(true);
-		params.setTotalRateScaleFactor(1.14);
-		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
+		params.setTotalRateScaleFactor(1.0);
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.NO_ERT);
+//		params.setTotalRateScaleFactor(1.14);
+//		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.FULL_TD);
 		
 		String simulationName;
 		String imposeGR_string="";
