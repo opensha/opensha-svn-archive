@@ -77,10 +77,10 @@ public class UCERF3_GriddedSeisOnlyERF_ETAS extends AbstractNthRupERF {
 	
 	// TimeSpan stuff:
 	protected final static double DURATION_DEFAULT = 30;	// years
-	protected final static double DURATION_MIN = 0.01;
-	protected final static double DURATION_MAX = 1000;
+	protected final static double DURATION_MIN = 0.0001;
+	public final static double DURATION_MAX = 100000;
 	public final static int START_TIME_DEFAULT = 2014;
-	protected final static int START_TIME_MIN = 2013;		// Need to handle recent events if this is less
+	protected final static int START_TIME_MIN = 1800;	// prob model calc now handles case when this is before date of last event
 	protected final static int START_TIME_MAX = 2100;
 	boolean timeSpanChangeFlag=true;	// this keeps track of time span changes
 	
