@@ -46,6 +46,14 @@ public class UncertainArbDiscDataset extends UnmodifiableDiscrFunc {
 		}
 	}
 	
+	public DiscretizedFunc getLower() {
+		return lowerFunc;
+	}
+	
+	public DiscretizedFunc getUpper() {
+		return upperFunc;
+	}
+	
 	public Range getYRange(int index) {
 		return new Range(lowerFunc.getY(index), upperFunc.getY(index));
 	}

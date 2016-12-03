@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.opensha.commons.data.CSVFile;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.UncertainArbDiscDataset;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
@@ -21,8 +23,6 @@ public class ETAS_CatalogEAL_MultiCombine {
 		File noERT_csvFile = null;
 		File outputDir = null;
 		String outputPrefix = null;
-		int nForConf = -1;
-		int catDuration = -1;
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 			File baseDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 			File lossCombDir = new File(baseDir, "losses_combined");
@@ -32,8 +32,6 @@ public class ETAS_CatalogEAL_MultiCombine {
 					"2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/loss_results/combined");
 			File noERT_dir = new File(baseDir,
 					"2016_02_22-mojave_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined100k/loss_results/combined");
-			nForConf = 100000;
-			catDuration = -1;
 			
 			outputDir = new File(lossCombDir, "mojave_100k_both_models");
 			Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
@@ -41,8 +39,8 @@ public class ETAS_CatalogEAL_MultiCombine {
 			
 			fullTD_csvFile = new File(fullTD_dir, "gmpes_combined_exceed.csv");
 			noERT_csvFile = new File(noERT_dir, "gmpes_combined_exceed.csv");
-		} else if (args.length < 5 || args.length > 6) {
-			System.err.println("USAGE: <FullTD-exceed-CSV> <NoERT-exceed-CSV> <output-dir> <output-prefix> <n-for-conf> [<cat-duration-for-all-sub>]");
+		} else if (args.length != 4) {
+			System.err.println("USAGE: <FullTD-exceed-CSV> <NoERT-exceed-CSV> <output-dir> <output-prefix>");
 			System.exit(2);
 		} else {
 			fullTD_csvFile = new File(args[0]);
@@ -52,9 +50,6 @@ public class ETAS_CatalogEAL_MultiCombine {
 			outputDir = new File(args[2]);
 			Preconditions.checkState(outputDir.exists() || outputDir.mkdir(), "Doesn't exist: %s", outputDir.getAbsolutePath());
 			outputPrefix = args[3];
-			nForConf = Integer.parseInt(args[4]);
-			if (args.length == 6)
-				catDuration = Integer.parseInt(args[5]);
 		}
 		
 		boolean isLogX = false;
@@ -69,21 +64,18 @@ public class ETAS_CatalogEAL_MultiCombine {
 		if (fullTD_csvFile.getAbsolutePath().contains("coachella") || fullTD_csvFile.getAbsolutePath().contains("bernardino"))
 			maxX = 50;
 		
-		Table<String, Double, HistogramFunction> lossHists = HashBasedTable.create();
+		Table<String, Double, DiscretizedFunc> exceedFuncs = HashBasedTable.create();
 		
-		Map<Double, HistogramFunction> fullTD = loadCSV(fullTD_csv);
-		Map<Double, HistogramFunction> noERT = loadCSV(noERT_csv);
+		Map<Double, DiscretizedFunc> fullTD = loadCSV(fullTD_csv);
+		Map<Double, DiscretizedFunc> noERT = loadCSV(noERT_csv);
 		
 		for (Double duration : fullTD.keySet())
-			lossHists.put("FullTD", duration, fullTD.get(duration));
+			exceedFuncs.put("FullTD", duration, fullTD.get(duration));
 		for (Double duration : noERT.keySet())
-			lossHists.put("NoERT", duration, noERT.get(duration));
+			exceedFuncs.put("NoERT", duration, noERT.get(duration));
 		
 		String xAxisLabel = fullTD_csv.get(0, 0);
-		
-		boolean allSubDurations = catDuration > 0;
-		ETAS_CatalogEALCalculator.writeLossExceed(outputDir, outputPrefix, lossHists, true, isLogX,
-				triggeredOnly, xAxisLabel, maxX, nForConf, catDuration, allSubDurations, true);
+		ETAS_CatalogEALCalculator.writeLossExceed(outputDir, outputPrefix, exceedFuncs, null, isLogX, triggeredOnly, xAxisLabel, maxX, true, false);
 	}
 	
 	private static int realLineSize(List<String> line) {
@@ -127,8 +119,8 @@ public class ETAS_CatalogEAL_MultiCombine {
 		return csv;
 	}
 	
-	private static Map<Double, HistogramFunction> loadCSV(CSVFile<String> csv) {
-		Map<Double, HistogramFunction> hists = Maps.newHashMap();
+	private static Map<Double, DiscretizedFunc> loadCSV(CSVFile<String> csv) {
+		Map<Double, DiscretizedFunc> hists = Maps.newHashMap();
 		
 		double min = Double.parseDouble(csv.get(1, 0));
 		double max = Double.parseDouble(csv.get(csv.getNumRows()-1, 0));
@@ -146,22 +138,47 @@ public class ETAS_CatalogEAL_MultiCombine {
 				System.out.println("No match for duration: "+durStr);
 				continue;
 			}
+			int lowerCol = -1;
+			int upperCol = -1;
+			for (int i=matchCol+1; i<csv.getNumCols(); i++) {
+				if (lowerCol >= 0 && upperCol >= 0)
+					break;
+				String name = csv.get(0, i);
+				if (name.equals("Lower 95%"))
+					lowerCol = i;
+				else if (name.equals("Upper 95%"))
+					upperCol = i;
+				Preconditions.checkState(!name.contains(" yr") && !name.contains(" mo") && !name.contains(" wk")
+						&& !name.contains(" day"), "Encountered new duration before conf bounds!");
+			}
+			Preconditions.checkState(lowerCol >= 0 && upperCol > lowerCol, "exceed doesn't have conf bounds");
 			
 			HistogramFunction hist = new HistogramFunction(min, max, num);
+			HistogramFunction lower = new HistogramFunction(min, max, num);
+			HistogramFunction upper = new HistogramFunction(min, max, num);
 			for (int i=0; i<num; i++) {
 				int row = i+1;
 				double y = Double.parseDouble(csv.get(row, matchCol));
-				if ((float)y == 0f)
-					y = 0;
-				if (y < 0 || y < 1e-12) {
-					Preconditions.checkState(y > -1e-10);
-					y = 0;
-				}
-				hist.set(i, y);
+				double yLow = Double.parseDouble(csv.get(row, lowerCol));
+				double yUp = Double.parseDouble(csv.get(row, upperCol));
+				hist.set(i, getCleaned(y));
+				lower.set(i, getCleaned(yLow));
+				upper.set(i, getCleaned(yUp));
 			}
-			hists.put(duration, hist);
+//			hists.put(duration, hist);
+			hists.put(duration, new UncertainArbDiscDataset(hist, lower, upper));
 		}
 		return hists;
+	}
+	
+	private static double getCleaned(double y) {
+		if ((float)y == 0f)
+			return 0d;
+		if (y < 0 || y < 1e-12) {
+			Preconditions.checkState(y > -1e-10);
+			return 0d;
+		}
+		return y;
 	}
 
 }

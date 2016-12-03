@@ -21,6 +21,7 @@ import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
+import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
@@ -35,6 +36,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityOptions;
 import org.opensha.sha.earthquake.param.MagDependentAperiodicityParam;
+import org.opensha.sha.earthquake.param.MaximumMagnitudeParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 import org.opensha.sha.faultSurface.PointSurface;
@@ -42,6 +44,8 @@ import org.opensha.sha.faultSurface.PointSurface;
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
@@ -53,6 +57,8 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_MaxCharFactorParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelParam;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_TotalRateScaleFactorParam;
+import scratch.UCERF3.erf.ETAS.NoFaultsModel.ETAS_Simulator_NoFaults;
+import scratch.UCERF3.erf.ETAS.NoFaultsModel.UCERF3_GriddedSeisOnlyERF_ETAS;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -113,6 +119,8 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	private static final int START_YEAR_DEFAULT = 2014;
 	
 	private boolean metadataOnly = false;
+	
+	private boolean griddedOnly = false;
 
 	public MPJ_ETAS_Simulator(CommandLine cmd, File inputDir, File outputDir) throws IOException, DocumentException {
 		super(cmd);
@@ -159,6 +167,11 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		// must load in solution ofr each thread as last even data will be overridden/updated
 		for (int i=0; i<sols.length; i++)
 			sols[i] = FaultSystemIO.loadSol(solFile);
+		
+		griddedOnly = cmd.hasOption("gridded-only");
+		if (griddedOnly) {
+			ETAS_Simulator_NoFaults.D = false;
+		}
 		
 		// if we have a triggered event
 		if (cmd.hasOption("millis")) {
@@ -506,14 +519,32 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				}
 
 				debug("Instantiationg ERF");
-				FaultSystemSolutionERF_ETAS erf = buildERF_millis(sol, timeIndep, duration, ot);
+				AbstractERF erf;
+				if (griddedOnly) {
+					erf = new UCERF3_GriddedSeisOnlyERF_ETAS();
+					
+//					// set parameters
+					erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+					erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+					erf.setParameter(MaximumMagnitudeParam.NAME, 8.3);
+					erf.setParameter("Total Regional Rate",TotalMag5Rate.RATE_7p9);
+					erf.setParameter("Spatial Seis PDF",SpatialSeisPDF.UCERF3);
 
-				if (fssScenarioRupID >= 0) {
-					// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
-					erf.setFltSystemSourceOccurranceTimeForFSSIndex(fssScenarioRupID, ot);
+					erf.getTimeSpan().setStartTimeInMillis(ot);
+					erf.getTimeSpan().setDuration(duration);
+					
+					erf.updateForecast();
+				} else {
+					erf = buildERF_millis(sol, timeIndep, duration, ot);
+					
+					if (fssScenarioRupID >= 0) {
+						// This sets the rupture as having occurred in the ERF (to apply elastic rebound)
+						((FaultSystemSolutionERF_ETAS)erf).setFltSystemSourceOccurranceTimeForFSSIndex(fssScenarioRupID, ot);
+					}
+
+					erf.updateForecast();
 				}
 
-				erf.updateForecast();
 				debug("Done instantiating ERF");
 
 				// redo with the previous random seed to avoid bias towards shorter running jobs in cases
@@ -557,9 +588,17 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 
 				//				List<ETAS_EqkRupture> obsEqkRuptureList = Lists.newArrayList(this.obsEqkRuptureList);
 				try {
-					ETAS_Simulator.testETAS_Simulation(resultsDir, erf, griddedRegion, triggerRup, histQkList, includeSpontEvents,
-							includeIndirectTriggering, gridSeisDiscr, simulationName, randSeed,
-							fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, params);
+					if (griddedOnly) {
+						double gridSeisDiscr = 0.1;
+						ETAS_Simulator_NoFaults.testETAS_Simulation(resultsDir, (UCERF3_GriddedSeisOnlyERF_ETAS)erf, griddedRegion,
+								triggerRup, histQkList, includeSpontEvents, includeIndirectTriggering, gridSeisDiscr, simulationName,
+								randSeed, params);
+					} else {
+						ETAS_Simulator.testETAS_Simulation(resultsDir, (FaultSystemSolutionERF_ETAS)erf, griddedRegion, triggerRup,
+								histQkList, includeSpontEvents, includeIndirectTriggering, gridSeisDiscr, simulationName, randSeed,
+								fractionSrcAtPointList, srcAtPointList, isCubeInsideFaultPolygon, params);
+					}
+					
 					debug("completed "+index);
 					if (binaryOutput) {
 						// convert to binary
@@ -611,7 +650,7 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 	public static final String HIST_CAT_EL_NAME = "HistCatalog";
 	public static final String OTHER_PARAMS_EL_NAME = "MiscParams";
 	
-	private void writeMetadata(File metadataFile, FaultSystemSolutionERF_ETAS erf, ETAS_ParameterList params)
+	private void writeMetadata(File metadataFile, AbstractERF erf, ETAS_ParameterList params)
 			throws IOException {
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();
@@ -830,6 +869,10 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 				"Total rate scale factor. Default: "+U3ETAS_TotalRateScaleFactorParam.DEFAULT_VALUE);
 		totRateScaleFactor.setRequired(false);
 		ops.addOption(totRateScaleFactor);
+		
+		Option griddedOnly = new Option("grid", "gridded-only", false, "Flag for the gridded seismicity only model");
+		griddedOnly.setRequired(false);
+		ops.addOption(griddedOnly);
 		
 		return ops;
 	}

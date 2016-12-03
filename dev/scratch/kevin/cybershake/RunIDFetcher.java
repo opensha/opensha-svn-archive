@@ -88,7 +88,7 @@ public class RunIDFetcher {
 		groupNames.add("Inland Empire");
 		siteNamesLists.add(Lists.newArrayList("s599", "s601", "s603", "s605", "s644", "s646", "s647", "s688", "s689"));
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 		RunIDFetcher fetch = new RunIDFetcher(db, datasetID, imTypeID);
 		
 		Joiner j = Joiner.on(",");

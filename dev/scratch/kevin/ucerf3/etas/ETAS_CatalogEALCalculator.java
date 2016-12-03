@@ -244,6 +244,15 @@ public class ETAS_CatalogEALCalculator {
 	
 	public static final int max_all_sub_durations_n = 1000000;
 	
+	private double getRoundedMaxCatalogDiration() {
+		double maxCatalogDuration = 0d;
+		for (List<ETAS_EqkRupture> catalog : catalogs)
+			maxCatalogDuration = Math.max(maxCatalogDuration, ETAS_MultiSimAnalysisTools.calcDurationYears(catalog));
+		// round to nearest year
+		maxCatalogDuration = Math.round(maxCatalogDuration);
+		return maxCatalogDuration;
+	}
+	
 	public synchronized Map<Double, List<DiscretizedFunc>> getLossDists(
 			AttenRelRef attenRelRef, double xAxisScale, double[] durations, boolean allSubDurations)
 					throws IOException {
@@ -254,11 +263,7 @@ public class ETAS_CatalogEALCalculator {
 		DiscretizedFunc[] griddedMagLossDists = fetcher.getGriddedMagLossDists(
 				attenRelRef, region);
 		
-		double maxCatalogDuration = 0d;
-		for (List<ETAS_EqkRupture> catalog : catalogs)
-			maxCatalogDuration = Math.max(maxCatalogDuration, ETAS_MultiSimAnalysisTools.calcDurationYears(catalog));
-		// round to nearest year
-		maxCatalogDuration = Math.round(maxCatalogDuration);
+		double maxCatalogDuration = getRoundedMaxCatalogDiration();
 		System.out.println("Max duration: "+maxCatalogDuration+" yrs");
 		
 		Map<Double, List<DiscretizedFunc>> distsMap = Maps.newHashMap();
@@ -857,17 +862,95 @@ public class ETAS_CatalogEALCalculator {
 		}
 	}
 	
-	public static void writeLossExceed(File outputDir, String outputPrefix, Map<Double, HistogramFunction> lossHists, boolean isLogX,
-			boolean triggeredOnly, String xAxisLabel, double maxX, int nForConf) throws IOException {
-		Table<String, Double, HistogramFunction> table = HashBasedTable.create();
-		for (double duration : lossHists.keySet())
-			table.put("", duration, lossHists.get(duration));
-		writeLossExceed(outputDir, outputPrefix, table, false, isLogX, triggeredOnly, xAxisLabel, maxX, nForConf, -1d, false, false);
+	static Map<Double, DiscretizedFunc> toExceedFuncs(Map<Double, HistogramFunction> lossHists,
+			int nForConf, boolean allSubDurations, double catalogDuration) {
+		Map<Double, DiscretizedFunc> exceeds = Maps.newHashMap();
+		for (Double duration : lossHists.keySet()) {
+			int myNForConf = nForConf;
+			if (nForConf > 0 && allSubDurations) {
+				Preconditions.checkState(duration > 0);
+				// sub durations
+				int numPer = (int)(catalogDuration/duration);
+				myNForConf = numPer * nForConf;
+				if (myNForConf > max_all_sub_durations_n)
+					myNForConf = max_all_sub_durations_n;
+				System.out.println("All sub durations N for duration "+duration+": "+myNForConf);
+			}
+			exceeds.put(duration, toExceedFunc(lossHists.get(duration), myNForConf));
+		}
+		return exceeds;
 	}
 	
-	public static void writeLossExceed(File outputDir, String outputPrefix, Table<String, Double, HistogramFunction> lossHists,
-			boolean isCumulative, boolean isLogX, boolean triggeredOnly, String xAxisLabel, double maxX, int nForConf,
-			double catalogDuration, boolean allSubDurations, boolean individualDurations) throws IOException {
+	static DiscretizedFunc toExceedFunc(HistogramFunction lossHist, int nForConf) {
+		HistogramFunction cumDist = lossHist.getCumulativeDistFunctionWithHalfBinOffset();
+		// convert to exceedance
+		for (int i=0; i<cumDist.size(); i++) {
+			double y = 1d-cumDist.getY(i);
+			if ((float)y == 0f)
+				y = 0;
+			if (y < 0 || y < 1e-12) {
+				Preconditions.checkState(y > -1e-10);
+				y = 0;
+			}
+			cumDist.set(i, y);
+		}
+		
+		if (nForConf > 0) {
+			// generate confidence intervals
+			HistogramFunction lower = new HistogramFunction(cumDist.getMinX(), cumDist.getMaxX(), cumDist.size());
+			HistogramFunction upper = new HistogramFunction(cumDist.getMinX(), cumDist.getMaxX(), cumDist.size());
+			for (int i=0; i<cumDist.size(); i++) {
+				double p = cumDist.getY(i);
+				double[] conf = ETAS_Utils.getBinomialProportion95confidenceInterval(p, nForConf);
+				Preconditions.checkState((float)conf[0] <= (float)p,
+						"Bad conf. p=%s, n=%s, [%s %s]", p, nForConf, conf[0], conf[1]);
+				Preconditions.checkState((float)conf[1] >= (float)p,
+						"Bad conf. p=%s, n=%s, [%s %s]", p, nForConf, conf[0], conf[1]);
+				lower.set(i, conf[0]);
+				upper.set(i, conf[1]);
+			}
+			return new UncertainArbDiscDataset(cumDist, lower, upper);
+		}
+		return cumDist;
+	}
+	
+	private static HistogramFunction getSameNumX(DiscretizedFunc func,
+			double minX, double maxX, int num, boolean aboveUseLast) {
+		HistogramFunction ret = new HistogramFunction(minX, maxX, num);
+		
+		for (int i=0; i<num; i++) {
+			double x = ret.getX(i);
+			double y;
+			if (x < func.getMinX()) {
+				// if before, use first bin
+				y = func.getY(0);
+			} else if (x > func.getMaxX()) {
+				// if after, set to zero
+				if (aboveUseLast)
+					// for upper confidence bound
+					y = func.getY(func.size()-1);
+				else
+					y = 0d;
+			} else {
+				y = func.getY(x);
+			}
+			ret.set(i, y);
+		}
+		return ret;
+	}
+	
+	public static void writeLossExceed(File outputDir, String outputPrefix, Map<Double, DiscretizedFunc> exceedFuncs,
+			boolean isLogX, boolean triggeredOnly, String xAxisLabel, double maxX) throws IOException {
+		Table<String, Double, DiscretizedFunc> table = HashBasedTable.create();
+		for (double duration : exceedFuncs.keySet())
+			table.put("", duration, exceedFuncs.get(duration));
+		writeLossExceed(outputDir, outputPrefix, table, null, isLogX, triggeredOnly, xAxisLabel, maxX, false, true);
+	}
+	
+	public static void writeLossExceed(File outputDir, String outputPrefix,
+			Table<String, Double, DiscretizedFunc> exceedFuncs, Map<String, Double> exceedWeightMap,
+			boolean isLogX, boolean triggeredOnly, String xAxisLabel, double maxX,
+			boolean individualDurations, boolean averageConf) throws IOException {
 		if (!outputPrefix.endsWith("exceed"))
 			outputPrefix += "_exceed";
 		
@@ -877,7 +960,7 @@ public class ETAS_CatalogEALCalculator {
 		double logMinY = 1e-5;
 
 		List<Double> durations = Lists.newArrayList();
-		for (Double duration : lossHists.columnKeySet())
+		for (Double duration : exceedFuncs.columnKeySet())
 			durations.add(duration);
 		Collections.sort(durations);
 		Collections.reverse(durations); // order from biggest to smallest
@@ -885,11 +968,13 @@ public class ETAS_CatalogEALCalculator {
 		double maxDur = durations.get(0);
 
 		List<String> names = Lists.newArrayList();
-		for (String row : lossHists.rowKeySet())
+		for (String row : exceedFuncs.rowKeySet())
 			names.add(row);
 		if (names.size() > 1)
 			// if size == 1, can be null so don't sort
 			Collections.sort(names);
+		
+		boolean hasConf = exceedFuncs.values().iterator().next() instanceof UncertainArbDiscDataset;
 
 		CSVFile<String> csv = new CSVFile<String>(false);
 		List<String> header = Lists.newArrayList(xAxisLabel);
@@ -898,7 +983,7 @@ public class ETAS_CatalogEALCalculator {
 			if (names.size() > 1)
 				for (String name : names)
 					header.add(name);
-			if (nForConf > 0) {
+			if (hasConf) {
 				header.add("Lower 95%");
 				header.add("Upper 95%");
 			}
@@ -906,7 +991,7 @@ public class ETAS_CatalogEALCalculator {
 		csv.addLine(header);
 
 		CPT logDurCPT = null;
-		if (lossHists.size() > 1)
+		if (exceedFuncs.size() > 1)
 			logDurCPT = new CPT(Math.log(minDur), Math.log(maxDur), Color.GRAY, Color.BLACK);
 
 		double maxCumY = 0d;
@@ -916,111 +1001,86 @@ public class ETAS_CatalogEALCalculator {
 			individualSpecs = Lists.newArrayList();
 
 		for (double duration : durations) {
-			Map<String, HistogramFunction> cumDists = Maps.newHashMap();
-			for (String name : names) {
-				HistogramFunction lossHist = lossHists.get(name, duration);
-				if (isCumulative) {
-					// already cumulative
-					cumDists.put(name, lossHist);
-				} else {
-					HistogramFunction cumDist = lossHist.getCumulativeDistFunctionWithHalfBinOffset();
-					// convert to exceedance
-					for (int i=0; i<cumDist.size(); i++) {
-						double y = 1d-cumDist.getY(i);
-						if ((float)y == 0f)
-							y = 0;
-						if (y < 0 || y < 1e-12) {
-							Preconditions.checkState(y > -1e-10);
-							y = 0;
-						}
-						cumDist.set(i, y);
-					}
-
-					cumDists.put(name, cumDist);
-				}
-			}
 			
-			int myNForConf = nForConf;
-			if (nForConf > 0 && allSubDurations) {
-				Preconditions.checkState(catalogDuration > 0);
-				// sub durations
-				int numPer = (int)(catalogDuration/duration);
-				myNForConf = numPer * nForConf;
-				if (myNForConf > max_all_sub_durations_n)
-					myNForConf = max_all_sub_durations_n;
-				System.out.println("All sub durations N for duration "+duration+": "+myNForConf);
-			}
+			Map<String, DiscretizedFunc> cumDists = exceedFuncs.column(duration);
 
-			DiscretizedFunc[] conf = null;
-			HistogramFunction cumDist; // mean
+			DiscretizedFunc cumDist; // mean
 			if (cumDists.size() > 1) {
 				double distMinX = Double.POSITIVE_INFINITY;
 				double distMaxX = 0;
 				double distDelta = Double.NaN;
 
-				for (HistogramFunction dist : cumDists.values()) {
+				for (DiscretizedFunc dist : cumDists.values()) {
+					double myDelta = dist.getX(1) - dist.getX(0);
 					if (Double.isNaN(distDelta))
-						distDelta = dist.getDelta();
+						distDelta = myDelta;
 					else
-						Preconditions.checkState((float)distDelta == (float)dist.getDelta());
+						Preconditions.checkState((float)distDelta == (float)myDelta);
 					distMinX = Math.min(distMinX, dist.getMinX());
 					distMaxX = Math.max(distMaxX, dist.getMaxX());
 				}
 				int num = (int)((distMaxX - distMinX)/distDelta + 0.5) + 1;
-				cumDist = new HistogramFunction(distMinX, distMaxX, num);
-
-				double rateEach = 1d/(double)cumDists.size();
-				
-				if (myNForConf > 0) {
-					conf = new DiscretizedFunc[2];
-					conf[0] = new HistogramFunction(distMinX, distMaxX, num);
-					conf[1] = new HistogramFunction(distMinX, distMaxX, num);
-					for (int i=0; i<num; i++) {
-						conf[0].set(i, Double.POSITIVE_INFINITY);
-						conf[1].set(i, 0d);
-					}
-				}
-
-				for (String name : names) {
-					HistogramFunction dist = cumDists.get(name);
-					// need the same x axis points (one of the sub ones can be smaller, but have same spacing)
-					HistogramFunction newDist = new HistogramFunction(distMinX, distMaxX, num);
-					for (int i=0; i<newDist.size(); i++) {
-						double x = newDist.getX(i);
-						double y;
-						if (x < dist.getMinX())
-							// if before, use first bin
-							y = dist.getY(0);
-						else if (x > dist.getMaxX())
-							// if after, set to zero
-							y = 0d;
-						else
-							y = dist.getY(x);
-
-						newDist.set(x, y);
-						cumDist.add(x, y*rateEach);
-						
-						if (conf != null) {
-							double[] myConf = ETAS_Utils.getBinomialProportion95confidenceInterval(y, myNForConf);
-							conf[0].set(i, Math.min(conf[0].getY(i), myConf[0]));
-							conf[1].set(i, Math.max(conf[1].getY(i), myConf[1]));
+				HistogramFunction mean = new HistogramFunction(distMinX, distMaxX, num);
+				HistogramFunction lower = null, upper = null;
+				if (hasConf) {
+					lower = new HistogramFunction(distMinX, distMaxX, num);
+					upper = new HistogramFunction(distMinX, distMaxX, num);
+					if (!averageConf) {
+						// fill in with default vals
+						for (int i=0; i<num; i++) {
+							lower.set(i, Double.POSITIVE_INFINITY);
+							upper.set(i, 0d);
 						}
 					}
+				}
+//				cumDist = new HistogramFunction(distMinX, distMaxX, num);
 
+				double rateEven = 1d/(double)cumDists.size();
+
+				for (String name : names) {
+					DiscretizedFunc dist = cumDists.get(name);
+					// need the same x axis points (one of the sub ones can be smaller, but have same spacing)
+//					HistogramFunction newDist = new HistogramFunction(distMinX, distMaxX, num);
+					DiscretizedFunc newDist = getSameNumX(dist, distMinX, distMaxX, num, false);
+					HistogramFunction myLower = null, myUpper = null;
+					if (hasConf) {
+						UncertainArbDiscDataset distWithConf = (UncertainArbDiscDataset)dist;
+						myLower = getSameNumX(distWithConf.getLower(), distMinX, distMaxX, num, false);
+						myUpper = getSameNumX(distWithConf.getUpper(), distMinX, distMaxX, num, true);
+					}
+					
+					double myRate;
+					if (exceedWeightMap == null)
+						myRate = rateEven;
+					else
+						myRate = exceedWeightMap.get(name);
+					
+					for (int i=0; i<newDist.size(); i++) {
+						double x = newDist.getX(i);
+						double y = newDist.getY(i);
+						mean.add(x, y*myRate);
+						
+						if (hasConf) {
+							if (averageConf) {
+								lower.add(x, myLower.getY(i)*myRate);
+								upper.add(x, myUpper.getY(i)*myRate);
+							} else {
+								// take min/max
+								lower.set(x, Math.min(lower.getY(x), myLower.getY(i)));
+								upper.set(x, Math.max(upper.getY(x), myUpper.getY(i)));
+							}
+						}
+					}
+					if (hasConf)
+						newDist = new UncertainArbDiscDataset(newDist, myLower, myUpper);
 					cumDists.put(name, newDist);
 				}
+				if (hasConf)
+					cumDist = new UncertainArbDiscDataset(mean, lower, upper);
+				else
+					cumDist = mean;
 			} else {
 				cumDist = cumDists.values().iterator().next();
-				if (myNForConf > 0) {
-					conf = new DiscretizedFunc[2];
-					conf[0] = new HistogramFunction(cumDist.getMinX(), cumDist.getMaxX(), cumDist.size());
-					conf[1] = new HistogramFunction(cumDist.getMinX(), cumDist.getMaxX(), cumDist.size());
-					for (int i=0; i<cumDist.size(); i++) {
-						double[] myConf = ETAS_Utils.getBinomialProportion95confidenceInterval(cumDist.getY(i), myNForConf);
-						conf[0].set(i, myConf[0]);
-						conf[1].set(i, myConf[1]);
-					}
-				}
 			}
 
 			if (csv.getNumRows() == 1) {
@@ -1036,9 +1096,9 @@ public class ETAS_CatalogEALCalculator {
 				if (names.size() > 1)
 					for (String name : names)
 						line.add(cumDists.get(name).getY(i)+"");
-				if (conf != null) {
-					line.add(conf[0].getY(i)+"");
-					line.add(conf[1].getY(i)+"");
+				if (hasConf) {
+					line.add(((UncertainArbDiscDataset)cumDist).getLowerY(i)+"");
+					line.add(((UncertainArbDiscDataset)cumDist).getUpperY(i)+"");
 				}
 			}
 
@@ -1054,20 +1114,20 @@ public class ETAS_CatalogEALCalculator {
 			List<PlotCurveCharacterstics> myChars = Lists.newArrayList();
 
 			Color rangeColor = new Color((c.getRed()+255)/2, (c.getGreen()+255)/2, (c.getBlue()+255)/2);
-			if (conf != null) {
-				UncertainArbDiscDataset confRange = null;
-				try {
-					confRange = new UncertainArbDiscDataset(cumDist, conf[0], conf[1]);
-				} catch (RuntimeException e) {
-					System.out.println("x\tlow\tmean\tup");
-					for (int i=0; i<cumDist.size(); i++) {
-						System.out.println((float)cumDist.getX(i)+"\t"+(float)conf[0].getY(i)
-								+"\t"+(float)cumDist.getY(i)+"\t"+(float)conf[1].getY(i));
-					}
-					throw e;
-				}
+			if (hasConf) {
+//				UncertainArbDiscDataset confRange = null;
+//				try {
+//					confRange = new UncertainArbDiscDataset(cumDist, conf[0], conf[1]);
+//				} catch (RuntimeException e) {
+//					System.out.println("x\tlow\tmean\tup");
+//					for (int i=0; i<cumDist.size(); i++) {
+//						System.out.println((float)cumDist.getX(i)+"\t"+(float)conf[0].getY(i)
+//								+"\t"+(float)cumDist.getY(i)+"\t"+(float)conf[1].getY(i));
+//					}
+//					throw e;
+//				}
 
-				myElems.add(confRange);
+				myElems.add(cumDist);
 				myChars.add(new PlotCurveCharacterstics(PlotLineType.SHADED_UNCERTAIN_TRANS, 1f, rangeColor));
 			}
 
@@ -1077,7 +1137,7 @@ public class ETAS_CatalogEALCalculator {
 				for (int i=0; i<cumDist.size(); i++) {
 					double min = Double.POSITIVE_INFINITY;
 					double max = 0d;
-					for (HistogramFunction dist : cumDists.values()) {
+					for (DiscretizedFunc dist : cumDists.values()) {
 						double y = dist.getY(i);
 						min = Math.min(min, y);
 						max = Math.max(max, y);
@@ -1306,11 +1366,12 @@ public class ETAS_CatalogEALCalculator {
 		else
 			resultsFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
-				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin");
+//				+ "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k/results_m5_preserve.bin");
 //				+ "2016_02_25-surprise_valley_5p0-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14/results_descendents.bin");
 //				+ "2016_08_24-spontaneous-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5.bin");
 //				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin");
 //				+ "2016_08_31-bombay_beach_m4pt8-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined/results_m5_preserve.bin");
+				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/results_m5_preserve.bin");
 		
 		boolean triggeredOnly = false;
 		if (args.length > 1)
@@ -1350,9 +1411,10 @@ public class ETAS_CatalogEALCalculator {
 			for (int i=3; i<args.length; i++)
 				dataDirs.add(new File(ealMainDir, args[i]));
 		} else {
-			dataDirs.add(new File(ealMainDir, "2014_05_28-ucerf3-99percent-wills-smaller"));
-			dataDirs.add(new File(ealMainDir, "2016_06_06-ucerf3-90percent-wald"));
-//			dataDirs.add(new File(ealMainDir, "2016_10_18-ucerf3-90percent-wald-san-bernardino"));
+//			dataDirs.add(new File(ealMainDir, "2014_05_28-ucerf3-99percent-wills-smaller"));
+//			dataDirs.add(new File(ealMainDir, "2016_06_06-ucerf3-90percent-wald"));
+			dataDirs.add(new File(ealMainDir, "2016_10_18-ucerf3-90percent-wald-san-bernardino"));
+			dataDirs.add(new File(ealMainDir, "2016_11_28-ucerf3-90percent-wills-san-bernardino"));
 //			dataDirs.add(new File(ealMainDir, "2016_10_21-ucerf3-90percent-wald-coachella-valley"));
 		}
 		
@@ -1426,6 +1488,8 @@ public class ETAS_CatalogEALCalculator {
 		
 		List<Map<Double, List<DiscretizedFunc>>> lossDistsList = Lists.newArrayList();
 		List<Double> lossWeights = Lists.newArrayList();
+		Table<String, Double, DiscretizedFunc> allCombLossExceeds = HashBasedTable.create();
+		Map<String, Double> allExceedWeightMap = Maps.newHashMap();
 		
 		TestScenario scenario = ETAS_MultiSimAnalysisTools.detectScenario(resultsFile.getParentFile());
 		if (scenario != null && scenario.getFSS_Index() >= 0)
@@ -1495,6 +1559,8 @@ public class ETAS_CatalogEALCalculator {
 			if (!outputDir.exists())
 				outputDir.mkdir();
 			
+			Table<String, Double, DiscretizedFunc> gmpeCombLossExceeds = HashBasedTable.create();
+			Map<String, Double> exceedWeightMap = Maps.newHashMap();
 			for (AttenRelRef attenRelRef : imrWeightsMap.keySet()) {
 				double imrWeight = imrWeightsMap.get(attenRelRef);
 				
@@ -1509,8 +1575,12 @@ public class ETAS_CatalogEALCalculator {
 //				writeLossHist(outputDir, attenRelRef.name(), lossHist, isLog10);
 				writeLossHist(outputDir, attenRelRef.name()+prefixAdd, lossHists, isLog10, triggeredOnly,
 						xAxisLabel, maxX);
-				writeLossExceed(outputDir, attenRelRef.name()+prefixAdd, lossHists, isLog10, triggeredOnly,
-						xAxisLabel, maxX, calc.catalogs.size());
+				Map<Double, DiscretizedFunc> exceedFuncs = toExceedFuncs(lossHists, calc.catalogs.size(),
+						allSubDurations, calc.getRoundedMaxCatalogDiration());
+				for (double duration : exceedFuncs.keySet())
+					gmpeCombLossExceeds.put(attenRelRef.name(), duration, exceedFuncs.get(duration));
+				exceedWeightMap.put(attenRelRef.name(), imrWeight);
+				writeLossExceed(outputDir, attenRelRef.name()+prefixAdd, exceedFuncs, isLog10, triggeredOnly, xAxisLabel, maxX);
 				
 				calc.writeLossesToCSV(outputDir, attenRelRef.name()+prefixAdd+"_losses"+csvPrefixAdd, lossDists);
 			}
@@ -1520,12 +1590,20 @@ public class ETAS_CatalogEALCalculator {
 				Map<Double, List<DiscretizedFunc>> imrCombined = getCombinedLossDists(myLossDists, myWeights);
 				Map<Double, HistogramFunction> lossHists = getLossHist(imrCombined, deltaX, isLog10);
 				writeLossHist(outputDir, "gmpes_combined"+prefixAdd, lossHists, isLog10, triggeredOnly, xAxisLabel, maxX);
-				writeLossExceed(outputDir, "gmpes_combined"+prefixAdd, lossHists, isLog10, triggeredOnly, xAxisLabel, maxX, calc.catalogs.size());
+				writeLossExceed(outputDir, "gmpes_combined"+prefixAdd, gmpeCombLossExceeds, exceedWeightMap, isLog10, triggeredOnly, xAxisLabel, maxX, false, true);
+//				writeLossExceed(outputDir, "gmpes_combined"+prefixAdd, lossHists, isLog10, triggeredOnly, xAxisLabel, maxX, calc.catalogs.size());
 				calc.writeLossesToCSV(outputDir, "gmpes_combined"+prefixAdd+"_losses"+csvPrefixAdd, imrCombined);
 			}
 			
 			lossDistsList.addAll(myLossDists);
 			lossWeights.addAll(myWeights);
+			for (String name : gmpeCombLossExceeds.rowKeySet()) {
+				String combName = dataDir.getName()+"_"+name;
+				double weight = exceedWeightMap.get(name)/(double)dataDirs.size();
+				for (double duration : gmpeCombLossExceeds.columnKeySet())
+					allCombLossExceeds.put(combName, duration, gmpeCombLossExceeds.get(name, duration));
+				allExceedWeightMap.put(combName, weight);
+			}
 		}
 		// combine
 		if (dataDirs.size() > 1) {
@@ -1541,7 +1619,8 @@ public class ETAS_CatalogEALCalculator {
 			Map<Double, List<DiscretizedFunc>> combined = getCombinedLossDists(lossDistsList, lossWeights);
 			Map<Double, HistogramFunction> lossHists = getLossHist(combined, deltaX, isLog10);
 			writeLossHist(outputDir, "gmpes_combined"+prefixAdd, lossHists, isLog10, triggeredOnly, xAxisLabel, maxX);
-			writeLossExceed(outputDir, "gmpes_combined"+prefixAdd, lossHists, isLog10, triggeredOnly, xAxisLabel, maxX, calc.catalogs.size());
+			writeLossExceed(outputDir, "gmpes_combined"+prefixAdd, allCombLossExceeds, allExceedWeightMap, isLog10, triggeredOnly, xAxisLabel, maxX, false, true);
+//			writeLossExceed(outputDir, "gmpes_combined"+prefixAdd, lossHists, isLog10, triggeredOnly, xAxisLabel, maxX, calc.catalogs.size());
 			calc.writeLossesToCSV(outputDir, "gmpes_combined"+prefixAdd+"_losses"+csvPrefixAdd, combined);
 		}
 	}

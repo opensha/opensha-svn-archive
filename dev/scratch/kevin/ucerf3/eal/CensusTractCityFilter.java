@@ -30,7 +30,8 @@ public class CensusTractCityFilter {
 		File portInFile = new File(ealDir, "Porter-22-May-14-CA-ppty-90pct-Wills.txt");
 //		File portInFile = new File(ealDir, "Porter-02-Jun-16-CA-ppty-90pct-Wald.txt");
 //		File portOutFile = new File(cityDir, "san_bernardino_"+portInFile.getName());
-		File portOutFile = new File(cityDir, "coachella_valley_"+portInFile.getName());
+//		File portOutFile = new File(cityDir, "coachella_valley_"+portInFile.getName());
+		File portOutFile = new File("/tmp/coachella_valley_"+portInFile.getName());
 		
 		HashSet<String> tractNames = new HashSet<String>();
 		

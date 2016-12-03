@@ -70,7 +70,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int numSims = 25000;
 //		int hours = 24;
 //		int nodes = 60;
-		int numSims = 100000;
+		int numSims = 200000;
 		int hours = 24;
 //		int nodes = 100;
 		int nodes = 24;
@@ -81,7 +81,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-//		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
 //				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
@@ -94,7 +94,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		boolean includeSpontaneous = false;
 		
-		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
+//		TestScenario[] scenarios = {TestScenario.BOMBAY_BEACH_M4pt8};
 //		boolean includeSpontaneous = false;
 		
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5p5, TestScenario.MOJAVE_M6pt3_ptSrc,
@@ -105,6 +105,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean includeSpontaneous = true;
 		String customCatalog = null;
 		long customOT = Long.MIN_VALUE;
+		boolean griddedOnly = true;
 		
 //		TestScenario[] scenarios = { null };
 ////		boolean includeSpontaneous = false;
@@ -117,10 +118,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-//		double totRateScaleFactor = 1.14;
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
-		double totRateScaleFactor = 1.0;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		double totRateScaleFactor = 1.14;
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+//		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };
@@ -254,20 +255,24 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					String jobName = dateStr+"-"+scenarioName;
 					if (nameAdd != null && !nameAdd.isEmpty() && !nameAddAtEnd)
 						jobName += "-"+nameAdd;
-//					jobName += "-"+probModel.name().toLowerCase()+"-maxChar"+(float)maxCharFactor;
-					jobName += "-"+probModel.name().toLowerCase()+grStr;
-					if (timeIndep)
-						jobName += "-indep";
-//					if (applyLongTermRates)
-//						jobName += "-applyLTR";
-					if (applySubSeisForSupraNucl)
-						jobName += "-subSeisSupraNucl";
-					if (gridSeisCorr)
-						jobName += "-gridSeisCorr";
-					if (totRateScaleFactor != 1)
-						jobName += "-scale"+(float)totRateScaleFactor;
-					if (!includeSpontaneous)
-						jobName += "-noSpont";
+					if (griddedOnly) {
+						jobName += "-gridded-only";
+					} else {
+//						jobName += "-"+probModel.name().toLowerCase()+"-maxChar"+(float)maxCharFactor;
+						jobName += "-"+probModel.name().toLowerCase()+grStr;
+						if (timeIndep)
+							jobName += "-indep";
+//						if (applyLongTermRates)
+//							jobName += "-applyLTR";
+						if (applySubSeisForSupraNucl)
+							jobName += "-subSeisSupraNucl";
+						if (gridSeisCorr)
+							jobName += "-gridSeisCorr";
+						if (totRateScaleFactor != 1)
+							jobName += "-scale"+(float)totRateScaleFactor;
+						if (!includeSpontaneous)
+							jobName += "-noSpont";
+					}
 					
 					if (nameAdd != null && !nameAdd.isEmpty() && nameAddAtEnd)
 						jobName += "-"+nameAdd;
@@ -351,6 +356,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					}
 					if (!includeSpontaneous)
 						argz += args_continue_newline+"--no-spontaneous";
+					if (griddedOnly)
+						argz += args_continue_newline+"--gridded-only";
 					
 					argz += args_continue_newline+cacheDir.getAbsolutePath()+args_continue_newline+remoteJobDir.getAbsolutePath();
 					
