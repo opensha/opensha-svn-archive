@@ -1,4 +1,4 @@
-package scratch.UCERF3.erf.ETAS;
+package scratch.UCERF3.erf.ETAS.NoFaultsModel;
 
 import java.awt.Color;
 import java.awt.HeadlessException;
@@ -109,6 +109,13 @@ import scratch.UCERF3.enumTreeBranches.ScalingRelationships;
 import scratch.UCERF3.enumTreeBranches.SpatialSeisPDF;
 import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
+import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
+import scratch.UCERF3.erf.ETAS.SeisDepthDistribution;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools.EpicenterMapThread;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
@@ -937,7 +944,7 @@ public class ETAS_Simulator_NoFaults {
 		
 		ETAS_EqkRupture scenarioRup = buildScenarioRup(scenario, erf);
 		
-		boolean includeSpontEvents=true;
+		boolean includeSpontEvents=false;
 		boolean includeIndirectTriggering=true;
 		double gridSeisDiscr = 0.1;
 		
@@ -1607,7 +1614,7 @@ public class ETAS_Simulator_NoFaults {
 			simulationName += scenario;
 
 		// add suffix to simulation:
-		simulationName += "_3";
+		simulationName += "_4";
 		
 		Long seed = null;
 //		Long seed = 1449590752534l;
@@ -1616,7 +1623,7 @@ public class ETAS_Simulator_NoFaults {
 		double durationYears=10;
 //		double durationYears=7.0/365.25;
 		
-		boolean includeHistCat = true;
+		boolean includeHistCat = false;
 		
 		runTest(scenario, params, seed, simulationName, includeHistCat, startTimeYear, durationYears);
 	}

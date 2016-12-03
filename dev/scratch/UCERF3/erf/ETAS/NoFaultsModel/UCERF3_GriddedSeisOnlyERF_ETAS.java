@@ -1,4 +1,4 @@
-package scratch.UCERF3.erf.ETAS;
+package scratch.UCERF3.erf.ETAS.NoFaultsModel;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

@@ -282,7 +282,7 @@ public class ETAS_SimAnalysisTools {
 		return spec;
 	}
 	
-	static EpicenterMapThread plotUpdatingEpicenterMap(String info, ObsEqkRupture mainShock, 
+	static public EpicenterMapThread plotUpdatingEpicenterMap(String info, ObsEqkRupture mainShock, 
 			Collection<ETAS_EqkRupture> allAftershocks, LocationList regionBorder) {
 		long updateInterval = 100; // 1 seconds
 		EpicenterMapThread thread = new EpicenterMapThread(info, mainShock, allAftershocks, regionBorder, updateInterval);

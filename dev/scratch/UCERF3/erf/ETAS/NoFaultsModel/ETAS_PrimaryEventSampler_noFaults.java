@@ -1,4 +1,4 @@
-package scratch.UCERF3.erf.ETAS;
+package scratch.UCERF3.erf.ETAS.NoFaultsModel;
 
 import java.awt.Color;
 import java.io.BufferedInputStream;
@@ -66,6 +66,12 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.analysis.FaultSysSolutionERF_Calc;
 import scratch.UCERF3.analysis.GMT_CA_Maps;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
+import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_LocationWeightCalculator;
+import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
+import scratch.UCERF3.erf.ETAS.IntegerPDF_FunctionSampler;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.griddedSeismicity.FaultPolyMgr;
