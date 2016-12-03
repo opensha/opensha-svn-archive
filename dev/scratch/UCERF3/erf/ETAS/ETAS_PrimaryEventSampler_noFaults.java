@@ -175,17 +175,12 @@ public class ETAS_PrimaryEventSampler_noFaults {
 	 * @param etasMinDist_d
 	 * @param applyGR_Corr
 	 * @param probMode
-	 * @param inputSectDistForCubeList
-	 * @param inputSectInCubeList
-	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler_noFaults(GriddedRegion griddedRegion, AbstractNthRupERF erf, double sourceRates[],
-			double pointSrcDiscr, String outputFileNameWithPath, ETAS_ParameterList etasParams, ETAS_Utils etas_utils,
-			List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList,  int[] inputIsCubeInsideFaultPolygon) {
+			double pointSrcDiscr, String outputFileNameWithPath, ETAS_ParameterList etasParams, ETAS_Utils etas_utils) {
 
 		this(griddedRegion, DEFAULT_NUM_PT_SRC_SUB_PTS, erf, sourceRates, DEFAULT_MAX_DEPTH, DEFAULT_DEPTH_DISCR, 
-				pointSrcDiscr, outputFileNameWithPath, etasParams, true, etas_utils, inputSectDistForCubeList, 
-				inputSectInCubeList, inputIsCubeInsideFaultPolygon);
+				pointSrcDiscr, outputFileNameWithPath, etasParams, true, etas_utils);
 	}
 
 	
@@ -211,14 +206,10 @@ public class ETAS_PrimaryEventSampler_noFaults {
 	 * @param etas_utils - this is for obtaining reproducible random numbers (seed set in this object)
 	 * @param applyGR_Corr - whether or not to apply the GR correction
 	 * @param probMode
-	 * @param inputSectDistForCubeList
-	 * @param inputSectInCubeList
-	 * @param inputIsCubeInsideFaultPolygon
 	 */
 	public ETAS_PrimaryEventSampler_noFaults(GriddedRegion griddedRegion, int numPtSrcSubPts, AbstractNthRupERF erf, double sourceRates[],
 			double maxDepth, double depthDiscr, double pointSrcDiscr, String outputFileNameWithPath, ETAS_ParameterList etasParams, 
-			boolean includeSpatialDecay, ETAS_Utils etas_utils, List<float[]> inputSectDistForCubeList, List<int[]> inputSectInCubeList, 
-			int[] inputIsCubeInsideFaultPolygon) {
+			boolean includeSpatialDecay, ETAS_Utils etas_utils) {
 		
 		this.etasParams = etasParams;
 
@@ -1450,6 +1441,8 @@ public class ETAS_PrimaryEventSampler_noFaults {
 	
 	
 	public SummedMagFreqDist getLongTermTotalERF_MFD() {
+		if(longTermTotalERF_MFD==null)
+			longTermTotalERF_MFD = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);		
 		return longTermTotalERF_MFD;
 	}
 	
@@ -1483,7 +1476,7 @@ public class ETAS_PrimaryEventSampler_noFaults {
 		}
 		
 		ETAS_PrimaryEventSampler_noFaults etas_PrimEventSampler = new ETAS_PrimaryEventSampler_noFaults(griddedRegion, erf, sourceRates, 
-				gridSeisDiscr,null, etasParams, new ETAS_Utils(),null,null,null);
+				gridSeisDiscr,null, etasParams, new ETAS_Utils());
 		
 //		etas_PrimEventSampler.plotExpectedLongTermMFDs();
 		

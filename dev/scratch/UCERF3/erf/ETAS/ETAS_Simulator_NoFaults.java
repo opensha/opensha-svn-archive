@@ -137,33 +137,6 @@ public class ETAS_Simulator_NoFaults {
 	// if true and in debug mode, will exit after scenario diagnostics
 	static boolean exit_after_scenario_diagnostics = false;
 	
-	/**
-	 * This version takes the pre-computed data arrays as arguments
-	 * 
-	 * 
-	 * @param resultsDir
-	 * @param erf
-	 * @param griddedRegion
-	 * @param scenarioRup
-	 * @param histQkList
-	 * @param includeSpontEvents
-	 * @param includeIndirectTriggering - include secondary, tertiary, etc events
-	 * @param includeEqkRates - whether or not to include the long-term rate of events in sampling aftershocks
-	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
-	 * @param simulationName
-	 * @param randomSeed - set for reproducibility, or set null if new seed desired
-	 * @param etasParams
-	 * @throws IOException
-	 */
-	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
-			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
-			boolean includeIndirectTriggering, double gridSeisDiscr, String simulationName,
-			Long randomSeed, ETAS_ParameterList etasParams)
-					throws IOException {
-		testETAS_Simulation(resultsDir, erf, griddedRegion, scenarioRup,  histQkList, includeSpontEvents,
-				includeIndirectTriggering, gridSeisDiscr, simulationName,
-				randomSeed, null, null, null, etasParams);
-	}
 	
 	/**
 	 * This represents an ETAS simulation.  
@@ -194,22 +167,18 @@ public class ETAS_Simulator_NoFaults {
 	 * @param gridSeisDiscr - lat lon discretization of gridded seismicity (degrees)
 	 * @param simulationName
 	 * @param randomSeed - set for reproducibility, or set null if new seed desired
-	 * @param fractionSrcInCubeList - from pre-computed data file	TODO chance name of this
-	 * @param srcInCubeListt - from pre-computed data file	TODO chance name of this
-	 * @param inputIsCubeInsideFaultPolygont - from pre-computed data file
 	 * @param etasParams
 	 * @throws IOException
 	 */
 	public static void testETAS_Simulation(File resultsDir, AbstractNthRupERF erf,
 			GriddedRegion griddedRegion, ETAS_EqkRupture scenarioRup, List<? extends ObsEqkRupture> histQkList, boolean includeSpontEvents,
 			boolean includeIndirectTriggering, double gridSeisDiscr, String simulationName,
-			Long randomSeed, List<float[]> fractionSrcInCubeList, List<int[]> srcInCubeList, int[] inputIsCubeInsideFaultPolygon, 
-			ETAS_ParameterList etasParams)
+			Long randomSeed, ETAS_ParameterList etasParams)
 					throws IOException {
 		
 		// etasParams.getU3ETAS_ProbModel() is ignored because no-faults assumes Poisson.
 		
-		boolean generateDiagnosticsForScenario = true;	// to be able to turn off even if in debug mode
+		boolean generateDiagnosticsForScenario = false;	// to be able to turn off even if in debug mode
 
 		// set the random seed for reproducibility
 		ETAS_Utils etas_utils;
@@ -365,8 +334,7 @@ public class ETAS_Simulator_NoFaults {
 		
 		// Create the ETAS_PrimaryEventSampler
 		ETAS_PrimaryEventSampler_noFaults etas_PrimEventSampler = new ETAS_PrimaryEventSampler_noFaults(griddedRegion, erf, sourceRates,
-				gridSeisDiscr,null, etasParams, etas_utils, fractionSrcInCubeList, srcInCubeList, 
-				inputIsCubeInsideFaultPolygon);  // latter three may be null
+				gridSeisDiscr,null, etasParams, etas_utils);  // latter three may be null
 		if(D) System.out.println("ETAS_PrimaryEventSampler creation took "+(float)(System.currentTimeMillis()-st)/60000f+ " min");
 		info_fr.write("\nMaking ETAS_PrimaryEventSampler took "+(System.currentTimeMillis()-st)/60000+ " min");
 		info_fr.flush();
@@ -944,7 +912,7 @@ public class ETAS_Simulator_NoFaults {
 	 * @param histQkList
 	 */
 	public static void runTest(TestScenario scenario, ETAS_ParameterList etasParams, Long randomSeed, 
-			String simulationName, ObsEqkRupList histQkList, double startTimeYear, double durationYears) {
+			String simulationName, boolean includeHistEvents, double startTimeYear, double durationYears) {
 		
 		ETAS_SimAnalysisTools.writeMemoryUse("Memory at beginning of run");
 
@@ -958,12 +926,18 @@ public class ETAS_Simulator_NoFaults {
 
 		// Make fault system ERF is needed for scenario
 		FaultSystemSolutionERF_ETAS erf = null;
-		if(scenario.fssIndex>=0)
+		if(scenario.fssIndex>=0 || includeHistEvents)
 			erf = getU3_ETAS_ERF(startTimeYear, durationYears);
+		
+		ObsEqkRupList histQkList=null;
+		if(includeHistEvents)
+			histQkList = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
+
+
 		
 		ETAS_EqkRupture scenarioRup = buildScenarioRup(scenario, erf);
 		
-		boolean includeSpontEvents=false;
+		boolean includeSpontEvents=true;
 		boolean includeIndirectTriggering=true;
 		double gridSeisDiscr = 0.1;
 		
@@ -1632,6 +1606,9 @@ public class ETAS_Simulator_NoFaults {
 		else
 			simulationName += scenario;
 
+		// add suffix to simulation:
+		simulationName += "_3";
+		
 		Long seed = null;
 //		Long seed = 1449590752534l;
 		
@@ -1639,10 +1616,8 @@ public class ETAS_Simulator_NoFaults {
 		double durationYears=10;
 //		double durationYears=7.0/365.25;
 		
-		ObsEqkRupList histCat = null;
-//		ObsEqkRupList histCat = getHistCatalog(startTimeYear);
-//		ObsEqkRupList histCat = getHistCatalogFiltedForStatewideCompleteness(startTimeYear,erf.getSolution().getRupSet());
-
-		runTest(scenario, params, seed, simulationName, histCat, startTimeYear, durationYears);
+		boolean includeHistCat = true;
+		
+		runTest(scenario, params, seed, simulationName, includeHistCat, startTimeYear, durationYears);
 	}
 }

@@ -1107,7 +1107,7 @@ public class ETAS_Simulator {
 			double lon = (topRowLocs.get(i).getLongitude() + bottomRowLocs.get(i).getLongitude())/2;
 			System.out.println(lon+"\t"+lat);
 		}
-		System.exit(1);;
+//		System.exit(1);;
 		
 		// TEST RIGHT HERE
 //		erf.setFltSectOccurranceTime(1848, scenarioRup.getOriginTime());
