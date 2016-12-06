@@ -980,12 +980,18 @@ public class ETAS_CatalogEALCalculator {
 		List<String> header = Lists.newArrayList(xAxisLabel);
 		for (double duration : durations) {
 			header.add(getDurationLabel(duration));
-			if (names.size() > 1)
-				for (String name : names)
-					header.add(name);
 			if (hasConf) {
 				header.add("Lower 95%");
 				header.add("Upper 95%");
+			}
+			if (names.size() > 1) {
+				for (String name : names) {
+					header.add(name);
+					if (hasConf) {
+						header.add("Lower 95%");
+						header.add("Upper 95%");
+					}
+				}
 			}
 		}
 		csv.addLine(header);
@@ -1093,12 +1099,19 @@ public class ETAS_CatalogEALCalculator {
 			for (int i=0; i<cumDist.size(); i++) {
 				List<String> line = csv.getLine(i+1);
 				line.add(cumDist.getY(i)+"");
-				if (names.size() > 1)
-					for (String name : names)
-						line.add(cumDists.get(name).getY(i)+"");
 				if (hasConf) {
 					line.add(((UncertainArbDiscDataset)cumDist).getLowerY(i)+"");
 					line.add(((UncertainArbDiscDataset)cumDist).getUpperY(i)+"");
+				}
+				if (names.size() > 1) {
+					for (String name : names) {
+						DiscretizedFunc subDist = cumDists.get(name);
+						line.add(subDist.getY(i)+"");
+						if (hasConf) {
+							line.add(((UncertainArbDiscDataset)subDist).getLowerY(i)+"");
+							line.add(((UncertainArbDiscDataset)subDist).getUpperY(i)+"");
+						}
+					}
 				}
 			}
 

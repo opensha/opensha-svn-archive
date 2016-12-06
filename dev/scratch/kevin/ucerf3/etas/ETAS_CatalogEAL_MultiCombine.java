@@ -144,10 +144,13 @@ public class ETAS_CatalogEAL_MultiCombine {
 				if (lowerCol >= 0 && upperCol >= 0)
 					break;
 				String name = csv.get(0, i);
-				if (name.equals("Lower 95%"))
+				if (name.equals("Lower 95%")) {
+					Preconditions.checkState(lowerCol < 0, "Duplicate lower col before both found!");
 					lowerCol = i;
-				else if (name.equals("Upper 95%"))
+				} else if (name.equals("Upper 95%")) {
+					Preconditions.checkState(upperCol < 0, "Duplicate upper col before both found!");
 					upperCol = i;
+				}
 				Preconditions.checkState(!name.contains(" yr") && !name.contains(" mo") && !name.contains(" wk")
 						&& !name.contains(" day"), "Encountered new duration before conf bounds!");
 			}
