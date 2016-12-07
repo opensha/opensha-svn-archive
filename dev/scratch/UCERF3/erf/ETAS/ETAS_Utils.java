@@ -1114,8 +1114,52 @@ public class ETAS_Utils {
 	 * @return - see above
 	 */
 	public static double[] getBinomialProportion95confidenceInterval(double p, double n) {
+		return getBinomialProportionConfidenceInterval(p, n, 1.96);
+	}
+	
+	/**
+	 * The gives the 68% confidence bounds for the true fraction/proportion of successes (e.g., exceedances)
+	 * given we observed p=x/n, where x is the number of observed successes out of n samples.  This assumes a
+	 * Binomial distribution, which generally applies when the probability of success is the same for each trial 
+	 * and the trials are statistically independent.
+	 * 
+	 * The lower and upper bounds are in the first and second elements, respectively, of the returned array.
+	 * 
+	 * The formula below is the "Wilson score interval with continuity correction" developed by
+	 * Newcombe (1998, Statistics in Medicine. 17 (8): 857–872) and as described at
+	 * https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+	 * 
+	 * 
+	 * @param p - the fraction/proportion of observed successes
+	 * @param n - total number of samples
+	 * @return - see above
+	 */
+	public static double[] getBinomialProportion68confidenceInterval(double p, double n) {
+		return getBinomialProportionConfidenceInterval(p, n, 1.0);
+	}
+
+
+	
+	/**
+	 * The gives the confidence bounds for the true fraction/proportion of successes (e.g., exceedances)
+	 * given we observed p=x/n, where x is the number of observed successes out of n samples.  This assumes a
+	 * Binomial distribution, which generally applies when the probability of success is the same for each trial 
+	 * and the trials are statistically independent.
+	 * 
+	 * The lower and upper bounds are in the first and second elements, respectively, of the returned array.
+	 * 
+	 * The formula below is the "Wilson score interval with continuity correction" developed by
+	 * Newcombe (1998, Statistics in Medicine. 17 (8): 857–872) and as described at
+	 * https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+	 * 
+	 * 
+	 * @param p - the fraction/proportion of observed successes
+	 * @param n - total number of samples
+	 * @param z - 1.96 for 95% bounds; 1.0 for 68% bounds
+	 * @return - see above
+	 */
+	public static double[] getBinomialProportionConfidenceInterval(double p, double n, double z) {
 		double[] conf = new double[2];
-		double z = 1.96; // for 95% conf factor
 		double temp = z*Math.sqrt(z*z-1/n+4*n*p*(1-p)+(4*p-2)) + 1.0;
 		conf[0] = (2*n*p + z*z - temp)/(2*(n+z*z));
 		if(conf[0]<0 || p==0)
@@ -1126,6 +1170,7 @@ public class ETAS_Utils {
 		return conf;
 	}
 
+	
 	
 	public static void main(String[] args) {
 		
