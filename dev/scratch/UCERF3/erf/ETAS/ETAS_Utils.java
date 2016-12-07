@@ -1160,10 +1160,14 @@ public class ETAS_Utils {
 	 */
 	public static double[] getBinomialProportionConfidenceInterval(double p, double n, double z) {
 		double[] conf = new double[2];
-		double temp = z*Math.sqrt(z*z-1/n+4*n*p*(1-p)+(4*p-2)) + 1.0;
+		// lower bound:
+		double temp;
+		temp = z*Math.sqrt(z*z-1/n+4*n*p*(1-p)+(4*p-2)) + 1.0;
 		conf[0] = (2*n*p + z*z - temp)/(2*(n+z*z));
 		if(conf[0]<0 || p==0)
 			conf[0]=0;
+		// upper bound
+		temp = z*Math.sqrt(z*z-1/n+4*n*p*(1-p)-(4*p-2)) + 1.0;
 		conf[1] = (2*n*p + z*z + temp)/(2*(n+z*z));
 		if(conf[1]>1 || p==1)
 			conf[1]=1;
@@ -1174,22 +1178,25 @@ public class ETAS_Utils {
 	
 	public static void main(String[] args) {
 		
-		double[] n = {1e4, 1e5, 1e6, 1e3, 1e2, 10};
-		for(int i=0;i<n.length;i++) {
-			double binN = n[i];
-			double littleN = 0;
-			while(littleN < binN+0.5) {
-				double[] test = getBinomialProportion95confidenceInterval(littleN/n[i], n[i]);
-				System.out.println(littleN+"\t"+n[i]+"\t"+test[0]+"\t"+test[1]);
-				if(littleN==0)
-					littleN=1;
-				else
-					littleN*=10;
-			}
-		}
-//		double[] test = getBinomialProportion95confidenceInterval(0, 1e5);
-//		System.out.println(test[0]+", "+test[1]+", "+test[1]/test[0]);
+//		double[] n = {1e4, 1e5, 1e6, 1e3, 1e2, 10};
+//		for(int i=0;i<n.length;i++) {
+//			double binN = n[i];
+//			double littleN = 0;
+//			while(littleN < binN+0.5) {
+//				double[] test = getBinomialProportion95confidenceInterval(littleN/n[i], n[i]);
+//				System.out.println(littleN+"\t"+n[i]+"\t"+test[0]+"\t"+test[1]);
+//				if(littleN==0)
+//					littleN=1;
+//				else
+//					littleN*=10;
+//			}
+//		}
+		
+		double[] test = getBinomialProportion95confidenceInterval(0, 100000);
+		System.out.println(test[0]+", "+test[1]+", "+test[1]/test[0]);
 		System.exit(0);
+		
+		
 		
 		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(5, 0.1653);
 		System.out.println(grMFD.getCumRateDistWithOffset());
