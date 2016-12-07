@@ -82,6 +82,19 @@ import com.google.common.primitives.Doubles;
 
 public class ETAS_CatalogEALCalculator {
 	
+	static final boolean conf_68 = true; // otherwise 95
+	static final String conf_lower_str;
+	static final String conf_upper_str;
+	static {
+		if (conf_68) {
+			conf_lower_str = "Lower 68%";
+			conf_upper_str = "Upper 68%";
+		} else {
+			conf_lower_str = "Lower 95%";
+			conf_upper_str = "Upper 95%";
+		}
+	}
+	
 	private UCERF3_BranchAvgLossFetcher fetcher;
 	private List<List<ETAS_EqkRupture>> catalogs;
 	private long startTime;
@@ -901,7 +914,11 @@ public class ETAS_CatalogEALCalculator {
 			HistogramFunction upper = new HistogramFunction(cumDist.getMinX(), cumDist.getMaxX(), cumDist.size());
 			for (int i=0; i<cumDist.size(); i++) {
 				double p = cumDist.getY(i);
-				double[] conf = ETAS_Utils.getBinomialProportion95confidenceInterval(p, nForConf);
+				double[] conf;
+				if (conf_68)
+					conf = ETAS_Utils.getBinomialProportion68confidenceInterval(p, nForConf);
+				else
+					conf = ETAS_Utils.getBinomialProportion95confidenceInterval(p, nForConf);
 				Preconditions.checkState((float)conf[0] <= (float)p,
 						"Bad conf. p=%s, n=%s, [%s %s]", p, nForConf, conf[0], conf[1]);
 				Preconditions.checkState((float)conf[1] >= (float)p,
@@ -981,15 +998,15 @@ public class ETAS_CatalogEALCalculator {
 		for (double duration : durations) {
 			header.add(getDurationLabel(duration));
 			if (hasConf) {
-				header.add("Lower 95%");
-				header.add("Upper 95%");
+				header.add(conf_lower_str);
+				header.add(conf_upper_str);
 			}
 			if (names.size() > 1) {
 				for (String name : names) {
 					header.add(name);
 					if (hasConf) {
-						header.add("Lower 95%");
-						header.add("Upper 95%");
+						header.add(conf_lower_str);
+						header.add(conf_upper_str);
 					}
 				}
 			}
