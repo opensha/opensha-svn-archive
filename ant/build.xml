@@ -75,6 +75,7 @@
 		</javac>
 	</target>
 
+	<!-- 
 	<path id="svn.classpath">
 		<pathelement location="${svnant.lib.dir}/antlr-runtime-3.4.jar" />
 		<pathelement location="${svnant.lib.dir}/ganymed.jar" />
@@ -89,6 +90,16 @@
 	</path>
 
 	<taskdef name="svn" classname="org.tigris.subversion.svnant.SvnTask" classpathref="svn.classpath" />
+	-->
+	
+	<!-- svnant tasks -->
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
+		<classpath>
+			<fileset dir= "${svnant.lib.dir}" >
+				<include name= "*.jar" />
+			</fileset>
+		</classpath>
+	</typedef>
 
 	<target name="svn.update">
 		<svn>
