@@ -28,7 +28,7 @@
 	<property name="test" value="../test/" />
 	<property name="lib.dir" value="../lib" />
 	<property name="ant.lib.dir" value="lib" />
-	<property name="svnant.lib.dir" value="${ant.lib.dir}/svnant-1.3.0" />
+	<property name="svnant.lib.dir" value="${ant.lib.dir}/svnant-1.3.1" />
 	<property name="ant.jnlp.war.lib.dir" value="${ant.lib.dir}/ant-jnlp-war" />
 	<property name="javadoc.dir" value="../javadocs/" />
 	<property name="keystore.alias" value="opensha" />

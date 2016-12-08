@@ -30,7 +30,7 @@
 	<!-- svnant tasks -->
 	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
 		<classpath>
-			<fileset dir= "${antlib.dir}/svnant-1.3.0" >
+			<fileset dir= "${antlib.dir}/svnant-1.3.1" >
 				<include name= "*.jar" />
 			</fileset>
 		</classpath>
@@ -63,9 +63,9 @@
 			value="${major.version}.${minor.version}.${build.number}"/>
 	</target>
 	<target name="set.app.version">
-		<!-- this is in a try catch block in order to try it 2 ways,
-		one which uses the command line svn client (faster for builds),
-		and falling back on the javahl version. -->
+		<!-- this is in a try catch block in order to try it 3 ways,
+		first using the command line svn client (faster for builds),
+		then svnkit, then falling back on the javahl version. -->
 		<trycatch>
 			<try>
 				<svn javahl="false" svnkit="false">
@@ -73,9 +73,18 @@
 				</svn>
 			</try>
 			<catch>
-				<svn>
-					<wcVersion path=".." prefix="svn." />
-				</svn>
+				<trycatch>
+					<try>
+						<svn svnkit="true">
+							<wcVersion path=".." prefix="svn." />
+						</svn>
+					</try>
+					<catch>
+						<svn>
+							<wcVersion path=".." prefix="svn." />
+						</svn>
+					</catch>
+				</trycatch>
 			</catch>
 		</trycatch>
 		<tstamp>
