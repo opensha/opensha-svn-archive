@@ -755,10 +755,10 @@ public class PureScratch {
 	private static void test26() {
 //		double p = 1.1E-4;
 //		double p = 1.110223E-16;
-//		double p = 1.2000000000000899E-4;
-//		int n = 500;
-		double p = 0;
-		int n = 100000;
+		double p = 1.2000000000000899E-4;
+		int n = 500;
+//		double p = 0;
+//		int n = 100000;
 		double[] ret = ETAS_Utils.getBinomialProportion95confidenceInterval(p, n);
 		System.out.println("95: "+ret[0]+" "+ret[1]);
 		ret = ETAS_Utils.getBinomialProportion68confidenceInterval(p, n);
