@@ -100,6 +100,13 @@
 			</fileset>
 		</classpath>
 	</typedef>
+	
+	<!-- ant-contrib tasks -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${ant.lib.dir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
 
 	<target name="svn.update">
 		<trycatch>
