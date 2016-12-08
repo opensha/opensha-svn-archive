@@ -76,14 +76,16 @@
 	</target>
 
 	<path id="svn.classpath">
-		<fileset dir= "${svnant.lib.dir}" >
-			<include name= "*.jar" />
-		</fileset>
-		<!--
-		<pathelement location="${svnant.lib.dir}/svnjavahl.jar" />
+		<pathelement location="${svnant.lib.dir}/antlr-runtime-3.4.jar" />
+		<pathelement location="${svnant.lib.dir}/ganymed.jar" />
+		<pathelement location="${svnant.lib.dir}/jna.jar" />
+		<pathelement location="${svnant.lib.dir}/sequence-library-1.0.3.jar" />
+		<pathelement location="${svnant.lib.dir}/sqljet-1.1.10.jar" />
 		<pathelement location="${svnant.lib.dir}/svnant.jar" />
 		<pathelement location="${svnant.lib.dir}/svnClientAdapter.jar" />
-		-->
+		<pathelement location="${svnant.lib.dir}/svnjavahl.jar" />
+		<pathelement location="${svnant.lib.dir}/svnkit-1.8.14.jar" />
+		<pathelement location="${svnant.lib.dir}/svnkit-javahl16-1.8.14.jar" />
 	</path>
 
 	<taskdef name="svn" classname="org.tigris.subversion.svnant.SvnTask" classpathref="svn.classpath" />
