@@ -102,9 +102,23 @@
 	</typedef>
 
 	<target name="svn.update">
+		<trycatch>
+			<try>
+				<svn svnkit="true">
+					<update revision="HEAD" dir="../" />
+				</svn>
+			</try>
+			<catch>
+				<svn>
+					<update revision="HEAD" dir="../" />
+				</svn>
+			</catch>
+		</trycatch>
+		<!--
 		<svn>
 			<update revision="HEAD" dir="../" />
 		</svn>
+		-->
 	</target>
 
 	<target name="init">
