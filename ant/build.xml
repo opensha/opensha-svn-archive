@@ -76,9 +76,14 @@
 	</target>
 
 	<path id="svn.classpath">
+		<fileset dir= "${svnant.lib.dir}" >
+			<include name= "*.jar" />
+		</fileset>
+		<!--
 		<pathelement location="${svnant.lib.dir}/svnjavahl.jar" />
 		<pathelement location="${svnant.lib.dir}/svnant.jar" />
 		<pathelement location="${svnant.lib.dir}/svnClientAdapter.jar" />
+		-->
 	</path>
 
 	<taskdef name="svn" classname="org.tigris.subversion.svnant.SvnTask" classpathref="svn.classpath" />
