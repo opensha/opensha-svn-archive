@@ -38,6 +38,10 @@ public class GMT_InterpolationSettings implements Serializable {
 	 */
 	private double searchRadius;
 	
+	private boolean saveInterpSurface = false;
+	
+	public static final String INTERP_XYZ_FILE_NAME = "map_data_interpolated.txt";
+	
 	public static GMT_InterpolationSettings getDefaultSettings() {
 		return new GMT_InterpolationSettings(0.02, 0.0, 0.1, -1.0, 1.0);
 	}
@@ -103,6 +107,14 @@ public class GMT_InterpolationSettings implements Serializable {
 	
 	public String getSearchArg() {
 		return "-S\""+(float)getSearchRadius()+" \""; // surround in quotes, otherwise unit detection but in GMT 5
+	}
+
+	public boolean isSaveInterpSurface() {
+		return saveInterpSurface;
+	}
+
+	public void setSaveInterpSurface(boolean saveInterpSurface) {
+		this.saveInterpSurface = saveInterpSurface;
 	}
 
 }

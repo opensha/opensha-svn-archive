@@ -79,7 +79,7 @@ public class CyberShakeMCErMapGenerator {
 	public static void calculateMaps(int datasetID, CyberShakeComponent component, double period,
 			ERF erf, ERF gmpeERF, List<AttenuationRelationship> gmpes, File outputDir, boolean weightAverage, File gmpeCacheDir)
 					throws IOException, GMT_MapException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 		
 		CybershakeIM im = CyberShakeMCErProbabilisticCalc.getIMsForPeriods(db, component, Lists.newArrayList(period)).get(0);
 		
@@ -292,18 +292,20 @@ public class CyberShakeMCErMapGenerator {
 		String studyName = "study_15_4";
 		
 		CyberShakeComponent component = CyberShakeComponent.RotD100;
-		double period = 10d;
+		double[] periods = { 2,3,4,5,7.5,10 };
+//		double period = 10d;
 		
-		boolean weightAverage = true;
+		boolean weightAverage = false;
 
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
-		List<AttenuationRelationship> gmpes = Lists.newArrayList();
-		gmpes.add(AttenRelRef.ASK_2014.instance(null));
-		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
-		gmpes.add(AttenRelRef.CB_2014.instance(null));
-		gmpes.add(AttenRelRef.CY_2014.instance(null));
-		for (AttenuationRelationship gmpe : gmpes)
-			gmpe.setParamDefaults();
+		List<AttenuationRelationship> gmpes = null;
+//		List<AttenuationRelationship> gmpes = Lists.newArrayList();
+//		gmpes.add(AttenRelRef.ASK_2014.instance(null));
+//		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
+//		gmpes.add(AttenRelRef.CB_2014.instance(null));
+//		gmpes.add(AttenRelRef.CY_2014.instance(null));
+//		for (AttenuationRelationship gmpe : gmpes)
+//			gmpe.setParamDefaults();
 		
 		ERF gmpeERF = null;
 //		MeanUCERF3 gmpeERF = new MeanUCERF3();
@@ -321,7 +323,10 @@ public class CyberShakeMCErMapGenerator {
 		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/"+outputName);
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
 
-		calculateMaps(datasetID, component, period, erf, gmpeERF, gmpes, outputDir, weightAverage, gmpeCacheDir);
+		for (double period : periods) {
+			System.out.println("Period: "+(float)period+"s");
+			calculateMaps(datasetID, component, period, erf, gmpeERF, gmpes, outputDir, weightAverage, gmpeCacheDir);
+		}
 
 		//// UCERF3/UCERF2 comparisons
 		//twoPercentIn50 = true;

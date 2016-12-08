@@ -226,6 +226,11 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 							+region+interpSettings.getConvergenceArg()+" "+interpSettings.getSearchArg()
 							+" "+interpSettings.getTensionArg()+" -: -h0";
 			gmtCommandLines.add(commandLine);
+			if (interpSettings.isSaveInterpSurface()) {
+				gmtCommandLines.add("# write interpolated XYZ file");
+				commandLine = "${GMT_PATH}grd2xyz "+ interpUnsampledGRD+ " > "+GMT_InterpolationSettings.INTERP_XYZ_FILE_NAME;
+				gmtCommandLines.add(commandLine);
+			}
 			// resample the interpolation
 			
 			rmFiles.add(interpSampledGRD);

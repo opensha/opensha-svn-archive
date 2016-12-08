@@ -20,6 +20,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
@@ -523,7 +524,12 @@ public class MCErMapGenerator {
 		// I hate this hack...but don't want to add more variables
 		if (!log && title.toLowerCase().contains("ratio"))
 			map.setCPTEqualSpacing(true);
-		FaultBasedMapGen.plotMap(outputDir, prefix+"_marks", false, map);
+		map.getInterpSettings().setSaveInterpSurface(true);
+		String addr = FaultBasedMapGen.plotMap(outputDir, prefix+"_marks", false, map);
+		// download interpolated
+		FileUtils.downloadURL(addr+GMT_InterpolationSettings.INTERP_XYZ_FILE_NAME,
+				new File(outputDir, prefix+GMT_InterpolationSettings.INTERP_XYZ_FILE_NAME));
+		map.getInterpSettings().setSaveInterpSurface(false);
 		map.setSymbolSet(null);
 		FaultBasedMapGen.plotMap(outputDir, prefix, false, map);
 		map.setContourIncrement(0.1);
