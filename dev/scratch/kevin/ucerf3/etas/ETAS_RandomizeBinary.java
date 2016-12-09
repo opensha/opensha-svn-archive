@@ -30,7 +30,7 @@ public class ETAS_RandomizeBinary {
 		double duration = Double.parseDouble(args[3]);
 		
 		long ot = Math.round((startYear-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
-		long durationMillis = (long) (duration * ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		double durationMillis = duration * ProbabilityModelsCalc.MILLISEC_PER_YEAR;
 		
 		List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(inputFile);
 		
@@ -38,7 +38,7 @@ public class ETAS_RandomizeBinary {
 		
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			for (ETAS_EqkRupture rup : catalog) {
-				long time = ot + (long)Math.random()*durationMillis;
+				long time = ot + (long)(Math.random()*durationMillis);
 				rup.setOriginTime(time);
 			}
 			Collections.sort(catalog, comp);
