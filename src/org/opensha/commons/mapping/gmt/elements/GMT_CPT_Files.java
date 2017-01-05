@@ -22,6 +22,7 @@ public enum GMT_CPT_Files {
 	STEP("STEP.cpt"),
 	UCERF2_FIGURE_35("ucerf2_fig_35.cpt"),
 	UCERF3_RATIOS("UCERF3_RatiosCPT.cpt"),
+	UCERF3_ETAS_TRIGGER("UCERF3_ETAS_Trigger.cpt"),
 	UCERF3_ETAS_GAIN("UCERF3_ETAS_Gain_CPT.cpt"),
 	UCERF3_HAZ_RATIO("UCERF3_hazRatio.cpt"),
 	UCERF3_HAZ_RATIO_P3("UCERF3_hazRatioP3toP3.cpt"),
