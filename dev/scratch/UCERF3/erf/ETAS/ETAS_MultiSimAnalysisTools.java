@@ -291,11 +291,11 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
-	private static void setFontSizes(HeadlessGraphPanel gp) {
+	public static void setFontSizes(HeadlessGraphPanel gp) {
 		setFontSizes(gp, 0);
 	}
 	
-	static void setFontSizes(HeadlessGraphPanel gp, int addition) {
+	public static void setFontSizes(HeadlessGraphPanel gp, int addition) {
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setTickLabelFontSize(22+addition);
 		gp.setAxisLabelFontSize(24+addition);

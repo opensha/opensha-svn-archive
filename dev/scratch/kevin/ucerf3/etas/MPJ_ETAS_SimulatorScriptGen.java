@@ -37,7 +37,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int threads = 1;
 //		String queue = null;
 //		String pbsNameAdd = null;
-		int threads = 10;
+		int threads = 8;
 		String queue = "scec";
 		String pbsNameAdd = "-scec";
 		boolean smallTest = false;
@@ -70,10 +70,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int numSims = 25000;
 //		int hours = 24;
 //		int nodes = 60;
-		int numSims = 200000;
+		int numSims = 100000;
 		int hours = 24;
 //		int nodes = 100;
-		int nodes = 24;
+		int nodes = 18;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -81,7 +81,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
 //				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
@@ -131,8 +132,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean gridSeisCorr = true;
 		boolean applySubSeisForSupraNucl = true;
 		
-		String nameAdd = null;
-//		String nameAdd = "100krun2";
+//		String nameAdd = null;
+		String nameAdd = "100krun1";
 //		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
@@ -198,6 +199,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					+ "2013_05_10-ucerf3p3-production-10runs/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 			boolean fmpj = nodes < 25;
+			fmpj = false;
 			if (fmpj) {
 				mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
 						null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
