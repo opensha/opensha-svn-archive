@@ -39,7 +39,7 @@ public class CyberShakeMCErProbabilisticCalc extends
 		this.dataset2db = new HazardDataset2DB(db);
 	}
 	
-	static synchronized List<CybershakeIM> getIMsForPeriods(DBAccess db,
+	public static synchronized List<CybershakeIM> getIMsForPeriods(DBAccess db,
 			CyberShakeComponent component, Collection<Double> periods) {
 		Preconditions.checkNotNull(component, "Must supply component!");
 		

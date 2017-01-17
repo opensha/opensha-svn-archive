@@ -181,7 +181,7 @@ public class CyberShakeMCErMapGenerator {
 			}
 		}
 		
-		outputDir = new File(outputDir, (int)period+"s");
+		outputDir = new File(outputDir, getPeriodDirName(period));
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		MCErMapGenerator.calculateMaps("CyberShake", null, csProbCalc, csDetCalc, "GMPE", gmpeProbCalc, gmpeDetCalc,
@@ -202,6 +202,13 @@ public class CyberShakeMCErMapGenerator {
 			MCErMapGenerator.calculateMaps("Weight Avg", "weight_avg", avgProbCalc, avgDetCalc, null, null, null,
 					region, sites, period, outputDir);
 		}
+	}
+	
+	static String getPeriodDirName(double period) {
+		if (period == (double)(int)period)
+			return (int)period+"s";
+		else
+			return (float)period+"s";
 	}
 	
 	private static String getERFName(ERF erf) {
@@ -290,6 +297,9 @@ public class CyberShakeMCErMapGenerator {
 	public static void main(String[] args) throws IOException, GMT_MapException {
 		int datasetID = 57;
 		String studyName = "study_15_4";
+		MCErMapGenerator.doPSV = false;
+		MCErMapGenerator.plot_log = false;
+		MCErMapGenerator.interpSettings.setInterpSpacing(0.01);
 		
 		CyberShakeComponent component = CyberShakeComponent.RotD100;
 		double[] periods = { 2,3,4,5,7.5,10 };

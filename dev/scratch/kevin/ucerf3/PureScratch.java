@@ -766,6 +766,7 @@ public class PureScratch {
 		
 		long l = (1325419200000l + 7l*ProbabilityModelsCalc.MILLISEC_PER_DAY);
 		System.out.println(l);
+		ETAS_SimAnalysisTools.writeMemoryUse("test");
 	}
 
 	/**
