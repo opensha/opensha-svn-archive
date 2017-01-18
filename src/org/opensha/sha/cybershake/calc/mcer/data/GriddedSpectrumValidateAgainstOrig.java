@@ -36,7 +36,8 @@ public class GriddedSpectrumValidateAgainstOrig {
 //		double spacing = 0.02;
 //		double spacing = 0.01;
 //		double spacing = 0.005;
-		double spacing = 0.001;
+//		double spacing = 0.001;
+		double spacing = 0.002;
 		File dataFile = new File("/home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_"+(float)spacing+".bin");
 		BinaryHazardCurveReader reader = new BinaryHazardCurveReader(dataFile.getAbsolutePath());
 		Map<Location, ArbitrarilyDiscretizedFunc> curves = reader.getCurveMap();

@@ -33,10 +33,10 @@ import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
-import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.Interpolate;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
@@ -53,7 +53,6 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -70,13 +69,14 @@ public class UGMS_WebToolCalc {
 	private File gmpeDir;
 	private double gmpeSpacing;
 	private String gmpeERF;
-	private String siteClassName;
+	private List<String> siteClassNames;
 	private double userVs30;
 	
 	private File outputDir;
 	
 	public static Map<String, Double> vs30Map = Maps.newHashMap();
-	
+	private static final double minCalcVs30 = 150d;
+	private static final double maxCalcVs30 = 1000d;
 	static {
 		vs30Map.put("AorB",         1000d);
 		vs30Map.put("BBC",             880d);
@@ -235,8 +235,6 @@ public class UGMS_WebToolCalc {
 				csRun = csRuns.get(0);
 			}
 			
-			
-			
 			System.out.println("Using closest CS Site location: "+csRun.getLocation());
 			
 			double minDist = LocationUtils.horzDistanceFast(loc, csRun.getLocation());
@@ -274,7 +272,7 @@ public class UGMS_WebToolCalc {
 		
 		if (cmd.hasOption("class")) {
 			// site class specified
-			siteClassName = cmd.getOptionValue("class").toUpperCase();
+			String siteClassName = cmd.getOptionValue("class").toUpperCase();
 			Double match = null;
 			for (String key : vs30Map.keySet()) {
 				if (key.toUpperCase().equals(siteClassName)) {
@@ -286,21 +284,38 @@ public class UGMS_WebToolCalc {
 				siteClassName = "AorB"; // for bin file matching
 			Preconditions.checkState(match != null, "Unknown site class: %s", siteClassName);
 			Preconditions.checkState(!cmd.hasOption("vs30"), "Can't specify site class and Vs30!");
+			siteClassNames = Lists.newArrayList();
+			siteClassNames.add(siteClassName);
 			userVs30 = match;
 		} else if (cmd.hasOption("vs30")) {
 			double vs30 = Double.parseDouble(cmd.getOptionValue("vs30"));
 			double minDiff = Double.POSITIVE_INFINITY;
+			String closestClass = null;
+			double secondClosest = Double.POSITIVE_INFINITY;
+			String secondClosestClass = null;
 			for (String category : vs30Map.keySet()) {
 				Double catVs30 = vs30Map.get(category);
 				if (catVs30 == null)
 					continue;
 				double diff = Math.abs(vs30 - catVs30);
 				if (diff < minDiff) {
+					secondClosest = minDiff;
+					secondClosestClass = closestClass;
 					minDiff = diff;
-					siteClassName = category;
+					closestClass = category;
+				} else if (diff < secondClosest) {
+					secondClosest = diff;
+					secondClosestClass = category;
 				}
 			}
-			System.out.println("Selected GMPE site class "+siteClassName+" for user Vs30 of "+vs30+" (diff="+minDiff+")");
+			System.out.println("Closest GMPE site class "+closestClass+" for user Vs30 of "+vs30+" (diff="+minDiff+")");
+			siteClassNames = Lists.newArrayList();
+			siteClassNames.add(closestClass);
+			if (vs30 > minCalcVs30 && vs30 < maxCalcVs30 && (float)minDiff > 0f) {
+				// only add second point for interp if within range and not an exact match
+				System.out.println("\t2nd closest GMPE site class for interp "+secondClosestClass+" (diff="+secondClosest+")");
+				siteClassNames.add(secondClosestClass);
+			}
 			userVs30 = vs30;
 		} else {
 			// use Wills map
@@ -311,7 +326,15 @@ public class UGMS_WebToolCalc {
 			}
 		}
 		metadataEl.addAttribute("vs30", userVs30+"");
-		metadataEl.addAttribute("siteClass", siteClassName);
+		if (siteClassNames != null) {
+			if (siteClassNames.size() == 1) {
+				metadataEl.addAttribute("siteClass", siteClassNames.get(0));
+			} else {
+				Preconditions.checkState(siteClassNames.size() == 2, "Unexpected number of site classes");
+				metadataEl.addAttribute("siteClass", siteClassNames.get(0));
+				metadataEl.addAttribute("secondInterpSiteClass", siteClassNames.get(1));
+			}
+		}
 		
 		resultsEl = xmlRoot.addElement("Results");
 	}
@@ -364,15 +387,7 @@ public class UGMS_WebToolCalc {
 				if (csDeterms.get(i) != null)
 					csDetSpectrum.set(periods[i], csDeterms.get(i).getVal());
 			
-			// TODO should we use the GMPE value here?
-			double willsVs30;
-			try {
-				willsVs30 = new WillsMap2006().getValue(site.getLocation());
-			} catch (IOException e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-			
-			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, willsVs30, site.getLocation());
+			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, userVs30, site.getLocation());
 			
 			csMCER = MCERDataProductsCalc.calcMCER(csDetSpectrum, csProbSpectrum, asceDeterm);
 			csMCER.setName("CyberShake MCEr");
@@ -391,28 +406,90 @@ public class UGMS_WebToolCalc {
 		File gmpeDir = new File(this.gmpeDir, gmpeERF);
 		Preconditions.checkState(gmpeDir.exists(), "GMPE/ERF dir doesn't exist: %s", gmpeDir.getAbsolutePath());
 		
-		String dataFileName;
-		if (siteClassName == null)
-			dataFileName = "Wills.bin";
-		else
-			dataFileName = "class"+siteClassName+".bin";
-		File dataFile = new File(gmpeDir, dataFileName);
-		System.out.println("Loading GMPE data file: "+dataFile.getAbsolutePath());
-		Preconditions.checkState(dataFile.exists(), "Data file doesn't exist: %s", dataFile.getAbsolutePath());
+		List<String> dataFileNames = Lists.newArrayList();
+		List<Double> vs30Vals = Lists.newArrayList();
+		List<DiscretizedFunc> spectrum = Lists.newArrayList();
+		if (siteClassNames == null) {
+			dataFileNames.add("Wills.bin");
+			vs30Vals.add(userVs30);
+		} else {
+			for (String siteClassName : siteClassNames) {
+				dataFileNames.add("class"+siteClassName+".bin");
+				vs30Vals.add(vs30Map.get(siteClassName));
+			}
+		}
 		
-		gmpeSiteEl = xmlRoot.addElement("GMPE_Run");
-		gmpeSiteEl.addAttribute("dataFile", dataFile.getAbsolutePath());
+		for (String dataFileName : dataFileNames) {
+			File dataFile = new File(gmpeDir, dataFileName);
+			System.out.println("Loading GMPE data file: "+dataFile.getAbsolutePath());
+			Preconditions.checkState(dataFile.exists(), "Data file doesn't exist: %s", dataFile.getAbsolutePath());
+			
+			gmpeSiteEl = xmlRoot.addElement("GMPE_Run");
+			gmpeSiteEl.addAttribute("dataFile", dataFile.getAbsolutePath());
+			
+			GriddedSpectrumInterpolator interp = getInterpolator(dataFile, gmpeSpacing);
+			
+			Location closestLoc = interp.getClosestGridLoc(loc);
+			double minDist = LocationUtils.horzDistanceFast(closestLoc, loc);
+			
+			Preconditions.checkState(minDist <= GMPE_MAX_DIST,
+					"Closest location in GMPE data file too far from user location: %s > %s", minDist, GMPE_MAX_DIST);
+			
+			gmpeSiteEl.addAttribute("distFromUserLoc", minDist+"");
+			gmpeSiteEl.addAttribute("latitude", closestLoc.getLatitude()+"");
+			gmpeSiteEl.addAttribute("longitude", closestLoc.getLongitude()+"");
+			
+			spectrum.add(interp.getInterpolated(loc));
+		}
 		
-		GriddedSpectrumInterpolator interp = getInterpolator(dataFile, gmpeSpacing);
-		
-		Location closestLoc = interp.getClosestGridLoc(loc);
-		double minDist = LocationUtils.horzDistanceFast(closestLoc, loc);
-		
-		gmpeSiteEl.addAttribute("distFromUserLoc", minDist+"");
-		gmpeSiteEl.addAttribute("latitude", closestLoc.getLatitude()+"");
-		gmpeSiteEl.addAttribute("longitude", closestLoc.getLongitude()+"");
-		
-		gmpeMCER = interp.getInterpolated(loc);
+		if (spectrum.size() == 1) {
+			gmpeMCER = spectrum.get(0);
+		} else {
+			// need to interpolate
+			Preconditions.checkState(spectrum.size() == 2, "need exactly 2 for interpolation");
+			Element interpEl = xmlRoot.addElement("GMPE_Interpolation");
+			
+			double x1 = vs30Vals.get(0);
+			DiscretizedFunc s1 = spectrum.get(0);
+			double x2 = vs30Vals.get(1);
+			DiscretizedFunc s2 = spectrum.get(1);
+			Preconditions.checkState(s1.size() == s2.size(), "Spectrum sizes inconsistent");
+			
+			if (x2 < x1) {
+				// reverse
+				double tx = x1;
+				DiscretizedFunc ts = s1;
+				x1 = x2;
+				s1 = s2;
+				x2 = tx;
+				s2 = ts;
+			}
+			Preconditions.checkState(x2 > x1);
+			Preconditions.checkState(x2 >= userVs30 && userVs30 >= x1,
+					"User supplied Vs30 (%s) not in range [%s %s]", userVs30, x1, x2); 
+			interpEl.addAttribute("vs30lower", x1+"");
+			interpEl.addAttribute("vs30upper", x2+"");
+			interpEl.addAttribute("userVs30", userVs30+"");
+			s1.toXMLMetadata(interpEl, "LowerSpectrum");
+			s2.toXMLMetadata(interpEl, "UpperSpectrum");
+			
+			double[] xs = {x1, x2};
+			gmpeMCER = new ArbitrarilyDiscretizedFunc();
+			for (int i=0; i<s1.size(); i++) {
+				double x = s1.getX(i);
+				Preconditions.checkState((float)x == (float)s2.getX(i), "Spectrum x values inconsistent");
+				double[] ys = {s1.getY(i), s2.getY(i)};
+				// log-log interpolation as requested by Christine, 1/17/17
+//				double y = Interpolate.findY(xs, ys, userVs30);
+//				double y = Interpolate.findLogY(xs, ys, userVs30);
+				double y = Interpolate.findLogLogY(xs, ys, userVs30);
+//				System.out.println("x="+userVs30+", x1="+x1+", x2="+x2);
+//				System.out.println("y="+y+", y1="+ys[0]+", y2="+ys[1]);
+				Preconditions.checkState(y >= ys[0] && y <= ys[1] || y >= ys[1] && y <= ys[0],
+						"Bad interpolation, %s outside of range [%s %s]", y, ys[0], ys[1]);
+				gmpeMCER.set(x, y);
+			}
+		}
 		gmpeMCER.setName("GMPE MCEr");
 		
 		gmpeMCER.toXMLMetadata(resultsEl, "GMPE_MCER");
@@ -682,11 +759,13 @@ public class UGMS_WebToolCalc {
 //			argStr += " --cs-dir /home/kevin/CyberShake/MCER/.amps_cache";
 //			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.001.bin";
 //			argStr += " --cs-spacing 0.001";
-			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.005.bin";
-			argStr += " --cs-spacing 0.005";
+//			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.005.bin";
+//			argStr += " --cs-spacing 0.005";
+			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.002.bin";
+			argStr += " --cs-spacing 0.002";
 			argStr += " --output-dir /tmp/ugms_web_tool";
-//			argStr += " --vs30 455";
-			argStr += " --class AorB";
+			argStr += " --vs30 455";
+//			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
 			
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);

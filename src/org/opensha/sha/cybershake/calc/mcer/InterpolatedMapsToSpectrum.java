@@ -19,7 +19,7 @@ public class InterpolatedMapsToSpectrum {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 //		boolean sameDir = false;
 //		File studyDir = new File("/home/kevin/CyberShake/MCER/maps/study_15_4_rotd100");
-		double spacing = 0.02;
+		double spacing = 0.002;
 		boolean sameDir = true;
 		File studyDir = new File("/home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests");
 		File outputFile = new File(studyDir, "mcer_spectrum_"+(float)spacing+".bin");
