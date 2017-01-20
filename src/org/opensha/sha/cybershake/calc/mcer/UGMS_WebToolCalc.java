@@ -116,6 +116,11 @@ public class UGMS_WebToolCalc {
 	private DiscretizedFunc csDetSpectrum;
 	private DiscretizedFunc csProbSpectrum;
 	private DiscretizedFunc csMCER;
+	private DiscretizedFunc finalMCER;
+	
+	private double sds;
+	private double sd1;
+	private static boolean plotSD = false;
 	
 	private DiscretizedFunc gmpeMCER;
 	
@@ -319,11 +324,23 @@ public class UGMS_WebToolCalc {
 			userVs30 = vs30;
 		} else {
 			// use Wills map
+			System.out.println("Fetching Vs30 from Wills 2006 map");
 			try {
-				userVs30 = new WillsMap2006().getValue(loc);
+				WillsMap2006 wills;
+				if (cmd.hasOption("wills-file")) {
+					File willsFile = new File(cmd.getOptionValue("wills-file"));
+					Preconditions.checkState(willsFile.exists(),
+							"Wills 2006 file specified but doesnt exist: %s", willsFile.getAbsolutePath());
+					wills = new WillsMap2006(willsFile.getAbsolutePath());
+				} else {
+					// use servlet
+					wills = new WillsMap2006();
+				}
+				userVs30 = wills.getValue(loc);
 			} catch (IOException e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
+			System.out.println("Wills 2006 Vs30: "+userVs30);
 		}
 		metadataEl.addAttribute("vs30", userVs30+"");
 		if (siteClassNames != null) {
@@ -530,6 +547,55 @@ public class UGMS_WebToolCalc {
 		return interp;
 	}
 	
+	public void calcFinalMCER() {
+		Preconditions.checkNotNull(csMCER, "CS MCER has not been computed!");
+		Preconditions.checkNotNull(gmpeMCER, "GMPE MCER has not been computed!");
+		finalMCER = MCERDataProductsCalc.calcFinalMCER(csMCER, gmpeMCER);
+		finalMCER.toXMLMetadata(resultsEl, "FinalMCER");
+		finalMCER.setName("Final MCEr");
+		
+		// calc SDS and SD1
+		DiscretizedFunc scaled = finalMCER.deepClone();
+		scaled.scale(2d/3d);
+		
+		/* SDS */
+		// SDS = 0.9 * max(Sa) for 0.2s <= T <= 0.5 where Sa 2/3 * MCER
+		this.sds = 0;
+		for (int i=0; i<scaled.size(); i++) {
+			double x = scaled.getX(i);
+			if (x < 0.2)
+				continue;
+			if (x > 0.5)
+				break;
+			double y = scaled.getY(i);
+			sds = Math.max(sds, 0.9 * y);
+		}
+		
+		/* SD1 */
+		double minPeriodSD1 = 1d;
+		double maxPeriodSD1;
+		if (userVs30 > 365.76) {
+			// SD1  = max(T * Sa) for 1s <= T <= 2s
+			maxPeriodSD1 = 2d;
+		} else {
+			// SD1 = max(T * Sa) for 1s <= T <= 5s
+			maxPeriodSD1 = 5d;
+		}
+		sd1 = 0;
+		for (int i=0; i<scaled.size(); i++) {
+			double x = scaled.getX(i);
+			if (x < minPeriodSD1)
+				continue;
+			if (x > maxPeriodSD1)
+				break;
+			double y = scaled.getY(i);
+			sd1 = Math.max(sd1, x * y);
+		}
+		
+		resultsEl.addAttribute("SDS", sds+"");
+		resultsEl.addAttribute("SD1", sd1+"");
+	}
+	
 	public void plot() throws IOException {
 		plot(true);
 		plot(false);
@@ -542,6 +608,7 @@ public class UGMS_WebToolCalc {
 		
 		DiscretizedFunc gmpeMCER = this.gmpeMCER;
 		DiscretizedFunc csMCER = this.csMCER;
+		DiscretizedFunc finalMCER = this.finalMCER;
 		
 		String prefix, yAxisLabel;
 		if (psv) {
@@ -549,6 +616,7 @@ public class UGMS_WebToolCalc {
 			yRange = new Range(2e0, 2e3);
 			gmpeMCER = MCErCalcUtils.saToPsuedoVel(gmpeMCER);
 			csMCER = MCErCalcUtils.saToPsuedoVel(csMCER);
+			finalMCER = MCErCalcUtils.saToPsuedoVel(finalMCER);
 			yAxisLabel = "PSV (cm/s)";
 		} else {
 			prefix = "mcer_sa";
@@ -560,11 +628,23 @@ public class UGMS_WebToolCalc {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		DiscretizedFunc finalMCEr = MCERDataProductsCalc.calcFinalMCER(csMCER, gmpeMCER);
-		finalMCEr.setName("Final MCEr");
-		
-		if (!psv)
-			finalMCEr.toXMLMetadata(resultsEl, "FinalMCER");
+		if (!psv && plotSD) {
+			DiscretizedFunc sdsFunc = new ArbitrarilyDiscretizedFunc();
+			sdsFunc.setName("SDS="+(float)+sds);
+			DiscretizedFunc sd1Func = new ArbitrarilyDiscretizedFunc();
+			sd1Func.setName("SD1="+(float)+sd1);
+			
+			for (int i=0; i<finalMCER.size(); i++) {
+				double x = finalMCER.getX(i);
+				sdsFunc.set(x, sds);
+				sd1Func.set(x, sd1);
+			}
+			
+			funcs.add(sdsFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK));
+			funcs.add(sd1Func);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
+		}
 
 		funcs.add(gmpeMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
@@ -572,7 +652,7 @@ public class UGMS_WebToolCalc {
 		funcs.add(csMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
-		funcs.add(finalMCEr);
+		funcs.add(finalMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
 
 		PlotSpec spec = new PlotSpec(funcs, chars, "CyberShake MCEr", "Period (s)", yAxisLabel);
@@ -606,7 +686,7 @@ public class UGMS_WebToolCalc {
 		
 		for (double period : periods) {
 			List<String> line = Lists.newArrayList((float)period+"");
-			line.add(MCERDataProductsCalc.getValIfPresent(finalMCEr, period));
+			line.add(MCERDataProductsCalc.getValIfPresent(finalMCER, period));
 			line.add(MCERDataProductsCalc.getValIfPresent(csMCER, period));
 			line.add(MCERDataProductsCalc.getValIfPresent(gmpeMCER, period));
 			
@@ -725,6 +805,11 @@ public class UGMS_WebToolCalc {
 		outputDir.setRequired(true);
 		ops.addOption(outputDir);
 		
+		Option willsFile = new Option("w", "wills-file", true,
+				"Path to Wills 2006 data file for local access, otherwise servlet will be used");
+		willsFile.setRequired(false);
+		ops.addOption(willsFile);
+		
 		Option help = new Option("?", "help", false, "Display this message");
 		help.setRequired(false);
 		ops.addOption(help);
@@ -749,11 +834,13 @@ public class UGMS_WebToolCalc {
 	public static void main(String[] args) {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 			// hardcoded
-			String argStr = "--latitude 34.026414 --longitude -118.300136";
+//			String argStr = "--latitude 34.026414 --longitude -118.300136";
+//			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
+			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
 //			String argStr = "--run-id 3870"; // doesn't require dataset ID if run ID
 //			String argStr = "--site-name LADT";
 //			String argStr = "--site-id 20";
-			argStr += " --dataset-id 57";
+//			argStr += " --dataset-id 57";
 			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results";
 			argStr += " --gmpe-spacing 0.02";
 //			argStr += " --cs-dir /home/kevin/CyberShake/MCER/.amps_cache";
@@ -764,9 +851,10 @@ public class UGMS_WebToolCalc {
 			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.002.bin";
 			argStr += " --cs-spacing 0.002";
 			argStr += " --output-dir /tmp/ugms_web_tool";
-			argStr += " --vs30 455";
+//			argStr += " --vs30 455";
 //			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
+			argStr += " --wills-file /data/kevin/opensha/wills2006.bin";
 			
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
@@ -793,6 +881,7 @@ public class UGMS_WebToolCalc {
 				
 				calc.calcCyberShake();
 				calc.calcGMPE();
+				calc.calcFinalMCER();
 				
 				calc.plot();
 				calc.writeMetadata();
