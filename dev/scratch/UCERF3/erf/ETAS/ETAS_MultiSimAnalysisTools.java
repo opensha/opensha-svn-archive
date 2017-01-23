@@ -4722,7 +4722,7 @@ public class ETAS_MultiSimAnalysisTools {
         
         
         
-		String fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/U3_OperationalLossModelingPaper/Figures/Figure1_U3maps/hawired-full_td-no_ert-combined-gridded_nucl_m2.5/map_data.txt";
+		String fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/U3_OperationalLossModelingPaper/Figures/Figure1and7_U3maps/hawired-full_td-no_ert-combined-gridded_nucl_m2.5/map_data.txt";
         double discr = 0.02;
         GriddedRegion reg = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), discr, GriddedRegion.ANCHOR_0_0);
 		GriddedGeoDataSet triggerData = new GriddedGeoDataSet(reg, true);	// true makes X latitude
@@ -4742,7 +4742,25 @@ public class ETAS_MultiSimAnalysisTools {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-	        
+		
+		fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/U3_OperationalLossModelingPaper/Figures/Figure1and7_U3maps/haywired-gridded-only_m2.5/map_data.txt";
+		GriddedGeoDataSet triggerDataNoFaults = new GriddedGeoDataSet(reg, true);	// true makes X latitude
+		try {
+			
+			for (String line : Files.readLines(new File(fileName), Charset.defaultCharset())) {
+				line = line.trim();
+				String[] split = line.split("\t");
+				double lat = Double.parseDouble(split[0]);
+				double lon = Double.parseDouble(split[1]);
+				double val = Double.parseDouble(split[2]);
+//				if (split[2].equals("-Infinity"))
+//					System.out.println(val);
+				int index = reg.indexForLocation(new Location(lat,lon));
+				triggerDataNoFaults.set(index, val);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
         
         boolean includeTopo=false;
         
@@ -4770,6 +4788,7 @@ public class ETAS_MultiSimAnalysisTools {
 			minValue = -5;
 			maxValue = 1;
 			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, reg, dir, "triggerOnlyMag2p5", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerDataNoFaults, reg, dir, "triggerOnlyNoFaultsMag2p5", true, cpt, minValue, maxValue, includeTopo);
 
 		} catch (Exception e) {
 			e.printStackTrace();
