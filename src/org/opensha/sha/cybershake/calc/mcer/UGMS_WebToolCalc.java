@@ -835,13 +835,14 @@ public class UGMS_WebToolCalc {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 			// hardcoded
 //			String argStr = "--latitude 34.026414 --longitude -118.300136";
-//			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
-			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
+			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
+//			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
 //			String argStr = "--run-id 3870"; // doesn't require dataset ID if run ID
 //			String argStr = "--site-name LADT";
 //			String argStr = "--site-id 20";
 //			argStr += " --dataset-id 57";
-			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results";
+//			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results_2016_09_30";
+			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results_2017_01_20";
 			argStr += " --gmpe-spacing 0.02";
 //			argStr += " --cs-dir /home/kevin/CyberShake/MCER/.amps_cache";
 //			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.001.bin";

@@ -38,20 +38,21 @@ import com.google.common.collect.Maps;
 
 public class MPJ_GMPE_MCErCacheGenScriptWriter {
 	
-	private static final String args_continue_newline = " \\\n\t";
+//	private static final String args_continue_newline = " \\\n\t";
+	private static final String args_continue_newline = " "; // for MPJ Express
 
 	public static void main(String[] args) throws IOException {
-//		int mins = 60*48;
-//		int nodes = 16;
-//		int memGigs = 50;
-//		String queue = "scec";
-//		int ppn = 20;
-		
-		int mins = 60*24;
-		int nodes = 24;
-		int memGigs = 40;
-		String queue = null;
+		int mins = 60*48;
+		int nodes = 16;
+		int memGigs = 50;
+		String queue = "scec";
 		int ppn = 20;
+		
+//		int mins = 60*24;
+//		int nodes = 24;
+//		int memGigs = 40;
+//		String queue = null;
+//		int ppn = 20;
 		
 		boolean fmpj = false;
 		

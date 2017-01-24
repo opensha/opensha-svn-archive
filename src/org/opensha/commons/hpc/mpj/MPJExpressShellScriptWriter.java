@@ -89,7 +89,9 @@ public class MPJExpressShellScriptWriter extends JavaShellScriptWriter {
 			script.add("echo \"RUNNING MPJ\"");
 			String command = "mpjrun.sh -machinesfile $PBS_NODEFILE -np $NP -dev "+dev+" -Djava.library.path=$MPJ_HOME/lib";
 			command += getJVMArgs(classNames.get(i));
-			command += getFormattedArgs(argss.get(i));
+			String myArgs = argss.get(i);
+			Preconditions.checkState(!myArgs.contains("\n"), "MPJExpress commands don't support newlines (sadly)");
+			command += getFormattedArgs(myArgs);
 			script.add(command);
 		}
 		

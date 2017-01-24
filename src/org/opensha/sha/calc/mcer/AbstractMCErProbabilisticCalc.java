@@ -25,7 +25,8 @@ public abstract class AbstractMCErProbabilisticCalc {
 	// if positive, uniform hazard spectrum value used instead of RTGM
 	protected double uhsVal = Double.NaN;
 	
-	static HazardCurveCalculator curveCalc = new HazardCurveCalculator();
+	protected HazardCurveCalculator curveCalc = new HazardCurveCalculator();
+	static HazardCurveCalculator curveCalcForRTGM = new HazardCurveCalculator();
 	
 	static ComponentTranslation getComponentTranslator(ScalarIMR gmpe, Component convertToComponent) {
 		// will throw exception ParameterException if no component param exists
@@ -90,7 +91,7 @@ public abstract class AbstractMCErProbabilisticCalc {
 	public static double calcRTGM(DiscretizedFunc curve) {
 		validateCurveForRTGM(curve);
 		// convert from annual probability to annual frequency
-		curve = curveCalc.getAnnualizedRates(curve, 1d);
+		curve = curveCalcForRTGM.getAnnualizedRates(curve, 1d);
 		RTGM calc = RTGM.create(curve, null, null);
 		try {
 			calc.call();

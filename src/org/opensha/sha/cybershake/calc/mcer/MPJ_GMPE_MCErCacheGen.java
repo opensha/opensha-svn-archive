@@ -69,15 +69,14 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 	private CalcRunnable[] calcs;
 	private String[] cachePrefixes;
 	
-	
+	private static final boolean duplicateERF = false;
 	
 	private BinaryCurveArchiver archiver;
 	
 	public MPJ_GMPE_MCErCacheGen(CommandLine cmd) throws InvocationTargetException, MalformedURLException, DocumentException {
 		super(cmd);
 		
-//		int numThreads = getNumThreads();
-		int numThreads = 1; // TODO make thread safe
+		int numThreads = getNumThreads();
 		Preconditions.checkState(numThreads >= 1);
 		
 		List<List<AttenuationRelationship>> attenRelsList = Lists.newArrayList();
@@ -91,12 +90,35 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 			
 			attenRelsList.add(attenRels);
 		}
-		ERF erf = ERFSaver.LOAD_ERF_FROM_FILE(cmd.getOptionValue("erf-file"));
 		
-		RuptureProbabilityModifier detProbMod = CyberShakeMCErDeterministicCalc.getProbMod(erf);
-		ERF detERF = MCERDataProductsCalc.getGMPEDetERF(erf, detProbMod);
+		ERF[] erfs = new ERF[numThreads];
+		ERF[] detERFs = new ERF[numThreads];
 		
-		erf.updateForecast();
+		if (duplicateERF) {
+			// build ERFs in parallel
+			List<Thread> erfInitThreads = Lists.newArrayList();
+			for (int i=0; i<numThreads; i++) {
+				Thread t = new Thread(new ERFInitRunnable(i, erfs, detERFs, cmd.getOptionValue("erf-file")));
+				t.start();
+				erfInitThreads.add(t);
+			}
+			for (int i=0; i<erfInitThreads.size(); i++) {
+				Thread t = erfInitThreads.get(i);
+				try {
+					t.join();
+				} catch (InterruptedException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				Preconditions.checkNotNull(erfs[i]);
+			}
+		} else {
+			// shared ERF
+			new ERFInitRunnable(0, erfs, detERFs, cmd.getOptionValue("erf-file")).run();
+			for (int i=1; i<numThreads; i++) {
+				erfs[i] = erfs[0];
+				detERFs[i] = detERFs[0];
+			}
+		}
 		
 		String periodStrs;
 		if (cmd.hasOption("period"))
@@ -149,9 +171,9 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 			AbstractMCErProbabilisticCalc[] probCalcs = new AbstractMCErProbabilisticCalc[attenRels.size()];
 			for (int i=0; i<attenRels.size(); i++) {
 				cachePrefixes[i] = CyberShakeMCErMapGenerator.getCachePrefix(
-						-1, erf, gmpeComp, Lists.newArrayList(attenRels.get(i)));
-				detCalcs[i] = new GMPE_MCErDeterministicCalc(detERF, attenRels.get(i), gmpeComp);
-				probCalcs[i] = new GMPE_MCErProbabilisticCalc(erf, attenRels.get(i), gmpeComp, xVals);
+						-1, erfs[t], gmpeComp, Lists.newArrayList(attenRels.get(i)));
+				detCalcs[i] = new GMPE_MCErDeterministicCalc(detERFs[t], attenRels.get(i), gmpeComp);
+				probCalcs[i] = new GMPE_MCErProbabilisticCalc(erfs[t], attenRels.get(i), gmpeComp, xVals);
 				
 				if (t == 0) {
 					xValsMap.put(cachePrefixes[i]+"_det", periodsFunc);
@@ -171,6 +193,35 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 			Site site = sites.get(i);
 			for (int j=0; j<cachePrefixes.length; j++)
 				calcTasks.add(new CalcTask(cachePrefixes[j], i, j, site));
+		}
+	}
+	
+	private class ERFInitRunnable implements Runnable {
+		private int index;
+		private ERF[] erfs;
+		private ERF[] detERFs;
+		private String erfPath;
+
+		public ERFInitRunnable(int index, ERF[] erfs, ERF[] detERFs, String erfPath) {
+			this.index = index;
+			this.erfs = erfs;
+			this.detERFs = detERFs;
+			this.erfPath = erfPath;
+		}
+
+		@Override
+		public void run() {
+			try {
+				erfs[index] = ERFSaver.LOAD_ERF_FROM_FILE(erfPath);
+				
+				RuptureProbabilityModifier detProbMod = CyberShakeMCErDeterministicCalc.getProbMod(erfs[index]);
+				detERFs[index] = MCERDataProductsCalc.getGMPEDetERF(erfs[index], detProbMod);
+				
+				erfs[index].updateForecast();
+			} catch (Exception e) {
+				erfs[index] = null;
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
 		}
 	}
 	
