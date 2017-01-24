@@ -182,8 +182,8 @@ public class ETAScatalog {
 	public List<double[]> getNewETAScatalog(ObsEqkRupture mainshock, ObsEqkRupList aftershocks, double a_sample, double p_sample, double c_sample){
 		
 		//extract magnitudes and times from supplied Eqk rupture objects to make catalog (combine MS and AS's)
-		List<double[]> newEqList = new ArrayList<>();
-		List<double[]> finalEqList = new ArrayList<>();
+		List<double[]> newEqList = new ArrayList<double[]>();
+		List<double[]> finalEqList = new ArrayList<double[]>();
 		
 		//double[] event = {0, mainshock.getMag(), 0};	//utility variable : {relative time, magnitude, generation number}
 

@@ -73,7 +73,11 @@ public class HardCodedETASExample {
 
 				obj_in.close();
 				
-			}catch (IOException | ClassNotFoundException e) {
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Problem loading last catalog from disk. Trying Comcat instead.");
+				loadFromDisk = false;
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				System.out.println("Problem loading last catalog from disk. Trying Comcat instead.");
 				loadFromDisk = false;
