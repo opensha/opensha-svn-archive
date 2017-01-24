@@ -44,6 +44,8 @@ import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.data.function.XY_DatasetBinner;
 import org.opensha.commons.data.siteData.impl.TectonicRegime;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
@@ -216,6 +218,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 	private static final int pdf_tab_index = 6;
 	private static final int aftershock_expected_index = 7;
 	private static final int forecast_table_tab_index = 8;
+	private static final int forecast_map_tab_index = 9;
 	private GraphWidget epicenterGraph;
 	private GraphWidget magNumGraph;
 	private GraphWidget magTimeGraph;
@@ -224,6 +227,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 	private JTabbedPane pdfGraphsPane;
 	private GraphWidget aftershockExpectedGraph;
 	private JTabbedPane forecastTablePane;
+	private JTabbedPane forecastMapPane;
 	
 	private ComcatAccessor accessor;
 	private WC1994_MagLengthRelationship wcMagLen;
@@ -1714,23 +1718,55 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 			Preconditions.checkState(tabbedPane.getTabCount() > forecast_table_tab_index, "Plots added out of order");
 	}
 	
-	
 	private void plotRateModel2D(CalcProgressBar progress){
+		if (forecastMapPane == null)
+			forecastMapPane = new JTabbedPane();
+		else
+			while (forecastMapPane.getTabCount() > 0)
+				forecastMapPane.removeTabAt(0);
 
-		double resolution = 10.0; 	//pts per 111.111 km
+		double spacing = 0.1; 	// grid spacing in degrees
 		double stressDrop = 3.0; 	//MPa
 		double mainshockFitDuration = 1.0; //days
 		
-		EvenlyDiscrXYZ_DataSet genericRateModel = genericModel.getRateModel2D(resolution, stressDrop, mainshockFitDuration);
+		if (progress != null)
+			progress.updateProgress(0, 1, "Calculating Rate Model...");
+		
+		// TODO progress inside loop in this method
+		GriddedGeoDataSet genericRateModel = genericModel.getRateModel2D(spacing, stressDrop, mainshockFitDuration);
 
-		System.out.println("rateModel is " + genericRateModel.getNumX() + " by " + genericRateModel.getNumY());
+//		System.out.println("rateModel is " + genericRateModel. + " by " + genericRateModel.getNumY());
 		System.out.println("rateModel min max: " + + genericRateModel.getMinZ() + " " + genericRateModel.getMaxZ());
 		
-		// spit out a map! How?
+		// TODO spit out a map! How?
+		
 		
 		if (progress != null)
 			progress.updateProgress(1,1);
 		
+		CPT cpt;
+		try {
+			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(genericRateModel.getMinZ(), genericRateModel.getMaxZ());
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		
+		XYZPlotSpec spec = new XYZPlotSpec(genericRateModel, cpt, "Spatial Forecast", "Longitude", "Latitude", "Rate Density");
+		
+		XYZGraphPanel xyzGP = new XYZGraphPanel();
+		forecastMapPane.addTab("Aftershock Rate", null, xyzGP);
+		GriddedRegion reg = genericRateModel.getRegion();
+		double xDelta = reg.getLonSpacing();
+		double yDelta = reg.getLatSpacing();
+		xyzGP.drawPlot(spec, false, false,
+				new Range(reg.getMinGridLon()-0.5*xDelta, reg.getMaxGridLon()+0.5*xDelta),
+				new Range(reg.getMinGridLat()-0.5*yDelta, reg.getMaxGridLat()+0.5*yDelta));
+		
+		if (tabbedPane.getTabCount() == forecast_map_tab_index)
+			tabbedPane.addTab("Forecast Maps", null, forecastMapPane,
+					"Forcast Maps (rate, intensity)");
+		else
+			Preconditions.checkState(tabbedPane.getTabCount() > forecast_map_tab_index, "Plots added out of order");
 	}
 	
 	

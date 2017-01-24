@@ -17,6 +17,8 @@ import org.opensha.commons.data.function.DefaultXY_DataSet;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -1068,7 +1070,7 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	 * Returns a 2d grid of earthquake rates based on epicenters. 
 	 * 
 	 */
-	public EvenlyDiscrXYZ_DataSet getRateModel2D(double resolution, double stressDrop, double mainshockFitDuration){
+	public GriddedGeoDataSet getRateModel2D(double spacing, double stressDrop, double mainshockFitDuration){
 		
 		//load ETAS solution
 		double a = this.getMaxLikelihood_a();
@@ -1103,11 +1105,11 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 			lonmin = lon0 - mainshockRadius*10/geomFactor/111.111;
 			lonmax = lon0 + mainshockRadius*10/geomFactor/111.111;
 		}
-		int npts = (int) ((latmax-latmin)*resolution);
+		GriddedRegion griddedRegion = new GriddedRegion(new Location(latmin, lonmin),
+				new Location(latmax, lonmax), spacing, null);
+		GriddedGeoDataSet gridData = new GriddedGeoDataSet(griddedRegion, false);
 		
-		System.out.println(latmin + " " + latmax + " " + lonmin + " " + lonmax + " " + npts);
-		
-		EvenlyDiscrXYZ_DataSet rateGrid = new EvenlyDiscrXYZ_DataSet(npts, npts, lonmin, latmin, (lonmax-lonmin)/(npts-1), (latmax-latmin)/(npts-1));
+		System.out.println(latmin + " " + latmax + " " + lonmin + " " + lonmax + " " + griddedRegion.getNodeCount());
 		
 		// fit finite mainshock source to early aftershocks
 		System.out.println("Fitting " + aftershockFitList.size() + " early aftershocks, out of " + aftershockList.size() + " total aftershocks.");
@@ -1129,16 +1131,14 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 			mag0 = rup.getMag();
 			t0 = (rup.getOriginTime() - mainShock.getOriginTime()) / ETAS_StatsCalc.MILLISEC_PER_DAY;
 			
-			for(int xI = 0; xI < npts; xI++){
-				for(int yI = 0; yI < npts; yI++){
-					x = lonmin + (lonmax-lonmin)/(npts-1)*xI;
-					y = latmin + (latmax-latmin)/(npts-1)*yI;
-					
-					newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays);
-												
-					prevVal = rateGrid.get(xI, yI);
-					rateGrid.set(xI, yI, prevVal+newVal);
-				}
+			for (int i=0; i<gridData.size(); i++) {
+				Location gridLoc = gridData.getLocation(i);
+				x = gridLoc.getLongitude();
+				y = gridLoc.getLatitude();
+				
+				newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays);
+				
+				gridData.set(i, gridData.get(i) + newVal);
 			}
 		}
 		
@@ -1150,21 +1150,19 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 			y0 = rup.getHypocenterLocation().getLatitude();
 			mag0 = rup.getMag();
 			t0 = (rup.getOriginTime() - mainShock.getOriginTime()) / ETAS_StatsCalc.MILLISEC_PER_DAY;
-
-			for(int xI = 0; xI < npts; xI++){
-				for(int yI = 0; yI < npts; yI++){
-					x = lonmin + (lonmax-lonmin)/(npts-1)*xI;
-					y = latmin + (latmax-latmin)/(npts-1)*yI;
-
-					newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays);
-
-					prevVal = rateGrid.get(xI, yI);
-					rateGrid.set(xI, yI, prevVal+newVal);
-				}
+			
+			for (int i=0; i<gridData.size(); i++) {
+				Location gridLoc = gridData.getLocation(i);
+				x = gridLoc.getLongitude();
+				y = gridLoc.getLatitude();
+				
+				newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays);
+				
+				gridData.set(i, gridData.get(i) + newVal);
 			}
 		}
 
-		return rateGrid;
+		return gridData;
 	}
 	
 	/**	compute rate at one point for one source
