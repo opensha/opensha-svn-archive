@@ -54,7 +54,7 @@ import org.opensha.sha.imr.param.PropagationEffectParams.DistanceSeisParameter;
  * @version    1.0
  */
 
-public class PointSurface implements RuptureSurface {
+public class PointSurface implements RuptureSurface, java.io.Serializable{
 
 	private static final long serialVersionUID = 1L;
 
