@@ -3,13 +3,8 @@ package scratch.aftershockStatisticsETAS;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Date;
-import cern.jet.random.tdouble.Poisson;
-import cern.jet.random.tdouble.Normal;
 
-import org.jcp.xml.dsig.internal.dom.ApacheCanonicalizer;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
