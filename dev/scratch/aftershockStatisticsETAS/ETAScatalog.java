@@ -79,14 +79,14 @@ public class ETAScatalog {
 		int[] nGens = new int[nSims];
 		
 		double p_base;
-		if(Math.floorMod(p_vec.length, 2) == 1)
+		if(p_vec.length % 2 == 1)
 			p_base = p_vec[(int)(p_vec.length - 1)/2];
 		else{
 			p_base = 0.5 * (p_vec[(int)(p_vec.length/2)] + p_vec[(int)(p_vec.length/2)]);
 		}
 		
 		double c_base;
-		if(Math.floorMod(c_vec.length, 2) == 1)
+		if(c_vec.length % 2 == 1)
 			c_base = c_vec[(int)(c_vec.length - 1)/2];
 		else{
 			c_base = 0.5 * (c_vec[(int)(c_vec.length/2)] + c_vec[(int)(c_vec.length/2)]);

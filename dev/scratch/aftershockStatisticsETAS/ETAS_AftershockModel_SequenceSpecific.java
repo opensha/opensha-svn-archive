@@ -14,6 +14,8 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.magdist.ArbIncrementalMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
+import com.google.common.primitives.Doubles;
+
 
 /**
  * This computes an ETAS aftershock model from aftershock data and with an assumed time-dependent 
@@ -373,7 +375,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 					logLike = getLogLikelihoodForETASParams( k,  a,  p,  c,  alpha,  magComplete,
 							dataStartTimeDays,  dataEndTimeDays, magAftershocks, relativeEventTimes);
 					
-					if(Double.isFinite(logLike)){
+					if(Doubles.isFinite(logLike)){
 						if (subCritFlag){
 							likelihood[aIndex][pIndex][cIndex] = logLike;
 							subCriticalLikelihood[aIndex][pIndex][cIndex] = logLike;
