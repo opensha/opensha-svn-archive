@@ -931,7 +931,7 @@ public class ETAS_MultiSimAnalysisTools {
 		for (XY_DataSet xy : funcs)
 			maxY = Math.max(maxY, xy.getMaxY());
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, name+" Temporal Decay", "Log10(Days)", "Rate (per day)");
+		PlotSpec spec = new PlotSpec(funcs, chars, name+" Temporal Decay", "Log10 Time (Days)", "Rate (per day)");
 		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -1004,7 +1004,7 @@ public class ETAS_MultiSimAnalysisTools {
 			title = name+" Rupture Surface Dist Decay";
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, title,
-				"Log10(Distance) (km)", "Aftershock Density (per km)");
+				"Log10 Distance (km)", "Aftershock Density (per km)");
 		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -1097,14 +1097,14 @@ public class ETAS_MultiSimAnalysisTools {
 	 * @param rupSet rupSet
 	 * @param minMags array of minimum magnitudes
 	 * @param outputDir directory in which to write plots
-	 * @param title title for the map
+	 * @param titleAdd if non null, appended to the end of the title for the map
 	 * @param prefix file name prefix
 	 * @throws IOException 
 	 * @throws RuntimeException 
 	 * @throws GMT_MapException 
 	 */
 	public static void plotSectRates(List<List<ETAS_EqkRupture>> catalogs, double duration, FaultSystemRupSet rupSet,
-			double[] minMags, File outputDir, String title, String prefix)
+			double[] minMags, File outputDir, String titleAdd, String prefix)
 					throws IOException, GMT_MapException, RuntimeException {
 		List<double[]> particRatesList = Lists.newArrayList();
 		for (int i=0; i<minMags.length; i++)
@@ -1243,26 +1243,33 @@ public class ETAS_MultiSimAnalysisTools {
 		particCSV.addLine(header);
 		triggerCSV.addLine(header);
 		
+		if (titleAdd == null)
+			titleAdd = "";
+		
+		if (!titleAdd.isEmpty() && !titleAdd.startsWith(" "))
+			titleAdd = " "+titleAdd;
+		
 		for (int i=0; i<minMags.length; i++) {
 			double[] particRates = particRatesList.get(i);
 			double[] triggerRates = triggerRatesList.get(i);
 			
-			String titleAdd;
+			String magStr;
 			String prefixAdd;
-			
 			if (minMags[i] > 1) {
-				titleAdd = " M>="+(float)minMags[i];
+				magStr = " M>="+(float)minMags[i];
 				prefixAdd = "_m"+(float)minMags[i];
 			} else {
-				titleAdd = "";
+				magStr = "";
 				prefixAdd = "";
 			}
+			String particTitle = "Log10"+magStr+" Participation Rate"+titleAdd;
+			String triggerTitle = "Log10"+magStr+" Trigger Rate"+titleAdd;
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(particRates), region, outputDir,
-					prefix+"_partic"+prefixAdd,false, false, title+titleAdd+" Partic. Rate");
+					prefix+"_partic"+prefixAdd,false, false, particTitle);
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(triggerRates), region, outputDir,
-					prefix+"_trigger"+prefixAdd, false, false, title+titleAdd+" Trigger Rate");
+					prefix+"_trigger"+prefixAdd, false, false, triggerTitle);
 			
 			for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
 				int row = sectIndex+1;
@@ -1528,11 +1535,11 @@ public class ETAS_MultiSimAnalysisTools {
 			Preconditions.checkState(minZ < maxZ, "minZ=%s >= maxZ=%s", minZ, maxZ);
 			
 			double mag = mags[i];
-			String label = "Log10("+name+" M>="+(float)mag;
+			String label = "Log10 M>="+(float)mag;
 			if (duration == 1d)
-				label += " Expected Num)";
+				label += " Expected Num";
 			else
-				label += " Nucleation Rate)";
+				label += " Nucleation Rate";
 			String myPrefix = prefix+"_m"+(float)mag;
 			String baseURL = FaultBasedMapGen.plotMap(outputDir, myPrefix, false,
 					FaultBasedMapGen.buildMap(cpt.rescale(minZ, maxZ), null, null,
@@ -4350,7 +4357,7 @@ public class ETAS_MultiSimAnalysisTools {
 
 		double[] minMags = {0d};
 		try {
-			plotSectRates(primaryCatalogs, -1d, rupSet, minMags, outputDir, "test", "M7");
+			plotSectRates(primaryCatalogs, -1d, rupSet, minMags, outputDir, null, "M7");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -5246,9 +5253,9 @@ public class ETAS_MultiSimAnalysisTools {
 				System.out.println("Plotting Sub Sect Rates");
 				double[] minMags = { 0, 6.7, 7.8 };
 				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" "+fullName, fullFileName+"_sect");
+						"for All Aftershocks", fullFileName+"_sect");
 				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" "+subsetName, subsetFileName+"_sect");
+						"for Primary Aftershocks", subsetFileName+"_sect");
 			}
 			
 			if (plotTemporalDecay && triggerParentID >= 0) {
