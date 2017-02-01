@@ -4,16 +4,25 @@ import java.io.File;
 import java.io.IOException;
 
 import org.dom4j.DocumentException;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
+import org.opensha.sha.earthquake.param.ProbabilityModelParam;
 
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_PrimaryEventSampler;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator;
+import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.ETAS.FaultSystemSolutionERF_ETAS;
 import scratch.UCERF3.erf.ETAS.ETAS_Params.ETAS_ParameterList;
+import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
+import scratch.UCERF3.erf.ETAS.NoFaultsModel.ETAS_PrimaryEventSampler_noFaults;
+import scratch.UCERF3.erf.ETAS.NoFaultsModel.ETAS_Simulator_NoFaults;
+import scratch.UCERF3.erf.ETAS.NoFaultsModel.UCERF3_GriddedSeisOnlyERF_ETAS;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.AbstractGridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
@@ -66,8 +75,31 @@ public class CacheFileGen {
 //		
 //		erf.updateForecast();
 		
+		ETAS_ParameterList params = new ETAS_ParameterList();
+		params.setApplyGridSeisCorr(true);
+		
 		ETAS_Simulator.testETAS_Simulation(resultsDir, erf, reg, mainshockRup, histQkList, includeSpontEvents,
-				includeIndirectTriggering, gridSeisDiscr, null, randSeed, new ETAS_ParameterList());
+				includeIndirectTriggering, gridSeisDiscr, null, randSeed, params);
+		
+		params.setU3ETAS_ProbModel(U3ETAS_ProbabilityModelOptions.POISSON);
+		
+		// Overide to Poisson if needed
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+
+		// first make array of rates for each source
+		double sourceRates[] = new double[erf.getNumSources()];
+		double duration = erf.getTimeSpan().getDuration();
+		for(int s=0;s<erf.getNumSources();s++) {
+			sourceRates[s] = erf.getSource(s).computeTotalEquivMeanAnnualRate(duration);
+			//					if(sourceRates[s] == 0)
+			//						System.out.println("HERE "+erf.getSource(s).getName());
+		}
+
+		ETAS_PrimaryEventSampler etas_PrimEventSampler = new ETAS_PrimaryEventSampler(reg, erf, sourceRates, 
+				gridSeisDiscr,null, params, new ETAS_Utils(),null,null,null);
+		
+		etas_PrimEventSampler.getExpectedAfterShockRateInGridCellsFromSupraRates(10d, new ETAS_ParameterList(), 2.0, null);
 	}
 
 }

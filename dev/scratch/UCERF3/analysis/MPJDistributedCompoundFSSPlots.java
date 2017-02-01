@@ -38,6 +38,7 @@ import scratch.UCERF3.analysis.CompoundFSSPlots.PlotSolComputeTask;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RegionalMFDPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.RupJumpPlot;
 import scratch.UCERF3.analysis.CompoundFSSPlots.SlipRatePlots;
+import scratch.UCERF3.analysis.CompoundFSSPlots.SubSectRITable;
 import scratch.UCERF3.analysis.CompoundFSSPlots.TimeDepGriddedParticipationProbPlot;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.inversion.InversionFaultSystemSolution;
@@ -336,6 +337,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 		erfProbsOption.setRequired(false);
 		options.addOption(erfProbsOption);
 		
+		Option subSectRIsOption = new Option("ssris", "plot-sub-sect-ris", false,
+				"Flag for creating sub section RIs tables");
+		subSectRIsOption.setRequired(false);
+		options.addOption(subSectRIsOption);
+		
 		Option miniSectRIsOption = new Option("miniris", "plot-mini-sect-ris", false,
 				"Flag for creating mini section RIs tables");
 		miniSectRIsOption.setRequired(false);
@@ -574,6 +580,11 @@ public class MPJDistributedCompoundFSSPlots extends MPJTaskCalculator {
 			
 			if (plotAll || cmd.hasOption("miniris")) {
 				MiniSectRIPlot miniRIs = new MiniSectRIPlot(weightProvider);
+				plots.add(miniRIs);
+			}
+			
+			if (plotAll || cmd.hasOption("ssris")) {
+				SubSectRITable miniRIs = new SubSectRITable(weightProvider);
 				plots.add(miniRIs);
 			}
 			

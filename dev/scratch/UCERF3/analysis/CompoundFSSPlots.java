@@ -5113,6 +5113,168 @@ public abstract class CompoundFSSPlots implements Serializable {
 		}
 
 	}
+	
+	public static void writeSubSectRITables(FaultSystemSolutionFetcher fetch,
+			BranchWeightProvider weightProvider, File dir, String prefix)
+			throws IOException {
+		SubSectRITable plot = new SubSectRITable(weightProvider);
+		plot.buildPlot(fetch);
+
+		writeSubSectRITables(plot, dir, prefix);
+	}
+
+	public static void writeSubSectRITables(SubSectRITable plot, File dir,
+			String prefix) throws IOException {
+		System.out.println("Making sub sect RI plot!");
+
+		for (FaultModels fm : plot.csvTable.rowKeySet()) {
+			for (double minMag : plot.csvTable.columnKeySet()) {
+				CSVFile<String> csv = plot.csvTable.get(fm, minMag);
+				String fileName;
+				if (prefix != null && !prefix.isEmpty())
+					fileName = prefix+"_";
+				else
+					fileName = "";
+				if (plot.csvTable.rowKeySet().size() > 1)
+					fileName += fm.name()+"_";
+				if (minMag > 0)
+					fileName += "m"+(float)minMag;
+				else
+					fileName += "supra_seis";
+				File file = new File(dir, fileName+".csv");
+				csv.writeToFile(file);
+			}
+		}
+	}
+	
+	public static class SubSectRITable extends CompoundFSSPlots {
+		
+		private double[] minMags = { 0d, 7d };
+		
+		private double[] fractiles = {0.025, 0.16, 0.84, 0.975};
+
+		private transient BranchWeightProvider weightProvider;
+		
+		// FM, minMag, results by solution
+		private Table<FaultModels, Double, List<double[]>> results;
+		private Map<FaultModels, List<Double>> weights;
+		private Map<FaultModels, List<FaultSectionPrefData>> fmSectsMap;
+		
+		private Table<FaultModels, Double, CSVFile<String>> csvTable;
+		
+		public SubSectRITable(BranchWeightProvider weightProvider) {
+			this.weightProvider = weightProvider;
+			
+			results = HashBasedTable.create();
+			weights = Maps.newHashMap();
+			fmSectsMap = Maps.newHashMap();
+		}
+
+		@Override
+		protected void processSolution(LogicTreeBranch branch, InversionFaultSystemSolution sol, int solIndex) {
+			FaultModels fm = branch.getValue(FaultModels.class);
+			
+			synchronized (results) {
+				if (!results.containsRow(fm)) {
+					for (double minMag : minMags)
+						results.put(fm, minMag, new ArrayList<double[]>());
+					weights.put(fm, new ArrayList<Double>());
+					fmSectsMap.put(fm, sol.getRupSet().getFaultSectionDataList());
+				}
+			}
+			
+			List<double[]> myRIs = Lists.newArrayList();
+			
+			for (double minMag : minMags) {
+				double[] rates = sol.calcParticRateForAllSects(minMag, Double.POSITIVE_INFINITY);
+				double[] ris = new double[rates.length];
+				for (int i=0; i<rates.length; i++)
+					ris[i] = 1d/rates[i];
+				myRIs.add(ris);
+			}
+			
+			synchronized (results) {
+				for (int i=0; i<minMags.length; i++) {
+					double minMag = minMags[i];
+					results.get(fm, minMag).add(myRIs.get(i));
+				}
+				weights.get(fm).add(weightProvider.getWeight(branch));
+			}
+		}
+
+		@Override
+		protected void combineDistributedCalcs(Collection<CompoundFSSPlots> otherCalcs) {
+			for (CompoundFSSPlots otherCalc : otherCalcs) {
+				SubSectRITable o = (SubSectRITable) otherCalc;
+				for (FaultModels fm : o.results.rowKeySet()) {
+					if (!results.containsRow(fm)) {
+						for (double minMag : minMags)
+							results.put(fm, minMag, new ArrayList<double[]>());
+						weights.put(fm, new ArrayList<Double>());
+						fmSectsMap.put(fm, o.fmSectsMap.get(fm));
+					}
+					
+					for (double minMag : minMags)
+						results.get(fm, minMag).addAll(o.results.get(fm, minMag));
+					weights.get(fm).addAll(o.weights.get(fm));
+				}
+			}
+		}
+
+		@Override
+		protected void doFinalizePlot() {
+			csvTable = HashBasedTable.create();
+			
+			for (FaultModels fm : results.rowKeySet()) {
+				Map<Double, List<double[]>> fmResults = results.row(fm);
+				List<Double> fmWeights = weights.get(fm);
+				
+				int numSects = fmResults.get(minMags[0]).get(0).length;
+				
+				List<FaultSectionPrefData> subSects = fmSectsMap.get(fm);
+				Preconditions.checkState(numSects == subSects.size());
+				
+				for (double minMag : minMags) {
+					List<double[]> ris = fmResults.get(minMag);
+					
+					Preconditions.checkState(ris.size() == fmWeights.size(),
+							"Size mismatch. %s results, %s weights", fmResults.size(), fmWeights.size());
+					
+					CSVFile<String> csv = new CSVFile<String>(true);
+					csvTable.put(fm, minMag, csv);
+					List<String> header = Lists.newArrayList("Subsection Index", "Parent Section ID", "Subsection Name"
+							,"Mean RI", "Min RI", "Max RI", "Std. Dev");
+					for (double fractile : fractiles) {
+						float p = (float)(fractile*100d);
+						header.add("p"+p);
+					}
+					csv.addLine(header);
+					
+					for (int s=0; s<numSects; s++) {
+						double[] vals = new double[ris.size()];
+						for (int i=0; i<vals.length; i++)
+							vals[i] = ris.get(i)[s];
+						
+						FaultSectionPrefData sect = subSects.get(s);
+						
+						List<String> line = Lists.newArrayList(sect.getSectionId()+"", sect.getParentSectionId()+"",
+								sect.getSectionName());
+						line.add(StatUtils.mean(vals)+"");
+						line.add(StatUtils.min(vals)+"");
+						line.add(StatUtils.max(vals)+"");
+						double stdDev = Math.sqrt(StatUtils.variance(vals));
+						line.add(stdDev+"");
+						for (double fractile : fractiles) {
+							double p = StatUtils.percentile(vals, fractile*100d);
+							line.add(p+"");
+						}
+						csv.addLine(line);
+					}
+				}
+			}
+		}
+		
+	}
 
 	public static void writeMiniSectRITables(FaultSystemSolutionFetcher fetch,
 			BranchWeightProvider weightProvider, File dir, String prefix)
@@ -9192,6 +9354,9 @@ public abstract class CompoundFSSPlots implements Serializable {
 			} else if (plot instanceof RupJumpPlot) {
 				RupJumpPlot jumpPlot = (RupJumpPlot) plot;
 				CompoundFSSPlots.writeJumpPlots(jumpPlot, dir, prefix);
+			} else if (plot instanceof SubSectRITable) {
+				SubSectRITable subSectPlot = (SubSectRITable) plot;
+				CompoundFSSPlots.writeSubSectRITables(subSectPlot, dir, prefix);
 			} else if (plot instanceof MiniSectRIPlot) {
 				MiniSectRIPlot miniPlot = (MiniSectRIPlot) plot;
 				CompoundFSSPlots.writeMiniSectRITables(miniPlot, dir, prefix);
@@ -9361,19 +9526,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 			wts += weightProvider.getWeight(branch);
 		System.out.println("Total weight: " + wts);
 		// System.exit(0);
-		int sols = 4;
+		int sols = 8;
 //		int sols = -1;
 		int threads = 4;
 		
 		if (sols > 0) {
 			// For one FM
-//			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
-//					FaultModels.FM3_1);
+			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols,
+					FaultModels.FM3_1);
 			
 			// For both FMs
-			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
-			while (!hasBothFMs(fetch))
-				fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+//			fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
+//			while (!hasBothFMs(fetch))
+//				fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, sols);
 			
 			System.out.println("Now has "+fetch.getBranches().size()+" branches");
 		}
@@ -9428,7 +9593,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		List<CompoundFSSPlots> plots = Lists.newArrayList();
 //		plots.add(new RegionalMFDPlot(weightProvider, regions));
 //		plots.add(new PaleoFaultPlot(weightProvider));
-		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
+//		plots.add(new ERFBasedRegionalMagProbPlot(weightProvider));
 //		plots.add(new ERFBasedSiteHazardHistPlot(weightProvider,
 //				new File(dir, ERFBasedSiteHazardHistPlot.DEFAULT_CACHE_DIR_NAME), fetch.getBranches().size()));
 //		plots.add(new ERFProbModelCalc());
@@ -9441,6 +9606,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 //		plots.add(new ParticipationMapPlot(weightProvider));
 //		plots.add(new GriddedParticipationMapPlot(weightProvider, 0.1d));
 //		plots.add(new ERFBasedRegionalMFDPlot(weightProvider));
+		plots.add(new SubSectRITable(weightProvider));
 //		plots.add(new MiniSectRIPlot(weightProvider));
 //		plots.add(new PaleoRatesTable(weightProvider));
 //		plots.add(new AveSlipMapPlot(weightProvider));

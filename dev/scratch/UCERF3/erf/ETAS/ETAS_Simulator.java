@@ -1574,6 +1574,10 @@ public class ETAS_Simulator {
 		
 		public int getFSS_Index() {return fssIndex;}
 		
+		public void setFSS_Index(int fssIndex) {
+			this.fssIndex = fssIndex;
+		}
+		
 		public Location getLocation() {return loc;}
 		
 		public double getMagnitude() {return mag;}

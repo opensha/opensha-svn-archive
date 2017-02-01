@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
@@ -23,6 +24,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_Params.U3ETAS_ProbabilityModelOptions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class MPJ_ETAS_SimulatorScriptGen {
 	
@@ -73,7 +75,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		int numSims = 100000;
 		int hours = 24;
 //		int nodes = 100;
-		int nodes = 18;
+		int nodes = 34;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -81,8 +83,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
+		TestScenario.NORTHRIDGE.updateMag(6.7);
+		TestScenario[] scenarios = {TestScenario.NORTHRIDGE};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
-		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
+//		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
 //				TestScenario.MOJAVE_M6pt3_ptSrc, TestScenario.MOJAVE_M6pt3_FSS, TestScenario.MOJAVE_M7};
@@ -106,7 +110,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean includeSpontaneous = true;
 		String customCatalog = null;
 		long customOT = Long.MIN_VALUE;
-		boolean griddedOnly = true;
+		boolean griddedOnly = false;
 		
 //		TestScenario[] scenarios = { null };
 ////		boolean includeSpontaneous = false;
@@ -239,6 +243,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 				}
 			} else {
 				scenarioName = scenario.name().toLowerCase();
+				if (scenario.getFSS_Index() >= 0 && scenario.getMagnitude() > 0)
+					scenarioName += "-m"+(float)scenario.getMagnitude();
 			}
 //			if (duration > 1d) {
 				if (duration == Math.floor(duration))
@@ -297,71 +303,76 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					File pbsFile = new File(localJobDir, pbsName);
 					
 					String argz;
+					String sep;
+					if (mpjWrite instanceof MPJExpressShellScriptWriter)
+						sep = " ";
+					else
+						sep = args_continue_newline;
 					
 					if (exactDispatch) {
-						argz = args_continue_newline+"--min-dispatch "+threads
+						argz = sep+"--min-dispatch "+threads
 								+" --max-dispatch "+threads+" --exact-dispatch "+threads;
 					} else {
-						argz = args_continue_newline+"--min-dispatch 1 --max-dispatch "+threads*10;
+						argz = sep+"--min-dispatch 1 --max-dispatch "+threads*10;
 					}
 					
-					argz += args_continue_newline+"--threads "+threads
-							+args_continue_newline+"--num "+numSims
-							+args_continue_newline+"--sol-file "+remoteSolFile.getAbsolutePath();
+					argz += sep+"--threads "+threads
+							+sep+"--num "+numSims
+							+sep+"--sol-file "+remoteSolFile.getAbsolutePath();
 					
-					argz += args_continue_newline+"--duration "+(float)duration;
+					argz += sep+"--duration "+(float)duration;
 					if (customOT > Long.MIN_VALUE)
-						argz += args_continue_newline+"--millis "+customOT;
+						argz += sep+"--millis "+customOT;
 					else
-						argz += args_continue_newline+"--start-year "+startYear;
+						argz += sep+"--start-year "+startYear;
 					
-					argz += args_continue_newline+"--prob-model "+probModel.name();
+					argz += sep+"--prob-model "+probModel.name();
 					
 //					argz += " --max-char-factor "+maxCharFactor;
 					if (grCorr)
-						argz += args_continue_newline+"--impose-gr";
+						argz += sep+"--impose-gr";
 					
-//					argz += args_continue_newline+"--apply-long-term-rates "+applyLongTermRates;
-					argz += args_continue_newline+"--apply-sub-seis-for-supra-nucl "+applySubSeisForSupraNucl;
+//					argz += sep+"--apply-long-term-rates "+applyLongTermRates;
+					argz += sep+"--apply-sub-seis-for-supra-nucl "+applySubSeisForSupraNucl;
 					
 					if (gridSeisCorr)
-						argz += args_continue_newline+"--grid-seis-correction";
+						argz += sep+"--grid-seis-correction";
 					
-					argz += args_continue_newline+"--tot-rate-scale-factor "+totRateScaleFactor;
+					argz += sep+"--tot-rate-scale-factor "+totRateScaleFactor;
 					
 					if (timeIndep)
-						argz += args_continue_newline+"--indep";
+						argz += sep+"--indep";
 					
 					if (binary)
-						argz += args_continue_newline+"--binary";
+						argz += sep+"--binary";
 					
 					if (scenario != null) {
 						if (scenario.getFSS_Index() >= 0)
-							argz += args_continue_newline+"--trigger-rupture-id "+scenario.getFSS_Index();
+							argz += sep+"--trigger-rupture-id "+scenario.getFSS_Index();
 						Location loc = scenario.getLocation();
 						if (loc != null)
-							argz += args_continue_newline+"--trigger-loc "+(float)loc.getLatitude()
+							argz += sep+"--trigger-loc "+(float)loc.getLatitude()
 								+","+(float)loc.getLongitude()+","+(float)loc.getDepth();
 						if (scenario.getMagnitude() > 0)
-							argz += args_continue_newline+"--trigger-mag "+(float)scenario.getMagnitude();
+							argz += sep+"--trigger-mag "+(float)scenario.getMagnitude();
 					}
 					if (customCatalog != null && !customCatalog.isEmpty()) {
 						File myHistFile = new File(remoteJobDir, customCatalog);
-						argz += args_continue_newline+"--trigger-catalog "+myHistFile.getAbsolutePath();
+						argz += sep+"--trigger-catalog "+myHistFile.getAbsolutePath();
 						if (rupSurfacesFile != null)
-							argz += args_continue_newline+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
+							argz += sep+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
 					} else {
 						if (histCatalogFile != null)
-							argz += args_continue_newline+"--trigger-catalog "+histCatalogFile.getAbsolutePath();
+							argz += sep+"--trigger-catalog "+histCatalogFile.getAbsolutePath();
 						if (rupSurfacesFile != null)
-							argz += args_continue_newline+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
+							argz += sep+"--rupture-surfaces "+rupSurfacesFile.getAbsolutePath();
 					}
 					if (!includeSpontaneous)
-						argz += args_continue_newline+"--no-spontaneous";
+						argz += sep+"--no-spontaneous";
 					if (griddedOnly)
-						argz += args_continue_newline+"--gridded-only";
+						argz += sep+"--gridded-only";
 					
-					argz += args_continue_newline+cacheDir.getAbsolutePath()+args_continue_newline+remoteJobDir.getAbsolutePath();
+					argz += sep+cacheDir.getAbsolutePath()+sep+remoteJobDir.getAbsolutePath();
 					
 					List<String> script = mpjWrite.buildScript(MPJ_ETAS_Simulator.class.getName(), argz);
 					

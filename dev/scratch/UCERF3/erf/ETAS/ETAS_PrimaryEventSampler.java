@@ -1027,7 +1027,7 @@ double maxCharFactor = maxRate/cubeRateBeyondDistThresh;
 			e.printStackTrace();
 		}
 		
-System.exit(0);
+//System.exit(0);
 
 		// Now compute which cubes are inside polygons
 		if (D) System.out.println("Starting on insidePoly calculation");
@@ -4833,7 +4833,7 @@ System.exit(0);
 				// TODO only need this temporarily?
 				if (Double.isNaN(longTermSupraSeisMFD_OnSectArray[sectIndex].getMaxMagWithNonZeroRate())){
 					System.out.println("NaN HERE: "+fssERF.getSolution().getRupSet().getFaultSectionData(sectIndex).getName());
-					throw new RuntimeException("Problem");
+//					throw new RuntimeException("Problem");
 				}
 
 //				if(Double.isInfinite(longTermSubSeisMFD_OnSectList.get(sectIndex).getMinMagWithNonZeroRate()))
