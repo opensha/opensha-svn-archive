@@ -923,6 +923,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	/**
 	 * This method generates a list of strings needed for the GMT script
 	 */
+	@Deprecated
 	protected ArrayList getGMT_ScriptLines() throws GMT_MapException{
 
 		ArrayList<String> rmFiles = new ArrayList<String>();
@@ -1560,11 +1561,12 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			int wdth = (int)(imageWidth*(double)dpi);
 			convertArgs += " -filter Lanczos -geometry "+wdth;
 		}
+		String gsArgs = " -dNumRenderingThreads=4 -dBandBufferSpace=500000000 -dBufferSpace=1000000000 ";
 		if (use_gs_raster) {
 			int jpeg_quality= 90;
-			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+" -sDEVICE=jpeg " + 
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=jpeg " + 
 					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+jpgFileName+" -");
-			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+" -sDEVICE=png16m " + 
+			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=png16m " + 
 					"-dTextAlphaBits=4 -sOutputFile="+pngFileName+" -");
 
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + jpgFileName + " " + jpgFileName);
@@ -1577,7 +1579,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + pngFileName);
 		}
 		
-		commandLine = "${PS2PDF_PATH}  "+psFileName+"  "+map.getPDFFileName();
+		commandLine = "${PS2PDF_PATH}"+gsArgs+" "+psFileName+"  "+map.getPDFFileName();
 		gmtCommandLines.add(commandLine);
 
 		boolean googleearth = map.isGenerateKML();
