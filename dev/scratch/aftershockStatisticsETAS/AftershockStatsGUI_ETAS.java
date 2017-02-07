@@ -1725,7 +1725,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 			while (forecastMapPane.getTabCount() > 0)
 				forecastMapPane.removeTabAt(0);
 
-		double spacing = 0.1; 	// grid spacing in degrees
+		double spacing = 0.05; 	// grid spacing in degrees
 		double stressDrop = 3.0; 	//MPa
 		double mainshockFitDuration = 1.0; //days
 		

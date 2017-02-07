@@ -705,6 +705,7 @@ public class ETAS_StatsCalc {
     		ObsEqkRupture newSource = new ObsEqkRupture(); 
     		newSource.setMag(magEquivalent);
     		newSource.setHypocenterLocation(loc);
+    		newSource.setOriginTime(mainshock.getOriginTime());
 
     		// add Equivalent source to list
     		mainshockEquivalent.add(newSource);

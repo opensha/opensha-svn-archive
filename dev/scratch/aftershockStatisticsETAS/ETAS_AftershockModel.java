@@ -1169,7 +1169,7 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
      * 
      */
     private double rateXY(double lon, double lat, double t0, double mag0, double lon0, double lat0, double stressDrop, double ts, double te){
-    	double dx = (lon-lon0)*Math.cos(Math.toRadians(lon0))*111.111;
+    	double dx = (lon-lon0)*Math.cos(Math.toRadians(lat0))*111.111;
     	double dy = (lat-lat0)*111.111;
     	
     	double r = Math.sqrt(dx*dx + dy*dy);
