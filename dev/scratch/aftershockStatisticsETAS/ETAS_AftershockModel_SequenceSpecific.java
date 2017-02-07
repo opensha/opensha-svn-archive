@@ -176,7 +176,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		
 		
 		// get aftershock times and mags and store as simple doubles[]
-		double[] relativeEventTimes = AftershockStatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
+		double[] relativeEventTimes = ETAS_StatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
 		double[] magAftershocks = getAftershockMags(aftershockList.getRupsAboveMag(magComplete));
 
 		List<double[]> sortedEQlist = new ArrayList<double[]>();
@@ -302,7 +302,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	 * Get likelihood matrix with no time dependent Mc. Checks for supercriticality and gives a warning if too many supercritical parameter sets are found;
 	 */
 	private void getLikelihoodMatrixGrid() {
-		double[] relativeEventTimes = AftershockStatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
+		double[] relativeEventTimes = ETAS_StatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
 		double[] magAftershocks = getAftershockMags(aftershockList.getRupsAboveMag(magComplete));
 				
 		List<double[]> sortedEQlist = new ArrayList<double[]>();

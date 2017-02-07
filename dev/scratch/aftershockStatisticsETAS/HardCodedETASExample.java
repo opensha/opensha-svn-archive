@@ -46,7 +46,7 @@ public class HardCodedETASExample {
 		ObsEqkRupture mainshock = new ObsEqkRupture();
 		ObsEqkRupList aftershocks = new ObsEqkRupList();
 		GenericETAS_Parameters genericParams = new GenericETAS_Parameters();
-		GenericRJ_Parameters genericParamsRJ = new GenericRJ_Parameters();
+//		GenericRJ_Parameters genericParamsRJ = new GenericRJ_Parameters();
 		
 		if(loadFromDisk){
 			// if the flag is set to load from disk, try to load 
@@ -69,7 +69,7 @@ public class HardCodedETASExample {
 				
 				obj = obj_in.readObject();
 				// Cast object to a GenericRJ_Parameters
-				genericParamsRJ = (GenericRJ_Parameters) obj;
+//				genericParamsRJ = (GenericRJ_Parameters) obj;
 
 				obj_in.close();
 				
@@ -118,11 +118,11 @@ public class HardCodedETASExample {
 			 * Fetch generic aftershock parameters
 			 */
 			GenericETAS_ParametersFetch genericFetch = new GenericETAS_ParametersFetch();
-			GenericRJ_ParametersFetch genericFetchRJ = new GenericRJ_ParametersFetch();
+//			GenericRJ_ParametersFetch genericFetchRJ = new GenericRJ_ParametersFetch();
 			TectonicRegime regime = genericFetch.getRegion(mainshock.getHypocenterLocation());
 			Preconditions.checkNotNull(regime, "Error fetching tectonic regime");
 			genericParams = genericFetch.get(regime);
-			genericParamsRJ = genericFetchRJ.get(regime);
+//			genericParamsRJ = genericFetchRJ.get(regime);
 			
 			System.out.println("Generic params for "+regime+": "+genericParams);
 		
@@ -133,7 +133,7 @@ public class HardCodedETASExample {
 				save.writeObject(mainshock);
 				save.writeObject(aftershocks);
 				save.writeObject(genericParams);
-				save.writeObject(genericParamsRJ);
+//				save.writeObject(genericParamsRJ);
 				save.close();
 				
 			} catch (IOException e) {

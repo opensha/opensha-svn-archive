@@ -2000,7 +2000,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 					double magPrecision = magPrecisionParam.getValue();
 					
 					ObsEqkRupList filteredRupList = aftershocks.getRupsAboveMag(mc);
-					double b = AftershockStatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
+					double b = ETAS_StatsCalc.getMaxLikelihood_b_value(filteredRupList, mc, magPrecision);
 					System.out.println("Num rups ≥ Mc = "+filteredRupList.size());
 					System.out.println("Computed b-value: "+b);
 					bParam.setValue(b);
@@ -2188,7 +2188,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 	
 	private void doPostFetchCalculations() {
 		aftershockMND = ObsEqkRupListCalc.getMagNumDist(aftershocks, 1.05, 81, 0.1);
-		mmaxc = AftershockStatsCalc.getMmaxC(aftershockMND);
+		mmaxc = ETAS_StatsCalc.getMmaxC(aftershockMND);
 		mcParam.setValue(mmaxc+0.5);
 		mcParam.getEditor().refreshParamEditor();
 	}

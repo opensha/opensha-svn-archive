@@ -186,7 +186,7 @@ public class ETAS_AftershockModel_Generic extends ETAS_AftershockModel {
 		}
 		
 		// get aftershock times and mags and store as simple doubles[]
-		double[] relativeEventTimes = AftershockStatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
+		double[] relativeEventTimes = ETAS_StatsCalc.getDaysSinceMainShockArray(mainShock, aftershockList.getRupsAboveMag(magComplete));
 		double[] magAftershocks = getAftershockMags(aftershockList.getRupsAboveMag(magComplete));
 
 		List<double[]> sortedEQlist = new ArrayList<double[]>();
