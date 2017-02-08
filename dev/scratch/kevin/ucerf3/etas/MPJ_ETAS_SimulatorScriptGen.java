@@ -110,7 +110,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		boolean includeSpontaneous = true;
 		String customCatalog = null;
 		long customOT = Long.MIN_VALUE;
-		boolean griddedOnly = false;
+		boolean griddedOnly = true;
 		
 //		TestScenario[] scenarios = { null };
 ////		boolean includeSpontaneous = false;
@@ -135,6 +135,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		boolean applyLongTermRates = false;
 		boolean gridSeisCorr = true;
 		boolean applySubSeisForSupraNucl = true;
+		
+		if (griddedOnly)
+			totRateScaleFactor = 1d;
 		
 //		String nameAdd = null;
 		String nameAdd = "100krun1";

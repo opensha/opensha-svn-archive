@@ -1466,6 +1466,17 @@ public class ETASCurveCalc {
 			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("bb_m6_point");
+			colors.add(Color.ORANGE);
+			if (!debugSiteCalcOnly && makeMaps)
+				maps.add(calc.calcMap(new File(mapDir, filePrefixes.get(filePrefixes.size()-1)+"_hazard.png")));
+			
+			File parkfieldFile = new File(simsDir,
+					"2017_01_30-parkfield-10yr-u2mapped-full_td-gridSeisCorr-noSpont/results_m4_preserve.bin");
+			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
+					parkfieldFile, mappingFile, erfID, rupVarScenID);
+			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
+			calcs.add(calc);
+			filePrefixes.add("parkfield");
 			colors.add(Color.RED);
 			if (!debugSiteCalcOnly && makeMaps)
 				maps.add(calc.calcMap(new File(mapDir, filePrefixes.get(filePrefixes.size()-1)+"_hazard.png")));
