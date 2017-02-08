@@ -1,5 +1,6 @@
 package org.opensha.sha.calc.hazardMap;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
@@ -19,7 +20,7 @@ public class BinaryHazardCurveReader {
 	
 	public BinaryHazardCurveReader(String filename) throws Exception {
 		// Set up the reader
-		reader = new DataInputStream(new FileInputStream(filename));
+		reader = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
 		
 		// Pre-populate the IML values
 		int imlcount = reader.readInt();

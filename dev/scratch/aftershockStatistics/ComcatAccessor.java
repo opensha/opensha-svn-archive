@@ -4,10 +4,14 @@ import gov.usgs.earthquake.event.EventQuery;
 import gov.usgs.earthquake.event.EventWebService;
 import gov.usgs.earthquake.event.Format;
 import gov.usgs.earthquake.event.JsonEvent;
+import scratch.aftershockStatistics.cmu.EqkEventIdComparator;
 
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -116,6 +120,8 @@ public class ComcatAccessor {
 		long startTime = eventTime + (long)(minDays*day_millis);
 		long endTime = eventTime + (long)(maxDays*day_millis);
 		query.setStartTime(new Date(startTime));
+		if(endTime==startTime)
+			endTime=Instant.now().toEpochMilli();
 		query.setEndTime(new Date(endTime));
 		
 		Preconditions.checkState(startTime < System.currentTimeMillis(), "Start time is before now!");
@@ -124,30 +130,51 @@ public class ComcatAccessor {
 		query.setMaxLatitude(new BigDecimal(region.getMaxLat()));
 		query.setMinLongitude(new BigDecimal(region.getMinLon()));
 		query.setMaxLongitude(new BigDecimal(region.getMaxLon()));
-		
-		if (D)
-			try {
-				System.out.println(service.getUrl(query, Format.GEOJSON));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
+		query.setLimit(20000);
 		List<JsonEvent> events;
-		try {
-			events = service.getEvents(query);
-		} catch (Exception e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
-		
+		int count=20000;
 		ObsEqkRupList rups = new ObsEqkRupList();
-		for (JsonEvent event : events) {
-			ObsEqkRupture rup = eventToObsRup(event);
-			if (rup.getEventId().equals(mainshock.getEventId())) {
-				if (D) System.out.println("Removing mainshock (M="+rup.getMag()+") from aftershock list");
-				continue;
+		Date latest=new Date(endTime);
+		Date endTimeStamp;
+		do{
+			endTimeStamp=latest;
+			query.setEndTime(latest);
+			if (D)
+				try {
+					System.out.println(service.getUrl(query, Format.GEOJSON));
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
+
+			try {
+				events = service.getEvents(query);
+				count = events.size();
+				System.out.println(count);
+			} catch (Exception e) {
+				throw ExceptionUtils.asRuntimeException(e);
 			}
-			rups.add(rup);
+
+
+			for (JsonEvent event : events) {
+				ObsEqkRupture rup = eventToObsRup(event);
+				if (rup !=null)
+					rups.add(rup);
+			}
+			rups.sortByOriginTime();
+			if(count==0)
+				break;
+			latest=rups.get(0).getOriginTimeCal().getTime();
+		}while(count==20000 && endTimeStamp.compareTo(latest)!=0);
+		Collections.sort(rups, new EqkEventIdComparator());
+		ObsEqkRupList delrups=new ObsEqkRupList();
+		ObsEqkRupture previous =null;
+		for (ObsEqkRupture rup : rups) {
+			if (rup.getEventId().equals(mainshock.getEventId()) || (previous!=null && rup.getEventId().equals(previous.getEventId()))) {
+				//if (D) System.out.println("Removing mainshock (M="+rup.getMag()+") from aftershock list");
+				delrups.add(rup);
+			}
 		}
-		
+		rups.removeAll(delrups);
 		if (!region.isRectangular()) {
 			if (D) System.out.println("Fetched "+rups.size()+" events before region filtering");
 			for (int i=rups.size(); --i>=0;)
@@ -165,8 +192,13 @@ public class ComcatAccessor {
 		double lon = event.getLongitude().doubleValue();
 		double dep = event.getDepth().doubleValue();
 		Location hypo = new Location(lat, lon, dep);
-		double mag = event.getMag().doubleValue();
-		
+		double mag=0;
+		try{
+			mag = event.getMag().doubleValue();
+		}catch(Exception e){
+			System.out.println(event.toString());
+			return null;
+		}
 		ObsEqkRupture rup = new ObsEqkRupture(event.getEventId().toString(),
 				event.getTime().getTime(), hypo, mag);
 		

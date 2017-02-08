@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -32,10 +33,10 @@ import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
-import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.ComparablePairing;
 import org.opensha.commons.util.ExceptionUtils;
+import org.opensha.commons.util.Interpolate;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.calc.mcer.ASCEDetLowerLimitCalc;
@@ -52,10 +53,10 @@ import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
 import org.opensha.sha.earthquake.ERF;
-import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -66,14 +67,16 @@ public class UGMS_WebToolCalc {
 	private Location loc;
 	
 	private File gmpeDir;
+	private double gmpeSpacing;
 	private String gmpeERF;
-	private String siteClassName;
+	private List<String> siteClassNames;
 	private double userVs30;
 	
 	private File outputDir;
 	
 	public static Map<String, Double> vs30Map = Maps.newHashMap();
-	
+	private static final double minCalcVs30 = 150d;
+	private static final double maxCalcVs30 = 1000d;
 	static {
 		vs30Map.put("AorB",         1000d);
 		vs30Map.put("BBC",             880d);
@@ -100,7 +103,9 @@ public class UGMS_WebToolCalc {
 	private static final double[] periods = {0.01,0.02,0.03,0.05,0.075,0.1,0.15,0.2,0.25,0.3,0.4,
 			0.5,0.75,1.0,1.5,2.0,3.0,4.0,5.0,7.5,10.0};
 	
-	private List<CyberShakeSiteRun> csRuns; // list for future interpolation
+	private CyberShakeSiteRun csRun; // list for future interpolation
+	private File csDataFile;
+	private double csDataSpacing;
 	
 	private Runs2DB runs2db;
 	private SiteInfo2DB sites2db;
@@ -111,6 +116,11 @@ public class UGMS_WebToolCalc {
 	private DiscretizedFunc csDetSpectrum;
 	private DiscretizedFunc csProbSpectrum;
 	private DiscretizedFunc csMCER;
+	private DiscretizedFunc finalMCER;
+	
+	private double sds;
+	private double sd1;
+	private static boolean plotSD = false;
 	
 	private DiscretizedFunc gmpeMCER;
 	
@@ -122,8 +132,6 @@ public class UGMS_WebToolCalc {
 	private Element resultsEl;
 	
 	public UGMS_WebToolCalc(CommandLine cmd) {
-		db = new DBAccess(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME);
-		
 		xmlMetadataDoc = XMLUtils.createDocumentWithRoot();
 		xmlRoot = xmlMetadataDoc.getRootElement();
 		
@@ -132,129 +140,144 @@ public class UGMS_WebToolCalc {
 		metadataEl.addAttribute("dbHost", Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 		metadataEl.addAttribute("component", component.name());
 		
-		runs2db = new Runs2DB(db);
-		sites2db = new SiteInfo2DB(db);
-		
-		csRuns = Lists.newArrayList();
-		
 		outputDir = new File(cmd.getOptionValue("output-dir"));
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs(),
 				"Output dir doesn't exist and couldn't be created: %s", outputDir.getAbsolutePath());
 		
 		gmpeDir = new File(cmd.getOptionValue("gmpe-dir"));
 		Preconditions.checkState(gmpeDir.exists(), "GMPE dir doesn't exist: %s", gmpeDir.getAbsolutePath());
+		gmpeSpacing = Double.parseDouble(cmd.getOptionValue("gmpe-spacing"));
 		gmpeERF = cmd.getOptionValue("gmpe-erf");
 		
-		if (cmd.hasOption("run-id")) {
-			// calculation happening at a CyberShake site
-			Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a location and a Run ID");
+		if (cmd.hasOption("cs-data-file")) {
+			Preconditions.checkArgument(cmd.hasOption("cs-spacing"), "Must supply spacing with CS data file");
+			csDataFile = new File(cmd.getOptionValue("cs-data-file"));
+			Preconditions.checkState(csDataFile.exists(), "CS data file doesn't exist: %s", csDataFile.getAbsolutePath());
 			
-			Integer runID = Integer.parseInt(cmd.getOptionValue("run-id"));
+			csDataSpacing = Double.parseDouble(cmd.getOptionValue("cs-spacing"));
 			
-			CybershakeRun run = runs2db.getRun(runID);
-			Preconditions.checkNotNull(run, "No run found with id=%s", runID);
-			CybershakeSite site = sites2db.getSiteFromDB(run.getSiteID());
-			loc = site.createLocation();
-			
-			csRuns.add(new CyberShakeSiteRun(site, run));
+			// search by location
+			Preconditions.checkState(cmd.hasOption("latitude"), "Must supply latitude when using precomputed CS data files");
+			Preconditions.checkState(cmd.hasOption("longitude"), "Must supply latitude when using precomputed CS data files");
+			double lat = Double.parseDouble(cmd.getOptionValue("latitude"));
+			double lon = Double.parseDouble(cmd.getOptionValue("longitude"));
+			loc = new Location(lat, lon);
+			System.out.println("User location: "+loc);
 		} else {
-			// calculation happening at an arbitrary point
-			// get all completed runs
-			Preconditions.checkState(cmd.hasOption("dataset-id"), "Must specify a CyberShake Dataset ID if no Run ID is specified");
-			int datasetID = Integer.parseInt(cmd.getOptionValue("dataset-id"));
-			List<CyberShakeSiteRun> completedRuns = getCompletedRunsForDataset(datasetID, IM_TYPE_ID_FOR_SEARCH);
-			Preconditions.checkState(!completedRuns.isEmpty(),
-					"No runs found for datasetID=%s with imTypeID=%s", datasetID, IM_TYPE_ID_FOR_SEARCH);
-			if (cmd.hasOption("site-id")) {
-				// search by site ID
-				Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a location and a Site ID");
-				Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a Site ID and Name");
-				Integer siteID = Integer.parseInt(cmd.getOptionValue("site-id"));
-				for (CyberShakeSiteRun run : completedRuns)
-					if (run.getCS_Site().id == siteID)
-						csRuns.add(run);
-				Preconditions.checkState(!csRuns.isEmpty(),
-						"No runs found for datasetID=%s with imTypeID=%s and siteID=%s", datasetID, IM_TYPE_ID_FOR_SEARCH, siteID);
-				loc = csRuns.get(0).getLocation();
-			} else if (cmd.hasOption("site-name")) {
-				// search by site name
-				Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a location and a Site Name");
-				String siteName = cmd.getOptionValue("site-name");
-				for (CyberShakeSiteRun run : completedRuns)
-					if (run.getCS_Site().short_name.equals(siteName) || run.getCS_Site().name.equals(siteName))
-						csRuns.add(run);
-				Preconditions.checkState(!csRuns.isEmpty(),
-						"No runs found for datasetID=%s with imTypeID=%s and siteName='%s'", datasetID, IM_TYPE_ID_FOR_SEARCH, siteName);
-				loc = csRuns.get(0).getLocation();
-			} else {
-				// search by location
-				Preconditions.checkState(cmd.hasOption("latitude"), "Must supply latitude (or site/run ID)");
-				Preconditions.checkState(cmd.hasOption("longitude"), "Must supply longitude (or site/run ID)");
-				double lat = Double.parseDouble(cmd.getOptionValue("latitude"));
-				double lon = Double.parseDouble(cmd.getOptionValue("longitude"));
-				loc = new Location(lat, lon);
-				System.out.println("User location: "+loc);
+			db = new DBAccess(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME);
+			runs2db = new Runs2DB(db);
+			sites2db = new SiteInfo2DB(db);
+			
+			if (cmd.hasOption("run-id")) {
+				// calculation happening at a CyberShake site
+				Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a location and a Run ID");
 				
-				System.out.println("Searching for nearby completed sites");
-				Region reg = new Region(loc, CS_MAX_DIST);
-				for (CyberShakeSiteRun run : completedRuns)
-					if (reg.contains(run.getLocation()))
-						csRuns.add(run);
-				Preconditions.checkState(!csRuns.isEmpty(),
-						"No runs found for datasetID=%s with imTypeID=%s within %km of %s",
-						datasetID, IM_TYPE_ID_FOR_SEARCH, CS_MAX_DIST, loc);
+				Integer runID = Integer.parseInt(cmd.getOptionValue("run-id"));
+				
+				CybershakeRun run = runs2db.getRun(runID);
+				Preconditions.checkNotNull(run, "No run found with id=%s", runID);
+				CybershakeSite site = sites2db.getSiteFromDB(run.getSiteID());
+				loc = site.createLocation();
+				
+				csRun = new CyberShakeSiteRun(site, run);
+			} else {
+				// calculation happening at an arbitrary point
+				// get all completed runs
+				Preconditions.checkState(cmd.hasOption("dataset-id"), "Must specify a CyberShake Dataset ID if no Run ID is specified");
+				int datasetID = Integer.parseInt(cmd.getOptionValue("dataset-id"));
+				List<CyberShakeSiteRun> completedRuns = getCompletedRunsForDataset(datasetID, IM_TYPE_ID_FOR_SEARCH);
+				Preconditions.checkState(!completedRuns.isEmpty(),
+						"No runs found for datasetID=%s with imTypeID=%s", datasetID, IM_TYPE_ID_FOR_SEARCH);
+				List<CyberShakeSiteRun> csRuns = Lists.newArrayList();
+				if (cmd.hasOption("site-id")) {
+					// search by site ID
+					Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a location and a Site ID");
+					Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a Site ID and Name");
+					Integer siteID = Integer.parseInt(cmd.getOptionValue("site-id"));
+					for (CyberShakeSiteRun run : completedRuns)
+						if (run.getCS_Site().id == siteID)
+							csRuns.add(run);
+					Preconditions.checkState(!csRuns.isEmpty(),
+							"No runs found for datasetID=%s with imTypeID=%s and siteID=%s", datasetID, IM_TYPE_ID_FOR_SEARCH, siteID);
+					loc = csRuns.get(0).getLocation();
+				} else if (cmd.hasOption("site-name")) {
+					// search by site name
+					Preconditions.checkState(!cmd.hasOption("latitude"), "Can't specify both a location and a Site Name");
+					String siteName = cmd.getOptionValue("site-name");
+					for (CyberShakeSiteRun run : completedRuns)
+						if (run.getCS_Site().short_name.equals(siteName) || run.getCS_Site().name.equals(siteName))
+							csRuns.add(run);
+					Preconditions.checkState(!csRuns.isEmpty(),
+							"No runs found for datasetID=%s with imTypeID=%s and siteName='%s'", datasetID, IM_TYPE_ID_FOR_SEARCH, siteName);
+					loc = csRuns.get(0).getLocation();
+				} else {
+					// search by location
+					Preconditions.checkState(cmd.hasOption("latitude"), "Must supply latitude (or site/run ID)");
+					Preconditions.checkState(cmd.hasOption("longitude"), "Must supply longitude (or site/run ID)");
+					double lat = Double.parseDouble(cmd.getOptionValue("latitude"));
+					double lon = Double.parseDouble(cmd.getOptionValue("longitude"));
+					loc = new Location(lat, lon);
+					System.out.println("User location: "+loc);
+					
+					System.out.println("Searching for nearby completed sites");
+					Region reg = new Region(loc, CS_MAX_DIST);
+					for (CyberShakeSiteRun run : completedRuns)
+						if (reg.contains(run.getLocation()))
+							csRuns.add(run);
+					Preconditions.checkState(!csRuns.isEmpty(),
+							"No runs found for datasetID=%s with imTypeID=%s within %km of %s",
+							datasetID, IM_TYPE_ID_FOR_SEARCH, CS_MAX_DIST, loc);
+				}
+				
+				System.out.println(csRuns.size()+" completed nearby sites found: ");
+				List<Double> distances = Lists.newArrayList();
+				for (CyberShakeSiteRun run : csRuns)
+					distances.add(LocationUtils.horzDistanceFast(loc, run.getLocation()));
+				csRuns = ComparablePairing.getSortedData(distances, csRuns);
+				for (CyberShakeSiteRun run : csRuns)
+					System.out.println("\tRunID="+run.getCS_Run().getRunID()+"\tSite="+run.getCS_Site().short_name);
+				
+				csRun = csRuns.get(0);
 			}
+			
+			System.out.println("Using closest CS Site location: "+csRun.getLocation());
+			
+			double minDist = LocationUtils.horzDistanceFast(loc, csRun.getLocation());
+			System.out.println("Min dist: "+minDist+" km");
+			
+			csSiteEl = xmlRoot.addElement("CyberShakeRun");
+			csSiteEl.addAttribute("runID", csRun.getCS_Run().getRunID()+"");
+			csSiteEl.addAttribute("siteID", csRun.getCS_Site().id+"");
+			csSiteEl.addAttribute("siteShortName", csRun.getCS_Site().short_name);
+			csSiteEl.addAttribute("siteName", csRun.getCS_Site().name);
+			csSiteEl.addAttribute("distFromUserLoc", minDist+"");
+			csSiteEl.addAttribute("latitude", csRun.getLocation().getLatitude()+"");
+			csSiteEl.addAttribute("longitude", csRun.getLocation().getLongitude()+"");
+			
+			File csCacheDir = new File(cmd.getOptionValue("cs-dir"));
+			Preconditions.checkState(csCacheDir.exists(), "CS cache dir doesn't exist: %s", csCacheDir.getAbsolutePath());
+			
+			ERF csERF;
+			try {
+				csERF = ERFSaver.LOAD_ERF_FROM_FILE(UGMS_WebToolCalc.class.getResource("/org/opensha/sha/cybershake/conf/MeanUCERF.xml"));
+			} catch (Exception e) {
+				throw ExceptionUtils.asRuntimeException(e);
+			}
+			csERF.updateForecast();
+			CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, csCacheDir, csERF);
+			
+			csDetCalc = new CyberShakeMCErDeterministicCalc(amps2db, csERF, component);
+			csProbCalc = new CyberShakeMCErProbabilisticCalc(db, component);
 		}
+		
 		metadataEl.addAttribute("latitude", loc.getLatitude()+"");
 		metadataEl.addAttribute("longitude", loc.getLongitude()+"");
-		System.out.println(csRuns.size()+" completed nearby sites found: ");
-		List<Double> distances = Lists.newArrayList();
-		for (CyberShakeSiteRun run : csRuns)
-			distances.add(LocationUtils.horzDistanceFast(loc, run.getLocation()));
-		csRuns = ComparablePairing.getSortedData(distances, csRuns);
-		for (CyberShakeSiteRun run : csRuns)
-			System.out.println("\tRunID="+run.getCS_Run().getRunID()+"\tSite="+run.getCS_Site().short_name);
 		
-		if (csRuns.size() > 1) {
-			System.out.println("CS interpolation not yet implemented, using closest site");
-			csRuns = csRuns.subList(0, 1);
-		}
-		
-		System.out.println("CS Site location: "+csRuns.get(0).getLocation());
 		System.out.println("Loc: "+loc);
-		
-		double minDist = LocationUtils.horzDistanceFast(loc, csRuns.get(0).getLocation());
-		System.out.println("Min dist: "+minDist+" km");
-		
-		csSiteEl = xmlRoot.addElement("CyberShakeRun");
-		CyberShakeSiteRun csRun = csRuns.get(0);
-		csSiteEl.addAttribute("runID", csRun.getCS_Run().getRunID()+"");
-		csSiteEl.addAttribute("siteID", csRun.getCS_Site().id+"");
-		csSiteEl.addAttribute("siteShortName", csRun.getCS_Site().short_name);
-		csSiteEl.addAttribute("siteName", csRun.getCS_Site().name);
-		csSiteEl.addAttribute("distFromUserLoc", minDist+"");
-		csSiteEl.addAttribute("latitude", csRun.getLocation().getLatitude()+"");
-		csSiteEl.addAttribute("longitude", csRun.getLocation().getLongitude()+"");
-		
-		File csCacheDir = new File(cmd.getOptionValue("cs-dir"));
-		Preconditions.checkState(csCacheDir.exists(), "CS cache dir doesn't exist: %s", csCacheDir.getAbsolutePath());
-		
-		ERF csERF;
-		try {
-			csERF = ERFSaver.LOAD_ERF_FROM_FILE(UGMS_WebToolCalc.class.getResource("/org/opensha/sha/cybershake/conf/MeanUCERF.xml"));
-		} catch (Exception e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
-		csERF.updateForecast();
-		CachedPeakAmplitudesFromDB amps2db = new CachedPeakAmplitudesFromDB(db, csCacheDir, csERF);
-		
-		csDetCalc = new CyberShakeMCErDeterministicCalc(amps2db, csERF, component);
-		csProbCalc = new CyberShakeMCErProbabilisticCalc(db, component);
-//		MCERDataProductsCalc.ca
 		
 		if (cmd.hasOption("class")) {
 			// site class specified
-			siteClassName = cmd.getOptionValue("class").toUpperCase();
+			String siteClassName = cmd.getOptionValue("class").toUpperCase();
 			Double match = null;
 			for (String key : vs30Map.keySet()) {
 				if (key.toUpperCase().equals(siteClassName)) {
@@ -266,145 +289,311 @@ public class UGMS_WebToolCalc {
 				siteClassName = "AorB"; // for bin file matching
 			Preconditions.checkState(match != null, "Unknown site class: %s", siteClassName);
 			Preconditions.checkState(!cmd.hasOption("vs30"), "Can't specify site class and Vs30!");
+			siteClassNames = Lists.newArrayList();
+			siteClassNames.add(siteClassName);
 			userVs30 = match;
 		} else if (cmd.hasOption("vs30")) {
 			double vs30 = Double.parseDouble(cmd.getOptionValue("vs30"));
 			double minDiff = Double.POSITIVE_INFINITY;
+			String closestClass = null;
+			double secondClosest = Double.POSITIVE_INFINITY;
+			String secondClosestClass = null;
 			for (String category : vs30Map.keySet()) {
 				Double catVs30 = vs30Map.get(category);
 				if (catVs30 == null)
 					continue;
 				double diff = Math.abs(vs30 - catVs30);
 				if (diff < minDiff) {
+					secondClosest = minDiff;
+					secondClosestClass = closestClass;
 					minDiff = diff;
-					siteClassName = category;
+					closestClass = category;
+				} else if (diff < secondClosest) {
+					secondClosest = diff;
+					secondClosestClass = category;
 				}
 			}
-			System.out.println("Selected GMPE site class "+siteClassName+" for user Vs30 of "+vs30+" (diff="+minDiff+")");
+			System.out.println("Closest GMPE site class "+closestClass+" for user Vs30 of "+vs30+" (diff="+minDiff+")");
+			siteClassNames = Lists.newArrayList();
+			siteClassNames.add(closestClass);
+			if (vs30 > minCalcVs30 && vs30 < maxCalcVs30 && (float)minDiff > 0f) {
+				// only add second point for interp if within range and not an exact match
+				System.out.println("\t2nd closest GMPE site class for interp "+secondClosestClass+" (diff="+secondClosest+")");
+				siteClassNames.add(secondClosestClass);
+			}
 			userVs30 = vs30;
 		} else {
 			// use Wills map
+			System.out.println("Fetching Vs30 from Wills 2006 map");
 			try {
-				userVs30 = new WillsMap2006().getValue(loc);
+				WillsMap2006 wills;
+				if (cmd.hasOption("wills-file")) {
+					File willsFile = new File(cmd.getOptionValue("wills-file"));
+					Preconditions.checkState(willsFile.exists(),
+							"Wills 2006 file specified but doesnt exist: %s", willsFile.getAbsolutePath());
+					wills = new WillsMap2006(willsFile.getAbsolutePath());
+				} else {
+					// use servlet
+					wills = new WillsMap2006();
+				}
+				userVs30 = wills.getValue(loc);
 			} catch (IOException e) {
 				throw ExceptionUtils.asRuntimeException(e);
 			}
+			System.out.println("Wills 2006 Vs30: "+userVs30);
 		}
 		metadataEl.addAttribute("vs30", userVs30+"");
-		metadataEl.addAttribute("siteClass", siteClassName);
+		if (siteClassNames != null) {
+			if (siteClassNames.size() == 1) {
+				metadataEl.addAttribute("siteClass", siteClassNames.get(0));
+			} else {
+				Preconditions.checkState(siteClassNames.size() == 2, "Unexpected number of site classes");
+				metadataEl.addAttribute("siteClass", siteClassNames.get(0));
+				metadataEl.addAttribute("secondInterpSiteClass", siteClassNames.get(1));
+			}
+		}
 		
 		resultsEl = xmlRoot.addElement("Results");
 	}
 	
 	public void calcCyberShake() {
-		Preconditions.checkState(csRuns.size() == 1, "Currently can only calculate for 1 CS site, closest");
-		CyberShakeSiteRun site = csRuns.get(0);
-		
-		System.out.println("Calculating CyberShake Values");
-		List<DeterministicResult> csDeterms = Lists.newArrayList();
-		csDetSpectrum = new ArbitrarilyDiscretizedFunc();
-		csDetSpectrum.setName("CyberShake Deterministic");
-		csProbSpectrum = new ArbitrarilyDiscretizedFunc();
-		csProbSpectrum.setName("CyberShake Probabilistic");
-		
-		for (double period : periods) {
+		if (csDataFile != null) {
+			System.out.println("Calculating with precomputed CS data file");
+			
 			try {
-				DeterministicResult csDet = csDetCalc.calc(site, period);
-				Preconditions.checkNotNull(csDet); // will kick down to catch and skip this period if null
-				csDeterms.add(csDet);
-				DiscretizedFunc curve = csProbCalc.calcHazardCurves(site, Lists.newArrayList(period)).get(period);
-				double csProb = CurveBasedMCErProbabilisitCalc.calcRTGM(curve);
-//				double csProb = csProbCalc.calc(site, period);
-				csProbSpectrum.set(period, csProb);
-			} catch (RuntimeException e) {
-				if (e.getMessage() != null && e.getMessage().startsWith("No CyberShake IM match")
-						|| e instanceof NullPointerException) {
-//					e.printStackTrace();
-//					System.err.flush();
-					System.out.println("Skipping period "+period+", no matching CyberShake IM");
-//					System.out.flush();
-					csDeterms.add(null);
-					continue;
-				}
-				throw e;
+				GriddedSpectrumInterpolator interp = getInterpolator(csDataFile, csDataSpacing);
+				csMCER = interp.getInterpolated(loc);
+				csMCER.setName("CyberShake MCEr");
+			} catch (Exception e) {
+				ExceptionUtils.throwAsRuntimeException(e);
 			}
+		} else {
+			CyberShakeSiteRun site = csRun;
+			
+			System.out.println("Calculating CyberShake Values");
+			List<DeterministicResult> csDeterms = Lists.newArrayList();
+			csDetSpectrum = new ArbitrarilyDiscretizedFunc();
+			csDetSpectrum.setName("CyberShake Deterministic");
+			csProbSpectrum = new ArbitrarilyDiscretizedFunc();
+			csProbSpectrum.setName("CyberShake Probabilistic");
+			
+			for (double period : periods) {
+				try {
+					DeterministicResult csDet = csDetCalc.calc(site, period);
+					Preconditions.checkNotNull(csDet); // will kick down to catch and skip this period if null
+					csDeterms.add(csDet);
+					DiscretizedFunc curve = csProbCalc.calcHazardCurves(site, Lists.newArrayList(period)).get(period);
+					double csProb = CurveBasedMCErProbabilisitCalc.calcRTGM(curve);
+//					double csProb = csProbCalc.calc(site, period);
+					csProbSpectrum.set(period, csProb);
+				} catch (RuntimeException e) {
+					if (e.getMessage() != null && e.getMessage().startsWith("No CyberShake IM match")
+							|| e instanceof NullPointerException) {
+//						e.printStackTrace();
+//						System.err.flush();
+						System.out.println("Skipping period "+period+", no matching CyberShake IM");
+//						System.out.flush();
+						csDeterms.add(null);
+						continue;
+					}
+					throw e;
+				}
+			}
+			Preconditions.checkState(csDeterms.size() == periods.length);
+			for (int i=0; i<periods.length; i++)
+				if (csDeterms.get(i) != null)
+					csDetSpectrum.set(periods[i], csDeterms.get(i).getVal());
+			
+			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, userVs30, site.getLocation());
+			
+			csMCER = MCERDataProductsCalc.calcMCER(csDetSpectrum, csProbSpectrum, asceDeterm);
+			csMCER.setName("CyberShake MCEr");
+			
+			csDetSpectrum.toXMLMetadata(csSiteEl, "deterministic");
+			csProbSpectrum.toXMLMetadata(csSiteEl, "probabilistic");
+			asceDeterm.toXMLMetadata(csSiteEl, "detLowerLimit");
+			csMCER.toXMLMetadata(csSiteEl, "mcer");
 		}
-		Preconditions.checkState(csDeterms.size() == periods.length);
-		for (int i=0; i<periods.length; i++)
-			if (csDeterms.get(i) != null)
-				csDetSpectrum.set(periods[i], csDeterms.get(i).getVal());
-		
-		// TODO should we use the GMPE value here?
-		double willsVs30;
-		try {
-			willsVs30 = new WillsMap2006().getValue(site.getLocation());
-		} catch (IOException e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
-		
-		DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, willsVs30, site.getLocation());
-		
-		csMCER = MCERDataProductsCalc.calcMCER(csDetSpectrum, csProbSpectrum, asceDeterm);
-		csMCER.setName("CyberShake MCEr");
-		
-		csDetSpectrum.toXMLMetadata(csSiteEl, "deterministic");
-		csProbSpectrum.toXMLMetadata(csSiteEl, "probabilistic");
-		asceDeterm.toXMLMetadata(csSiteEl, "detLowerLimit");
-		csMCER.toXMLMetadata(csSiteEl, "mcer");
 		
 		csMCER.toXMLMetadata(resultsEl, "CyberShakeMCER");
 	}
 	
 	public void calcGMPE() throws Exception {
+		System.out.println("Calculating GMPE");
 		File gmpeDir = new File(this.gmpeDir, gmpeERF);
 		Preconditions.checkState(gmpeDir.exists(), "GMPE/ERF dir doesn't exist: %s", gmpeDir.getAbsolutePath());
 		
-		String dataFileName;
-		if (siteClassName == null)
-			dataFileName = "Wills.bin";
-		else
-			dataFileName = "class"+siteClassName+".bin";
-		File dataFile = new File(gmpeDir, dataFileName);
-		System.out.println("Loading GMPE data file: "+dataFile.getAbsolutePath());
-		Preconditions.checkState(dataFile.exists(), "Data file doesn't exist: %s", dataFile.getAbsolutePath());
-		
-		gmpeSiteEl = xmlRoot.addElement("GMPE_Run");
-		gmpeSiteEl.addAttribute("dataFile", dataFile.getAbsolutePath());
-		
-		BinaryHazardCurveReader reader = new BinaryHazardCurveReader(dataFile.getAbsolutePath());
-		Map<Location, ArbitrarilyDiscretizedFunc> gmpeCurves = reader.getCurveMap();
-		
-		System.out.println("Loaded "+gmpeCurves.size()+" GMPE curves");
-		
-		Region reg = new Region(loc, GMPE_MAX_DIST);
-		List<Location> gmpeCloseLocs = Lists.newArrayList();
-		List<Double> gmpeLocDists = Lists.newArrayList();
-		double minDist = Double.POSITIVE_INFINITY;
-		for (Location loc : gmpeCurves.keySet()) {
-			if (reg.contains(loc)) {
-				double dist = LocationUtils.horzDistanceFast(loc, this.loc);
-				gmpeCloseLocs.add(loc);
-				gmpeLocDists.add(dist);
-				minDist = Math.min(dist, minDist);
+		List<String> dataFileNames = Lists.newArrayList();
+		List<Double> vs30Vals = Lists.newArrayList();
+		List<DiscretizedFunc> spectrum = Lists.newArrayList();
+		if (siteClassNames == null) {
+			dataFileNames.add("Wills.bin");
+			vs30Vals.add(userVs30);
+		} else {
+			for (String siteClassName : siteClassNames) {
+				dataFileNames.add("class"+siteClassName+".bin");
+				vs30Vals.add(vs30Map.get(siteClassName));
 			}
 		}
 		
-		Preconditions.checkState(!gmpeCloseLocs.isEmpty(),
-				"No GMPE locs found within %km of %s", GMPE_MAX_DIST, loc);
+		for (String dataFileName : dataFileNames) {
+			File dataFile = new File(gmpeDir, dataFileName);
+			System.out.println("Loading GMPE data file: "+dataFile.getAbsolutePath());
+			Preconditions.checkState(dataFile.exists(), "Data file doesn't exist: %s", dataFile.getAbsolutePath());
+			
+			gmpeSiteEl = xmlRoot.addElement("GMPE_Run");
+			gmpeSiteEl.addAttribute("dataFile", dataFile.getAbsolutePath());
+			
+			GriddedSpectrumInterpolator interp = getInterpolator(dataFile, gmpeSpacing);
+			
+			Location closestLoc = interp.getClosestGridLoc(loc);
+			double minDist = LocationUtils.horzDistanceFast(closestLoc, loc);
+			
+			Preconditions.checkState(minDist <= GMPE_MAX_DIST,
+					"Closest location in GMPE data file too far from user location: %s > %s", minDist, GMPE_MAX_DIST);
+			
+			gmpeSiteEl.addAttribute("distFromUserLoc", minDist+"");
+			gmpeSiteEl.addAttribute("latitude", closestLoc.getLatitude()+"");
+			gmpeSiteEl.addAttribute("longitude", closestLoc.getLongitude()+"");
+			
+			spectrum.add(interp.getInterpolated(loc));
+		}
 		
-		System.out.println(gmpeCloseLocs.size()+" completed nearby GMPE sites found (closest: "+minDist+" km)");
-		gmpeCloseLocs = ComparablePairing.getSortedData(gmpeLocDists, gmpeCloseLocs);
-		
-		Location closestLoc = gmpeCloseLocs.get(0);
-		
-		gmpeSiteEl.addAttribute("distFromUserLoc", minDist+"");
-		gmpeSiteEl.addAttribute("latitude", closestLoc.getLatitude()+"");
-		gmpeSiteEl.addAttribute("longitude", closestLoc.getLongitude()+"");
-		
-		gmpeMCER = gmpeCurves.get(closestLoc);
+		if (spectrum.size() == 1) {
+			gmpeMCER = spectrum.get(0);
+		} else {
+			// need to interpolate
+			Preconditions.checkState(spectrum.size() == 2, "need exactly 2 for interpolation");
+			Element interpEl = xmlRoot.addElement("GMPE_Interpolation");
+			
+			double x1 = vs30Vals.get(0);
+			DiscretizedFunc s1 = spectrum.get(0);
+			double x2 = vs30Vals.get(1);
+			DiscretizedFunc s2 = spectrum.get(1);
+			Preconditions.checkState(s1.size() == s2.size(), "Spectrum sizes inconsistent");
+			
+			if (x2 < x1) {
+				// reverse
+				double tx = x1;
+				DiscretizedFunc ts = s1;
+				x1 = x2;
+				s1 = s2;
+				x2 = tx;
+				s2 = ts;
+			}
+			Preconditions.checkState(x2 > x1);
+			Preconditions.checkState(x2 >= userVs30 && userVs30 >= x1,
+					"User supplied Vs30 (%s) not in range [%s %s]", userVs30, x1, x2); 
+			interpEl.addAttribute("vs30lower", x1+"");
+			interpEl.addAttribute("vs30upper", x2+"");
+			interpEl.addAttribute("userVs30", userVs30+"");
+			s1.toXMLMetadata(interpEl, "LowerSpectrum");
+			s2.toXMLMetadata(interpEl, "UpperSpectrum");
+			
+			double[] xs = {x1, x2};
+			gmpeMCER = new ArbitrarilyDiscretizedFunc();
+			for (int i=0; i<s1.size(); i++) {
+				double x = s1.getX(i);
+				Preconditions.checkState((float)x == (float)s2.getX(i), "Spectrum x values inconsistent");
+				double[] ys = {s1.getY(i), s2.getY(i)};
+				// log-log interpolation as requested by Christine, 1/17/17
+//				double y = Interpolate.findY(xs, ys, userVs30);
+//				double y = Interpolate.findLogY(xs, ys, userVs30);
+				double y = Interpolate.findLogLogY(xs, ys, userVs30);
+//				System.out.println("x="+userVs30+", x1="+x1+", x2="+x2);
+//				System.out.println("y="+y+", y1="+ys[0]+", y2="+ys[1]);
+				Preconditions.checkState(y >= ys[0] && y <= ys[1] || y >= ys[1] && y <= ys[0],
+						"Bad interpolation, %s outside of range [%s %s]", y, ys[0], ys[1]);
+				gmpeMCER.set(x, y);
+			}
+		}
 		gmpeMCER.setName("GMPE MCEr");
 		
 		gmpeMCER.toXMLMetadata(resultsEl, "GMPE_MCER");
+	}
+	
+	private GriddedSpectrumInterpolator getInterpolator(File dataFile, double spacing) throws Exception {
+		System.out.println("Loading spectrum from "+dataFile.getAbsolutePath());
+		Stopwatch watch = Stopwatch.createStarted();
+		BinaryHazardCurveReader reader = new BinaryHazardCurveReader(dataFile.getAbsolutePath());
+		Map<Location, ArbitrarilyDiscretizedFunc> map = reader.getCurveMap();
+		watch.stop();
+		System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+" s to load spectrum");
+		
+		// filter for just surrounding points for faster gridding/interp
+		int numBuffer = 50;
+		double lat = loc.getLatitude();
+		double lon = loc.getLongitude();
+		double minLat = lat - spacing*numBuffer;
+		double maxLat = lat + spacing*numBuffer;
+		double minLon = lon - spacing*numBuffer;
+		double maxLon = lon + spacing*numBuffer;
+		Map<Location, ArbitrarilyDiscretizedFunc> filteredMap = Maps.newHashMap();
+		for (Location loc : map.keySet()) {
+			lat = loc.getLatitude();
+			lon = loc.getLongitude();
+			if (lat >= minLat && lat <= maxLat && lon >= minLon && lon <= maxLon)
+				filteredMap.put(loc, map.get(loc));
+		}
+		System.out.println("Filtered input grid from "+map.size()+" to "+filteredMap.size()+" data points surrounding user loc");
+		Preconditions.checkState(!filteredMap.isEmpty(), "No locs within region buffer");
+		
+		watch.reset();
+		watch.start();
+		GriddedSpectrumInterpolator interp = new GriddedSpectrumInterpolator(filteredMap, spacing);
+		watch.stop();
+		System.out.println("Took "+watch.elapsed(TimeUnit.SECONDS)+" s create interpolator/grid");
+		
+		return interp;
+	}
+	
+	public void calcFinalMCER() {
+		Preconditions.checkNotNull(csMCER, "CS MCER has not been computed!");
+		Preconditions.checkNotNull(gmpeMCER, "GMPE MCER has not been computed!");
+		finalMCER = MCERDataProductsCalc.calcFinalMCER(csMCER, gmpeMCER);
+		finalMCER.toXMLMetadata(resultsEl, "FinalMCER");
+		finalMCER.setName("Final MCEr");
+		
+		// calc SDS and SD1
+		DiscretizedFunc scaled = finalMCER.deepClone();
+		scaled.scale(2d/3d);
+		
+		/* SDS */
+		// SDS = 0.9 * max(Sa) for 0.2s <= T <= 0.5 where Sa 2/3 * MCER
+		this.sds = 0;
+		for (int i=0; i<scaled.size(); i++) {
+			double x = scaled.getX(i);
+			if (x < 0.2)
+				continue;
+			if (x > 0.5)
+				break;
+			double y = scaled.getY(i);
+			sds = Math.max(sds, 0.9 * y);
+		}
+		
+		/* SD1 */
+		double minPeriodSD1 = 1d;
+		double maxPeriodSD1;
+		if (userVs30 > 365.76) {
+			// SD1  = max(T * Sa) for 1s <= T <= 2s
+			maxPeriodSD1 = 2d;
+		} else {
+			// SD1 = max(T * Sa) for 1s <= T <= 5s
+			maxPeriodSD1 = 5d;
+		}
+		sd1 = 0;
+		for (int i=0; i<scaled.size(); i++) {
+			double x = scaled.getX(i);
+			if (x < minPeriodSD1)
+				continue;
+			if (x > maxPeriodSD1)
+				break;
+			double y = scaled.getY(i);
+			sd1 = Math.max(sd1, x * y);
+		}
+		
+		resultsEl.addAttribute("SDS", sds+"");
+		resultsEl.addAttribute("SD1", sd1+"");
 	}
 	
 	public void plot() throws IOException {
@@ -412,13 +601,14 @@ public class UGMS_WebToolCalc {
 		plot(false);
 	}
 	public void plot(boolean psv) throws IOException {
-		boolean xLog = true;
-		boolean yLog = true;
+		boolean xLog = psv;
+		boolean yLog = psv;
 		Range xRange = new Range(1e-2, 10d);
 		Range yRange;
 		
 		DiscretizedFunc gmpeMCER = this.gmpeMCER;
 		DiscretizedFunc csMCER = this.csMCER;
+		DiscretizedFunc finalMCER = this.finalMCER;
 		
 		String prefix, yAxisLabel;
 		if (psv) {
@@ -426,21 +616,35 @@ public class UGMS_WebToolCalc {
 			yRange = new Range(2e0, 2e3);
 			gmpeMCER = MCErCalcUtils.saToPsuedoVel(gmpeMCER);
 			csMCER = MCErCalcUtils.saToPsuedoVel(csMCER);
+			finalMCER = MCErCalcUtils.saToPsuedoVel(finalMCER);
 			yAxisLabel = "PSV (cm/s)";
 		} else {
 			prefix = "mcer_sa";
-			yRange = new Range(1e-2, 1e1);
+//			yRange = new Range(1e-2, 1e1);
+			yRange = null;
 			yAxisLabel = "Sa (g)";
 		}
 
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		DiscretizedFunc finalMCEr = MCERDataProductsCalc.calcFinalMCER(csMCER, gmpeMCER);
-		finalMCEr.setName("Final MCEr");
-		
-		if (!psv)
-			finalMCEr.toXMLMetadata(resultsEl, "FinalMCER");
+		if (!psv && plotSD) {
+			DiscretizedFunc sdsFunc = new ArbitrarilyDiscretizedFunc();
+			sdsFunc.setName("SDS="+(float)+sds);
+			DiscretizedFunc sd1Func = new ArbitrarilyDiscretizedFunc();
+			sd1Func.setName("SD1="+(float)+sd1);
+			
+			for (int i=0; i<finalMCER.size(); i++) {
+				double x = finalMCER.getX(i);
+				sdsFunc.set(x, sds);
+				sd1Func.set(x, sd1);
+			}
+			
+			funcs.add(sdsFunc);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 1f, Color.BLACK));
+			funcs.add(sd1Func);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
+		}
 
 		funcs.add(gmpeMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
@@ -448,7 +652,7 @@ public class UGMS_WebToolCalc {
 		funcs.add(csMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		
-		funcs.add(finalMCEr);
+		funcs.add(finalMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
 
 		PlotSpec spec = new PlotSpec(funcs, chars, "CyberShake MCEr", "Period (s)", yAxisLabel);
@@ -482,7 +686,7 @@ public class UGMS_WebToolCalc {
 		
 		for (double period : periods) {
 			List<String> line = Lists.newArrayList((float)period+"");
-			line.add(MCERDataProductsCalc.getValIfPresent(finalMCEr, period));
+			line.add(MCERDataProductsCalc.getValIfPresent(finalMCER, period));
 			line.add(MCERDataProductsCalc.getValIfPresent(csMCER, period));
 			line.add(MCERDataProductsCalc.getValIfPresent(gmpeMCER, period));
 			
@@ -577,9 +781,21 @@ public class UGMS_WebToolCalc {
 		gmpeDir.setRequired(true);
 		ops.addOption(gmpeDir);
 		
+		Option gmpeSpacing = new Option("gs", "gmpe-spacing", true, "Grid spacing of GMPE precomputed data files");
+		gmpeSpacing.setRequired(true);
+		ops.addOption(gmpeSpacing);
+		
 		Option csDir = new Option("csdir", "cs-dir", true, "Directory containing CS cache files");
-		csDir.setRequired(true);
+		csDir.setRequired(false);
 		ops.addOption(csDir);
+		
+		Option csData = new Option("csdata", "cs-data-file", true, "CS precomputed data file");
+		csData.setRequired(false);
+		ops.addOption(csData);
+		
+		Option csSpacing = new Option("csspacing", "cs-spacing", true, "Grid spacing of CS precomputed data file");
+		csSpacing.setRequired(false);
+		ops.addOption(csSpacing);
 		
 		Option gmpeERF = new Option("g", "gmpe-erf", true, "GMPE ERF ('UCERF2' or 'UCERF3')");
 		gmpeERF.setRequired(true);
@@ -588,6 +804,11 @@ public class UGMS_WebToolCalc {
 		Option outputDir = new Option("o", "output-dir", true, "Output directory, will be created if it doesn't exist");
 		outputDir.setRequired(true);
 		ops.addOption(outputDir);
+		
+		Option willsFile = new Option("w", "wills-file", true,
+				"Path to Wills 2006 data file for local access, otherwise servlet will be used");
+		willsFile.setRequired(false);
+		ops.addOption(willsFile);
 		
 		Option help = new Option("?", "help", false, "Display this message");
 		help.setRequired(false);
@@ -614,16 +835,27 @@ public class UGMS_WebToolCalc {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 			// hardcoded
 //			String argStr = "--latitude 34.026414 --longitude -118.300136";
+			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
+//			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
 //			String argStr = "--run-id 3870"; // doesn't require dataset ID if run ID
 //			String argStr = "--site-name LADT";
-			String argStr = "--site-id 20";
-			argStr += " --dataset-id 57";
-			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results";
-			argStr += " --cs-dir /home/kevin/CyberShake/MCER/.amps_cache";
+//			String argStr = "--site-id 20";
+//			argStr += " --dataset-id 57";
+//			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results_2016_09_30";
+			argStr += " --gmpe-dir /home/kevin/CyberShake/MCER/gmpe_cache_gen/mcer_binary_results_2017_01_20";
+			argStr += " --gmpe-spacing 0.02";
+//			argStr += " --cs-dir /home/kevin/CyberShake/MCER/.amps_cache";
+//			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.001.bin";
+//			argStr += " --cs-spacing 0.001";
+//			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.005.bin";
+//			argStr += " --cs-spacing 0.005";
+			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.002.bin";
+			argStr += " --cs-spacing 0.002";
 			argStr += " --output-dir /tmp/ugms_web_tool";
 //			argStr += " --vs30 455";
-			argStr += " --class AorB";
+//			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
+			argStr += " --wills-file /data/kevin/opensha/wills2006.bin";
 			
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
@@ -650,6 +882,7 @@ public class UGMS_WebToolCalc {
 				
 				calc.calcCyberShake();
 				calc.calcGMPE();
+				calc.calcFinalMCER();
 				
 				calc.plot();
 				calc.writeMetadata();

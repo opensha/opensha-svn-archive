@@ -119,14 +119,22 @@ public abstract class MPJTaskCalculator {
 		debug(rank, hostname, message);
 	}
 	
+	protected String getDebugText(String message) {
+		return getDebugText(rank, hostname, message);
+	}
+	
+	protected static String getDebugText(int rank, String hostname, String message) {
+		if (hostname == null)
+			return "["+df.format(new Date())+" Process "+rank+"]: "+message;
+		else
+			return "["+df.format(new Date())+" ("+hostname+") Process "+rank+"]: "+message;
+	}
+	
 	protected static void debug(int rank, String hostname, String message) {
 		if (!D)
 			return;
 		System.out.flush();
-		if (hostname == null)
-			System.out.println("["+df.format(new Date())+" Process "+rank+"]: "+message);
-		else
-			System.out.println("["+df.format(new Date())+" ("+hostname+") Process "+rank+"]: "+message);
+		System.out.println(getDebugText(rank, hostname, message));
 		System.out.flush();
 	}
 	

@@ -17,7 +17,9 @@ import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
+import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
+import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
 import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
@@ -36,9 +38,24 @@ import com.google.common.collect.Maps;
 
 public class MPJ_GMPE_MCErCacheGenScriptWriter {
 	
-	private static final String args_continue_newline = " \\\n\t";
+//	private static final String args_continue_newline = " \\\n\t";
+	private static final String args_continue_newline = " "; // for MPJ Express
 
 	public static void main(String[] args) throws IOException {
+		int mins = 60*48;
+		int nodes = 16;
+		int memGigs = 50;
+		String queue = "scec";
+		int ppn = 20;
+		
+//		int mins = 60*24;
+//		int nodes = 24;
+//		int memGigs = 40;
+//		String queue = null;
+//		int ppn = 20;
+		
+		boolean fmpj = false;
+		
 		Map<String, Double> vs30Map = UGMS_WebToolCalc.vs30Map;
 		
 		double spacing = 0.02;
@@ -91,8 +108,6 @@ public class MPJ_GMPE_MCErCacheGenScriptWriter {
 			
 			String sitesFileName = "sites.xml";
 			
-			int mins = 60*24;
-			int nodes = 100;
 			Component comp = Component.RotD100;
 			
 			jobName = new SimpleDateFormat("yyyy_MM_dd").format(new Date())+"-"+jobName;
@@ -106,12 +121,9 @@ public class MPJ_GMPE_MCErCacheGenScriptWriter {
 //			File javaBin = StampedeScriptWriter.JAVA_BIN;
 //			File fmpjHome = StampedeScriptWriter.FMPJ_HOME;
 			
-			int memGigs = 10;
-			int ppn = 8;
 			File remoteDir = new File("/home/scec-02/kmilner/cybershake/mcer_cache_gen");
 			pbsWrite = new USC_HPCC_ScriptWriter();
 			File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
-			File fmpjHome = USC_HPCC_ScriptWriter.FMPJ_HOME;
 			
 			File remoteJobDir = new File(remoteDir, jobName);
 			File localDir = new File("/home/kevin/CyberShake/MCER/gmpe_cache_gen");
@@ -124,13 +136,19 @@ public class MPJ_GMPE_MCErCacheGenScriptWriter {
 			classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 			classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
 			
-			FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(
-					javaBin, memGigs*1024, classpath, fmpjHome, false);
-			mpjWrite.setUseLaunchWrapper(true);
+			JavaShellScriptWriter mpjWrite;
+			if (fmpj) {
+				mpjWrite = new FastMPJShellScriptWriter(
+					javaBin, memGigs*1024, classpath, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+				((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
+			} else {
+				mpjWrite = new MPJExpressShellScriptWriter(
+						javaBin, memGigs*1024, classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+			}
 			
 			CyberShakeMCErMapGenerator.writeSitesFile(new File(localJobDir, sitesFileName), mySites);
 			
-			String argz = args_continue_newline+"--max-dispatch 10 --output-dir "+remoteJobDir.getAbsolutePath();
+			String argz = args_continue_newline+"--output-dir "+remoteJobDir.getAbsolutePath();
 			argz += args_continue_newline+"--erf-file "+confDir.getAbsolutePath()+"/"+erfFileName;
 			argz += args_continue_newline+"--atten-rel-file ";
 			for (int i=0; i<gmpeNames.length; i++) {
@@ -146,7 +164,7 @@ public class MPJ_GMPE_MCErCacheGenScriptWriter {
 			
 			List<String> script = mpjWrite.buildScript(MPJ_GMPE_MCErCacheGen.class.getName(), argz);
 			
-			script = pbsWrite.buildScript(script, mins, nodes, ppn, null);
+			script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
 			pbsWrite.writeScript(pbsFile, script);
 		}
 	}

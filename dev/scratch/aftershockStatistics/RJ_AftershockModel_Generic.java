@@ -11,6 +11,7 @@ import org.apache.commons.math3.analysis.integration.RombergIntegrator;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
 import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.jfree.data.Range;
+import org.mongodb.morphia.annotations.Transient;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
@@ -48,7 +49,8 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  *
  */
 public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
-	
+
+	@Transient
 	Boolean D=true;	// debug flag
 	double mean_a, sigma_a;
 
@@ -111,10 +113,13 @@ public class RJ_AftershockModel_Generic extends RJ_AftershockModel {
 		
 		
 	}
-	
-		
 
-	public static void main(String[] args) {
+    public RJ_AftershockModel_Generic() {
+
+    }
+
+
+    public static void main(String[] args) {
 		
 //		double magMain=7.8;
 //		double mean_a=-2.47;

@@ -1272,8 +1272,20 @@ public class ETAS_CatalogEALCalculator {
 		
 		// write maximum
 		double maxDur = durations.get(durations.size()-1);
-		File csvFile = new File(dir, prefix+"_"+getDurationLabel(maxDur).replaceAll(" ", "")+".csv");
-		writeLossesToCSV(csvFile, lossDists.get(maxDur));
+		List<DiscretizedFunc> maxLosses = lossDists.get(maxDur);
+		if (maxLosses.size() == catalogs.size()) {
+			// won't if all sub durations
+			File csvFile = new File(dir, prefix+"_"+getDurationLabel(maxDur).replaceAll(" ", "")+".csv");
+			writeLossesToCSV(csvFile, maxLosses);
+		}
+		
+		// can differ if all sub durations
+		int maxCatalogs = 0;
+		for (double duration : lossDists.keySet()) {
+			int myNum = lossDists.get(duration).size();
+			if (myNum > maxCatalogs)
+				maxCatalogs = myNum;
+		}
 		
 		// now write combined csv
 		CSVFile<String> csv = new CSVFile<String>(true);
@@ -1281,11 +1293,16 @@ public class ETAS_CatalogEALCalculator {
 		for (double duration : durations)
 			header.add(duration+"");
 		csv.addLine(header);
-		for (int i=0; i<catalogs.size(); i++) {
+		for (int i=0; i<maxCatalogs; i++) {
 			List<String> line = Lists.newArrayList(i+"");
 			for (double duration : durations) {
+				List<DiscretizedFunc> myLosses = lossDists.get(duration);
+				if (i >= myLosses.size()) {
+					line.add("");
+					continue;
+				}
 				double totLoss = 0d;
-				for (Point2D pt : lossDists.get(duration).get(i))
+				for (Point2D pt : myLosses.get(i))
 					totLoss += pt.getX()*pt.getY();
 				line.add(totLoss+"");
 			}
@@ -1295,6 +1312,9 @@ public class ETAS_CatalogEALCalculator {
 	}
 	
 	public void writeLossesToCSV(File csvFile, List<DiscretizedFunc> lossDists) throws IOException {
+		Preconditions.checkState(lossDists.size() == catalogs.size(), "Have %s dists but %s catalogs!",
+				lossDists.size(), catalogs.size());
+		
 		CSVFile<String> csv = new CSVFile<String>(true);
 		
 		double cutoffMag = AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF;

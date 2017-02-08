@@ -375,6 +375,11 @@ public class MPJTaskLogStatsGen {
 			checkFillQueue();
 			return queue.pop();
 		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 		
 	}
 	

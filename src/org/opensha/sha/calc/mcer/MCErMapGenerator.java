@@ -20,6 +20,7 @@ import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbolSet;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
+import org.opensha.commons.util.FileUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.cybershake.maps.CyberShake_GMT_MapGenerator;
@@ -33,7 +34,7 @@ import com.google.common.base.Stopwatch;
 
 public class MCErMapGenerator {
 	
-	private static final GMT_InterpolationSettings  interpSettings =
+	public static GMT_InterpolationSettings  interpSettings =
 			GMT_InterpolationSettings.getDefaultSettings();
 	
 //	public static void calculateMaps(int datasetID, int imTypeID, double period, ERF erf,
@@ -168,6 +169,9 @@ public class MCErMapGenerator {
 		calculateMaps(null, null, probCalc, detCalc, null, null, null, region, sites, period, outputDir);
 	}
 	
+	public static boolean doPSV = true;
+	public static boolean doSA = true;
+	
 	public static void calculateMaps(String name, String prefix, AbstractMCErProbabilisticCalc probCalc, AbstractMCErDeterministicCalc detCalc,
 			String compareName, AbstractMCErProbabilisticCalc compareProbCalc, AbstractMCErDeterministicCalc compareDetCalc,
 			Region region, Collection<Site> sites, double period, File outputDir) throws IOException, GMT_MapException {
@@ -259,14 +263,18 @@ public class MCErMapGenerator {
 			}
 		}
 		
-		File psvDir = new File(outputDir, "psv");
-		Preconditions.checkState(psvDir.exists() || psvDir.mkdir());
-		generateMaps(region, name, prefix, probData, detData, detLowerLimit,
-				compareName, compareProbData, compareDetData, psvDir, period, true);
-		File saDir = new File(outputDir, "sa");
-		Preconditions.checkState(saDir.exists() || saDir.mkdir());
-		generateMaps(region, name, prefix, probData, detData, detLowerLimit,
-				compareName, compareProbData, compareDetData, saDir, period, false);
+		if (doPSV) {
+			File psvDir = new File(outputDir, "psv");
+			Preconditions.checkState(psvDir.exists() || psvDir.mkdir());
+			generateMaps(region, name, prefix, probData, detData, detLowerLimit,
+					compareName, compareProbData, compareDetData, psvDir, period, true);
+		}
+		if (doSA) {
+			File saDir = new File(outputDir, "sa");
+			Preconditions.checkState(saDir.exists() || saDir.mkdir());
+			generateMaps(region, name, prefix, probData, detData, detLowerLimit,
+					compareName, compareProbData, compareDetData, saDir, period, false);
+		}
 	}
 	
 	private static String smartElapsed(Stopwatch watch) {
@@ -283,6 +291,8 @@ public class MCErMapGenerator {
 					throws IOException, GMT_MapException {
 		generateMaps(region, null, null, probData, detData, detLowerLimit, null, null, null, outputDir, period, psv);
 	}
+	
+	public static boolean plot_log = true;
 	
 	public static void generateMaps(Region region, String name, String prefix, GeoDataSet probData, GeoDataSet detData,
 			GeoDataSet detLowerLimit, String compareName, GeoDataSet compareProbData, GeoDataSet compareDetData,
@@ -317,22 +327,22 @@ public class MCErMapGenerator {
 					"Must supply name for comparison data");
 		
 		if (probData != null) {
-			generateMaps(region, probData, outputDir, period, psv, "prob_mcer"+prefixAdd, name+"Prob. MCE@-R@-, "+units, cpt, true);
+			generateMaps(region, probData, outputDir, period, psv, "prob_mcer"+prefixAdd, name+"Prob. MCE@-R@-, "+units, cpt, plot_log);
 			if (compareProbData != null)
 				generateMaps(region, compareProbData, outputDir, period, psv, compareName.toLowerCase()+"_prob_mcer"+prefixAdd,
-						compareName+" Prob. MCE@-R@-, "+units, cpt, true);
+						compareName+" Prob. MCE@-R@-, "+units, cpt, plot_log);
 		}
 		
 		if (detData != null) {
-			generateMaps(region, detData, outputDir, period, psv, "det_mcer"+prefixAdd, name+"Det. MCE@-R@-, "+units, cpt, true);
+			generateMaps(region, detData, outputDir, period, psv, "det_mcer"+prefixAdd, name+"Det. MCE@-R@-, "+units, cpt, plot_log);
 			if (compareDetData != null)
 				generateMaps(region, compareDetData, outputDir, period, psv, compareName.toLowerCase()+"_det_mcer"+prefixAdd,
-						compareName+" Det. MCE@-R@-, "+units, cpt, true);
+						compareName+" Det. MCE@-R@-, "+units, cpt, plot_log);
 		}
 		
 		if (detLowerLimit != null) {
 			generateMaps(region, detLowerLimit, outputDir, period, psv, "det_lower_limit"+prefixAdd,
-					"Det. Lower Limit, "+units, cpt, true);
+					"Det. Lower Limit, "+units, cpt, plot_log);
 		}
 		
 		if (probData != null && detData != null && detLowerLimit != null) {
@@ -346,7 +356,7 @@ public class MCErMapGenerator {
 				combinedData.set(loc, combinedVal);
 			}
 			generateMaps(region, combinedData, outputDir, period, psv, "combined_mcer"+prefixAdd,
-					"Combined MCE@-R@-, "+units, cpt, true);
+					"Combined MCE@-R@-, "+units, cpt, plot_log);
 			if (compareProbData != null && compareDetData != null) {
 				ArbDiscrGeoDataSet gmpeCombinedData = new ArbDiscrGeoDataSet(probData.isLatitudeX());
 				for (Location loc : probData.getLocationList()) {
@@ -358,7 +368,7 @@ public class MCErMapGenerator {
 					gmpeCombinedData.set(loc, combinedVal);
 				}
 				generateMaps(region, gmpeCombinedData, outputDir, period, psv, compareName.toLowerCase()+"_combined_mcer"+prefixAdd,
-						"GMPE Combined MCE@-R@-, "+units, cpt, true);
+						"GMPE Combined MCE@-R@-, "+units, cpt, plot_log);
 				
 				// now ratio
 				GeoDataSet ratioData = GeoDataSetMath.divide(combinedData, gmpeCombinedData);
@@ -523,7 +533,14 @@ public class MCErMapGenerator {
 		// I hate this hack...but don't want to add more variables
 		if (!log && title.toLowerCase().contains("ratio"))
 			map.setCPTEqualSpacing(true);
-		FaultBasedMapGen.plotMap(outputDir, prefix+"_marks", false, map);
+		map.getInterpSettings().setSaveInterpSurface(true);
+		String addr = FaultBasedMapGen.plotMap(outputDir, prefix+"_marks", false, map);
+		// download interpolated
+		FileUtils.downloadURL(addr+GMT_InterpolationSettings.INTERP_XYZ_FILE_NAME,
+				new File(outputDir, prefix+"_"+GMT_InterpolationSettings.INTERP_XYZ_FILE_NAME));
+		map.getInterpSettings().setSaveInterpSurface(false);
+		// write scatter
+		ArbDiscrGeoDataSet.writeXYZFile(data, new File(outputDir, prefix+"_map_data_scatter.txt").getAbsolutePath());
 		map.setSymbolSet(null);
 		FaultBasedMapGen.plotMap(outputDir, prefix, false, map);
 		map.setContourIncrement(0.1);

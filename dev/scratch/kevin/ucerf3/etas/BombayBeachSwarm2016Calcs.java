@@ -37,12 +37,14 @@ public class BombayBeachSwarm2016Calcs {
 //		long ot = 1474920000000l;
 //		File binFile = new File(dir, "results.bin");
 		
-		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //				+ "2016_09_29-2016_bombay_swarm-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont");
-				+ "2016_10_25-2016_bombay_swarm-24yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined");
+//				+ "2016_10_25-2016_bombay_swarm-24yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-combined");
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/"
+				+ "2017_01_27-2016_bombay_swarm-10yr-u2mapped-full_td-gridSeisCorr-noSpont");
 		long ot = 1474990200000l;
-//		File binFile = new File(dir, "results.bin");
-		File binFile = new File(dir, "results_300k.bin");
+		File binFile = new File(dir, "results.bin");
+//		File binFile = new File(dir, "results_300k.bin");
 		
 		
 		long oneWeekOT = ot + 7*ProbabilityModelsCalc.MILLISEC_PER_DAY;
@@ -79,6 +81,8 @@ public class BombayBeachSwarm2016Calcs {
 		
 //		ETAS_MultiSimAnalysisTools.plotScalesOfHazardChange(catalogs, null, TestScenario.BOMBAY_BEACH_M4pt8, ot,
 //				erf, outputDir, name, inputDuration, rates, subSects);
+		
+		/*
 		
 		double[] radii = { 200d, 150d, 100d, 50d, 25d };
 		
@@ -136,6 +140,8 @@ public class BombayBeachSwarm2016Calcs {
 		System.out.println("*** Coachella 1 Week M>=7 Rates ***");
 		System.out.println("UCERF3-TD: partic: "+(float)tdCoachPartic+"\tnucl: "+(float)tdCoachNucl);
 		System.out.println("UCERF3-TI: partic: "+(float)tiCoachPartic+"\tnucl: "+(float)tiCoachNucl);
+		
+		*/
 	}
 
 }

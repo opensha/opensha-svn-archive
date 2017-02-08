@@ -3,9 +3,12 @@ package scratch.UCERF3.erf.ETAS;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
@@ -16,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipException;
 
@@ -72,6 +76,7 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.UCERF2;
 import org.opensha.sha.faultSurface.CompoundSurface;
 import org.opensha.sha.faultSurface.FaultTrace;
 import org.opensha.sha.faultSurface.PointSurface;
@@ -286,11 +291,11 @@ public class ETAS_MultiSimAnalysisTools {
 		gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 	}
 	
-	private static void setFontSizes(HeadlessGraphPanel gp) {
+	public static void setFontSizes(HeadlessGraphPanel gp) {
 		setFontSizes(gp, 0);
 	}
 	
-	static void setFontSizes(HeadlessGraphPanel gp, int addition) {
+	public static void setFontSizes(HeadlessGraphPanel gp, int addition) {
 		gp.setBackgroundColor(Color.WHITE);
 		gp.setTickLabelFontSize(22+addition);
 		gp.setAxisLabelFontSize(24+addition);
@@ -926,7 +931,7 @@ public class ETAS_MultiSimAnalysisTools {
 		for (XY_DataSet xy : funcs)
 			maxY = Math.max(maxY, xy.getMaxY());
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, name+" Temporal Decay", "Log10(Days)", "Rate (per day)");
+		PlotSpec spec = new PlotSpec(funcs, chars, name+" Temporal Decay", "Log10 Time (Days)", "Rate (per day)");
 		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -999,7 +1004,7 @@ public class ETAS_MultiSimAnalysisTools {
 			title = name+" Rupture Surface Dist Decay";
 		
 		PlotSpec spec = new PlotSpec(funcs, chars, title,
-				"Log10(Distance) (km)", "Aftershock Density (per km)");
+				"Log10 Distance (km)", "Aftershock Density (per km)");
 		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -1092,14 +1097,14 @@ public class ETAS_MultiSimAnalysisTools {
 	 * @param rupSet rupSet
 	 * @param minMags array of minimum magnitudes
 	 * @param outputDir directory in which to write plots
-	 * @param title title for the map
+	 * @param titleAdd if non null, appended to the end of the title for the map
 	 * @param prefix file name prefix
 	 * @throws IOException 
 	 * @throws RuntimeException 
 	 * @throws GMT_MapException 
 	 */
 	public static void plotSectRates(List<List<ETAS_EqkRupture>> catalogs, double duration, FaultSystemRupSet rupSet,
-			double[] minMags, File outputDir, String title, String prefix)
+			double[] minMags, File outputDir, String titleAdd, String prefix)
 					throws IOException, GMT_MapException, RuntimeException {
 		List<double[]> particRatesList = Lists.newArrayList();
 		for (int i=0; i<minMags.length; i++)
@@ -1238,26 +1243,33 @@ public class ETAS_MultiSimAnalysisTools {
 		particCSV.addLine(header);
 		triggerCSV.addLine(header);
 		
+		if (titleAdd == null)
+			titleAdd = "";
+		
+		if (!titleAdd.isEmpty() && !titleAdd.startsWith(" "))
+			titleAdd = " "+titleAdd;
+		
 		for (int i=0; i<minMags.length; i++) {
 			double[] particRates = particRatesList.get(i);
 			double[] triggerRates = triggerRatesList.get(i);
 			
-			String titleAdd;
+			String magStr;
 			String prefixAdd;
-			
 			if (minMags[i] > 1) {
-				titleAdd = " M>="+(float)minMags[i];
+				magStr = " M>="+(float)minMags[i];
 				prefixAdd = "_m"+(float)minMags[i];
 			} else {
-				titleAdd = "";
+				magStr = "";
 				prefixAdd = "";
 			}
+			String particTitle = "Log10"+magStr+" Participation Rate"+titleAdd;
+			String triggerTitle = "Log10"+magStr+" Trigger Rate"+titleAdd;
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(particRates), region, outputDir,
-					prefix+"_partic"+prefixAdd,false, false, title+titleAdd+" Partic. Rate");
+					prefix+"_partic"+prefixAdd,false, false, particTitle);
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(triggerRates), region, outputDir,
-					prefix+"_trigger"+prefixAdd, false, false, title+titleAdd+" Trigger Rate");
+					prefix+"_trigger"+prefixAdd, false, false, triggerTitle);
 			
 			for (int sectIndex=0; sectIndex<rupSet.getNumSections(); sectIndex++) {
 				int row = sectIndex+1;
@@ -1523,11 +1535,11 @@ public class ETAS_MultiSimAnalysisTools {
 			Preconditions.checkState(minZ < maxZ, "minZ=%s >= maxZ=%s", minZ, maxZ);
 			
 			double mag = mags[i];
-			String label = "Log10("+name+" M>="+(float)mag;
+			String label = "Log10 M>="+(float)mag;
 			if (duration == 1d)
-				label += " Expected Num)";
+				label += " Expected Num";
 			else
-				label += " Nucleation Rate)";
+				label += " Nucleation Rate";
 			String myPrefix = prefix+"_m"+(float)mag;
 			String baseURL = FaultBasedMapGen.plotMap(outputDir, myPrefix, false,
 					FaultBasedMapGen.buildMap(cpt.rescale(minZ, maxZ), null, null,
@@ -4345,7 +4357,7 @@ public class ETAS_MultiSimAnalysisTools {
 
 		double[] minMags = {0d};
 		try {
-			plotSectRates(primaryCatalogs, -1d, rupSet, minMags, outputDir, "test", "M7");
+			plotSectRates(primaryCatalogs, -1d, rupSet, minMags, outputDir, null, "M7");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -4634,6 +4646,166 @@ public class ETAS_MultiSimAnalysisTools {
 	
 	
 	
+	/**
+	 * 
+	 * set full_TD true to make FULL_TD case; otherwise it's NO_ERT (filenames differe accordingly)
+	 */
+	private static void makeImagesForEqkSpectraPaperFig1() {
+		
+		System.out.println("running makeImagesForEqkSpectraPaperFig1");
+		
+		System.out.println("Loading file");
+		File resultsFile = new File("/Users/field/Field_Other/CEA_WGCEP/UCERF3/UCERF3-ETAS/ResultsAndAnalysis/ScenarioSimulations/KevinsMultiSimRuns/2016_06_15-haywired_m7-10yr-BothModels/2016_06_15-haywired_m7-10yr-full_td-no_ert-combined-results_descendents_m5.bin");
+	
+		List<List<ETAS_EqkRupture>> catalogs=null;
+		try {
+			catalogs = ETAS_CatalogIO.loadCatalogs(resultsFile, 6.7, true);
+		} catch (ZipException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// for 1-year result
+        double duration = 1;
+		Long ot = Math.round((2012.0-1970.0)*ProbabilityModelsCalc.MILLISEC_PER_YEAR); // occurs at 2012
+        long maxOT = ot + (long)(duration*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+        
+        // SourceIndex=101485	Inversion Src #101499 for Haywired
+        int fssIndex = 101499;	
+		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012,duration);
+		int srcID = erf.getSrcIndexForFltSysRup(fssIndex);
+//		erf.setFltSystemSourceOccurranceTime(srcID, ot);	// don't apply because we want relative to pre-event probabilities
+		erf.updateForecast();
+		FaultSystemRupSet rupSet = erf.getSolution().getRupSet();
+		
+		GriddedRegion griddedRegion = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.1);
+		FaultPolyMgr polyManager = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);	// this works for U3, but not generalized
+		double[] zCount = new double[griddedRegion.getNodeCount()];
+
+		System.out.println("Looping over catalog");
+        for (List<ETAS_EqkRupture> catalog : catalogs) {
+            for (ETAS_EqkRupture rup : catalog) {
+                if (rup.getOriginTime() > maxOT)
+                    break;
+                if (rup.getFSSIndex() >= 0) {
+                    // fault system rupture
+    				for (int s : rupSet.getSectionsIndicesForRup(rup.getFSSIndex())) {
+    					Map<Integer, Double> nodeFracts = polyManager.getNodeFractions(s);
+    					for (int n : nodeFracts.keySet()) {
+    						zCount[n] += nodeFracts.get(n);
+     					}
+    				}
+                } else {
+                	zCount[griddedRegion.indexForLocation(rup.getHypocenterLocation())] += 1;
+                }
+            }
+        }
+        
+		GriddedGeoDataSet triggerOnlyData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet triggerPlusTD_Data = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+		GriddedGeoDataSet ratioData = new GriddedGeoDataSet(griddedRegion, true);	// true makes X latitude
+
+		System.out.println("Making Long Term Data");
+		GriddedGeoDataSet longTermTD_data = FaultSysSolutionERF_Calc.calcParticipationProbInGriddedRegionFltMapped(erf, griddedRegion, 6.7, 10.0);
+		
+		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
+		erf.updateForecast();
+		System.out.println("Making Time Ind. Data");
+		GriddedGeoDataSet timeInd_data = FaultSysSolutionERF_Calc.calcParticipationProbInGriddedRegionFltMapped(erf, griddedRegion, 6.7, 10.0);
+
+		double numSimulations = 200000d;  // 100k simulations OR 200k?
+        for(int n=0;n<zCount.length;n++) {
+        	double numTrig = zCount[n]/numSimulations;
+        	triggerOnlyData.set(n, Math.log10(numTrig));
+        	triggerPlusTD_Data.set(n, Math.log10(numTrig+longTermTD_data.get(n)));
+        	double value = Math.log10((numTrig)/longTermTD_data.get(n) + 1);
+        	if(Double.isNaN(value))
+        		value = 0.0;
+        	ratioData.set(n, value);
+        	longTermTD_data.set(n,Math.log10(longTermTD_data.get(n)));
+        	timeInd_data.set(n,Math.log10(timeInd_data.get(n)));
+        }
+        
+        
+        
+		String fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/U3_OperationalLossModelingPaper/Figures/Figure1and7_U3maps/hawired-full_td-no_ert-combined-gridded_nucl_m2.5/map_data.txt";
+        double discr = 0.02;
+        GriddedRegion reg = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), discr, GriddedRegion.ANCHOR_0_0);
+		GriddedGeoDataSet triggerData = new GriddedGeoDataSet(reg, true);	// true makes X latitude
+		try {
+			
+			for (String line : Files.readLines(new File(fileName), Charset.defaultCharset())) {
+				line = line.trim();
+				String[] split = line.split("\t");
+				double lat = Double.parseDouble(split[0]);
+				double lon = Double.parseDouble(split[1]);
+				double val = Double.parseDouble(split[2]);
+//				if (split[2].equals("-Infinity"))
+//					System.out.println(val);
+				int index = reg.indexForLocation(new Location(lat,lon));
+				triggerData.set(index, val);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/U3_OperationalLossModelingPaper/Figures/Figure1and7_U3maps/haywired-gridded-only_m2.5/map_data.txt";
+		GriddedGeoDataSet triggerDataNoFaults = new GriddedGeoDataSet(reg, true);	// true makes X latitude
+		try {
+			
+			for (String line : Files.readLines(new File(fileName), Charset.defaultCharset())) {
+				line = line.trim();
+				String[] split = line.split("\t");
+				double lat = Double.parseDouble(split[0]);
+				double lon = Double.parseDouble(split[1]);
+				double val = Double.parseDouble(split[2]);
+//				if (split[2].equals("-Infinity"))
+//					System.out.println(val);
+				int index = reg.indexForLocation(new Location(lat,lon));
+				triggerDataNoFaults.set(index, val);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+        
+        boolean includeTopo=false;
+        
+		System.out.println("Making Plots");
+		try {
+			CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+			double minValue = -6;
+			double maxValue = -1;
+			File dir = new File("EqkSpectraFig1_BackgroundImages");
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerOnlyData, griddedRegion, dir, "triggerOnlyData", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerPlusTD_Data, griddedRegion, dir, "triggerPlusTD_Data", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(longTermTD_data, griddedRegion, dir, "longTermTD_data", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(timeInd_data   , griddedRegion, dir, "timeInd_data", true, cpt, minValue, maxValue, includeTopo);
+
+			CPT cpt_ratio = GMT_CPT_Files.UCERF3_ETAS_GAIN.instance();
+			minValue = -1.2;
+			maxValue = 1.2;
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(ratioData, griddedRegion, dir, "triggerRatioData", true, cpt_ratio, minValue, maxValue, includeTopo);
+			for(int i=0;i<ratioData.size();i++)
+				ratioData.set(i, 0.0);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(ratioData, griddedRegion, dir, "grayBackgroundData", true, cpt_ratio, minValue, maxValue, includeTopo);
+
+			
+			cpt = GMT_CPT_Files.UCERF3_ETAS_TRIGGER.instance();
+			minValue = -5;
+			maxValue = 1;
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, reg, dir, "triggerOnlyMag2p5", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerDataNoFaults, reg, dir, "triggerOnlyNoFaultsMag2p5", true, cpt, minValue, maxValue, includeTopo);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+
+	
+	
 	public static void main(String[] args) throws IOException, GMT_MapException, RuntimeException, DocumentException {
 		
 		if (args.length == 0 && new File("/Users/field/").exists()) {
@@ -4641,7 +4813,8 @@ public class ETAS_MultiSimAnalysisTools {
 //			nedsAnalysis();
 //			makeImagesForSciencePaperFig1(0);
 //			makeImagesForSciencePaperFig1(1);
-			makeImagesForSciencePaperFig1(2);
+//			makeImagesForSciencePaperFig1(2);
+			makeImagesForEqkSpectraPaperFig1();
 			System.exit(-1);
 		}
 		
@@ -5080,9 +5253,9 @@ public class ETAS_MultiSimAnalysisTools {
 				System.out.println("Plotting Sub Sect Rates");
 				double[] minMags = { 0, 6.7, 7.8 };
 				plotSectRates(childrenCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" "+fullName, fullFileName+"_sect");
+						"for All Aftershocks", fullFileName+"_sect");
 				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
-						name+" "+subsetName, subsetFileName+"_sect");
+						"for Primary Aftershocks", subsetFileName+"_sect");
 			}
 			
 			if (plotTemporalDecay && triggerParentID >= 0) {

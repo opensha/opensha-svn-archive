@@ -3,6 +3,7 @@ package scratch.aftershockStatistics;
 import java.util.ArrayList;
 
 import org.apache.commons.math3.distribution.PoissonDistribution;
+import org.mongodb.morphia.annotations.Transient;
 import org.opensha.commons.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
@@ -26,16 +27,19 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  *
  */
 public abstract class RJ_AftershockModel {
-	
+
+	@Transient
 	Boolean D=true;	// debug flag
 	
 	double b, magMain; 
 	double min_a, max_a, delta_a=0, min_p, max_p, delta_p=0, min_c, max_c, delta_c=0;
 	int num_a, num_p, num_c;
+	@Transient
 	double[][][]  array;
 	int max_a_index=-1;
 	int max_p_index=-1;
 	int max_c_index=-1;
+	@Transient
 	ArbDiscrEmpiricalDistFunc numMag5_DistributionFunc = null;
 	double tMinDaysCurrent=-1, tMaxDaysCurrent=-1;
 

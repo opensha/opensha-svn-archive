@@ -120,7 +120,7 @@ import com.ibm.icu.text.DecimalFormat;
 
 public class ETASCurveCalc {
 	
-	protected DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
+	protected DBAccess db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 	
 	private static final File amps_cache_dir = new File("/home/kevin/CyberShake/MCER/.amps_cache");
 	private static String gmpe_cache_prefix;
@@ -1354,7 +1354,8 @@ public class ETASCurveCalc {
 			boolean combined = true;
 			int[] rounds = null;
 //			String dateStr = "2015_03_23";
-			String dateStr = "2015_06_15";
+//			String dateStr = "2015_06_15";
+			String dateStr = "2017_01_30";
 			gmpe_cache_prefix = dateStr;
 			
 			int imTypeID = 21;
@@ -1435,7 +1436,7 @@ public class ETASCurveCalc {
 			FaultSystemSolution sol = FaultSystemIO.loadSol(
 					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_sol.zip"));
 			File mappingFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u2_mapped_mappings.csv");
-			File cacheDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/cache_u3rups_u2mapped");
+//			File cacheDir = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/cache_u3rups_u2mapped");
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_u3inverted_sol.zip"));
 //			File mappingFile = new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u3_inverted_mappings.csv");
 			
@@ -1446,15 +1447,50 @@ public class ETASCurveCalc {
 			List<Color> colors = Lists.newArrayList();
 			List<ArbDiscrGeoDataSet> maps = Lists.newArrayList();
 			
-			File[] parkfieldFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds, "u2mapped-parkfield");
+//			File bbSwarmFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds, "u2mapped-parkfield");
+//			File bbSwarmFile = new File(simsDir,
+//					"2017_01_27-2016_bombay_swarm-10yr-u2mapped-full_td-gridSeisCorr-noSpont/results.bin");
+//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_2016_SWARM, timeSpan, sol,
+//					bbSwarmFile, mappingFile, erfID, rupVarScenID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
+//			calcs.add(calc);
+//			filePrefixes.add("bb_2016_swarm");
+//			colors.add(Color.RED);
+//			if (!debugSiteCalcOnly && makeMaps)
+//				maps.add(calc.calcMap(new File(mapDir, filePrefixes.get(filePrefixes.size()-1)+"_hazard.png")));
+			
+			File bb6PointFile = new File(simsDir,
+					"2017_01_30-bombay_beach_m6-10yr-u2mapped-full_td-gridSeisCorr-noSpont/results_m4_preserve.bin");
+			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6, timeSpan, sol,
+					bb6PointFile, mappingFile, erfID, rupVarScenID);
+			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
+			calcs.add(calc);
+			filePrefixes.add("bb_m6_point");
+			colors.add(Color.ORANGE);
+			if (!debugSiteCalcOnly && makeMaps)
+				maps.add(calc.calcMap(new File(mapDir, filePrefixes.get(filePrefixes.size()-1)+"_hazard.png")));
+			
+			File parkfieldFile = new File(simsDir,
+					"2017_01_30-parkfield-10yr-u2mapped-full_td-gridSeisCorr-noSpont/results_m4_preserve.bin");
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
-					parkfieldFiles, mappingFile, erfID, rupVarScenID);
+					parkfieldFile, mappingFile, erfID, rupVarScenID);
 			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 			calcs.add(calc);
 			filePrefixes.add("parkfield");
 			colors.add(Color.RED);
 			if (!debugSiteCalcOnly && makeMaps)
-				maps.add(calc.calcMap(new File(mapDir, "parkfield_hazard.png")));
+				maps.add(calc.calcMap(new File(mapDir, filePrefixes.get(filePrefixes.size()-1)+"_hazard.png")));
+			
+			
+//			File[] parkfieldFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds, "u2mapped-parkfield");
+//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.PARKFIELD, timeSpan, sol,
+//					parkfieldFiles, mappingFile, erfID, rupVarScenID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
+//			calcs.add(calc);
+//			filePrefixes.add("parkfield");
+//			colors.add(Color.RED);
+//			if (!debugSiteCalcOnly && makeMaps)
+//				maps.add(calc.calcMap(new File(mapDir, "parkfield_hazard.png")));
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_M6, timeSpan, sol,
 //					new File[] {
@@ -1469,27 +1505,27 @@ public class ETASCurveCalc {
 //			if (!debugSiteCalcOnly && makeMaps)
 //				maps.add(calc.calcMap(new File(mapDir, "bombay_hazard.png")));
 			
-			File[] brawleyFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds,
-					"u2mapped-bombay_beach_brawley_fault_m6");
-			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
-					timeSpan, sol, brawleyFiles, mappingFile, erfID, rupVarScenID);
-			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
-			calcs.add(calc);
-			filePrefixes.add("bombay_flt");
-			colors.add(Color.ORANGE);
-			if (!debugSiteCalcOnly && makeMaps)
-				maps.add(calc.calcMap(new File(mapDir, "bombay_flt_hazard.png")));
+//			File[] brawleyFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds,
+//					"u2mapped-bombay_beach_brawley_fault_m6");
+//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.BOMBAY_BEACH_BRAWLEY_FAULT_M6,
+//					timeSpan, sol, brawleyFiles, mappingFile, erfID, rupVarScenID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
+//			calcs.add(calc);
+//			filePrefixes.add("bombay_flt");
+//			colors.add(Color.ORANGE);
+//			if (!debugSiteCalcOnly && makeMaps)
+//				maps.add(calc.calcMap(new File(mapDir, "bombay_flt_hazard.png")));
 			
-			File[] mojaveFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds,
-					"u2mapped-mojave_s_point_m6");
-			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6, timeSpan, sol,
-					mojaveFiles, mappingFile, erfID, rupVarScenID);
-			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
-			calcs.add(calc);
-			filePrefixes.add("mojave");
-			colors.add(Color.MAGENTA);
-			if (!debugSiteCalcOnly && makeMaps)
-				maps.add(calc.calcMap(new File(mapDir, "mojave_hazard.png")));
+//			File[] mojaveFiles = getZipFiles(simsDir, dateStr, combined, indep, rounds,
+//					"u2mapped-mojave_s_point_m6");
+//			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MOJAVE_S_POINT_M6, timeSpan, sol,
+//					mojaveFiles, mappingFile, erfID, rupVarScenID);
+//			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
+//			calcs.add(calc);
+//			filePrefixes.add("mojave");
+//			colors.add(Color.MAGENTA);
+//			if (!debugSiteCalcOnly && makeMaps)
+//				maps.add(calc.calcMap(new File(mapDir, "mojave_hazard.png")));
 			
 //			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.TEST_NEGLIGABLE, timeSpan, sol,
 //					new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/sims/2014_08_01-parkfield/results.zip"),
@@ -1536,7 +1572,7 @@ public class ETASCurveCalc {
 						new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/ucerf2_mapped_timedep_sol.zip"));
 				conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2_TIMEDEP,
 						timeSpan, timeDepSol,
-						new File[0],
+						null,
 						new File("/home/kevin/OpenSHA/UCERF3/cybershake_etas/u2_mapped_mappings.csv"),
 						erfID, rupVarScenID);
 				calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
@@ -1549,7 +1585,7 @@ public class ETASCurveCalc {
 			}
 			
 			conf = new ETASModProbConfig(ETAS_CyberShake_Scenarios.MAPPED_UCERF2, timeSpan, sol,
-					new File[0],
+					null,
 					mappingFile, erfID, rupVarScenID);
 			calc = new ETASCurveCalc(conf, imTypeID, refDatasetID);
 			calcs.add(calc);

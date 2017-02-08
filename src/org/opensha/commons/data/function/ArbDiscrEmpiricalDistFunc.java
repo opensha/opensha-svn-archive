@@ -34,7 +34,7 @@ import com.google.common.base.Preconditions;
 /**
  * <b>Title:</b> ArbDiscrEmpiricalDistFunc<p>
  *
- * <b>Description:</b>  This class is similar to ArbitraryDiscretizedFunction,
+ * <b>Description:</b>  This class is similar to ArbitrarilyDiscretizedFunc,
  * except that rather than replacing a point that has the same x value (or within
  * tolerance, which is required to be near zero here), the y values are added together.
  * This is useful for making an empirical distribution where the y-values represent
@@ -224,20 +224,37 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      *  Get the apparent mode (X value where Y is maximum).  This is apparent because this assumes the distribution
      *  is sampled uniformly.
      * Returns throws a runtime exception in the case of a multi-modal distribution
+     * Modified by nvdE to return the mean of two equally likely bins, if the bins are adjacent (instead of runtime exception).
+     * 
      * @return
+     * 
      */
     public double getApparentMode() {
  //   	throw new RuntimeException("this method is wrong (assumes even x-axis increments) and hasn't yet been fixed");
-    	if(isMultiModal()) throw new RuntimeException(ERR_MSG_MULTI_MODAL);
-    	int index=-1;
+    	//if(isMultiModal()) throw new RuntimeException(ERR_MSG_MULTI_MODAL);
+    	int index=-2;
+    	double newY;
     	double maxY = Double.NEGATIVE_INFINITY;
+    	boolean tie = false;
+    	
     	for(int i=0; i<size(); ++i) {
-    		if(getY(i)>maxY) {
-    			maxY = getY(i);
+    		newY = getY(i);
+    		if(newY>maxY) {
+    			maxY = newY;
     			index = i;
+    			tie = false;
+    		} else if(newY==maxY) {
+    			if(i == index + 1)
+    				tie = true;
+    			else 
+    				throw new RuntimeException(ERR_MSG_MULTI_MODAL);
     		}
     	}
-    	return getX(index);
+    	
+    	if(tie)
+    		return (getX(index)+getX(index+1))/2;
+    	else
+    		return getX(index);
     }
     
     /**

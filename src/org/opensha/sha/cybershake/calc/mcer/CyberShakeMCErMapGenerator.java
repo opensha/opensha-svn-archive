@@ -79,7 +79,7 @@ public class CyberShakeMCErMapGenerator {
 	public static void calculateMaps(int datasetID, CyberShakeComponent component, double period,
 			ERF erf, ERF gmpeERF, List<AttenuationRelationship> gmpes, File outputDir, boolean weightAverage, File gmpeCacheDir)
 					throws IOException, GMT_MapException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
 		
 		CybershakeIM im = CyberShakeMCErProbabilisticCalc.getIMsForPeriods(db, component, Lists.newArrayList(period)).get(0);
 		
@@ -181,7 +181,7 @@ public class CyberShakeMCErMapGenerator {
 			}
 		}
 		
-		outputDir = new File(outputDir, (int)period+"s");
+		outputDir = new File(outputDir, getPeriodDirName(period));
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		MCErMapGenerator.calculateMaps("CyberShake", null, csProbCalc, csDetCalc, "GMPE", gmpeProbCalc, gmpeDetCalc,
@@ -202,6 +202,13 @@ public class CyberShakeMCErMapGenerator {
 			MCErMapGenerator.calculateMaps("Weight Avg", "weight_avg", avgProbCalc, avgDetCalc, null, null, null,
 					region, sites, period, outputDir);
 		}
+	}
+	
+	static String getPeriodDirName(double period) {
+		if (period == (double)(int)period)
+			return (int)period+"s";
+		else
+			return (float)period+"s";
 	}
 	
 	private static String getERFName(ERF erf) {
@@ -290,20 +297,25 @@ public class CyberShakeMCErMapGenerator {
 	public static void main(String[] args) throws IOException, GMT_MapException {
 		int datasetID = 57;
 		String studyName = "study_15_4";
+		MCErMapGenerator.doPSV = false;
+		MCErMapGenerator.plot_log = false;
+		MCErMapGenerator.interpSettings.setInterpSpacing(0.01);
 		
 		CyberShakeComponent component = CyberShakeComponent.RotD100;
-		double period = 10d;
+		double[] periods = { 2,3,4,5,7.5,10 };
+//		double period = 10d;
 		
-		boolean weightAverage = true;
+		boolean weightAverage = false;
 
 		ERF erf = MeanUCERF2_ToDB.createUCERF2ERF();
-		List<AttenuationRelationship> gmpes = Lists.newArrayList();
-		gmpes.add(AttenRelRef.ASK_2014.instance(null));
-		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
-		gmpes.add(AttenRelRef.CB_2014.instance(null));
-		gmpes.add(AttenRelRef.CY_2014.instance(null));
-		for (AttenuationRelationship gmpe : gmpes)
-			gmpe.setParamDefaults();
+		List<AttenuationRelationship> gmpes = null;
+//		List<AttenuationRelationship> gmpes = Lists.newArrayList();
+//		gmpes.add(AttenRelRef.ASK_2014.instance(null));
+//		gmpes.add(AttenRelRef.BSSA_2014.instance(null));
+//		gmpes.add(AttenRelRef.CB_2014.instance(null));
+//		gmpes.add(AttenRelRef.CY_2014.instance(null));
+//		for (AttenuationRelationship gmpe : gmpes)
+//			gmpe.setParamDefaults();
 		
 		ERF gmpeERF = null;
 //		MeanUCERF3 gmpeERF = new MeanUCERF3();
@@ -321,7 +333,10 @@ public class CyberShakeMCErMapGenerator {
 		File outputDir = new File("/home/kevin/CyberShake/MCER/maps/"+outputName);
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdirs());
 
-		calculateMaps(datasetID, component, period, erf, gmpeERF, gmpes, outputDir, weightAverage, gmpeCacheDir);
+		for (double period : periods) {
+			System.out.println("Period: "+(float)period+"s");
+			calculateMaps(datasetID, component, period, erf, gmpeERF, gmpes, outputDir, weightAverage, gmpeCacheDir);
+		}
 
 		//// UCERF3/UCERF2 comparisons
 		//twoPercentIn50 = true;

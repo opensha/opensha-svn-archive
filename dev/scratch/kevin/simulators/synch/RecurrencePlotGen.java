@@ -850,6 +850,7 @@ public class RecurrencePlotGen {
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		File outputDir = new File("/home/kevin/Simulators/recurrence_plots");
+//		File outputDir = new File("/home/kevin/Simulators/recurrence_plots/noSkip");
 		
 		List<SynchFaults[]> faultSets = Lists.newArrayList();
 		
@@ -875,10 +876,10 @@ public class RecurrencePlotGen {
 //		MagDependentAperiodicityOptions[] ucerf3ForCombo = ucerf3Comparisons;
 		
 		File[] etasCatalogs = {
-				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
 //						+ "2015_11_30-spontaneous-1000yr-FelzerParams-mc20-full_td-noApplyLTR/results_m4.bin")
 //						+ "2016_01_05-spontaneous-10000yr-mc10-applyGrGridded-full_td-noApplyLTR/results_m4.bin")
-						+ "2016_02_04-spontaneous-10000yr-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin")
+//						+ "2016_02_04-spontaneous-10000yr-full_td-subSeisSupraNucl-gridSeisCorr/results_m4.bin")
 		};
 		
 		
@@ -1072,6 +1073,7 @@ public class RecurrencePlotGen {
 						distSpacing, MarkovChainBuilder.getMatchesLists(myEvents, rupIdens), 0d, eventsForStatesList);
 				// skip the first 10,000 years while things are getting ramped up
 				int pathStartIndex = 1000;
+//				int pathStartIndex = 0;
 				fullPath = fullPath.subList(pathStartIndex, fullPath.size());
 					
 //				System.out.println("Path length: "+fullPath.size());

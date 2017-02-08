@@ -98,7 +98,7 @@ public class ETAS_SciPaperFigures {
 		File haywiredNoERT_all = new File(mainDir,	// 100K
 				"2016_06_15-haywired_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr-combined/results_m5_preserve.bin");
 		
-		boolean doFig2 = false; // Bombay/SJ MFD
+		boolean doFig2 = true; // Bombay/SJ MFD
 		boolean doFig3 = true; // Mojave/Haywired MFD
 		boolean doFig4 = true; // Mojave/Haywired Region MFD
 		boolean doFig5 = true; // Scales of Hazard

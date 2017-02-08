@@ -1211,6 +1211,10 @@ public class FaultSysSolutionERF_Calc {
 		File kmzFile = new File(outputDir, plotFileName+".kmz");
 		FileUtils.downloadURL(baseURL+"map.kmz", kmzFile);
 		
+		// download txt file
+		File txtFile = new File(outputDir, plotFileName+".txt");
+		FileUtils.downloadURL(baseURL+"map_data.txt", txtFile);
+		
 		// now extract projected file
 		ZipFile zip = new ZipFile(kmzFile);
 		ZipEntry entry = zip.getEntry("map.png");

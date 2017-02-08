@@ -28,7 +28,7 @@
 	<property name="test" value="../test/" />
 	<property name="lib.dir" value="../lib" />
 	<property name="ant.lib.dir" value="lib" />
-	<property name="svnant.lib.dir" value="${ant.lib.dir}/svnant-1.3.0" />
+	<property name="svnant.lib.dir" value="${ant.lib.dir}/svnant-1.3.1" />
 	<property name="ant.jnlp.war.lib.dir" value="${ant.lib.dir}/ant-jnlp-war" />
 	<property name="javadoc.dir" value="../javadocs/" />
 	<property name="keystore.alias" value="opensha" />
@@ -75,18 +75,57 @@
 		</javac>
 	</target>
 
+	<!-- 
 	<path id="svn.classpath">
-		<pathelement location="${svnant.lib.dir}/svnjavahl.jar" />
+		<pathelement location="${svnant.lib.dir}/antlr-runtime-3.4.jar" />
+		<pathelement location="${svnant.lib.dir}/ganymed.jar" />
+		<pathelement location="${svnant.lib.dir}/jna.jar" />
+		<pathelement location="${svnant.lib.dir}/sequence-library-1.0.3.jar" />
+		<pathelement location="${svnant.lib.dir}/sqljet-1.1.10.jar" />
 		<pathelement location="${svnant.lib.dir}/svnant.jar" />
 		<pathelement location="${svnant.lib.dir}/svnClientAdapter.jar" />
+		<pathelement location="${svnant.lib.dir}/svnjavahl.jar" />
+		<pathelement location="${svnant.lib.dir}/svnkit-1.8.14.jar" />
+		<pathelement location="${svnant.lib.dir}/svnkit-javahl16-1.8.14.jar" />
 	</path>
 
 	<taskdef name="svn" classname="org.tigris.subversion.svnant.SvnTask" classpathref="svn.classpath" />
+	-->
+	
+	<!-- svnant tasks -->
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
+		<classpath>
+			<fileset dir= "${svnant.lib.dir}" >
+				<include name= "*.jar" />
+			</fileset>
+		</classpath>
+	</typedef>
+	
+	<!-- ant-contrib tasks -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${ant.lib.dir}/ant-contrib-1.0b3/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
 
 	<target name="svn.update">
+		<trycatch>
+			<try>
+				<svn svnkit="true">
+					<update revision="HEAD" dir="../" />
+				</svn>
+			</try>
+			<catch>
+				<svn>
+					<update revision="HEAD" dir="../" />
+				</svn>
+			</catch>
+		</trycatch>
+		<!--
 		<svn>
 			<update revision="HEAD" dir="../" />
 		</svn>
+		-->
 	</target>
 
 	<target name="init">
