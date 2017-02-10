@@ -1725,7 +1725,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 			while (forecastMapPane.getTabCount() > 0)
 				forecastMapPane.removeTabAt(0);
 
-		double spacing = 0.05; 	// grid spacing in degrees
+		double spacing = 0.025; 	// grid spacing in degrees
 		double stressDrop = 3.0; 	//MPa
 		double mainshockFitDuration = 1.0; //days
 		
@@ -1735,10 +1735,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		// TODO progress inside loop in this method
 		GriddedGeoDataSet genericRateModel = genericModel.getRateModel2D(spacing, stressDrop, mainshockFitDuration);
 
-//		System.out.println("rateModel is " + genericRateModel. + " by " + genericRateModel.getNumY());
 		System.out.println("rateModel min max: " + + genericRateModel.getMinZ() + " " + genericRateModel.getMaxZ());
-		
-		// TODO spit out a map! How?
 		
 		
 		if (progress != null)
@@ -1751,7 +1748,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 			throw ExceptionUtils.asRuntimeException(e);
 		}
 		
-		XYZPlotSpec spec = new XYZPlotSpec(genericRateModel, cpt, "Spatial Forecast", "Longitude", "Latitude", "Rate Density");
+		XYZPlotSpec spec = new XYZPlotSpec(genericRateModel, cpt, "Spatial Forecast", "Longitude", "Latitude", "Epicentral Rate Density (km-2");
 		
 		XYZGraphPanel xyzGP = new XYZGraphPanel();
 		forecastMapPane.addTab("Aftershock Rate", null, xyzGP);

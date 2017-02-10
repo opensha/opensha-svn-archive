@@ -663,7 +663,7 @@ public class ETAS_StatsCalc {
         
         System.out.println("Dimensions of ellipse: " + a + " " + " " + b + "; EQ mag: " + mag0 + "; DS:" + stressDrop + "; EQ radius: " + magnitude2radius(mag0, stressDrop) );
         
-        //build set of equivalent sources
+        //build set of equivalent sources to represent line source
         double rMSequivalent, magEquivalent;
         int nEquivalent;
         
@@ -679,7 +679,7 @@ public class ETAS_StatsCalc {
     	nEquivalent = (int) Math.round(Math.pow(10, 1.0*(mag0 - magEquivalent)));
     	
     	System.out.println("Replacing Mainshocks with " + nEquivalent + " M=" + magEquivalent + " sources");
-        // now find the magEquivalent for an integer number of sources
+        // now find the equivalent magnitude for an integer number of sources
     	if(nEquivalent < 1)
     		nEquivalent = 1;
     	magEquivalent = mag0 - Math.log10(nEquivalent);

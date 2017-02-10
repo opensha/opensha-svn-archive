@@ -1072,6 +1072,9 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	 */
 	public GriddedGeoDataSet getRateModel2D(double spacing, double stressDrop, double mainshockFitDuration){
 		
+		// TODO: assign seismogenicDepth as variable somewhere
+		double seismogenicDepth = 10;	//in km
+		
 		//load ETAS solution
 		double a = this.getMaxLikelihood_a();
 		double p = this.getMaxLikelihood_p();
@@ -1121,7 +1124,7 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 		for (ObsEqkRupture rup:equivalentMainshockSources)
 			System.out.println(rup.getMag() + " " + rup.getHypocenterLocation().getLatitude() + " " + rup.getHypocenterLocation().getLongitude());
 		
-		// compute rates at each point in the rate map
+		// compute rates at each point in the rate map for the mainshock equivalent sources
 		double prevVal, x, y, newVal, x0, y0, mag0, t0;
 		System.out.println("computing MS rate integral from day " + forecastMinDays + " to " + forecastMaxDays);
 		for (ObsEqkRupture rup : equivalentMainshockSources){
@@ -1136,13 +1139,13 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 				x = gridLoc.getLongitude();
 				y = gridLoc.getLatitude();
 				
-				newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays);
+				newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays, seismogenicDepth);
 				
 				gridData.set(i, gridData.get(i) + newVal);
 			}
 		}
 		
-		// compute rates at each point in the rate map
+		// compute rates at each point in the rate map for the aftershock sources
 		System.out.println("computing AS rate integral for time " + forecastMinDays + " to " + forecastMaxDays);
 		for (ObsEqkRupture rup : aftershockList){
 			System.out.println(rup);
@@ -1156,7 +1159,7 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 				x = gridLoc.getLongitude();
 				y = gridLoc.getLatitude();
 				
-				newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays);
+				newVal = rateXY(x,y,t0,mag0,x0,y0, stressDrop, forecastMinDays, forecastMaxDays, seismogenicDepth);
 				
 				gridData.set(i, gridData.get(i) + newVal);
 			}
@@ -1168,21 +1171,25 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	/**	compute rate at one point for one source
      * 
      */
-    private double rateXY(double lon, double lat, double t0, double mag0, double lon0, double lat0, double stressDrop, double ts, double te){
+    private double rateXY(double lon, double lat, double t0, double mag0, double lon0, double lat0, double stressDrop, double ts, double te, double H){
+    	// quick convert to x,y
     	double dx = (lon-lon0)*Math.cos(Math.toRadians(lat0))*111.111;
     	double dy = (lat-lat0)*111.111;
     	
+    	// constants
     	double r = Math.sqrt(dx*dx + dy*dy);
     	double d = ETAS_StatsCalc.magnitude2radius(mag0, stressDrop);
     	
-    	double PI = Math.pow(10.0, this.getMaxLikelihood_a() + 1.0*(mag0 - this.refMag)) * Math.pow(r*r + d*d, -3.0/2.0) * d/(2*Math.PI);
-//    	PI = ETAS.k*10.^(ETAS.alpha*(mag(i) - ETAS.mref)).*(R.^2 + d.^2).^(-3/2) * d/(2*pi);
-        
+    	// compute productivity for weighting this event
+    	double productivity = Math.pow(10d, this.getMaxLikelihood_a() + 1d*(mag0 - this.refMag));
+    	// compute rate, integrated over seismogenic depth H
+    	double spatialDecay = H / (d*d + r*r) / Math.pow(H*H/4d + r*r + d*d, 1d/2d) * d/(2*Math.PI);
+    	
     	double p = this.getMaxLikelihood_p();
     	double c = this.getMaxLikelihood_c();
-    	double TI = 1.0/(1.0 - p) * ( Math.pow(te - t0 + c, 1.0-p) - Math.pow(ts - t0 + c, 1.0-p) );  
+    	double timeIntegral = 1d/(1d - p) * ( Math.pow(te - t0 + c, 1d-p) - Math.pow(ts - t0 + c, 1d-p) );  
 //        
-        double rate = TI * PI;
+        double rate = productivity *  timeIntegral * spatialDecay;
         
         return rate;
     }
