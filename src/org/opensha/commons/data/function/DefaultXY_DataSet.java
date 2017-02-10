@@ -216,6 +216,15 @@ public class DefaultXY_DataSet extends AbstractXY_DataSet {
 				return true;
 		return false;
 	}
+	
+	public void scale(double scalar) {
+		yStats = new SummaryStatistics();
+		for (int i=0; i<points.size(); i++) {
+			Point2D pt = points.get(i);
+			pt.setLocation(pt.getX(), pt.getY()*scalar);
+			yStats.addValue(pt.getY());
+		}
+	}
 
 
 }

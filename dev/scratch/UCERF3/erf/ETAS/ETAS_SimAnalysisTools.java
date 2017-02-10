@@ -23,9 +23,11 @@ import java.util.TimeZone;
 
 import org.dom4j.DocumentException;
 import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.data.Range;
 import org.jfree.ui.TextAnchor;
 import org.opensha.commons.data.function.AbstractXY_DataSet;
 import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.function.XY_DataSet;
@@ -2321,11 +2323,222 @@ public class ETAS_SimAnalysisTools {
 	}
 	
 	
+	public static void plotRateOverTime(List<ETAS_EqkRupture> catalog, double startTimeYears, double durationYears,
+			double binWidthDays, File outputDir, String prefix, int plotWidthPixels,
+			double annotateMinMag, double annotateBinWidth) throws IOException {
+		Preconditions.checkState(!catalog.isEmpty(), "Empty catalog");
+		long actualOT = catalog.get(0).getOriginTime();
+		long actualMaxOT = catalog.get(catalog.size()-1).getOriginTime();
+		long startOT;
+		if (startTimeYears > 0)
+			startOT = actualOT + (long)(startTimeYears*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		else
+			startOT = actualOT;
+		Preconditions.checkState(startOT < actualMaxOT, "Start time is after end of catalog");
+		long binWidth = (long)(binWidthDays*ProbabilityModelsCalc.MILLISEC_PER_DAY);
+		long maxOT = (long)(startOT + durationYears*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		
+		if (maxOT > actualMaxOT) {
+			maxOT = actualMaxOT;
+//			durationYears = (double)(maxOT - startOT)/(double)ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+		}
+		int numBins = (int)((maxOT - startOT)/binWidth);
+		Preconditions.checkState(numBins > 1, "Must have at least 2 bins!");
+		
+		boolean xAxisDays = durationYears < 2d;
+		
+		double funcDelta;
+		if (xAxisDays)
+			funcDelta = binWidthDays;
+		else
+			funcDelta = binWidthDays/365.25;
+		double funcMin = funcDelta*0.5;
+		
+		EvenlyDiscretizedFunc rateFunc = new EvenlyDiscretizedFunc(funcMin, numBins, funcDelta);
+		rateFunc.setName("Catalog");
+		EvenlyDiscretizedFunc poissonFunc = new EvenlyDiscretizedFunc(funcMin, numBins, funcDelta);
+		poissonFunc.setName("Poisson");
+		
+		// create poisson catalog
+		List<ETAS_EqkRupture> poissonCatalog = getRandomizedCatalog(catalog);
+		
+		List<DefaultXY_DataSet> anns = populateRateFunc(catalog, rateFunc, startOT, binWidth,
+				xAxisDays, annotateMinMag, annotateBinWidth);
+		List<DefaultXY_DataSet> poissonAnns = populateRateFunc(poissonCatalog, poissonFunc, startOT,
+				binWidth, xAxisDays, annotateMinMag, annotateBinWidth);
+		
+		List<XY_DataSet> funcs = Lists.newArrayList();
+		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
+		
+		funcs.add(poissonFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLACK));
+		
+		funcs.add(rateFunc);
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		
+		double maxY = Math.max(rateFunc.getMaxY(), poissonFunc.getMaxY());
+		double mainAnnY = maxY * 12.5;
+		double poissonAnnY = maxY * 5;
+		
+		float minAnnSize = 10f;
+		float scalarEach = 10;
+		for (int i=anns.size(); --i>=0;) {
+			DefaultXY_DataSet ann = anns.get(i);
+			if (ann == null || ann.size() == 0)
+				continue;
+			funcs.add(ann);
+			float symbolWidth = minAnnSize + i*scalarEach;
+			ann.scale(mainAnnY);
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, symbolWidth, Color.RED));
+		}
+		for (int i=poissonAnns.size(); --i>=0;) {
+			DefaultXY_DataSet ann = poissonAnns.get(i);
+			if (ann == null || ann.size() == 0)
+				continue;
+			funcs.add(ann);
+			float symbolWidth = minAnnSize + i*scalarEach;
+			chars.add(new PlotCurveCharacterstics(PlotSymbol.CIRCLE, symbolWidth, Color.BLACK));
+			ann.scale(poissonAnnY);
+			ann.setName(null);
+		}
+		
+		String xAxisLabel;
+		if (xAxisDays)
+			xAxisLabel = "Time (Days)";
+		else
+			xAxisLabel = "Time (Years)";
+		String yAxisLabel;
+		if ((float)binWidthDays == 1f)
+			yAxisLabel = "Daily Rate";
+		else if ((float)binWidthDays == 7f)
+			yAxisLabel = "Weekly Rate";
+		else if ((float)binWidthDays == 30f)
+			yAxisLabel = "Monthly Rate";
+		else
+			yAxisLabel = "Rate per "+(float)binWidthDays+" Days";
+		PlotSpec spec = new PlotSpec(funcs, chars, "Rate vs Time", xAxisLabel, yAxisLabel);
+		spec.setLegendVisible(true);
+		
+		String fName;
+		if (prefix == null)
+			fName = "";
+		else
+			fName = prefix+"_";
+		fName += "rate_over_time_"+(int)durationYears+"yrs";
+		if (startTimeYears > 0)
+			fName += "_start"+(int)startTimeYears;
+		
+		// now plot
+		HeadlessGraphPanel gp = new HeadlessGraphPanel();
+		// set user bounds?
+		gp.setUserBounds(new Range(0d, durationYears), null);
+		
+		ETAS_MultiSimAnalysisTools.setFontSizes(gp);
+		
+		gp.drawGraphPanel(spec, false, true);
+		if (plotWidthPixels <= 0)
+			plotWidthPixels = (int)(durationYears * 2);
+		gp.getChartPanel().setSize(plotWidthPixels, 800);
+		gp.saveAsPNG(new File(outputDir, fName+".png").getAbsolutePath());
+		gp.saveAsPDF(new File(outputDir, fName+".pdf").getAbsolutePath());
+		gp.saveAsTXT(new File(outputDir, fName+".txt").getAbsolutePath());
+	}
 	
+	private static List<DefaultXY_DataSet> populateRateFunc(List<ETAS_EqkRupture> catalog, EvenlyDiscretizedFunc rateFunc,
+			long startOT, long binWidth, boolean xAxisDays, double annotateMinMag, double annotateBinWidth) {
+		List<DefaultXY_DataSet> annotations = Lists.newArrayList();
+		
+		int catalogIndex = 0;
+		
+		for (int i=0; i<rateFunc.size(); i++) {
+			int num = 0;
+			long binStart = startOT + binWidth*i;
+			long binEnd = binStart + binWidth;
+//			if (i < 20)
+//				System.out.println("Bin "+i+": "+binStart+" => "+binEnd);
+			
+			for (int n=catalogIndex; n<catalog.size(); n++) {
+				ETAS_EqkRupture rup = catalog.get(n);
+				long ot = rup.getOriginTime();
+//				if (i < 20)
+//					System.out.println("\trup "+n+": "+ot);
+				if (ot >= binEnd)
+					break;
+				catalogIndex++;
+				if (ot >= binStart) {
+					num++;
+					if (annotateMinMag > 0 && rup.getMag() >= annotateMinMag) {
+						int annIndex = (int)((rup.getMag()-annotateMinMag)/annotateBinWidth);
+						while (annIndex >= annotations.size()) {
+//							System.out.println("Adding annotation! current size="+annotations.size());
+							DefaultXY_DataSet xy = new DefaultXY_DataSet();
+							int index = annotations.size();
+							float minMag = (float)(annotateMinMag + index*annotateBinWidth);
+							xy.setName("M>="+minMag);
+							annotations.add(xy);
+						}
+						double t;
+						if (xAxisDays)
+							t = (double)(ot - startOT)/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
+						else
+							t = (double)(ot - startOT)/(double)ProbabilityModelsCalc.MILLISEC_PER_YEAR;
+						annotations.get(annIndex).set(t, 1d);
+					}
+				}
+			}
+			rateFunc.set(i, num);
+		}
+		
+		return annotations;
+	}
 	
-	
+	/**
+	 * Creates a randomized catalog using the time of the first and last ruptures. Ruptures are cloned
+	 * and the original catalog/ruptures are unaltered.
+	 * @param catalog randomized catalog, in order
+	 * @return
+	 */
+	public static List<ETAS_EqkRupture> getRandomizedCatalog(List<ETAS_EqkRupture> catalog) {
+		Preconditions.checkArgument(catalog.size() > 1, "Can't randomize catalog with less than 2 ruptures");
+		long ot = catalog.get(0).getOriginTime();
+		long durationMillis = catalog.get(catalog.size()-1).getOriginTime()-ot;
+		List<ETAS_EqkRupture> randomized = Lists.newArrayList();
+		for (ETAS_EqkRupture rup : catalog) {
+			long time = ot + (long)(Math.random()*durationMillis);
+			ETAS_EqkRupture clone = (ETAS_EqkRupture)rup.clone();
+			clone.setOriginTime(time);
+			randomized.add(clone);
+		}
+		Collections.sort(randomized, eventComparator);
+		return randomized;
+	}
 	
 	public static void main(String[] args) throws IOException, GMT_MapException, DocumentException {
+		File simDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+				+ "2016_02_17-spontaneous-1000yr-scaleMFD1p14-full_td-subSeisSupraNucl-gridSeisCorr/");
+		File catalogFile = new File(simDir, "individual_binary/catalog_000.bin");
+		List<ETAS_EqkRupture> catalog = ETAS_CatalogIO.loadCatalogBinary(catalogFile);
+		File outputDir = new File(simDir, "rate_over_time");
+		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
+//		double startTimeYears = 0;
+//		double durationYears = 200;
+//		int plotWidthPixels = 2000;
+//		double binWidthDays = 30;
+//		double startTimeYears = 20;
+//		double durationYears = 30;
+//		int plotWidthPixels = 2000;
+//		double binWidthDays = 30;
+		double startTimeYears = 550;
+		double durationYears = 100;
+		int plotWidthPixels = 2000;
+		double binWidthDays = 30;
+		String prefix = null;
+//		double annotateMinMag = 6;
+//		double annotateBinWidth = 0.5;
+		double annotateMinMag = 0; // no annotations
+		double annotateBinWidth = 0.5;
+		plotRateOverTime(catalog, startTimeYears, durationYears, binWidthDays, outputDir, prefix, plotWidthPixels,
+				annotateMinMag, annotateBinWidth);
 //		File catalogFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/2014_05_28-mojave_7/"
 //				+ "results/sim_003/simulatedEvents.txt");
 //		

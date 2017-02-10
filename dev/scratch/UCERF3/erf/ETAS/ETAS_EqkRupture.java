@@ -243,4 +243,21 @@ public class ETAS_EqkRupture extends ObsEqkRupture {
 		return oldestAncestor;
 	}
 	
+	@Override
+	public Object clone() {
+		ObsEqkRupture parentClone = (ObsEqkRupture)super.clone();
+		ETAS_EqkRupture clone = new ETAS_EqkRupture(parentClone);
+		clone.id = id;
+		clone.nthERF_Index = nthERF_Index;
+		clone.generation = generation;
+		clone.fssIndex = fssIndex;
+		clone.gridNodeIndex = gridNodeIndex;
+		clone.cubeIndex = cubeIndex;
+		clone.distToParent = distToParent;
+		clone.parentRup = parentRup;
+		clone.parentID = parentID;
+		clone.parentTriggerLoc = parentTriggerLoc;
+		return clone;
+	}
+	
 }
