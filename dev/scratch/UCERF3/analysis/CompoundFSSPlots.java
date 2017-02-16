@@ -5144,6 +5144,17 @@ public abstract class CompoundFSSPlots implements Serializable {
 				File file = new File(dir, fileName+".csv");
 				csv.writeToFile(file);
 			}
+			CSVFile<String> csv = plot.mfdCSVs.get(fm);
+			String fileName;
+			if (prefix != null && !prefix.isEmpty())
+				fileName = prefix+"_";
+			else
+				fileName = "";
+			if (plot.csvTable.rowKeySet().size() > 1)
+				fileName += fm.name()+"_";
+			fileName += "cumulative_mfds";
+			File file = new File(dir, fileName+".csv");
+			csv.writeToFile(file);
 		}
 	}
 	
@@ -5157,15 +5168,24 @@ public abstract class CompoundFSSPlots implements Serializable {
 		
 		// FM, minMag, results by solution
 		private Table<FaultModels, Double, List<double[]>> results;
+		private Map<FaultModels, List<EvenlyDiscretizedFunc[]>> mfdResults;
 		private Map<FaultModels, List<Double>> weights;
 		private Map<FaultModels, List<FaultSectionPrefData>> fmSectsMap;
 		
 		private Table<FaultModels, Double, CSVFile<String>> csvTable;
+		private Map<FaultModels, CSVFile<String>> mfdCSVs;
+		
+		// for MFDs
+		private static final double minX = 6.05d;
+		private static final double maxX = 9.05d;
+		private static final double delta = 0.1d;
+		private static final int num = (int) ((maxX - minX) / delta + 1);
 		
 		public SubSectRITable(BranchWeightProvider weightProvider) {
 			this.weightProvider = weightProvider;
 			
 			results = HashBasedTable.create();
+			mfdResults = Maps.newHashMap();
 			weights = Maps.newHashMap();
 			fmSectsMap = Maps.newHashMap();
 		}
@@ -5178,6 +5198,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				if (!results.containsRow(fm)) {
 					for (double minMag : minMags)
 						results.put(fm, minMag, new ArrayList<double[]>());
+					mfdResults.put(fm, new ArrayList<EvenlyDiscretizedFunc[]>());
 					weights.put(fm, new ArrayList<Double>());
 					fmSectsMap.put(fm, sol.getRupSet().getFaultSectionDataList());
 				}
@@ -5185,6 +5206,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 			
 			List<double[]> myRIs = Lists.newArrayList();
 			
+			// mag specific results
 			for (double minMag : minMags) {
 				double[] rates = sol.calcParticRateForAllSects(minMag, Double.POSITIVE_INFINITY);
 				double[] ris = new double[rates.length];
@@ -5193,11 +5215,19 @@ public abstract class CompoundFSSPlots implements Serializable {
 				myRIs.add(ris);
 			}
 			
+			// MFDs
+			EvenlyDiscretizedFunc[] mfds = new EvenlyDiscretizedFunc[sol.getRupSet().getNumSections()];
+			for (int s=0; s<mfds.length; s++) {
+				IncrementalMagFreqDist mfd = sol.calcParticipationMFD_forSect(s, minX, maxX, num);
+				mfds[s] = mfd.getCumRateDistWithOffset();
+			}
+			
 			synchronized (results) {
 				for (int i=0; i<minMags.length; i++) {
 					double minMag = minMags[i];
 					results.get(fm, minMag).add(myRIs.get(i));
 				}
+				mfdResults.get(fm).add(mfds);
 				weights.get(fm).add(weightProvider.getWeight(branch));
 			}
 		}
@@ -5210,12 +5240,14 @@ public abstract class CompoundFSSPlots implements Serializable {
 					if (!results.containsRow(fm)) {
 						for (double minMag : minMags)
 							results.put(fm, minMag, new ArrayList<double[]>());
+						mfdResults.put(fm, new ArrayList<EvenlyDiscretizedFunc[]>());
 						weights.put(fm, new ArrayList<Double>());
 						fmSectsMap.put(fm, o.fmSectsMap.get(fm));
 					}
 					
 					for (double minMag : minMags)
 						results.get(fm, minMag).addAll(o.results.get(fm, minMag));
+					mfdResults.get(fm).addAll(o.mfdResults.get(fm));
 					weights.get(fm).addAll(o.weights.get(fm));
 				}
 			}
@@ -5224,6 +5256,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 		@Override
 		protected void doFinalizePlot() {
 			csvTable = HashBasedTable.create();
+			mfdCSVs = Maps.newHashMap();
 			
 			for (FaultModels fm : results.rowKeySet()) {
 				Map<Double, List<double[]>> fmResults = results.row(fm);
@@ -5234,6 +5267,7 @@ public abstract class CompoundFSSPlots implements Serializable {
 				List<FaultSectionPrefData> subSects = fmSectsMap.get(fm);
 				Preconditions.checkState(numSects == subSects.size());
 				
+				// mag specific results
 				for (double minMag : minMags) {
 					List<double[]> ris = fmResults.get(minMag);
 					
@@ -5251,26 +5285,46 @@ public abstract class CompoundFSSPlots implements Serializable {
 					csv.addLine(header);
 					
 					for (int s=0; s<numSects; s++) {
-						double[] vals = new double[ris.size()];
-						for (int i=0; i<vals.length; i++)
-							vals[i] = ris.get(i)[s];
+						ArbDiscrEmpiricalDistFunc dist = new ArbDiscrEmpiricalDistFunc();
+						for (int i=0; i<ris.size(); i++)
+							dist.set(ris.get(i)[s], fmWeights.get(i)); // this actually adds if already present
 						
 						FaultSectionPrefData sect = subSects.get(s);
 						
 						List<String> line = Lists.newArrayList(sect.getSectionId()+"", sect.getParentSectionId()+"",
 								sect.getSectionName());
-						line.add(StatUtils.mean(vals)+"");
-						line.add(StatUtils.min(vals)+"");
-						line.add(StatUtils.max(vals)+"");
-						double stdDev = Math.sqrt(StatUtils.variance(vals));
-						line.add(stdDev+"");
-						for (double fractile : fractiles) {
-							double p = StatUtils.percentile(vals, fractile*100d);
-							line.add(p+"");
-						}
+						line.add(dist.getMean()+"");
+						line.add(dist.getMinX()+"");
+						line.add(dist.getMaxX()+"");
+						line.add(dist.getStdDev()+"");
+						for (double fractile : fractiles)
+							line.add(dist.getDiscreteFractile(fractile)+"");
 						csv.addLine(line);
 					}
 				}
+				
+				// MFDs
+				CSVFile<String> csv = new CSVFile<String>(true);
+				List<String> header = Lists.newArrayList("Subsection Index", "Parent Section ID", "Subsection Name");
+				List<EvenlyDiscretizedFunc[]> solMFDs = mfdResults.get(fm);
+				EvenlyDiscretizedFunc testFunc = solMFDs.get(0)[0];
+				for (int i=0; i<testFunc.size(); i++)
+					header.add((float)testFunc.getX(i)+"");
+				csv.addLine(header);
+				
+				for (int s=0; s<subSects.size(); s++) {
+					XY_DataSetList sectMFDs = new XY_DataSetList();
+					for (int i=0; i<solMFDs.size(); i++)
+						sectMFDs.add(solMFDs.get(i)[s]);
+					DiscretizedFunc meanMFD = getFractiles(sectMFDs, fmWeights, "", new double[] {}).get(0);
+					FaultSectionPrefData sect = subSects.get(s);
+					List<String> line = Lists.newArrayList(sect.getSectionId()+"", sect.getParentSectionId()+"",
+							sect.getSectionName());
+					for (int i=0; i<meanMFD.size(); i++)
+						line.add(meanMFD.getY(i)+"");
+					csv.addLine(line);
+				}
+				mfdCSVs.put(fm, csv);
 			}
 		}
 		

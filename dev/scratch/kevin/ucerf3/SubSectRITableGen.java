@@ -30,6 +30,8 @@ public class SubSectRITableGen {
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		
 		FaultSystemSolutionFetcher fetch = FaultSystemSolutionFetcher.getSubset(cfss, fm, dm);
+		// for random sample
+//		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 8, FaultModels.FM3_1);
 		System.out.println("Subset has "+fetch.getBranches().size()+" branches");
 		
 		SubSectRITable calc = new SubSectRITable(weightProvider);
