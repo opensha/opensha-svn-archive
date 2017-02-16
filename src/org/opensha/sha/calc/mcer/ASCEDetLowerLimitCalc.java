@@ -17,8 +17,32 @@ import com.google.common.collect.Lists;
 public class ASCEDetLowerLimitCalc {
 	
 private static TLDataLoader tlData;
-	
+
+	public static double getTl(Location loc) {
+		synchronized (MCERDataProductsCalc.class) {
+			if (tlData == null) {
+				try {
+					tlData = new TLDataLoader(
+							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
+									"/resources/data/site/USGS_TL/tl-nodes.csv"), true),
+							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
+									"/resources/data/site/USGS_TL/tl-attributes.csv"), true));
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+			}
+		}
+		
+		double tl = tlData.getValue(loc);
+		Preconditions.checkState(!Double.isNaN(tl), "No TL data found for site at "+loc);
+		return tl;
+	}
+
 	public static DiscretizedFunc calc(DiscretizedFunc xValsFunc, double vs30, Location loc) {
+		return calc(xValsFunc, vs30, loc, getTl(loc));
+	}
+	
+	public static DiscretizedFunc calc(DiscretizedFunc xValsFunc, double vs30, Location loc, double tl) {
 		// convert vs30 from m/s to ft/s
 		vs30 *= 3.2808399;
 		double fa, fv;
@@ -66,23 +90,6 @@ private static TLDataLoader tlData;
 			fa = 1.0;
 			fv = 4.0;
 		}
-		
-		synchronized (MCERDataProductsCalc.class) {
-			if (tlData == null) {
-				try {
-					tlData = new TLDataLoader(
-							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
-									"/resources/data/site/USGS_TL/tl-nodes.csv"), true),
-							CSVFile.readStream(TLDataLoader.class.getResourceAsStream(
-									"/resources/data/site/USGS_TL/tl-attributes.csv"), true));
-				} catch (IOException e) {
-					ExceptionUtils.throwAsRuntimeException(e);
-				}
-			}
-		}
-		
-		double tl = tlData.getValue(loc);
-		Preconditions.checkState(!Double.isNaN(tl), "No TL data found for site at "+loc);
 		
 		return calc(xValsFunc, fv, fa, tl);
 	}

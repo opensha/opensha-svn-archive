@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -978,8 +979,17 @@ public class MCERDataProductsCalc {
 	}
 	
 	static String getValIfPresent(DiscretizedFunc func, double period) {
-		if (func.hasX(period))
-			return func.getY(period)+"";
+		return getValIfPresent(func, period, null);
+	}
+	
+	static String getValIfPresent(DiscretizedFunc func, double period, DecimalFormat df) {
+		if (func.hasX(period)) {
+			double val = func.getY(period);
+			if (df == null)
+				return val+"";
+			else
+				return df.format(val);
+		}
 		return "";
 	}
 	

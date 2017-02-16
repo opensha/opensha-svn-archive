@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -320,6 +321,11 @@ public class UGMS_WebToolCalc {
 				// only add second point for interp if within range and not an exact match
 				System.out.println("\t2nd closest GMPE site class for interp "+secondClosestClass+" (diff="+secondClosest+")");
 				siteClassNames.add(secondClosestClass);
+			} else {
+				if (vs30 < minCalcVs30)
+					vs30 = minCalcVs30;
+				else if (vs30 > maxCalcVs30)
+					vs30 = maxCalcVs30;
 			}
 			userVs30 = vs30;
 		} else {
@@ -502,7 +508,7 @@ public class UGMS_WebToolCalc {
 				double y = Interpolate.findLogLogY(xs, ys, userVs30);
 //				System.out.println("x="+userVs30+", x1="+x1+", x2="+x2);
 //				System.out.println("y="+y+", y1="+ys[0]+", y2="+ys[1]);
-				Preconditions.checkState(y >= ys[0] && y <= ys[1] || y >= ys[1] && y <= ys[0],
+				Preconditions.checkState((float)y >= (float)ys[0] && (float)y <= (float)ys[1] || (float)y >= (float)ys[1] && y <= (float)ys[0],
 						"Bad interpolation, %s outside of range [%s %s]", y, ys[0], ys[1]);
 				gmpeMCER.set(x, y);
 			}
@@ -597,10 +603,15 @@ public class UGMS_WebToolCalc {
 	}
 	
 	public void plot() throws IOException {
-		plot(true);
-		plot(false);
+//		plot(true);
+		plot(false, false, false);
+		plot(false, true, false);
+		plot(false, true, true);
 	}
-	public void plot(boolean psv) throws IOException {
+	
+	private static final DecimalFormat csvSaDF = new DecimalFormat("0.000");
+	
+	public void plot(boolean psv, boolean finalOnly, boolean smSpectrum) throws IOException {
 		boolean xLog = psv;
 		boolean yLog = psv;
 		Range xRange = new Range(1e-2, 10d);
@@ -624,6 +635,12 @@ public class UGMS_WebToolCalc {
 			yRange = null;
 			yAxisLabel = "Sa (g)";
 		}
+		
+		if (finalOnly)
+			prefix += "_final";
+		if (smSpectrum)
+			prefix += "_sms_sm1";
+		boolean writeCSV = !finalOnly && !smSpectrum;
 
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -646,16 +663,25 @@ public class UGMS_WebToolCalc {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
 		}
 
-		funcs.add(gmpeMCER);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		if (!finalOnly) {
+			funcs.add(gmpeMCER);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
+		}
 
-		funcs.add(csMCER);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
+		if (!finalOnly) {
+			funcs.add(csMCER);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
+		}
 		
 		funcs.add(finalMCER);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
+		
+		if (smSpectrum) {
+			// TODO
+		}
 
-		PlotSpec spec = new PlotSpec(funcs, chars, "CyberShake MCEr", "Period (s)", yAxisLabel);
+		PlotSpec spec = new PlotSpec(funcs, chars, "MCER Acceleration Response Spectrum", "Period (s)", yAxisLabel);
+//		spec.setLegendVisible(funcs.size() > 1);
 		spec.setLegendVisible(true);
 
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -675,25 +701,26 @@ public class UGMS_WebToolCalc {
 		File file = new File(outputDir, prefix);
 		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
 		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
 		// now write CSV
-		
-		CSVFile<String> csv = new CSVFile<String>(true);
-		
-		List<String> header = Lists.newArrayList("Period", "Final MCEr", "CyberShake MCEr", "GMPE MCEr");
-		csv.addLine(header);
-		
-		for (double period : periods) {
-			List<String> line = Lists.newArrayList((float)period+"");
-			line.add(MCERDataProductsCalc.getValIfPresent(finalMCER, period));
-			line.add(MCERDataProductsCalc.getValIfPresent(csMCER, period));
-			line.add(MCERDataProductsCalc.getValIfPresent(gmpeMCER, period));
+		if (writeCSV) {
+			CSVFile<String> csv = new CSVFile<String>(true);
 			
-			csv.addLine(line);
+			List<String> header = Lists.newArrayList("Period", "Final MCEr", "CyberShake MCEr", "GMPE MCEr");
+			csv.addLine(header);
+			
+			for (double period : periods) {
+				List<String> line = Lists.newArrayList((float)period+"");
+				line.add(MCERDataProductsCalc.getValIfPresent(finalMCER, period, csvSaDF));
+				line.add(MCERDataProductsCalc.getValIfPresent(csMCER, period, csvSaDF));
+				line.add(MCERDataProductsCalc.getValIfPresent(gmpeMCER, period, csvSaDF));
+				
+				csv.addLine(line);
+			}
+			
+			csv.writeToFile(new File(outputDir, prefix+".csv"));
 		}
-		
-		csv.writeToFile(new File(outputDir, prefix+".csv"));
 	}
 	
 	public void writeMetadata() throws IOException {
@@ -835,9 +862,10 @@ public class UGMS_WebToolCalc {
 		if (args.length == 1 && args[0].equals("--hardcoded")) {
 			// hardcoded
 //			String argStr = "--latitude 34.026414 --longitude -118.300136";
-			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
+//			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
 //			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
 //			String argStr = "--run-id 3870"; // doesn't require dataset ID if run ID
+			String argStr = "--longitude -118.272049427032 --latitude 34.0407116420786";
 //			String argStr = "--site-name LADT";
 //			String argStr = "--site-id 20";
 //			argStr += " --dataset-id 57";
@@ -852,13 +880,29 @@ public class UGMS_WebToolCalc {
 			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.002.bin";
 			argStr += " --cs-spacing 0.002";
 			argStr += " --output-dir /tmp/ugms_web_tool";
-//			argStr += " --vs30 455";
+			argStr += " --vs30 900";
 //			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
 			argStr += " --wills-file /data/kevin/opensha/wills2006.bin";
 			
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
+		
+		/*
+		 * Kevin's TODO
+		 * x Plot title: MCER Acceleration Response Spectrum (can we subscript the R?)
+		 * * generate plot with only final (no legend), in addition to plot with components
+		 * x Remove PSV
+		 * x round CSV file (3 decimal places), add units
+		 * * have David link directly to CSV for download
+		 * x remove txt files
+		 * * new plot with Final and spectrum from SMS/SM1. SMS=1.5*SDS, SM1=1.5*SD1
+		 * 	* Ts = SD1/SDS
+		 * 	* T0 = 0.2*TS
+		 * 	* at P=0, intercept is 0.4*SMS
+		 * 	* spectrum from SMS is black line, Final MCER is red dashed
+		 * x if user Vs30 outside range, clamp to actual range
+		 */
 		
 		try {
 			Options options = createOptions();
