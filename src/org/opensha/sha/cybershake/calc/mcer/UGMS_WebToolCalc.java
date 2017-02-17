@@ -26,6 +26,11 @@ import org.jfree.data.Range;
 import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.siteData.SiteData;
+import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
+import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
+import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -72,6 +77,8 @@ public class UGMS_WebToolCalc {
 	private String gmpeERF;
 	private List<String> siteClassNames;
 	private double userVs30;
+	private double z2p5;
+	private double z1p0;
 	
 	private File outputDir;
 	
@@ -118,9 +125,14 @@ public class UGMS_WebToolCalc {
 	private DiscretizedFunc csProbSpectrum;
 	private DiscretizedFunc csMCER;
 	private DiscretizedFunc finalMCER;
+	private DiscretizedFunc standardSpectrum;
+	private DiscretizedFunc designSpectrum;
 	
 	private double sds;
 	private double sd1;
+	private double sms;
+	private double sm1;
+	private double tl;
 	private static boolean plotSD = false;
 	
 	private DiscretizedFunc gmpeMCER;
@@ -150,6 +162,7 @@ public class UGMS_WebToolCalc {
 		gmpeSpacing = Double.parseDouble(cmd.getOptionValue("gmpe-spacing"));
 		gmpeERF = cmd.getOptionValue("gmpe-erf");
 		
+		int velModelID;
 		if (cmd.hasOption("cs-data-file")) {
 			Preconditions.checkArgument(cmd.hasOption("cs-spacing"), "Must supply spacing with CS data file");
 			csDataFile = new File(cmd.getOptionValue("cs-data-file"));
@@ -164,6 +177,10 @@ public class UGMS_WebToolCalc {
 			double lon = Double.parseDouble(cmd.getOptionValue("longitude"));
 			loc = new Location(lat, lon);
 			System.out.println("User location: "+loc);
+			
+			Preconditions.checkState(cmd.hasOption("vel-model-id"),
+					"Must supply velocity model ID if using precomputed CS data files");
+			velModelID = Integer.parseInt(cmd.getOptionValue("vel-model-id"));
 		} else {
 			db = new DBAccess(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME, Cybershake_OpenSHA_DBApplication.DATABASE_NAME);
 			runs2db = new Runs2DB(db);
@@ -240,6 +257,7 @@ public class UGMS_WebToolCalc {
 				
 				csRun = csRuns.get(0);
 			}
+			velModelID = csRun.getCS_Run().getVelModelID();
 			
 			System.out.println("Using closest CS Site location: "+csRun.getLocation());
 			
@@ -275,6 +293,8 @@ public class UGMS_WebToolCalc {
 		metadataEl.addAttribute("longitude", loc.getLongitude()+"");
 		
 		System.out.println("Loc: "+loc);
+		tl = ASCEDetLowerLimitCalc.getTl(loc);
+		System.out.println("TL: "+tl);
 		
 		if (cmd.hasOption("class")) {
 			// site class specified
@@ -348,7 +368,51 @@ public class UGMS_WebToolCalc {
 			}
 			System.out.println("Wills 2006 Vs30: "+userVs30);
 		}
+		
+		File z10File = null;
+		File z25File = null;
+		if (cmd.hasOption("z25-file"))
+			z25File = new File(cmd.getOptionValue("z25-file"));
+		if (cmd.hasOption("z10-file"))
+			z10File = new File(cmd.getOptionValue("z10-file"));
+		Preconditions.checkState((z10File == null && z25File == null) || (z10File != null && z25File != null),
+				"Must specify either both or none of Z1.0/2.5 files");
+		boolean fileBased = z10File != null;
+		SiteData<Double> z10Prov;
+		SiteData<Double> z25Prov;
+		try {
+			switch (velModelID) {
+			case 5:
+				if (fileBased) {
+					z10Prov = new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0, z10File);
+					z25Prov = new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5, z25File);
+				} else {
+					z10Prov = new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+					z25Prov = new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+				}
+				break;
+			case 10:
+				if (fileBased) {
+					z10Prov = new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0, z10File);
+					z25Prov = new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5, z25File);
+				} else {
+					z10Prov = new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0);
+					z25Prov = new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5);
+				}
+				break;
+
+			default:
+				throw new IllegalStateException("Unknown or unsupported Velocity Model ID: "+velModelID);
+			}
+			z1p0 = z10Prov.getValue(loc);
+			z2p5 = z25Prov.getValue(loc);
+		} catch (IOException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+		
 		metadataEl.addAttribute("vs30", userVs30+"");
+		metadataEl.addAttribute("z1p0", z1p0+"");
+		metadataEl.addAttribute("z2p5", z2p5+"");
 		if (siteClassNames != null) {
 			if (siteClassNames.size() == 1) {
 				metadataEl.addAttribute("siteClass", siteClassNames.get(0));
@@ -369,7 +433,7 @@ public class UGMS_WebToolCalc {
 			try {
 				GriddedSpectrumInterpolator interp = getInterpolator(csDataFile, csDataSpacing);
 				csMCER = interp.getInterpolated(loc);
-				csMCER.setName("CyberShake MCEr");
+				csMCER.setName("CyberShake MCER");
 			} catch (Exception e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -410,10 +474,10 @@ public class UGMS_WebToolCalc {
 				if (csDeterms.get(i) != null)
 					csDetSpectrum.set(periods[i], csDeterms.get(i).getVal());
 			
-			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, userVs30, site.getLocation());
+			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, userVs30, site.getLocation(), tl);
 			
 			csMCER = MCERDataProductsCalc.calcMCER(csDetSpectrum, csProbSpectrum, asceDeterm);
-			csMCER.setName("CyberShake MCEr");
+			csMCER.setName("CyberShake MCER");
 			
 			csDetSpectrum.toXMLMetadata(csSiteEl, "deterministic");
 			csProbSpectrum.toXMLMetadata(csSiteEl, "probabilistic");
@@ -513,7 +577,7 @@ public class UGMS_WebToolCalc {
 				gmpeMCER.set(x, y);
 			}
 		}
-		gmpeMCER.setName("GMPE MCEr");
+		gmpeMCER.setName("GMPE MCER");
 		
 		gmpeMCER.toXMLMetadata(resultsEl, "GMPE_MCER");
 	}
@@ -558,7 +622,7 @@ public class UGMS_WebToolCalc {
 		Preconditions.checkNotNull(gmpeMCER, "GMPE MCER has not been computed!");
 		finalMCER = MCERDataProductsCalc.calcFinalMCER(csMCER, gmpeMCER);
 		finalMCER.toXMLMetadata(resultsEl, "FinalMCER");
-		finalMCER.setName("Final MCEr");
+		finalMCER.setName("Final MCER");
 		
 		// calc SDS and SD1
 		DiscretizedFunc scaled = finalMCER.deepClone();
@@ -598,20 +662,37 @@ public class UGMS_WebToolCalc {
 			sd1 = Math.max(sd1, x * y);
 		}
 		
+		sms = 1.5*sds;
+		sm1 = 1.5*sd1;
+		
 		resultsEl.addAttribute("SDS", sds+"");
 		resultsEl.addAttribute("SD1", sd1+"");
+		resultsEl.addAttribute("SMS", sms+"");
+		resultsEl.addAttribute("SM1", sm1+"");
+		resultsEl.addAttribute("TL", tl+"");
+		double ts = sd1/sds;
+		double t0 = 0.2*ts;
+		resultsEl.addAttribute("TS", ts+"");
+		resultsEl.addAttribute("T0", t0+"");
+		
+		standardSpectrum = DesignSpectrumCalc.calcSpectrum(sms, sm1, tl);
+		standardSpectrum.setName("Standard MCER Spectrum");
+		
+		designSpectrum = DesignSpectrumCalc.calcSpectrum(sds, sd1, tl);
+		designSpectrum.setName("Design Response Spectrum");
 	}
 	
 	public void plot() throws IOException {
-//		plot(true);
-		plot(false, false, false);
-		plot(false, true, false);
-		plot(false, true, true);
+		//	PSV		CS/GM  Final  SM      SD
+		plot(false, true, true, false, false);
+		plot(false, false, true, false, false);
+		plot(false, false, true, true, false);
+		plot(false, false, true, false, true);
 	}
 	
 	private static final DecimalFormat csvSaDF = new DecimalFormat("0.000");
 	
-	public void plot(boolean psv, boolean finalOnly, boolean smSpectrum) throws IOException {
+	public void plot(boolean psv, boolean ingredients, boolean finalSpectrum, boolean smSpectrum, boolean sdSpectrum) throws IOException {
 		boolean xLog = psv;
 		boolean yLog = psv;
 		Range xRange = new Range(1e-2, 10d);
@@ -636,11 +717,13 @@ public class UGMS_WebToolCalc {
 			yAxisLabel = "Sa (g)";
 		}
 		
-		if (finalOnly)
-			prefix += "_final";
 		if (smSpectrum)
-			prefix += "_sms_sm1";
-		boolean writeCSV = !finalOnly && !smSpectrum;
+			prefix += "_standard_mcer";
+		if (sdSpectrum)
+			prefix += "_design";
+		if (finalSpectrum && !ingredients && !smSpectrum && !sdSpectrum)
+			prefix += "_final";
+		boolean writeCSV = ingredients && !smSpectrum && !sdSpectrum;
 
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -663,26 +746,40 @@ public class UGMS_WebToolCalc {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DOTTED, 1f, Color.BLACK));
 		}
 
-		if (!finalOnly) {
+		if (ingredients) {
 			funcs.add(gmpeMCER);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		}
 
-		if (!finalOnly) {
+		if (ingredients) {
 			funcs.add(csMCER);
 			chars.add(new PlotCurveCharacterstics(PlotLineType.DASHED, 2f, Color.RED));
 		}
 		
-		funcs.add(finalMCER);
-		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
+		if (finalSpectrum) {
+			if (smSpectrum || sdSpectrum) {
+				finalMCER = finalMCER.deepClone();
+				finalMCER.setName("Site-Specific MCER");
+			}
+			funcs.add(finalMCER);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 4f, Color.BLACK));
+		}
 		
 		if (smSpectrum) {
-			// TODO
+			funcs.add(standardSpectrum);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		}
+		
+		if (sdSpectrum) {
+			funcs.add(designSpectrum);
+			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		}
 
-		PlotSpec spec = new PlotSpec(funcs, chars, "MCER Acceleration Response Spectrum", "Period (s)", yAxisLabel);
-//		spec.setLegendVisible(funcs.size() > 1);
-		spec.setLegendVisible(true);
+//		String title = "MCER Acceleration Response Spectrum";
+		String title = null;
+		PlotSpec spec = new PlotSpec(funcs, chars, title, "Period (s)", yAxisLabel);
+		spec.setLegendVisible(funcs.size() > 1);
+//		spec.setLegendVisible(true);
 
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		gp.setBackgroundColor(Color.WHITE);
@@ -707,7 +804,7 @@ public class UGMS_WebToolCalc {
 		if (writeCSV) {
 			CSVFile<String> csv = new CSVFile<String>(true);
 			
-			List<String> header = Lists.newArrayList("Period", "Final MCEr", "CyberShake MCEr", "GMPE MCEr");
+			List<String> header = Lists.newArrayList("Period", "Final MCER", "CyberShake MCER", "GMPE MCER");
 			csv.addLine(header);
 			
 			for (double period : periods) {
@@ -837,6 +934,19 @@ public class UGMS_WebToolCalc {
 		willsFile.setRequired(false);
 		ops.addOption(willsFile);
 		
+		Option velModelID = new Option("vm", "vel-model-id", true,
+				"Velocity model ID, required if using precomputed CS data files");
+		velModelID.setRequired(false);
+		ops.addOption(velModelID);
+		
+		Option z25File = new Option("z25", "z25-file", true, "Path to Z2.5 binary file");
+		z25File.setRequired(false);
+		ops.addOption(z25File);
+		
+		Option z10File = new Option("z10", "z10-file", true, "Path to Z1.0 binary file");
+		z10File.setRequired(false);
+		ops.addOption(z10File);
+		
 		Option help = new Option("?", "help", false, "Display this message");
 		help.setRequired(false);
 		ops.addOption(help);
@@ -879,6 +989,9 @@ public class UGMS_WebToolCalc {
 //			argStr += " --cs-spacing 0.005";
 			argStr += " --cs-data-file /home/kevin/CyberShake/MCER/maps/study_15_4_rotd100/interp_tests/mcer_spectrum_0.002.bin";
 			argStr += " --cs-spacing 0.002";
+			argStr += " --vel-model-id 5";
+			argStr += " --z10-file /home/kevin/workspace/OpenSHA/src/resources/data/site/CVM4i26/depth_1.0.bin";
+			argStr += " --z25-file /home/kevin/workspace/OpenSHA/src/resources/data/site/CVM4i26/depth_2.5.bin";
 			argStr += " --output-dir /tmp/ugms_web_tool";
 			argStr += " --vs30 900";
 //			argStr += " --class AorB";
@@ -891,12 +1004,12 @@ public class UGMS_WebToolCalc {
 		/*
 		 * Kevin's TODO
 		 * x Plot title: MCER Acceleration Response Spectrum (can we subscript the R?)
-		 * * generate plot with only final (no legend), in addition to plot with components
+		 * x generate plot with only final (no legend), in addition to plot with components
 		 * x Remove PSV
 		 * x round CSV file (3 decimal places), add units
-		 * * have David link directly to CSV for download
+		 * x have David link directly to CSV for download
 		 * x remove txt files
-		 * * new plot with Final and spectrum from SMS/SM1. SMS=1.5*SDS, SM1=1.5*SD1
+		 * x new plot with Final and spectrum from SMS/SM1. SMS=1.5*SDS, SM1=1.5*SD1
 		 * 	* Ts = SD1/SDS
 		 * 	* T0 = 0.2*TS
 		 * 	* at P=0, intercept is 0.4*SMS
