@@ -75,7 +75,7 @@ public class UCERF3_EAL_ScriptWriter {
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
 		FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 8000,
-				classpath, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+				classpath, USC_HPCC_ScriptWriter.FMPJ_HOME);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();

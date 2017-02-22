@@ -100,7 +100,7 @@ public class LogicTreeInputFileGen {
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		
 		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 2048,
-				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+				classpath, USC_HPCC_ScriptWriter.MPJ_HOME);
 		
 		AbstractEpistemicListERF erfList = new UCERF2_TimeDependentEpistemicList();
 		

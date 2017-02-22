@@ -66,7 +66,7 @@ public class MultiSolComparisonMapScriptGen {
 		List<File> classpath = LogicTreePBSWriter.getClasspath(remoteMainDir, remoteDir);
 		
 		FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(site.getJAVA_BIN(), site.getMaxHeapSizeMB(null),
-					classpath, site.getMPJ_HOME(), false);
+					classpath, site.getMPJ_HOME());
 		mpjWrite.setUseLaunchWrapper(true);
 		BatchScriptWriter batchWrite = site.forBranch(null);
 		

@@ -192,7 +192,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			remoteSolFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/2013_05_10-ucerf3p3-production-10runs/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
-					null, StampedeScriptWriter.FMPJ_HOME, false);
+					null, StampedeScriptWriter.FMPJ_HOME);
 			((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
 			pbsWrite = new StampedeScriptWriter();
 			cacheDir = new File(remoteDir, "cache_fm3p1_ba");
@@ -209,11 +209,11 @@ public class MPJ_ETAS_SimulatorScriptGen {
 			fmpj = false;
 			if (fmpj) {
 				mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-						null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+						null, USC_HPCC_ScriptWriter.FMPJ_HOME);
 				((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
 			} else {
 				mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-						null, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+						null, USC_HPCC_ScriptWriter.MPJ_HOME);
 			}
 			pbsWrite = new USC_HPCC_ScriptWriter();
 			cacheDir = new File(remoteDir, "cache_fm3p1_ba");

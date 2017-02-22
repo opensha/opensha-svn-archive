@@ -139,11 +139,11 @@ public class MPJ_GMPE_MCErCacheGenScriptWriter {
 			JavaShellScriptWriter mpjWrite;
 			if (fmpj) {
 				mpjWrite = new FastMPJShellScriptWriter(
-					javaBin, memGigs*1024, classpath, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+					javaBin, memGigs*1024, classpath, USC_HPCC_ScriptWriter.FMPJ_HOME);
 				((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
 			} else {
 				mpjWrite = new MPJExpressShellScriptWriter(
-						javaBin, memGigs*1024, classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+						javaBin, memGigs*1024, classpath, USC_HPCC_ScriptWriter.MPJ_HOME);
 			}
 			
 			CyberShakeMCErMapGenerator.writeSitesFile(new File(localJobDir, sitesFileName), mySites);

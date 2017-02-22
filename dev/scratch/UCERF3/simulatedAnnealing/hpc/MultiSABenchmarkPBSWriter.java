@@ -129,7 +129,7 @@ public class MultiSABenchmarkPBSWriter {
 		CompletionCriteria tsaSingleCriteria = TimeCompletionCriteria.getInMinutes(tsaSingleMins);
 		System.out.println("TSA (single node) criteria: "+tsaSingleCriteria);
 		
-		MPJExpressShellScriptWriter mpjWriter = new MPJExpressShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome, useMxdev);
+		MPJExpressShellScriptWriter mpjWriter = new MPJExpressShellScriptWriter(javaBin, heapSizeMB, jars, mpjHome);
 		JavaShellScriptWriter javaWriter = new JavaShellScriptWriter(javaBin, heapSizeMB, jars);
 
 		DistributedScriptCreator dsa_create = new DistributedScriptCreator(mpjWriter, null, null, dsaCriteria, subCompletion, mpjHome, false);

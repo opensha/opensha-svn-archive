@@ -1409,10 +1409,10 @@ public class LogicTreePBSWriter {
 		JavaShellScriptWriter mpjWrite;
 		if (site.fastMPJ)
 			mpjWrite = new FastMPJShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
-					getClasspath(site, remoteDir), site.MPJ_HOME, false);
+					getClasspath(site, remoteDir), site.MPJ_HOME);
 		else
 			mpjWrite = new MPJExpressShellScriptWriter(site.JAVA_BIN, site.getMaxHeapSizeMB(null),
-					getClasspath(site, remoteDir), site.MPJ_HOME, false);
+					getClasspath(site, remoteDir), site.MPJ_HOME);
 		mpjWrite.setInitialHeapSizeMB(site.getInitialHeapSizeMB(null));
 		mpjWrite.setHeadless(true);
 		

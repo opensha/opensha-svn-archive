@@ -71,7 +71,7 @@ public class MPJ_EAL_ScriptWriter {
 		classpath.add(new File(remoteDir.getParentFile(), "commons-cli-1.2.jar"));
 		
 		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 2048,
-				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+				classpath, USC_HPCC_ScriptWriter.MPJ_HOME);
 		
 		Document doc = XMLUtils.createDocumentWithRoot();
 		Element root = doc.getRootElement();

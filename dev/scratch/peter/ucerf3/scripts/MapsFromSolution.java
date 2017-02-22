@@ -66,7 +66,7 @@ public class MapsFromSolution {
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
 			FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(
-				JAVA_BIN, 4096, classpath, MPJ_HOME, false);
+				JAVA_BIN, 4096, classpath, MPJ_HOME);
 
 			String scriptArgs = J_SPACE.join(args);
 			List<String> script = mpj.buildScript(

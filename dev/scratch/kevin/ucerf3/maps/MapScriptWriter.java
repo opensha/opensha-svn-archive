@@ -82,10 +82,10 @@ public class MapScriptWriter {
 		JavaShellScriptWriter mpjWrite;
 		if (site.isFastMPJ())
 			mpjWrite = new FastMPJShellScriptWriter(site.getJAVA_BIN(), site.getMaxHeapSizeMB(null),
-					classpath, site.getMPJ_HOME(), false);
+					classpath, site.getMPJ_HOME());
 		else
 			mpjWrite = new MPJExpressShellScriptWriter(site.getJAVA_BIN(), site.getMaxHeapSizeMB(null),
-					classpath, site.getMPJ_HOME(), false);
+					classpath, site.getMPJ_HOME());
 		
 		mpjWrite.setInitialHeapSizeMB(site.getInitialHeapSizeMB(null));
 		mpjWrite.setHeadless(true);

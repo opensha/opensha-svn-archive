@@ -148,7 +148,7 @@ public class HazardMapPBSGen {
 		String cliArgs = remoteInputsFile.getAbsolutePath();
 		
 		FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(runSite.getJAVA_BIN(), heapMB,
-				LogicTreePBSWriter.getClasspath(remoteRunDir, remoteRunDir), runSite.getMPJ_HOME(), false);
+				LogicTreePBSWriter.getClasspath(remoteRunDir, remoteRunDir), runSite.getMPJ_HOME());
 		
 		List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
 		

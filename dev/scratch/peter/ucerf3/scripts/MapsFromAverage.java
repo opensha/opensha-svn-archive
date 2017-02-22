@@ -65,7 +65,7 @@ public class MapsFromAverage {
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
 			FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(
-				JAVA_BIN, 4096, classpath, MPJ_HOME, false);
+				JAVA_BIN, 4096, classpath, MPJ_HOME);
 
 			List<String> classNames = Lists.newArrayList();
 			List<String> argss = Lists.newArrayList();

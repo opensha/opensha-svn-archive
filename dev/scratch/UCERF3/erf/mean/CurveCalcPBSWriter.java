@@ -102,8 +102,8 @@ public class CurveCalcPBSWriter {
 		pbsWrite.writeScript(jobFile, script, mins, nodes, ppn, queue);
 		
 		if (pbsWrite instanceof StampedeScriptWriter) {
-			FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(javaBin, javaWrite.getMaxHeapSizeMB(), javaWrite.getClasspath(),
-					mpjHome, false);
+			FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(javaBin, javaWrite.getMaxHeapSizeMB(),
+					javaWrite.getClasspath(), mpjHome);
 			jobArgs = "--exact-dispatch 1 "+meanSolFile.getAbsolutePath()+" "+remoteDir.getAbsolutePath();
 			script = mpjWrite.buildScript(CurveCalcSweepMPJ.class.getName(), jobArgs);
 			jobFile = new File(writeDir, "mpjsubmit.pbs");

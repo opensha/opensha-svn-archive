@@ -88,7 +88,7 @@ public class PBSScriptWriter {
 
 			ThreadedScriptCreator creator;
 			if (nodes > 1) {
-				MPJExpressShellScriptWriter mpjWriter = new MPJExpressShellScriptWriter(javaBin, heapSizeMB, classpath, mpjHome, useMXDev);
+				MPJExpressShellScriptWriter mpjWriter = new MPJExpressShellScriptWriter(javaBin, heapSizeMB, classpath, mpjHome);
 				creator = new DistributedScriptCreator(mpjWriter,numThreads, null, criteria,
 						subCompletion, mpjHome, false);
 			} else {

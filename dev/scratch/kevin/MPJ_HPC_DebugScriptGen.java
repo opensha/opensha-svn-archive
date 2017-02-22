@@ -31,11 +31,11 @@ public class MPJ_HPC_DebugScriptGen {
 		classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
 		FastMPJShellScriptWriter fmpjWrite = new FastMPJShellScriptWriter(
 				USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-				classpath, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+				classpath, USC_HPCC_ScriptWriter.FMPJ_HOME);
 		fmpjWrite.setUseLaunchWrapper(true);
 		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(
 				USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+				classpath, USC_HPCC_ScriptWriter.MPJ_HOME);
 		USC_HPCC_ScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
 		
 		String className = MPJ_DummyTest.class.getName();

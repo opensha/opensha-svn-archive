@@ -118,7 +118,7 @@ public class HazardDataSetLoader {
 				out = func.getFirstInterpolatedX_inLogXLogYDomain(level);
 				return out;
 			} catch (RuntimeException e) {
-				System.err.println("WARNING: Probability value doesn't exist, setting IMT to NaN");
+//				System.err.println("WARNING: Probability value doesn't exist, setting IMT to NaN");
 				//return 0d;
 				return Double.NaN;
 			}

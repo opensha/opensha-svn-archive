@@ -160,7 +160,7 @@ public class ScriptGen {
 			File cliJAR = new File(libDir, "commons-cli-1.2.jar");
 			ArrayList<File> classpath = Lists.newArrayList(shaJAR, cliJAR);
 			FastMPJShellScriptWriter mpj = new FastMPJShellScriptWriter(
-				JAVA_BIN, 6144, classpath, MPJ_HOME, false);
+				JAVA_BIN, 6144, classpath, MPJ_HOME);
 
 			String cliArgs = config.getAbsolutePath();
 			List<String> script = mpj.buildScript(

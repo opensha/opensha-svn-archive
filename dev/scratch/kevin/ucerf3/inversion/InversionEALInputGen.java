@@ -97,7 +97,7 @@ public class InversionEALInputGen {
 		classpath.add(new File(remoteDir, "commons-cli-1.2.jar"));
 		
 		MPJExpressShellScriptWriter mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, 7000,
-				classpath, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+				classpath, USC_HPCC_ScriptWriter.MPJ_HOME);
 		
 		List<File> solFiles = loadRemotePaths(localDir, remoteDir);
 		

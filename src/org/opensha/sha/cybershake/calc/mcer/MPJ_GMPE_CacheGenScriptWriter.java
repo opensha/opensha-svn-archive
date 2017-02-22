@@ -58,7 +58,7 @@ public class MPJ_GMPE_CacheGenScriptWriter {
 		classpath.add(new File(remoteDir, "OpenSHA_complete.jar"));
 		
 		FastMPJShellScriptWriter mpjWrite = new FastMPJShellScriptWriter(
-				javaBin, memGigs*1024, classpath, fmpjHome, false);
+				javaBin, memGigs*1024, classpath, fmpjHome);
 		
 		String argz = "--output-dir "+remoteJobDir.getAbsolutePath();
 		argz += " --erf-file "+confDir.getAbsolutePath()+"/"+erfFileName;

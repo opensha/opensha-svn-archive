@@ -64,9 +64,9 @@ public class TestScript {
 
 			JavaShellScriptWriter mpj = null;
 			if (mpjHome.equals(FMPJ_HOME)) {
-				mpj = new FastMPJShellScriptWriter(JAVA_BIN, 4096, classpath, mpjHome, false);
+				mpj = new FastMPJShellScriptWriter(JAVA_BIN, 4096, classpath, mpjHome);
 			} else {
-				mpj = new MPJExpressShellScriptWriter(JAVA_BIN, 4096, classpath, mpjHome, false);
+				mpj = new MPJExpressShellScriptWriter(JAVA_BIN, 4096, classpath, mpjHome);
 			}
 
 			List<String> script = mpj.buildScript(

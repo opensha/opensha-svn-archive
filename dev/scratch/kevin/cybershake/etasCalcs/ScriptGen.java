@@ -179,7 +179,7 @@ private static final String args_continue_newline = " \\\n\t";
 			remoteDir = new File("/work/00950/kevinm/ucerf3/etas_sim/cybershake");
 			remoteSolFile = new File(remoteDir, fssName);
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
-					null, StampedeScriptWriter.FMPJ_HOME, false);
+					null, StampedeScriptWriter.FMPJ_HOME);
 			((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
 			pbsWrite = new StampedeScriptWriter();
 			cacheDir = new File(remoteDir, cacheDirName);
@@ -194,11 +194,11 @@ private static final String args_continue_newline = " \\\n\t";
 			fmpj = false;
 			if (fmpj) {
 				mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-						null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+						null, USC_HPCC_ScriptWriter.FMPJ_HOME);
 				((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
 			} else {
 				mpjWrite = new MPJExpressShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-						null, USC_HPCC_ScriptWriter.MPJ_HOME, false);
+						null, USC_HPCC_ScriptWriter.MPJ_HOME);
 			}
 			pbsWrite = new USC_HPCC_ScriptWriter();
 			cacheDir = new File(remoteDir, cacheDirName);
@@ -532,7 +532,7 @@ private static final String args_continue_newline = " \\\n\t";
 		remoteDir = new File("/work/00950/kevinm/ucerf3/etas_sim/cybershake");
 		remoteSolFile = new File(remoteDir, fssName);
 		mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
-				null, StampedeScriptWriter.FMPJ_HOME, false);
+				null, StampedeScriptWriter.FMPJ_HOME);
 		pbsWrite = new StampedeScriptWriter();
 		
 		List<File> classpath = new ArrayList<File>();

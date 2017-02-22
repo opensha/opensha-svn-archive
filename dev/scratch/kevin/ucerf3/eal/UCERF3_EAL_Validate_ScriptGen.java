@@ -73,7 +73,7 @@ public class UCERF3_EAL_Validate_ScriptGen {
 		File portfolioFile = new File(remoteSubDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,
-				LogicTreePBSWriter.getClasspath(remoteSubDir, remoteSubDir), mpjHome, false);
+				LogicTreePBSWriter.getClasspath(remoteSubDir, remoteSubDir), mpjHome);
 		
 //		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(javaBin, maxHeapMB,
 //				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));

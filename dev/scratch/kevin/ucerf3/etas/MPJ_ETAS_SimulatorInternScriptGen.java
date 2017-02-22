@@ -72,7 +72,7 @@ public class MPJ_ETAS_SimulatorInternScriptGen {
 			remoteSolFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/2013_05_10-ucerf3p3-production-10runs/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
-					null, StampedeScriptWriter.FMPJ_HOME, false);
+					null, StampedeScriptWriter.FMPJ_HOME);
 			pbsWrite = new StampedeScriptWriter();
 		} else {
 			memGigs = 9;
@@ -81,7 +81,7 @@ public class MPJ_ETAS_SimulatorInternScriptGen {
 					+ "2013_05_10-ucerf3p3-production-10runs/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
 			mpjWrite = new FastMPJShellScriptWriter(USC_HPCC_ScriptWriter.JAVA_BIN, memGigs*1024,
-					null, USC_HPCC_ScriptWriter.FMPJ_HOME, false);
+					null, USC_HPCC_ScriptWriter.FMPJ_HOME);
 			pbsWrite = new USC_HPCC_ScriptWriter();
 		}
 		File remoteInternDir = new File(remoteDir, "2014_interns");

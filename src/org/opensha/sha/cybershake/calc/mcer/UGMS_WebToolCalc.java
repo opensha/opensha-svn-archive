@@ -687,7 +687,7 @@ public class UGMS_WebToolCalc {
 		plot(false, true, true, false, false);
 		plot(false, false, true, false, false);
 		plot(false, false, true, true, false);
-		plot(false, false, true, false, true);
+		plot(false, false, false, false, true);
 	}
 	
 	private static final DecimalFormat csvSaDF = new DecimalFormat("0.000");

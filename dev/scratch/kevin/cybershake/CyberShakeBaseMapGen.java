@@ -149,7 +149,7 @@ public class CyberShakeBaseMapGen {
 		classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 		
 		MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 7000, classpath,
-				USC_HPCC_ScriptWriter.MPJ_HOME, false);
+				USC_HPCC_ScriptWriter.MPJ_HOME);
 		
 		for (ScalarIMR imr : imrs) {
 			List<Map<TectonicRegionType, ScalarIMR>> imrMaps = Lists.newArrayList();

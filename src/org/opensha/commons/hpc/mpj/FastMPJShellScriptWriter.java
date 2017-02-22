@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.metadata.XMLSaveable;
@@ -15,21 +16,46 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 	
 	public static final String XML_METADATA_NAME = "MPJShellScriptWriter";
 	
+	private static Device DEVICE_DEFAULT = Device.NIODEV;
+	public static enum Device {
+		NIODEV("niodev"),
+		MXDEV("mxdev");
+		
+		private String name;
+		private Device(String name) {
+			this.name = name;
+		}
+		
+		public String getDeviceName() {
+			return name;
+		}
+	}
+	
 	private File mpjHome;
-	private boolean useMXDev;
+	private Device device;
 	private boolean useLaunchWrapper = false;
 	
 	private FastMPJShellScriptWriter(JavaShellScriptWriter javaWriter,
-			File mpjHome, boolean useMXDev) {
+			File mpjHome) {
+		this(javaWriter, mpjHome, DEVICE_DEFAULT);
+	}
+	
+	private FastMPJShellScriptWriter(JavaShellScriptWriter javaWriter,
+			File mpjHome, Device device) {
 		this(javaWriter.getJavaBin(), javaWriter.getMaxHeapSizeMB(), javaWriter.getClasspath(),
-				mpjHome, useMXDev);
+				mpjHome, device);
 	}
 	
 	public FastMPJShellScriptWriter(File javaBin, int heapSizeMB, Collection<File> classpath,
-			File mpjHome, boolean useMXDev) {
+			File mpjHome) {
+		this(javaBin, heapSizeMB, classpath, mpjHome, DEVICE_DEFAULT);
+	}
+	
+	public FastMPJShellScriptWriter(File javaBin, int heapSizeMB, Collection<File> classpath,
+			File mpjHome, Device device) {
 		super(javaBin, heapSizeMB, classpath);
 		setMpjHome(mpjHome);
-		this.useMXDev = useMXDev;
+		this.device = device;
 	}
 	
 	public void setMpjHome(File mpjHome) {
@@ -41,12 +67,12 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		return mpjHome;
 	}
 
-	public void setUseMXDev(boolean useMXDev) {
-		this.useMXDev = useMXDev;
+	public void setDevice(Device device) {
+		this.device = device;
 	}
 
-	public boolean isUseMXDev() {
-		return useMXDev;
+	public Device getDevice() {
+		return device;
 	}
 	
 	public boolean isUseLaunchWrapper() {
@@ -110,11 +136,7 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		else
 			launchCommand = "fmpjrun";
  
-		String dev;
-		if (useMXDev)
-			dev = "mxdev";
-		else
-			dev = "niodev";
+		String dev = getDevice().getDeviceName();
 		for (int i=0; i<classNames.size(); i++) {
 			script.add("");
 			script.add("date");
@@ -145,7 +167,7 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 		Element mpjEl = root.addElement(XML_METADATA_NAME);
 		
 		mpjEl.addElement("mpjHome", mpjHome.getAbsolutePath());
-		mpjEl.addElement("useMXDev", useMXDev+"");
+		mpjEl.addElement("device", device.name());
 		
 		// add the java args
 		super.toXMLMetadata(mpjEl);
@@ -155,12 +177,15 @@ public class FastMPJShellScriptWriter extends JavaShellScriptWriter {
 	
 	public static FastMPJShellScriptWriter fromXMLMetadata(Element mpjEl) {
 		File mpjHome = new File(mpjEl.attributeValue("mpjHome"));
-		boolean useMXDev = Boolean.parseBoolean(mpjEl.attributeValue("useMXDev"));
+		Attribute deviceAtt = mpjEl.attribute("device");
+		Device device = DEVICE_DEFAULT;
+		if (deviceAtt != null)
+			device = Device.valueOf(deviceAtt.getValue());
 		
 		JavaShellScriptWriter javaWriter = JavaShellScriptWriter.fromXMLMetadata(
 				mpjEl.element(JavaShellScriptWriter.XML_METADATA_NAME));
 		
-		return new FastMPJShellScriptWriter(javaWriter, mpjHome, useMXDev);
+		return new FastMPJShellScriptWriter(javaWriter, mpjHome, device);
 	}
 
 }
