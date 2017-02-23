@@ -56,7 +56,7 @@ public class WillsMap2015 extends AbstractSiteData<Double> {
 	
 	public static final String SERVER_BIN_FILE = 
 			ServerPrefUtils.SERVER_PREFS.getDataDir().getAbsolutePath()
-				+File.separator+"siteData"+File.separator+"wills_2015"+File.separator+"raster_0.0005.bin";
+				+File.separator+"siteData"+File.separator+"wills_2015"+File.separator+"raster_0.0005.flt";
 	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
 	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL()
