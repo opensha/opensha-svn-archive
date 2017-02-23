@@ -37,6 +37,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -66,6 +67,7 @@ public class ETAS_HazardMapCalc {
 	private boolean calcInLogSpace = true;
 	
 	private int debugCurvePlotModulus = 0;
+	private int debugStopIndex = 0;
 	
 	public ETAS_HazardMapCalc(FaultSystemSolution sol, List<List<ETAS_EqkRupture>> catalogs, File precalcFile,
 			GriddedRegion region, DiscretizedFunc xVals) throws IOException {
@@ -122,6 +124,9 @@ public class ETAS_HazardMapCalc {
 			
 			Future<Integer> future = executor.submit(new HazardCalcRunnable(index, vals), index);
 			hazardFutures.add(future);
+			
+			if (debugStopIndex > 0 && index == debugStopIndex)
+				break;
 			
 			if (debugCurvePlotModulus > 0 && index % debugCurvePlotModulus == 0)
 				// siteIndex has been incremented already thus -1
@@ -208,6 +213,22 @@ public class ETAS_HazardMapCalc {
 	 * @return
 	 */
 	private DiscretizedFunc calcHazardCurve(Map<Integer, double[]> rupVals) {
+		// first calculate conditional exceedence for each rupture
+		Map<Integer, DiscretizedFunc> rupCondExceeds = Maps.newHashMap();
+		for (int rupIndex : rupVals.keySet()) {
+			DiscretizedFunc condExceed = calcXVals.deepClone(); // log space if applicable
+			double[] vals = rupVals.get(rupIndex);
+			double mean = vals[0];
+			double stdDev = vals[1];
+			
+			for (int i=0; i<condExceed.size(); i++) {
+				double exceedProb = AttenuationRelationship.getExceedProbability(
+						mean, stdDev, condExceed.getX(i), null, null);
+				condExceed.set(i, exceedProb);
+			}
+			rupCondExceeds.put(rupIndex, condExceed);
+		}
+		
 		DiscretizedFunc curve = xVals.deepClone(); // linear space
 		initializeCurve(curve, 0d);
 		
@@ -221,18 +242,24 @@ public class ETAS_HazardMapCalc {
 				if (rup.getFSSIndex() < 0 || !rupVals.containsKey(rup.getFSSIndex()))
 					continue;
 				
-				double[] vals = rupVals.get(rup.getFSSIndex());
-				double mean = vals[0];
-				double stdDev = vals[1];
-
+//				double[] vals = rupVals.get(rup.getFSSIndex());
+//				double mean = vals[0];
+//				double stdDev = vals[1];
+//
+//				for (int k=0; k<catalogCurve.size(); k++) {
+//					// TODO allow truncation
+//					double exceedProb = AttenuationRelationship.getExceedProbability(
+//							mean, stdDev, catalogCurve.getX(k), null, null);
+//					
+//					// multiply this into the total non-exceedance probability
+//					// (get the product of all non-eceedance probabilities)
+//					catalogCurve.set(k, catalogCurve.getY(k) * (1d-exceedProb));
+//				}
+				DiscretizedFunc condExceed = rupCondExceeds.get(rup.getFSSIndex());
 				for (int k=0; k<catalogCurve.size(); k++) {
-					// TODO allow truncation
-					double exceedProb = AttenuationRelationship.getExceedProbability(
-							mean, stdDev, catalogCurve.getX(k), null, null);
-					
 					// multiply this into the total non-exceedance probability
 					// (get the product of all non-eceedance probabilities)
-					catalogCurve.set(k, catalogCurve.getY(k) * (1d-exceedProb));
+					catalogCurve.set(k, catalogCurve.getY(k) * (1d-condExceed.getY(k)));
 				}
 			}
 			
@@ -344,7 +371,14 @@ public class ETAS_HazardMapCalc {
 		
 		ETAS_HazardMapCalc calc = new ETAS_HazardMapCalc(sol, catalogs, faultBasedPrecalc, region, xVals);
 //		calc.debugCurvePlotModulus = 500;
+//		calc.debugStopIndex = 500;
+		Stopwatch watch = Stopwatch.createStarted();
 		calc.calcFaultBased();
+		long secs = watch.elapsed(TimeUnit.SECONDS);
+		System.out.println("Took "+secs+" secs");
+		watch.stop();
+		double curvesPerSecond = (double)calc.curvesCalculated/(double)secs;
+		System.out.println((float)curvesPerSecond+" curves/sec");
 		
 //		for (int i=0; i<region.getNodeCount(); i+= 500)
 //			calc.plotCurve(i);
