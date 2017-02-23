@@ -76,9 +76,8 @@ public class WillsMap2015 extends AbstractSiteData<Double> {
 	private SiteDataServletAccessor<Double> servlet = null;
 	
 	public WillsMap2015() throws IOException {
-//		this(true, null);
-		// TODO
-		this(false, "/home/kevin/OpenSHA/wills_2015/raster_0.0005.flt");
+		this(true, null);
+//		this(false, "/home/kevin/OpenSHA/wills_2015/raster_0.0005.flt");
 	}
 	
 	public WillsMap2015(String dataFile) throws IOException {
