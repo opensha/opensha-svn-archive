@@ -48,6 +48,7 @@ import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2000;
 import org.opensha.commons.data.siteData.impl.WillsMap2000TranslatedVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.impl.WillsMap2015;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.Region;
@@ -379,6 +380,13 @@ public class OrderedSiteDataProviderList implements Iterable<SiteData<?>>, XMLSa
 	 */
 	public static OrderedSiteDataProviderList createSiteDataProviderDefaults() {
 		ArrayList<SiteData<?>> providers = new ArrayList<SiteData<?>>();
+		
+		/*		Wills 2015			*/
+		try {
+			providers.add(new WillsMap2015());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		/*		Wills 2006			*/
 		try {

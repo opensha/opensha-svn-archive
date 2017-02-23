@@ -454,6 +454,22 @@
     <url-pattern>/SiteData/CVM2</url-pattern>
   </servlet-mapping>
 
+  <!-- * Wills 2015 * -->
+  <servlet>
+    <servlet-name>Wills2015</servlet-name>
+    <servlet-class>org.opensha.commons.data.siteData.servlet.impl.WillsMap2015Servlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+  </servlet>
+
+  <!-- Mapping -->
+  <servlet-mapping>
+    <servlet-name>Wills2015</servlet-name>
+    <url-pattern>/SiteData/Wills2015</url-pattern>
+  </servlet-mapping>
+
   <!-- * Wills 2006 * -->
   <servlet>
     <servlet-name>Wills2006</servlet-name>

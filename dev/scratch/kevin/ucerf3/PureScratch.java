@@ -30,7 +30,12 @@ import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.region.CaliforniaRegions.RELM_SOCAL;
+import org.opensha.commons.data.siteData.impl.CVM_Vs30;
+import org.opensha.commons.data.siteData.impl.CVM_Vs30.CVM;
+import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.impl.WillsMap2015;
 import org.opensha.commons.eq.MagUtils;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.geo.LocationUtils;
@@ -52,6 +57,9 @@ import org.opensha.refFaultParamDb.vo.FaultSectionData;
 import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
 import org.opensha.sha.calc.mcer.AbstractMCErProbabilisticCalc;
+import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
+import org.opensha.sha.cybershake.db.DBAccess;
+import org.opensha.sha.cybershake.db.SiteInfo2DB;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -768,6 +776,40 @@ public class PureScratch {
 		System.out.println(l);
 		ETAS_SimAnalysisTools.writeMemoryUse("test");
 	}
+	
+	private static void test27() throws IOException {
+		String[] names = { "s688", "s605", "s646" };
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
+		CVM_Vs30 cvm = new CVM_Vs30(CVM.CVMS4i26);
+		
+		SiteInfo2DB sites2db = new SiteInfo2DB(db);
+		
+		for (String name : names) {
+			Location loc = sites2db.getSiteFromDB(name).createLocation();
+			double vs30 = cvm.getValue(loc);
+			System.out.println(name+" ("+(float)loc.getLatitude()+", "+(float)loc.getLongitude()+"): "+(float)vs30);
+		}
+		
+		db.destroy();
+	}
+	
+	private static void test28() throws IOException {
+		WillsMap2006 wills2006 = new WillsMap2006();
+		WillsMap2015 wills2015 = new WillsMap2015();
+		
+		GriddedRegion reg = new CaliforniaRegions.RELM_TESTING_GRIDDED(0.01);
+		
+		MinMaxAveTracker track2006 = new MinMaxAveTracker();
+		MinMaxAveTracker track2015 = new MinMaxAveTracker();
+		
+		for (double val : wills2006.getValues(reg.getNodeList()))
+			track2006.addValue(val);
+		for (double val : wills2015.getValues(reg.getNodeList()))
+			track2015.addValue(val);
+		
+		System.out.println(track2006);
+		System.out.println(track2015);
+	}
 
 	/**
 	 * @param args
@@ -797,7 +839,9 @@ public class PureScratch {
 //		test23();
 //		test24();
 //		test25();
-		test26();
+//		test26();
+//		test27();
+		test28();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

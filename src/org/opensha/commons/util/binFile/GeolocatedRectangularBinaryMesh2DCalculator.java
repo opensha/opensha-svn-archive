@@ -33,8 +33,8 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	private double maxLon;
 	private double gridSpacing;
 	
-	private boolean startBottom = true;
-	private boolean startLeft = true;
+	private boolean startBottom;
+	private boolean startLeft;
 	
 	private boolean wrapX = false;
 	private boolean wrapY= false;
@@ -54,12 +54,44 @@ public class GeolocatedRectangularBinaryMesh2DCalculator extends
 	 */
 	public GeolocatedRectangularBinaryMesh2DCalculator(DataType numType, int nx, int ny,
 			double minLat, double minLon, double gridSpacing) {
+		this(numType, nx, ny, minLat, minLon, true, true, gridSpacing);
+	}
+
+	/**
+	 * Creates a new GeolocatedRectangularBinaryMesh2DCalculator assuming that the data starts at the bottom left
+	 * corner of the region (at minLat, minLon) and is ordered fast-X-Y.
+	 * 
+	 * TODO update documentation
+	 * 
+	 * @param numType
+	 * @param nx
+	 * @param ny
+	 * @param minLat
+	 * @param minLon
+	 * @param gridSpacing
+	 */
+	public GeolocatedRectangularBinaryMesh2DCalculator(DataType numType, int nx, int ny,
+			double startLat, double startLon, boolean startBottom, boolean startLeft, double gridSpacing) {
 		super(numType, nx, ny);
 		
-		this.minLat = minLat;
-		this.minLon = minLon;
-		this.maxLat = minLat + gridSpacing * (ny-1);
-		this.maxLon = minLon + gridSpacing * (nx-1);
+		if (startBottom) {
+			minLat = startLat;
+			maxLat = startLat + gridSpacing * (ny-1);
+		} else {
+			maxLat = startLat;
+			minLat = startLat - gridSpacing * (ny-1);
+		}
+		
+		if (startLeft) {
+			minLon = startLon;
+			maxLon = startLon + gridSpacing * (nx-1);
+		} else {
+			maxLon = startLon;
+			minLon = startLon - gridSpacing * (nx-1);
+		}
+		
+		this.startBottom = startBottom;
+		this.startLeft = startLeft;
 		this.gridSpacing = gridSpacing;
 		
 		if (minLon >= 0)
