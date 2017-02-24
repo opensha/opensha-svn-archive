@@ -40,13 +40,13 @@ import org.opensha.commons.util.binFile.GeolocatedRectangularBinaryMesh2DCalcula
 
 public class WillsMap2015 extends AbstractSiteData<Double> {
 	
-	public static final int nx = 20552;	// NCOLS
-	public static final int ny = 18950;	// NROWS
+	public static final int nx = 41104;	// NCOLS
+	public static final int ny = 37900;	// NROWS
 	
-	public static final double spacing = 0.0005;
+	public static final double spacing = 0.00025;
 	
-	public static final double startLon = -124.406403862058;	// ULXMAP
-	public static final double startLat = 42.0089673024621;	// ULYMAP
+	public static final double startLon = -124.406528862058;	// ULXMAP
+	public static final double startLat = 42.0090923024621;	// ULYMAP
 	
 	public static final boolean startBottom = false;
 	public static final boolean startLeft = true;
@@ -56,7 +56,7 @@ public class WillsMap2015 extends AbstractSiteData<Double> {
 	
 	public static final String SERVER_BIN_FILE = 
 			ServerPrefUtils.SERVER_PREFS.getDataDir().getAbsolutePath()
-				+File.separator+"siteData"+File.separator+"wills_2015"+File.separator+"raster_0.0005.flt";
+				+File.separator+"siteData"+File.separator+"wills_2015"+File.separator+"raster_0.00025.flt";
 	public static final String DEBUG_BIN_FILE = "/home/kevin/OpenSHA/siteClass/out.bin";
 	
 	public static final String SERVLET_URL = ServerPrefUtils.SERVER_PREFS.getServletBaseURL()
