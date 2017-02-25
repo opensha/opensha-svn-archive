@@ -15,8 +15,11 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
+import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
+import org.opensha.commons.data.siteData.impl.USGSBayAreaBasinDepth;
 import org.opensha.commons.data.siteData.impl.WaldAllenGlobalVs30;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.impl.WillsMap2015;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
@@ -41,12 +44,12 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/shakemap_precalc");
 		
-		double gridSpacing = 0.1;
+		double gridSpacing = 0.05;
 		GriddedRegion reg = new CaliforniaRegions.RELM_TESTING_GRIDDED(gridSpacing);
-		boolean siteEffects = false;
-		boolean basinDepth = false;
+		boolean siteEffects = true;
+		boolean basinDepth = true;
 		double distCutoff = 200;
-		String imts = "PGA,PGV,1.0,0.1";
+		String imts = "PGA,PGV";
 		
 		boolean stampede = false;
 //		int threads = 1;
@@ -63,10 +66,14 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		ArrayList<SiteData<?>> siteData = null;
 		if (siteEffects) {
 			siteData = new ArrayList<SiteData<?>>();
-			siteData.add(new WillsMap2006());
+			siteData.add(new WillsMap2015());
 			siteData.add(new WaldAllenGlobalVs30());
-			if (basinDepth)
-				throw new IllegalStateException("Need to decide on basin model(s)");
+			if (basinDepth) {
+				siteData.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+				siteData.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+				siteData.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+				siteData.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+			}
 		}
 		
 		String dateStr = df.format(new Date());
@@ -74,8 +81,10 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		String jobName = dateStr+"-"+gmpe.getShortName()+"-spacing"+(float)gridSpacing;
 		if (siteEffects) {
 			jobName += "-site-effects";
-			for (SiteData<?> prov : siteData)
-				jobName += "-"+prov.getShortName();
+			if (basinDepth)
+				jobName += "-with-basin";
+			else
+				jobName += "-no-basin";
 		} else {
 			jobName += "-no-site-effects";
 		}
@@ -193,7 +202,7 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		argz += " --output-dir "+remoteJobDir.getAbsolutePath();
 		argz += " --imts "+imts;
 		
-		List<String> script = mpjWrite.buildScript(MPJ_UCERF3_ShakeMapPrecalcScriptGen.class.getName(), argz);
+		List<String> script = mpjWrite.buildScript(MPJ_UCERF3_ShakeMapPrecalc.class.getName(), argz);
 		
 		int mins = hours*60;
 		script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
