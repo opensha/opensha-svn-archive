@@ -44,7 +44,7 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/shakemap_precalc");
 		
-		double gridSpacing = 0.05;
+		double gridSpacing = 0.02;
 		GriddedRegion reg = new CaliforniaRegions.RELM_TESTING_GRIDDED(gridSpacing);
 		boolean siteEffects = true;
 		boolean basinDepth = true;

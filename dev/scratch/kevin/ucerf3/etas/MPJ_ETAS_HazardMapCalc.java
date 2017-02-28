@@ -66,7 +66,8 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	private boolean calcGridded;
 	private boolean calcFault;
 	
-	private AbstractERF griddedERF;
+	private boolean griddedConditional = true; // TODO
+	private ETAS_CatalogGridSourceProvider griddedSources;
 	
 	private ExecutorService executor;
 	
@@ -141,7 +142,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		double griddedSpacing = Double.parseDouble(cmd.getOptionValue("gridded-spacing"));
 		
 		if (calcGridded)
-			griddedERF = new ETAS_CatalogGridSourceProvider(catalogs, griddedSpacing).buildGriddedERF();
+			griddedSources = new ETAS_CatalogGridSourceProvider(catalogs, griddedSpacing, griddedConditional);
 		
 		executor = mapCalc.createExecutor(getNumThreads());
 		
@@ -303,7 +304,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 		ScalarIMR gmpe = checkOutGMPE();
 		
-		DiscretizedFunc curve = mapCalc.calcGriddedHazardCurve(gmpe, sites.get(index), index, griddedERF);
+		DiscretizedFunc curve = mapCalc.calcGriddedHazardCurve(gmpe, sites.get(index), index, griddedSources);
 		archiver.archiveCurve(curve, meta);
 		
 		checkInGMPE(gmpe);
@@ -362,6 +363,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	@Override
 	protected void doFinalAssembly() throws Exception {
 		executor.shutdown();
+		archiver.close();
 	}
 	
 	public static void main(String args[]) {

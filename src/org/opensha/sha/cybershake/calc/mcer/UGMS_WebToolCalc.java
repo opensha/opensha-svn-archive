@@ -804,14 +804,15 @@ public class UGMS_WebToolCalc {
 		if (writeCSV) {
 			CSVFile<String> csv = new CSVFile<String>(true);
 			
-			List<String> header = Lists.newArrayList("Period", "Final MCER", "CyberShake MCER", "GMPE MCER");
+
+			List<String> header = Lists.newArrayList("Period (s)", "GMPE Sa (g)", "CyberShake Sa (g)", "Final MCER Sa (g)");
 			csv.addLine(header);
 			
 			for (double period : periods) {
 				List<String> line = Lists.newArrayList((float)period+"");
-				line.add(MCERDataProductsCalc.getValIfPresent(finalMCER, period, csvSaDF));
-				line.add(MCERDataProductsCalc.getValIfPresent(csMCER, period, csvSaDF));
 				line.add(MCERDataProductsCalc.getValIfPresent(gmpeMCER, period, csvSaDF));
+				line.add(MCERDataProductsCalc.getValIfPresent(csMCER, period, csvSaDF));
+				line.add(MCERDataProductsCalc.getValIfPresent(finalMCER, period, csvSaDF));
 				
 				csv.addLine(line);
 			}

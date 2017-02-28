@@ -34,7 +34,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -61,24 +60,20 @@ import org.opensha.commons.data.siteData.CachedSiteDataWrapper;
 import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteData;
 import org.opensha.commons.data.siteData.SiteDataValue;
-import org.opensha.commons.data.siteData.impl.CVM2BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM_Vs30;
-import org.opensha.commons.data.siteData.impl.ConstantValueDataProvider;
-import org.opensha.commons.data.siteData.impl.WillsMap2000;
-import org.opensha.commons.data.siteData.impl.WillsMap2006;
 import org.opensha.commons.data.siteData.impl.CVM_Vs30.CVM;
-import org.opensha.commons.exceptions.ConstraintException;
+import org.opensha.commons.data.siteData.impl.ConstantValueDataProvider;
+import org.opensha.commons.data.siteData.impl.WillsMap2015;
 import org.opensha.commons.exceptions.ParameterException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.gui.UserAuthDialog;
 import org.opensha.commons.gui.plot.GraphPanel;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
-import org.opensha.commons.gui.plot.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotPreferences;
@@ -91,10 +86,10 @@ import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.cybershake.calc.HazardCurveComputation;
-import org.opensha.sha.cybershake.db.CachedPeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.CybershakeHazardCurveRecord;
 import org.opensha.sha.cybershake.db.CybershakeIM;
 import org.opensha.sha.cybershake.db.CybershakeIM.CyberShakeComponent;
+import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.db.CybershakeRun;
 import org.opensha.sha.cybershake.db.CybershakeRuptureVariation;
 import org.opensha.sha.cybershake.db.CybershakeSGTVariation;
@@ -103,11 +98,9 @@ import org.opensha.sha.cybershake.db.CybershakeVelocityModel;
 import org.opensha.sha.cybershake.db.Cybershake_OpenSHA_DBApplication;
 import org.opensha.sha.cybershake.db.DBAccess;
 import org.opensha.sha.cybershake.db.HazardCurve2DB;
-import org.opensha.sha.cybershake.db.MeanUCERF2_ToDB;
 import org.opensha.sha.cybershake.db.PeakAmplitudesFromDB;
 import org.opensha.sha.cybershake.db.Runs2DB;
 import org.opensha.sha.cybershake.db.SiteInfo2DB;
-import org.opensha.sha.cybershake.db.CybershakeIM.IMType;
 import org.opensha.sha.cybershake.gui.CyberShakeDBManagementApp;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.cybershake.gui.util.ERFSaver;
@@ -314,7 +307,7 @@ public class HazardCurvePlotter {
 				}
 			} else {
 				try {
-					providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2006()));
+					providers.add(new CachedSiteDataWrapper<Double>(new WillsMap2015()));
 				} catch (IOException e) {
 					ExceptionUtils.throwAsRuntimeException(e);
 				}

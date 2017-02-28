@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF_2_Final.griddedSei
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import scratch.UCERF3.utils.GardnerKnopoffAftershockFilter;
@@ -204,25 +205,51 @@ public abstract class AbstractGridSourceProvider implements GridSourceProvider {
 		if (mfdIn == null)
 			return new IncrementalMagFreqDist(mMin,mMin,1);
 		// in GR nofix branches there are mfds with all zero rates
-		try {
-			double mMax = mfdIn.getMaxMagWithNonZeroRate();
-			double delta = mfdIn.getDelta();
-			int num = (int) ((mMax - mMin) / delta) + 1;
-//			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
-			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, num, delta);
-			for (int i=0; i<mfdOut.size(); i++) {
-				double mag = mfdOut.getX(i);
-				double rate = mfdIn.getY(mag);
-				mfdOut.set(mag, rate);
-			}
-			return mfdOut;
-		} catch (Exception e) {
-//			e.printStackTrace();
-//			System.out.println("empty MFD");
+		double mMax = mfdIn.getMaxMagWithNonZeroRate();
+		if (Double.isNaN(mMax)) {
 			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin,mMin,1);
-//			mfdOut.scaleToCumRate(mMin, 0.0);
 			return mfdOut;
 		}
+		double delta = mfdIn.getDelta();
+		// if delta get's slightly off, the inner part of this cast can be something like 0.99999999, which
+		// will mess up the num calculation. pad by 0.1 to be safe before casting
+		int num = (int) ((mMax - mMin) / delta + 0.1) + 1;
+//		IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
+		IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, num, delta);
+		for (int i=0; i<mfdOut.size(); i++) {
+			double mag = mfdOut.getX(i);
+			double rate = mfdIn.getY(mag);
+			mfdOut.set(mag, rate);
+		}
+//		if ((float)mfdOut.getMaxX() != (float)mMax) {
+//			System.out.println("MFD IN");
+//			System.out.println(mfdIn);
+//			System.out.println("MFD OUT");
+//			System.out.println(mfdOut);
+//		}
+		Preconditions.checkState((float)mfdOut.getMaxX() == (float)mMax,
+				"Bad trim! mMin=%s, mMax=%s, delta=%s, num=%s, outputMMax=%s",
+				mMin, mMax, delta, num, mfdOut.getMaxX());
+		return mfdOut;
+//		try {
+//			double mMax = mfdIn.getMaxMagWithNonZeroRate();
+//			double delta = mfdIn.getDelta();
+//			int num = (int) ((mMax - mMin) / delta) + 1;
+////			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, mMax, num);
+//			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin, num, delta);
+//			for (int i=0; i<mfdOut.size(); i++) {
+//				double mag = mfdOut.getX(i);
+//				double rate = mfdIn.getY(mag);
+//				mfdOut.set(mag, rate);
+//			}
+//			return mfdOut;
+//		} catch (Exception e) {
+////			e.printStackTrace();
+////			System.out.println("empty MFD");
+//			IncrementalMagFreqDist mfdOut = new IncrementalMagFreqDist(mMin,mMin,1);
+////			mfdOut.scaleToCumRate(mMin, 0.0);
+//			return mfdOut;
+//		}
 	}
 
 

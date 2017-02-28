@@ -249,12 +249,16 @@ public class MPJTaskLogStatsGen {
 		System.out.println();
 		
 		int numDispatched = numTasks - numLeft;
-		System.out.println(numDispatched+"/"+numTasks+" dispatched ("+(numTasks-numDispatched)+" left)");
-		System.out.println(numDone+"/"+numTasks+" completed ("+(numTasks-numDone)+" left)");
+		double percentDispatched = (double)numDispatched/(double)numTasks;
+		double percentDone = (double)numDone/(double)numTasks;
+		System.out.println(numDispatched+"/"+numTasks+" ("+percentDF.format(percentDispatched)+") "
+				+"dispatched ("+(numTasks-numDispatched)+" left)");
+		System.out.println(numDone+"/"+numTasks+" ("+percentDF.format(percentDone)+") "
+				+"completed ("+(numTasks-numDone)+" left)");
 		int inProcess = numDispatched - numDone;
 		System.out.println(inProcess+" in process");
 		
-		System.out.println("Calc durations (note, threading effects ignored):");
+		System.out.println("Calc durations (note: threading effects ignored):");
 		System.out.println("\tRange: ["+smartTimePrint(allDurationTrack.getMin())
 				+" "+smartTimePrint(allDurationTrack.getMax())+"]");
 		System.out.println("\tAverage: "+smartTimePrint(allDurationTrack.getAverage()));
@@ -597,6 +601,7 @@ public class MPJTaskLogStatsGen {
 	}
 	
 	private static final DecimalFormat timeDF = new DecimalFormat("0.00");
+	private static final DecimalFormat percentDF = new DecimalFormat("0.00 %");
 	
 	public static String smartTimePrint(double millis) {
 		if (Double.isNaN(millis))
