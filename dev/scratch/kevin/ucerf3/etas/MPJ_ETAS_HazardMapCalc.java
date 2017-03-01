@@ -17,6 +17,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
@@ -30,6 +31,10 @@ import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
 import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
 import org.opensha.sha.earthquake.AbstractERF;
+import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
+import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
+import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
@@ -39,17 +44,24 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import mpi.MPI;
+import scratch.UCERF3.FaultSystemSolution;
+import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.utils.FaultSystemIO;
 
 public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	
 	private List<List<ETAS_EqkRupture>> catalogs;
 	
-	private File faultDataFile;
+	// for precomputed shakemaps
 	private RandomAccessFile raFile;
 	private long[] filePositions;
 	private int[] fileLengths;
+	// else for on the fly shakemaps
+	private FaultSystemSolutionERF faultERF;
+	private ProbEqkSource[] sourcesForFSSRuptures;
+	private double distCutoff = 200;
 	
 	private GriddedRegion region;
 	
@@ -75,16 +87,38 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	private String archiverNameGridded = "results_gridded";
 	private BinaryCurveArchiver archiver;
 	private DiscretizedFunc xVals;
+	
+	private boolean printEach;
 
-	public MPJ_ETAS_HazardMapCalc(CommandLine cmd) throws IOException {
+	public MPJ_ETAS_HazardMapCalc(CommandLine cmd) throws IOException, DocumentException {
 		super(cmd);
 		
 		File catalogsFile = new File(cmd.getOptionValue("catalogs"));
 		catalogs = ETAS_CatalogIO.loadCatalogsBinary(catalogsFile);
 		
-		faultDataFile = new File(cmd.getOptionValue("fault-data-file"));
-		Preconditions.checkState(faultDataFile.exists());
-		raFile = new RandomAccessFile(faultDataFile, "r");
+		if (cmd.hasOption("fault-data-file")) {
+			// precalc mode
+			File faultDataFile = new File(cmd.getOptionValue("fault-data-file"));
+			Preconditions.checkState(faultDataFile.exists());
+			raFile = new RandomAccessFile(faultDataFile, "r");
+		} else {
+			Preconditions.checkArgument(cmd.hasOption("solution-file"),
+					"Must supply fault system solution file if no fault data precalc file");
+			File solFile = new File(cmd.getOptionValue("solution-file"));
+			Preconditions.checkState(solFile.exists());
+			FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
+			faultERF = new FaultSystemSolutionERF(sol);
+			faultERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+			faultERF.updateForecast();
+			// organize by FSS index
+			sourcesForFSSRuptures = new ProbEqkSource[sol.getRupSet().getNumRuptures()];
+			for (int sourceID=0; sourceID<faultERF.getNumFaultSystemSources(); sourceID++) {
+				int fssIndex = faultERF.getFltSysRupIndexForSource(sourceID);
+				sourcesForFSSRuptures[fssIndex] = faultERF.getSource(sourceID);
+			}
+			if (rank == 0)
+				debug("Created "+faultERF.getNumFaultSystemSources()+"/"+sourcesForFSSRuptures.length+" sources");
+		}
 		
 		double spacing = Double.parseDouble(cmd.getOptionValue("spacing"));
 		region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
@@ -146,7 +180,8 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 		executor = mapCalc.createExecutor(getNumThreads());
 		
-		loadFilePositions();
+		if (calcFault && raFile != null)
+			loadFilePositions();
 		
 		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
 		if (calcFault)
@@ -157,6 +192,8 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		archiver = new BinaryCurveArchiver(outputDir, getNumTasks(), xValsMap);
 		if (rank == 0)
 			archiver.initialize();
+		
+		printEach = getNumTasks() < 50000;
 	}
 	
 	private void loadFilePositions() throws IOException {
@@ -237,7 +274,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 					calcFault(index);
 				if (calcGridded)
 					calcGridded(index);
-				debug("done with "+index);
+				if (printEach) debug("done with "+index);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
@@ -251,23 +288,59 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 			debug("fault "+index+" already done, skipping");
 			return;
 		}
-		long pos = filePositions[index];
-		int len = fileLengths[index];
-		debug("calculating fault "+index+", pos="+pos+", len="+len);
 		
-		DataInputStream in;
-		synchronized (raFile) {
-			byte[] buf = new byte[len];
-			in = new DataInputStream(new ByteArrayInputStream(buf));
+		DiscretizedFunc curve;
+		if (raFile == null) {
+			// calculate it
+			if (printEach) debug("calculating fault "+index);
+			Map<Integer, DiscretizedFunc> rupExceeds = calcFaultIMs(sites.get(index));
 			
-			raFile.seek(pos);
-			raFile.readFully(buf);
+			curve = mapCalc.calcFaultHazardCurveFromExceed(rupExceeds);
+		} else {
+			// load it
+			long pos = filePositions[index];
+			int len = fileLengths[index];
+			if (printEach) debug("calculating fault "+index+", pos="+pos+", len="+len);
+			
+			DataInputStream in;
+			synchronized (raFile) {
+				byte[] buf = new byte[len];
+				in = new DataInputStream(new ByteArrayInputStream(buf));
+				
+				raFile.seek(pos);
+				raFile.readFully(buf);
+			}
+			
+			Map<Integer, double[]> rupVals = mapCalc.loadSiteFromInputStream(in, index);
+			
+			curve = mapCalc.calcFaultHazardCurve(rupVals);
 		}
 		
-		Map<Integer, double[]> rupVals = mapCalc.loadSiteFromInputStream(in, index);
-		
-		DiscretizedFunc curve = mapCalc.calcFaultHazardCurve(rupVals);
 		archiver.archiveCurve(curve, meta);
+	}
+	
+	private Map<Integer, DiscretizedFunc> calcFaultIMs(Site site) {
+		// used if no precomputed data file
+		Map<Integer, DiscretizedFunc> rupVals = Maps.newHashMap();
+		ScalarIMR gmpe = checkOutGMPE();
+		for (Integer fssIndex : mapCalc.getFaultIndexesTriggered()) {
+			ProbEqkSource source = sourcesForFSSRuptures[fssIndex];
+			if (source == null)
+				continue;
+			Preconditions.checkState(source.getNumRuptures() == 1, "Must be a single rupture source");
+			ProbEqkRupture rup = source.getRupture(0);
+			
+			double minDist = source.getMinDistance(site);
+			if (minDist > distCutoff)
+				continue;
+			
+			gmpe.setSite(site);
+			gmpe.setEqkRupture(rup);
+			
+			rupVals.put(fssIndex, gmpe.getExceedProbabilities(mapCalc.getCalcXVals().deepClone()));
+		}
+		checkInGMPE(gmpe);
+		return rupVals;
 	}
 	
 	private synchronized ScalarIMR checkOutGMPE() {
@@ -300,7 +373,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 			debug("gridded "+index+" already done, skipping");
 			return;
 		}
-		debug("calculating gridded "+index);
+		if (printEach) debug("calculating gridded "+index);
 		
 		ScalarIMR gmpe = checkOutGMPE();
 		
@@ -317,9 +390,15 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		catalogs.setRequired(true);
 		ops.addOption(catalogs);
 		
-		Option faultFile = new Option("f", "fault-data-file", true, "Fault shakemap precalc data file");
-		faultFile.setRequired(true);
+		Option faultFile = new Option("f", "fault-data-file", true,
+				"Fault shakemap precalc data file. Must supply this, or --solution-file.");
+		faultFile.setRequired(false);
 		ops.addOption(faultFile);
+		
+		Option solFile = new Option("sol", "solution-file", true,
+				"FaultSystemSolution file for calculating fault IMs on the fly. Must supply this, or --fault-data-file.");
+		solFile.setRequired(false);
+		ops.addOption(solFile);
 		
 		Option spacing = new Option("s", "spacing", true, "Grid spacing in degrees");
 		spacing.setRequired(true);
@@ -364,6 +443,8 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	protected void doFinalAssembly() throws Exception {
 		executor.shutdown();
 		archiver.close();
+		if (raFile != null)
+			raFile.close();
 	}
 	
 	public static void main(String args[]) {

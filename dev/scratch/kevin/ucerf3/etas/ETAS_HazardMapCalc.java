@@ -139,6 +139,14 @@ public class ETAS_HazardMapCalc {
 			throw new IllegalArgumentException("Must supply at least one curve file");
 	}
 	
+	HashSet<Integer> getFaultIndexesTriggered() {
+		return faultIndexesTriggered;
+	}
+	
+	DiscretizedFunc getCalcXVals() {
+		return calcXVals;
+	}
+	
 	private DiscretizedFunc[] loadCurves(File curvesFile) throws Exception {
 		BinaryHazardCurveReader reader = new BinaryHazardCurveReader(curvesFile.getAbsolutePath());
 		
@@ -315,6 +323,11 @@ public class ETAS_HazardMapCalc {
 			rupCondExceeds.put(rupIndex, condExceed);
 		}
 		
+		return calcFaultHazardCurveFromExceed(rupCondExceeds);
+	}
+	
+	DiscretizedFunc calcFaultHazardCurveFromExceed(Map<Integer, DiscretizedFunc> rupCondExceeds) {
+		
 		DiscretizedFunc curve = xVals.deepClone(); // linear space
 		initializeCurve(curve, 0d);
 		
@@ -325,7 +338,7 @@ public class ETAS_HazardMapCalc {
 			initializeCurve(catalogCurve, 1d);
 			
 			for (ETAS_EqkRupture rup : catalog) {
-				if (rup.getFSSIndex() < 0 || !rupVals.containsKey(rup.getFSSIndex()))
+				if (rup.getFSSIndex() < 0 || !rupCondExceeds.containsKey(rup.getFSSIndex()))
 					continue;
 				
 //				double[] vals = rupVals.get(rup.getFSSIndex());
@@ -662,6 +675,7 @@ public class ETAS_HazardMapCalc {
 				curve = xVals.deepClone();
 				for (int j=0; j<curve.size(); j++) {
 					// TODO is this the best way?
+					// might need to calculate each catalog curve together
 					double rateFault = -Math.log(1d-faultCurve.getY(j));
 					double rateGridded = -Math.log(1d-griddedCurve.getY(j));
 					double sumRate = rateFault + rateGridded;
@@ -687,7 +701,7 @@ public class ETAS_HazardMapCalc {
 	public void plotMap(MapType type, boolean isProbAt_IML, double level, String label, File outputDir, String prefix)
 			throws IOException, GMT_MapException {
 		GriddedGeoDataSet data = calcMap(type, isProbAt_IML, level);
-		System.out.println("Generating map for p="+level);
+		System.out.println("Generating map for p="+level+", "+type.name());
 		System.out.println("Map range: "+data.getMinZ()+" "+data.getMaxZ());
 		
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
@@ -717,6 +731,7 @@ public class ETAS_HazardMapCalc {
 			curve.set(i, val);
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		force_serial = false;
 		boolean calcFault = false;
@@ -727,16 +742,21 @@ public class ETAS_HazardMapCalc {
 //		double spacing = 0.1d;
 //		File precalcDir = null;
 		
-		File faultBasedPrecalc = new File("/home/kevin/OpenSHA/UCERF3/shakemap_precalc/"
-				+ "2017_02_21-NGAWest_2014_NoIdr-spacing1.0-no-site-effects/results_sa_1.0s.bin");
-		double spacing = 1.0d;
-		File precalcDir = null;
+//		File faultBasedPrecalc = new File("/home/kevin/OpenSHA/UCERF3/shakemap_precalc/"
+//				+ "2017_02_21-NGAWest_2014_NoIdr-spacing1.0-no-site-effects/results_sa_1.0s.bin");
+//		double spacing = 1.0d;
+//		File precalcDir = null;
 		
 //		File faultBasedPrecalc = new File("/home/kevin/OpenSHA/UCERF3/shakemap_precalc/"
 //				+ "2017_02_23-NGAWest_2014_NoIdr-spacing0.05-site-effects-with-basin/results_pga.bin");
 //		double spacing = 0.05d;
 //		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
 //				+ "2017_02_24-mojave_m7_fulltd_descendents-NGA2-0.05-site-effects-with-basin");
+		
+		File faultBasedPrecalc = null;
+		double spacing = 0.02d;
+		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
+				+ "2017_02_28-mojave_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
 		
 		String imtName = PGA_Param.NAME;
 		double period = Double.NaN;
@@ -758,7 +778,10 @@ public class ETAS_HazardMapCalc {
 				+ "results_descendents_m5_preserve.bin");
 		File outputDir = new File(etasCatalogs.getParentFile(), "hazard_maps");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
-		outputDir = new File(outputDir, faultBasedPrecalc.getParentFile().getName());
+		if (faultBasedPrecalc == null)
+			outputDir = new File(outputDir, precalcDir.getName());
+		else
+			outputDir = new File(outputDir, faultBasedPrecalc.getParentFile().getName());
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		ETAS_HazardMapCalc calc;

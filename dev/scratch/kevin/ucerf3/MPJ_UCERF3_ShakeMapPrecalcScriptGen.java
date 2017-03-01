@@ -64,17 +64,8 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		gmpe.setParamDefaults();
 		
 		ArrayList<SiteData<?>> siteData = null;
-		if (siteEffects) {
-			siteData = new ArrayList<SiteData<?>>();
-			siteData.add(new WillsMap2015());
-			siteData.add(new WaldAllenGlobalVs30());
-			if (basinDepth) {
-				siteData.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
-				siteData.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
-				siteData.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
-				siteData.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
-			}
-		}
+		if (siteEffects)
+			siteData = getSiteDataProviders(basinDepth);
 		
 		String dateStr = df.format(new Date());
 		
@@ -95,44 +86,12 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		System.out.println("Job name: "+jobName);
 		System.out.println("Dir: "+localDir.getAbsolutePath());
 		
-		// prepare sites
-		List<Site> sites = Lists.newArrayList();
-		for (Location loc : reg.getNodeList()) {
-			Site site = new Site(loc);
-			for (Parameter<?> param : gmpe.getSiteParams())
-				site.addParameter((Parameter<?>) param.clone());
-			sites.add(site);
-		}
-		if (siteEffects) {
-			System.out.print("Fetching site data...");
-			OrderedSiteDataProviderList provs = new OrderedSiteDataProviderList(siteData);
-			List<SiteDataValueList<?>> vals  = provs.getAllAvailableData(sites);
-			System.out.println("done.");
-			SiteTranslator trans = new SiteTranslator();
-			System.out.print("Setting site params...");
-			for (int i=0; i<sites.size(); i++) {
-				ArrayList<SiteDataValue<?>> siteVals = new ArrayList<SiteDataValue<?>>();
-				for (SiteDataValueList<?> valList : vals) {
-					siteVals.add(valList.getValue(i));
-				}
-				for (Parameter<?> param : sites.get(i))
-					trans.setParameterValue(param, siteVals);
-			}
-			System.out.println("done.");
-		}
-		
 		File sitesFile = new File(localDir, "sites.xml");
-		System.out.print("Writing sites XML...");
-		Document doc = XMLUtils.createDocumentWithRoot();
-		Site.writeSitesToXML(sites, doc.getRootElement());
-		XMLUtils.writeDocumentToFile(sitesFile, doc);
-		System.out.println("done.");
+		writeSitesXML(reg, siteData, gmpe, sitesFile);
 		
 		// write gmpe file
 		File gmpeFile = new File(localDir, gmpe.getShortName()+".xml");
-		doc = XMLUtils.createDocumentWithRoot();
-		gmpe.toXMLMetadata(doc.getRootElement());
-		XMLUtils.writeDocumentToFile(gmpeFile, doc);
+		writeGMPEFile(gmpe, gmpeFile);
 		
 		File remoteDir, remoteSolFile;
 		JavaShellScriptWriter mpjWrite;
@@ -182,14 +141,6 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		classpath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));
 		mpjWrite.setClasspath(classpath);
 		
-//		--threads 2
-//		--distance-cutoff 200
-//		--gmpe-file /home/kevin/OpenSHA/UCERF3/shakemap_precalc/2017_02_21-NGAWest_2014_NoIdr-spacing1.0-no-site-effects/NGAWest_2014_NoIdr.xml
-//		--sites-file /home/kevin/OpenSHA/UCERF3/shakemap_precalc/2017_02_21-NGAWest_2014_NoIdr-spacing1.0-no-site-effects/sites.xml
-//		--solution-file /home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
-//		--output-dir /home/kevin/OpenSHA/UCERF3/shakemap_precalc/2017_02_21-NGAWest_2014_NoIdr-spacing1.0-no-site-effects/
-//		--imts PGA,0.1,1.0
-		
 		String argz;
 		if (threads > 0)
 			argz = "--threads "+threads;
@@ -207,6 +158,61 @@ public class MPJ_UCERF3_ShakeMapPrecalcScriptGen {
 		int mins = hours*60;
 		script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
 		pbsWrite.writeScript(new File(localDir, jobName+".pbs"), script);
+	}
+	
+	public static ArrayList<SiteData<?>> getSiteDataProviders(boolean basinDepth) throws IOException {
+		ArrayList<SiteData<?>> siteData = new ArrayList<SiteData<?>>();
+		siteData.add(new WillsMap2015());
+		siteData.add(new WaldAllenGlobalVs30());
+		if (basinDepth) {
+			siteData.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+			siteData.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+			siteData.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
+			siteData.add(new USGSBayAreaBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
+		}
+		return siteData;
+	}
+	
+	public static void writeSitesXML(GriddedRegion reg, ArrayList<SiteData<?>> siteData, AttenuationRelationship gmpe, File sitesFile)
+			throws IOException {
+		// prepare sites
+		List<Site> sites = Lists.newArrayList();
+		for (Location loc : reg.getNodeList()) {
+			Site site = new Site(loc);
+			for (Parameter<?> param : gmpe.getSiteParams())
+				site.addParameter((Parameter<?>) param.clone());
+			sites.add(site);
+		}
+		if (siteData != null) {
+			System.out.print("Fetching site data...");
+			OrderedSiteDataProviderList provs = new OrderedSiteDataProviderList(siteData);
+			List<SiteDataValueList<?>> vals  = provs.getAllAvailableData(sites);
+			System.out.println("done.");
+			SiteTranslator trans = new SiteTranslator();
+			System.out.print("Setting site params...");
+			for (int i=0; i<sites.size(); i++) {
+				ArrayList<SiteDataValue<?>> siteVals = new ArrayList<SiteDataValue<?>>();
+				for (SiteDataValueList<?> valList : vals) {
+					siteVals.add(valList.getValue(i));
+				}
+				for (Parameter<?> param : sites.get(i))
+					trans.setParameterValue(param, siteVals);
+			}
+			System.out.println("done.");
+		}
+
+//		File sitesFile = new File(localDir, "sites.xml");
+		System.out.print("Writing sites XML...");
+		Document doc = XMLUtils.createDocumentWithRoot();
+		Site.writeSitesToXML(sites, doc.getRootElement());
+		XMLUtils.writeDocumentToFile(sitesFile, doc);
+		System.out.println("done.");
+	}
+	
+	public static void writeGMPEFile(AttenuationRelationship gmpe, File gmpeFile) throws IOException {
+		Document doc = XMLUtils.createDocumentWithRoot();
+		gmpe.toXMLMetadata(doc.getRootElement());
+		XMLUtils.writeDocumentToFile(gmpeFile, doc);
 	}
 
 }

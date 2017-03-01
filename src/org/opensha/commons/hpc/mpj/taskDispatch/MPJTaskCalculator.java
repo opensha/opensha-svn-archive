@@ -23,8 +23,8 @@ public abstract class MPJTaskCalculator {
 	protected static final int TAG_NEW_BATCH_LENGH = 2;
 	protected static final int TAG_NEW_BATCH = 3;
 	
-	private static final int MIN_DISPATCH_DEFAULT = 5;
-	private static final int MAX_DISPATCH_DEFAULT = 100;
+	public static final int MIN_DISPATCH_DEFAULT = 5;
+	public static final int MAX_DISPATCH_DEFAULT = 100;
 	
 	public static final boolean D = true;
 	public static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
