@@ -53,9 +53,9 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 //		AttenuationRelationship gmpe = null;
 		// for faults on the fly
 		String shakemapRunName = null;
-		AttenuationRelationship gmpe = AttenRelRef.NGAWest_2014_AVG_NOIDRISS.instance(null);
+		AttenRelRef gmpeRef = AttenRelRef.NGAWest_2014_AVG_NOIDRISS;
+		AttenuationRelationship gmpe = gmpeRef.instance(null);
 		gmpe.setParamDefaults();
-		String gmpeFileName = gmpe.getShortName()+".xml";
 		boolean siteEffects = true;
 		boolean basinDepth = true;
 		// --------------------
@@ -137,7 +137,7 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 		classpath.add(new File(remoteJobDir, "OpenSHA_complete.jar"));
 		mpjWrite.setClasspath(classpath);
 		
-		File sitesFile, gmpeFile;
+		File sitesFile;
 		File remoteShakemapRunDir = null;
 		if (shakemapRunName == null) {
 			// calculating on the fly
@@ -147,14 +147,10 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 			File localSitesFile = new File(localDir, "sites.xml");
 			GriddedRegion reg = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 			MPJ_UCERF3_ShakeMapPrecalcScriptGen.writeSitesXML(reg, siteData, gmpe, localSitesFile);
-			File localGMPEFile = new File(localDir, gmpeFileName);
-			MPJ_UCERF3_ShakeMapPrecalcScriptGen.writeGMPEFile(gmpe, localGMPEFile);
 			sitesFile = new File(remoteJobDir, localSitesFile.getName());
-			gmpeFile = new File(remoteJobDir, gmpeFileName);
 		} else {
 			remoteShakemapRunDir = new File(remoteShakemapDir, shakemapRunName);
 			sitesFile = new File(remoteShakemapRunDir, "sites.xml");
-			gmpeFile = new File(remoteShakemapRunDir, gmpeFileName);
 		}
 		
 		for (int i=0; i<imts.length; i++) {
@@ -177,7 +173,7 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 				argz += " --fault-data-file "+remoteShakemapFile.getAbsolutePath();
 			}
 			argz += " --spacing "+(float)spacing;
-			argz += " --gmpe-file "+gmpeFile.getAbsolutePath();
+			argz += " --gmpe "+gmpeRef.name();
 			argz += " --sites-file "+sitesFile.getAbsolutePath();
 			argz += " --imt "+imt;
 			if (!Double.isNaN(period) && period > 0)

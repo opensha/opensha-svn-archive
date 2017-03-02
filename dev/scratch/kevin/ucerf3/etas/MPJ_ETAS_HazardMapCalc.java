@@ -36,6 +36,7 @@ import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
@@ -70,7 +71,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	
 	private ETAS_HazardMapCalc mapCalc;
 	
-	private File gmpeFile;
+	private AttenRelRef gmpeRef;
 	private Deque<ScalarIMR> gmpeDeque;
 	
 	private List<Site> sites;
@@ -83,8 +84,9 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	
 	private ExecutorService executor;
 	
-	private String archiverNameFault = "results_fault";
-	private String archiverNameGridded = "results_gridded";
+	private String archiverNameFault;
+	private String archiverNameGridded;
+	private String archiverNameCombined;
 	private BinaryCurveArchiver archiver;
 	private DiscretizedFunc xVals;
 	
@@ -96,6 +98,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		File catalogsFile = new File(cmd.getOptionValue("catalogs"));
 		catalogs = ETAS_CatalogIO.loadCatalogsBinary(catalogsFile);
 		
+		FaultSystemSolution sol = null;
 		if (cmd.hasOption("fault-data-file")) {
 			// precalc mode
 			File faultDataFile = new File(cmd.getOptionValue("fault-data-file"));
@@ -106,18 +109,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 					"Must supply fault system solution file if no fault data precalc file");
 			File solFile = new File(cmd.getOptionValue("solution-file"));
 			Preconditions.checkState(solFile.exists());
-			FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
-			faultERF = new FaultSystemSolutionERF(sol);
-			faultERF.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-			faultERF.updateForecast();
-			// organize by FSS index
-			sourcesForFSSRuptures = new ProbEqkSource[sol.getRupSet().getNumRuptures()];
-			for (int sourceID=0; sourceID<faultERF.getNumFaultSystemSources(); sourceID++) {
-				int fssIndex = faultERF.getFltSysRupIndexForSource(sourceID);
-				sourcesForFSSRuptures[fssIndex] = faultERF.getSource(sourceID);
-			}
-			if (rank == 0)
-				debug("Created "+faultERF.getNumFaultSystemSources()+"/"+sourcesForFSSRuptures.length+" sources");
+			sol = FaultSystemIO.loadSol(solFile);
 		}
 		
 		double spacing = Double.parseDouble(cmd.getOptionValue("spacing"));
@@ -139,9 +131,11 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 				imtStr = "sa_"+(float)period+"s";
 			archiverNameFault = "results_"+imtStr+"_fault";
 			archiverNameGridded = "results_"+imtStr+"_gridded";
+			archiverNameCombined = "results_"+imtStr+"_combined";
 		} else {
 			archiverNameFault = "results_"+imt.toLowerCase()+"_fault";
 			archiverNameGridded = "results_"+imt.toLowerCase()+"_gridded";
+			archiverNameCombined = "results_"+imt.toLowerCase()+"_combined";
 		}
 		
 		File outputDir = new File(cmd.getOptionValue("output-dir"));
@@ -149,12 +143,9 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 			Preconditions.checkState(outputDir.exists() && outputDir.isDirectory() || outputDir.mkdir(),
 				"Output directory doesn't exist or couldn't be created: %s", outputDir.getAbsoluteFile());
 		
-		xVals = new IMT_Info().getDefaultHazardCurve(imt);
-		// don't give it the fault file, we're reading externally
-		mapCalc = new ETAS_HazardMapCalc(catalogs, null, region, xVals);
+		gmpeRef = AttenRelRef.valueOf(cmd.getOptionValue("gmpe"));
 		
-		gmpeFile = new File(cmd.getOptionValue("gmpe-file"));
-		Preconditions.checkState(gmpeFile.exists(), "GMPE file doesn't exist: %s", gmpeFile.getAbsolutePath());
+		xVals = new IMT_Info().getDefaultHazardCurve(imt);
 		
 		debug("Loading sites");
 		File sitesFile = new File(cmd.getOptionValue("sites-file"));
@@ -166,10 +157,10 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		}
 		Element sitesRoot = siteDoc.getRootElement();
 		ArrayList<Parameter<?>> paramsToAdd = new ArrayList<Parameter<?>>();
-		ScalarIMR gmpe = checkOutGMPE();
+		ScalarIMR gmpe = gmpeRef.instance(null);
+		gmpe.setParamDefaults();
 		for (Parameter<?> param : gmpe.getSiteParams())
 			paramsToAdd.add(param);
-		checkInGMPE(gmpe);
 		sites = Site.loadSitesFromXML(sitesRoot.element(Site.XML_METADATA_LIST_NAME), paramsToAdd);
 		Preconditions.checkState(sites.size() == region.getNodeCount(), "Supplied sites file is wrong size");
 		
@@ -177,6 +168,11 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 		if (calcGridded)
 			griddedSources = new ETAS_CatalogGridSourceProvider(catalogs, griddedSpacing, griddedConditional);
+		
+		// don't give it the fault file, we're reading externally
+		mapCalc = new ETAS_HazardMapCalc(catalogs, region, xVals, null, sol, griddedSources, gmpeRef, imt, spacing, sites);
+		mapCalc.setCalcFaults(calcFault);
+		mapCalc.setCalcGridded(calcGridded);
 		
 		executor = mapCalc.createExecutor(getNumThreads());
 		
@@ -188,6 +184,8 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 			xValsMap.put(archiverNameFault, xVals);
 		if (calcGridded)
 			xValsMap.put(archiverNameGridded, xVals);
+		if (calcFault && calcGridded)
+			xValsMap.put(archiverNameCombined, xVals);
 		
 		archiver = new BinaryCurveArchiver(outputDir, getNumTasks(), xValsMap);
 		if (rank == 0)
@@ -270,10 +268,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		@Override
 		public void run() {
 			try {
-				if (calcFault)
-					calcFault(index);
-				if (calcGridded)
-					calcGridded(index);
+				calculate(index);
 				if (printEach) debug("done with "+index);
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
@@ -282,105 +277,57 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 	}
 	
-	private void calcFault(int index) throws IOException {
-		CurveMetadata meta = new CurveMetadata(sites.get(index), index, null, archiverNameFault);
-		if (archiver.isCurveCalculated(meta, xVals)) {
+	private void calculate(int index) throws IOException {
+		CurveMetadata faultMeta = null, griddedMeta = null, combinedMeta = null;
+		
+		boolean allDone = true;
+		if (calcFault) {
+			faultMeta = new CurveMetadata(sites.get(index), index, null, archiverNameFault);
+			allDone = allDone && archiver.isCurveCalculated(faultMeta, xVals);
+		}
+		if (calcGridded) {
+			griddedMeta = new CurveMetadata(sites.get(index), index, null, archiverNameGridded);
+			allDone = allDone && archiver.isCurveCalculated(griddedMeta, xVals);
+		}
+		if (calcFault && calcGridded) {
+			combinedMeta = new CurveMetadata(sites.get(index), index, null, archiverNameCombined);
+			allDone = allDone && archiver.isCurveCalculated(combinedMeta, xVals);
+		}
+		
+		if (allDone) {
 			debug("fault "+index+" already done, skipping");
 			return;
 		}
 		
-		DiscretizedFunc curve;
-		if (raFile == null) {
-			// calculate it
-			if (printEach) debug("calculating fault "+index);
-			Map<Integer, DiscretizedFunc> rupExceeds = calcFaultIMs(sites.get(index));
-			
-			curve = mapCalc.calcFaultHazardCurveFromExceed(rupExceeds);
-		} else {
-			// load it
+		Map<Integer, double[]> precomputedFaultVals = null;
+		if (raFile != null) {
+			// load precomputed fault shakemaps
 			long pos = filePositions[index];
 			int len = fileLengths[index];
 			if (printEach) debug("calculating fault "+index+", pos="+pos+", len="+len);
-			
+
 			DataInputStream in;
 			synchronized (raFile) {
 				byte[] buf = new byte[len];
 				in = new DataInputStream(new ByteArrayInputStream(buf));
-				
+
 				raFile.seek(pos);
 				raFile.readFully(buf);
 			}
-			
-			Map<Integer, double[]> rupVals = mapCalc.loadSiteFromInputStream(in, index);
-			
-			curve = mapCalc.calcFaultHazardCurve(rupVals);
+
+			precomputedFaultVals = mapCalc.loadSiteFromInputStream(in, index);
 		}
 		
-		archiver.archiveCurve(curve, meta);
-	}
-	
-	private Map<Integer, DiscretizedFunc> calcFaultIMs(Site site) {
-		// used if no precomputed data file
-		Map<Integer, DiscretizedFunc> rupVals = Maps.newHashMap();
-		ScalarIMR gmpe = checkOutGMPE();
-		for (Integer fssIndex : mapCalc.getFaultIndexesTriggered()) {
-			ProbEqkSource source = sourcesForFSSRuptures[fssIndex];
-			if (source == null)
-				continue;
-			Preconditions.checkState(source.getNumRuptures() == 1, "Must be a single rupture source");
-			ProbEqkRupture rup = source.getRupture(0);
-			
-			double minDist = source.getMinDistance(site);
-			if (minDist > distCutoff)
-				continue;
-			
-			gmpe.setSite(site);
-			gmpe.setEqkRupture(rup);
-			
-			rupVals.put(fssIndex, gmpe.getExceedProbabilities(mapCalc.getCalcXVals().deepClone()));
-		}
-		checkInGMPE(gmpe);
-		return rupVals;
-	}
-	
-	private synchronized ScalarIMR checkOutGMPE() {
-		if (gmpeDeque == null)
-			gmpeDeque = new ArrayDeque<ScalarIMR>();
-		if (gmpeDeque.isEmpty()) {
-			// build a new one
-			ScalarIMR gmpe;
-			try {
-				gmpe = AttenRelSaver.LOAD_ATTEN_REL_FROM_FILE(gmpeFile.getAbsolutePath());
-			} catch (Exception e) {
-				throw ExceptionUtils.asRuntimeException(e);
-			}
-			gmpe.setParamDefaults();
-			gmpe.setIntensityMeasure(imt);
-			if (imt.equals(SA_Param.NAME))
-				SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), period);
-			return gmpe;
-		}
-		return gmpeDeque.pop();
-	}
-	
-	private synchronized void checkInGMPE(ScalarIMR gmpe) {
-		gmpeDeque.push(gmpe);
-	}
-	
-	private void calcGridded(int index) throws IOException {
-		CurveMetadata meta = new CurveMetadata(sites.get(index), index, null, archiverNameGridded);
-		if (archiver.isCurveCalculated(meta, xVals)) {
-			debug("gridded "+index+" already done, skipping");
-			return;
-		}
-		if (printEach) debug("calculating gridded "+index);
+		if (printEach)
+			debug("Calculating "+index);
+		DiscretizedFunc[] curves = mapCalc.calculateCurves(sites.get(index), precomputedFaultVals);
 		
-		ScalarIMR gmpe = checkOutGMPE();
-		
-		DiscretizedFunc curve = mapCalc.calcGriddedHazardCurve(gmpe, sites.get(index), index, griddedSources);
-		archiver.archiveCurve(curve, meta);
-		
-		checkInGMPE(gmpe);
+		if (faultMeta != null)
+			archiver.archiveCurve(curves[0], faultMeta);
+		if (griddedMeta != null)
+			archiver.archiveCurve(curves[1], griddedMeta);
+		if (combinedMeta != null)
+			archiver.archiveCurve(curves[2], combinedMeta);
 	}
 	
 	public static Options createOptions() {
@@ -416,7 +363,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		outputDir.setRequired(true);
 		ops.addOption(outputDir);
 		
-		Option gmpeFile = new Option("g", "gmpe-file", true, "GMPE XML file");
+		Option gmpeFile = new Option("g", "gmpe", true, "GMPE reference name");
 		gmpeFile.setRequired(true);
 		ops.addOption(gmpeFile);
 		
