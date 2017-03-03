@@ -194,8 +194,12 @@ public class ETAS_HazardMapCalc {
 		
 		for (int i=0; i<curves.length; i++) {
 			curves[i] = reader.nextCurve();
+			Location loc = reader.currentLocation();
+			Location gridLoc = region.getNodeList().get(i);
+			Preconditions.checkState(loc.equals(gridLoc), "Unexpected grid location!\n\tFile: %s\n\tGrid: %s", loc, gridLoc);
 			Preconditions.checkNotNull(curves[i]);
 		}
+		Preconditions.checkState(reader.nextCurve() == null, "More curves than expected!");
 		
 		return curves;
 	}
@@ -366,6 +370,8 @@ public class ETAS_HazardMapCalc {
 			// will calculate on the fly as needed
 			griddedNonExceeds = HashBasedTable.create();
 			Preconditions.checkState(gridSources.isConditional());
+			if (gmpe == null)
+				gmpe = checkOutGMPE();
 		}
 		
 		DiscretizedFunc combinedCurve = null;
@@ -399,6 +405,8 @@ public class ETAS_HazardMapCalc {
 				DiscretizedFunc targetCurve; // hazard curve to apply this to
 				if (rup.getFSSIndex() >= 0) {
 					// fault based
+					if (catFaultCurve == null)
+						continue;
 					condNonExceed = faultNonExceeds.get(rup.getFSSIndex());
 					if (condNonExceed == null)
 						// not within cutoff dist
@@ -747,7 +755,7 @@ public class ETAS_HazardMapCalc {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		force_serial = false;
-		boolean calcFault = true;
+		boolean calcFault = false;
 		boolean calcGridded = true;
 		boolean mapParallel = true;
 //		calc.debugCurvePlotModulus = 10;
@@ -769,14 +777,17 @@ public class ETAS_HazardMapCalc {
 //		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
 //				+ "2017_02_24-mojave_m7_fulltd_descendents-NGA2-0.05-site-effects-with-basin");
 		
-		File faultBasedPrecalc = null;
-		double spacing = 0.02d;
-		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
-				+ "2017_02_28-mojave_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
-		
 //		File faultBasedPrecalc = null;
-//		double spacing = 0.5;
-//		File precalcDir = null;
+////		double spacing = 0.02d;
+////		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
+////				+ "2017_02_28-mojave_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
+//		double spacing = 0.01d;
+//		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
+//				+ "2017_03_01-mojave_m7_fulltd_descendents-NGA2-0.01-site-effects-with-basin");
+		
+		File faultBasedPrecalc = null;
+		double spacing = 0.5;
+		File precalcDir = null;
 		
 //		String imtName = PGA_Param.NAME;
 //		double period = Double.NaN;
