@@ -1564,23 +1564,31 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		String gsArgs = " -dNumRenderingThreads=4 -dBandBufferSpace=500000000 -dBufferSpace=1000000000 ";
 		if (use_gs_raster) {
 			int jpeg_quality= 90;
-			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=jpeg " + 
+			if (jpgFileName != null)
+				gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=jpeg " + 
 					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+jpgFileName+" -");
-			gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=png16m " + 
+			if (pngFileName != null)
+				gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=png16m " + 
 					"-dTextAlphaBits=4 -sOutputFile="+pngFileName+" -");
 
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + jpgFileName + " " + jpgFileName);
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + pngFileName + " " + pngFileName);
+			if (jpgFileName != null)
+				gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + jpgFileName + " " + jpgFileName);
+			if (pngFileName != null)
+				gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + pngFileName + " " + pngFileName);
 		} else {
 			convertArgs = "-density " + dpi + " " + convertArgs;
 
 			// add a command line to convert the ps file to a jpg file - using convert
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + jpgFileName);
-			gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + pngFileName);
+			if (jpgFileName != null)
+				gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + jpgFileName);
+			if (pngFileName != null)
+				gmtCommandLines.add("${CONVERT_PATH} " + convertArgs + " " + psFileName + " " + pngFileName);
 		}
 		
-		commandLine = "${PS2PDF_PATH}"+gsArgs+" "+psFileName+"  "+map.getPDFFileName();
-		gmtCommandLines.add(commandLine);
+		if (map.getPDFFileName() != null) {
+			commandLine = "${PS2PDF_PATH}"+gsArgs+" "+psFileName+"  "+map.getPDFFileName();
+			gmtCommandLines.add(commandLine);
+		}
 
 		boolean googleearth = map.isGenerateKML();
 
