@@ -31,7 +31,7 @@ public class ComcatAccessor {
 	
 	public ComcatAccessor() {
 		try {
-			service = new EventWebService(new URL("http://earthquake.usgs.gov/fdsnws/event/1/"));
+			service = new EventWebService(new URL("https://earthquake.usgs.gov/fdsnws/event/1/"));
 		} catch (MalformedURLException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
@@ -58,7 +58,7 @@ public class ComcatAccessor {
 		JsonEvent event = events.get(0);
 //		printJSON(event);
 		
-		return eventToObsRup(events.get(0));
+		return eventToObsRup(event);
 	}
 	
 	public static void printJSON(JSONObject json) {
