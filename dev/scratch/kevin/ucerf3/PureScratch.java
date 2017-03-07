@@ -47,6 +47,7 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.gui.plot.PlotSymbol;
 import org.opensha.commons.param.Parameter;
+import org.opensha.commons.util.DataUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.nshmp2.imr.impl.AB2006_140_AttenRel;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -92,6 +93,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 
 import scratch.UCERF3.AverageFaultSystemSolution;
 import scratch.UCERF3.CompoundFaultSystemSolution;
@@ -101,6 +103,7 @@ import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
+import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO.BinarayCatalogsIterable;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
@@ -810,6 +813,55 @@ public class PureScratch {
 		System.out.println(track2006);
 		System.out.println(track2015);
 	}
+	
+	private static void test29() throws IOException {
+		File dir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
+				+ "2017_03_03-haywired_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
+		for (File file : dir.listFiles()) {
+			String name = file.getName();
+			if (!file.getName().endsWith(".bin"))
+				continue;
+			
+			name = name.replaceAll("results_results", "results");
+			name = name.replaceAll("pga_combined", "pga");
+			name = name.replaceAll("pgv_combined", "pgv");
+			
+			System.out.println(file.getName()+" => "+name);
+			if (!name.equals(file.getName()))
+				Files.move(file, new File(dir, name));
+		}
+	}
+	
+	private static void test30() {
+		File catalogFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+				+ "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined/results_descendents_m5_preserve.bin");
+		
+		double minMag = 7d;
+		
+		int numCatsWith = 0;
+		int totalNumAbove = 0;
+		
+		BinarayCatalogsIterable catsIt = ETAS_CatalogIO.getBinaryCatalogsIterable(catalogFile, minMag);
+		
+		double[] counts = new double[catsIt.getNumCatalogs()];
+		int index = 0;
+		
+		for (List<ETAS_EqkRupture> catalog : catsIt) {
+			int count = catalog.size();
+			if (count > 0)
+				numCatsWith++;
+			totalNumAbove += count;
+			counts[index++] = count;
+		}
+		
+		double fractCatsWith = (double)numCatsWith/counts.length;
+		double mean = (double)totalNumAbove/counts.length;
+		double median = DataUtils.median(counts);
+		
+		System.out.println(numCatsWith+"/"+counts.length+", "+(float)(fractCatsWith*100d)
+				+" % of catalogs have at least one M"+(float)minMag);
+		System.out.print("Mean: "+mean+", Median: "+median);
+	}
 
 	/**
 	 * @param args
@@ -841,7 +893,9 @@ public class PureScratch {
 //		test25();
 //		test26();
 //		test27();
-		test28();
+//		test28();
+//		test29();
+		test30();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

@@ -42,12 +42,12 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 //		String etasSimName = "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k";
 //		String etasFileName = "results_descendents_m5_preserve.bin";
 //		String etasShortName = "mojave_m7_fulltd_descendents";
-//		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined";
-//		String etasFileName = "results_descendents_m5_preserve.bin";
-//		String etasShortName = "haywired_m7_fulltd_descendents";
-		String etasSimName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
+		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined";
 		String etasFileName = "results_descendents_m5_preserve.bin";
-		String etasShortName = "haywired_m7_gridded_descendents";
+		String etasShortName = "haywired_m7_fulltd_descendents";
+//		String etasSimName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
+//		String etasFileName = "results_descendents_m5_preserve.bin";
+//		String etasShortName = "haywired_m7_gridded_descendents";
 		File remoteEtasCatalogFile = new File(new File(remoteETASDir, etasSimName), etasFileName);
 		
 		// --------------------

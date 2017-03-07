@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.sra.riskmaps.func.DiscreteInterpExterpFunc;
 
@@ -15,7 +16,7 @@ import com.google.common.collect.Maps;
 
 public class BinaryHazardCurveReader {
 	private DataInputStream reader = null;
-	private ArrayList<Double> imlvals = new ArrayList<Double>();
+	private double[] imlvals;
 	private double latitude, longitude;
 	
 	public BinaryHazardCurveReader(String filename) throws Exception {
@@ -24,9 +25,9 @@ public class BinaryHazardCurveReader {
 		
 		// Pre-populate the IML values
 		int imlcount = reader.readInt();
-		for ( int i = 0; i < imlcount; ++i ) {
-			imlvals.add(reader.readDouble());
-		}
+		imlvals = new double[imlcount];
+		for ( int i = 0; i < imlcount; ++i )
+			imlvals[i] = reader.readDouble();
 	}
 	
 	public Map<Location, ArbitrarilyDiscretizedFunc> getCurveMap() throws Exception {
@@ -47,8 +48,8 @@ public class BinaryHazardCurveReader {
 		try {
 			latitude = reader.readDouble();
 			longitude = reader.readDouble();
-			for ( int i = 0; i < imlvals.size(); ++i ) {
-				function.set((double) imlvals.get(i), reader.readDouble());
+			for ( int i = 0; i < imlvals.length; ++i ) {
+				function.set(imlvals[i], reader.readDouble());
 			}
 		} catch (EOFException eof) {
 			return null;
@@ -56,14 +57,28 @@ public class BinaryHazardCurveReader {
 		return function;
 	}
 	
-	public DiscreteInterpExterpFunc nextDiscreteCurve() throws Exception {
-		double xVals[] = new double[imlvals.size()];
-		double yVals[] = new double[imlvals.size()];
+	public LightFixedXFunc nextLightCurve() throws Exception {
+		double[] yVals = new double[imlvals.length];
 		try {
 			latitude = reader.readDouble();
 			longitude = reader.readDouble();
-			for ( int i = 0; i < imlvals.size(); ++i ) {
-				xVals[i] = (double) imlvals.get(i);
+			for ( int i = 0; i < imlvals.length; ++i ) {
+				yVals[i] = reader.readDouble();
+			}
+		} catch (EOFException eof) {
+			return null;
+		}
+		return new LightFixedXFunc(imlvals, yVals);
+	}
+	
+	public DiscreteInterpExterpFunc nextDiscreteCurve() throws Exception {
+		double xVals[] = new double[imlvals.length];
+		double yVals[] = new double[imlvals.length];
+		try {
+			latitude = reader.readDouble();
+			longitude = reader.readDouble();
+			for ( int i = 0; i < imlvals.length; ++i ) {
+				xVals[i] = imlvals[i];
 				yVals[i] = reader.readDouble();
 			}
 		} catch (EOFException eof) {
@@ -82,6 +97,6 @@ public class BinaryHazardCurveReader {
 	}
 	
 	public int getNumVals() {
-		return imlvals.size();
+		return imlvals.length;
 	}
 }

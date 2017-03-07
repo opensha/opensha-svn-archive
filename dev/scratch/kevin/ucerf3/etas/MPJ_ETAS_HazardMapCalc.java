@@ -5,9 +5,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -16,40 +13,34 @@ import java.util.concurrent.Future;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
-import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ExceptionUtils;
-import org.opensha.commons.util.XMLUtils;
 import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
 import org.opensha.sha.calc.hazardMap.components.CurveMetadata;
-import org.opensha.sha.cybershake.gui.util.AttenRelSaver;
-import org.opensha.sha.earthquake.AbstractERF;
-import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.earthquake.ProbEqkSource;
-import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
-import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenRelRef;
-import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
+import com.google.common.collect.Table.Cell;
 
 import mpi.MPI;
 import scratch.UCERF3.FaultSystemSolution;
-import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.utils.FaultSystemIO;
+import scratch.kevin.ucerf3.etas.ETAS_HazardMapCalc.Duration;
+import scratch.kevin.ucerf3.etas.ETAS_HazardMapCalc.MapType;
 
 public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	
@@ -59,10 +50,6 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	private RandomAccessFile raFile;
 	private long[] filePositions;
 	private int[] fileLengths;
-	// else for on the fly shakemaps
-	private FaultSystemSolutionERF faultERF;
-	private ProbEqkSource[] sourcesForFSSRuptures;
-	private double distCutoff = 200;
 	
 	private GriddedRegion region;
 	
@@ -72,21 +59,22 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	private ETAS_HazardMapCalc mapCalc;
 	
 	private AttenRelRef gmpeRef;
-	private Deque<ScalarIMR> gmpeDeque;
 	
 	private List<Site> sites;
 	
 	private boolean calcGridded;
 	private boolean calcFault;
 	
-	private boolean griddedConditional = true; // TODO
+	private MapType[] mapTypes;
+	private Duration[] durations;
+	private static final Duration[] DURATIONS_DEFAULT = Duration.values();
+	
+	private final boolean griddedConditional = true;
 	private ETAS_CatalogGridSourceProvider griddedSources;
 	
 	private ExecutorService executor;
 	
-	private String archiverNameFault;
-	private String archiverNameGridded;
-	private String archiverNameCombined;
+	private String imtName;
 	private BinaryCurveArchiver archiver;
 	private DiscretizedFunc xVals;
 	
@@ -124,18 +112,12 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		if (imt.equals(SA_Param.NAME)) {
 			Preconditions.checkArgument(cmd.hasOption("period"), "Must supply period if Sa");
 			period = Double.parseDouble(cmd.getOptionValue("period"));
-			String imtStr;
 			if (period == Math.floor(period))
-				imtStr = "sa_"+(int)period+"s";
+				imtName = "sa_"+(int)period+"s";
 			else
-				imtStr = "sa_"+(float)period+"s";
-			archiverNameFault = "results_"+imtStr+"_fault";
-			archiverNameGridded = "results_"+imtStr+"_gridded";
-			archiverNameCombined = "results_"+imtStr+"_combined";
+				imtName = "sa_"+(float)period+"s";
 		} else {
-			archiverNameFault = "results_"+imt.toLowerCase()+"_fault";
-			archiverNameGridded = "results_"+imt.toLowerCase()+"_gridded";
-			archiverNameCombined = "results_"+imt.toLowerCase()+"_combined";
+			imtName = imt.toLowerCase();
 		}
 		
 		File outputDir = new File(cmd.getOptionValue("output-dir"));
@@ -149,19 +131,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 		debug("Loading sites");
 		File sitesFile = new File(cmd.getOptionValue("sites-file"));
-		Document siteDoc;
-		try {
-			siteDoc = XMLUtils.loadDocument(sitesFile);
-		} catch (Exception e) {
-			throw ExceptionUtils.asRuntimeException(e);
-		}
-		Element sitesRoot = siteDoc.getRootElement();
-		ArrayList<Parameter<?>> paramsToAdd = new ArrayList<Parameter<?>>();
-		ScalarIMR gmpe = gmpeRef.instance(null);
-		gmpe.setParamDefaults();
-		for (Parameter<?> param : gmpe.getSiteParams())
-			paramsToAdd.add(param);
-		sites = Site.loadSitesFromXML(sitesRoot.element(Site.XML_METADATA_LIST_NAME), paramsToAdd);
+		sites = ETAS_HazardMapCalc.loadSitesFile(gmpeRef, sitesFile);
 		Preconditions.checkState(sites.size() == region.getNodeCount(), "Supplied sites file is wrong size");
 		
 		double griddedSpacing = Double.parseDouble(cmd.getOptionValue("gridded-spacing"));
@@ -169,8 +139,17 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		if (calcGridded)
 			griddedSources = new ETAS_CatalogGridSourceProvider(catalogs, griddedSpacing, griddedConditional);
 		
+		if (cmd.hasOption("durations")) {
+			String[] split = cmd.getOptionValue("durations").trim().split(",");
+			durations = new Duration[split.length];
+			for (int i=0; i<split.length; i++)
+				durations[i] = Duration.valueOf(split[i]);
+		} else {
+			durations = DURATIONS_DEFAULT;
+		}
+		
 		// don't give it the fault file, we're reading externally
-		mapCalc = new ETAS_HazardMapCalc(catalogs, region, xVals, null, sol, griddedSources, gmpeRef, imt, spacing, sites);
+		mapCalc = new ETAS_HazardMapCalc(catalogs, region, xVals, null, sol, griddedSources, gmpeRef, imt, spacing, sites, durations);
 		mapCalc.setCalcFaults(calcFault);
 		mapCalc.setCalcGridded(calcGridded);
 		
@@ -179,19 +158,29 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		if (calcFault && raFile != null)
 			loadFilePositions();
 		
-		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
-		if (calcFault)
-			xValsMap.put(archiverNameFault, xVals);
-		if (calcGridded)
-			xValsMap.put(archiverNameGridded, xVals);
 		if (calcFault && calcGridded)
-			xValsMap.put(archiverNameCombined, xVals);
+			mapTypes = MapType.values();
+		else if (calcFault)
+			mapTypes = new MapType[] { MapType.FAULT_ONLY };
+		else {
+			Preconditions.checkState(calcGridded, "Must calculate something...");
+			mapTypes = new MapType[] { MapType.GRIDDED_ONLY };
+		}
+		
+		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
+		for (MapType type : mapTypes)
+			for (Duration duration : durations)
+				xValsMap.put(getArchiverName(type, duration), xVals);
 		
 		archiver = new BinaryCurveArchiver(outputDir, getNumTasks(), xValsMap);
 		if (rank == 0)
 			archiver.initialize();
 		
 		printEach = getNumTasks() < 50000;
+	}
+	
+	private String getArchiverName(MapType type, Duration duration) {
+		return "results_"+imtName+"_"+type.fileName+"_"+duration.fileName;
 	}
 	
 	private void loadFilePositions() throws IOException {
@@ -278,20 +267,15 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	}
 	
 	private void calculate(int index) throws IOException {
-		CurveMetadata faultMeta = null, griddedMeta = null, combinedMeta = null;
+		Table<Duration, MapType, CurveMetadata> curveMetas = HashBasedTable.create();
 		
 		boolean allDone = true;
-		if (calcFault) {
-			faultMeta = new CurveMetadata(sites.get(index), index, null, archiverNameFault);
-			allDone = allDone && archiver.isCurveCalculated(faultMeta, xVals);
-		}
-		if (calcGridded) {
-			griddedMeta = new CurveMetadata(sites.get(index), index, null, archiverNameGridded);
-			allDone = allDone && archiver.isCurveCalculated(griddedMeta, xVals);
-		}
-		if (calcFault && calcGridded) {
-			combinedMeta = new CurveMetadata(sites.get(index), index, null, archiverNameCombined);
-			allDone = allDone && archiver.isCurveCalculated(combinedMeta, xVals);
+		for (MapType type : mapTypes) {
+			for (Duration duration : durations) {
+				CurveMetadata meta = new CurveMetadata(sites.get(index), index, null, getArchiverName(type, duration));
+				curveMetas.put(duration, type, meta);
+				allDone = allDone && archiver.isCurveCalculated(meta, xVals);
+			}
 		}
 		
 		if (allDone) {
@@ -320,14 +304,15 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 		if (printEach)
 			debug("Calculating "+index);
-		DiscretizedFunc[] curves = mapCalc.calculateCurves(sites.get(index), precomputedFaultVals);
+		Table<Duration, MapType, DiscretizedFunc> curves = mapCalc.calculateCurves(sites.get(index), precomputedFaultVals);
 		
-		if (faultMeta != null)
-			archiver.archiveCurve(curves[0], faultMeta);
-		if (griddedMeta != null)
-			archiver.archiveCurve(curves[1], griddedMeta);
-		if (combinedMeta != null)
-			archiver.archiveCurve(curves[2], combinedMeta);
+		for (Cell<Duration, MapType, CurveMetadata> cell : curveMetas.cellSet()) {
+			Duration duration = cell.getRowKey();
+			MapType type = cell.getColumnKey();
+			DiscretizedFunc curve = curves.get(duration, type);
+			Preconditions.checkState(curve != null, "Curve not calculated for %s, %s! Size=%s", duration, type, curves.size());
+			archiver.archiveCurve(curve, cell.getValue());
+		}
 	}
 	
 	public static Options createOptions() {
@@ -382,6 +367,11 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		Option noFault = new Option("nf", "no-fault", false, "Flag to disable fault calculation");
 		noFault.setRequired(false);
 		ops.addOption(noFault);
+		
+		Option durations = new Option("d", "durations", true,
+				"Durations to calculate (comma separated). Default: "+Joiner.on(",").join(DURATIONS_DEFAULT));
+		durations.setRequired(false);
+		ops.addOption(durations);
 		
 		return ops;
 	}
