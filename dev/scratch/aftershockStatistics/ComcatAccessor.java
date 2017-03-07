@@ -35,7 +35,7 @@ public class ComcatAccessor {
 	
 	public ComcatAccessor() {
 		try {
-			service = new EventWebService(new URL("http://earthquake.usgs.gov/fdsnws/event/1/"));
+			service = new EventWebService(new URL("https://earthquake.usgs.gov/fdsnws/event/1/"));
 		} catch (MalformedURLException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
 		}
