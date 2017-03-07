@@ -11,6 +11,7 @@ import org.apache.commons.math3.analysis.integration.RombergIntegrator;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
 import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.jfree.data.Range;
+import org.mongodb.morphia.annotations.Transient;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -46,10 +47,15 @@ import com.google.common.base.Preconditions;
  *
  */
 public class RJ_AftershockModel_Bayesian extends RJ_AftershockModel {
-	
+
+	@Transient
 	Boolean D=true;	// debug flag
-	
-	/**
+
+    public RJ_AftershockModel_Bayesian() {
+
+    }
+
+    /**
 	 * Check similarity of both models, currently to floating point precision
 	 * 
 	 * @param model1

@@ -38,6 +38,8 @@ public class GenericRJ_Parameters {
 		this.pValue = pValue;
 		this.cValue = cValue;
 	}
+
+	public GenericRJ_Parameters(){}
 	
 	/**
 	 * This returns the mean a-value (aValue_mean).

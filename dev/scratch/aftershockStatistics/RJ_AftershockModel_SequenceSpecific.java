@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
+import org.mongodb.morphia.annotations.Transient;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
 import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
@@ -25,12 +26,15 @@ import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
  *
  */
 public class RJ_AftershockModel_SequenceSpecific extends RJ_AftershockModel implements UnivariateFunction {
-	
+
+	@Transient
 	Boolean D=true;	// debug flag
 	double capG, capH;
 	double a, k, p, c;	// these are used in the numerical integration
 	double magComplete;
+	@Transient
 	ObsEqkRupList aftershockList;
+	@Transient
 	ObsEqkRupture mainShock;
 	double dataStartTimeDays, dataEndTimeDays;
 	double testTotalLikelihood;
@@ -168,10 +172,13 @@ public class RJ_AftershockModel_SequenceSpecific extends RJ_AftershockModel impl
 		}
 		
 	}
-	
-	
-	
-	private void computeSequenceSpecificParams() {
+
+    public RJ_AftershockModel_SequenceSpecific() {
+
+    }
+
+
+    private void computeSequenceSpecificParams() {
 //		SimpsonIntegrator integrator = new SimpsonIntegrator();
 		array = new double[num_a][num_p][num_c];
 		double maxVal= Double.NEGATIVE_INFINITY;
