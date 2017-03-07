@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -862,6 +863,49 @@ public class PureScratch {
 				+" % of catalogs have at least one M"+(float)minMag);
 		System.out.print("Mean: "+mean+", Median: "+median);
 	}
+	
+	private static void test31() throws IOException, DocumentException {
+		int bendID = 287;
+		int mojaveNID = 286;
+		int mojaveSID = 301;
+		
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		HashSet<Integer> bendRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(bendID));
+		HashSet<Integer> mojaveNRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(mojaveNID));
+		HashSet<Integer> mojaveSRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(mojaveSID));
+		
+		List<Integer> bendAndMojaveNRups = Lists.newArrayList();
+		List<Integer> bendAndMojaveSRups = Lists.newArrayList();
+		for (Integer rup : bendRups) {
+			if (mojaveNRups.contains(rup))
+				bendAndMojaveNRups.add(rup);
+			if (mojaveSRups.contains(rup))
+				bendAndMojaveSRups.add(rup);
+		}
+		
+		double minMag = 7.3;
+		
+		double rateBend = rateForRups(sol, bendRups, minMag);
+		double rateBenMojaveN = rateForRups(sol, bendAndMojaveNRups, minMag);
+		double rateBenMojaveS = rateForRups(sol, bendAndMojaveSRups, minMag);
+		
+		System.out.println("Rate Big Bend: "+rateBend);
+		System.out.println("Rate Big Bend & Mojave N: "+rateBenMojaveN+" ("+(float)(100d*rateBenMojaveN/rateBend)+" %)");
+		System.out.println("Rate Big Bend & Mojave S: "+rateBenMojaveS+" ("+(float)(100d*rateBenMojaveS/rateBend)+" %)");
+	}
+	
+	private static double rateForRups(FaultSystemSolution sol, Collection<Integer> rups, double minMag) {
+		double rate = 0d;
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		for (int rup : rups)
+			if (rupSet.getMagForRup(rup) >= minMag)
+				rate += sol.getRateForRup(rup);
+		return rate;
+	}
 
 	/**
 	 * @param args
@@ -895,7 +939,8 @@ public class PureScratch {
 //		test27();
 //		test28();
 //		test29();
-		test30();
+//		test30();
+		test31();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
