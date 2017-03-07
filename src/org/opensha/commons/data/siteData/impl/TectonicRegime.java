@@ -7,6 +7,9 @@ import com.google.common.collect.Maps;
 
 public enum TectonicRegime {
 
+	/*
+	 * These ones are from STREC
+	 */
 	ANSR_DEEPCON("ACR (deep)", "ANSR-DEEPCON"),
 	ANSR_HOTSPOT("ACR (hot spot)", "ANSR-HOTSPOT"),
 	ANSR_OCEANBD("ACR (oceanic boundary)", "ANSR-OCEANBD"),
@@ -21,7 +24,11 @@ public enum TectonicRegime {
 	SZ_GENERIC("SZ (generic)", "SZ-GENERIC"),
 	SZ_INLBACK("SZ (inland/back-arc)", "SZ-INLBACK"),
 	SZ_ONSHORE("SZ (on-shore)", "SZ-ONSHORE"),
-	SZ_OUTERTR("SZ (outer-trench)", "SZ-OUTERTR");
+	SZ_OUTERTR("SZ (outer-trench)", "SZ-OUTERTR"),
+	/*
+	 * Other hardcoded/misc regimes
+	 */
+	CALIFORNIA("California");
 
 	private static Map<String, TectonicRegime> mappings = null;
 	
