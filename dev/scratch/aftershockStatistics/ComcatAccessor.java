@@ -125,7 +125,7 @@ public class ComcatAccessor {
 			endTime=Instant.now().toEpochMilli();
 		query.setEndTime(new Date(endTime));
 		
-		Preconditions.checkState(startTime < System.currentTimeMillis(), "Start time is before now!");
+		Preconditions.checkState(startTime < System.currentTimeMillis(), "Aftershock fetch start time is after now!");
 		
 		boolean mainshockLonWrapped = mainshock.getHypocenterLocation().getLongitude() > 180;
 		
@@ -194,8 +194,7 @@ public class ComcatAccessor {
 	public static ObsEqkRupture eventToObsRup(JsonEvent event) {
 		// default to moving anything with lon < -90 to the positive domain
 		// then we'll apply this consistently to all aftershocks
-		// without this fix (and corresponding check in fetchEvent), events such as usp000fuse
-		// will fail
+		// without this fix (and corresponding check in fetchEvent), events such as usp000fuse will fail
 		return eventToObsRup(event, event.getLongitude().doubleValue() < -90);
 	}
 	
@@ -208,6 +207,13 @@ public class ComcatAccessor {
 			GeoTools.validateLon(lon);
 		}
 		double dep = event.getDepth().doubleValue();
+		if (dep < 0) {
+			// some regional networks can report negative depths, but the definition of what they're relative to can vary between
+			// networks (see http://earthquake.usgs.gov/data/comcat/data-eventterms.php#depth) so we decided to just discard any
+			// negative depths rather than try to correct with a DEM (which may be inconsistant with the networks). More discussion
+			// in e-mail thread 2/8-9/17 entitled "ComCat depths in OAF app"
+			dep = 0;
+		}
 		Location hypo = new Location(lat, lon, dep);
 		double mag=0;
 		try{

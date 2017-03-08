@@ -199,6 +199,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 	
 	private DoubleParameter forecastStartTimeParam;
 	private DoubleParameter forecastEndTimeParam;
+	private ButtonParameter forecastStartTimeNowParam;
 	
 	private ButtonParameter computeAftershockForecastButton;
 	
@@ -397,6 +398,10 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		cValParam.setValue(null);
 		cValParam.addParameterChangeListener(this);
 		fitParams.addParameter(cValParam);
+		
+		forecastStartTimeNowParam = new ButtonParameter("Set Forecast Start Time", "Set to Now");
+		forecastStartTimeNowParam.addParameterChangeListener(this);
+		fitParams.addParameter(forecastStartTimeNowParam);
 		
 		forecastStartTimeParam = new DoubleParameter("Forecast Start Time", 0d, 3650, new Double(0d));
 		forecastStartTimeParam.setUnits("Days");
@@ -1984,6 +1989,20 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 			}, true);
 			CalcRunnable run = new CalcRunnable(progress, computeStep, plotStep);
 			new Thread(run).start();
+		} else if (param == forecastStartTimeNowParam) {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+			GregorianCalendar now = new GregorianCalendar();
+			System.out.println("Computing delta from mainshock time ("
+					+df.format(mainshock.getOriginTimeCal().getTime())+") to now ("+df.format(now.getTime())+")");
+			double delta = USGS_AftershockForecast.getDateDelta(mainshock.getOriginTimeCal(), now);
+			System.out.println("Delta: "+delta+" days");
+			double prevDiff = forecastEndTimeParam.getValue() - forecastStartTimeParam.getValue();
+			if (prevDiff <= 0)
+				prevDiff = 7;
+			forecastStartTimeParam.setValue(delta);
+			forecastEndTimeParam.setValue(delta+prevDiff);
+			forecastStartTimeParam.getEditor().refreshParamEditor();
+			forecastEndTimeParam.getEditor().refreshParamEditor();
 		} else if (param == computeAftershockForecastButton) {
 			CalcStep plotStep = new CalcStep("Computing/Plotting Forecast MFDs", "This can take some time...",
 					new Runnable() {
@@ -2100,6 +2119,7 @@ public class AftershockStatsGUI extends JFrame implements ParameterChangeListene
 		aValParam.getEditor().setEnabled(false); // no capability to set in model yet
 		pValParam.getEditor().setEnabled(false); // no capability to set in model yet
 		cValParam.getEditor().setEnabled(false); // no capability to set in model yet
+		forecastStartTimeNowParam.getEditor().setEnabled(enabled);
 		forecastStartTimeParam.getEditor().setEnabled(enabled);
 		forecastEndTimeParam.getEditor().setEnabled(enabled);
 		computeAftershockForecastButton.getEditor().setEnabled(enabled);

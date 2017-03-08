@@ -117,7 +117,7 @@ public class USGS_AftershockForecast {
 		}
 	}
 	
-	private static double getDateDelta(GregorianCalendar start, GregorianCalendar end) {
+	static double getDateDelta(GregorianCalendar start, GregorianCalendar end) {
 		long diff = end.getTimeInMillis() - start.getTimeInMillis();
 		return (double)diff/(double)ProbabilityModelsCalc.MILLISEC_PER_DAY;
 	}
