@@ -465,8 +465,13 @@ public class AftershockStatsCalc {
 		while (lat > 90)
 			lat -= 360;
 		double lon = FaultUtils.getAngleAverage(lons);
+//		System.out.println("Mainshock loc: "+mainshock.getHypocenterLocation());
+//		System.out.println("Orig centroid lon: "+lon);
 		while (lon > 180)
 			lon -= 360;
+		// now make sure longitude is in the same domain as the input event
+		if (Math.abs(lon - mainshock.getHypocenterLocation().getLongitude()) > 270)
+			lon += 360;
 		Location centroid = new Location(lat, lon);
 		double dist = LocationUtils.horzDistanceFast(mainshock.getHypocenterLocation(), centroid);
 		System.out.println("Centroid: "+(float)lat+", "+(float)lon+" ("+(float)dist+" km from epicenter)");

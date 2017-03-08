@@ -19,6 +19,7 @@ import java.util.Properties;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.opensha.commons.geo.GeoTools;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
@@ -126,6 +127,8 @@ public class ComcatAccessor {
 		
 		Preconditions.checkState(startTime < System.currentTimeMillis(), "Start time is before now!");
 		
+		boolean mainshockLonWrapped = mainshock.getHypocenterLocation().getLongitude() > 180;
+		
 		query.setMinLatitude(new BigDecimal(region.getMinLat()));
 		query.setMaxLatitude(new BigDecimal(region.getMaxLat()));
 		query.setMinLongitude(new BigDecimal(region.getMinLon()));
@@ -156,7 +159,8 @@ public class ComcatAccessor {
 
 
 			for (JsonEvent event : events) {
-				ObsEqkRupture rup = eventToObsRup(event);
+				boolean wrap = mainshockLonWrapped && event.getLongitude().doubleValue() < 0;
+				ObsEqkRupture rup = eventToObsRup(event, wrap);
 				if (rup !=null)
 					rups.add(rup);
 			}
@@ -186,10 +190,23 @@ public class ComcatAccessor {
 		
 		return rups;
 	}
-	
+
 	public static ObsEqkRupture eventToObsRup(JsonEvent event) {
+		// default to moving anything with lon < -90 to the positive domain
+		// then we'll apply this consistently to all aftershocks
+		// without this fix (and corresponding check in fetchEvent), events such as usp000fuse
+		// will fail
+		return eventToObsRup(event, event.getLongitude().doubleValue() < -90);
+	}
+	
+	private static ObsEqkRupture eventToObsRup(JsonEvent event, boolean wrapLon) {
 		double lat = event.getLatitude().doubleValue();
 		double lon = event.getLongitude().doubleValue();
+		GeoTools.validateLon(lon);
+		if (wrapLon) {
+			lon += 360;
+			GeoTools.validateLon(lon);
+		}
 		double dep = event.getDepth().doubleValue();
 		Location hypo = new Location(lat, lon, dep);
 		double mag=0;
