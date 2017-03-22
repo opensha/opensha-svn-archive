@@ -1090,7 +1090,7 @@ public class FaultBasedMapGen {
 		return map;
 	}
 	
-	private static ArrayList<PSXYPolygon> getPolygons(LocationList locs, Color c, double thickness) {
+	public static ArrayList<PSXYPolygon> getPolygons(LocationList locs, Color c, double thickness) {
 		ArrayList<PSXYPolygon> polys = new ArrayList<PSXYPolygon>();
 		
 		for (int i=1; i<locs.size(); i++) {

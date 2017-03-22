@@ -976,7 +976,8 @@ public class UGMS_WebToolCalc {
 //			String argStr = "--latitude 34.05204 --longitude -118.25713"; // LADT
 //			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
 //			String argStr = "--run-id 3870"; // doesn't require dataset ID if run ID
-			String argStr = "--longitude -118.272049427032 --latitude 34.0407116420786";
+//			String argStr = "--longitude -118.272049427032 --latitude 34.0407116420786";
+			String argStr = "--longitude -118.069 --latitude 33.745";
 //			String argStr = "--site-name LADT";
 //			String argStr = "--site-id 20";
 //			argStr += " --dataset-id 57";
@@ -994,7 +995,7 @@ public class UGMS_WebToolCalc {
 			argStr += " --z10-file /home/kevin/workspace/OpenSHA/src/resources/data/site/CVM4i26/depth_1.0.bin";
 			argStr += " --z25-file /home/kevin/workspace/OpenSHA/src/resources/data/site/CVM4i26/depth_2.5.bin";
 			argStr += " --output-dir /tmp/ugms_web_tool";
-			argStr += " --vs30 900";
+			argStr += " --vs30 280";
 //			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
 			argStr += " --wills-file /data/kevin/opensha/wills2006.bin";

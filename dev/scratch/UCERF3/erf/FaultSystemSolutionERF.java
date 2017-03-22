@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.EXCLUDE;
 import static org.opensha.sha.earthquake.param.IncludeBackgroundOption.ONLY;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opensha.commons.data.TimeSpan;
@@ -427,6 +430,23 @@ public class FaultSystemSolutionERF extends AbstractNthRupERF {
 			probModelsCalc = null;
 			prefBlendProbModelsCalc = null;
 			if(probModel != ProbabilityModelOptions.POISSON) {
+				boolean hasTD = false;
+				for (FaultSectionPrefData sect : faultSysSolution.getRupSet().getFaultSectionDataList()) {
+					if (sect.getDateOfLastEvent() > Long.MIN_VALUE) {
+						hasTD = true;
+						break;
+					}
+				}
+				if (!hasTD) {
+					String message = "WARNING: TD calculation but no sections contain date of last event data.\n"
+							+ "Only historical open interval will be used in TD calculations.";
+					System.out.println(message);
+					try {
+						JOptionPane.showMessageDialog(null, message, "WARNING: No Last Event Data", JOptionPane.ERROR_MESSAGE);
+					} catch (HeadlessException e) {
+						// do nothing
+					}
+				}
 				if (probModel == ProbabilityModelOptions.U3_PREF_BLEND) {
 					// now do preferred blend
 					prefBlendProbModelsCalc = Maps.newHashMap();

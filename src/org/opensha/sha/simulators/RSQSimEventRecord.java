@@ -12,9 +12,19 @@ public class RSQSimEventRecord extends EventRecord {
 	private double moment;
 	private double length;
 	private double area;
+	
+	private int firstPatchID = -1;
 
 	public RSQSimEventRecord(List<SimulatorElement> rectElementsList) {
 		super(rectElementsList);
+	}
+	
+	public void setFirstPatchToSlip(int firstPatchID) {
+		this.firstPatchID = firstPatchID;
+	}
+	
+	public int getFirstPatchToSlip() {
+		return firstPatchID;
 	}
 
 	public void setMagnitude(double magnitude) {

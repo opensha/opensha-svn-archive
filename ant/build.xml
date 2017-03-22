@@ -544,6 +544,7 @@
 	
 	<target name="unjar.libs.oaf" depends="unjar.libs.common">
 		<unjar src="${lib.dir}/EventWebService.jar" dest="${build}" />
+		<unjar src="${lib.dir}/mongo-java-driver-2.14.2.jar" dest="${build}" />
 	</target>
 	
 	<target name="unjar.libs.extra">

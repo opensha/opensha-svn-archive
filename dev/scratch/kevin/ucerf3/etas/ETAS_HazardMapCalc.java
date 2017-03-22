@@ -1,6 +1,7 @@
 package scratch.kevin.ucerf3.etas;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -49,11 +50,15 @@ import org.opensha.commons.gui.plot.PlotLineType;
 import org.opensha.commons.gui.plot.PlotSpec;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
+import org.opensha.commons.mapping.gmt.elements.PSXYPolygon;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
+import org.opensha.commons.mapping.gmt.elements.PSXYSymbol.Symbol;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.nshmp.NEHRP_TestCity;
+import org.opensha.refFaultParamDb.vo.FaultSectionPrefData;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.hazardMap.BinaryHazardCurveReader;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
@@ -93,6 +98,7 @@ import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 import com.google.common.primitives.Doubles;
 
+import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
@@ -123,6 +129,7 @@ public class ETAS_HazardMapCalc {
 	private DataInputStream in;
 	int faultSiteIndex = 0;
 	// for on the fly faults
+	private FaultSystemSolution sol;
 	private FaultSystemSolutionERF faultERF;
 	private ProbEqkSource[] sourcesForFSSRuptures;
 	
@@ -183,6 +190,7 @@ public class ETAS_HazardMapCalc {
 		this.imtName = imtName;
 		this.period = period;
 		this.sites = sites;
+		this.sol = sol;
 		
 		if (durations == null || durations.length == 0)
 			durations = new Duration[] { Duration.FULL };
@@ -233,7 +241,7 @@ public class ETAS_HazardMapCalc {
 		}
 	}
 	
-	public ETAS_HazardMapCalc(GriddedRegion region, Table<Duration, MapType, File> curveFiles)	throws Exception {
+	public ETAS_HazardMapCalc(GriddedRegion region, Table<Duration, MapType, File> curveFiles) throws Exception {
 		this(region, curveFiles, null, null, null, Double.NaN, null);
 	}
 	
@@ -267,6 +275,10 @@ public class ETAS_HazardMapCalc {
 		} else {
 			calcXVals = xVals;
 		}
+	}
+	
+	public void setSol(FaultSystemSolution sol) {
+		this.sol = sol;
 	}
 	
 	private ETAS_HazardMapCalc() {}
@@ -912,7 +924,8 @@ public class ETAS_HazardMapCalc {
 	}
 	
 	public void plotMap(MapType type, Duration duration, boolean isProbAt_IML, double level, String label,
-			File outputDir, String prefix) throws IOException, GMT_MapException {
+			File outputDir, String prefix, Region zoomRegion, List<Location> annotations, boolean faults)
+					throws IOException, GMT_MapException {
 		GriddedGeoDataSet data = calcMap(type, duration, isProbAt_IML, level);
 		System.out.println("Generating map for p="+level+", "+type.name()+", "+duration.name());
 		System.out.println("Map range: "+data.getMinZ()+" "+data.getMaxZ());
@@ -929,7 +942,13 @@ public class ETAS_HazardMapCalc {
 		}
 		cpt.setNanColor(Color.WHITE);
 		
-		GMT_Map map = new GMT_Map(region, data, region.getSpacing(), cpt);
+		Region region;
+		if (zoomRegion != null)
+			region = zoomRegion;
+		else
+			region = this.region;
+		
+		GMT_Map map = new GMT_Map(region, data, this.region.getSpacing(), cpt);
 		
 		map.setLogPlot(false);
 //		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
@@ -941,6 +960,28 @@ public class ETAS_HazardMapCalc {
 		map.setCustomLabel(duration.plotName+", "+label);
 		map.setRescaleCPT(false);
 		map.setJPGFileName(null);
+		
+		if (faults) {
+			Preconditions.checkNotNull(sol, "Must have FSS if you want faults");
+			FaultSystemRupSet rupSet = sol.getRupSet();
+			float thickness;
+			if (zoomRegion == null)
+				thickness = 0.5f;
+			else
+				thickness = 1f;
+			for (int s=0; s<rupSet.getNumSections(); s++) {
+				FaultSectionPrefData sect = rupSet.getFaultSectionData(s);
+				for (PSXYPolygon poly : FaultBasedMapGen.getPolygons(sect.getFaultTrace(), Color.BLACK, thickness))
+					map.addPolys(poly);
+			}
+		}
+		
+		if (annotations != null) {
+			for (Location loc : annotations) {
+				java.awt.geom.Point2D.Double pt = new Point2D.Double(loc.getLongitude(), loc.getLatitude());
+				map.addSymbol(new PSXYSymbol(pt, Symbol.INVERTED_TRIANGLE, 0.1f, 0f, null, Color.BLACK));
+			}
+		}
 		
 		FaultBasedMapGen.plotMap(outputDir, prefix+"_"+type.fileName+"_"+duration.fileName, false, map);
 	}
@@ -1146,7 +1187,10 @@ public class ETAS_HazardMapCalc {
 		double spacing = 0.02;
 		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
 //				+ "2017_03_03-haywired_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
-				+ "2017_03_03-haywired_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+//				+ "2017_03_03-haywired_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+//				+ "2017_03_20-haywired_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
+//				+ "2017_03_20-northridge_combined_descendents-NGA2-0.02-site-effects-with-basin");
+				+ "2017_03_21-mojave_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
 		
 //		File faultBasedPrecalc = null;
 //		double spacing = 0.5;
@@ -1154,11 +1198,21 @@ public class ETAS_HazardMapCalc {
 		
 //		String etasDirName = "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k";
 //		String etasDirName = "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined";
-		String etasDirName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
+//		String etasDirName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
+//		String etasDirName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined";
+//		String etasDirName = "2017_02_01-northridge-m6.7-10yr-full_td-no_ert-combined";
+		String etasDirName = "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined";
 		String etasFileName = "results_descendents_m5_preserve.bin";
 //		String etasFileName = "results_m5_preserve.bin";
 		int etasStartYear = 2012;
 		double etasSimDuration = 10d;
+		
+		Region plotRegion = null;
+		List<Location> annotations = null;
+//		Region plotRegion = new Region(new Location(35, -119), new Location(33, -115));
+//		List<Location> annotations = Lists.newArrayList();
+//		annotations.add(new Location(33.739683, -116.412925));
+		boolean faults = true;
 		
 //		Duration[] durations = { Duration.FULL, Duration.DAY, Duration.MONTH };
 		Duration[] durations = Duration.values();
@@ -1311,6 +1365,11 @@ public class ETAS_HazardMapCalc {
 		if (plotMaps) {
 			Preconditions.checkState(!types.isEmpty());
 			
+			if (faults && sol == null) {
+				sol = FaultSystemIO.loadSol(solFile);
+				calc.setSol(sol);
+			}
+			
 			ExecutorService exec = null;
 			List<Future<?>> futures = null;
 			if (mapParallel) {
@@ -1335,6 +1394,8 @@ public class ETAS_HazardMapCalc {
 					if (mapTypePlotSubset != null && !mapTypePlotSubset.contains(type))
 						continue;
 					File typeDir = new File(outputDir, "maps_"+type.fileName);
+					if (plotRegion != null)
+						typeDir = new File(typeDir.getAbsolutePath()+"_zoomed");
 					Preconditions.checkState(typeDir.exists() || typeDir.mkdir());
 					for (Duration duration : durations) {
 						if (durationPlotSubset != null && !durationPlotSubset.contains(duration))
@@ -1342,7 +1403,8 @@ public class ETAS_HazardMapCalc {
 						File durationDir = new File(typeDir, duration.fileName);
 						Preconditions.checkState(durationDir.exists() || durationDir.mkdir());
 //						System.out.println("label: "+label+", "+type+", "+duration);
-						MapPlotRunnable runnable = new MapPlotRunnable(p, type, duration, label, durationDir, prefix, calc);
+						MapPlotRunnable runnable = new MapPlotRunnable(
+								p, type, duration, label, durationDir, prefix, calc, plotRegion, annotations, faults);
 						if (exec == null) {
 							runnable.run();
 						} else {
@@ -1376,9 +1438,12 @@ public class ETAS_HazardMapCalc {
 		private String prefix;
 		
 		private ETAS_HazardMapCalc calc;
+		private Region zoomRegion;
+		private List<Location> annotations;
+		private boolean faults;
 		
 		public MapPlotRunnable(double p, MapType type, Duration duration, String label, File outputDir, String prefix,
-				ETAS_HazardMapCalc calc) {
+				ETAS_HazardMapCalc calc, Region zoomRegion, List<Location> annotations, boolean faults) {
 			super();
 			this.p = p;
 			this.type = type;
@@ -1387,11 +1452,15 @@ public class ETAS_HazardMapCalc {
 			this.outputDir = outputDir;
 			this.prefix = prefix;
 			this.calc = calc;
+			this.zoomRegion = zoomRegion;
+			this.annotations = annotations;
+			this.faults = faults;
 		}
+		
 		@Override
 		public void run() {
 			try {
-				calc.plotMap(type, duration, false, p, label, outputDir, prefix);
+				calc.plotMap(type, duration, false, p, label, outputDir, prefix, zoomRegion, annotations, faults);
 				System.out.println("Done with "+prefix);
 			} catch (Exception e) {
 				ExceptionUtils.throwAsRuntimeException(e);

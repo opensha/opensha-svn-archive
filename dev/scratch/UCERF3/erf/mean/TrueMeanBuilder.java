@@ -705,7 +705,8 @@ public class TrueMeanBuilder {
 			throws IOException, DocumentException {
 		List<GridSourceProvider> providers = Lists.newArrayList();
 		for (FaultModels fm : fms)
-			providers.add(FaultSystemIO.loadInvSol(branchAvgFiles.get(fm)).getGridSourceProvider());
+//			providers.add(FaultSystemIO.loadInvSol(branchAvgFiles.get(fm)).getGridSourceProvider());
+			providers.add(FaultSystemIO.loadSol(branchAvgFiles.get(fm)).getGridSourceProvider());
 		
 		// FAULT MODELS ASSUMED TO HAVE EQUAL WEIGHT (currently true)
 		double weight = 1d/(double)providers.size();

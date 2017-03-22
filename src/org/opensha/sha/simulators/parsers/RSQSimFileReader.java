@@ -21,10 +21,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.opensha.commons.calc.FaultMomentCalc;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -34,6 +37,7 @@ import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.LocationVector;
 import org.opensha.commons.geo.utm.UTM;
 import org.opensha.commons.geo.utm.WGS84;
+import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.sha.earthquake.FocalMechanism;
 import org.opensha.sha.simulators.SimulatorEvent;
@@ -504,6 +508,17 @@ public class RSQSimFileReader {
 			InputStream eListStream, InputStream pListStream, InputStream dListStream, InputStream tListStream,
 			List<SimulatorElement> elements, Collection<? extends RuptureIdentifier> rupIdens, boolean bigEndian)
 					throws IOException {
+		List<RSQSimEvent> events = Lists.newArrayList();
+		
+		populateEvents(eListStream, pListStream, dListStream, tListStream, elements, rupIdens, bigEndian, events);
+		
+		return events;
+	}
+	
+	private static void populateEvents(
+			InputStream eListStream, InputStream pListStream, InputStream dListStream, InputStream tListStream,
+			List<SimulatorElement> elements, Collection<? extends RuptureIdentifier> rupIdens, boolean bigEndian,
+			Collection<RSQSimEvent> events) throws IOException {
 		if (!(eListStream instanceof BufferedInputStream))
 			eListStream = new BufferedInputStream(eListStream);
 		if (!(pListStream instanceof BufferedInputStream))
@@ -532,8 +547,6 @@ public class RSQSimFileReader {
 		
 		HashSet<Integer> eventIDsLoaded = new HashSet<Integer>();
 		
-		List<RSQSimEvent> events = Lists.newArrayList();
-		
 		int eventID, patchID;
 		double slip, time;
 		
@@ -559,9 +572,19 @@ public class RSQSimFileReader {
 								"Duplicate eventID found, file is out of order or corrupt: %s", curEventID);
 						eventIDsLoaded.add(curEventID);
 						RSQSimEvent event = buildEvent(curEventID, curRecordMap, rupIdens);
-						if (event != null)
+						if (event != null) {
 							// can be null if filters were supplied
-							events.add(event);
+							if (events instanceof BlockingDeque) {
+								// block until space is available
+								try {
+									((BlockingDeque<RSQSimEvent>)events).putLast(event);
+								} catch (InterruptedException e) {
+									ExceptionUtils.throwAsRuntimeException(e);
+								}
+							} else {
+								events.add(event);
+							}
+						}
 					}
 					curRecordMap.clear();
 					curEventID = eventID;
@@ -575,10 +598,14 @@ public class RSQSimFileReader {
 					event.setTime(time);
 					event.setMoment(0);
 					event.setSectionID(element.getSectionID());
+					event.setFirstPatchToSlip(patchID);
 				}
 				
 				event.addSlip(patchID, slip);
-				event.setTime(Math.min(time, event.getTime()));
+				if (time < event.getTime()) {
+					event.setFirstPatchToSlip(patchID);
+					event.setTime(time);
+				}
 				event.setMoment(event.getMoment()+elementMoment);
 			} catch (EOFException e) {
 				break;
@@ -589,18 +616,27 @@ public class RSQSimFileReader {
 					"Duplicate eventID found, file is out of order or corrupt: %s", curEventID);
 			eventIDsLoaded.add(curEventID);
 			RSQSimEvent event = buildEvent(curEventID, curRecordMap, rupIdens);
-			if (event != null)
+			if (event != null) {
 				// can be null if filters were supplied
-				events.add(event);
+				if (events instanceof BlockingDeque) {
+					// block until space is available
+					try {
+						((BlockingDeque<RSQSimEvent>)events).putLast(event);
+					} catch (InterruptedException e) {
+						ExceptionUtils.throwAsRuntimeException(e);
+					}
+				} else {
+					events.add(event);
+				}
+			}
 		}
 		((FilterInputStream)eIn).close();
 		((FilterInputStream)pIn).close();
 		((FilterInputStream)dIn).close();
 		((FilterInputStream)tIn).close();
 		
-		Collections.sort(events);
-		
-		return events;
+		if (events instanceof List)
+			Collections.sort((List<RSQSimEvent>)events);
 	}
 	
 	private static void listFileDebug(File file, int numToPrint, boolean bigEndian, boolean integer) throws IOException {
@@ -683,6 +719,131 @@ public class RSQSimFileReader {
 		@Override
 		public int compare(RSQSimEventRecord o1, RSQSimEventRecord o2) {
 			return Double.compare(o1.getTime(), o2.getTime());
+		}
+		
+	}
+	
+	public static Iterable<RSQSimEvent> getEventsIterable(File file, List<SimulatorElement> elements) throws IOException {
+		return getEventsIterable(file, elements, null);
+	}
+	
+	public static Iterable<RSQSimEvent> getEventsIterable(File file, List<SimulatorElement> elements,
+			Collection<? extends RuptureIdentifier> rupIdens) throws IOException {
+		// detect file names
+		if (file.isDirectory()) {
+			// find the first .*List file and use that as the basis
+			for (File sub : file.listFiles()) {
+				if (sub.getName().endsWith(".eList")) {
+					System.out.println("Found eList file in directory: "+sub.getAbsolutePath());
+					return getEventsIterable(sub, elements, rupIdens);
+				}
+			}
+			throw new FileNotFoundException("Couldn't find eList file in given directory");
+		}
+		String name = file.getName();
+		Preconditions.checkArgument(name.endsWith("List"),
+				"Must supply either directory containing all list files, or one of the files themselves");
+		File dir = file.getParentFile();
+		String prefix = name.substring(0, name.lastIndexOf("."));
+		System.out.println("Detected prefix: "+prefix);
+		File eListFile = new File(dir, prefix+".eList");
+		Preconditions.checkState(eListFile.exists(),
+				"Couldn't find eList file with prefix %s: %s", prefix, eListFile.getAbsolutePath());
+		File pListFile = new File(dir, prefix+".pList");
+		Preconditions.checkState(pListFile.exists(),
+				"Couldn't find eList file with prefix %s: %s", prefix, pListFile.getAbsolutePath());
+		File dListFile = new File(dir, prefix+".dList");
+		Preconditions.checkState(dListFile.exists(),
+				"Couldn't find dList file with prefix %s: %s", prefix, dListFile.getAbsolutePath());
+		File tListFile = new File(dir, prefix+".tList");
+		Preconditions.checkState(tListFile.exists(),
+				"Couldn't find tList file with prefix %s: %s", prefix, tListFile.getAbsolutePath());
+		
+		return new RSQSimEventsIterable(new FileInputStream(eListFile), new FileInputStream(pListFile), new FileInputStream(dListFile),
+				new FileInputStream(tListFile), elements, rupIdens, isBigEndian(pListFile, elements));
+	}
+	
+	// max number of events to load into memory when iterating over events file
+	private static final int ITERABLE_PRELOAD_CAPACITY = 10000;
+	
+	private static class RSQSimEventsIterable implements Iterable<RSQSimEvent> {
+		
+		private InputStream eListStream;
+		private InputStream pListStream;
+		private InputStream dListStream;
+		private InputStream tListStream;
+		private List<SimulatorElement> elements;
+		private Collection<? extends RuptureIdentifier> rupIdens;
+		private boolean bigEndian;
+
+		private RSQSimEventsIterable(InputStream eListStream, InputStream pListStream, InputStream dListStream, InputStream tListStream,
+				List<SimulatorElement> elements, Collection<? extends RuptureIdentifier> rupIdens, boolean bigEndian) {
+			this.eListStream = eListStream;
+			this.pListStream = pListStream;
+			this.dListStream = dListStream;
+			this.tListStream = tListStream;
+			this.elements = elements;
+			this.rupIdens = rupIdens;
+			this.bigEndian = bigEndian;
+		}
+
+		@Override
+		public Iterator<RSQSimEvent> iterator() {
+			final LinkedBlockingDeque<RSQSimEvent> deque = new LinkedBlockingDeque<RSQSimEvent>(ITERABLE_PRELOAD_CAPACITY);
+			Thread loadThread = new Thread() {
+				@Override
+				public void run() {
+					try {
+						populateEvents(eListStream, pListStream, dListStream, tListStream, elements, rupIdens, bigEndian, deque);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			};
+			loadThread.start();
+			return new RSQSimEventsIterator(deque, loadThread);
+		}
+		
+	}
+	
+	private static class RSQSimEventsIterator implements Iterator<RSQSimEvent> {
+		
+		private BlockingDeque<RSQSimEvent> deque;
+		private Thread loadThread;
+		
+		private RSQSimEventsIterator(BlockingDeque<RSQSimEvent> deque, Thread loadThread) {
+			this.deque = deque;
+			this.loadThread = loadThread;
+		}
+
+		@Override
+		public boolean hasNext() {
+//			System.out.println("Iterator.hasNext(), waiting");
+			waitUntilReady();
+//			System.out.println("Iterator.hasNext(), done waiting. Size: "+deque.size());
+			return !deque.isEmpty();
+		}
+
+		@Override
+		public RSQSimEvent next() {
+//			System.out.println("Iterator.next(), waiting");
+			waitUntilReady();
+//			System.out.println("Iterator.next(), done waiting. Size: "+deque.size());
+			Preconditions.checkState(deque.size() <= ITERABLE_PRELOAD_CAPACITY);
+			return deque.removeFirst();
+		}
+		
+		/**
+		 * Blocks until either a new event is available or the loading thread has completed (all events populated)
+		 */
+		private void waitUntilReady() {
+			while (deque.isEmpty() && loadThread.isAlive()) {
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//					ExceptionUtils.throwAsRuntimeException(e);
+//				}
+			}
 		}
 		
 	}

@@ -86,7 +86,7 @@ public abstract class MPJTaskCalculator {
 		if (cmd.hasOption("end-index"))
 			endIndex = Integer.parseInt(cmd.getOptionValue("end-index"));
 		
-		init(numThreads, minDispatch, maxDispatch, exactDispatch, rootDispatchOnly);
+		init(numThreads, minDispatch, maxDispatch, exactDispatch, rootDispatchOnly, startIndex, endIndex);
 	}
 	
 	public MPJTaskCalculator(int numThreads, int minDispatch, int maxDispatch, boolean rootDispatchOnly) {

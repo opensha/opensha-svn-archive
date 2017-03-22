@@ -898,6 +898,47 @@ public class PureScratch {
 		System.out.println("Rate Big Bend & Mojave S: "+rateBenMojaveS+" ("+(float)(100d*rateBenMojaveS/rateBend)+" %)");
 	}
 	
+	private static void test32() throws IOException, DocumentException {
+		int niOffshoreID = 122;
+		int niOnshoreID = 235;
+		int rcID = 123;
+		
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		
+		HashSet<Integer> niOffshoreRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(niOffshoreID));
+		HashSet<Integer> niOnshoreRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(niOnshoreID));
+		HashSet<Integer> rcRups = new HashSet<Integer>(rupSet.getRupturesForParentSection(rcID));
+		
+		List<Integer> rcAndOffshoreRups = Lists.newArrayList();
+		List<Integer> rcAndOnshoreRups = Lists.newArrayList();
+		for (Integer rup : rcRups) {
+			if (niOffshoreRups.contains(rup))
+				rcAndOffshoreRups.add(rup);
+			if (niOnshoreRups.contains(rup))
+				rcAndOnshoreRups.add(rup);
+		}
+		
+		double[] minMags = { 6.5, 7d, 7.5d };
+		
+		for (double minMag : minMags) {
+			double rateRC = rateForRups(sol, rcRups, minMag);
+			double rateOffshore = rateForRups(sol, niOffshoreRups, minMag);
+			double rateOnshore = rateForRups(sol, niOnshoreRups, minMag);
+			double rateRCandOffshore = rateForRups(sol, rcAndOffshoreRups, minMag);
+			double rateRCandOnshore = rateForRups(sol, rcAndOnshoreRups, minMag);
+			
+			System.out.println("Min mag: "+minMag);
+			System.out.println("\tRate RC: "+rateRC);
+			System.out.println("\tRate NI Offshore: "+rateOffshore);
+			System.out.println("\tRate NI Onshore: "+rateOnshore);
+			System.out.println("\tRate RC and NI Offshore: "+rateRCandOffshore+" ("+(float)(100d*rateRCandOffshore/rateRC)+" %)");
+			System.out.println("\tRate RC and NI Onshore: "+rateRCandOnshore+" ("+(float)(100d*rateRCandOnshore/rateRC)+" %)");
+		}
+	}
+	
 	private static double rateForRups(FaultSystemSolution sol, Collection<Integer> rups, double minMag) {
 		double rate = 0d;
 		FaultSystemRupSet rupSet = sol.getRupSet();
@@ -940,7 +981,8 @@ public class PureScratch {
 //		test28();
 //		test29();
 //		test30();
-		test31();
+//		test31();
+		test32();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
