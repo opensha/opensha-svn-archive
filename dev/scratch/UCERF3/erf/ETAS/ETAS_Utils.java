@@ -1173,10 +1173,135 @@ public class ETAS_Utils {
 			conf[1]=1;
 		return conf;
 	}
+	
+	
+	
+	public static void HaywiredGainVsTimeCalcs() {
+		ETAS_ParameterList params = new ETAS_ParameterList();
+		double k = params.get_k();
+		System.out.println("k="+k);
+		double p = params.get_p();
+		System.out.println("p="+p);
+		double c = params.get_c();
+		System.out.println("c="+c);
+		double magMain = 7.090010114297865;
+		
+		// the following found by trial and error to match all children decay (below)
+		p=0.93;
+		k*=2;
+		
+		HistogramFunction target = getRateWithLogTimeFunc(k, p, magMain, 2.5, c, -5, 5, 0.2);
+				
+//		System.out.println(target);	
+		
+		EvenlyDiscretizedFunc data = target.deepClone();
+		
+		// this is the all children temporal decay result at
+		// http://zero.usc.edu/ftp/kmilner/ucerf3/etas_results/2016_06_15-haywired_m7-10yr-no_ert-subSeisSupraNucl-gridSeisCorr/plots/full_children_temporal_decay.pdf
+		data.set(-4.9,35168.812);
+		data.set(-4.7,34876.2);
+		data.set(-4.5,37013.71);
+		data.set(-4.3,36061.816);
+		data.set(-4.1,35857.645);
+		data.set(-3.9,35403.047);
+		data.set(-3.7,35290.44);
+		data.set(-3.5,34594.004);
+		data.set(-3.3,33964.33);
+		data.set(-3.1,32326.615);
+		data.set(-2.9,30374.777);
+		data.set(-2.7,27741.95);
+		data.set(-2.5,24570.217);
+		data.set(-2.3,20672.906);
+		data.set(-2.1,16654.12);
+		data.set(-1.9,12845.319);
+		data.set(-1.7,9521.655);
+		data.set(-1.5,6797.2163);
+		data.set(-1.3,4724.7676);
+		data.set(-1.1,3223.443);
+		data.set(-0.9,2179.41);
+		data.set(-0.7,1456.371);
+		data.set(-0.5,965.5426);
+		data.set(-0.3,638.99805);
+		data.set(-0.1,413.92233);
+		data.set(0.1,271.74808);
+		data.set(0.3,179.2381);
+		data.set(0.5,116.87498);
+		data.set(0.7,77.475395);
+		data.set(0.9,49.832016);
+		data.set(1.1,31.630135);
+		data.set(1.3,21.39487);
+		data.set(1.5,13.848396);
+		data.set(1.7,9.093397);
+		data.set(1.9,5.835038);
+		data.set(2.1,3.8031235);
+		data.set(2.3,2.4973116);
+		data.set(2.5,1.574683);
+		data.set(2.7,1.0375878);
+		data.set(2.9,0.691435);
+		data.set(3.1,0.43251008);
+		data.set(3.3,0.29923725);
+		data.set(3.5,0.15886928);
+		data.set(3.7,0.0);
+		data.set(3.9,0.0);
+		data.set(4.1,0.0);
+		data.set(4.3,0.0);
+		data.set(4.5,0.0);
+		data.set(4.7,0.0);
+		data.set(4.9,0.0);
+		
+		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+		funcList.add(target);
+		funcList.add(data);
+		GraphWindow testGraph = new GraphWindow(funcList, "Comparison"); 
+		testGraph.setYLog(true);
+
+		// days per the following
+		double min = 1.0/(24.0*60.0);
+		double hour = 1.0/24.0;
+		double day = 1.0;
+		double threeDays = 3.0;
+		double week = 7.0;
+		double month = 365.0/12.0;
+		double year = 365.25;
+		double tenYrs = 10*year;
+		
+		double[] durations = {min, hour, day, threeDays, week, month, year, tenYrs};
+		double[] latencies = {0.0, min, hour, day, threeDays, week, month, year, tenYrs};
+		
+		System.out.print("\n");
+		for(double duration:durations)
+			System.out.print("\t"+(float)duration);
+		for(double latency:latencies) {
+			System.out.print("\n"+(float)latency);
+			for(double duration:durations) {
+				// long term num M 2.5
+				double expNumLongTerm = 0.78*duration*Math.pow(10,2.5)/365.25;	// 0.78 is the rate of M5 inside SF box
+				double expNum = getExpectedNumEvents(k, p, magMain, 2.5, c, latency, latency+duration);
+				double gain = expNum/expNumLongTerm + 1.0;
+				System.out.print("\t"+(float)gain);
+			}
+		}
+		
+		System.out.print("\n\n");
+		for(int l=0;l<latencies.length;l++) {
+			double latency = latencies[l];
+			for(int d=0;d<durations.length;d++) {
+				double duration = durations[d];
+				// long term num M 2.5
+				double expNumLongTerm = 0.78*duration*Math.pow(10,2.5)/365.25;	// 0.78 is the rate of M5 inside SF box
+				double expNum = getExpectedNumEvents(k, p, magMain, 2.5, c, latency, latency+duration);
+				double gain = expNum/expNumLongTerm + 1.0;
+				System.out.println(-l+"\t"+-d+"\t"+(float)Math.log10(gain)+"\t"+(float)Math.log10(gain));
+			}
+		}
+
+	}
 
 	
 	
 	public static void main(String[] args) {
+		
+		HaywiredGainVsTimeCalcs();
 		
 //		double[] n = {1e4, 1e5, 1e6, 1e3, 1e2, 10};
 //		for(int i=0;i<n.length;i++) {
@@ -1192,34 +1317,38 @@ public class ETAS_Utils {
 //			}
 //		}
 		
-		double[] test = getBinomialProportion95confidenceInterval(0, 100000);
-		System.out.println(test[0]+", "+test[1]+", "+test[1]/test[0]);
-		System.exit(0);
-		
-		
-		
-		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(5, 0.1653);
-		System.out.println(grMFD.getCumRateDistWithOffset());
-		EvenlyDiscretizedFunc cumMFD = grMFD.getCumRateDistWithOffset();
-		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
-		cumMFD.setInfo(cumMFD.toString());
-		magProbDists.add(cumMFD);
-		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "M 5 Main Shock"); 
-		magProbDistsGraph.setX_AxisLabel("Magnitude");
-		magProbDistsGraph.setY_AxisLabel("Expected Number ≥M");
-		magProbDistsGraph.setY_AxisRange(1e-7, 1e2);
-		magProbDistsGraph.setX_AxisRange(2.5d, 8.5d);
-		magProbDistsGraph.setYLog(true);
-		magProbDistsGraph.setPlotLabelFontSize(26);
-		magProbDistsGraph.setAxisLabelFontSize(24);
-		magProbDistsGraph.setTickLabelFontSize(22);
-		try {
-			magProbDistsGraph.saveAsPDF("ExpNumFromM5_MainShock.pdf");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		System.exit(0);
+		
+//		System.exit(-1);
+		
+//		double[] test = getBinomialProportion95confidenceInterval(0, 100000);
+//		System.out.println(test[0]+", "+test[1]+", "+test[1]/test[0]);
+//		System.exit(0);
+//		
+//		
+//		
+//		IncrementalMagFreqDist grMFD = ETAS_SimAnalysisTools.getTotalAftershockMFD_ForU3_RegionalGR(5, 0.1653);
+//		System.out.println(grMFD.getCumRateDistWithOffset());
+//		EvenlyDiscretizedFunc cumMFD = grMFD.getCumRateDistWithOffset();
+//		ArrayList<EvenlyDiscretizedFunc> magProbDists = new ArrayList<EvenlyDiscretizedFunc>();
+//		cumMFD.setInfo(cumMFD.toString());
+//		magProbDists.add(cumMFD);
+//		GraphWindow magProbDistsGraph = new GraphWindow(magProbDists, "M 5 Main Shock"); 
+//		magProbDistsGraph.setX_AxisLabel("Magnitude");
+//		magProbDistsGraph.setY_AxisLabel("Expected Number ≥M");
+//		magProbDistsGraph.setY_AxisRange(1e-7, 1e2);
+//		magProbDistsGraph.setX_AxisRange(2.5d, 8.5d);
+//		magProbDistsGraph.setYLog(true);
+//		magProbDistsGraph.setPlotLabelFontSize(26);
+//		magProbDistsGraph.setAxisLabelFontSize(24);
+//		magProbDistsGraph.setTickLabelFontSize(22);
+//		try {
+//			magProbDistsGraph.saveAsPDF("ExpNumFromM5_MainShock.pdf");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//		System.exit(0);
 		
 //		// Branching ratio for U3ETAS model (regional MFD)
 //		ETAS_ParameterList etasParams = new ETAS_ParameterList();
@@ -1237,9 +1366,9 @@ public class ETAS_Utils {
 //		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalog(2012), "CatalogVsTime");
 //		ETAS_Simulator.plotCatalogMagVsTime(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012), "FilteredCatalogVsTime");
 //		
-		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		erf.updateForecast();
+//		FaultSystemSolutionERF_ETAS erf = ETAS_Simulator.getU3_ETAS_ERF(2012, 1.0);
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.updateForecast();
 		
 		
 //		// plot fraction subseis triggered by supra
@@ -1255,7 +1384,7 @@ public class ETAS_Utils {
 
 
 		
-		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
+//		SummedMagFreqDist mfd = ERF_Calculator.getTotalMFD_ForERF(erf, 2.55, 8.45, 60, true);
 //		ETAS_Simulator.plotFilteredCatalogMagFreqDist(ETAS_Simulator.getHistCatalogFiltedForStatewideCompleteness(2012),
 //				new U3_EqkCatalogStatewideCompleteness(), mfd, "FilteredCatalogMFD");
 		
@@ -1269,12 +1398,12 @@ public class ETAS_Utils {
 		
 //		writeTimeDepTriggerStatsToFiles(mfd);
 		
-		ETAS_ParameterList etasParams = new ETAS_ParameterList();
+//		ETAS_ParameterList etasParams = new ETAS_ParameterList();
 		// Jeanne's altParams:	c=2.00*10^-5, p=1.08, k=2.69*10^-3
 //		etasParams.set_c(2.00e-5*365.25);
 //		etasParams.set_p(1.08);
 //		etasParams.set_k(2.69e-3*Math.pow(365.25,0.08));
-		System.out.println(listExpNumForEachGenerationInfTime(2.5, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), 30));
+//		System.out.println(listExpNumForEachGenerationInfTime(2.5, mfd, etasParams.get_k(), etasParams.get_p(), magMin_DEFAULT, etasParams.get_c(), 30));
 
 
 
