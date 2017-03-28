@@ -1175,7 +1175,10 @@ public class ETAS_Utils {
 	}
 	
 	
-	
+	/**
+	 * This computes the gains (defined as expected M 2.5 devided by long term expected number) following 
+	 * the Harwired M 7.1 earthquake for various timespans and latencies (time since main shock).
+	 */
 	public static void HaywiredGainVsTimeCalcs() {
 		ETAS_ParameterList params = new ETAS_ParameterList();
 		double k = params.get_k();
