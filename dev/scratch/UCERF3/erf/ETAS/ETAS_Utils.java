@@ -21,8 +21,11 @@ import javax.swing.JOptionPane;
 
 import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.commons.data.function.DefaultXY_DataSet;
+import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.function.HistogramFunction;
+import org.opensha.commons.data.function.XY_DataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
@@ -1252,11 +1255,59 @@ public class ETAS_Utils {
 		data.set(4.7,0.0);
 		data.set(4.9,0.0);
 		
-		ArrayList<EvenlyDiscretizedFunc> funcList = new ArrayList<EvenlyDiscretizedFunc>();
+		ArbitrarilyDiscretizedFunc longTermRateFunc = new ArbitrarilyDiscretizedFunc();
+		double longTermRate = 0.78*Math.pow(10, 2.5)/365.25;	// convert yearly M5 rate in box (0.78) to M2.5 daily rate		
+		longTermRateFunc.set(-4.9,longTermRate);
+		longTermRateFunc.set(4.9,longTermRate);
+		
+		DefaultXY_DataSet oneDayFunc = new DefaultXY_DataSet();
+		oneDayFunc.set(0.0,1e-2);
+		oneDayFunc.set(0.0,1e5);
+		DefaultXY_DataSet oneHourFunc = new DefaultXY_DataSet();
+		oneHourFunc.set(Math.log10(1.0/24),1e-2);
+		oneHourFunc.set(Math.log10(1.0/24),1e5);
+		DefaultXY_DataSet oneMinFunc = new DefaultXY_DataSet();
+		oneMinFunc.set(Math.log10(1.0/(24*60)),1e-2);
+		oneMinFunc.set(Math.log10(1.0/(24*60)),1e5);
+		DefaultXY_DataSet oneMoFunc = new DefaultXY_DataSet();
+		oneMoFunc.set(Math.log10(365.25/12.0),1e-2);
+		oneMoFunc.set(Math.log10(365.25/12.0),1e5);
+		DefaultXY_DataSet oneYrFunc = new DefaultXY_DataSet();
+		oneYrFunc.set(Math.log10(365.25),1e-2);
+		oneYrFunc.set(Math.log10(365.25),1e5);
+
+		
+		ArrayList<XY_DataSet> funcList = new ArrayList<XY_DataSet>();
 		funcList.add(target);
 		funcList.add(data);
-		GraphWindow testGraph = new GraphWindow(funcList, "Comparison"); 
+		funcList.add(longTermRateFunc);
+		funcList.add(oneDayFunc);
+		funcList.add(oneHourFunc);
+		funcList.add(oneMinFunc);
+		funcList.add(oneMoFunc);
+		funcList.add(oneYrFunc);
+		
+		ArrayList<PlotCurveCharacterstics> chars = new ArrayList<PlotCurveCharacterstics>();
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 2, Color.BLUE));
+		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2, Color.BLACK));
+		PlotCurveCharacterstics timeLineChar = new PlotCurveCharacterstics(PlotLineType.SOLID, 1, Color.GRAY);
+		chars.add(timeLineChar);
+		chars.add(timeLineChar);
+		chars.add(timeLineChar);
+		chars.add(timeLineChar);
+		chars.add(timeLineChar);
+
+		GraphWindow testGraph = new GraphWindow(funcList, "M 7.1 HayWired Aftershocks in SF Box", chars); 
 		testGraph.setYLog(true);
+		testGraph.setY_AxisRange(1e-2,1e5);
+		testGraph.setX_AxisRange(-5,Math.log10(10*365.25));
+		testGraph.setY_AxisLabel("Rate Density (per day)");
+		testGraph.setX_AxisLabel("Log Days");
+		testGraph.setPlotLabelFontSize(24);
+		testGraph.setAxisLabelFontSize(24);
+		testGraph.setTickLabelFontSize(22);
+
 
 		// days per the following
 		double min = 1.0/(24.0*60.0);
