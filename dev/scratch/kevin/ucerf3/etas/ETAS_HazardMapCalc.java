@@ -10,16 +10,19 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +32,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.opensha.commons.data.Site;
+import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
@@ -104,6 +108,8 @@ import scratch.UCERF3.analysis.FaultBasedMapGen;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.kevin.ucerf3.etas.ETAS_HazardMapCalc.MapType;
@@ -138,12 +144,17 @@ public class ETAS_HazardMapCalc {
 	private String imtName;
 	private double period;
 	private Deque<ScalarIMR> gmpeDeque;
+	private BlockingDeque<FaultSystemSolutionERF> erfDeque;
 	
 	private List<Site> sites;
 	
-	private Duration[] durations;
+	protected Duration[] durations;
 	private long minOT;
-	private long[] maxOTs;
+	private int startYear;
+	private long[] startOTs;
+	private long[] endOTs;
+	
+	private Duration[] longTermCalcDurations;
 	
 	protected Table<Duration, MapType, DiscretizedFunc[]> curves;
 	private int curvesCalculated;
@@ -151,33 +162,163 @@ public class ETAS_HazardMapCalc {
 	enum MapType {
 		FAULT_ONLY("faults"),
 		GRIDDED_ONLY("gridded"),
-		COMBINED("combined");
+		COMBINED("combined"),
+		U3TD("u3-td"),
+		U3TI("u3-ti");
 		
 		final String fileName;
 		private MapType(String fileName) {
 			this.fileName = fileName;
 		}
+		
+		public boolean isETAS() {
+			return this == MapType.FAULT_ONLY || this == MapType.GRIDDED_ONLY || this == MapType.COMBINED;
+		}
 	}
 	
-	enum Duration {
+	enum DurationConstants {
 		FULL("Full Catalog", "full", 0d),
 		DAY("1 Day", "day", 1d/365.25),
+		THREE("Days 1-3", "days_0_3", 3d/365.25),
 		WEEK("1 Week", "week", 7d/365.25),
 		MONTH("1 Month", "month", 1d/12d),
 		YEAR("1 Year", "year", 1d);
 		
+		final Duration duration;
+		
+		private DurationConstants(String plotName, String fileName, double years) {
+			this(plotName, fileName, 0, years);
+		}
+		
+		private DurationConstants(String plotName, String fileName, double startYears, double endYears) {
+			this.duration = new Duration(plotName, fileName, startYears, endYears);
+		}
+	}
+	
+	static Duration[] getDurationDefaults() {
+		List<Duration> defaults = Lists.newArrayList();
+		
+		// constants
+		DurationConstants[] constants = DurationConstants.values();
+		for (DurationConstants constant : constants)
+			defaults.add(constant.duration);
+		
+		// 3 day offsets
+		for (int startDay=0; startDay<10; startDay++)
+			defaults.add(durationForDayRange(startDay, startDay+3));
+		
+		return defaults.toArray(new Duration[0]);
+	}
+	
+	static Duration durationForDayRange(int startDay, int endDay) {
+		Preconditions.checkState(endDay > startDay);
+		String plotName;
+		if (endDay == (startDay+1))
+			plotName = "Day "+(startDay+1);
+		else
+			plotName = "Days "+(startDay+1)+"-"+endDay;
+		return new Duration(plotName, "days_"+startDay+"_"+endDay,
+				(double)startDay/365.25, (double)endDay/365.25);
+	}
+	
+	static Duration durationForFileName(String fileName) {
+		// first check constants
+		for (DurationConstants c : DurationConstants.values())
+			if (fileName.contains(c.duration.fileName+".") || fileName.contains(c.duration.fileName+"_"))
+				return c.duration;
+		// detect day range in format day_0_3 (for days 0-3)
+		Preconditions.checkState(fileName.contains("days_"), "Can only detect constants or day ranges");
+		fileName = fileName.substring(fileName.indexOf("days_")+5);
+		Preconditions.checkState(fileName.contains("_"));
+		int startDay = Integer.parseInt(fileName.substring(0, fileName.indexOf("_")));
+		fileName = fileName.substring(fileName.indexOf("_")+1);
+		String endDayStr = "";
+		for (int i=0; i<fileName.length(); i++) {
+			if (Character.isDigit(fileName.charAt(i)))
+				endDayStr += fileName.charAt(i);
+			else
+				break;
+		}
+		int endDay = Integer.parseInt(endDayStr);
+		return durationForDayRange(startDay, endDay);
+	}
+	
+	static class Duration {
 		final String plotName;
 		final String fileName;
-		final double years;
-		private Duration(String plotName, String fileName, double years) {
+		final double startYears;
+		final double endYears;
+		
+		public Duration(String plotName, String fileName, double years) {
+			this(plotName, fileName, 0, years);
+		}
+		
+		public Duration(String plotName, String fileName, double startYears, double endYears) {
 			this.plotName = plotName;
 			this.fileName = fileName;
-			this.years = years;
+			this.startYears = startYears;
+			this.endYears = endYears;
+		}
+		
+		public long getStartMillis(long catalogOT) {
+			return catalogOT + (long)(startYears*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		}
+		
+		public long getEndMillis(long catalogOT) {
+			if (endYears == 0)
+				return Long.MAX_VALUE;
+			return catalogOT + (long)(endYears*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			long temp;
+			temp = Double.doubleToLongBits(endYears);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
+			result = prime * result + ((plotName == null) ? 0 : plotName.hashCode());
+			temp = Double.doubleToLongBits(startYears);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Duration other = (Duration) obj;
+			if (Double.doubleToLongBits(endYears) != Double.doubleToLongBits(other.endYears))
+				return false;
+			if (fileName == null) {
+				if (other.fileName != null)
+					return false;
+			} else if (!fileName.equals(other.fileName))
+				return false;
+			if (plotName == null) {
+				if (other.plotName != null)
+					return false;
+			} else if (!plotName.equals(other.plotName))
+				return false;
+			if (Double.doubleToLongBits(startYears) != Double.doubleToLongBits(other.startYears))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return plotName;
 		}
 	}
 	
 	private boolean calcFaults;
 	private boolean calcGridded;
+	private boolean calcLongTerm;
 	
 	public ETAS_HazardMapCalc(List<List<ETAS_EqkRupture>> catalogs, GriddedRegion region, DiscretizedFunc xVals,
 			File precalcFile, FaultSystemSolution sol, ETAS_CatalogGridSourceProvider gridSources,
@@ -193,7 +334,7 @@ public class ETAS_HazardMapCalc {
 		this.sol = sol;
 		
 		if (durations == null || durations.length == 0)
-			durations = new Duration[] { Duration.FULL };
+			durations = new Duration[] {DurationConstants.FULL.duration};
 		this.durations = durations;
 		// claculate the min OT
 		minOT = Long.MAX_VALUE;
@@ -204,9 +345,13 @@ public class ETAS_HazardMapCalc {
 			if (ot < minOT)
 				minOT = ot;
 		}
-		maxOTs = new long[durations.length];
-		for (int i=0; i<durations.length; i++)
-			maxOTs[i] = minOT + (long)(durations[i].years*ProbabilityModelsCalc.MILLISEC_PER_YEAR);
+		startYear = ETAS_MultiSimAnalysisTools.calcYearForOT(minOT);
+		startOTs = new long[durations.length];
+		endOTs = new long[durations.length];
+		for (int i=0; i<durations.length; i++) {
+			startOTs[i] = durations[i].getStartMillis(minOT);
+			endOTs[i] = durations[i].getEndMillis(minOT);
+		}
 		
 		calcGridded = (gridSources != null && gmpeRef != null && imtName != null && sites != null);
 		Preconditions.checkState(sites == null || sites.size() == region.getNodeCount());
@@ -254,12 +399,22 @@ public class ETAS_HazardMapCalc {
 		this.sites = sites;
 		
 		curves = HashBasedTable.create();
+		List<Duration> durations = Lists.newArrayList();
+		List<Duration> longTermDurations = Lists.newArrayList();
 		for (Cell<Duration, MapType, File> cell : curveFiles.cellSet()) {
 			Duration duration = cell.getRowKey();
 			MapType type = cell.getColumnKey();
-			System.out.println("Loading "+region.getNodeCount()+" curves for "+duration+", "+type);
+			System.out.println("Loading "+region.getNodeCount()+" curves for "+duration.plotName+", "+type);
 			curves.put(duration, type, loadCurves(cell.getValue()));
+			if (type.isETAS())
+				durations.add(duration);
+			else
+				longTermDurations.add(duration);
 		}
+		this.durations = durations.toArray(new Duration[0]);
+		setCalcLongTerm(!longTermDurations.isEmpty());
+		if (isCalcLongTerm())
+			setLongTermCalcDurations(longTermDurations.toArray(new Duration[0]));
 		
 		Preconditions.checkArgument(!curves.isEmpty(), "Must supply at least one curve file");
 		xVals = curves.values().iterator().next()[0];
@@ -335,6 +490,51 @@ public class ETAS_HazardMapCalc {
 		this.calcGridded = calcGridded;
 	}
 
+	public boolean isCalcLongTerm() {
+		return calcLongTerm;
+	}
+
+	public void setCalcLongTerm(boolean calcLongTerm) {
+		this.calcLongTerm = calcLongTerm;
+	}
+	
+	public void setScenarioForElasticRebound(TestScenario scenario) {
+		if (scenario.getFSS_Index() < 0)
+			return;
+		// figure out erf start time
+		TimeSpan timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+		timeSpan.setStartTime(startYear);
+		long erfStartMillis = timeSpan.getStartTimeInMillis();
+		long eventTimeMillis = erfStartMillis - 1000l; // 1 second before
+		FaultSystemRupSet rupSet = sol.getRupSet();
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(scenario.getFSS_Index()))
+			// use startYear not minOT in case the calc started in the middle of the year
+			sect.setDateOfLastEvent(eventTimeMillis);
+	}
+	
+	synchronized Duration[] getLongTermCalcDurations() {
+		if (longTermCalcDurations == null) {
+			// all of them, except offsets
+			List<Duration> durList = Lists.newArrayList();
+			for (Duration dur : durations)
+				if (dur.startYears == 0)
+					durList.add(dur);
+			longTermCalcDurations = durList.toArray(new Duration[0]);
+		}
+		return longTermCalcDurations;
+	}
+	
+	public void setLongTermCalcDurations(Duration[] longTermCalcDurations) {
+		this.longTermCalcDurations = longTermCalcDurations;
+	}
+	
+	private Duration[] durationsForType(MapType type) {
+		if (type.isETAS())
+			return durations;
+		Preconditions.checkState(isCalcLongTerm());
+		return getLongTermCalcDurations();
+	}
+
 	public void calculate() throws IOException {
 		if (in != null)
 			Preconditions.checkState(faultSiteIndex == 0, "Can only process file once");
@@ -352,6 +552,12 @@ public class ETAS_HazardMapCalc {
 		if (calcFaults && calcGridded) {
 			for (Duration duration : durations)
 				curves.put(duration, MapType.COMBINED, new DiscretizedFunc[region.getNodeCount()]);
+		}
+		if (calcLongTerm) {
+			for (Duration duration : getLongTermCalcDurations()) { 
+				curves.put(duration, MapType.U3TD, new DiscretizedFunc[region.getNodeCount()]);
+				curves.put(duration, MapType.U3TI, new DiscretizedFunc[region.getNodeCount()]);
+			}
 		}
 		
 		ExecutorService executor = createExecutor();
@@ -432,6 +638,7 @@ public class ETAS_HazardMapCalc {
 				MapType type = cell.getColumnKey();
 				DiscretizedFunc curve = result.get(duration, type);
 				Preconditions.checkState(curve != null, "Curve not calculated for %s, %s! Size=%s", duration, type, curves.size());
+//				System.out.println("Inserting curve for "+duration+", "+type);
 				curves.get(duration, type)[index] = cell.getValue();
 			}
 			
@@ -453,150 +660,218 @@ public class ETAS_HazardMapCalc {
 	Table<Duration, MapType, DiscretizedFunc> calculateCurves(Site site, Map<Integer, double[]> precomputedFaultVals) {
 		Table<Duration, MapType, DiscretizedFunc> curves = getInitializedCurvesMap(xVals, 0d); // linear space
 		
-		// prepare inputs
-		ScalarIMR gmpe = null;
-		Map<Integer, DiscretizedFunc> faultNonExceeds = null;
-		if (calcFaults) {
-			if (precomputedFaultVals == null) {
-				// calculate them now
-				gmpe = checkOutGMPE();
-				faultNonExceeds = calcFaultIMs(site, gmpe);
-			} else {
-				// use precomputed
-				faultNonExceeds = calcFaultExceeds(precomputedFaultVals);
-			}
-			complimentCurve(faultNonExceeds); // they were actually exceeds
-		}
-		
-		Table<Integer, Integer, DiscretizedFunc> griddedNonExceeds = null;
-		if (calcGridded) {
-			// will calculate on the fly as needed
-			griddedNonExceeds = HashBasedTable.create();
-			Preconditions.checkState(gridSources.isConditional());
-			if (gmpe == null)
-				gmpe = checkOutGMPE();
-			gmpe.setSite(site);
-		}
-		
-		Preconditions.checkState(calcFaults || calcGridded);
-		
-		// now actually calculate
-		double rateEach = 1d/catalogs.size();
-		
-		HashSet<Integer> ignoreGriddedNodes = new HashSet<Integer>();
-		
-		for (List<ETAS_EqkRupture> catalog : catalogs) {
-			Table<Duration, MapType, DiscretizedFunc> catCurves = getInitializedCurvesMap(calcXVals, 1d); // log space if applicable
-			
-			for (ETAS_EqkRupture rup : catalog) {
-				DiscretizedFunc condNonExceed; // conditional non-exceedance probabilities
-				MapType targetType; // hazard curve to apply this to
-				if (rup.getFSSIndex() >= 0) {
-					// fault based
-					if (!calcFaults)
-						continue;
-					condNonExceed = faultNonExceeds.get(rup.getFSSIndex());
-					if (condNonExceed == null)
-						// not within cutoff dist
-						continue;
-					targetType = MapType.FAULT_ONLY;
+		if (calcFaults || calcGridded) {
+			// prepare inputs
+			ScalarIMR gmpe = null;
+			Map<Integer, DiscretizedFunc> faultNonExceeds = null;
+			if (calcFaults) {
+				if (precomputedFaultVals == null) {
+					// calculate them now
+					gmpe = checkOutGMPE();
+					faultNonExceeds = calcFaultIMs(site, gmpe);
 				} else {
-					// gridded
-					if (!calcGridded)
-						continue;
-					int nodeIndex = gridSources.getNodeIndex(rup);
-					int mfdIndex = gridSources.getMagIndex(rup);
-					if (nodeIndex < 0 || mfdIndex < 0 || ignoreGriddedNodes.contains(nodeIndex))
-						continue;
-					double dist = LocationUtils.horzDistanceFast(site.getLocation(), rup.getHypocenterLocation());
-					if (dist > distCutoff) {
-						ignoreGriddedNodes.add(nodeIndex);
-						continue;
+					// use precomputed
+					faultNonExceeds = calcFaultExceeds(precomputedFaultVals);
+				}
+				complimentCurve(faultNonExceeds); // they were actually exceeds
+			}
+			
+			Table<Integer, Integer, DiscretizedFunc> griddedNonExceeds = null;
+			if (calcGridded) {
+				// will calculate on the fly as needed
+				griddedNonExceeds = HashBasedTable.create();
+				Preconditions.checkState(gridSources.isConditional());
+				if (gmpe == null)
+					gmpe = checkOutGMPE();
+				gmpe.setSite(site);
+			}
+			
+			Preconditions.checkState(calcFaults || calcGridded);
+			
+			// now actually calculate
+			double rateEach = 1d/catalogs.size();
+			
+			HashSet<Integer> ignoreGriddedNodes = new HashSet<Integer>();
+			
+			for (List<ETAS_EqkRupture> catalog : catalogs) {
+				boolean hasM5 = false;
+				for (ETAS_EqkRupture rup : catalog) {
+					if (rup.getMag() > 5) {
+						hasM5 = true;
+						break;
 					}
-					condNonExceed = griddedNonExceeds.get(nodeIndex, mfdIndex);
-					targetType = MapType.GRIDDED_ONLY;
-					if (condNonExceed == null) {
-						// calculate it
-						// multiple ruptures with different focal mechanisms
-						Iterable<ProbEqkRupture> rups = gridSources.getConditionalRuptures(rup);
-						if (rups == null)
+				}
+				if (!hasM5)
+					continue;
+				Table<Duration, MapType, DiscretizedFunc> catCurves = getInitializedCurvesMap(calcXVals, 1d); // log space if applicable
+				
+				for (ETAS_EqkRupture rup : catalog) {
+					DiscretizedFunc condNonExceed; // conditional non-exceedance probabilities
+					MapType targetType; // hazard curve to apply this to
+					if (rup.getFSSIndex() >= 0) {
+						// fault based
+						if (!calcFaults)
 							continue;
-						
-						condNonExceed = calcXVals.deepClone();
-						initializeCurve(condNonExceed, 1d);
-						double sumRate = 0d;
-						for (ProbEqkRupture subRup : rups) {
-							double subMag = subRup.getMag();
-							Preconditions.checkState(subMag >= rup.getMag()-0.06 && subMag <= rup.getMag()+0.06,
-									"Unexpected mag in sub-rupture. Expected %s, got %s", rup.getMag(), subMag);
-							gmpe.setEqkRupture(subRup);
-							double rupProb = subRup.getProbability();
-							double rupRate = -Math.log(1 - rupProb);
-							sumRate += rupRate;
-//							System.out.println(subRup.getAveRake()+": "+rupProb);
-							
-							for (int i=0; i<condNonExceed.size(); i++) {
-								// TODO doing this right?
-								double exceedProb = gmpe.getExceedProbability(condNonExceed.getX(i));
-								// scale by the rate of this rupture
-								condNonExceed.set(i, condNonExceed.getY(i)*(1-rupRate*exceedProb));
-								// this way if treating it as poisson, but since it's an actual occurance, I don't
-								// think that we should
-//								condNonExceed.set(i, condNonExceed.getY(i)*Math.pow(1-rupProb, exceedProb));
-							}
+						condNonExceed = faultNonExceeds.get(rup.getFSSIndex());
+						if (condNonExceed == null)
+							// not within cutoff dist
+							continue;
+						targetType = MapType.FAULT_ONLY;
+					} else {
+						// gridded
+						if (!calcGridded)
+							continue;
+						int nodeIndex = gridSources.getNodeIndex(rup);
+						int mfdIndex = gridSources.getMagIndex(rup);
+						if (nodeIndex < 0 || mfdIndex < 0 || ignoreGriddedNodes.contains(nodeIndex))
+							continue;
+						double dist = LocationUtils.horzDistanceFast(site.getLocation(), rup.getHypocenterLocation());
+						if (dist > distCutoff) {
+							ignoreGriddedNodes.add(nodeIndex);
+							continue;
 						}
-//						System.out.println("SUM: "+sumProb);
-//						System.exit(0);
-						Preconditions.checkState((float)sumRate == 1f, "Rupture rates don't sum to 1! %s", sumRate);
-						
-						griddedNonExceeds.put(nodeIndex, mfdIndex, condNonExceed);
+						condNonExceed = griddedNonExceeds.get(nodeIndex, mfdIndex);
+						targetType = MapType.GRIDDED_ONLY;
+						if (condNonExceed == null) {
+							// calculate it
+							// multiple ruptures with different focal mechanisms
+							Iterable<ProbEqkRupture> rups = gridSources.getConditionalRuptures(rup);
+							if (rups == null)
+								continue;
+							
+							condNonExceed = calcXVals.deepClone();
+							initializeCurve(condNonExceed, 1d);
+							double sumRate = 0d;
+							for (ProbEqkRupture subRup : rups) {
+								double subMag = subRup.getMag();
+								Preconditions.checkState(subMag >= rup.getMag()-0.06 && subMag <= rup.getMag()+0.06,
+										"Unexpected mag in sub-rupture. Expected %s, got %s", rup.getMag(), subMag);
+								gmpe.setEqkRupture(subRup);
+								double rupProb = subRup.getProbability();
+								double rupRate = -Math.log(1 - rupProb);
+								sumRate += rupRate;
+//								System.out.println(subRup.getAveRake()+": "+rupProb);
+								
+								for (int i=0; i<condNonExceed.size(); i++) {
+									// TODO doing this right?
+									double exceedProb = gmpe.getExceedProbability(condNonExceed.getX(i));
+									// scale by the rate of this rupture
+									condNonExceed.set(i, condNonExceed.getY(i)*(1-rupRate*exceedProb));
+									// this way if treating it as poisson, but since it's an actual occurance, I don't
+									// think that we should
+//									condNonExceed.set(i, condNonExceed.getY(i)*Math.pow(1-rupProb, exceedProb));
+								}
+							}
+//							System.out.println("SUM: "+sumProb);
+//							System.exit(0);
+							Preconditions.checkState((float)sumRate == 1f, "Rupture rates don't sum to 1! %s", sumRate);
+							
+							griddedNonExceeds.put(nodeIndex, mfdIndex, condNonExceed);
+						}
+					}
+					
+					long ot = rup.getOriginTime();
+					
+					// now add the rupture to the appropriate curves
+					for (int i=0; i<durations.length; i++) {
+						// duration of 0 means all
+						if (ot < startOTs[i] || ot >= endOTs[i])
+							// rup occurs outside of window, skip
+							continue;
+						DiscretizedFunc targetCurve = catCurves.get(durations[i], targetType);
+						for (int k=0; k<targetCurve.size(); k++) {
+							// multiply this into the total non-exceedance probability
+							// (get the product of all non-eceedance probabilities)
+							targetCurve.set(k, targetCurve.getY(k) * condNonExceed.getY(k));
+						}
 					}
 				}
 				
-				long ot = rup.getOriginTime();
-				
-				// now add the rupture to the appropriate curves
-				for (int i=0; i<durations.length; i++) {
-					// duration of 0 means all
-					if (durations[i].years > 0 && ot > maxOTs[i])
-						// rup occurs after target time, skip
-						continue;
-					DiscretizedFunc targetCurve = catCurves.get(durations[i], targetType);
-					for (int k=0; k<targetCurve.size(); k++) {
-						// multiply this into the total non-exceedance probability
-						// (get the product of all non-eceedance probabilities)
-						targetCurve.set(k, targetCurve.getY(k) * condNonExceed.getY(k));
+				if (catCurves.containsColumn(MapType.COMBINED)) {
+					// build combined catalog curves
+					for (Duration duration : catCurves.rowKeySet()) {
+						DiscretizedFunc catFaultCurve = catCurves.get(duration, MapType.FAULT_ONLY);
+						DiscretizedFunc catGriddedCurve = catCurves.get(duration, MapType.GRIDDED_ONLY);
+						DiscretizedFunc catCombinedCurve = catCurves.get(duration, MapType.COMBINED);
+						for (int k=0; k<catCombinedCurve.size(); k++)
+							catCombinedCurve.set(k, catFaultCurve.getY(k) * catGriddedCurve.getY(k));
 					}
 				}
-			}
-			
-			if (catCurves.containsColumn(MapType.COMBINED)) {
-				// build combined catalog curves
-				for (Duration duration : catCurves.rowKeySet()) {
-					DiscretizedFunc catFaultCurve = catCurves.get(duration, MapType.FAULT_ONLY);
-					DiscretizedFunc catGriddedCurve = catCurves.get(duration, MapType.GRIDDED_ONLY);
-					DiscretizedFunc catCombinedCurve = catCurves.get(duration, MapType.COMBINED);
-					for (int k=0; k<catCombinedCurve.size(); k++)
-						catCombinedCurve.set(k, catFaultCurve.getY(k) * catGriddedCurve.getY(k));
+				
+				for (Cell<Duration, MapType, DiscretizedFunc> cell : catCurves.cellSet()) {
+					DiscretizedFunc catCurve = cell.getValue();
+					// convert from total non-exceed prob to total exceed prob
+					complimentCurve(catCurve);
+					
+					// add into total curves
+					DiscretizedFunc totalCurve = curves.get(cell.getRowKey(), cell.getColumnKey());
+					for (int k=0; k<xVals.size(); k++)
+						totalCurve.set(k, totalCurve.getY(k) + rateEach*catCurve.getY(k));
 				}
 			}
 			
-			for (Cell<Duration, MapType, DiscretizedFunc> cell : catCurves.cellSet()) {
-				DiscretizedFunc catCurve = cell.getValue();
-				// convert from total non-exceed prob to total exceed prob
-				complimentCurve(catCurve);
-				
-				// add into total curves
-				DiscretizedFunc totalCurve = curves.get(cell.getRowKey(), cell.getColumnKey());
-				for (int k=0; k<xVals.size(); k++)
-					totalCurve.set(k, totalCurve.getY(k) + rateEach*catCurve.getY(k));
-			}
+			if (gmpe != null)
+				checkInGMPE(gmpe);
 		}
 		
-		if (gmpe != null)
-			checkInGMPE(gmpe);
+		if (calcLongTerm)
+			calcLongTerm(site, getLongTermCalcDurations(), curves);
 		
 		return curves;
+	}
+	
+	private void calcLongTerm(Site site, Duration[] calcDurations, Table<Duration, MapType, DiscretizedFunc> curves) {
+		FaultSystemSolutionERF erf = checkOutERF();
+		ScalarIMR gmpe = checkOutGMPE();
+		HazardCurveCalculator calc = new HazardCurveCalculator();
+		
+		// first calculate a 1 year time independent curve which will be scaled to any other durations
+		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+		erf.getTimeSpan().setDuration(1d);
+		erf.updateForecast();
+		DiscretizedFunc tiOneYearRateCurve = calc.getAnnualizedRates(calcLongTerm(erf, gmpe, site, calc), 1d);
+		
+		for (Duration duration : calcDurations) {
+			Preconditions.checkState(duration.startYears == 0d,
+					"Long term not enabled for offsets (not needed, will be practically identical)");
+//			System.out.println("Calculating long term, duration: "+duration);
+			erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_PREF_BLEND);
+			double myDur = duration.endYears;
+			if (duration.endYears == 0)
+				myDur = 10d;
+			erf.getTimeSpan().setDuration(myDur);
+			erf.getTimeSpan().setStartTime(startYear);
+			erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(startYear-1875));
+			erf.updateForecast();
+			
+			DiscretizedFunc tdCurve = calcLongTerm(erf, gmpe, site, calc);
+			curves.put(duration, MapType.U3TD, tdCurve);
+			
+			// scale TI curve to current duration
+			DiscretizedFunc tiCurve = xVals.deepClone();
+			for (int i=0; i<tiCurve.size(); i++) {
+				double rate = tiOneYearRateCurve.getY(i); // already in rate space
+				double prob = rateToProb(rate, myDur);
+				tiCurve.set(i, prob);
+			}
+			curves.put(duration, MapType.U3TI, tiCurve);
+		}
+		
+		checkInERF(erf);
+		checkInGMPE(gmpe);
+	}
+	
+	private static double rateToProb(double rate, double durationYears) {
+		return 1 - Math.exp(-rate*durationYears);
+	}
+	
+	private DiscretizedFunc calcLongTerm(FaultSystemSolutionERF erf, ScalarIMR gmpe, Site site, HazardCurveCalculator calc) {
+		DiscretizedFunc curve = calcXVals.deepClone();
+		calc.getHazardCurve(curve, site, gmpe, erf);
+		DiscretizedFunc linearCurve = xVals.deepClone();
+		for (int i=0; i<linearCurve.size(); i++)
+			linearCurve.set(i, curve.getY(i));
+		return linearCurve;
 	}
 	
 	private Map<Integer, DiscretizedFunc> calcFaultIMs(Site site, ScalarIMR gmpe) {
@@ -706,7 +981,7 @@ public class ETAS_HazardMapCalc {
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
 		
-		Map<MapType, DiscretizedFunc[]> fullDurationCurves = curves.row(Duration.FULL);
+		Map<MapType, DiscretizedFunc[]> fullDurationCurves = curves.row(DurationConstants.FULL.duration);
 		
 		if (fullDurationCurves.containsKey(MapType.FAULT_ONLY)) {
 			DiscretizedFunc curve = fullDurationCurves.get(MapType.FAULT_ONLY)[index];
@@ -734,42 +1009,54 @@ public class ETAS_HazardMapCalc {
 		gw.setYLog(true);
 	}
 	
-	public void plotComparisons(MapType type, Duration duration, Location loc, FaultSystemSolutionERF erf,
-			int startYear, double fullSimDuration, String title, File outputDir, String prefix) throws IOException {
+	public void plotComparisons(MapType type, Duration duration, Location loc, double fullSimDuration, String title,
+			File outputDir, String prefix) throws IOException {
 		int index = region.indexForLocation(loc);
 		Preconditions.checkState(index >= 0, "Couldn't detect index for location: "+loc);
 		double dist = LocationUtils.horzDistanceFast(loc, region.getLocation(index));
 		System.out.println("Mapped curve location error: "+(float)dist+" km");
 		
-		plotComparisons(type, duration, index, erf, startYear, fullSimDuration, title, outputDir, prefix);
+		plotComparisons(type, duration, index, fullSimDuration, title, outputDir, prefix);
 	}
 	
-	public void plotComparisons(MapType type, Duration duration, int index, FaultSystemSolutionERF erf,
-			int startYear, double fullSimDuration, String title, File outputDir, String prefix) throws IOException {
+//	public void plotComparisons(MapType type, Duration duration, int index, FaultSystemSolutionERF erf,
+//			int startYear, double fullSimDuration, String title, File outputDir, String prefix) throws IOException {
+	
+	public void plotComparisons(MapType type, Duration duration, int index, double fullSimDuration, String title,
+			File outputDir, String prefix) throws IOException {
 		DiscretizedFunc etasCurve = curves.get(duration, type)[index];
 		Preconditions.checkNotNull(etasCurve);
 		etasCurve.setName("UCERF3-ETAS");
+		Duration longTermDuration = getLongTermCompatibleDuration(duration);
+		DiscretizedFunc tiCurve = curves.get(longTermDuration, MapType.U3TI)[index];
+		Preconditions.checkNotNull(etasCurve);
+		tiCurve.setName("UCERF3-TI");
+		DiscretizedFunc tdCurve = curves.get(longTermDuration, MapType.U3TD)[index];
+		Preconditions.checkNotNull(etasCurve);
+		tdCurve.setName("UCERF3-TD");
+		DiscretizedFunc etasCombCurve = getETASplusU3curve(etasCurve, tdCurve);
+		etasCombCurve.setName("UCERF3-ETAS+TD");
 		
-		if (outputDir.getAbsolutePath().contains("-gridded-only"))
-			type = MapType.COMBINED; // actually combined for comparison purposes
-		
-		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
-		switch (type) {
-		case COMBINED:
-			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
-			erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-			break;
-		case FAULT_ONLY:
-			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
-			break;
-		case GRIDDED_ONLY:
-			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
-			erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
-			break;
-
-		default:
-			break;
-		}
+//		if (outputDir.getAbsolutePath().contains("-gridded-only"))
+//			type = MapType.COMBINED; // actually combined for comparison purposes
+//		
+//		erf.setParameter(ApplyGardnerKnopoffAftershockFilterParam.NAME, false);
+//		switch (type) {
+//		case COMBINED:
+//			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
+//			erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+//			break;
+//		case FAULT_ONLY:
+//			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.EXCLUDE);
+//			break;
+//		case GRIDDED_ONLY:
+//			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.ONLY);
+//			erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+//			break;
+//
+//		default:
+//			break;
+//		}
 		
 		if (prefix == null || prefix.isEmpty())
 			prefix = "";
@@ -778,44 +1065,44 @@ public class ETAS_HazardMapCalc {
 		prefix += type.fileName+"_"+duration.fileName;
 		
 		double durationYears;
-		String yAxisLabel;
-		if (duration == Duration.FULL) {
+		String durationLabel;
+		if (duration == DurationConstants.FULL.duration) {
 			durationYears = fullSimDuration;
-			yAxisLabel = (int)durationYears+" year";
+			durationLabel = (int)durationYears+" year";
 		} else {
-			durationYears = duration.years;
-			yAxisLabel = duration.plotName;
+			durationYears = duration.endYears - duration.startYears;
+			durationLabel = duration.plotName;
 		}
 		
-		ScalarIMR gmpe = checkOutGMPE();
-		Site site = sites.get(index);
-		HazardCurveCalculator calc = new HazardCurveCalculator();
-		
-		// calculate UCERF3-TI
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
-		erf.getTimeSpan().setDuration(durationYears);
-		erf.updateForecast();
-		
-		DiscretizedFunc tiCurve = calc.getHazardCurve(calcXVals.deepClone(), site, gmpe, erf);
-		tiCurve = getReplaceXVals(tiCurve, xVals);
-		tiCurve.setName("UCERF3-TI");
-		
-		// calculate UCERF3-TD
-		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
-		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
-		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
-		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
-		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
-		erf.getTimeSpan().setDuration(durationYears);
-		erf.getTimeSpan().setStartTime(startYear);
-		erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(startYear-1875));
-		erf.updateForecast();
-
-		DiscretizedFunc tdCurve = calc.getHazardCurve(calcXVals.deepClone(), site, gmpe, erf);
-		tdCurve = getReplaceXVals(tdCurve, xVals);
-		tdCurve.setName("UCERF3-TD");
-		
-		checkInGMPE(gmpe);
+//		ScalarIMR gmpe = checkOutGMPE();
+//		Site site = sites.get(index);
+//		HazardCurveCalculator calc = new HazardCurveCalculator();
+//		
+//		// calculate UCERF3-TI
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.POISSON);
+//		erf.getTimeSpan().setDuration(durationYears);
+//		erf.updateForecast();
+//		
+//		DiscretizedFunc tiCurve = calc.getHazardCurve(calcXVals.deepClone(), site, gmpe, erf);
+//		tiCurve = getReplaceXVals(tiCurve, xVals);
+//		tiCurve.setName("UCERF3-TI");
+//		
+//		// calculate UCERF3-TD
+//		erf.setParameter(ProbabilityModelParam.NAME, ProbabilityModelOptions.U3_BPT);
+//		erf.setParameter(MagDependentAperiodicityParam.NAME, MagDependentAperiodicityOptions.MID_VALUES);
+//		BPTAveragingTypeOptions aveType = BPTAveragingTypeOptions.AVE_RI_AVE_NORM_TIME_SINCE;
+//		erf.setParameter(BPTAveragingTypeParam.NAME, aveType);
+//		erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
+//		erf.getTimeSpan().setDuration(durationYears);
+//		erf.getTimeSpan().setStartTime(startYear);
+//		erf.setParameter(HistoricOpenIntervalParam.NAME, (double)(startYear-1875));
+//		erf.updateForecast();
+//
+//		DiscretizedFunc tdCurve = calc.getHazardCurve(calcXVals.deepClone(), site, gmpe, erf);
+//		tdCurve = getReplaceXVals(tdCurve, xVals);
+//		tdCurve.setName("UCERF3-TD");
+//		
+//		checkInGMPE(gmpe);
 		
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		List<PlotCurveCharacterstics> chars = Lists.newArrayList();
@@ -826,10 +1113,19 @@ public class ETAS_HazardMapCalc {
 		funcs.add(tdCurve);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.BLUE));
 		
-		funcs.add(etasCurve);
+//		funcs.add(etasCurve);
+//		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
+		
+		funcs.add(etasCombCurve);
 		chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 		
-		PlotSpec spec = new PlotSpec(funcs, chars, title, imtName, yAxisLabel+" Probability of Exceedance");
+		String xAxisLabel = imtName;
+		if (xAxisLabel.equals(PGA_Param.NAME))
+			xAxisLabel += " (g)";
+		if (xAxisLabel.equals(PGV_Param.NAME))
+			xAxisLabel += " (cm/s)";
+		
+		PlotSpec spec = new PlotSpec(funcs, chars, title+", "+durationLabel, xAxisLabel, "Probability of Exceedance");
 		spec.setLegendVisible(true);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
@@ -905,15 +1201,68 @@ public class ETAS_HazardMapCalc {
 		gmpeDeque.push(gmpe);
 	}
 	
-	public GriddedGeoDataSet calcMap(MapType type, Duration duration, boolean isProbAt_IML, double level) {
+	private static double mem_gb_per_erf = 1d; // actually closer to 0.5, but leave a healthy buffer for other memory usage
+	private int maxNumERFs = -1;
+	private int erfsBuilt = 0;
+	
+	private FaultSystemSolutionERF checkOutERF() {
+		// need one ERF per thread because of background seismicity and different durations
+		synchronized (this) {
+			if (erfDeque == null) {
+				erfDeque = new LinkedBlockingDeque<FaultSystemSolutionERF>();
+				// if we have extreme parallelism, we need to limit the amount of ERFs that can ever exist at once
+				Runtime runtime = Runtime.getRuntime();
+				double maxMemGB = runtime.maxMemory()/1073741824d;
+				maxNumERFs = (int)(maxMemGB/mem_gb_per_erf);
+				System.out.println("Max number of ERFs to build: "+maxNumERFs);
+				if (maxNumERFs < 4)
+					maxNumERFs = 4;
+			}
+		}
+		boolean canBuild = erfsBuilt < maxNumERFs;
+		if (erfDeque.isEmpty() && canBuild) {
+			// build a new one
+			erfsBuilt++;
+			Preconditions.checkState(sol != null, "Must supply solution");
+			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+			erf.setParameter(IncludeBackgroundParam.NAME, IncludeBackgroundOption.INCLUDE);
+			erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.POINT);
+			erf.setParameter(AleatoryMagAreaStdDevParam.NAME, 0.0);
+			return erf;
+		}
+		try {
+//			System.out.println("Taking ERF");
+			FaultSystemSolutionERF erf = erfDeque.take();
+//			System.out.println("Got ERF, returning");
+			return erf;
+		} catch (InterruptedException e) {
+			throw ExceptionUtils.asRuntimeException(e);
+		}
+	}
+	
+	private synchronized void checkInERF(FaultSystemSolutionERF erf) {
+//		System.out.println("Putting ERF");
+		erfDeque.push(erf);
+	}
+	
+	public GriddedGeoDataSet calcMap(MapType type1, MapType type2, Duration duration, boolean isProbAt_IML, double level) {
 		GriddedGeoDataSet map = new GriddedGeoDataSet(region, false);
 		
-		Preconditions.checkState(curves.contains(duration, type), "No curves for %s, %s", duration, type);
+		Preconditions.checkState(curves.contains(duration, type1), "No curves for %s, %s", duration, type1);
+		Duration ratioDuration = null;
+		if (type2 != null)
+			Preconditions.checkState(curves.contains(getLongTermCompatibleDuration(duration), type2), "No curves for %s, %s", ratioDuration, type2);
 		
 		for (int i=0; i<map.size(); i++) {
-			DiscretizedFunc curve = curves.get(duration, type)[i];
+			DiscretizedFunc curve;
+			if (type2 != null)
+				curve = getETASplusU3curve(type1, type2, duration, i);
+			else
+				curve = curves.get(duration, type1)[i];
 			
 			double val = HazardDataSetLoader.getCurveVal(curve, isProbAt_IML, level);
+			if (isProbAt_IML)
+				Preconditions.checkState(val >= 0d && val <= 1d, "Bad probability (%s) for level (%s)", val, level);
 			if (Double.isInfinite(val))
 				val = Double.NaN;
 			
@@ -923,22 +1272,100 @@ public class ETAS_HazardMapCalc {
 		return map;
 	}
 	
+	private Duration getLongTermCompatibleDuration(Duration duration) {
+		if (duration.startYears == 0)
+			return duration;
+		// find the no offset version
+		float delta = (float)(duration.endYears - duration.startYears);
+		for (Duration oDur : getLongTermCalcDurations()) {
+			float oDelta = (float)(oDur.endYears - oDur.startYears);
+			if (oDelta == delta)
+				return oDur;
+		}
+		return null;
+	}
+	
+	private Table<String, Duration, DiscretizedFunc> combCurvesCache;
+	
+	private synchronized DiscretizedFunc getETASplusU3curve(MapType type1, MapType type2, Duration duration, int index) {
+		if (combCurvesCache == null)
+			combCurvesCache = HashBasedTable.create();
+		
+		String keyStr = type1.name()+"_"+type2.name()+"_"+index;
+		if (combCurvesCache.contains(keyStr, duration))
+			return combCurvesCache.get(keyStr, duration);
+		
+		Preconditions.checkState(type1.isETAS(), "numerator must be ETAS");
+		Preconditions.checkState(!type2.isETAS(), "denominator must NOT be ETAS");
+		
+		DiscretizedFunc etasCurve = curves.get(duration, type1)[index];
+		DiscretizedFunc u3Curve = curves.get(getLongTermCompatibleDuration(duration), type2)[index];
+		DiscretizedFunc combCurve = getETASplusU3curve(etasCurve, u3Curve);
+		
+		combCurvesCache.put(keyStr, duration, combCurve);
+		return combCurve;
+	}
+
+	public static DiscretizedFunc getETASplusU3curve(DiscretizedFunc etasCurve, DiscretizedFunc u3Curve) {
+		Preconditions.checkState(etasCurve.size() == u3Curve.size());
+		
+		DiscretizedFunc combCurve = new ArbitrarilyDiscretizedFunc();
+		for (int i=0; i<etasCurve.size(); i++) {
+			Preconditions.checkState(etasCurve.getX(i) == u3Curve.getX(i));
+			double etasProb = etasCurve.getY(i);
+			double u3Prob = u3Curve.getY(i);
+			double combProb = 1d - (1d - etasProb)*(1d - u3Prob);
+			combCurve.set(etasCurve.getX(i), combProb);
+		}
+		return combCurve;
+	}
+	
 	public void plotMap(MapType type, Duration duration, boolean isProbAt_IML, double level, String label,
-			File outputDir, String prefix, Region zoomRegion, List<Location> annotations, boolean faults)
-					throws IOException, GMT_MapException {
-		GriddedGeoDataSet data = calcMap(type, duration, isProbAt_IML, level);
-		System.out.println("Generating map for p="+level+", "+type.name()+", "+duration.name());
+			File outputDir, String prefix, Region zoomRegion, List<Location> annotations, boolean faults,
+			TestScenario scenario) throws IOException, GMT_MapException {
+		plotMap(type, null, duration, isProbAt_IML, level, label, outputDir, prefix, zoomRegion, annotations, faults, scenario);
+	}
+	
+	public void plotMap(MapType type1, MapType type2, Duration duration, boolean isProbAt_IML, double level, String label,
+			File outputDir, String prefix, Region zoomRegion, List<Location> annotations, boolean faults,
+			TestScenario scenario) throws IOException, GMT_MapException {
+		GriddedGeoDataSet data = calcMap(type1, type2, duration, isProbAt_IML, level);
+		String printDescription = type1.name();
+		String typeFileName = type1.fileName;
+		if (type2 != null) {
+			printDescription = "Gain "+type1.name()+"/"+type2.name();
+			typeFileName = type1.fileName+"_"+type2.fileName;
+			// data data is combined, now get just the denomenator and compute gain
+			GriddedGeoDataSet data2 = calcMap(type2, null, getLongTermCompatibleDuration(duration), isProbAt_IML, level);
+			for (int i=0; i<data.size(); i++)
+				data.set(i, data.get(i)/data2.get(i));
+		}
+		if (isProbAt_IML)
+			System.out.println("Generating map for poe="+level+", "+printDescription+", "+duration.plotName);
+		else
+			System.out.println("Generating map for p="+level+", "+printDescription+", "+duration.plotName);
 		System.out.println("Map range: "+data.getMinZ()+" "+data.getMaxZ());
 		
 		CPT cpt;
-		if (prefix.toLowerCase().contains("_mmi")) {
-			cpt = GMT_CPT_Files.SHAKEMAP.instance();
+		if (type2 != null) {
+			data.log10();
+			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(0, 4);
+//			cpt = GMT_CPT_Files.GMT_POLAR.instance().rescale(0, 2d);
+			label = "Log10 Gain ETAS/"+type2.name()+" "+label;
 		} else {
-			cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
-			if (Double.isInfinite(data.getMaxZ()))
-				cpt = cpt.rescale(0d, 1d); // no data
-			else
-				cpt = cpt.rescale(0d, data.getMaxZ());
+			if (isProbAt_IML) {
+				cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(-6, 0);
+				data.log10();
+				label = "Log10("+label+")";
+			} else if (prefix.toLowerCase().contains("_mmi")) {
+				cpt = GMT_CPT_Files.SHAKEMAP.instance();
+			} else {
+				cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+				if (Double.isInfinite(data.getMaxZ()))
+					cpt = cpt.rescale(0d, 1d); // no data
+				else
+					cpt = cpt.rescale(0d, data.getMaxZ());
+			}
 		}
 		cpt.setNanColor(Color.WHITE);
 		
@@ -960,18 +1387,30 @@ public class ETAS_HazardMapCalc {
 		map.setCustomLabel(duration.plotName+", "+label);
 		map.setRescaleCPT(false);
 		map.setJPGFileName(null);
+		if (isProbAt_IML)
+			map.setCPTCustomInterval(1d);
+		
+		float thickness;
+		if (zoomRegion == null)
+			thickness = 0.5f;
+		else
+			thickness = 1f;
 		
 		if (faults) {
 			Preconditions.checkNotNull(sol, "Must have FSS if you want faults");
 			FaultSystemRupSet rupSet = sol.getRupSet();
-			float thickness;
-			if (zoomRegion == null)
-				thickness = 0.5f;
-			else
-				thickness = 1f;
+			
 			for (int s=0; s<rupSet.getNumSections(); s++) {
 				FaultSectionPrefData sect = rupSet.getFaultSectionData(s);
 				for (PSXYPolygon poly : FaultBasedMapGen.getPolygons(sect.getFaultTrace(), Color.BLACK, thickness))
+					map.addPolys(poly);
+			}
+		}
+		if (scenario != null && scenario.getFSS_Index() >= 0) {
+			Preconditions.checkNotNull(sol, "Must have FSS if you want faults");
+			FaultSystemRupSet rupSet = sol.getRupSet();
+			for (FaultSectionPrefData s : rupSet.getFaultSectionDataForRupture(scenario.getFSS_Index())) {
+				for (PSXYPolygon poly : FaultBasedMapGen.getPolygons(s.getFaultTrace(), Color.WHITE, 2f*thickness))
 					map.addPolys(poly);
 			}
 		}
@@ -983,7 +1422,7 @@ public class ETAS_HazardMapCalc {
 			}
 		}
 		
-		FaultBasedMapGen.plotMap(outputDir, prefix+"_"+type.fileName+"_"+duration.fileName, false, map);
+		FaultBasedMapGen.plotMap(outputDir, prefix+"_"+typeFileName+"_"+duration.fileName, false, map);
 	}
 	
 	private Table<Duration, MapType, DiscretizedFunc> getInitializedCurvesMap(DiscretizedFunc xVals, double initialVal) {
@@ -998,7 +1437,7 @@ public class ETAS_HazardMapCalc {
 				curves.put(duration, MapType.GRIDDED_ONLY, getInitializeClone(xVals, initialVal));
 		
 		if (calcFaults && calcGridded)
-			for (Duration duration : durations)
+			for (Duration duration: durations)
 				curves.put(duration, MapType.COMBINED, getInitializeClone(xVals, initialVal));
 		
 		return curves;
@@ -1028,17 +1467,14 @@ public class ETAS_HazardMapCalc {
 			
 			name = name.substring(prefix.length());
 			
+//			System.out.println("Processing: "+name);
+			
 			// detect duration
-			Duration duration = null;
-			for (Duration d : Duration.values()) {
-				if (name.contains(d.fileName)) {
-					duration = d;
-					break;
-				}
-			}
+			Duration duration = durationForFileName(name);
+//			System.out.println("Detected duration: "+duration);
 			if (duration == null)
 				// assume full
-				duration = Duration.FULL;
+				duration = DurationConstants.FULL.duration;
 			
 			// detect type
 			MapType type = null;
@@ -1093,30 +1529,65 @@ public class ETAS_HazardMapCalc {
 				if (pgvCalc.curves.contains(duration, type))
 					curves.put(duration, type, new DiscretizedFunc[0]);
 			}
+			
+			this.durations = pgaCalc.durations;
+			if (pgaCalc.isCalcLongTerm()) {
+				setCalcLongTerm(true);
+				setLongTermCalcDurations(pgaCalc.getLongTermCalcDurations());
+			}
 		}
 
 		@Override
-		public GriddedGeoDataSet calcMap(MapType type, Duration duration, boolean isProbAt_IML, double level) {
-			GriddedGeoDataSet pgaMap = pgaCalc.calcMap(type, duration, isProbAt_IML, level);
-			GriddedGeoDataSet pgvMap = pgvCalc.calcMap(type, duration, isProbAt_IML, level);
-			
-			GriddedGeoDataSet mmiMap = new GriddedGeoDataSet(pgaMap.getRegion(), pgaMap.isLatitudeX());
-			
-			for (int index=0; index<mmiMap.size(); index++) {
-				double pga = pgaMap.get(index);
-				if (!Doubles.isFinite(pga))
-					pga = 0;
-				double pgv = pgvMap.get(index);
-				if (!Doubles.isFinite(pgv))
-					pgv = 0;
-				double mmi = Wald_MMI_Calc.getMMI(pga, pgv);
-				if (mmi == 1d)
-					// will speed things up
-					mmi = Double.NaN;
-				mmiMap.set(index, mmi);
+		public GriddedGeoDataSet calcMap(MapType type1, MapType type2, Duration duration, boolean isProbAt_IML, double level) {
+			if (isProbAt_IML) {
+				double pga = Wald_MMI_Calc.getPGA(level);
+				double pgv = Wald_MMI_Calc.getPGV(level);
+				double weightPGV = Wald_MMI_Calc.getWeightVMMI(level);
+				
+				GriddedGeoDataSet pgaMap = pgaCalc.calcMap(type1, type2, duration, true, pga);
+				GriddedGeoDataSet pgvMap = pgvCalc.calcMap(type1, type2, duration, true, pgv);
+				
+				GriddedGeoDataSet mmiMap = new GriddedGeoDataSet(pgaMap.getRegion(), pgaMap.isLatitudeX());
+				for (int index=0; index<mmiMap.size(); index++) {
+					double pgaProb = pgaMap.get(index);
+					if (!Doubles.isFinite(pgaProb))
+						pgaProb = 0;
+					Preconditions.checkState((float)pgaProb <= 1f, "Bad PGA prob: %s", pgaProb);
+					
+					double pgvProb = pgvMap.get(index);
+					if (!Doubles.isFinite(pgvProb))
+						pgvProb = 0;
+					Preconditions.checkState((float)pgvProb <= 1f, "Bad PGV prob: %s", pgvProb);
+					
+					double mmiProb = weightPGV*pgvProb + (1d-weightPGV)*pgaProb;
+					if (mmiProb == 0d)
+						// will speed things up
+						mmiProb = Double.NaN;
+					mmiMap.set(index, mmiProb);
+				}
+				return mmiMap;
+			} else {
+				GriddedGeoDataSet pgaMap = pgaCalc.calcMap(type1, type2, duration, false, level);
+				GriddedGeoDataSet pgvMap = pgvCalc.calcMap(type1, type2, duration, false, level);
+				
+				GriddedGeoDataSet mmiMap = new GriddedGeoDataSet(pgaMap.getRegion(), pgaMap.isLatitudeX());
+				
+				for (int index=0; index<mmiMap.size(); index++) {
+					double pga = pgaMap.get(index);
+					if (!Doubles.isFinite(pga))
+						pga = 0;
+					double pgv = pgvMap.get(index);
+					if (!Doubles.isFinite(pgv))
+						pgv = 0;
+					double mmi = Wald_MMI_Calc.getMMI(pga, pgv);
+					Preconditions.checkState(Doubles.isFinite(mmi), "Bad MMI=%s for PGA=%s, PGV=%s", mmi, pga, pgv);
+					if (mmi == 1d)
+						// will speed things up
+						mmi = Double.NaN;
+					mmiMap.set(index, mmi);
+				}
+				return mmiMap;
 			}
-			
-			return mmiMap;
 		}
 		
 	}
@@ -1160,14 +1631,19 @@ public class ETAS_HazardMapCalc {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		force_serial = false;
+		FaultBasedMapGen.LOCAL_MAPGEN = true;
 		boolean calcFault = true;
 		boolean calcGridded = true;
+		boolean calcLongTerm = true;
 		boolean mapParallel = true;
-		boolean plotCurves = false;
-		boolean plotMaps = true;
+		boolean plotCurves = true;
+		boolean plotMaps = false;
+		boolean plotLongTerm = true;
 //		HashSet<MapType> mapTypePlotSubset = new HashSet<MapType>(Lists.newArrayList(MapType.COMBINED));
-		HashSet<MapType> mapTypePlotSubset = null;
-		HashSet<Duration> durationPlotSubset = null;
+		HashSet<MapType> mapTypePlotSubset = new HashSet<MapType>(Lists.newArrayList(MapType.COMBINED, MapType.U3TD, MapType.U3TI));
+//		HashSet<MapType> mapTypePlotSubset = null;
+		HashSet<DurationConstants> durationPlotSubset = null;
+//		HashSet<DurationConstants> durationPlotSubset = new HashSet<DurationConstants>(Lists.newArrayList(DurationConstants.THREE));
 //		calc.debugCurvePlotModulus = 10;
 //		calc.debugStopIndex = 500;
 		
@@ -1183,28 +1659,46 @@ public class ETAS_HazardMapCalc {
 //		double spacing = 1.0;
 //		File precalcDir = new File("/tmp/etas_hazard_test");
 		
-		File faultBasedPrecalc = null;
-		double spacing = 0.02;
-		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
-//				+ "2017_03_03-haywired_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
-//				+ "2017_03_03-haywired_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
-//				+ "2017_03_20-haywired_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
-//				+ "2017_03_20-northridge_combined_descendents-NGA2-0.02-site-effects-with-basin");
-				+ "2017_03_21-mojave_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
+//		File faultBasedPrecalc = null;
+//		double spacing = 0.02;
+//		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
+//				// orig set
+////				+ "2017_03_03-haywired_m7_fulltd_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_20-haywired_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_03-haywired_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_20-northridge_combined_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_20-northridge_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_21-mojave_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_22-mojave_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+//				// final Powell set
+//				+ "2017_03_23-haywired_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_23-haywired_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_23-mojave_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_23-mojave_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_23-northridge_combined_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_23-northridge_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+////				+ "2017_03_23-2016_bombay_swarm_combined_descendents-NGA2-0.02-site-effects-with-basin");
 		
 //		File faultBasedPrecalc = null;
 //		double spacing = 0.5;
-//		File precalcDir = null; 
+//		File precalcDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard/"
+//				+ "2017_03_23-haywired_m7_combined_descendents-NGA2-0.02-site-effects-with-basin/local_test");
 		
-//		String etasDirName = "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k";
-//		String etasDirName = "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined";
-//		String etasDirName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
-//		String etasDirName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined";
-//		String etasDirName = "2017_02_01-northridge-m6.7-10yr-full_td-no_ert-combined";
-		String etasDirName = "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined";
+		File faultBasedPrecalc = null;
+		double spacing = 0.5;
+		File precalcDir = null; 
+		
+		TestScenario scenarioForRebound = null;
+//		String etasDirName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined"; scenarioForRebound = TestScenario.HAYWIRED_M7;
+//		String etasDirName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined"; scenarioForRebound = TestScenario.HAYWIRED_M7;
+//		String etasDirName = "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined"; scenarioForRebound = TestScenario.MOJAVE_M7;
+//		String etasDirName = "2016_12_03-mojave_m7-10yr-gridded-only"; scenarioForRebound = TestScenario.MOJAVE_M7;
+//		String etasDirName = "2017_02_01-northridge-m6.7-10yr-full_td-no_ert-combined"; scenarioForRebound = TestScenario.NORTHRIDGE;
+//		String etasDirName = "2017_02_01-northridge-m6.7-10yr-gridded-only-combined200k"; scenarioForRebound = TestScenario.NORTHRIDGE;
+		String etasDirName = "2016_10_27-2016_bombay_swarm-10yr-full_td-no_ert-combined";
 		String etasFileName = "results_descendents_m5_preserve.bin";
+//		String etasFileName = "results_descendents_m5.bin";
 //		String etasFileName = "results_m5_preserve.bin";
-		int etasStartYear = 2012;
 		double etasSimDuration = 10d;
 		
 		Region plotRegion = null;
@@ -1213,26 +1707,27 @@ public class ETAS_HazardMapCalc {
 //		List<Location> annotations = Lists.newArrayList();
 //		annotations.add(new Location(33.739683, -116.412925));
 		boolean faults = true;
+		boolean highlightScenario = true;
 		
-//		Duration[] durations = { Duration.FULL, Duration.DAY, Duration.MONTH };
-		Duration[] durations = Duration.values();
+		boolean mapProbs = true;
+		boolean mapPOE = true;
 		
 //		String imtName = PGA_Param.NAME;
 //		double period = Double.NaN;
 //		String imtLabel = "PGA";
 //		String imtFileLabel = "pga";
-//		String imtName = PGV_Param.NAME;
-//		double period = Double.NaN;
-//		String imtLabel = "PGV";
-//		String imtFileLabel = "pgv";
+		String imtName = PGV_Param.NAME;
+		double period = Double.NaN;
+		String imtLabel = "PGV";
+		String imtFileLabel = "pgv";
 //		String imtName = SA_Param.NAME;
 //		double period = 1d;
 //		String imtLabel = "1s Sa";
 //		String imtFileLabel = "sa_1s";
-		String imtName = MMI_Param.NAME;
-		double period = Double.NaN;
-		String imtLabel = "MMI";
-		String imtFileLabel = "mmi";
+//		String imtName = MMI_Param.NAME;
+//		double period = Double.NaN;
+//		String imtLabel = "MMI";
+//		String imtFileLabel = "mmi";
 		GriddedRegion region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
 		DiscretizedFunc xVals = new IMT_Info().getDefaultHazardCurve(SA_Param.NAME);
 		AttenRelRef gmpeRef = AttenRelRef.NGAWest_2014_AVG_NOIDRISS;
@@ -1251,8 +1746,22 @@ public class ETAS_HazardMapCalc {
 			curveLocs = Lists.newArrayList();
 			curveSiteNames = Lists.newArrayList();
 			
-			curveLocs.add(NEHRP_TestCity.OAKLAND.location());
-			curveSiteNames.add("Oakland");
+			if (scenarioForRebound == TestScenario.HAYWIRED_M7) {
+				curveLocs.add(NEHRP_TestCity.OAKLAND.location());
+				curveSiteNames.add("Oakland");
+				curveLocs.add(NEHRP_TestCity.SAN_FRANCISCO.location());
+				curveSiteNames.add("San Francisco");
+			} else {
+				curveLocs.add(NEHRP_TestCity.LOS_ANGELES.location());
+				curveSiteNames.add("Los Angeles");
+				curveLocs.add(NEHRP_TestCity.SAN_BERNARDINO.location());
+				curveSiteNames.add("San Bernardino");
+				if (scenarioForRebound != TestScenario.NORTHRIDGE) {
+					curveLocs.add(new Location(33.8303, -116.5453));
+					curveSiteNames.add("Palm Springs");
+				}
+			} 
+			
 		}
 		
 		File etasCatalogs = new File(new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/", etasDirName), etasFileName);
@@ -1267,10 +1776,7 @@ public class ETAS_HazardMapCalc {
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		if (faultBasedPrecalc == null && precalcDir == null) {
 			if (region instanceof FakeGriddedRegion) {
-				if (etasFileName.contains("descend"))
-					outputDir = new File(outputDir, "site_specific_descendants");
-				else
-					outputDir = new File(outputDir, "site_specific_all_rups");
+				
 			} else {
 				outputDir = new File(outputDir, "testing");
 			}
@@ -1290,6 +1796,9 @@ public class ETAS_HazardMapCalc {
 		FaultSystemSolution sol = null;
 		ETAS_HazardMapCalc calc;
 		if (precalcDir != null) {
+			if (mapTypePlotSubset != null && precalcDir.getName().contains("gridded")
+					&& !mapTypePlotSubset.contains(MapType.GRIDDED_ONLY))
+				mapTypePlotSubset.add(MapType.GRIDDED_ONLY);
 			if (imtName.equals(MMI_Param.NAME)) {
 				ETAS_HazardMapCalc pgaCalc = new ETAS_HazardMapCalc(region, detectCurveFiles(precalcDir, "results_pga"));
 				ETAS_HazardMapCalc pgvCalc = new ETAS_HazardMapCalc(region, detectCurveFiles(precalcDir, "results_pgv"));
@@ -1305,13 +1814,14 @@ public class ETAS_HazardMapCalc {
 				}
 				calc = new ETAS_HazardMapCalc(region, curveFiles, xVals, gmpeRef, imtName, period, sites);
 			}
-			
-			durations = calc.curves.rowKeySet().toArray(new Duration[0]);
 		} else {
 			calcGridded = calcGridded && gmpeRef != null;
 			List<List<ETAS_EqkRupture>> catalogs = ETAS_CatalogIO.loadCatalogsBinary(etasCatalogs, 5d);
 			
-			if (calcFault && faultBasedPrecalc == null)
+			if (plotCurves)
+				calcLongTerm = true;
+			
+			if (calcFault && faultBasedPrecalc == null || calcLongTerm)
 				sol = FaultSystemIO.loadSol(solFile);
 			ETAS_CatalogGridSourceProvider gridSources = null;
 			if (calcGridded)
@@ -1323,12 +1833,24 @@ public class ETAS_HazardMapCalc {
 				gmpe.setParamDefaults();
 				sites = fetchSites(region, provs, gmpe);
 			}
+			Duration[] durations;
+			if (durationPlotSubset != null) {
+				List<Duration> durLists = Lists.newArrayList();
+				for (DurationConstants durConst : durationPlotSubset)
+					durLists.add(durConst.duration);
+				durations = Lists.newArrayList(durLists).toArray(new Duration[0]);
+			} else {
+				durations = getDurationDefaults();
+			}
 			calc = new ETAS_HazardMapCalc(catalogs, region, xVals, faultBasedPrecalc, sol, gridSources,
 					gmpeRef, imtName, period, sites, durations);
 			if (!calcFault)
 				calc.setCalcFaults(false);
 			if (!calcGridded)
 				calc.setCalcGridded(false);
+			calc.setCalcLongTerm(calcLongTerm);
+			if (scenarioForRebound != null)
+				calc.setScenarioForElasticRebound(scenarioForRebound);
 			
 			Preconditions.checkState(calcFault || calcGridded);
 			calc.calculate();
@@ -1342,9 +1864,6 @@ public class ETAS_HazardMapCalc {
 		if (plotCurves) {
 			File curveDir = new File(outputDir, "curves");
 			Preconditions.checkState(curveDir.exists() || curveDir.mkdir());
-			if (sol == null)
-				sol = FaultSystemIO.loadSol(solFile);
-			FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 			
 			MapType type;
 			if (types.contains(MapType.COMBINED))
@@ -1355,56 +1874,134 @@ public class ETAS_HazardMapCalc {
 				Location loc = curveLocs.get(i);
 				String name = curveSiteNames.get(i);
 				System.out.println("Plotting curves for "+name);
-				String prefix = name.toLowerCase().replaceAll(" ", "_");
+				String prefix = name.toLowerCase().replaceAll(" ", "_")+"_"+imtFileLabel;
+				File siteDir = new File(curveDir, prefix);
+				Preconditions.checkState(siteDir.exists() || siteDir.mkdir());
 				
-				for (Duration duration : durations)
-					calc.plotComparisons(type, duration, loc, erf, etasStartYear, etasSimDuration, name, curveDir, prefix);
+				for (Duration duration : calc.durationsForType(type))
+					calc.plotComparisons(type, duration, loc, etasSimDuration, name, siteDir, prefix);
 			}
 		}
 		
 		if (plotMaps) {
 			Preconditions.checkState(!types.isEmpty());
 			
-			if (faults && sol == null) {
+			if ((faults || highlightScenario) && sol == null) {
 				sol = FaultSystemIO.loadSol(solFile);
 				calc.setSol(sol);
 			}
 			
+			TestScenario scenario = null;
+			if (highlightScenario)
+				scenario = ETAS_MultiSimAnalysisTools.detectScenario(etasCatalogs.getParentFile());
+			
 			ExecutorService exec = null;
 			List<Future<?>> futures = null;
 			if (mapParallel) {
-				exec = Executors.newFixedThreadPool(10);
+				if (FaultBasedMapGen.LOCAL_MAPGEN)
+					exec = Executors.newFixedThreadPool(6);
+				else
+					exec = Executors.newFixedThreadPool(10);
 				futures = Lists.newArrayList();
 			}
 			
-			System.out.println("Plotting maps for "+Joiner.on(",").join(types)+", "+Joiner.on(",").join(durations));
+			System.out.println("Plotting maps for "+Joiner.on(",").join(types));
 			
-			double[] probVals = { 0.5, 0.25, 0.1d, 0.01d, 0.001 };
-			for (double p : probVals) {
-				String probString;
-				double p100 = p*100;
-				if (p100 == Math.floor(p100))
-					probString = (int)p100+"";
-				else
-					probString = (float)p100+"";
-				String label = imtLabel+" @ "+probString+"% POE";
-				String prefix = "map_"+imtFileLabel+"_p"+(float)p;
+			List<Double> levels = Lists.newArrayList();
+			List<Boolean> isProbAtIMLs = Lists.newArrayList();
+			if (mapPOE && imtName.equals(MMI_Param.NAME)) {
+				levels.add(6d);
+				isProbAtIMLs.add(true);
+				levels.add(8d);
+				isProbAtIMLs.add(true);
+			}
+			if (mapProbs) {
+				double[] probVals = { 0.5, 0.25, 0.1d, 0.01d, 0.001 };
+				for (double p : probVals) {
+					levels.add(p);
+					isProbAtIMLs.add(false);
+				}
+			}
+			for (int i=0; i<levels.size(); i++) {
+				double level = levels.get(i);
+				boolean isProbAtIML = isProbAtIMLs.get(i);
 				
+				String label, prefix;
+				if (isProbAtIML) {
+					String levelStr;
+					if (level == (int)level)
+						levelStr = (int)level+"";
+					else
+						levelStr = (float)level+"";
+					if (imtName.equals(MMI_Param.NAME))
+						label = "POE "+imtLabel+" "+levelStr;
+					else if (imtName.equals(PGV_Param.NAME))
+						label = "POE "+levelStr+" cm/s "+imtLabel;
+					else
+						label = "POE "+levelStr+" G "+imtLabel;
+					prefix = "map_"+imtFileLabel+"_poe_"+levelStr;
+				} else {
+					String probString;
+					double p100 = level*100;
+					if (p100 == Math.floor(p100))
+						probString = (int)p100+"";
+					else
+						probString = (float)p100+"";
+					label = imtLabel+" @@ "+probString+"% POE";
+					prefix = "map_"+imtFileLabel+"_p"+(float)level;
+				}
+				
+				List<MapType> type1s = Lists.newArrayList();
+				List<MapType> type2s = Lists.newArrayList();
 				for (MapType type : types) {
-					if (mapTypePlotSubset != null && !mapTypePlotSubset.contains(type))
+					if (!type.isETAS()) {
+						// this is UCERF3 - plot gain instead
+						MapType etas;
+						if (types.contains(MapType.COMBINED)) {
+							etas = MapType.COMBINED;
+						} else {
+							// this is gridded only
+							Preconditions.checkState(types.contains(MapType.GRIDDED_ONLY));
+							Preconditions.checkState(!types.contains(MapType.FAULT_ONLY));
+							etas = MapType.GRIDDED_ONLY;
+						}
+						// add ratio map
+						type1s.add(etas);
+						type2s.add(type);
+						// add long term only map
+						if (plotLongTerm) {
+							type1s.add(type);
+							type2s.add(null);
+						}
+					} else {
+						type1s.add(type);
+						type2s.add(null);
+					}
+				}
+				
+				for (int t=0; t<type1s.size(); t++) {
+					MapType type1 = type1s.get(t);
+					MapType type2 = type2s.get(t);
+					if (mapTypePlotSubset != null && !mapTypePlotSubset.contains(type1))
 						continue;
-					File typeDir = new File(outputDir, "maps_"+type.fileName);
+					File typeDir = new File(outputDir, "maps_"+type1.fileName);
 					if (plotRegion != null)
 						typeDir = new File(typeDir.getAbsolutePath()+"_zoomed");
 					Preconditions.checkState(typeDir.exists() || typeDir.mkdir());
-					for (Duration duration : durations) {
+					for (Duration duration : calc.durationsForType(type1)) {
 						if (durationPlotSubset != null && !durationPlotSubset.contains(duration))
+							continue;
+						if (type2 != null && !calc.curves.contains(calc.getLongTermCompatibleDuration(duration), type2))
+							// ratio doesn't exist for this duration
 							continue;
 						File durationDir = new File(typeDir, duration.fileName);
 						Preconditions.checkState(durationDir.exists() || durationDir.mkdir());
 //						System.out.println("label: "+label+", "+type+", "+duration);
-						MapPlotRunnable runnable = new MapPlotRunnable(
-								p, type, duration, label, durationDir, prefix, calc, plotRegion, annotations, faults);
+						String myPrefix = prefix;
+						if (type2 != null)
+							myPrefix = "gain_"+prefix;
+						MapPlotRunnable runnable = new MapPlotRunnable(isProbAtIML, level, type1, type2, duration,
+								label, durationDir, myPrefix, calc, plotRegion, annotations, faults, scenario);
 						if (exec == null) {
 							runnable.run();
 						} else {
@@ -1418,8 +2015,12 @@ public class ETAS_HazardMapCalc {
 			
 			if (exec != null) {
 				try {
-					for (Future<?> future : futures)
+					int num = futures.size();
+					int index = 0;
+					for (Future<?> future : futures) {
 						future.get();
+							System.out.println("Finished plot "+index+++"/"+num);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -1430,8 +2031,10 @@ public class ETAS_HazardMapCalc {
 	
 	private static class MapPlotRunnable implements Runnable {
 		
-		private double p;
-		private MapType type;
+		private boolean isProbAtIML;
+		private double level;
+		private MapType type1;
+		private MapType type2;
 		private Duration duration;
 		private String label;
 		private File outputDir;
@@ -1441,12 +2044,16 @@ public class ETAS_HazardMapCalc {
 		private Region zoomRegion;
 		private List<Location> annotations;
 		private boolean faults;
+		private TestScenario scenario;
 		
-		public MapPlotRunnable(double p, MapType type, Duration duration, String label, File outputDir, String prefix,
-				ETAS_HazardMapCalc calc, Region zoomRegion, List<Location> annotations, boolean faults) {
+		public MapPlotRunnable(boolean isProbAtIML, double level, MapType type1, MapType type2, Duration duration,
+				String label, File outputDir, String prefix, ETAS_HazardMapCalc calc, Region zoomRegion,
+				List<Location> annotations, boolean faults, TestScenario scenario) {
 			super();
-			this.p = p;
-			this.type = type;
+			this.isProbAtIML = isProbAtIML;
+			this.level = level;
+			this.type1 = type1;
+			this.type2 = type2;
 			this.duration = duration;
 			this.label = label;
 			this.outputDir = outputDir;
@@ -1455,12 +2062,14 @@ public class ETAS_HazardMapCalc {
 			this.zoomRegion = zoomRegion;
 			this.annotations = annotations;
 			this.faults = faults;
+			this.scenario = scenario;
 		}
 		
 		@Override
 		public void run() {
 			try {
-				calc.plotMap(type, duration, false, p, label, outputDir, prefix, zoomRegion, annotations, faults);
+				calc.plotMap(type1, type2, duration, isProbAtIML, level, label, outputDir, prefix, zoomRegion,
+						annotations, faults, scenario);
 				System.out.println("Done with "+prefix);
 			} catch (Exception e) {
 				ExceptionUtils.throwAsRuntimeException(e);

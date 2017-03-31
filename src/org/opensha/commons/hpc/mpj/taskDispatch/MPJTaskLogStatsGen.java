@@ -67,6 +67,8 @@ public class MPJTaskLogStatsGen {
 		// used to detect midnight transitions
 		Date prevDate = null;
 		
+		Date firstDate = null;
+		
 		int numTasks = -1;
 		int numLeft = -1;
 		int prevDispatch = 0;
@@ -92,6 +94,8 @@ public class MPJTaskLogStatsGen {
 					String[] split = line.trim().split(" ");
 					try {
 						prevDispatch = Integer.parseInt(split[split.length-1]);
+						// first states num left, then removes and returns, so this updates to actual post dispatch count
+						numLeft -= prevDispatch;
 					} catch (NumberFormatException e) {
 						System.err.println("Bad num dispatch size parse: "+e.getMessage());
 					}
@@ -112,6 +116,8 @@ public class MPJTaskLogStatsGen {
 			Date date = parseDate(line, prevDate);
 			if (date == null)
 				continue;
+			if (firstDate == null)
+				firstDate = date;
 			
 			lastHeardFromMap.put(node, date);
 			
@@ -120,23 +126,23 @@ public class MPJTaskLogStatsGen {
 			if (line.contains("receiving batch of length")) {
 				// new batch
 				batches.add(parseBatchLine(line, node, date));
-			} else if (!nodeZeroDirect && line.contains("getting next batch directly")) {
-				nodeZeroDirect = true;
-			} else if (nodeZeroDirect && node.getProcessNum() == 0) {
-				boolean newCalc = line.contains("calculating batch");
-				boolean done = line.contains("DONE!");
-				if ((newCalc && prevDispatch > 0) || done) {
-					if (!batches.isEmpty()) {
-						CalcBatch batch = getLastInProgress(batches);
-						if (batch != null) {
-							batch.setEndDate(date);
-							numDone += batch.size;
-						}
-					}
-				}
-				if (newCalc)
-					batches.add(new CalcBatch(prevDispatch, node, date));
-			} else if (line.contains("sending READY message")) {
+//			} else if (!nodeZeroDirect && line.contains("getting next batch directly")) {
+//				nodeZeroDirect = true;
+//			} else if (nodeZeroDirect && node.getProcessNum() == 0) {
+//				boolean newCalc = line.contains("calculating batch");
+//				boolean done = line.contains("DONE!");
+//				if ((newCalc && prevDispatch > 0) || done) {
+//					if (!batches.isEmpty()) {
+//						CalcBatch batch = getLastInProgress(batches);
+//						if (batch != null) {
+//							batch.setEndDate(date);
+//							numDone += batch.size;
+//						}
+//					}
+//				}
+//				if (newCalc)
+//					batches.add(new CalcBatch(prevDispatch, node, date));
+			} else if (line.contains("sending READY message") || line.contains("getting next batch directly")) {
 				if (!batches.isEmpty()) {
 					// finished a batch
 					CalcBatch batch = getLastInProgress(batches);
@@ -172,6 +178,9 @@ public class MPJTaskLogStatsGen {
 		int[] numTasksCompleted = new int[nodes.size()];
 		double[] averages = new double[nodes.size()];
 		
+		int numNodesRunning = 0;
+		MinMaxAveTracker runningBatchSizeTrack = new MinMaxAveTracker();
+		
 		System.out.println();
 		for (int i=0; i<nodes.size(); i++) {
 			Node node = nodes.get(i);
@@ -180,6 +189,8 @@ public class MPJTaskLogStatsGen {
 			numBatches[i] = batches.size();
 			
 			MinMaxAveTracker track = new MinMaxAveTracker();
+			
+			int runningBatchSize = 0;
 			
 			for (CalcBatch batch : batches) {
 				if (batch.isCompleted()) {
@@ -191,8 +202,15 @@ public class MPJTaskLogStatsGen {
 						allDurationTrack.addValue(each);
 						allBatchDurationTrack.addValue(batch.getDurationMillis());
 					}
+				} else {
+					runningBatchSize += batch.size;
 				}
 				numTasksAssigned[i] += batch.getSize();
+			}
+			
+			if (runningBatchSize > 0) {
+				numNodesRunning++;
+				runningBatchSizeTrack.addValue(runningBatchSize);
 			}
 			
 			if (numTasksCompleted[i] > 0)
@@ -222,6 +240,8 @@ public class MPJTaskLogStatsGen {
 		double longestPeriod = 0d;
 		Node longestPeriodNode = null;
 		double longestPeriod2 = 0d;
+		Node shortestPeriodNode = null;
+		double shortestPeriod = Double.POSITIVE_INFINITY;
 		
 		for (int i=0; i<nodes.size(); i++) {
 			Node node = nodes.get(i);
@@ -233,6 +253,11 @@ public class MPJTaskLogStatsGen {
 			double lastContactMillis2 = timeDeltaMillis(lastHeardFromMap.get(node), curDate);
 			if (lastContactMillis2 > longestPeriod2)
 				longestPeriod2 = lastContactMillis2;
+			
+			if (lastContactMillis2 < shortestPeriod) {
+				shortestPeriod = lastContactMillis2;
+				shortestPeriodNode = node;
+			}
 			
 			String runningAdd = "";
 			if (numTasksCompleted[i] < numTasksAssigned[i])
@@ -246,6 +271,8 @@ public class MPJTaskLogStatsGen {
 		System.out.println();
 		System.out.println("Longest current time without contact: "+longestPeriodNode+": "
 				+smartTimePrint(longestPeriod)+" ("+smartTimePrint(longestPeriod2)+")");
+		System.out.println("Most recent contact from current date: "+shortestPeriodNode+": "
+				+smartTimePrint(shortestPeriod));
 		System.out.println();
 		
 		int numDispatched = numTasks - numLeft;
@@ -256,7 +283,8 @@ public class MPJTaskLogStatsGen {
 		System.out.println(numDone+"/"+numTasks+" ("+percentDF.format(percentDone)+") "
 				+"completed ("+(numTasks-numDone)+" left)");
 		int inProcess = numDispatched - numDone;
-		System.out.println(inProcess+" in process");
+		System.out.println(inProcess+" in process on "+numNodesRunning+"/"+nodes.size()
+			+" nodes, batch sizes ["+(int)runningBatchSizeTrack.getMin()+" "+(int)runningBatchSizeTrack.getMax()+"]");
 		
 		System.out.println("Calc durations (note: threading effects ignored):");
 		System.out.println("\tRange: ["+smartTimePrint(allDurationTrack.getMin())
@@ -275,6 +303,23 @@ public class MPJTaskLogStatsGen {
 		System.out.println("DONE? "+done);
 		
 		long avgMillis = (long)allDurationTrack.getAverage();
+		
+		double totDuration = timeDeltaMillis(firstDate, prevDate);
+		double nowDuration = timeDeltaMillis(firstDate, curDate);
+		System.out.println();
+		System.out.println("Current duration: "+smartTimePrint(totDuration)+" ("+smartTimePrint(nowDuration)+")");
+		System.out.println("Total rate: "+smartRatePrint(numDone, totDuration));
+		
+		if (numDone == 0 && numDispatched > 0) {
+			// assume that all running end right now
+			double tasksPerMilli = numDispatched/nowDuration;
+			double millisLeft = (numTasks - numDispatched)/tasksPerMilli;
+			System.out.println();
+			System.out.println("None done, estimates if all currently dispatched completed now:");
+			System.out.println("\tTotal rate: <"+smartRatePrint(numDispatched, nowDuration));
+			System.out.println("\tTime left: >"+smartTimePrint(millisLeft));
+			System.out.println("\tTot duration: >"+smartTimePrint(millisLeft+nowDuration));
+		}
 		
 		if (!done && numDone > 0 && avgMillis > 10 && numTasks > 0 && numDispatched > 0) {
 			System.out.println();
@@ -301,7 +346,7 @@ public class MPJTaskLogStatsGen {
 				System.out.println("\tTime left: >= "+smartTimePrint(timeLeftFromCur));
 			else
 				System.out.println("\tTime left: "+smartTimePrint(timeLeftFromCur));
-//			System.out.println("Estimated time assuming average runtime & ideal dispatching: "+smartTimePrint(deltaMillis));
+			System.out.println("Estimated total duration: "+smartTimePrint(totDuration+timeLeftFromLast));
 		}
 	}
 	
@@ -558,7 +603,7 @@ public class MPJTaskLogStatsGen {
 		if (split[1].startsWith("(") && split[1].endsWith(")")) {
 			// we have hostNames
 			hostName = split[1].substring(1);
-			hostName = hostName.substring(0, hostName.length()-2);
+			hostName = hostName.substring(0, hostName.length()-1);
 		}
 		
 		return new Node(processNum, hostName);
@@ -619,6 +664,29 @@ public class MPJTaskLogStatsGen {
 		if (days < 1)
 			return timeDF.format(hours)+" h";
 		return timeDF.format(days)+" d";
+	}
+	
+	public static String smartRatePrint(double numDone, double millis) {
+		if (Double.isNaN(millis))
+			return "N/A";
+		double rate = numDone/millis;
+		if (rate > 1d)
+			return timeDF.format(rate)+" tasks/ms";
+		double secs = millis / 1000d;
+		rate = numDone/secs;
+		if (rate > 1d)
+			return timeDF.format(rate)+" tasks/s";
+		double mins = secs / 60d;
+		rate = numDone/mins;
+		if (rate > 1d)
+			return timeDF.format(rate)+" tasks/m";
+		double hours = mins / 60d;
+		rate = numDone/hours;
+		if (rate > 1d)
+			return timeDF.format(rate)+" tasks/h";
+		double days = hours / 24;
+		rate = numDone/days;
+		return timeDF.format(rate)+" task/d";
 	}
 	
 	private static final String receive_message = "receiving batch of length";

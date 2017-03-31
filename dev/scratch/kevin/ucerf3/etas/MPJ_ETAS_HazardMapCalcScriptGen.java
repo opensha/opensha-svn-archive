@@ -23,6 +23,7 @@ import org.opensha.sha.imr.AttenuationRelationship;
 
 import com.google.common.base.Preconditions;
 
+import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.kevin.ucerf3.MPJ_UCERF3_ShakeMapPrecalcScriptGen;
 
 public class MPJ_ETAS_HazardMapCalcScriptGen {
@@ -31,39 +32,45 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 
 	public static void main(String[] args) throws IOException {
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard");
-		File remoteMainDir = new File("/home/scec-02/kmilner/ucerf3/etas_hazard");
 		
-		File remoteShakemapDir = new File("/home/scec-02/kmilner/ucerf3/shakemap_precalc");
-		
-		File remoteETASDir = new File("/home/scec-00/kmilner/ucerf3_etas_results_stampede/");
-		File remoteFSSFile = new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/2013_05_10-ucerf3p3-production-10runs/"
-				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
+//		String longTermDurations = null;
+		String longTermDurations = "THREE";
 
-//		String etasSimName = "2016_02_19-mojave_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined100k";
-//		String etasFileName = "results_descendents_m5_preserve.bin";
-//		String etasShortName = "mojave_m7_fulltd_descendents";
-//		String etasSimName = "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined";
-//		String etasFileName = "results_descendents_m5_preserve.bin";
-//		String etasShortName = "mojave_m7_combined_descendents";
-		String etasSimName = "2016_12_03-mojave_m7-10yr-gridded-only";
-		String etasFileName = "results_descendents_m5_preserve.bin";
-		String etasShortName = "mojave_m7_gridded_descendents";
-//		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-combined";
-//		String etasFileName = "results_descendents_m5_preserve.bin";
-//		String etasShortName = "haywired_m7_fulltd_descendents";
-//		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined";
-//		String etasFileName = "results_descendents_m5.bin";
-//		String etasShortName = "haywired_m7_combined_descendents";
+		// Haywired Fault
+		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined";
+		String etasFileName = "results_descendents_m5.bin";
+		String etasShortName = "haywired_m7_combined_descendents";
+		TestScenario scenario = TestScenario.HAYWIRED_M7;
+		// Haywired Gridded
 //		String etasSimName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
 //		String etasFileName = "results_descendents_m5_preserve.bin";
 //		String etasShortName = "haywired_m7_gridded_descendents";
+//		TestScenario scenario = TestScenario.HAYWIRED_M7;
+		// Northridge Fault
 //		String etasSimName = "2017_02_01-northridge-m6.7-10yr-full_td-no_ert-combined";
 //		String etasFileName = "results_descendents_m5.bin";
 //		String etasShortName = "northridge_combined_descendents";
+//		TestScenario scenario = TestScenario.NORTHRIDGE;
+		// Northride Gridded
 //		String etasSimName = "2017_02_01-northridge-m6.7-10yr-gridded-only-combined200k";
 //		String etasFileName = "results_descendents_m5_preserve.bin";
 //		String etasShortName = "northridge_gridded_descendents";
-		File remoteEtasCatalogFile = new File(new File(remoteETASDir, etasSimName), etasFileName);
+//		TestScenario scenario = TestScenario.NORTHRIDGE;
+		// Mojave Fault
+//		String etasSimName = "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined";
+//		String etasFileName = "results_descendents_m5_preserve.bin";
+//		String etasShortName = "mojave_m7_combined_descendents";
+//		TestScenario scenario = TestScenario.MOJAVE_M7;
+		// Mojave Gridded
+//		String etasSimName = "2016_12_03-mojave_m7-10yr-gridded-only";
+//		String etasFileName = "results_descendents_m5_preserve.bin";
+//		String etasShortName = "mojave_m7_gridded_descendents";
+//		TestScenario scenario = TestScenario.MOJAVE_M7;
+		// 2016 Bombay Swarm Fault
+//		String etasSimName = "2016_10_27-2016_bombay_swarm-10yr-full_td-no_ert-combined";
+//		String etasFileName = "results_m5_preserve.bin";
+//		String etasShortName = "2016_bombay_swarm_combined_descendents";
+//		TestScenario scenario = null;
 		
 		// --------------------
 		// for fault precalc
@@ -96,21 +103,34 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 		
 		double griddedSpacing = 0.01;
 		
-		String dateStr = df.format(new Date());
+//		String dateStr = df.format(new Date());
+		String dateStr = "2017_03_23";
 		String jobName = dateStr+"-"+etasShortName+"-"+shakemapShortName;
 		
-		int threads = 20;
-		String queue = "scec";
-		
+		boolean stampede = true;
+		boolean knl = false;
 		int nodes = 34;
 		int hours = 24;
+		int threads = 16;
+//		boolean knl = true;
+//		int nodes = 10;
+//		int hours = 10;
+//		int threads = 272;
+		String queue = null;
+		
+//		boolean stampede = false;
+//		boolean knl = false;
+//		int nodes = 34;
+//		int hours = 24;
+//		int threads = 20;
+//		String queue = "scec";
 		
 		int minDispatch = threads;
 		if (minDispatch < MPJTaskCalculator.MIN_DISPATCH_DEFAULT)
 			minDispatch = MPJTaskCalculator.MIN_DISPATCH_DEFAULT;
 		int maxDispatch = MPJTaskCalculator.MAX_DISPATCH_DEFAULT;
 		if (spacing <= 0.05)
-			maxDispatch = 1000;
+			maxDispatch = 500;
 		
 		File localDir = new File(localMainDir, jobName);
 		Preconditions.checkState(localDir.exists() || localDir.mkdir());
@@ -121,16 +141,29 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 		JavaShellScriptWriter mpjWrite;
 		BatchScriptWriter pbsWrite;
 		
-		boolean stampede = false;
 		int memGigs;
 		int ppn;
+		File remoteMainDir, remoteShakemapDir, remoteETASDir, remoteFSSFile;
 		if (stampede) {
-			memGigs = 26;
-			ppn = 16;
+			if (knl) {
+				memGigs = 90;
+				ppn = 68;
+			} else {
+				memGigs = 26;
+				ppn = 16;
+			}
 			mpjWrite = new FastMPJShellScriptWriter(StampedeScriptWriter.JAVA_BIN, memGigs*1024,
 					null, StampedeScriptWriter.FMPJ_HOME);
 			((FastMPJShellScriptWriter)mpjWrite).setUseLaunchWrapper(true);
-			pbsWrite = new StampedeScriptWriter();
+			pbsWrite = new StampedeScriptWriter(knl);
+			
+			remoteMainDir = new File("/work/00950/kevinm/ucerf3/etas_hazard");
+			
+			remoteShakemapDir = null;
+			
+			remoteETASDir = new File("/work/00950/kevinm/ucerf3/etas_sim");
+			remoteFSSFile = new File("/work/00950/kevinm/ucerf3/inversion/compound_plots/2013_05_10-ucerf3p3-production-10runs/"
+					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
 		} else {
 			if (queue == null) {
 				memGigs = 9;
@@ -150,7 +183,17 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 						null, USC_HPCC_ScriptWriter.MPJ_HOME);
 			}
 			pbsWrite = new USC_HPCC_ScriptWriter();
+			
+			remoteMainDir = new File("/home/scec-02/kmilner/ucerf3/etas_hazard");
+			
+			remoteShakemapDir = new File("/home/scec-02/kmilner/ucerf3/shakemap_precalc");
+			
+			remoteETASDir = new File("/home/scec-00/kmilner/ucerf3_etas_results_stampede/");
+			remoteFSSFile = new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/2013_05_10-ucerf3p3-production-10runs/"
+					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
+			File remoteEtasCatalogFile = new File(new File(remoteETASDir, etasSimName), etasFileName);
 		}
+		File remoteEtasCatalogFile = new File(new File(remoteETASDir, etasSimName), etasFileName);
 		File remoteJobDir = new File(remoteMainDir, jobName);
 		
 		List<File> classpath = new ArrayList<File>();
@@ -203,12 +246,26 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 			argz += " --output-dir "+remoteJobDir.getAbsolutePath();
 			if (etasSimName.contains("gridded-only"))
 				argz += " --no-fault";
+			if (longTermDurations != null && !longTermDurations.isEmpty()) {
+				argz += " --calc-long-term --long-term-durations "+longTermDurations;
+				if (scenario != null)
+					argz += " --elastic-rebound "+scenario.name();
+			}
 			
 			List<String> script = mpjWrite.buildScript(MPJ_ETAS_HazardMapCalc.class.getName(), argz);
 			
 			int mins = hours*60;
 			script = pbsWrite.buildScript(script, mins, nodes, ppn, queue);
-			pbsWrite.writeScript(new File(localDir, imt+".pbs"), script);
+			String scriptName;
+			if (stampede) {
+				if (knl)
+					scriptName = imt+"_stampede_knl.pbs";
+				else
+					scriptName = imt+"_stampede.pbs";
+			} else {
+				scriptName = imt+".pbs";
+			}
+			pbsWrite.writeScript(new File(localDir, scriptName), script);
 		}
 	}
 

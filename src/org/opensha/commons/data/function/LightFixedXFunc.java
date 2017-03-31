@@ -39,7 +39,7 @@ public class LightFixedXFunc extends AbstractDiscretizedFunc {
 	@Override
 	public double getY(double x) {
 		int ind = Arrays.binarySearch(xVals, x);
-		return xVals[ind];
+		return yVals[ind];
 	}
 
 	@Override

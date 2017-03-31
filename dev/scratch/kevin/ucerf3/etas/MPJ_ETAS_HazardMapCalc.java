@@ -26,7 +26,6 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -38,8 +37,10 @@ import mpi.MPI;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
+import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.utils.FaultSystemIO;
 import scratch.kevin.ucerf3.etas.ETAS_HazardMapCalc.Duration;
+import scratch.kevin.ucerf3.etas.ETAS_HazardMapCalc.DurationConstants;
 import scratch.kevin.ucerf3.etas.ETAS_HazardMapCalc.MapType;
 
 public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
@@ -64,10 +65,11 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 	
 	private boolean calcGridded;
 	private boolean calcFault;
+	private boolean calcLongTerm;
 	
 	private MapType[] mapTypes;
 	private Duration[] durations;
-	private static final Duration[] DURATIONS_DEFAULT = Duration.values();
+	private static final Duration[] DURATIONS_DEFAULT = ETAS_HazardMapCalc.getDurationDefaults();
 	
 	private final boolean griddedConditional = true;
 	private ETAS_CatalogGridSourceProvider griddedSources;
@@ -105,8 +107,9 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 		calcGridded = !cmd.hasOption("no-gridded");
 		calcFault = !cmd.hasOption("no-fault");
+		calcLongTerm = cmd.hasOption("calc-long-term");
 		
-		Preconditions.checkArgument(calcGridded || calcFault);
+		Preconditions.checkArgument(calcGridded || calcFault || calcLongTerm);
 		
 		imt = cmd.getOptionValue("imt").toUpperCase();
 		if (imt.equals(SA_Param.NAME)) {
@@ -140,10 +143,8 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 			griddedSources = new ETAS_CatalogGridSourceProvider(catalogs, griddedSpacing, griddedConditional);
 		
 		if (cmd.hasOption("durations")) {
-			String[] split = cmd.getOptionValue("durations").trim().split(",");
-			durations = new Duration[split.length];
-			for (int i=0; i<split.length; i++)
-				durations[i] = Duration.valueOf(split[i]);
+			String durStr = cmd.getOptionValue("durations");
+			durations = parseDurations(durStr);
 		} else {
 			durations = DURATIONS_DEFAULT;
 		}
@@ -152,24 +153,43 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		mapCalc = new ETAS_HazardMapCalc(catalogs, region, xVals, null, sol, griddedSources, gmpeRef, imt, spacing, sites, durations);
 		mapCalc.setCalcFaults(calcFault);
 		mapCalc.setCalcGridded(calcGridded);
+		mapCalc.setCalcLongTerm(calcLongTerm);
+		
+		if (calcLongTerm && cmd.hasOption("long-term-durations")) {
+			String durStr = cmd.getOptionValue("long-term-durations");
+			Duration[] longTermDurations = parseDurations(durStr);
+			mapCalc.setLongTermCalcDurations(longTermDurations);
+		}
+		
+		if (calcLongTerm && cmd.hasOption("elastic-rebound")) {
+			TestScenario scenario = TestScenario.valueOf(cmd.getOptionValue("elastic-rebound"));
+			if (rank == 0)
+				debug("Applying elastic rebound for scenario: "+scenario.name());
+			mapCalc.setScenarioForElasticRebound(scenario);
+		}
 		
 		executor = mapCalc.createExecutor(getNumThreads());
 		
 		if (calcFault && raFile != null)
 			loadFilePositions();
 		
+		List<MapType> mapTypesList = Lists.newArrayList();
+		if (calcFault)
+			mapTypesList.add(MapType.FAULT_ONLY);
+		if (calcGridded)
+			mapTypesList.add(MapType.GRIDDED_ONLY);
 		if (calcFault && calcGridded)
-			mapTypes = MapType.values();
-		else if (calcFault)
-			mapTypes = new MapType[] { MapType.FAULT_ONLY };
-		else {
-			Preconditions.checkState(calcGridded, "Must calculate something...");
-			mapTypes = new MapType[] { MapType.GRIDDED_ONLY };
+			mapTypesList.add(MapType.COMBINED);
+		if (calcLongTerm) {
+			mapTypesList.add(MapType.U3TD);
+			mapTypesList.add(MapType.U3TI);
 		}
+		Preconditions.checkState(!mapTypesList.isEmpty(), "Must calculate something...");
+		mapTypes = mapTypesList.toArray(new MapType[0]);
 		
 		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
 		for (MapType type : mapTypes)
-			for (Duration duration : durations)
+			for (Duration duration : durationsForType(type))
 				xValsMap.put(getArchiverName(type, duration), xVals);
 		
 		archiver = new BinaryCurveArchiver(outputDir, getNumTasks(), xValsMap);
@@ -177,6 +197,29 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 			archiver.initialize();
 		
 		printEach = getNumTasks() < 50000;
+	}
+	
+	private Duration[] parseDurations(String durStr) {
+		String[] split = durStr.trim().split(",");
+		Duration[] durations = new Duration[split.length];
+		for (int i=0; i<split.length; i++) {
+			if (Character.isDigit(split[i].charAt(0))) {
+				// it's a day range
+				Preconditions.checkState(Character.isDigit(split[i].charAt(split[i].length()-1)));
+				Preconditions.checkState(split[i].contains("-"));
+				int dashIndex = split[i].indexOf("-");
+				String first = split[i].substring(0, dashIndex);
+				int startDay = Integer.parseInt(first);
+				String last = split[i].substring(dashIndex+1);
+				int endDay = Integer.parseInt(last);
+				durations[i] = ETAS_HazardMapCalc.durationForDayRange(startDay, endDay);
+			} else {
+				durations[i] = DurationConstants.valueOf(split[i]).duration;
+			}
+			if (rank == 0)
+				debug("Parsed duration '"+split[i]+"' to: "+durations[i]);
+		}
+		return durations;
 	}
 	
 	private String getArchiverName(MapType type, Duration duration) {
@@ -266,12 +309,19 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		
 	}
 	
+	private Duration[] durationsForType(MapType type) {
+		if (type.isETAS())
+			return durations;
+		Preconditions.checkState(mapCalc.isCalcLongTerm());
+		return mapCalc.getLongTermCalcDurations();
+	}
+	
 	private void calculate(int index) throws IOException {
 		Table<Duration, MapType, CurveMetadata> curveMetas = HashBasedTable.create();
 		
 		boolean allDone = true;
 		for (MapType type : mapTypes) {
-			for (Duration duration : durations) {
+			for (Duration duration : durationsForType(type)) {
 				CurveMetadata meta = new CurveMetadata(sites.get(index), index, null, getArchiverName(type, duration));
 				curveMetas.put(duration, type, meta);
 				allDone = allDone && archiver.isCurveCalculated(meta, xVals);
@@ -279,7 +329,7 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		}
 		
 		if (allDone) {
-			debug("fault "+index+" already done, skipping");
+			debug(index+" already done, skipping");
 			return;
 		}
 		
@@ -369,9 +419,23 @@ public class MPJ_ETAS_HazardMapCalc extends MPJTaskCalculator {
 		ops.addOption(noFault);
 		
 		Option durations = new Option("d", "durations", true,
-				"Durations to calculate (comma separated). Default: "+Joiner.on(",").join(DURATIONS_DEFAULT));
+				"Durations to calculate (comma separated)");
 		durations.setRequired(false);
 		ops.addOption(durations);
+		
+		Option longTerm = new Option("lt", "calc-long-term", false, "Flag enable long term comparisons");
+		longTerm.setRequired(false);
+		ops.addOption(longTerm);
+		
+		Option longTermDurations = new Option("ltd", "long-term-durations", true,
+				"Durations to calculate for long term (comma separated)");
+		longTermDurations.setRequired(false);
+		ops.addOption(longTermDurations);
+		
+		Option elastic = new Option("el", "elastic-rebound", true,
+				"Applies elastic rebound for UCERF3-TD for the given ETAS scenario name");
+		elastic.setRequired(false);
+		ops.addOption(elastic);
 		
 		return ops;
 	}

@@ -455,12 +455,7 @@ public class ETAS_CatalogEALCalculator {
 		return distsMap;
 	}
 	
-	private double calcGridSourceLoss(ETAS_EqkRupture rup, GriddedRegion region,
-			DiscretizedFunc[] griddedMagLossDists, String catName) {
-		double mag = rup.getMag();
-		if ((float)mag < (float)AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF)
-			// below our min mag
-			return 0;
+	static int calcNodeIndex(ETAS_EqkRupture rup, GriddedRegion region) {
 		Location loc = rup.getHypocenterLocation();
 		int nodeIndex = region.indexForLocation(loc);
 		if (nodeIndex < 0) {
@@ -487,6 +482,17 @@ public class ETAS_CatalogEALCalculator {
 						+(float)closestDist+" km away. Did not map.");
 			}
 		}
+		return nodeIndex;
+	}
+	
+	double calcGridSourceLoss(ETAS_EqkRupture rup, GriddedRegion region,
+			DiscretizedFunc[] griddedMagLossDists, String catName) {
+		double mag = rup.getMag();
+		if ((float)mag < (float)AbstractGridSourceProvider.SOURCE_MIN_MAG_CUTOFF)
+			// below our min mag
+			return 0;
+		Location loc = rup.getHypocenterLocation();
+		int nodeIndex = calcNodeIndex(rup, region);
 		Preconditions.checkState(nodeIndex >= 0, "Node not found for loc: "+loc);
 		DiscretizedFunc magLossDist = griddedMagLossDists[nodeIndex];
 		int magIndex = UCERF3_BranchAvgLossFetcher.getMatchingXIndexFloatPrecision(mag, magLossDist);

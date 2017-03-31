@@ -85,6 +85,7 @@ public class GMT_Map implements Serializable {
 	private Double customScaleMax = null;
 	
 	private boolean cptEqualSpacing = false;
+	private Double cptCustomInterval = null;
 	
 	private int dpi = 72;
 	
@@ -203,6 +204,14 @@ public class GMT_Map implements Serializable {
 	
 	public void setCPTEqualSpacing(boolean cptEqualSpacing) {
 		this.cptEqualSpacing = cptEqualSpacing;
+	}
+	
+	public Double getCPTCustomInterval() {
+		return cptCustomInterval;
+	}
+	
+	public void setCPTCustomInterval(Double cptCustomInterval) {
+		this.cptCustomInterval = cptCustomInterval;
 	}
 
 	public double getGriddedDataInc() {

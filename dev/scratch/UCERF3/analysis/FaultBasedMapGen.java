@@ -2,6 +2,7 @@ package scratch.UCERF3.analysis;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Named;
 import org.opensha.commons.data.function.EvenlyDiscretizedFunc;
 import org.opensha.commons.data.region.CaliforniaRegions;
+import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
@@ -42,6 +44,7 @@ import org.opensha.commons.param.impl.CPTParameter;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.commons.util.FileUtils;
+import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XMLUtils;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
@@ -54,6 +57,7 @@ import org.opensha.sha.magdist.SummedMagFreqDist;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 import com.google.common.primitives.Doubles;
 
 import scratch.UCERF3.FaultSystemRupSet;
@@ -78,6 +82,8 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class FaultBasedMapGen {
 	
 	private static GMT_MapGenerator gmt;
+	
+	public static boolean LOCAL_MAPGEN = false;
 	
 	private static CPT slipCPT = null;
 	public static CPT getSlipRateCPT() {
@@ -879,25 +885,64 @@ public class FaultBasedMapGen {
 			gmt.getAdjustableParamsList().getParameter(Boolean.class, GMT_MapGenerator.GMT_SMOOTHING_PARAM_NAME).setValue(false);
 		}
 		
-		String url = gmt.makeMapUsingServlet(map, "metadata", null);
-		System.out.println(url);
-		String baseURL = url.substring(0, url.lastIndexOf('/')+1);
-		if (saveDir != null) {
-			File pngFile = new File(saveDir, prefix+".png");
-			FileUtils.downloadURL(baseURL+"map.png", pngFile);
+		String baseURL;
+		if (LOCAL_MAPGEN) {
+			GMT_MapGenerator.clearEnv();
+			map.setJPGFileName(null);
+			File tempDir = Files.createTempDir();
+			List<String> script = gmt.getGMT_ScriptLines(map, tempDir.getAbsolutePath());
 			
-			File pdfFile = new File(saveDir, prefix+".pdf");
-			FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
-		}
-//		File zipFile = new File(downloadDir, "allFiles.zip");
-//		// construct zip URL
-//		String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
-//		FileUtils.downloadURL(zipURL, zipFile);
-//		FileUtils.unzipFile(zipFile, downloadDir);
-		
-		if (display) {
-			String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
-			new ImageViewerWindow(url,metadata, true);
+			File scriptFile = new File(tempDir, "script.sh");
+			
+			if (map.getGriddedData() != null) {
+				GeoDataSet griddedData = map.getGriddedData();
+				griddedData.setLatitudeX(true);
+				ArbDiscrGeoDataSet.writeXYZFile(griddedData, tempDir.getAbsolutePath()+"/"+new File(map.getXyzFileName()).getName());
+			}
+			
+			FileWriter fw = new FileWriter(scriptFile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			for (String line : script)
+				bw.write(line + "\n");
+			bw.close();
+			
+			String[] command = {
+					"sh", "-c", "/bin/bash "+scriptFile.getAbsolutePath()+" > /dev/null 2> /dev/null"};
+			RunScript.runScript(command);
+			
+			if (saveDir != null) {
+				File pngFile = new File(tempDir, map.getPNGFileName());
+				Preconditions.checkState(pngFile.exists(), "No PNG file: %s", pngFile.getAbsolutePath());
+				File pdfFile = new File(tempDir, map.getPDFFileName());
+				Preconditions.checkState(pdfFile.exists(), "No PDF file: %s", pdfFile.getAbsolutePath());
+				
+				Files.move(pngFile, new File(saveDir, prefix+".png"));
+				Files.move(pdfFile, new File(saveDir, prefix+".pdf"));
+			}
+			
+			FileUtils.deleteRecursive(tempDir);
+			
+			baseURL = null;
+		} else {
+			String url = gmt.makeMapUsingServlet(map, "metadata", null);
+			System.out.println(url);
+			baseURL = url.substring(0, url.lastIndexOf('/')+1);
+			if (saveDir != null) {
+				File pngFile = new File(saveDir, prefix+".png");
+				FileUtils.downloadURL(baseURL+"map.png", pngFile);
+				
+				File pdfFile = new File(saveDir, prefix+".pdf");
+				FileUtils.downloadURL(baseURL+"map.pdf", pdfFile);
+			}
+//			File zipFile = new File(downloadDir, "allFiles.zip");
+//			// construct zip URL
+//			String zipURL = url.substring(0, url.lastIndexOf('/')+1)+"allFiles.zip";
+//			FileUtils.downloadURL(zipURL, zipFile);
+//			FileUtils.unzipFile(zipFile, downloadDir);
+			if (display) {
+				String metadata = GMT_MapGuiBean.getClickHereHTML(gmt.getGMTFilesWebAddress());
+				new ImageViewerWindow(url,metadata, true);
+			}
 		}
 		
 		return baseURL;

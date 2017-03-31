@@ -1221,16 +1221,29 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		return "'" + label + "'";
 	}
 	
+	public static void clearEnv() {
+		GMT_PATH = null;
+		GS_PATH = null;
+		CONVERT_PATH = null;
+		COMMAND_PATH = null;
+		PS2PDF_PATH = null;
+		NETCDF_LIB_PATH = null;
+	}
+	
 	public static ArrayList<String> getGMTPathEnvLines() {
 		ArrayList<String> gmtCommandLines = new ArrayList<String>();
 		gmtCommandLines.add("## path variables ##");
 		String gmtPath = GMT_PATH;
 		if (gmtPath == null)
-			gmtPath = "";
+			gmtPath = "gmt ";
 		gmtCommandLines.add("GMT_PATH='" + gmtPath + "'");
+		String gsPath = GS_PATH;
+		if (gsPath == null)
+			gsPath = "gs";
+		gmtCommandLines.add("GS_PATH='" + gsPath + "'");
 		String convertPath = CONVERT_PATH;
 		if (convertPath == null)
-			convertPath = "";
+			convertPath = "convert";
 		gmtCommandLines.add("CONVERT_PATH='" + convertPath + "'");
 		String cmdPath = COMMAND_PATH;
 		if (cmdPath == null)
@@ -1238,7 +1251,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		gmtCommandLines.add("COMMAND_PATH='" + cmdPath + "'");
 		String ps2pdfPath = PS2PDF_PATH;
 		if (ps2pdfPath == null)
-			ps2pdfPath = "";
+			ps2pdfPath = "ps2pdf";
 		gmtCommandLines.add("PS2PDF_PATH='" + ps2pdfPath + "'");
 		String netCDFPath = NETCDF_LIB_PATH;
 		if (netCDFPath == null)
@@ -1565,10 +1578,10 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if (use_gs_raster) {
 			int jpeg_quality= 90;
 			if (jpgFileName != null)
-				gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=jpeg " + 
+				gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | ${GS_PATH}"+gsArgs+" -sDEVICE=jpeg " + 
 					" -dJPEGQ="+jpeg_quality+" -sOutputFile="+jpgFileName+" -");
 			if (pngFileName != null)
-				gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | "+GS_PATH+gsArgs+" -sDEVICE=png16m " + 
+				gmtCommandLines.add("${COMMAND_PATH}cat "+ psFileName + " | ${GS_PATH}"+gsArgs+" -sDEVICE=png16m " + 
 					"-dTextAlphaBits=4 -sOutputFile="+pngFileName+" -");
 
 			if (jpgFileName != null)
@@ -1821,14 +1834,18 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	public static void addColorbarCommand(ArrayList<String> gmtCommandLines, GMT_Map map,
 			double colorScaleMin, double colorScaleMax, String cptFile, String psFile) {
 		addColorbarCommand(gmtCommandLines, map.getCustomLabel(), map.isLogPlot(),
-				colorScaleMin, colorScaleMax, cptFile, psFile, map.isCPTEqualSpacing());
+				colorScaleMin, colorScaleMax, cptFile, psFile, map.isCPTEqualSpacing(), map.getCPTCustomInterval());
 	}
 	
 	public static void addColorbarCommand(ArrayList<String> gmtCommandLines, String scaleLabel, boolean isLog,
-			double colorScaleMin, double colorScaleMax, String cptFile, String psFile, boolean cptEqualSpacing) {
+			double colorScaleMin, double colorScaleMax, String cptFile, String psFile, boolean cptEqualSpacing, Double customTickInterval) {
 		// add the color scale
 		DecimalFormat df2 = new DecimalFormat("0.E0");
-		Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
+		Float tickInc;
+		if (customTickInterval == null)
+			tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
+		else
+			tickInc = customTickInterval.floatValue();
 		//checks to see if customLabel is selected, then get the custom label
 		if (scaleLabel == null)
 			scaleLabel = " ";

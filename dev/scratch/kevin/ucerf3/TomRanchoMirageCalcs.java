@@ -48,12 +48,22 @@ public class TomRanchoMirageCalcs {
 
 	public static void main(String[] args) throws IOException, DocumentException {
 		// use this one because it has rupture MFDs, so calculations will include mag uncertainty
-		File solFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/UCERF3_ERF/"
-				+ "cached_FM3_1_dep100.0_depMean_rakeMean.zip");
-		FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
+//		File solFile = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/UCERF3_ERF/"
+//				+ "cached_FM3_1_dep100.0_depMean_rakeMean.zip");
+		File solFileForTD = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/UCERF3_ERF/"
+				+ "cached_FM3_1_dep100.0_depMean_rakeMean.zip"); // has rup mag prob dists
+		File solFileForETAS = new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"); // correct IDs for ETAS sims
+		FaultSystemSolution sol = FaultSystemIO.loadSol(solFileForTD);
 		
+//		File etasFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
+//				+ "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined/results_descendents_m5_preserve.bin");
+//		String etasScenarioLabel = "mojave_m7";
+//		String etasScenarioTitle = "Following Mojave M7";
 		File etasFile = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations/"
-				+ "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined/results_descendents_m5_preserve.bin");
+				+ "2016_10_27-2016_bombay_swarm-10yr-full_td-no_ert-combined/results.bin");
+		String etasScenarioLabel = "2016_bb_swarm";
+		String etasScenarioTitle = "Following 2016 Bombay Beach Swarm";
 		double etasDuration = 7d/365.25;
 		String etasDurationLabel = "1 week";
 		
@@ -151,8 +161,10 @@ public class TomRanchoMirageCalcs {
 			long maxOT = ConditionalSectTriggerMPDCalc.calcMaxOTforDuration(catalogs, etasDuration);
 			
 			System.out.println("Calculating ETAS");
+			FaultSystemSolution solForETAS = FaultSystemIO.loadSol(solFileForETAS);
 			EvenlyDiscretizedFunc etasMPD = ConditionalSectTriggerMPDCalc.calcCumulativeMPD(
-					catalogs, sol, coachellaID, 6.5, 8.5, 0.1, maxOT);
+					catalogs, solForETAS, coachellaID, 6.5, 8.5, 0.1, maxOT);
+			System.out.println("Max OT: "+maxOT);
 			
 			System.out.println("Calculating long term comparisons");
 			tdERF.getTimeSpan().setDuration(etasDuration);
@@ -164,6 +176,9 @@ public class TomRanchoMirageCalcs {
 			// these are cumulative
 			EvenlyDiscretizedFunc tdMPD = calcParentSectMPD(tdERF, coachellaID);
 			EvenlyDiscretizedFunc tiMPD = calcParentSectMPD(tiERF, coachellaID);
+			
+			System.out.println("TD:\n"+tdMPD);
+			System.out.println("ETAS:\n"+etasMPD);
 			
 			EvenlyDiscretizedFunc etasCombMPD = new EvenlyDiscretizedFunc(etasMPD.getMinX(), etasMPD.getMaxX(), etasMPD.size());
 			for (int i=0; i<etasCombMPD.size(); i++) {
@@ -192,7 +207,7 @@ public class TomRanchoMirageCalcs {
 			chars.add(new PlotCurveCharacterstics(PlotLineType.SOLID, 2f, Color.RED));
 			etasCombMPD.setName("Coachella-ETAS");
 			
-			PlotSpec spec = new PlotSpec(funcs, chars, etasDurationLabel+" Magnitude-Probability Distributions",
+			PlotSpec spec = new PlotSpec(funcs, chars, etasDurationLabel+" "+etasScenarioTitle,
 					"Magnitude", etasDurationLabel+" Probability");
 			spec.setLegendVisible(true);
 			
@@ -204,18 +219,18 @@ public class TomRanchoMirageCalcs {
 			gp.setBackgroundColor(Color.WHITE);
 			
 //			gp.setUserBounds(tdFaultMPD.getMinX(), tdFaultMPD.getMaxX(), 0d, 1d);
-			gp.setUserBounds(6.5, 8.25, 1e-7, 1e-2);
+			gp.setUserBounds(6.5, 8.25, 1e-7, 1e-1);
 //			gp.drawGraphPanel(spec);
 			gp.drawGraphPanel(spec, false, true);
 			gp.getChartPanel().setSize(800, 600);
 			
-			String prefix = "mpds_etas_"+etasDurationLabel.replaceAll(" ", "_");
+			String prefix = "mpds_etas_"+etasScenarioLabel+"_"+etasDurationLabel.replaceAll(" ", "_");
 			
 			gp.saveAsPDF(new File(outputDir, prefix+".pdf").getAbsolutePath());
 			gp.saveAsPNG(new File(outputDir, prefix+".png").getAbsolutePath());
 			gp.saveAsTXT(new File(outputDir, prefix+".txt").getAbsolutePath());
 			
-			System.out.println("ETAS "+etasDurationLabel+" M7 Probabilities:");
+			System.out.println("ETAS "+etasDurationLabel+" M7 Probabilities "+etasScenarioTitle+":");
 			System.out.println("\tTI Prob: "+(float)tiMPD.getY(7d));
 			System.out.println("\tTD Prob: "+(float)tdMPD.getY(7d));
 			System.out.println("\tETAS Prob: "+(float)etasMPD.getY(7d));

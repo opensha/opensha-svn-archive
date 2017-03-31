@@ -29,6 +29,8 @@ public abstract class MPJTaskCalculator {
 	public static final boolean D = true;
 	public static final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
 	
+	protected static final boolean SINGLE_NODE_NO_MPJ = Boolean.parseBoolean(System.getProperty("mpj.disable", "false"));
+	
 	protected int rank;
 	protected int size;
 	private int minDispatch;
@@ -99,8 +101,14 @@ public abstract class MPJTaskCalculator {
 	
 	private void init(int numThreads, int minDispatch, int maxDispatch, int exactDispatch, boolean rootDispatchOnly,
 			int startIndex, int endIndex) {
-		this.rank = MPI.COMM_WORLD.Rank();
-		this.size = MPI.COMM_WORLD.Size();
+		if (SINGLE_NODE_NO_MPJ) {
+			this.rank = 0;
+			this.size = 1;
+			rootDispatchOnly = true;
+		} else {
+			this.rank = MPI.COMM_WORLD.Rank();
+			this.size = MPI.COMM_WORLD.Size();
+		}
 		this.numThreads = numThreads;
 		this.minDispatch = minDispatch;
 		this.maxDispatch = maxDispatch;
@@ -196,6 +204,8 @@ public abstract class MPJTaskCalculator {
 					debug("DONE!");
 					// we're done
 					break;
+				} else {
+					debug("receiving batch of length "+batch.length);
 				}
 			}
 			
@@ -211,7 +221,8 @@ public abstract class MPJTaskCalculator {
 		debug("waiting for other processes with Barrier()");
 		
 		// wait for everyone
-		MPI.COMM_WORLD.Barrier();
+		if (!SINGLE_NODE_NO_MPJ)
+			MPI.COMM_WORLD.Barrier();
 		try {
 			doFinalAssembly();
 		} catch (Exception e) {
@@ -281,7 +292,8 @@ public abstract class MPJTaskCalculator {
 				abortAndExit(e);
 			}
 		});
-		
+		if (SINGLE_NODE_NO_MPJ)
+			return args;
 		return MPI.Init(args);
 	}
 	
@@ -305,7 +317,8 @@ public abstract class MPJTaskCalculator {
 	protected static void finalizeMPJ() {
 		if (deadlock != null)
 			deadlock.kill();
-		MPI.Finalize();
+		if (!SINGLE_NODE_NO_MPJ)
+			MPI.Finalize();
 		System.exit(0);
 	}
 	
@@ -322,7 +335,8 @@ public abstract class MPJTaskCalculator {
 			t.printStackTrace();
 		if (deadlock != null)
 			deadlock.kill();
-		MPI.COMM_WORLD.Abort(ret);
+		if (!SINGLE_NODE_NO_MPJ)
+			MPI.COMM_WORLD.Abort(ret);
 		System.exit(ret);
 	}
 

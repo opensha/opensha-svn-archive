@@ -898,37 +898,37 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 		if(precisionInt>0)
 			year = ((Integer) startYearParam.getValue()).intValue();
 		else
-			year = this.START_YEAR_DEFAULT.intValue();
+			year = START_YEAR_DEFAULT.intValue();
 
 		// set the month (subtract one to make compatible with GregorianCalendar indexing)
 		if(precisionInt>1)
 			month = ((Integer) startMonthParam.getValue()).intValue()-1;
 		else
-			month = this.START_MONTH_DEFAULT.intValue()-1;
+			month = START_MONTH_DEFAULT.intValue()-1;
 
 		// set the day
 		if(precisionInt>2)
 			day = ((Integer) startDayParam.getValue()).intValue();
 		else
-			day = this.START_DAY_DEFAULT.intValue();
+			day = START_DAY_DEFAULT.intValue();
 
 		// set the hour
 		if(precisionInt>3)
 			hour = ((Integer) startHourParam.getValue()).intValue();
 		else
-			hour = this.START_HOUR_DEFAULT.intValue();
+			hour = START_HOUR_DEFAULT.intValue();
 
 		// set the minute
 		if(precisionInt>4)
 			minute = ((Integer) startMinuteParam.getValue()).intValue();
 		else
-			minute = this.START_MINUTE_DEFAULT.intValue();
+			minute = START_MINUTE_DEFAULT.intValue();
 
 		// set the second
 		if(precisionInt>5)
 			second = ((Integer) startSecondParam.getValue()).intValue();
 		else
-			second = this.START_SECOND_DEFAULT.intValue();
+			second = START_SECOND_DEFAULT.intValue();
 
 		// set the millisecond
 		if(precisionInt>6)

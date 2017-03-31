@@ -947,6 +947,22 @@ public class PureScratch {
 				rate += sol.getRateForRup(rup);
 		return rate;
 	}
+	
+	private static void test33() throws IOException, DocumentException {
+		FaultSystemSolution sol1 = FaultSystemIO.loadSol(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		FaultSystemSolution sol2 = FaultSystemIO.loadSol(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+				+ "UCERF3_ERF/cached_FM3_1_dep100.0_depMean_rakeMean.zip"));
+		int parentID = 295;
+		List<Integer> rups1 = sol1.getRupSet().getRupturesForParentSection(parentID);
+//		Collections.sort(rups1);
+		List<Integer> rups2 = sol2.getRupSet().getRupturesForParentSection(parentID);
+//		Collections.sort(rups2);
+		System.out.println("Hello?");
+		System.out.println("Sol 1 "+rups1.size()+" rups: ");
+		System.out.println("HI?");
+		System.out.println("Sol 2 "+rups2.size()+" rups: ");
+	}
 
 	/**
 	 * @param args
@@ -982,7 +998,8 @@ public class PureScratch {
 //		test29();
 //		test30();
 //		test31();
-		test32();
+//		test32();
+		test33();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

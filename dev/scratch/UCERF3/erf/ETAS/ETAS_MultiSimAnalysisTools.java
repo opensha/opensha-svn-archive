@@ -3998,9 +3998,10 @@ public class ETAS_MultiSimAnalysisTools {
 		return calcETASParticProb(catalogs, ot, maxOT, rups, region, minMag);
 	}
 
-	public static double calcETASParticProb(List<List<ETAS_EqkRupture>> catalogs, long ot, long maxOT,
+	public static double calcETASParticProb(Iterable<List<ETAS_EqkRupture>> catalogs, long ot, long maxOT,
 			HashSet<Integer> rups, Region region, double minMag) {
 		int numWith = 0;
+		int total = 0;
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
 			boolean found = false;
 			for (ETAS_EqkRupture rup : catalog) {
@@ -4026,8 +4027,9 @@ public class ETAS_MultiSimAnalysisTools {
 			}
 			if (found)
 				numWith++;
+			total++;
 		}
-		double etasProb = (double)numWith/catalogs.size();
+		double etasProb = (double)numWith/(double)total;
 		return etasProb;
 	}
 
@@ -4085,7 +4087,7 @@ public class ETAS_MultiSimAnalysisTools {
 		return rate;
 	}
 	
-	private static int calcYearForOT(long ot) {
+	public static int calcYearForOT(long ot) {
 		int closest = 0;
 		long diff = Long.MAX_VALUE;
 		for (int year=2000; year<2100; year++) {
@@ -4826,14 +4828,14 @@ public class ETAS_MultiSimAnalysisTools {
 		//boolean forcePlot = isCLI;
 		System.out.println("Force plot: "+forcePlot);
 		
-		boolean plotMFDs = false || forcePlot;
+		boolean plotMFDs = true || forcePlot;
 		boolean plotExpectedComparison = false || forcePlot;
-		boolean plotSectRates = false || forcePlot;
+		boolean plotSectRates = true || forcePlot;
 		boolean plotTemporalDecay = false || forcePlot;
 		boolean plotDistanceDecay = false || forcePlot;
 		boolean plotMaxMagHist = false || forcePlot;
 		boolean plotGenerations = false || forcePlot;
-		boolean plotGriddedNucleation = true || forcePlot;
+		boolean plotGriddedNucleation = false || forcePlot;
 		boolean writeTimeFromPrevSupra = false || forcePlot;
 		boolean plotSectScatter = false || forcePlot;
 		boolean plotGridScatter = false || forcePlot;
@@ -4843,7 +4845,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean writeCatsForViz = false || forcePlot;
 		boolean plotScalesHazard = false && !forcePlot;
 		boolean plotRegionOneWeek = false && !forcePlot;
-		boolean plotMFDOneWeek = false && !forcePlot;
+		boolean plotMFDOneWeek = true && !forcePlot;
 		
 //		boolean plotMFDs = true;
 //		boolean plotExpectedComparison = false;
@@ -4984,9 +4986,14 @@ public class ETAS_MultiSimAnalysisTools {
 			if (scenario != null && scenario.getFSS_Index() >= 0)
 				scenario.updateMag(fss.getRupSet().getMagForRup(scenario.getFSS_Index()));
 			
+			boolean swarm = resultsFile.getParentFile().getName().contains("swarm");
+			
 			// parent ID for the trigger rupture
 			int triggerParentID;
-			if (scenario == null)
+			if (swarm && resultsFile.getName().contains("descend"))
+				// use input file as is
+				triggerParentID = Integer.MAX_VALUE;
+			else if (scenario == null)
 				triggerParentID = -1;
 			else
 				triggerParentID = id_for_scenario;
@@ -5034,7 +5041,7 @@ public class ETAS_MultiSimAnalysisTools {
 //				inputDuration = 1d;
 			}
 			double duration = inputDuration;
-			if (useActualDurations && scenario == null)
+			if (useActualDurations && scenario == null && !swarm)
 				duration = -1;
 			
 			String name;
@@ -5043,8 +5050,12 @@ public class ETAS_MultiSimAnalysisTools {
 			else
 				name = scenario+" ";
 			name += (int)inputDuration+"yr";
-			if (params != null)
-				name += " "+params.getU3ETAS_ProbModel();
+			if (params != null) {
+				String parentName = resultsFile.getParentFile().getName().toLowerCase();
+				boolean both = parentName.contains("full_td") && parentName.contains("no_ert");
+				if (!both)
+					name += " "+params.getU3ETAS_ProbModel();
+			}
 			
 			if (scenario != null) {
 				System.out.println("Scenario: "+scenario);
@@ -5115,7 +5126,7 @@ public class ETAS_MultiSimAnalysisTools {
 				System.out.println("WARNING: at least 1 simulation doesn't match expected duration");
 			
 			List<List<ETAS_EqkRupture>> childrenCatalogs = Lists.newArrayList();
-			if (triggerParentID >= 0) {
+			if (triggerParentID >= 0 && triggerParentID < Integer.MAX_VALUE) {
 				long numOrig = 0;
 				long numChildren = 0;
 				for (List<ETAS_EqkRupture> catalog : catalogs) {
@@ -5163,7 +5174,11 @@ public class ETAS_MultiSimAnalysisTools {
 //			}
 			
 			List<List<ETAS_EqkRupture>> primaryCatalogs = Lists.newArrayList();
-			if (triggerParentID >= 0) {
+			if (triggerParentID == Integer.MAX_VALUE) {
+				// already filtered to descends
+				for (List<ETAS_EqkRupture> catalog : catalogs)
+					primaryCatalogs.add(ETAS_SimAnalysisTools.getByGeneration(catalog, 1));
+			} else if (triggerParentID >= 0) {
 				for (List<ETAS_EqkRupture> catalog : catalogs)
 					primaryCatalogs.add(ETAS_SimAnalysisTools.getPrimaryAftershocks(catalog, triggerParentID));
 			} else {
@@ -5213,8 +5228,6 @@ public class ETAS_MultiSimAnalysisTools {
 				ETAS_Simulator.correctGriddedSeismicityRatesInERF(fss, false, gridSeisCorrValsArray);
 			}
 			
-			boolean swarm = resultsFile.getParentFile().getName().contains("swarm");
-			
 			if (plotMFDs) {
 				System.out.println("Plotting MFDs");
 				
@@ -5231,6 +5244,8 @@ public class ETAS_MultiSimAnalysisTools {
 					if (inputDuration == 10)
 						expNumForM2p5 = 0.1653;
 					plotMagNum(childrenCatalogs, outputDir, name, "consolidated_aftershocks", scenario, expNumForM2p5, fss);
+				} else if (swarm && triggerParentID == Integer.MAX_VALUE) {
+					plotMagNum(childrenCatalogs, outputDir, name, "consolidated_aftershocks", scenario, -1, fss);
 				}
 			}
 			
@@ -5385,14 +5400,20 @@ public class ETAS_MultiSimAnalysisTools {
 				}
 			}
 			
-			if (scenario != null && plotMFDOneWeek) {
+			if (plotMFDOneWeek) {
 				long maxOT = ot + ProbabilityModelsCalc.MILLISEC_PER_DAY*7;
-				if (scenario.getMagnitude() < 6) {
+				if (scenario != null) {
+					if (scenario.getMagnitude() < 6) {
+						mfdMinY = 1e-6;
+						mfdMaxY = 1e2;
+					}
+					plotMagNum(childrenCatalogs, outputDir, "1 Week", "one_week_consolidated_aftershocks",
+							scenario, 0.058, fss, maxOT);
+				} else if (swarm && triggerParentID == Integer.MAX_VALUE) {
 					mfdMinY = 1e-6;
 					mfdMaxY = 1e2;
+					plotMagNum(childrenCatalogs, outputDir, "1 Week", "one_week_consolidated_aftershocks", null, -1, fss, maxOT);
 				}
-				plotMagNum(childrenCatalogs, outputDir, name, "one_week_consolidated_aftershocks",
-						scenario, 0.058, fss, maxOT);
 			}
 			
 			writeHTML(parentDir, scenario, name, params, catalogs, inputDuration, durationTrack);

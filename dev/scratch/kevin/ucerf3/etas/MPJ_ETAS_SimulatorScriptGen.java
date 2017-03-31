@@ -35,13 +35,13 @@ public class MPJ_ETAS_SimulatorScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		
-		boolean stampede = false;
-//		int threads = 1;
-//		String queue = null;
-//		String pbsNameAdd = null;
-		int threads = 8;
-		String queue = "scec";
-		String pbsNameAdd = "-scec";
+		boolean stampede = true;
+		int threads = 2;
+		String queue = null;
+		String pbsNameAdd = null;
+//		int threads = 8;
+//		String queue = "scec";
+//		String pbsNameAdd = "-scec";
 		boolean smallTest = false;
 		
 		boolean writeConsolidate = true;
@@ -72,10 +72,14 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int numSims = 25000;
 //		int hours = 24;
 //		int nodes = 60;
-		int numSims = 100000;
-		int hours = 24;
+//		int numSims = 100000;
+//		int hours = 24;
+////		int nodes = 100;
+//		int nodes = 34;
+		int numSims = 1000;
+		int hours = 2;
 //		int nodes = 100;
-		int nodes = 34;
+		int nodes = 5;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -83,9 +87,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		Scenarios[] scenarios = {Scenarios.NAPA};
 //		Scenarios[] scenarios = {Scenarios.SPONTANEOUS};
 		
-		TestScenario.NORTHRIDGE.updateMag(6.7);
-		TestScenario[] scenarios = {TestScenario.NORTHRIDGE};
-//		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+//		TestScenario.NORTHRIDGE.updateMag(6.7);
+//		TestScenario[] scenarios = {TestScenario.NORTHRIDGE};
+		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
 //		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
@@ -107,10 +111,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = { null };
-		boolean includeSpontaneous = true;
+		boolean includeSpontaneous = false;
 		String customCatalog = null;
 		long customOT = Long.MIN_VALUE;
-		boolean griddedOnly = true;
+		boolean griddedOnly = false;
 		
 //		TestScenario[] scenarios = { null };
 ////		boolean includeSpontaneous = false;
@@ -123,10 +127,10 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-		double totRateScaleFactor = 1.14;
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
-//		double totRateScaleFactor = 1.0;
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+//		double totRateScaleFactor = 1.14;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };
@@ -139,8 +143,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		if (griddedOnly)
 			totRateScaleFactor = 1d;
 		
-//		String nameAdd = null;
-		String nameAdd = "100krun1";
+		String nameAdd = "small-speed-test";
+//		String nameAdd = "100krun1";
 //		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
 //		String nameAdd = "newNuclWt";
