@@ -17,6 +17,7 @@ import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVMHBasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.impl.WillsMap2015;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
@@ -96,7 +97,8 @@ public class CyberShakeBaseMapGen {
 		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
 		
 		List<SiteData<?>> provs = Lists.newArrayList();
-		provs.add(new WillsMap2006());
+//		provs.add(new WillsMap2006());
+		provs.add(new WillsMap2015());
 		boolean nullBasin = false;
 		if (cvmName.toLowerCase().equals("cvm4")) {
 			provs.add(new CVM4BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
