@@ -56,7 +56,7 @@ public class CyberShakeBaseMapGen {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6/CCA1D> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
 			System.exit(2);
 		}
 		
@@ -69,6 +69,7 @@ public class CyberShakeBaseMapGen {
 		String jobName = args[5];
 		int mins = Integer.parseInt(args[6]);
 		int nodes = Integer.parseInt(args[7]);
+		int ppn = 20;
 		String queue = args[8];
 		if (queue.toLowerCase().equals("null"))
 			queue = null;
@@ -110,6 +111,9 @@ public class CyberShakeBaseMapGen {
 			provs.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
+		} else if (cvmName.toLowerCase().equals("cca1d")) {
+			provs = HazardCurvePlotter.getCCA_1D_Providers();
+			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
 		} else if (cvmName.toLowerCase().equals("cvmh")) {
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
@@ -150,7 +154,7 @@ public class CyberShakeBaseMapGen {
 		classpath.add(jarFile);
 		classpath.add(new File(libDir, "commons-cli-1.2.jar"));
 		
-		MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 7000, classpath,
+		MPJExpressShellScriptWriter mpj = new MPJExpressShellScriptWriter(javaBin, 60000, classpath,
 				USC_HPCC_ScriptWriter.MPJ_HOME);
 		
 		for (ScalarIMR imr : imrs) {
@@ -179,7 +183,7 @@ public class CyberShakeBaseMapGen {
 			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
 			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
 			
-			script = writer.buildScript(script, mins, nodes, 0, queue);
+			script = writer.buildScript(script, mins, nodes, 20, queue);
 			
 			File pbsFile = new File(imrDir, imr.getShortName().toLowerCase()+".pbs");
 			JavaShellScriptWriter.writeScript(pbsFile, script);
