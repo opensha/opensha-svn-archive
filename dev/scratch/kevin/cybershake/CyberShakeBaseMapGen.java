@@ -69,9 +69,11 @@ public class CyberShakeBaseMapGen {
 		String jobName = args[5];
 		int mins = Integer.parseInt(args[6]);
 		int nodes = Integer.parseInt(args[7]);
-		int ppn = 20;
+		int ppn = 8;
 		String queue = args[8];
-		if (queue.toLowerCase().equals("null"))
+		if (queue.equals("scec"))
+			ppn = 20;
+		else if (queue.toLowerCase().equals("null"))
 			queue = null;
 		
 		File hazMapsDir = new File("/home/scec-02/kmilner/hazMaps");
@@ -129,6 +131,9 @@ public class CyberShakeBaseMapGen {
 			provs = HazardCurvePlotter.getBBP_1D_Providers();
 		} else if (cvmName.toLowerCase().equals("null")){
 			nullBasin = true;
+		} else if (cvmName.toLowerCase().equals("nullcca")){
+			nullBasin = true;
+			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
 		} else {
 			System.err.println("Unknown basin model: "+cvmName);
 		}
@@ -183,7 +188,7 @@ public class CyberShakeBaseMapGen {
 			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
 			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();
 			
-			script = writer.buildScript(script, mins, nodes, 20, queue);
+			script = writer.buildScript(script, mins, nodes, ppn, queue);
 			
 			File pbsFile = new File(imrDir, imr.getShortName().toLowerCase()+".pbs");
 			JavaShellScriptWriter.writeScript(pbsFile, script);
