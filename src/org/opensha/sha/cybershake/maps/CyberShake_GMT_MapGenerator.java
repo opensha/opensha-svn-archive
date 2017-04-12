@@ -595,14 +595,14 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			commandLine = "${GMT_PATH}psbasemap -B0.5/0.5eWNs"+region+proj+"-O >> "+psFile;
 			gmtCommandLines.add(commandLine+"\n");
 			
-			String cropArgs = "";
-			if (!laRegion) {
-				int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
-				cropArgs = " -crop 595x"+heightInPixels+"+0+0";
-			}
-			
 			gmtCommandLines.add("# conversions");
 			for (int odpi : dpis) {
+				String cropArgs = "";
+				if (!laRegion) {
+					int widthInPixels = (int)(8.263888889*odpi + 0.5); // 595 for 72dpi
+					int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) odpi);
+					cropArgs = " -crop "+widthInPixels+"x"+heightInPixels+"+0+0";
+				}
 				String convertArgs = "-density " + odpi+cropArgs;
 				String fName = mapType.getPrefix() + "." + odpi + ".png";
 
