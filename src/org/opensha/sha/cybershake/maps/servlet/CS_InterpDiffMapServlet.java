@@ -79,6 +79,7 @@ extends HttpServlet {
 	ServletException, IOException {
 
 		// get an ouput stream from the applet
+		System.out.println("Initializing output to application");
 		ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
 				getOutputStream());
 
@@ -89,19 +90,24 @@ extends HttpServlet {
 			Preconditions.checkState(GMT_DATA_DIR.exists());
 
 			// get an input stream from the applet
+			System.out.println("Initializing input from application");
 			ObjectInputStream inputFromApplet = new ObjectInputStream(request.
 					getInputStream());
 
 			//receiving the name of the input directory
+			System.out.println("Receiving dir name");
 			String dirName = (String) inputFromApplet.readObject();
 
 			//gets the object for the GMT_MapGenerator script
+			System.out.println("Receiving map");
 			InterpDiffMap map = (InterpDiffMap)inputFromApplet.readObject();
 
 			//Metadata content: Map Info
+			System.out.println("Receiving metadata");
 			String metadata = (String) inputFromApplet.readObject();
 
 			//Name of the Metadata file
+			System.out.println("Receiving metadata file name");
 			String metadataFileName = (String) inputFromApplet.readObject();
 			
 			System.out.println("Generating map");
