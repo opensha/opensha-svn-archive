@@ -384,6 +384,12 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			frameColor = "black";
 			mapPenColor = frameColor;
 		}
+		String mediaName;
+		if ((float)map.getRegion().getMaxLat() == 35.08f && (float)map.getRegion().getMinLat() == 33.25f)
+			// LA region
+			mediaName = "csmap";
+		else
+			mediaName = "letter";
 		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,"+frameColor+" FONT_LABEL=18p,"+frameColor+" PS_PAGE_COLOR" +
 				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN="+mapPenColor +
 				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor+" MAP_FRAME_PEN=1p";
