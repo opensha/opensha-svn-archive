@@ -384,14 +384,15 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			frameColor = "black";
 			mapPenColor = frameColor;
 		}
+		boolean laRegion = (float)map.getRegion().getMaxLat() == 35.08f && (float)map.getRegion().getMinLat() == 33.25f;
 		String mediaName;
-		if ((float)map.getRegion().getMaxLat() == 35.08f && (float)map.getRegion().getMinLat() == 33.25f)
+		if (laRegion)
 			// LA region
 			mediaName = "csmap";
 		else
 			mediaName = "letter";
 		commandLine = "${GMT_PATH}gmtset FONT_ANNOT_PRIMARY=14p,"+frameColor+" FONT_LABEL=18p,"+frameColor+" PS_PAGE_COLOR" +
-				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA=csmap MAP_DEFAULT_PEN="+mapPenColor +
+				"="+pageColor+" PS_PAGE_ORIENTATION=portrait PS_MEDIA="+mediaName+" MAP_DEFAULT_PEN="+mapPenColor +
 				" FORMAT_GEO_MAP=-D MAP_FRAME_WIDTH=0.1i COLOR_FOREGROUND="+frameColor+" MAP_FRAME_PEN=1p";
 		gmtCommandLines.add(commandLine+"\n");
 		
@@ -449,6 +450,15 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		
 		String xOff = " -X1.5i";
 		String yOff = " -Y2.0i";
+		
+		double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
+		double yOffset = 11 - plotHght - 0.5;
+		if (!laRegion) {
+			yOff = " -Y" + yOffset + "i ";
+
+			// set x-axis offset to 1 inch
+			xOff = " -X1.0i ";
+		}
 		
 		for (InterpDiffMapType mapType : mapTypes) {
 			gmtCommandLines.add("# PLOTTING: "+mapType+"\n");
@@ -585,10 +595,15 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			commandLine = "${GMT_PATH}psbasemap -B0.5/0.5eWNs"+region+proj+"-O >> "+psFile;
 			gmtCommandLines.add(commandLine+"\n");
 			
+			String cropArgs = "";
+			if (!laRegion) {
+				int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) dpi);
+				cropArgs = " -crop 595x"+heightInPixels+"+0+0";
+			}
 			
 			gmtCommandLines.add("# conversions");
 			for (int odpi : dpis) {
-				String convertArgs = "-density " + odpi;
+				String convertArgs = "-density " + odpi+cropArgs;
 				String fName = mapType.getPrefix() + "." + odpi + ".png";
 
 				// add a command line to convert the ps file to a jpg file - using convert
