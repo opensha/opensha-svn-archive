@@ -56,7 +56,8 @@ public class CyberShakeBaseMapGen {
 	public static void main(String[] args) throws IOException {
 		if (args.length != 9) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6/CCA1D> <constrainBasinMin> <jobName> <minutes> <nodes> <queue>");
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6/CCA1D> <constrainBasinMin>"
+					+" <jobName> <minutes> <nodes> <queue> [<LA/CCA/CA>]");
 			System.exit(2);
 		}
 		
@@ -75,6 +76,18 @@ public class CyberShakeBaseMapGen {
 			ppn = 20;
 		else if (queue.toLowerCase().equals("null"))
 			queue = null;
+		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
+		if (args.length > 9) {
+			String regName = args[9].toLowerCase();
+			if (regName.equals("la"))
+				region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
+			else if (regName.equals("ccs"))
+				region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
+			else if (regName.equals("ca"))
+				region = new CaliforniaRegions.RELM_TESTING_GRIDDED(spacing);
+			else
+				throw new IllegalArgumentException("Unknown region: "+args[9]);
+		}
 		
 		File hazMapsDir = new File("/home/scec-02/kmilner/hazMaps");
 		
@@ -97,8 +110,6 @@ public class CyberShakeBaseMapGen {
 			imrs.add(imr);
 		}
 		
-		GriddedRegion region = new CaliforniaRegions.CYBERSHAKE_MAP_GRIDDED(spacing);
-		
 		List<SiteData<?>> provs = Lists.newArrayList();
 //		provs.add(new WillsMap2006());
 		provs.add(new WillsMap2015());
@@ -112,10 +123,8 @@ public class CyberShakeBaseMapGen {
 		} else if (cvmName.toLowerCase().equals("ccai6")) {
 			provs.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
-			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
 		} else if (cvmName.toLowerCase().equals("cca1d")) {
 			provs = HazardCurvePlotter.getCCA_1D_Providers();
-			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
 		} else if (cvmName.toLowerCase().equals("cvmh")) {
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 			provs.add(new CVMHBasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
@@ -131,9 +140,6 @@ public class CyberShakeBaseMapGen {
 			provs = HazardCurvePlotter.getBBP_1D_Providers();
 		} else if (cvmName.toLowerCase().equals("null")){
 			nullBasin = true;
-		} else if (cvmName.toLowerCase().equals("nullcca")){
-			nullBasin = true;
-			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_GRIDDED(spacing);
 		} else {
 			System.err.println("Unknown basin model: "+cvmName);
 		}
