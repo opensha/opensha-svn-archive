@@ -20,9 +20,14 @@ public class AttenRelDataSets2DB {
 		String sql = "SELECT AR_Hazard_Dataset_ID FROM "+TABLE_NAME+" WHERE"
 						+" AR_ID="+attenRelID
 						+" AND ERF_ID="+erfID
-						+" AND Velocity_Model_ID="+velModelID
 						+" AND Prob_Model_ID="+probModelID
 						+" AND Time_Span_ID="+timeSpanID;
+		
+		if (velModelID >= 0)
+			sql += " AND Velocity_Model_ID="+velModelID;
+		else
+			sql += " AND Velocity_Model_ID IS NULL";
+		
 		if (date == null)
 			sql += " AND Time_Span_Start_Date IS NULL";
 		else
@@ -38,9 +43,14 @@ public class AttenRelDataSets2DB {
 			dateStr = "NULL";
 		else
 			dateStr = DBAccess.SQL_DATE_FORMAT.format(date);
+		String velStr;
+		if (velModelID >= 0)
+			velStr = velModelID+"";
+		else
+			velStr = "NULL";
 		String sql = "INSERT INTO "+TABLE_NAME+" (AR_ID,ERF_ID,Velocity_Model_ID,Prob_Model_ID,Time_Span_ID,Time_Span_Start_Date"
 				+ ",Min_Lat,Max_Lat,Min_Lon,Max_Lon,Grid_Spacing)"
-				+ " VALUES ("+attenRelID+","+erfID+","+velModelID+","+probModelID+","+timeSpanID+","+dateStr
+				+ " VALUES ("+attenRelID+","+erfID+","+velStr+","+probModelID+","+timeSpanID+","+dateStr
 				+ ","+(float)minLat+","+(float)maxLat+","+(float)minLon+","+(float)maxLon+","+(float)gridSpacing+")";
 		
 		try {

@@ -13,6 +13,7 @@ import org.opensha.commons.data.siteData.impl.CVM4BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM4i26BasinDepth;
 import org.opensha.commons.data.siteData.impl.CVM_CCAi6BasinDepth;
 import org.opensha.commons.data.siteData.impl.WillsMap2006;
+import org.opensha.commons.data.siteData.impl.WillsMap2015;
 import org.opensha.commons.data.xyz.AbstractGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
@@ -60,12 +61,14 @@ public class BatchBaseMapPlot {
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2014_03_18-cvm4i26-cs-nga-pga");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_05_27-cvm4i26-cs-nga-2sec");
 //		File dir = new File("/home/kevin/CyberShake/baseMaps/2015_06_12-cvm4i26-cs-nga-10sec");
-		File dir = new File("/home/kevin/CyberShake/baseMaps/2016_08_31-ccai6-cs-nga2avg-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2016_08_31-ccai6-cs-nga2avg-3sec");
+//		File dir = new File("/home/kevin/CyberShake/baseMaps/2017_04_10-ccai6-cs-nga2-2sec");
+		File dir = new File("/home/kevin/CyberShake/baseMaps/2017_04_11-cca-nobasin-cs-nga2-2sec");
 		
-		boolean ratios = true;
+		boolean ratios = false;
 		
 		List<SiteData<Double>> siteDatas = Lists.newArrayList();
-		siteDatas.add(new WillsMap2006());
+		siteDatas.add(new WillsMap2015());
 //		siteDatas.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
 //		siteDatas.add(new CVM4i26BasinDepth(SiteData.TYPE_DEPTH_TO_2_5));
 		siteDatas.add(new CVM_CCAi6BasinDepth(SiteData.TYPE_DEPTH_TO_1_0));
@@ -78,17 +81,17 @@ public class BatchBaseMapPlot {
 //		String label = "1sec SA";
 //		Double customMax = 3d; // for 1 sec
 		
-//		String imtFileLabel = "2sec";
-//		String label = "2sec SA";
-//		Double customMax = 1.4; // for 2 sec
+		String imtFileLabel = "2sec";
+		String label = "2sec SA";
+		Double customMax = 1.0; // for 2 sec
 		
 //		String imtFileLabel = "pga";
 //		String label = "PGA";
 //		Double customMax = 3d; // for PGA
 		
-		String imtFileLabel = "3sec";
-		String label = "3sec SA";
-		Double customMax = 1.4; // for 3 sec
+//		String imtFileLabel = "3sec";
+//		String label = "3sec SA";
+//		Double customMax = 1.4; // for 3 sec
 		
 //		String imtFileLabel = "5sec";
 //		String label = "5sec SA";
@@ -99,15 +102,15 @@ public class BatchBaseMapPlot {
 //		Double customMax = 0.6d; // for 10 sec
 		
 		boolean isProbAt_IML = false;
-//		double val = 0.0004;
-//		String probLabel = "2% in 50 yrs";
-//		String probFileLabel = "2p_in_50";
+		double val = 0.0004;
+		String probLabel = "2% in 50 yrs";
+		String probFileLabel = "2p_in_50";
 //		double val = 0.0002;
 //		String probLabel = "1% in 50 yrs";
 //		String probFileLabel = "1p_in_50";
-		double val = 0.0001;
-		String probLabel = "1% in 100 yrs";
-		String probFileLabel = "1p_in_100";
+//		double val = 0.0001;
+//		String probLabel = "1% in 100 yrs";
+//		String probFileLabel = "1p_in_100";
 		
 		label += ", "+probLabel;
 		
@@ -166,7 +169,7 @@ public class BatchBaseMapPlot {
 					"val: " + val + "\n";
 			
 			System.out.println("Plotting "+name);
-			plot(outputFile, baseMap, region, customMin, customMax, name+" "+label, metadata);
+			plot(outputFile, baseMap, region, customMin, customMax, name+" "+label, metadata, false);
 		}
 		
 		// now site data
@@ -206,14 +209,23 @@ public class BatchBaseMapPlot {
 		}
 	}
 	
-	private static void plot(File outputFile, GeoDataSet baseMap, Region region,
-			Double customMin, Double customMax, String label, String metadata)
-					throws IOException, ClassNotFoundException {
-		plot(outputFile, baseMap, region, customMin, customMax, label, metadata, false);
+	private static CPT getCPT(boolean ratio) throws IOException {
+		if (ratio)
+			return CyberShake_GMT_MapGenerator.getRatioCPT();
+		else
+//			return CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+//				"/resources/cpt/MaxSpectrum2.cpt"));
+			return CyberShake_GMT_MapGenerator.getHazardCPT();
 	}
 	
 	private static void plot(File outputFile, GeoDataSet baseMap, Region region,
 			Double customMin, Double customMax, String label, String metadata, boolean ratio)
+					throws IOException, ClassNotFoundException {
+		plot(outputFile, baseMap, region, customMin, customMax, label, metadata, getCPT(ratio), !ratio);
+	}
+	
+	private static void plot(File outputFile, GeoDataSet baseMap, Region region,
+			Double customMin, Double customMax, String label, String metadata, CPT cpt, boolean rescaleCPT)
 					throws IOException, ClassNotFoundException {
 		
 		double baseMapRes = 0.005;
@@ -227,13 +239,6 @@ public class BatchBaseMapPlot {
 		
 		InterpDiffMapType[] mapTypes = {InterpDiffMapType.BASEMAP};
 		
-		CPT cpt;
-		if (ratio)
-			cpt = CyberShake_GMT_MapGenerator.getRatioCPT();
-		else
-			cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
-				"/resources/cpt/MaxSpectrum2.cpt"));
-		
 		InterpDiffMap map = new InterpDiffMap(region, baseMap, baseMapRes, cpt, scatterData, interpSettings, mapTypes);
 		map.setCustomLabel(label);
 		map.setTopoResolution(TopographicSlopeFile.CA_THREE);
@@ -242,9 +247,7 @@ public class BatchBaseMapPlot {
 		map.setXyzFileName("base_map.xyz");
 		map.setCustomScaleMin(customMin);
 		map.setCustomScaleMax(customMax);
-		
-		if (ratio)
-			map.setRescaleCPT(false);
+		map.setRescaleCPT(rescaleCPT);
 		
 		System.out.println("Making map...");
 		String url = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
@@ -257,7 +260,7 @@ public class BatchBaseMapPlot {
 		Double customMin, customMax;
 		if (prov.getDataType().equals(SiteData.TYPE_VS30)) {
 			customMax = 1000d;
-			customMin = 0d;
+			customMin = 180d;
 			shortType = "Vs30";
 		} else if (prov.getDataType().equals(SiteData.TYPE_DEPTH_TO_1_0)) {
 			customMax = 2d;
@@ -281,7 +284,10 @@ public class BatchBaseMapPlot {
 		for (int i=0; i<vals.size(); i++)
 			data.set(i, vals.get(i));
 		
-		plot(outputFile, data, region, customMin, customMax, prov.getShortName()+" "+shortType, prov.getMetadata());
+		CPT cpt = CPT.loadFromStream(HardCodedInterpDiffMapCreator.class.getResourceAsStream(
+				"/resources/cpt/MaxSpectrum2.cpt"));
+		
+		plot(outputFile, data, region, customMin, customMax, prov.getShortName()+" "+shortType, prov.getMetadata(), cpt, true);
 	}
 
 }

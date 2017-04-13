@@ -108,6 +108,7 @@ import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO.BinarayCatalogsIterable;
 import scratch.UCERF3.erf.ETAS.ETAS_EqkRupture;
 import scratch.UCERF3.erf.ETAS.ETAS_MultiSimAnalysisTools;
 import scratch.UCERF3.erf.ETAS.ETAS_SimAnalysisTools;
+import scratch.UCERF3.erf.ETAS.ETAS_Simulator.TestScenario;
 import scratch.UCERF3.erf.ETAS.ETAS_Utils;
 import scratch.UCERF3.erf.utils.ProbabilityModelsCalc;
 import scratch.UCERF3.griddedSeismicity.UCERF3_GridSourceGenerator;
@@ -963,6 +964,14 @@ public class PureScratch {
 		System.out.println("HI?");
 		System.out.println("Sol 2 "+rups2.size()+" rups: ");
 	}
+	
+	private static void test34() throws IOException, DocumentException {
+		FaultSystemRupSet rupSet = FaultSystemIO.loadRupSet(new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/"
+				+ "InversionSolutions/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		int index = TestScenario.MOJAVE_M7.getFSS_Index();
+		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(index))
+			System.out.println(sect.getSectionId()+": "+sect.getSectionName());
+	}
 
 	/**
 	 * @param args
@@ -999,7 +1008,8 @@ public class PureScratch {
 //		test30();
 //		test31();
 //		test32();
-		test33();
+//		test33();
+		test34();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

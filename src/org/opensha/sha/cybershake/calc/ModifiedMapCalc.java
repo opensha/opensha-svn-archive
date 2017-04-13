@@ -129,7 +129,7 @@ public class ModifiedMapCalc {
 
 		// now ratio
 		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(
-				false, modData, origData, imTypeID, title, true);
+				false, modData, origData, title, true);
 		FileUtils.downloadURL(addrs[0]+"/interpolated.150.png", new File(outputDir, prefix+"_diff.png"));
 		FileUtils.downloadURL(addrs[1]+"/interpolated.150.png", new File(outputDir, prefix+"_ratio.png"));
 	}

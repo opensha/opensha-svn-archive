@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 
 public class NGAWest_2014_Averaged_AttenRel extends MultiIMR_Averaged_AttenRel {
 	
-	public static final String NAME = "NGAWest2 2014 Averaged Attenuation Relationship (unverified!)";
+	public static final String NAME = "NGAWest2 2014 Averaged Attenuation Relationship";
 	public static final String SHORT_NAME = "NGAWest_2014";
 	
 	private static ArrayList<ScalarIMR> buildIMRs(ParameterChangeWarningListener listener,
@@ -44,7 +44,7 @@ public class NGAWest_2014_Averaged_AttenRel extends MultiIMR_Averaged_AttenRel {
 	
 	public static class NGAWest_2014_Averaged_AttenRel_NoIdriss extends NGAWest_2014_Averaged_AttenRel {
 		
-		public static final String NAME = "NGAWest2 2014 Averaged No Idriss (unverified!)";
+		public static final String NAME = "NGAWest2 2014 Averaged No Idriss";
 		public static final String SHORT_NAME = "NGAWest_2014_NoIdr";
 
 		public NGAWest_2014_Averaged_AttenRel_NoIdriss(

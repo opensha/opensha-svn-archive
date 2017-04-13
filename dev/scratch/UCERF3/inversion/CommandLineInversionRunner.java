@@ -80,6 +80,7 @@ import scratch.UCERF3.utils.paleoRateConstraints.PaleoSiteCorrelationData;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoProbabilityModel;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF2_PaleoRateConstraintFetcher;
 import scratch.UCERF3.utils.paleoRateConstraints.UCERF3_PaleoRateConstraintFetcher;
+import scratch.kevin.ucerf3.RupSetDownsampler;
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
 import cern.colt.matrix.tdouble.DoubleMatrix2D;
 import cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D;
@@ -143,7 +144,9 @@ public class CommandLineInversionRunner {
 		RUP_SMOOTH_WT("rupsm", "rup-rate-smoothing-wt", "RupSmth", true, "Rupture rate smoothing constraint weight"),
 		U2_MAPPED_RUPS_ONLY("u2rups", "u2-rups-only", "U2Rups", false, "UCERF2 Mappable Ruptures Only"),
 		RUP_FILTER_FILE("rupfilter", "rup-filter-file", "FilteredRups", true,
-				"ASCII file listing rupture indexes, one per line, to include in output solution");
+				"ASCII file listing rupture indexes, one per line, to include in output solution"),
+		RUP_DOWNSAMPLE_DM("dwn", "rup-downsample-dm", "Downsample", true,
+				"Enable rup set downsampling with the given delta magnitude");
 
 		private String shortArg, argName, fileName, description;
 		private boolean hasOption;
@@ -334,6 +337,12 @@ public class CommandLineInversionRunner {
 			
 			if (cmd.hasOption(InversionOptions.RUP_FILTER_FILE.argName)) {
 				rupSet = getFilteredRupsOnly(rupSet, new File(cmd.getOptionValue(InversionOptions.RUP_FILTER_FILE.argName)));
+				System.out.println("Num rups after filtering: "+rupSet.getNumRuptures());
+			}
+			
+			if (cmd.hasOption(InversionOptions.RUP_DOWNSAMPLE_DM.argName)) {
+				double dm = Double.parseDouble(cmd.getOptionValue(InversionOptions.RUP_DOWNSAMPLE_DM.argName));
+				rupSet = getDownsampledRupSet(rupSet, dm);
 				System.out.println("Num rups after filtering: "+rupSet.getNumRuptures());
 			}
 			
@@ -1935,6 +1944,34 @@ public class CommandLineInversionRunner {
 			rupIndexes.add(rupIndex);
 		}
 		mappingFW.close();
+		
+		List<List<Integer>> sectionForRups = Lists.newArrayList();
+		double[] mags = new double[rupIndexes.size()];
+		double[] rakes = new double[rupIndexes.size()];
+		double[] rupAreas = new double[rupIndexes.size()];
+		double[] rupLengths = new double[rupIndexes.size()];
+		double[] rupAveSlips = new double[rupIndexes.size()];
+		
+		for (int i=0; i<rupIndexes.size(); i++) {
+			int rupIndex = rupIndexes.get(i);
+			sectionForRups.add(rupSet.getSectionsIndicesForRup(rupIndex));
+			mags[i] = rupSet.getMagForRup(rupIndex);
+			rakes[i] = rupSet.getAveRakeForRup(rupIndex);
+			rupAreas[i] = rupSet.getAreaForRup(rupIndex);
+			rupLengths[i] = rupSet.getLengthForRup(rupIndex);
+			rupAveSlips[i] = rupSet.getAveSlipForRup(rupIndex);
+		}
+		
+		FaultSystemRupSet subset = new FaultSystemRupSet(rupSet.getFaultSectionDataList(), rupSet.getSlipRateForAllSections(),
+				rupSet.getSlipRateStdDevForAllSections(), rupSet.getAreaForAllSections(),
+				sectionForRups, mags, rakes, rupAreas, rupLengths, rupSet.getInfoString());
+		
+		return new InversionFaultSystemRupSet(subset, rupSet.getLogicTreeBranch(), rupSet.getLaughTestFilter(), rupAveSlips,
+				null, null, null);
+	}
+	
+	public static InversionFaultSystemRupSet getDownsampledRupSet(InversionFaultSystemRupSet rupSet, double dm) {
+		List<Integer> rupIndexes = new RupSetDownsampler(rupSet, dm).getRuptures();
 		
 		List<List<Integer>> sectionForRups = Lists.newArrayList();
 		double[] mags = new double[rupIndexes.size()];

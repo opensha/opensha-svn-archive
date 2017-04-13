@@ -60,7 +60,7 @@ public class MPJHazardCurveDriver extends MPJTaskCalculator {
 		
 		boolean multERFs = cmd.hasOption("mult-erfs");
 		
-		debug(rank, null, "loading inputs for "+getNumThreads()+" threads");
+		debug("loading inputs for "+getNumThreads()+" threads");
 		CalculationInputsXMLFile[] inputs = CalculationInputsXMLFile.loadXML(doc, getNumThreads(), multERFs);
 		// initialize binary curve writer if applicable
 		if (rank == 0 && inputs[0].getArchiver() instanceof BinaryCurveArchiver) {

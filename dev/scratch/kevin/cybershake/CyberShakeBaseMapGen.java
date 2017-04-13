@@ -54,9 +54,9 @@ public class CyberShakeBaseMapGen {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		if (args.length != 9) {
+		if (args.length < 9 || args.length > 10) {
 			System.out.println("USAGE: "+ClassUtils.getClassNameWithoutPackage(CyberShakeBaseMapGen.class)
-					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6/CCA1D> <constrainBasinMin>"
+					+" <IMRs> <SA period> <spacing> <CVM4/CVMH/CVMHnGTL/BBP/CVM4i26/CCAi6/CCA1D/null> <constrainBasinMin>"
 					+" <jobName> <minutes> <nodes> <queue> [<LA/CCA/CA>]");
 			System.exit(2);
 		}
@@ -189,7 +189,7 @@ public class CyberShakeBaseMapGen {
 			File inputsFile = new File(imrDir, "inputs.xml");
 			XMLUtils.writeObjectToXMLAsRoot(inputs, inputsFile);
 			
-			String cliArgs = "--mult-erfs "+inputsFile.getAbsolutePath();
+			String cliArgs = "--max-dispatch 1000 --mult-erfs "+inputsFile.getAbsolutePath();
 			
 			List<String> script = mpj.buildScript(MPJHazardCurveDriver.class.getName(), cliArgs);
 			USC_HPCC_ScriptWriter writer = new USC_HPCC_ScriptWriter();

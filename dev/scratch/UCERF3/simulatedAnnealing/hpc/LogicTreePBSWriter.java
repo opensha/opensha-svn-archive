@@ -108,29 +108,32 @@ public class LogicTreePBSWriter {
 		},
 		HPCC("/home/scec-02/kmilner/ucerf3/inversions", USC_HPCC_ScriptWriter.JAVA_BIN,
 //				"/home/scec-02/kmilner/ucerf3/inversions/fm_store") {
-				null, USC_HPCC_ScriptWriter.FMPJ_HOME, true) {
+//				null, USC_HPCC_ScriptWriter.FMPJ_HOME, true) {
+				null, USC_HPCC_ScriptWriter.MPJ_HOME, false) {
 			@Override
 			public BatchScriptWriter forBranch(LogicTreeBranch branch) {
 				if (branch != null && branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
 					return new USC_HPCC_ScriptWriter("dodecacore");
-				return new USC_HPCC_ScriptWriter("quadcore"); // TODO
-//				return new USC_HPCC_ScriptWriter();
+//				return new USC_HPCC_ScriptWriter("quadcore"); // TODO
+				return new USC_HPCC_ScriptWriter();
 			}
 
 			@Override
 			public int getMaxHeapSizeMB(LogicTreeBranch branch) {
-				if (branch != null &&
-						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
-					return 40000;
-				return 8000;
+//				if (branch != null &&
+//						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
+//					return 40000;
+//				return 8000;
+				return 60000; // new scec nodes
 			}
 
 			@Override
 			public int getPPN(LogicTreeBranch branch) {
-				if (branch != null &&
-						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
-					return 24;
-				return 8;
+//				if (branch != null &&
+//						branch.getValue(InversionModels.class) == InversionModels.GR_CONSTRAINED)
+//					return 24;
+//				return 8;
+				return 20;
 			}
 		},
 		RANGER("/work/00950/kevinm/ucerf3/inversion", RangerScriptWriter.JAVA_BIN,
@@ -693,7 +696,8 @@ public class LogicTreePBSWriter {
 	 */
 	public static void main(String[] args) throws IOException, DocumentException {
 //		String runName = "ucerf3p3-synthetic-tests";
-		String runName = "biasi-downsample-tests";
+//		String runName = "biasi-downsample-tests";
+		String runName = "milner-downsample-tests";
 		if (args.length > 1)
 			runName = args[1];
 //		int constrained_run_mins = 60;	// 1 hour
@@ -713,9 +717,13 @@ public class LogicTreePBSWriter {
 		//		RunSites site = RunSites.RANGER;
 		//		RunSites site = RunSites.EPICENTER;
 		RunSites site = RunSites.HPCC;
-		int batchSize = 0;
-		int jobsPerNode = 1;
-		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
+		int batchSize = 16;
+		int jobsPerNode = 4;
+		String threads = "5";
+//		RunSites site = RunSites.HPCC;
+//		int batchSize = 0;
+//		int jobsPerNode = 1;
+//		String threads = "95%"; // max for 8 core nodes, 23/24 for dodecacore
 //		String threads = "50%";
 //		RunSites site = RunSites.RANGER;
 //		int batchSize = 64;
@@ -737,7 +745,7 @@ public class LogicTreePBSWriter {
 //		HashSet<String> ignores = loadIgnoresFromZip(new File("/home/kevin/OpenSHA/UCERF3/inversions/" +
 //				"2012_12_27-ucerf3p2_prod_runs_1/bins/2012_12_27-ucerf3p2_prod_runs_1_keeper_bins.zip"));
 
-		int numRuns = 10;
+		int numRuns = 200;
 		int runStart = 0;
 		boolean forcePlots = false;
 
@@ -966,11 +974,15 @@ public class LogicTreePBSWriter {
 //				for (String val3 : argVals.get(2))
 //					variationBranches.add(buildVariationBranch(ops, toArray(val1, val2, val3)));
 		
+//		variationBranches = Lists.newArrayList();
+//		InversionOptions[] ops = { InversionOptions.RUP_FILTER_FILE };
+//		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledEnds.txt").getAbsolutePath())));
+//		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledStarts.txt").getAbsolutePath())));
+//		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledBoth.txt").getAbsolutePath())));
+		
 		variationBranches = Lists.newArrayList();
-		InversionOptions[] ops = { InversionOptions.RUP_FILTER_FILE };
-		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledEnds.txt").getAbsolutePath())));
-		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledStarts.txt").getAbsolutePath())));
-		variationBranches.add(buildVariationBranch(ops, toArray(new File(runSubDir, "DistilledBoth.txt").getAbsolutePath())));
+		InversionOptions[] ops = { InversionOptions.RUP_DOWNSAMPLE_DM };
+		variationBranches.add(buildVariationBranch(ops, toArray("0.1")));
 		
 		List<InversionArg[]> saOptions = null;
 		

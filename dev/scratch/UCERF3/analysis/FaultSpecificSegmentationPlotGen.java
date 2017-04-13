@@ -18,6 +18,7 @@ import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.ui.TextAnchor;
+import org.opensha.commons.data.CSVFile;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
@@ -50,7 +51,7 @@ import scratch.UCERF3.utils.UCERF3_DataUtils;
 public class FaultSpecificSegmentationPlotGen {
 	
 	public static void plotSegmentation(List<Integer> parentSects, InversionFaultSystemSolution sol, double minMag, boolean endsOnly) {
-		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
+		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly, null);
 		
 		GraphWindow gw = new GraphWindow(spec.getPlotElems(), spec.getTitle(), spec.getChars(), false);
 		gw.setX_AxisLabel(spec.getXAxisLabel());
@@ -61,7 +62,12 @@ public class FaultSpecificSegmentationPlotGen {
 	
 	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, FaultSystemSolution sol,
 			double minMag, boolean endsOnly) throws IOException {
-		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly);
+		return getSegmentationHeadlessGP(parentSects, sol, minMag, endsOnly, null);
+	}
+	
+	public static HeadlessGraphPanel getSegmentationHeadlessGP(List<Integer> parentSects, FaultSystemSolution sol,
+			double minMag, boolean endsOnly, CSVFile<String> csv) throws IOException {
+		PlotSpec spec = buildSegmentationPlot(parentSects, sol, minMag, endsOnly, csv);
 		
 		HeadlessGraphPanel gp = new HeadlessGraphPanel();
 		CommandLineInversionRunner.setFontSizes(gp);
@@ -73,7 +79,8 @@ public class FaultSpecificSegmentationPlotGen {
 		return gp;
 	}
 	
-	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly) {
+	private static PlotSpec buildSegmentationPlot(List<Integer> parentSects, FaultSystemSolution sol, double minMag, boolean endsOnly,
+			CSVFile<String> csv) {
 		FaultSystemRupSet rupSet = sol.getRupSet();
 		// first assemble subsections by parent
 		Map<Integer, List<FaultSectionPrefData>> subSectsByParent = Maps.newHashMap();
@@ -219,6 +226,12 @@ public class FaultSpecificSegmentationPlotGen {
 		HashMap<Integer, List<Integer>> rupStopCountMap = Maps.newHashMap();
 		HashMap<Integer, List<Location>> rupStopLocationsMap = Maps.newHashMap();
 		
+		if (csv != null) {
+			Preconditions.checkState(!csv.isStrictRowSizes(), "Strict row sizes not supported");
+			csv.addLine("Latitude", "Longitude", "Stop Rate (/yr)", "Continue Rate (/yr)",
+					"Normalized Stop Rate", "Normalized Continue Rate", "Sections");
+		}
+		
 		for (Location loc : stoppingKeysSorted) {
 			List<Integer> sects = stoppingPoints.get(loc);
 			
@@ -350,6 +363,14 @@ public class FaultSpecificSegmentationPlotGen {
 			double tot = stopRate + continueRate;
 			double normStopRate = stopRate / tot;
 			double normContinueRate = continueRate / tot;
+			
+			if (csv != null) {
+				List<String> line = Lists.newArrayList(loc.getLatitude()+"", loc.getLongitude()+"", stopRate+"", continueRate+"",
+						normStopRate+"", normContinueRate+"");
+				for (int sect : sects)
+					line.add(rupSet.getFaultSectionData(sect).getName());
+				csv.addLine(line);
+			}
 			
 			double x = loc.getLatitude();
 			Preconditions.checkState(stopFunc.getXIndex(x) == -1, "duplicate latitude!! "+loc);
@@ -497,71 +518,101 @@ public class FaultSpecificSegmentationPlotGen {
 //		File solFile = new File("/tmp/FM3_1_NEOK_EllB_DsrUni_CharConst_M5Rate8.7_MMaxOff7.6_NoFix_SpatSeisU3_mean_sol_high_a_priori.zip");
 		File solFile = new File(new File(UCERF3_DataUtils.DEFAULT_SCRATCH_DATA_DIR, "InversionSolutions"),
 				"2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip");
-		InversionFaultSystemSolution sol = FaultSystemIO.loadInvSol(solFile);
+		FaultSystemSolution sol = FaultSystemIO.loadSol(solFile);
+		List<Integer> safParentSects31 = FaultSpecificSegmentationPlotGen.getSAFParents(FaultModels.FM3_1);
+		List<Integer> safParentSects21 = FaultSpecificSegmentationPlotGen.getSAFParents(FaultModels.FM2_1);
 		
 		File writeDir = new File("/tmp/branch_avg");
-		
-		CommandLineInversionRunner.writeSAFSegPlots(sol, writeDir, "ucerf3");
+		Preconditions.checkState(writeDir.exists() || writeDir.mkdir());
 		
 		InversionFaultSystemSolution ucerf2Sol = UCERF2_ComparisonSolutionFetcher.getUCERF2Solution(FaultModels.FM2_1);
-		CommandLineInversionRunner.writeSAFSegPlots(ucerf2Sol, writeDir, "ucerf2");
 		
-		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
-				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 0, false);
+		double[] minMags = { 0, 7d, 7.5d };
 		
-		String prefix = "ucerf3_hayward_seg";
-
-		File file = new File(writeDir, prefix);
-		gp.getChartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+		for (double minMag : minMags) {
+			CSVFile<String> csv = new CSVFile<String>(false);
+			HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+					safParentSects31, sol, minMag, false, csv);
+			String prefix = "ucerf3_saf_seg";
+			if (minMag > 0)
+				prefix += (float)minMag+"+";
+			File file = new File(writeDir, prefix);
+			gp.getChartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			csv.writeToFile(new File(file.getAbsolutePath()+".csv"));
+			
+			csv = new CSVFile<String>(false);
+			gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+					safParentSects21, ucerf2Sol, minMag, false, csv);
+			prefix = "ucerf2_saf_seg";
+			if (minMag > 0)
+				prefix += (float)minMag+"+";
+			file = new File(writeDir, prefix);
+			gp.getChartPanel().setSize(1000, 800);
+			gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+			gp.saveAsPNG(file.getAbsolutePath()+".png");
+			gp.saveAsTXT(file.getAbsolutePath()+".txt");
+			csv.writeToFile(new File(file.getAbsolutePath()+".csv"));
+		}
 		
-		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
-				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7, false);
-		
-		prefix = "ucerf3_hayward_seg7.0+";
-
-		file = new File(writeDir, prefix);
-		gp.getChartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
-		
-		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
-				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7.5, false);
-		
-		prefix = "ucerf3_hayward_seg7.5+";
-
-		file = new File(writeDir, prefix);
-		gp.getChartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
-		
-		// now UCERF2
-		
-		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
-				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 0, false);
-		
-		prefix = "ucerf2_hayward_seg";
-
-		file = new File(writeDir, prefix);
-		gp.getChartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
-		
-		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
-				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 7, false);
-		
-		prefix = "ucerf2_hayward_seg7.0+";
-
-		file = new File(writeDir, prefix);
-		gp.getChartPanel().setSize(1000, 800);
-		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
-		gp.saveAsPNG(file.getAbsolutePath()+".png");
-		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+//		HeadlessGraphPanel gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+//				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 0, false);
+//		
+//		String prefix = "ucerf3_hayward_seg";
+//
+//		File file = new File(writeDir, prefix);
+//		gp.getChartPanel().setSize(1000, 800);
+//		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+//		
+//		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+//				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7, false);
+//		
+//		prefix = "ucerf3_hayward_seg7.0+";
+//
+//		file = new File(writeDir, prefix);
+//		gp.getChartPanel().setSize(1000, 800);
+//		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+//		
+//		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+//				getHaywardParents(sol.getRupSet().getFaultModel()), sol, 7.5, false);
+//		
+//		prefix = "ucerf3_hayward_seg7.5+";
+//
+//		file = new File(writeDir, prefix);
+//		gp.getChartPanel().setSize(1000, 800);
+//		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+//		
+//		// now UCERF2
+//		
+//		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+//				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 0, false);
+//		
+//		prefix = "ucerf2_hayward_seg";
+//
+//		file = new File(writeDir, prefix);
+//		gp.getChartPanel().setSize(1000, 800);
+//		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
+//		
+//		gp = FaultSpecificSegmentationPlotGen.getSegmentationHeadlessGP(
+//				getHaywardParents(ucerf2Sol.getRupSet().getFaultModel()), ucerf2Sol, 7, false);
+//		
+//		prefix = "ucerf2_hayward_seg7.0+";
+//
+//		file = new File(writeDir, prefix);
+//		gp.getChartPanel().setSize(1000, 800);
+//		gp.saveAsPDF(file.getAbsolutePath()+".pdf");
+//		gp.saveAsPNG(file.getAbsolutePath()+".png");
+//		gp.saveAsTXT(file.getAbsolutePath()+".txt");
 		
 //		Map<Integer, List<Integer>> namedMap = sol.getFaultModel().getNamedFaultsMap();
 //		List<Integer> parents = namedMap.get(32);

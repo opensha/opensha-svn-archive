@@ -57,6 +57,8 @@ import com.google.common.collect.Lists;
 
 public class HardCodedInterpDiffMapCreator {
 	
+	protected static DBAccess db;
+	
 	private static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val, int datasetID,
 			int imTypeID, Collection<Integer> siteTypes) {
 		List<Integer> datasetIDs = Lists.newArrayList(datasetID);
@@ -66,7 +68,6 @@ public class HardCodedInterpDiffMapCreator {
 	protected static ArbDiscrGeoDataSet getMainScatter(boolean isProbAt_IML, double val,
 			List<Integer> datasetIDs, int imTypeID, Collection<Integer> siteTypes) {
 		Preconditions.checkArgument(!datasetIDs.isEmpty(), "Must supply at least one dataset ID");
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		ArbDiscrGeoDataSet scatterData = new ArbDiscrGeoDataSet(true);
 		for (int datasetID : datasetIDs) {
 			HazardCurveFetcher fetcher = new HazardCurveFetcher(db, datasetID, imTypeID);
@@ -121,7 +122,6 @@ public class HardCodedInterpDiffMapCreator {
 	
 	private static ArbDiscrGeoDataSet loadCustomMapCurves(ModProbConfig config, int imTypeID,
 			boolean isProbAt_IML, double val) {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		
 		int datasetID = config.getHazardDatasetID(35, 3, 5, 1, null);
 		if (datasetID < 0)
@@ -174,7 +174,6 @@ public class HardCodedInterpDiffMapCreator {
 		curveDir += "Curves";
 		File curveDirFile = new File(curveDir);
 		if (curveDirFile.exists()) {
-			DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 			Runs2DB runs2db = new Runs2DB(db);
 			ArrayList<CybershakeRun> runs = runs2db.getRuns();
 			CybershakeSiteInfo2DB sites2db = new CybershakeSiteInfo2DB(db);
@@ -203,20 +202,20 @@ public class HardCodedInterpDiffMapCreator {
 		}
 	}
 	
-	private static GeoDataSet loadBaseMap(
+	protected static GeoDataSet loadBaseMap(
 			ScalarIMR imr,
 			boolean isProbAt_IML,
 			double level,
 			int velModelID,
 			int imTypeID) throws SQLException {
 		
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
-		
 		AttenRels2DB ar2db = new AttenRels2DB(db);
 		int attenRelID = ar2db.getAttenRelID(imr);
 		
 		AttenRelDataSets2DB ds2db = new AttenRelDataSets2DB(db);
 		int datasetID = ds2db.getDataSetID(attenRelID, 35, velModelID, 1, 1, null);
+		if (datasetID < 0)
+			datasetID = ds2db.getDataSetID(attenRelID, 36, velModelID, 1, 1, null);
 		
 		File cacheFile = new File(getCacheDir(), "ar_curves_"+attenRelID+"_"+datasetID+"_"
 				+isProbAt_IML+"_"+(float)level+"_"+imTypeID+".txt");
@@ -317,10 +316,30 @@ public class HardCodedInterpDiffMapCreator {
 	 */
 	public static void main(String[] args){
 		try {
+//			db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.PRODUCTION_HOST_NAME);
+			db = Cybershake_OpenSHA_DBApplication.getDB(Cybershake_OpenSHA_DBApplication.ARCHIVE_HOST_NAME);
+			
 			boolean logPlot = false;
 			
-			// 167: RotD50 2sec
-			// 162: RotD50 3sec
+			int imTypeID = 167; // 2 sec SA, RotD50
+			String imtLabel = "2sec SA";
+			Double customMax = 1.0;
+			
+//			int imTypeID = 162; // 3 sec SA, RotD50
+//			String imtLabel = "3sec SA";
+//			Double customMax = 1.0;
+			
+//			int imTypeID = 158; // 5 sec SA, RotD50
+//			String imtLabel = "5sec SA";
+//			Double customMax = 0.6;
+			
+//			int imTypeID = 152; // 10 sec SA, RotD50
+//			String imtLabel = "10sec SA";
+//			Double customMax = 0.4;
+			
+//			int imTypeID = 151; // 2 sec SA, RotD100
+//			String imtLabel = "2sec SA, RotD100";
+//			Double customMax = 1.0;
 			
 //			int imTypeID = 86;
 //			String imtLabel = "1sec SA";
@@ -338,9 +357,9 @@ public class HardCodedInterpDiffMapCreator {
 //			String imtLabel = "2sec SA";
 //			Double customMax = 1.0;
 			
-			int imTypeID = 21; // 3 sec SA, GEOM
-			String imtLabel = "3sec SA";
-			Double customMax = 1.0;
+//			int imTypeID = 21; // 3 sec SA, GEOM
+//			String imtLabel = "3sec SA";
+//			Double customMax = 1.0;
 			
 //			int imTypeID = 11; // 5 sec SA, GEOM
 //			String imtLabel = "5sec SA";
@@ -350,8 +369,10 @@ public class HardCodedInterpDiffMapCreator {
 //			String imtLabel = "10sec SA";
 //			Double customMax = 0.4;
 			
-			String prefix = "study_15_12";
-//			String prefix = "study_15_4";
+//			String prefix = "study_17_3_1d";
+//			String prefix = "study_17_3_3d";
+//			String prefix = "study_15_12";
+			String prefix = "study_15_4";
 //			String prefix = "study_14_2";
 //			String prefix = "study_14_2_cvm_s426";
 //			String prefix = "study_14_2_cvm_s426";
@@ -374,15 +395,23 @@ public class HardCodedInterpDiffMapCreator {
 			
 			/* the main dataset(s) that we're plotting */
 			
-			// CVM-S4i26, AWP GPU w/ Stochastic HF, 1 Hz (Study 15.12)
-			int velModelID = 5;
-			List<Integer> datasetIDs = Lists.newArrayList(61);
+//			// CCAi6 (Study 17.3)
+//			int velModelID = 10;
+//			List<Integer> datasetIDs = Lists.newArrayList(81);
+			
+//			// CCA-1D (Study 17.3)
+//			int velModelID = 9;
+//			List<Integer> datasetIDs = Lists.newArrayList(80);
+			
+//			// CVM-S4i26, AWP GPU w/ Stochastic HF, 1 Hz (Study 15.12)
+//			int velModelID = 5;
+//			List<Integer> datasetIDs = Lists.newArrayList(61);
 			
 			// CVM-S4i26, AWP GPU, 1 Hz (Study 15.4)
-//			int velModelID = 5;
-//			List<Integer> datasetIDs = Lists.newArrayList(57);
+			int velModelID = 5;
+			List<Integer> datasetIDs = Lists.newArrayList(57);
 			
-			// CVM-S4i26, AWP CPU
+//			// CVM-S4i26, AWP CPU
 //			int velModelID = 5;
 //			List<Integer> datasetIDs = Lists.newArrayList(37);
 			
@@ -451,13 +480,14 @@ public class HardCodedInterpDiffMapCreator {
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BA_2008.instance(null);
-			ScalarIMR baseMapIMR = null;
+//			ScalarIMR baseMapIMR = null;
 //			ScalarIMR baseMapIMR = AttenRelRef.AS_2008.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.ASK_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.BSSA_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CB_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.CY_2014.instance(null);
 //			ScalarIMR baseMapIMR = AttenRelRef.IDRISS_2014.instance(null);
+			ScalarIMR baseMapIMR = AttenRelRef.NGAWest_2014_AVG_NOIDRISS.instance(null);
 			boolean downloadBasemap = true;
 			// GMPE params
 			if (baseMapIMR != null) {
@@ -577,6 +607,8 @@ public class HardCodedInterpDiffMapCreator {
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
 		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
+		if (velModelID == 9 || velModelID == 10)
+			region = new CaliforniaRegions.CYBERSHAKE_CCA_MAP_REGION();
 		
 		InterpDiffMapType[] mapTypes = normPlotTypes;
 		
@@ -624,16 +656,23 @@ public class HardCodedInterpDiffMapCreator {
 		AbstractGeoDataSet scatterData1 = getMainScatter(isProbAt_IML, val, dataset1IDs, imTypeID, siteTypes);
 		AbstractGeoDataSet scatterData2 = getMainScatter(isProbAt_IML, val, dataset2IDs, imTypeID, siteTypes);
 		
-		return getCompareMap(logPlot, scatterData1, scatterData2, imTypeID, customLabel, false);
+		return getCompareMap(logPlot, scatterData1, scatterData2, customLabel, false);
 	}
 	
 	
-	public static String[] getCompareMap(boolean logPlot, GeoDataSet scatterData1, GeoDataSet scatterData2, int imTypeID,
+	public static String[] getCompareMap(boolean logPlot, GeoDataSet scatterData1, GeoDataSet scatterData2,
 			String customLabel, boolean tightCPTs) throws FileNotFoundException,
+			IOException, ClassNotFoundException, GMT_MapException, SQLException {
+		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
+		return getCompareMap(logPlot, scatterData1, scatterData2, customLabel, tightCPTs, region);
+	}
+	
+	
+	public static String[] getCompareMap(boolean logPlot, GeoDataSet scatterData1, GeoDataSet scatterData2,
+			String customLabel, boolean tightCPTs, Region region) throws FileNotFoundException,
 			IOException, ClassNotFoundException, GMT_MapException, SQLException {
 		System.out.println("Creating map instance...");
 		GMT_InterpolationSettings interpSettings = GMT_InterpolationSettings.getDefaultSettings();
-		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 		
 		InterpDiffMapType[] mapTypes = gainPlotTypes;
 		

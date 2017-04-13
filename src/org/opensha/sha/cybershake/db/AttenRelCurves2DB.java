@@ -25,7 +25,7 @@ public class AttenRelCurves2DB {
 	
 	private DBAccess db;
 	
-	private static final int CURVE_BUNDLE_SIZE = 500;
+	private static final int CURVE_BUNDLE_SIZE = 1000;
 	
 	public AttenRelCurves2DB(DBAccess db) {
 		this.db = db;
@@ -40,6 +40,7 @@ public class AttenRelCurves2DB {
 		while (map.size() > 0) {
 			if (curvesToInsert.size() == CURVE_BUNDLE_SIZE) {
 				doInsertBundle(date, datasetID, imTypeID, curvesToInsert, locsToInsert);
+				System.out.println(map.size()+" left");
 				curvesToInsert = new ArrayList<DiscretizedFunc>();
 				locsToInsert = new ArrayList<Location>();
 			}

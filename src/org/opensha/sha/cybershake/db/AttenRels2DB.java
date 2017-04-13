@@ -72,6 +72,8 @@ public class AttenRels2DB {
 				try {
 					Parameter<?> imrParam = imr.getParameter(pname);
 					String imrParamVal = imrParam.getValue().toString();
+					if (imrParamVal.length() > 100)
+						imrParamVal = imrParamVal.substring(0, 100);
 					if (!imrParamVal.equals(pval)) {
 						// there's a chance that it's truncated
 						if (imrParamVal.length()>50) {
@@ -158,12 +160,13 @@ public class AttenRels2DB {
 			Object pvalObj = param.getValue();
 			if (pvalObj == null)
 				throw new IllegalStateException("param '"+pname+"' is null...can't insert!");
-			if(pvalObj instanceof String)
-				pvalObj = ((String)pvalObj).replaceAll("'", "");
+			String pvalStr = pvalObj.toString().replaceAll("'", "");
+			if (pvalStr.length() > 100)
+				pvalStr = pvalStr.substring(0, 100);
 			String type = param.getType();
 			String units = param.getUnits();
 			
-			sql += attenRelID+", '"+pname+"', '"+pvalObj+"', ";
+			sql += attenRelID+", '"+pname+"', '"+pvalStr+"', ";
 			if (type == null || type.length() == 0)
 				sql += "null";
 			else {
@@ -177,16 +180,17 @@ public class AttenRels2DB {
 				sql += "'"+units+"'";
 			sql += ")";
 		}
-		
+		System.out.println(sql);
 		db.insertUpdateOrDeleteData(sql);
 	}
 	
 	public static void main(String[] args) throws IOException {
-		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(true, false);
+		DBAccess db = Cybershake_OpenSHA_DBApplication.getAuthenticatedDBAccess(
+				true, false, Cybershake_OpenSHA_DBApplication.PRODUCTION_HOST_NAME);
 //		DBAccess db = Cybershake_OpenSHA_DBApplication.getDB();
 		try {
 			AttenRels2DB atten2db = new AttenRels2DB(db);
-			ScalarIMR imr = AttenRelRef.IDRISS_2014.instance(null);
+			ScalarIMR imr = AttenRelRef.NGAWest_2014_AVG_NOIDRISS.instance(null);
 			imr.setParamDefaults();
 			imr.getParameter(SigmaTruncTypeParam.NAME).setValue(SigmaTruncTypeParam.SIGMA_TRUNC_TYPE_1SIDED);
 			imr.getParameter(SigmaTruncLevelParam.NAME).setValue(3d);

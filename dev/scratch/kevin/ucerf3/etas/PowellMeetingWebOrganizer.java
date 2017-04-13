@@ -201,15 +201,19 @@ public class PowellMeetingWebOrganizer {
 			String[] poePrefixLabels = { "POE MMI 6", "POE MMI 8" };
 			String[] mmiPrefixes = { "map_mmi_p0.5", "map_mmi_p0.25", "map_mmi_p0.1", "map_mmi_p0.01", "map_mmi_p0.001", };
 			String[] mmiPrefixLabels = { "MMI @ 50% POE", "MMI @ 25% POE", "MMI @ 10% POE", "MMI @ 1% POE", "MMI @ 0.1% POE", };
+			String[] gainPrefixes = { "gain_map_mmi_poe_6", "gain_map_mmi_poe_8" };
+			String[] gainPrefixLabels = { "POE MMI 6 Gain", "POE MMI 8 Gain" };
 			File mapDir = findMapDir(mainDir, mapDirPrefix);
 			if (mapDir != null) {
 				List<String> mapLines = Lists.newArrayList();
 				mapLines.add("<b>Probability of Exceeding MMI</b>");
+				boolean hasGain = false;
 				for (int p=0; p<poePrefixes.length; p++) {
 					String prefix = poePrefixes[p];
 					String line = poePrefixLabels[p]+":";
 					for (int d=0; d<hazardDurations.length; d++) {
 						File durationDir = new File(mapDir, hazardDurations[d]);
+						hasGain = hasGain || hasMatch(durationDir, gainPrefixes[0]);
 						String label = hazardDurationLabels[d];
 						File map = getPlot(durationDir, prefix, ".pdf");
 						line += " "+getLink(map, label);
@@ -219,6 +223,34 @@ public class PowellMeetingWebOrganizer {
 						}
 					}
 					mapLines.add(line);
+				}
+				if (hasGain) {
+					mapLines.add("<b>MMI POE GAIN to Long Term UCERF3 Models</b>");
+					for (boolean td : new boolean[] { true, false }) {
+						for (int p=0; p<poePrefixes.length; p++) {
+							String prefix = gainPrefixes[p];
+							String line = gainPrefixLabels[p];
+							String extra;
+							if (td) {
+								line += " UCERF3-TD:";
+								extra = "u3-td";
+							} else {
+								line += " UCERF3-TI:";
+								extra = "u3-ti";
+							}
+							for (int d=0; d<hazardDurations.length; d++) {
+								File durationDir = new File(mapDir, hazardDurations[d]);
+								String label = hazardDurationLabels[d];
+								File map = getPlot(durationDir, prefix, ".pdf", extra);
+								line += " "+getLink(map, label);
+								if (hazardDurations[d].equals("days_0_3")) {
+									File anim = getPlot(mapDir, prefix, ".gif", extra);
+									line += " "+getLink(anim, "3 Day Animation");
+								}
+							}
+							mapLines.add(line);
+						}
+					}
 				}
 				mapLines.add("<b>MMI with fixed Probability of Exceedance</b>");
 				for (int p=0; p<mmiPrefixes.length; p++) {
@@ -296,13 +328,17 @@ public class PowellMeetingWebOrganizer {
 		return false;
 	}
 	
-	private static File getPlot(File dir, String prefix, String ext) {
+	private static File getPlot(File dir, String prefix, String ext, String... extras) {
 		if (!dir.exists())
 			return null;
+		fileLoop:
 		for (File file : dir.listFiles()) {
 			if (!file.isFile())
 				continue;
 			String name = file.getName();
+			for (String extra : extras)
+				if (!name.contains(extra))
+					continue fileLoop;
 			if (name.startsWith(prefix) && name.endsWith(ext))
 				return file;
 		}

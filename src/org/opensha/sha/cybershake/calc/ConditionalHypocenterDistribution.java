@@ -559,7 +559,7 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		
 		// now ratio
 		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(
-				false, scatter, origScatter, imTypeID, "Cond. Hypo. Dist, "+valStr, true);
+				false, scatter, origScatter, "Cond. Hypo. Dist, "+valStr, true);
 		FileUtils.downloadURL(addrs[0]+"/interpolated.150.png", new File(outputDir, "cond_hypo_diff_map_"+valFileStr+".png"));
 		FileUtils.downloadURL(addrs[1]+"/interpolated.150.png", new File(outputDir, "cond_hypo_ratio_map_"+valFileStr+".png"));
 		db.destroy();
