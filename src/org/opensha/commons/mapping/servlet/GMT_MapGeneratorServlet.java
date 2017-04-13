@@ -205,7 +205,7 @@ extends HttpServlet {
 		System.out.println("Running command GMT for map: "+plotDirName);
 		//running the gmtScript file
 		String[] command = {
-				"sh", "-c", "/bin/bash " + gmtScriptFile};
+				"sh", "-c", "/bin/bash " + gmtScriptFile+" 2> /dev/null > /dev/null"};
 		RunScript.runScript(command);
 
 		System.out.println("Zipping results for map: "+plotDirName);
