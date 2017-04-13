@@ -224,7 +224,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			gmtCommandLines.add("# do GMT interpolation on the scatter data");
 			commandLine = "${GMT_PATH}surface "+ interpXYZName +" -G"+ interpUnsampledGRD+ " -I"+interpGridSpacing
 							+region+interpSettings.getConvergenceArg()+" "+interpSettings.getSearchArg()
-							+" "+interpSettings.getTensionArg()+" -: -h0";
+							+" "+interpSettings.getTensionArg()+" -: -h0 2>/dev/null";
 			gmtCommandLines.add(commandLine);
 			if (interpSettings.isSaveInterpSurface()) {
 				gmtCommandLines.add("# write interpolated XYZ file");
@@ -259,7 +259,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add("# do GMT interpolation on the scatter data");
 				commandLine = "${GMT_PATH}surface "+ interpRatioXYZName +" -G"+ interpRatioUnsampledGRD+ " -I"+interpGridSpacing
 								+region+interpSettings.getConvergenceArg()+" "+interpSettings.getSearchArg()
-								+" "+interpSettings.getTensionArg()+" -: -H0";
+								+" "+interpSettings.getTensionArg()+" -: -H0 2>/dev/null";
 				gmtCommandLines.add(commandLine);
 				// resample the interpolation
 				
