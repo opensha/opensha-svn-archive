@@ -111,6 +111,7 @@ extends HttpServlet {
 			String metadataFileName = (String) inputFromApplet.readObject();
 			
 			System.out.println("Generating map");
+			System.out.flush();
 			String mapImagePath = GMT_MapGeneratorServlet.createMap(csGMT, map, dirName, metadata, metadataFileName);
 			System.out.println("Returning address: "+mapImagePath);
 			
