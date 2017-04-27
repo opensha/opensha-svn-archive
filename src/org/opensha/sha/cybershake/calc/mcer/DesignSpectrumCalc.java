@@ -13,7 +13,7 @@ public class DesignSpectrumCalc {
 	
 	private static final double minX = 0.01;
 	private static final double maxX = 10d;
-	private static final double deltaX = 0.001;
+	private static final double deltaX = 0.01;
 	private static final int numX = (int)((maxX - minX)/deltaX) + 1;
 	
 	/**

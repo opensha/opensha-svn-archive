@@ -674,12 +674,16 @@ public class UGMS_WebToolCalc {
 		double t0 = 0.2*ts;
 		resultsEl.addAttribute("TS", ts+"");
 		resultsEl.addAttribute("T0", t0+"");
+		double pgam = Double.NaN;
+		resultsEl.addAttribute("PGAM", pgam+"");
 		
 		standardSpectrum = DesignSpectrumCalc.calcSpectrum(sms, sm1, tl);
 		standardSpectrum.setName("Standard MCER Spectrum");
+		standardSpectrum.toXMLMetadata(resultsEl, "StandardMCERSpectrum");
 		
 		designSpectrum = DesignSpectrumCalc.calcSpectrum(sds, sd1, tl);
 		designSpectrum.setName("Design Response Spectrum");
+		designSpectrum.toXMLMetadata(resultsEl, "DesignResponseSpectrum");
 	}
 	
 	public void plot() throws IOException {
