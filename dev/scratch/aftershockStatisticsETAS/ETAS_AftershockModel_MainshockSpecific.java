@@ -28,13 +28,14 @@ import com.google.common.primitives.Doubles;
  * @author field
  *
  */
-public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel implements UnivariateFunction {
+public class ETAS_AftershockModel_MainshockSpecific extends ETAS_AftershockModel implements UnivariateFunction {
 	
 	Boolean D=true;	// debug flag
 //	double alpha = 1;
 //	double mu = 1;
 	double capG, capH;
-	double ams, a, k, p, c;	
+	double ams, a, k, p, c;
+	double rmax;	// new completeness option: piecewise model with rmax
 //	
 	
 	
@@ -44,7 +45,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	 * uses an analytical solution for the integral. 
 	 * 
 	 */
-	public ETAS_AftershockModel_SequenceSpecific(ObsEqkRupture mainshock, ObsEqkRupList aftershocks,
+	public ETAS_AftershockModel_MainshockSpecific(ObsEqkRupture mainshock, ObsEqkRupList aftershocks,
 				double magCat, double[] aVec, double[] pVec, double[] cVec, double alpha, double b, double refMag, 	
 				double dataStartTimeDays, double dataEndTimeDays, double forecastMinDays, double forecastMaxDays, 
 				double maxMag, int maxGenerations, int nSims) {
@@ -80,7 +81,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	 * @param max_c  | - range of c-values for grid search (set min=max and num=1 to constraint to single value)
 	 * @param num_c /
 	 */
-	public ETAS_AftershockModel_SequenceSpecific(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
+	public ETAS_AftershockModel_MainshockSpecific(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
 			 								double magCat, double capG, double capH,
 			 								double[] aVec, double[] pVec, double[] cVec, double alpha, double b, double refMag, 	
 			 								double dataStartTimeDays, double dataEndTimeDays, double forecastMinDays, double forecastMaxDays, 

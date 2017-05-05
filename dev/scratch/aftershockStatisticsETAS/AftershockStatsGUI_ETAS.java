@@ -1727,7 +1727,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 
 		double spacing = 0.025; 	// grid spacing in degrees
 		double stressDrop = 3.0; 	//MPa
-		double mainshockFitDuration = 1.0; //days
+		double mainshockFitDuration = 0.5; //days
 		
 		if (progress != null)
 			progress.updateProgress(0, 1, "Calculating Rate Model...");
