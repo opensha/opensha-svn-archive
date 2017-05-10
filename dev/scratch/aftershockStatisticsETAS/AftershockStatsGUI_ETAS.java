@@ -1981,9 +1981,22 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 			setEnableParamsPostComputeB(false);
 			if (genericModel != null)
 				bParam.setValue(genericModel.get_b());
+			
 			else
 				bParam.setValue(null);
+			
 			bParam.getEditor().refreshParamEditor();
+			
+			// if a generic model has already been computed, update it to reflect new Mc/Mref productivity adjustment
+			if(genericModel != null){
+				System.out.println("Adjusting generic productivity to reflect Mc change...");
+				genericModel = new ETAS_AftershockModel_Generic(mainshock, aftershocks, genericParams, 
+					dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
+					forecastStartTimeParam.getValue(), forecastEndTimeParam.getValue(), mcParam.getValue(),
+					9.5, 100, 0);
+			}
+			
+				
 			
 		} else if (param == computeBButton) {
 			setEnableParamsPostComputeB(false);
@@ -2006,6 +2019,8 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 					setEnableParamsPostComputeB(true);
 					
 					tabbedPane.setSelectedIndex(mag_num_tab_index);
+					
+					
 				}
 			});
 			CalcRunnable run = new CalcRunnable(progress, bStep);

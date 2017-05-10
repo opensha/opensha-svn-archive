@@ -67,7 +67,8 @@ public abstract class ETAS_AftershockModel {
 	double alpha, refMag, mu;
 	double min_a, max_a, delta_a=0, min_p, max_p, delta_p=0, min_c, max_c, delta_c=0;	//grid search not used for forecast
 	int num_a = 101, num_p = 101, num_c = 101;
-	double[][][]  likelihood;
+	double[][][] likelihood;
+	double[][][] amsMatrix;
 	int max_a_index=-1;
 	int max_p_index=-1;
 	int max_c_index=-1;

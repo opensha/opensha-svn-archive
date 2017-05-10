@@ -226,7 +226,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 
 	public void computeNewForecast(double dataMinDays, double dataMaxDays, double forecastMinDays, double forecastMaxDays, int nSims){
 		System.out.println("Data/Forecast duration: " + dataMinDays +" "+ dataMaxDays +" "+ forecastMinDays +" "+ forecastMaxDays +" "+ nSims);
-		System.out.println("Params: "+ mean_a +" "+ getMaxLikelihood_a() +" "+ getMaxLikelihood_p() +" "+ getMaxLikelihood_c() +" "+ alpha +" "+ b +" "+ magComplete);
+		System.out.println("Params: "+ getProductivityMag() +" "+ getMaxLikelihood_a() +" "+ getMaxLikelihood_p() +" "+ getMaxLikelihood_c() +" "+ alpha +" "+ b +" "+ magComplete);
 		
 		ETAScatalog simulatedCatalog = new ETAScatalog(a_vec, p_vec, c_vec, likelihood, alpha, b, refMag, 
 				mainShock, aftershockList, dataMinDays, dataMaxDays, forecastMinDays, forecastMaxDays, magComplete, maxMag, maxGenerations, nSims); //maxMag = 9.5, maxGeneratons = 100;
@@ -328,6 +328,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 
 		// instantiate two likelihood matrices -- one to hold subcritical likelihoods, one to hold supercritical likelihoods (for bookkeeping).
 		likelihood = new double[num_a][num_p][num_c];
+		amsMatrix = new double[num_a][num_p][num_c];
 		double[][][] superCriticalLikelihood = new double[num_a][num_p][num_c];
 		double[][][] subCriticalLikelihood = new double[num_a][num_p][num_c];
 		
@@ -341,6 +342,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		
 //		System.out.println(mainShock.getMag());
 		for(int aIndex=0;aIndex<num_a;aIndex++) {
+			double a = a_vec[aIndex];
 			if(!longRunFlag){
 				double toc = (System.currentTimeMillis() - startTime) / 1000;
 				if(toc > warnTime){
@@ -350,17 +352,10 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 				}
 			}
 			
-			double a = a_vec[aIndex];
-			
-			//double k = AftershockStatsCalc.convertProductivityTo_k(a, b, mainShock.getMag(), refMag);
-			double k = Math.pow(10, a + alpha*(mainShock.getMag()-magComplete) );
-			
 			for(int pIndex=0;pIndex<num_p;pIndex++) {
 				double p = p_vec[pIndex];
 				
 				for(int cIndex=0;cIndex<num_c;cIndex++) {
-					
-					
 					double c = c_vec[cIndex];
 
 					//check for supercritical parameters over the forecast time window
@@ -372,9 +367,51 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 					subCritFlag = ( n<1 );
 //					System.out.println(n);	//debug
 
-					logLike = getLogLikelihoodForETASParams( k,  a,  p,  c,  alpha,  magComplete,
-							dataStartTimeDays,  dataEndTimeDays, magAftershocks, relativeEventTimes);
+					// optimize the mainshock productivity magnitude for this a p c, but do it behind the scenes
+					double sigma_ams = 0.4; //set this as a parameter somewhere
+					int num_ams = 101;	//set this parameter somewhere
+					double mean_ams = a;
+					double min_ams = mean_ams - 3d*sigma_ams;
+					double max_ams = mean_ams + 3d*sigma_ams;
+										
+					double[] ams_vec = ETAS_StatsCalc.linspace(min_ams, max_ams, num_ams); 
 					
+					double[] logLike_vec = new double[num_ams];
+					double[] amsLogLike_vec = new double[num_ams];
+					
+					// compute likelihoods for range of ms productivities 
+					for(int amsIndex = 0 ; amsIndex < num_ams ; amsIndex++){
+						double ams = ams_vec[amsIndex];
+						double k = Math.pow(10, ams + alpha*(mainShock.getMag()-magComplete) );
+						
+						//ETAS log-likelihood component
+						logLike_vec[amsIndex] = getLogLikelihoodForETASParams( k,  a,  p,  c,  alpha,  magComplete,
+								dataStartTimeDays,  dataEndTimeDays, magAftershocks, relativeEventTimes); 
+						
+						//MS mag log-likelihood component
+						amsLogLike_vec[amsIndex] = -1d/2d * Math.log(2d*Math.PI*sigma_ams*sigma_ams) - (ams - mean_ams)*(ams - mean_ams ) / (2d*sigma_ams*sigma_ams); 
+//								1/Math.sqrt(2*Math.PI)/sigma_ams * Math.exp( -(ams - mean_ams) * (ams - mean_ams ) / (2*sigma_ams*sigma_ams) );
+						
+					}
+					
+					//find the max likelihood index
+					double maxLike = Double.NEGATIVE_INFINITY;
+					int maxLLIndex = 0;
+					for (int amsIndex = 0; amsIndex < num_ams; amsIndex++){
+						logLike = logLike_vec[amsIndex] + amsLogLike_vec[amsIndex];
+						if(logLike > maxLike){
+							maxLike = logLike;
+							maxLLIndex = amsIndex;
+						}
+					}
+					logLike = maxLike;
+					amsMatrix[aIndex][pIndex][cIndex] = ams_vec[maxLLIndex];
+
+//					DEBUG
+//					System.out.println(aIndex + " " + ams_vec[maxLLIndex] + " " + sigma_ams +  " "  + logLike_vec[maxLLIndex] + " " + amsLogLike_vec[maxLLIndex]);
+					
+					
+					// fill out the likelihood matrices with the joint likelihood
 					if(Doubles.isFinite(logLike)){
 						if (subCritFlag){
 							likelihood[aIndex][pIndex][cIndex] = logLike;
@@ -397,6 +434,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 						subCriticalLikelihood[aIndex][pIndex][cIndex] = Double.NEGATIVE_INFINITY;
 						superCriticalLikelihood[aIndex][pIndex][cIndex] = Double.NEGATIVE_INFINITY;
 					}
+
 				}
 			}
 		}
@@ -414,6 +452,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		double toc = (System.currentTimeMillis() - startTime) / 1000;
 		System.out.format("Grid search took %d seconds.\n", (int)toc);
 		System.out.format("%3.2f percent of the solution space is subcritical.\n", fractionSubCritical*100);
+		System.out.format("Max likelihood mainshock productivity manigude is %2.2f\n" , getProductivityMag());
 	}
 
 	/*
@@ -502,7 +541,9 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 
 	}
 
-
+	public double getProductivityMag(){
+		return magMain + amsMatrix[max_a_index][max_p_index][max_c_index] - a_vec[max_a_index];
+	}
 
 @Override
 public double value(double arg0) {
