@@ -1107,7 +1107,7 @@ public class ETAS_Simulator {
 			double lon = (topRowLocs.get(i).getLongitude() + bottomRowLocs.get(i).getLongitude())/2;
 			System.out.println(lon+"\t"+lat);
 		}
-//		System.exit(1);;
+		System.exit(1);;
 		
 		// TEST RIGHT HERE
 //		erf.setFltSectOccurranceTime(1848, scenarioRup.getOriginTime());
@@ -1888,7 +1888,7 @@ public class ETAS_Simulator {
 //		plotCatalogMagVsTime(getHistCatalog(2012, erf.getSolution().getRupSet()).getRupsInside(new CaliforniaRegions.SF_BOX()), "U3_EqkCatalogMagVsTimePlot");
 //		System.exit(0);
 
-		TestScenario scenario = TestScenario.MOJAVE_M7;
+		TestScenario scenario = TestScenario.PARKFIELD;
 //		TestScenario scenario = null;
 		
 //		writeInfoAboutClosestSectionToLoc(erf, scenario.getLocation());

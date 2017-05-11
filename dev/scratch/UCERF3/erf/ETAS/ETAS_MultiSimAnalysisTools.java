@@ -4805,6 +4805,73 @@ public class ETAS_MultiSimAnalysisTools {
 	}
 
 	
+	
+	/**
+	 * 
+	 * set full_TD true to make FULL_TD case; otherwise it's NO_ERT (filenames differe accordingly)
+	 */
+	private static void makeSRL_CoverImage() {
+		
+		System.out.println("running makeSRL_CoverImage");
+        
+		String fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/SRL_U3_ShortPaper/Figures/Figure2/parkfield-full_td-no_ert-combined-1wk_m2.5/map_data.txt";
+        double discr = 0.02;
+        GriddedRegion reg = new GriddedRegion(new CaliforniaRegions.RELM_TESTING(), discr, GriddedRegion.ANCHOR_0_0);
+		GriddedGeoDataSet triggerData = new GriddedGeoDataSet(reg, true);	// true makes X latitude
+		try {
+			
+			for (String line : Files.readLines(new File(fileName), Charset.defaultCharset())) {
+				line = line.trim();
+				String[] split = line.split("\t");
+				double lat = Double.parseDouble(split[0]);
+				double lon = Double.parseDouble(split[1]);
+				double val = Double.parseDouble(split[2]);
+//				if (split[2].equals("-Infinity"))
+//					System.out.println(val);
+				int index = reg.indexForLocation(new Location(lat,lon));
+				triggerData.set(index, val);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		fileName = "/Users/field/Field_Other/CEA_WGCEP/UCERF3/SRL_U3_ShortPaper/Figures/Figure2/parkfield-gridded-only-1wk_m2.5/map_data.txt";
+		
+		GriddedGeoDataSet triggerDataNoFaults = new GriddedGeoDataSet(reg, true);	// true makes X latitude
+		try {
+			
+			for (String line : Files.readLines(new File(fileName), Charset.defaultCharset())) {
+				line = line.trim();
+				String[] split = line.split("\t");
+				double lat = Double.parseDouble(split[0]);
+				double lon = Double.parseDouble(split[1]);
+				double val = Double.parseDouble(split[2]);
+//				if (split[2].equals("-Infinity"))
+//					System.out.println(val);
+				int index = reg.indexForLocation(new Location(lat,lon));
+				triggerDataNoFaults.set(index, val);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+        
+        boolean includeTopo=false;
+        
+		System.out.println("Making Plots");
+		try {
+			CPT cpt = GMT_CPT_Files.UCERF3_ETAS_TRIGGER.instance();
+			double minValue = -6;
+			double maxValue = 0;
+			File dir = new File("SRL_CoverImage");
+
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerData, reg, dir, "triggerOnlyMag2p5", true, cpt, minValue, maxValue, includeTopo);
+			FaultSysSolutionERF_Calc.makeBackgroundImageForSCEC_VDO(triggerDataNoFaults, reg, dir, "triggerOnlyNoFaultsMag2p5", true, cpt, minValue, maxValue, includeTopo);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	
 	
@@ -4816,7 +4883,8 @@ public class ETAS_MultiSimAnalysisTools {
 //			makeImagesForSciencePaperFig1(0);
 //			makeImagesForSciencePaperFig1(1);
 //			makeImagesForSciencePaperFig1(2);
-			makeImagesForEqkSpectraPaperFig1();
+//			makeImagesForEqkSpectraPaperFig1();
+			makeSRL_CoverImage();
 			System.exit(-1);
 		}
 		
