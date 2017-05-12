@@ -72,7 +72,7 @@ public class ETAS_AftershockModel_Generic extends ETAS_AftershockModel {
 		this(mainShock, aftershockList,
 				genericETAS_Parameters.get_aValueMean(), genericETAS_Parameters.get_aValueSigma(), 
 				genericETAS_Parameters.get_bValue(), genericETAS_Parameters.get_pValue(), genericETAS_Parameters.get_pValueSigma(),
-				genericETAS_Parameters.get_cValue(), genericETAS_Parameters.get_log_cValueSigma(), genericETAS_Parameters.get_alpha(),
+				genericETAS_Parameters.get_cValue(), genericETAS_Parameters.get_logcValueSigma(), genericETAS_Parameters.get_alpha(),
 				genericETAS_Parameters.get_refMag(),
 				dataMinDays, dataMaxDays, forecastMinDays, forecastMaxDays, Mc,
 				maxSimMag, maxNumGenerations, nSims); 
@@ -304,7 +304,7 @@ public class ETAS_AftershockModel_Generic extends ETAS_AftershockModel {
 			
 			for(int j = 0; j < p_vec.length ; j++ ){
 				if(sigma_p == 0)
-					if(mean_p == p_vec[i])
+					if(mean_p == p_vec[j])
 						pLike = 1;
 					else
 						pLike = 0;

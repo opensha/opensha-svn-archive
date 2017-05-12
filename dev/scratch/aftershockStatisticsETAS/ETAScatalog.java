@@ -136,11 +136,11 @@ public class ETAScatalog {
 				c_sample = params[2];
 				
 			} else {
+				// generic forecast is generating a random mainshock magnitude but leaving all parameters constant...
 				// a_base has been supplied. probably a generic model, use a_base for a_sample, and adjust mainshock magnitude. leave p and c alone. Too easy to get supercritical sequence.
 				a_sample = a_base + prodCorr;
 				p_sample = p_base;
 				c_sample = c_base;
-				
 				
 				simulationMainshock.setMag(mainshock.getMag() + (params[0] - (a_base + prodCorr)));
 			}

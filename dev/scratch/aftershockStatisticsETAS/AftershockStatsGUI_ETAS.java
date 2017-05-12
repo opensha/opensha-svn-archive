@@ -268,7 +268,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		
 		eventIDParam = new StringParameter("USGS Event ID");
 		eventIDParam.setValue("us20002926");
-		eventIDParam.setInfo("Get IDs from http://earthquake.usgs.gov/earthquakes/");
+		eventIDParam.setInfo("Get IDs from https://earthquake.usgs.gov/earthquakes/");
 		eventIDParam.addParameterChangeListener(this);
 		dataParams.addParameter(eventIDParam);
 		
@@ -1417,7 +1417,8 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 				bayesianP = bayesianModel.getPDF_p();
 				bayesianLogC = bayesianModel.getPDF_logc();
 				
-				bayesianA.setName("Bayesian");
+				if(bayesianA != null)
+					bayesianA.setName("Bayesian");
 				if(bayesianP != null)
 					bayesianP.setName("Bayesian");
 				if(bayesianLogC != null)
@@ -1433,6 +1434,10 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 			}
 		}
 		
+		HistogramFunction testPdf = seqSpecModel.getPDF_a();
+		System.out.println("aHistMax = " + testPdf.getMaxY());
+		testPdf = seqSpecModel.getPDF_p();
+		System.out.println("pHistMax = " + testPdf.getMaxY());
 		
 		add1D_PDF(seqSpecModel.getPDF_a(), "a-value", aValExtras);
 		add1D_PDF(seqSpecModel.getPDF_p(), "p-value", pValExtras);
@@ -1454,7 +1459,8 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		if (pdf == null)
 			return;
 		
-		Preconditions.checkState(Doubles.isFinite(pdf.getMaxY()), "NaN found in "+pdf.getName());
+//		Preconditions.checkState(Doubles.isFinite(pdf.getMaxY()), "NaN found in "+pdf.getName());
+		Preconditions.checkState(!Double.isNaN(pdf.getMaxY()), "NaN found in "+pdf.getName());
 		
 		List<DiscretizedFunc> funcs = Lists.newArrayList();
 		funcs.add(pdf);

@@ -46,7 +46,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 public abstract class ETAS_AftershockModel {
 	
-	Boolean D=!true;	// debug flag
+	Boolean D=true;	// debug flag
 	
 	double base_a = Double.NaN;  
 	double mean_a, sigma_a;
@@ -684,11 +684,13 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	/**
 	 * This returns the PDF of a, which is a marginal distribution if either c or p 
 	 * are unconstrained (either num_p or num_c not equal to 1). Null is returned if
-	 * a is constrained (num_a=1).
+	 * a is constrained (num_a=1). (how important is this? I want to show pdf with one value)
 	 * @return
 	 */
 	public HistogramFunction getPDF_a() {
-		if(num_a == 1) {
+//		if(num_a == 1) {
+		if(num_a == 0) {
+			// changed this to still return a 1-bar histogram.
 			return null;
 		}
 		else {
@@ -705,7 +707,9 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 				}
 			}
 			String name = "PDF of a-value";
-			if(num_p !=1 || num_c != 1)
+			if(num_a == 1)
+				name += " (constrained)"; 
+			else if(num_p !=1 || num_c != 1)
 				name += " (marginal)";
 			hist.setName(name);
 			if(D) {
@@ -724,7 +728,8 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	 * @return
 	 */
 	public HistogramFunction getPDF_p() {
-		if(num_p == 1) {
+		if(num_p == 0) {
+			// changed this to still return a 1-bar histogram
 			return null;
 		}
 		else {
@@ -738,11 +743,13 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 				}
 			}
 			String name = "PDF of p-value";
-			if(num_a !=1 || num_c != 1)
+			if(num_p == 1)
+				name += " (constrained)";
+			else if(num_a !=1 || num_c != 1)
 				name += " (marginal)";
 			hist.setName(name);
 			if(D) {
-				System.out.println("PDF of p-value: totalTest = "+hist.calcSumOfY_Vals());
+				System.out.println("PDF of p-value: totalTest = "+hist.calcSumOfY_Vals() + " Max = " + hist.getMaxY());
 			}
 			hist.scale(1d/hist.getDelta());
 			return hist;
@@ -756,7 +763,8 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	 * @return
 	 */
 	public HistogramFunction getPDF_c() {
-		if(num_c == 1) {
+		if(num_c == 0) {
+			// still return a 1-bar histogram
 			return null;
 		}
 		else {
@@ -770,7 +778,9 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 				}
 			}
 			String name = "PDF of c-value";
-			if(num_a !=1 || num_p != 1)
+			if(num_c == 1)
+				name += " (constrained)";
+			else if(num_a !=1 || num_p != 1)
 				name += " (marginal)";
 			hist.setName(name);
 			if(D) {
@@ -789,7 +799,8 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 	 * @return
 	 */
 	public HistogramFunction getPDF_logc() {
-		if(num_c == 1) {
+		if(num_c == 0) {
+			
 			return null;
 		}
 		else {
@@ -807,7 +818,9 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 				}
 			}
 			String name = "PDF of logc-value";
-			if(num_a !=1 || num_p != 1)
+			if(num_c == 1)
+				name += " (constrained)";
+			else if(num_a !=1 || num_p != 1)
 				name += " (marginal)";
 			hist.setName(name);
 			if(D) {

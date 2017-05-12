@@ -42,10 +42,13 @@ public class GenericETAS_ParametersFetch {
 		
 		//double c = 0.042711;
 		
-		URL paramsURL = GenericETAS_ParametersFetch.class.getResource("vdEGenericETASParams_072716.csv");
+//		URL paramsURL = GenericETAS_ParametersFetch.class.getResource("vdEGenericETASParams_070716.csv");
+		URL paramsURL = GenericETAS_ParametersFetch.class.getResource("vdEGenericETASParams_051117.csv");
+		System.out.println(paramsURL);
 		try {
 			CSVFile<String> csv = CSVFile.readURL(paramsURL, true);
-			Preconditions.checkState(csv.getNumCols() == 9, "unexpected number of columns: %s", csv.getNumCols());
+//			Preconditions.checkState(csv.getNumCols() == 9, "unexpected number of columns: %s", csv.getNumCols());
+			Preconditions.checkState(csv.getNumCols() == 14, "unexpected number of columns: %s", csv.getNumCols());
 			
 			for (int row=1; row<csv.getNumRows(); row++) {
 				String regimeName = csv.get(row, 0).trim();
@@ -57,14 +60,17 @@ public class GenericETAS_ParametersFetch {
 				
 				double aValue_mean = Double.parseDouble(csv.get(row, 1));
 				double aValue_sigma = Double.parseDouble(csv.get(row, 2));
-				double log_cValue = Double.parseDouble(csv.get(row, 3));
-				double log_cValue_sigma = Double.parseDouble(csv.get(row, 4));
-				
-				double pValue = Double.parseDouble(csv.get(row, 5));
-				double pValue_sigma = Double.parseDouble(csv.get(row, 6));
-				
-				double alpha = Double.parseDouble(csv.get(row, 7));
-				double bValue = Double.parseDouble(csv.get(row, 8));
+				double log_cValue = Double.parseDouble(csv.get(row, 3));			
+				double pValue = Double.parseDouble(csv.get(row, 4));
+				double covaa = Double.parseDouble(csv.get(row, 5));
+				double covpp = Double.parseDouble(csv.get(row, 6));
+				double covcc = Double.parseDouble(csv.get(row, 7));
+				double covap = Double.parseDouble(csv.get(row, 8));
+				double covac = Double.parseDouble(csv.get(row, 9));
+				double covcp = Double.parseDouble(csv.get(row, 10));
+				int numSequences = Integer.parseInt(csv.get(row, 11));
+				double alpha = Double.parseDouble(csv.get(row, 12));
+				double bValue = Double.parseDouble(csv.get(row, 13));
 				
 				//force these values for now
 				double refMag = 4.5;
@@ -72,7 +78,7 @@ public class GenericETAS_ParametersFetch {
 				double cValue = Math.pow(10, log_cValue);
 				
 				dataMap.put(regime, new GenericETAS_Parameters(
-						aValue_mean, aValue_sigma, pValue, pValue_sigma, cValue, log_cValue_sigma, alpha,  bValue,  refMag));
+						aValue_mean, aValue_sigma, pValue, cValue, covaa, covpp, covcc, covap, covac, covcp, numSequences, alpha,  bValue,  refMag));
 			}
 		} catch (IOException e) {
 			ExceptionUtils.throwAsRuntimeException(e);
