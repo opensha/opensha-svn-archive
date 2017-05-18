@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
+import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
 
@@ -86,6 +87,11 @@ public class XYZClosestPointFinder {
 	}
 	
 	public Location getClosestLoc(Location pt1, double tolerance) {
+		if (dataset instanceof GriddedGeoDataSet) {
+			int index = dataset.indexOf(pt1);
+			if (index >= 0)
+				return dataset.getLocation(index);
+		}
 		double closest = Double.MAX_VALUE;
 		Location closestLoc = null;
 		

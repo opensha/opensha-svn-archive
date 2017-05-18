@@ -118,7 +118,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 	public static final String OPENSHA_NETCDF_LIB_PATH=null; // libraries are in /usr/lib64/ so hopefully not needed
 
 	// this is the path where general data (e.g., topography) are found:
-	public static String SCEC_GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
+	public static String GMT_DATA_PATH = OPENSHA_GMT_DATA_PATH;
 	private static String SERVLET_URL = OPENSHA_SERVLET_URL;
 	private static String JAVA_PATH = OPENSHA_JAVA_PATH;
 	private static String JAVA_CLASSPATH = OPENSHA_CLASSPATH;
@@ -441,7 +441,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		GS_PATH="/sw/bin/gs";
 		PS2PDF_PATH = "/sw/bin/ps2pdf";
 		CONVERT_PATH="/sw/bin/convert";
-		SCEC_GMT_DATA_PATH="/usr/scec/data/gmt/";
+		GMT_DATA_PATH="/usr/scec/data/gmt/";
 		
 		GMT_SCRIPT_NAME = dirName+"/"+DEFAULT_GMT_SCRIPT_NAME;
 		XYZ_FILE_NAME = dirName+"/"+DEFAULT_XYZ_FILE_NAME;
@@ -953,7 +953,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		rmFiles.add(grdFileName);
 
 		// this is not used anymore...hardcoded.
-		String cptFile = SCEC_GMT_DATA_PATH + GMT_CPT_Files.MAX_SPECTRUM.getFileName();
+		String cptFile = GMT_DATA_PATH + GMT_CPT_Files.MAX_SPECTRUM.getFileName();
 
 		String colorScaleMode = (String) colorScaleModeParam.getValue();
 
@@ -961,7 +961,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// Set resolution according to the topoInten file chosen (options are 3, 6, 18, or 30):
 		String resolution = (String) topoResolutionParam.getValue();
-		String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
+		String topoIntenFile = GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
 
 		// hard-code check that lat & lon bounds are in the region where we have topography:
 		// this is only temporary until we have worldwide topo data
@@ -1066,7 +1066,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		// add highways if desired
 		if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W1p,125/125/125 -: " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+			commandLine="${GMT_PATH}psxy  "+region + projWdth + " -K -O -W1p,125/125/125 -: " + GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
 			gmtCommandLines.add(commandLine+"\n");
 		}
 		
@@ -1308,7 +1308,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		String cptFile;
 		if (map.getCptFile() != null) {
-			cptFile = SCEC_GMT_DATA_PATH + map.getCptFile();
+			cptFile = GMT_DATA_PATH + map.getCptFile();
 		} else {
 			cptFile = map.getCustomCptFileName();
 			CPT cpt = map.getCpt();
@@ -1321,7 +1321,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 
 		String topoIntenFile = null;
 		if (map.getTopoResolution() != null)
-			topoIntenFile = SCEC_GMT_DATA_PATH + map.getTopoResolution().fileName();
+			topoIntenFile = GMT_DATA_PATH + map.getTopoResolution().fileName();
 
 		// hard-code check that lat & lon bounds are in the region where we have topography:
 		// this is only temporary until we have worldwide topo data
@@ -1700,7 +1700,7 @@ public class GMT_MapGenerator implements SecureMapGenerator, Serializable {
 		if (map.getHighwayFile() != null) {
 			gmtCommandLines.add("# Add highways to plot");
 			gmtCommandLines.add("${GMT_PATH}psxy  "+region + proj + " -K -O -W1p,125/125/125 -: "
-						+ SCEC_GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFile+"\n");
+						+ GMT_DATA_PATH + map.getHighwayFile().fileName() + " >> " + psFile+"\n");
 		}
 	}
 	

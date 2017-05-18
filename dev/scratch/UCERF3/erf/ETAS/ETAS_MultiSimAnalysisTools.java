@@ -1106,6 +1106,12 @@ public class ETAS_MultiSimAnalysisTools {
 	public static void plotSectRates(List<List<ETAS_EqkRupture>> catalogs, double duration, FaultSystemRupSet rupSet,
 			double[] minMags, File outputDir, String titleAdd, String prefix)
 					throws IOException, GMT_MapException, RuntimeException {
+		plotSectRates(catalogs, duration, rupSet, minMags, outputDir, titleAdd, prefix, Long.MIN_VALUE);
+		
+	}
+	public static void plotSectRates(List<List<ETAS_EqkRupture>> catalogs, double duration, FaultSystemRupSet rupSet,
+			double[] minMags, File outputDir, String titleAdd, String prefix, long maxOT)
+					throws IOException, GMT_MapException, RuntimeException {
 		List<double[]> particRatesList = Lists.newArrayList();
 		for (int i=0; i<minMags.length; i++)
 			particRatesList.add(new double[rupSet.getNumSections()]);
@@ -1122,20 +1128,29 @@ public class ETAS_MultiSimAnalysisTools {
 		FaultPolyMgr faultPolyMgr = FaultPolyMgr.create(rupSet.getFaultSectionDataList(), InversionTargetMFDs.FAULT_BUFFER);
 
 		for (List<ETAS_EqkRupture> catalog : catalogs) {
-			double myDuration;
-			if (duration < 0)
-				myDuration = calcDurationYears(catalog);
-			else
-				myDuration = duration;
-			if (myDuration == 0)
-				continue;
-			maxDuration = Math.max(maxDuration, myDuration);
-			double fractionalRate = 1d/(catalogs.size()*myDuration);
+			double fractionalRate;
+			if (maxOT > 0) {
+				// no scaling, expected num
+				fractionalRate = 1d/(catalogs.size());
+			} else {
+				double myDuration;
+				if (duration < 0)
+					myDuration = calcDurationYears(catalog);
+				else
+					myDuration = duration;
+				if (myDuration == 0)
+					continue;
+				maxDuration = Math.max(maxDuration, myDuration);
+				fractionalRate = 1d/(catalogs.size()*myDuration);
+			}
+			
 			for (ETAS_EqkRupture rup : catalog) {
 				int rupIndex = rup.getFSSIndex();
 				if (rupIndex < 0)
 					// not supra-seismogenic
 					continue;
+				if (maxOT > 0 && rup.getOriginTime() > maxOT)
+					break;
 				int closestSectIndex = -1;
 				boolean notYetFound = true;
 				
@@ -1208,12 +1223,17 @@ public class ETAS_MultiSimAnalysisTools {
 		}
 		
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
-		if (maxDuration == 0d)
-			return;
 		double maxRate = 0;
 		for (double[] particRates : particRatesList)
 			maxRate = Math.max(maxRate, StatUtils.max(particRates));
-		double fractionalRate = 1d/Math.max(1d, Math.round(catalogs.size()*maxDuration));
+		double fractionalRate;
+		if (maxOT > 0) {
+			fractionalRate = 1d/catalogs.size();
+		} else {
+			if (maxDuration == 0d)
+				return;
+			fractionalRate = 1d/Math.max(1d, Math.round(catalogs.size()*maxDuration));
+		}
 		double cptMin = Math.log10(fractionalRate);
 		double cptMax = Math.ceil(Math.log10(maxRate));
 		if (!Doubles.isFinite(cptMin) || !Doubles.isFinite(cptMax))
@@ -1262,8 +1282,15 @@ public class ETAS_MultiSimAnalysisTools {
 				magStr = "";
 				prefixAdd = "";
 			}
-			String particTitle = "Log10"+magStr+" Participation Rate"+titleAdd;
-			String triggerTitle = "Log10"+magStr+" Trigger Rate"+titleAdd;
+			String particTitle;
+			String triggerTitle;
+			if (maxOT > 0) {
+				particTitle = "Log10"+magStr+" Participation Exp. Num"+titleAdd;
+				triggerTitle = "Log10"+magStr+" Trigger Exp. Num"+titleAdd;
+			} else {
+				particTitle = "Log10"+magStr+" Participation Rate"+titleAdd;
+				triggerTitle = "Log10"+magStr+" Trigger Rate"+titleAdd;
+			}
 			
 			FaultBasedMapGen.makeFaultPlot(cpt, faults, FaultBasedMapGen.log10(particRates), region, outputDir,
 					prefix+"_partic"+prefixAdd,false, false, particTitle);
@@ -4899,6 +4926,7 @@ public class ETAS_MultiSimAnalysisTools {
 		boolean plotMFDs = true || forcePlot;
 		boolean plotExpectedComparison = false || forcePlot;
 		boolean plotSectRates = true || forcePlot;
+		boolean plotSectRatesOneWeek = true || forcePlot;
 		boolean plotTemporalDecay = false || forcePlot;
 		boolean plotDistanceDecay = false || forcePlot;
 		boolean plotMaxMagHist = false || forcePlot;
@@ -5339,6 +5367,17 @@ public class ETAS_MultiSimAnalysisTools {
 						"for All Aftershocks", fullFileName+"_sect");
 				plotSectRates(primaryCatalogs, duration, fss.getRupSet(), minMags, outputDir,
 						"for Primary Aftershocks", subsetFileName+"_sect");
+			}
+			
+			if (plotSectRatesOneWeek) {
+				// sub section partic/trigger rates, 1 week
+				long maxOT = ot + ProbabilityModelsCalc.MILLISEC_PER_DAY*7;
+				System.out.println("Plotting Sub Sect Rates 1 Week");
+				double[] minMags = { 0, 6.7, 7.8 };
+				plotSectRates(childrenCatalogs, 0d, fss.getRupSet(), minMags, outputDir,
+						"for All 1 Week", "one_week_"+fullFileName, maxOT);
+				plotSectRates(primaryCatalogs, 0d, fss.getRupSet(), minMags, outputDir,
+						"for Primary 1 Wekk", "one_week_"+subsetFileName, maxOT);
 			}
 			
 			if (plotTemporalDecay && triggerParentID >= 0) {

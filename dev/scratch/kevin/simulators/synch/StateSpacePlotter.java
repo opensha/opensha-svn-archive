@@ -37,6 +37,7 @@ import scratch.kevin.simulators.MarkovChainBuilder;
 import scratch.kevin.simulators.PeriodicityPlotter;
 import scratch.kevin.simulators.SimAnalysisCatLoader;
 import scratch.kevin.simulators.SynchIdens;
+import scratch.kevin.simulators.SynchIdens.SynchFaults;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -678,11 +679,12 @@ public class StateSpacePlotter {
 		
 		// SoCal
 		setNames.add("so_cal");
-		setIdens.add(SynchIdens.getStandardSoCal());
+//		setIdens.add(SynchIdens.getStandardSoCal());
+		setIdens.add(SynchIdens.getIndividualFaults(7d, 10d, SynchFaults.SAF_MOJAVE, SynchFaults.SAF_COACHELLA));
 		
-		// NorCal
-		setNames.add("nor_cal");
-		setIdens.add(SynchIdens.getStandardNorCal());
+//		// NorCal
+//		setNames.add("nor_cal");
+//		setIdens.add(SynchIdens.getStandardNorCal());
 		
 		double distSpacing = 10d;
 		boolean random = false;
@@ -705,7 +707,10 @@ public class StateSpacePlotter {
 			StateSpacePlotter plot = new StateSpacePlotter(chain, rupIdens, setOutputDir);
 			
 			plot.plotOccupancies();
-//			plot.plotProbEither();
+			plot.plotProb(MarkovProb.E1);
+			plot.plotProb(MarkovProb.E2);
+			plot.plotProbEither();
+			plot.plotProb(MarkovProb.BOTH);
 			
 //			plot.plotDiagonals(0.02);
 			

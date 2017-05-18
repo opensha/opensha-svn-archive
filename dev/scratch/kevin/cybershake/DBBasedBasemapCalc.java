@@ -35,7 +35,7 @@ public class DBBasedBasemapCalc {
 //			HashMap<Location, ArbitrarilyDiscretizedFunc> curves =
 //				curves2db.fetchCurves(datasetID, imTypeID);
 			
-			GeoDataSet xyz = curves2db.fetchMap(datasetID, imTypeID, isProbAt_IML, level, true);
+			GeoDataSet xyz = curves2db.fetchMap(datasetID, imTypeID, isProbAt_IML, level, true, null);
 			System.out.println("Got "+xyz.size()+" values!");
 			
 			ArbDiscrGeoDataSet.writeXYZFile(xyz, "/tmp/map.xyz");

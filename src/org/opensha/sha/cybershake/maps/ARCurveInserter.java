@@ -112,7 +112,10 @@ public class ARCurveInserter {
 //		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_10-ccai6-cs-nga2-2sec/CB2014/curves/imrs1.bin";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_10-ccai6-cs-nga2-2sec/CY2014/curves/imrs1.bin";
 //		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_10-cvm4i26-cs-nga2-2sec/NGAWest_2014_NoIdr/curves/imrs1.bin";
-		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-2sec/NGAWest_2014_NoIdr/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-2sec/NGAWest_2014_NoIdr/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-3sec/NGAWest_2014_NoIdr/curves/imrs1.bin";
+//		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-5sec/NGAWest_2014_NoIdr/curves/imrs1.bin";
+		String dir = "/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-10sec/NGAWest_2014_NoIdr/curves/imrs1.bin";
 		// UPDATE IM TYPE AND DATE BELOW!!!!!!!!!!!!!!!!!!!!!!!
 		boolean deleteOld = false;
 		ScalarIMR imr = AttenRelRef.NGAWest_2014_AVG_NOIDRISS.instance(null);
@@ -141,10 +144,10 @@ public class ARCurveInserter {
 //		int imTypeID = 88; // 0.5sec GEOM
 //		int imTypeID = 86; // 1sec GEOM
 		// RotD50
-		int imTypeID = 167; // 2sec
+//		int imTypeID = 167; // 2sec
 //		int imTypeID = 162; // 3sec
 //		int imTypeID = 158; // 5sec
-//		int imTypeID = 152; // 10sec
+		int imTypeID = 152; // 10sec
 		Calendar cal = GregorianCalendar.getInstance();
 		cal.set(2017, 3, 12); // month is 0-based, 3=April
 		String dbHostName = Cybershake_OpenSHA_DBApplication.PRODUCTION_HOST_NAME;

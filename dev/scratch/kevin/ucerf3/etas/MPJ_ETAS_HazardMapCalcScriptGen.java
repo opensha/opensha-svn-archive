@@ -33,14 +33,20 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localMainDir = new File("/home/kevin/OpenSHA/UCERF3/etas/hazard");
 		
-//		String longTermDurations = null;
-		String longTermDurations = "THREE";
-
+		String longTermDurations = null;
+//		String longTermDurations = "THREE";
+		
+		// 5/17 USGS Exercise
+//		String etasSimName = "2017_05_17-USGS_Exercise_Catalog-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont";
+		String etasSimName = "2017_05_17-USGS_Exercise_Catalog-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-sect-reset-1pm";
+		String etasFileName = "results_m5.bin";
+		String etasShortName = "2017_05-usgs_exercise-1pm";
+		TestScenario scenario = null;
 		// Haywired Fault
-		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined";
-		String etasFileName = "results_descendents_m5.bin";
-		String etasShortName = "haywired_m7_combined_descendents";
-		TestScenario scenario = TestScenario.HAYWIRED_M7;
+//		String etasSimName = "2016_06_15-haywired_m7-10yr-full_td-no_ert-combined";
+//		String etasFileName = "results_descendents_m5.bin";
+//		String etasShortName = "haywired_m7_combined_descendents";
+//		TestScenario scenario = TestScenario.HAYWIRED_M7;
 		// Haywired Gridded
 //		String etasSimName = "2017_01_02-haywired_m7-10yr-gridded-only-200kcombined";
 //		String etasFileName = "results_descendents_m5_preserve.bin";
@@ -103,27 +109,33 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 		
 		double griddedSpacing = 0.01;
 		
-//		String dateStr = df.format(new Date());
-		String dateStr = "2017_03_23";
+		String dateStr = df.format(new Date());
+//		String dateStr = "2017_03_23";
 		String jobName = dateStr+"-"+etasShortName+"-"+shakemapShortName;
 		
-		boolean stampede = true;
-		boolean knl = false;
-		int nodes = 34;
-		int hours = 24;
-		int threads = 16;
-//		boolean knl = true;
-//		int nodes = 10;
-//		int hours = 10;
-//		int threads = 272;
-		String queue = null;
-		
-//		boolean stampede = false;
+//		boolean stampede = true;
 //		boolean knl = false;
 //		int nodes = 34;
 //		int hours = 24;
-//		int threads = 20;
-//		String queue = "scec";
+//		int threads = 16;
+////		boolean knl = true;
+////		int nodes = 10;
+////		int hours = 10;
+////		int threads = 272;
+//		String queue = null;
+//		boolean scecLarge = false;
+		
+		boolean stampede = false;
+		boolean knl = false;
+		boolean scecLarge = false;
+		int nodes;
+		if (scecLarge)
+			nodes = 4;
+		else
+			nodes = 34;
+		int hours = 24;
+		int threads = 20;
+		String queue = "scec";
 		
 		int minDispatch = threads;
 		if (minDispatch < MPJTaskCalculator.MIN_DISPATCH_DEFAULT)
@@ -169,7 +181,10 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 				memGigs = 9;
 				ppn = 8;
 			} else {
-				memGigs = 60;
+				if (scecLarge)
+					memGigs = 200;
+				else
+					memGigs = 60;
 				ppn = 20;
 			}
 			boolean fmpj = nodes < 25;
@@ -188,10 +203,10 @@ public class MPJ_ETAS_HazardMapCalcScriptGen {
 			
 			remoteShakemapDir = new File("/home/scec-02/kmilner/ucerf3/shakemap_precalc");
 			
-			remoteETASDir = new File("/home/scec-00/kmilner/ucerf3_etas_results_stampede/");
+//			remoteETASDir = new File("/home/scec-00/kmilner/ucerf3_etas_results_stampede/");
+			remoteETASDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim/");
 			remoteFSSFile = new File("/home/scec-02/kmilner/ucerf3/inversion_compound_plots/2013_05_10-ucerf3p3-production-10runs/"
 					+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_SpatSeisU3_MEAN_BRANCH_AVG_SOL.zip");
-			File remoteEtasCatalogFile = new File(new File(remoteETASDir, etasSimName), etasFileName);
 		}
 		File remoteEtasCatalogFile = new File(new File(remoteETASDir, etasSimName), etasFileName);
 		File remoteJobDir = new File(remoteMainDir, jobName);

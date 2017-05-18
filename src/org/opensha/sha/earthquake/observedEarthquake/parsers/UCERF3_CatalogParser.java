@@ -22,6 +22,9 @@ public class UCERF3_CatalogParser {
 		
 		BufferedReader in = new BufferedReader(new FileReader(file));
 		
+		// used if 10 column input without IDs
+		int startID = 1;
+		
 		String line;
 		String[] split;
 		while (in.ready()) {
@@ -44,16 +47,21 @@ public class UCERF3_CatalogParser {
 			double latitude		= Double.parseDouble(split[6]);
 			double longitude	= Double.parseDouble(split[7]);
 			double depth		= Double.parseDouble(split[8]);
-			if (Double.isNaN(depth))
+			if (Double.isNaN(depth) || depth < 0)
 				depth = 0;
 			double mag			= Double.parseDouble(split[9]);
 			
-			// not included, but can easily be if needed. we'd need to create a subclass of ObsEqkRupture
-//			int magType			= Integer.parseInt(split[10]);
-//			int magSource		= Integer.parseInt(split[11]);
-//			double magError		= Double.parseDouble(split[12]);
-//			double magRounding	= Double.parseDouble(split[13]);
-			int eventID			= (int)Double.parseDouble(split[14]);
+			int eventID;
+			if (split.length < 15) {
+				eventID = startID++;
+			} else {
+				// not included, but can easily be if needed. we'd need to create a subclass of ObsEqkRupture
+//				int magType			= Integer.parseInt(split[10]);
+//				int magSource		= Integer.parseInt(split[11]);
+//				double magError		= Double.parseDouble(split[12]);
+//				double magRounding	= Double.parseDouble(split[13]);
+				eventID			= (int)Double.parseDouble(split[14]);
+			}
 			
 			GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT-0:00"));
 			cal.set(year, month-1, date, hourOfDay, minute, second);

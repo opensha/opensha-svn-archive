@@ -1353,6 +1353,10 @@ public class GraphPanel extends JSplitPane {
 		plotPrefs.setLegendFontSize(legendFontSize);
 	}
 	
+	public PlotPreferences getPlotPrefs() {
+		return plotPrefs;
+	}
+	
 	public void setGriddedFuncAxesTicks(boolean histogramAxesTicks) {
 		this.griddedFuncAxesTicks = histogramAxesTicks;
 	}

@@ -13,6 +13,7 @@ import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 
 import com.google.common.base.Joiner;
@@ -137,10 +138,15 @@ public class AttenRelCurves2DB {
 		return ret;
 	}
 	
-	public HashMap<Location, Integer> getCurveIDs(int datasetID, int imTypeID) throws SQLException {
+	public HashMap<Location, Integer> getCurveIDs(int datasetID, int imTypeID, Region reg) throws SQLException {
 		HashMap<Location, Integer> ids = new HashMap<Location, Integer>();
 		String sql = "SELECT AR_Hazard_Curve_ID,Lat,Lon FROM "+ATTEN_REL_CURVES_TABLE_NAME
 					+" WHERE AR_Hazard_Dataset_ID="+datasetID+" AND IM_Type_ID="+imTypeID;
+		
+		if (reg != null) {
+			sql += " AND Lat>="+reg.getMinLat()+" AND Lat<="+reg.getMaxLat()
+					+" AND Lon>="+reg.getMinLon()+" AND Lon<="+reg.getMaxLon();
+		}
 		
 		ResultSet rs = db.selectData(sql);
 		
@@ -231,7 +237,7 @@ public class AttenRelCurves2DB {
 	}
 	
 	public void deleteAllCurvesFromDataset(int datasetID, int imTypeID) throws SQLException {
-		List<Integer> curveIDs = Lists.newArrayList(getCurveIDs(datasetID, imTypeID).values());
+		List<Integer> curveIDs = Lists.newArrayList(getCurveIDs(datasetID, imTypeID, null).values());
 		System.out.println("Deleting "+curveIDs.size()+" curves");
 		deleteCurves(curveIDs);
 	}
@@ -285,9 +291,9 @@ public class AttenRelCurves2DB {
 		return map;
 	}
 	
-	public HashMap<Location, ArbitrarilyDiscretizedFunc> fetchCurves(int datasetID, int imTypeID)
+	public HashMap<Location, ArbitrarilyDiscretizedFunc> fetchCurves(int datasetID, int imTypeID, Region reg)
 	throws SQLException {
-		HashMap<Location, Integer> ids = getCurveIDs(datasetID, imTypeID);
+		HashMap<Location, Integer> ids = getCurveIDs(datasetID, imTypeID, reg);
 		
 		HashMap<Location, ArbitrarilyDiscretizedFunc> map =
 			new HashMap<Location, ArbitrarilyDiscretizedFunc>();
@@ -360,11 +366,12 @@ public class AttenRelCurves2DB {
 			int imTypeID,
 			boolean isProbAt_IML,
 			double level,
-			boolean latitudeX) throws SQLException {
+			boolean latitudeX,
+			Region reg) throws SQLException {
 		GeoDataSet xyz = new ArbDiscrGeoDataSet(latitudeX);
 		
 		System.out.println("Fetching AR curves for dataset "+datasetID);
-		HashMap<Location, Integer> ids = getCurveIDs(datasetID, imTypeID);
+		HashMap<Location, Integer> ids = getCurveIDs(datasetID, imTypeID, reg);
 		
 		// get the first curve to determine the min/max we should select for
 		ArbitrarilyDiscretizedFunc firstCurve = getCurve(ids.values().iterator().next());

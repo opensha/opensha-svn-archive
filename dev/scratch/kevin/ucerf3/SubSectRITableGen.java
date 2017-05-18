@@ -25,11 +25,12 @@ public class SubSectRITableGen {
 		CompoundFaultSystemSolution cfss = CompoundFaultSystemSolution.fromZipFile(compoundFile);
 		
 		FaultModels fm = FaultModels.FM3_1;
-		DeformationModels dm = DeformationModels.GEOLOGIC;
+//		DeformationModels dm = DeformationModels.GEOLOGIC;
 		
 		BranchWeightProvider weightProvider = new APrioriBranchWeightProvider();
 		
-		FaultSystemSolutionFetcher fetch = FaultSystemSolutionFetcher.getSubset(cfss, fm, dm);
+//		FaultSystemSolutionFetcher fetch = FaultSystemSolutionFetcher.getSubset(cfss, fm, dm);
+		FaultSystemSolutionFetcher fetch = FaultSystemSolutionFetcher.getSubset(cfss, fm);
 		// for random sample
 //		fetch = FaultSystemSolutionFetcher.getRandomSample(fetch, 8, FaultModels.FM3_1);
 		System.out.println("Subset has "+fetch.getBranches().size()+" branches");
@@ -43,7 +44,8 @@ public class SubSectRITableGen {
 		System.out.println("Calculating with "+threads+" threads");
 		CompoundFSSPlots.batchPlot(plots, fetch, threads);
 		System.out.println("Compiling/writing tables");
-		CompoundFSSPlots.batchWritePlots(plots, dir, fm.getShortName()+"_"+dm.getShortName(), true);
+//		CompoundFSSPlots.batchWritePlots(plots, dir, fm.getShortName()+"_"+dm.getShortName(), true);
+		CompoundFSSPlots.batchWritePlots(plots, dir, fm.getShortName(), true);
 	}
 
 }

@@ -39,6 +39,10 @@ public class PlotPreferences {
 		return pref;
 	}
 	
+	private PlotPreferences() {
+		
+	}
+	
 	public int getAxisLabelFontSize() {
 		return axisLabelFontSize;
 	}

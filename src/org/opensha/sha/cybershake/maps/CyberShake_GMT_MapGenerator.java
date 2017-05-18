@@ -2,10 +2,12 @@ package org.opensha.sha.cybershake.maps;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
@@ -18,12 +20,16 @@ import org.opensha.commons.mapping.gmt.SecureMapGenerator;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
 import org.opensha.commons.mapping.gmt.elements.TopographicSlopeFile;
+import org.opensha.commons.util.RunScript;
 import org.opensha.commons.util.XYZClosestPointFinder;
 import org.opensha.commons.util.DataUtils.MinMaxAveTracker;
 import org.opensha.commons.util.cpt.CPT;
 import org.opensha.commons.util.cpt.CPTVal;
 import org.opensha.sha.cybershake.maps.InterpDiffMap.InterpDiffMapType;
+import org.opensha.sha.cybershake.maps.servlet.CS_InterpDiffMapServletAccessor;
 import org.opensha.sha.cybershake.plot.ScatterSymbol;
+
+import com.google.common.io.Files;
 
 public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 	
@@ -349,7 +355,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 			}
 		}
 		if (map.getCptFile() != null) {
-			inputCPT = GMT_MapGenerator.SCEC_GMT_DATA_PATH + map.getCptFile();
+			inputCPT = GMT_MapGenerator.GMT_DATA_PATH + map.getCptFile();
 		} else {
 			inputCPT = "cptFile_input.cpt";
 			cpt = map.getCpt();
@@ -419,7 +425,7 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 //			maxLat = Math.floor(((maxLat-minLat)/topoGridSpacing))*topoGridSpacing +minLat;
 //			maxLon = Math.floor(((maxLon-minLon)/topoGridSpacing))*topoGridSpacing +minLon;
 //			String tregion = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
-			String topoIntenFile = GMT_MapGenerator.SCEC_GMT_DATA_PATH + topoFile.fileName();
+			String topoIntenFile = GMT_MapGenerator.GMT_DATA_PATH + topoFile.fileName();
 
 			intenGRD = "topo_inten.grd";
 			gmtCommandLines.add("# Cut the topo file to match the data region");
@@ -546,6 +552,15 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				gmtCommandLines.add("# scatter markers");
 				// TODO fix
 				
+				String pen1 = "0.03i";
+				String pen2 = "0.0162i";
+				Region r = map.getRegion();
+				double maxSpan = Math.max(r.getMaxLat()-r.getMinLat(), r.getMaxLon()-r.getMinLon());
+				if (maxSpan < 3d) {
+					pen1 = "0.06i";
+					pen2 = "0.0342i";
+				}
+				
 				// write out file
 				String symbolFile = "symbol_set.xy";
 				gmtCommandLines.add("${COMMAND_PATH}cat  << END > " + symbolFile);
@@ -561,12 +576,12 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 				
 				if (symbolCPT) {
 					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
-							+"0.03i -C"+myCPTFileName+" -W0.0162i"+" -: -K -O >> "+psFile;
+							+pen1+" -C"+myCPTFileName+" -W"+pen2+" -: -K -O >> "+psFile;
 					// TODO -G?
 				} else {
 					String colorStr = GMT_MapGenerator.getGMTColorString(markerColor);
 					commandLine = "${GMT_PATH}psxy "+symbolFile+" "+region+proj+"-S"+ScatterSymbol.SYMBOL_INVERTED_TRIANGLE
-							+"0.03i -G"+colorStr + " -W0.0162i,"+colorStr + " -: -K -O >> "+psFile;
+							+pen1+" -G"+colorStr + " -W"+pen2+","+colorStr + " -: -K -O >> "+psFile;
 				}
 				gmtCommandLines.add(commandLine);
 				
@@ -616,6 +631,39 @@ public class CyberShake_GMT_MapGenerator implements SecureMapGenerator {
 		System.out.println("DONE generating map script for dir: " + dir);
 		
 		return gmtCommandLines;
+	}
+	
+	public File plotLocally(InterpDiffMap map, File gmtDataDir) throws GMT_MapException, IOException {
+		if (gmtDataDir != null)
+			GMT_MapGenerator.GMT_DATA_PATH = gmtDataDir.getAbsolutePath()+File.separator;
+		GMT_MapGenerator.clearEnv();
+		
+		CS_InterpDiffMapServletAccessor.checkLog(map);
+		
+		File tempDir = Files.createTempDir();
+		
+		List<String> script = getGMT_ScriptLines(map, tempDir.getAbsolutePath());
+		
+		File scriptFile = new File(tempDir, "script.sh");
+		
+		if (map.getGriddedData() != null) {
+			GeoDataSet griddedData = map.getGriddedData();
+			griddedData.setLatitudeX(true);
+			ArbDiscrGeoDataSet.writeXYZFile(griddedData,
+					tempDir.getAbsolutePath()+"/"+new File(map.getXyzFileName()).getName());
+		}
+		
+		FileWriter fw = new FileWriter(scriptFile);
+		BufferedWriter bw = new BufferedWriter(fw);
+		for (String line : script)
+			bw.write(line + "\n");
+		bw.close();
+		
+		String[] command = {
+				"sh", "-c", "/bin/bash "+scriptFile.getAbsolutePath()+" > /dev/null 2> /dev/null"};
+		RunScript.runScript(command);
+		
+		return tempDir;
 	}
 
 }

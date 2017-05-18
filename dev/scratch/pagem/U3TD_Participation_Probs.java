@@ -63,8 +63,10 @@ public class U3TD_Participation_Probs {
 		// From: http://opensha.usc.edu/ftp/kmilner/ucerf3/2013_05_10-ucerf3p3-production-10runs/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip
 		// Last updated: 10/15/2015
 		sol = FaultSystemIO.loadSol(
-			           new File("/Users/pagem/Desktop/"
-			           + "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+//			           new File("/Users/pagem/Desktop/"
+//			           + "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+						new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions"
+								+ "/2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
 		
 		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
 		List<FaultSectionPrefData> faultSectionData = sol.getRupSet().getFaultSectionDataList();
@@ -83,9 +85,10 @@ public class U3TD_Participation_Probs {
 
 		
 		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.U3_PREF_BLEND);
-		erf.getTimeSpan().setStartTime(2014); // start year
+		erf.getTimeSpan().setStartTime(2017); // start year
 		erf.setParameter(HistoricOpenIntervalParam.NAME, // historical open interval
 		erf.getTimeSpan().getStartTimeYear()-1875d);
+//		erf.getParameter(ProbabilityModelParam.NAME).setValue(ProbabilityModelOptions.POISSON);
 		
 		erf.getTimeSpan().setDuration(30d);
 		
@@ -93,8 +96,9 @@ public class U3TD_Participation_Probs {
 		
 		// Add up participation probs for multiple parent sections
 		// Arguments: erf, minimum magnitude, parent section IDs (one or more)
-		double minMag = 6.7;
-		int[] parentIDs = {32, 285, 300, 287}; 
+		double minMag = 6;
+//		int[] parentIDs = {32, 285, 300, 287};
+		int[] parentIDs = {170};
 		double prob = FaultSysSolutionERF_Calc.calcParticipationProbForParentSects(erf, minMag, parentIDs);
 		
 		// Print parent section IDs, names, and total participation probability

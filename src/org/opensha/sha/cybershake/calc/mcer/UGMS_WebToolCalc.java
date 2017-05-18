@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +64,9 @@ import org.opensha.sha.earthquake.ERF;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -82,9 +86,10 @@ public class UGMS_WebToolCalc {
 	
 	private File outputDir;
 	
-	public static Map<String, Double> vs30Map = Maps.newHashMap();
+	public static BiMap<String, Double> vs30Map = HashBiMap.create();
 	private static final double minCalcVs30 = 150d;
 	private static final double maxCalcVs30 = 1000d;
+	private static List<Double> vs30ValsSorted = Lists.newArrayList();
 	static {
 		vs30Map.put("AorB",         1000d);
 		vs30Map.put("BBC",             880d);
@@ -100,6 +105,11 @@ public class UGMS_WebToolCalc {
 		vs30Map.put("DEE",             166d);
 		vs30Map.put("E",                 150d);
 		vs30Map.put("Wills",              null);
+		for (Double vs30 : vs30Map.values())
+			if (vs30 != null)
+				vs30ValsSorted.add(vs30);
+		Collections.sort(vs30ValsSorted);
+		vs30ValsSorted = Collections.unmodifiableList(vs30ValsSorted);
 	}
 	
 	private static final double CS_MAX_DIST = 10d;
@@ -316,31 +326,35 @@ public class UGMS_WebToolCalc {
 		} else if (cmd.hasOption("vs30")) {
 			double vs30 = Double.parseDouble(cmd.getOptionValue("vs30"));
 			double minDiff = Double.POSITIVE_INFINITY;
-			String closestClass = null;
-			double secondClosest = Double.POSITIVE_INFINITY;
-			String secondClosestClass = null;
-			for (String category : vs30Map.keySet()) {
-				Double catVs30 = vs30Map.get(category);
-				if (catVs30 == null)
-					continue;
+			int closestIndex = -1;
+			for (int i=0; i<vs30ValsSorted.size(); i++) {
+				Double catVs30 = vs30ValsSorted.get(i);
 				double diff = Math.abs(vs30 - catVs30);
 				if (diff < minDiff) {
-					secondClosest = minDiff;
-					secondClosestClass = closestClass;
+					closestIndex = i;
 					minDiff = diff;
-					closestClass = category;
-				} else if (diff < secondClosest) {
-					secondClosest = diff;
-					secondClosestClass = category;
 				}
 			}
-			System.out.println("Closest GMPE site class "+closestClass+" for user Vs30 of "+vs30+" (diff="+minDiff+")");
+			double closestVs30 = vs30ValsSorted.get(closestIndex);
+			String closestClass = vs30Map.inverse().get(closestVs30);
+			System.out.println("Closest GMPE site class "+closestClass+"="+(float)closestVs30
+					+" for user Vs30 of "+vs30+" (diff="+minDiff+")");
 			siteClassNames = Lists.newArrayList();
 			siteClassNames.add(closestClass);
 			if (vs30 > minCalcVs30 && vs30 < maxCalcVs30 && (float)minDiff > 0f) {
 				// only add second point for interp if within range and not an exact match
-				System.out.println("\t2nd closest GMPE site class for interp "+secondClosestClass+" (diff="+secondClosest+")");
-				siteClassNames.add(secondClosestClass);
+				int index2;
+				// figure out sign
+				if (vs30 > closestVs30)
+					index2 = closestIndex + 1;
+				else
+					index2 = closestIndex - 1;
+				double boundingVs30 = vs30ValsSorted.get(index2);
+				String boundingClass = vs30Map.inverse().get(boundingVs30);
+				double boundingDiff = Math.abs(boundingVs30 - vs30);
+				System.out.println("\tBounding GMPE site class for interp "+boundingClass+"="+(float)boundingVs30
+						+" (diff="+boundingDiff+")");
+				siteClassNames.add(boundingClass);
 			} else {
 				if (vs30 < minCalcVs30)
 					vs30 = minCalcVs30;
@@ -517,7 +531,18 @@ public class UGMS_WebToolCalc {
 			GriddedSpectrumInterpolator interp = getInterpolator(dataFile, gmpeSpacing);
 			
 			Location closestLoc = interp.getClosestGridLoc(loc);
+			
+			try {
+				spectrum.add(interp.getInterpolated(loc));
+			} catch (IllegalStateException e) {
+				System.out.println("Interpolation failed, falling back to closest defined point."
+						+ " This happens if one of the surrounding points is in the ocean.");
+				closestLoc = interp.getClosestDefinedGridLoc(loc);
+				spectrum.add(interp.getClosest(closestLoc));
+			}
+			
 			double minDist = LocationUtils.horzDistanceFast(closestLoc, loc);
+			System.out.println("Distance to closest point in GMPE data file: "+minDist+" km");
 			
 			Preconditions.checkState(minDist <= GMPE_MAX_DIST,
 					"Closest location in GMPE data file too far from user location: %s > %s", minDist, GMPE_MAX_DIST);
@@ -525,8 +550,6 @@ public class UGMS_WebToolCalc {
 			gmpeSiteEl.addAttribute("distFromUserLoc", minDist+"");
 			gmpeSiteEl.addAttribute("latitude", closestLoc.getLatitude()+"");
 			gmpeSiteEl.addAttribute("longitude", closestLoc.getLongitude()+"");
-			
-			spectrum.add(interp.getInterpolated(loc));
 		}
 		
 		if (spectrum.size() == 1) {
@@ -981,7 +1004,8 @@ public class UGMS_WebToolCalc {
 //			String argStr = "--latitude 34.557 --longitude -118.125"; // LAPD
 //			String argStr = "--run-id 3870"; // doesn't require dataset ID if run ID
 //			String argStr = "--longitude -118.272049427032 --latitude 34.0407116420786";
-			String argStr = "--longitude -118.069 --latitude 33.745";
+//			String argStr = "--longitude -118.069 --latitude 33.745";
+			String argStr = "--longitude -119.26000 --latitude 34.27110";
 //			String argStr = "--site-name LADT";
 //			String argStr = "--site-id 20";
 //			argStr += " --dataset-id 57";
@@ -999,7 +1023,7 @@ public class UGMS_WebToolCalc {
 			argStr += " --z10-file /home/kevin/workspace/OpenSHA/src/resources/data/site/CVM4i26/depth_1.0.bin";
 			argStr += " --z25-file /home/kevin/workspace/OpenSHA/src/resources/data/site/CVM4i26/depth_2.5.bin";
 			argStr += " --output-dir /tmp/ugms_web_tool";
-			argStr += " --vs30 280";
+			argStr += " --vs30 380";
 //			argStr += " --class AorB";
 			argStr += " --gmpe-erf UCERF3";
 			argStr += " --wills-file /data/kevin/opensha/wills2006.bin";

@@ -213,7 +213,7 @@ public class PaleoOpenIntervalRIPlot {
 		if (paleoProbs != null)
 			outPrefix += "_paleo_probs";
 		
-		PlotPreferences prefs = new PlotPreferences();
+		PlotPreferences prefs = PlotPreferences.getDefault();
 		prefs.setTickLabelFontSize(18);
 		prefs.setAxisLabelFontSize(20);
 		prefs.setPlotLabelFontSize(21);

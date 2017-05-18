@@ -14,6 +14,7 @@ import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
+import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.elements.PSXYSymbol;
@@ -33,12 +34,16 @@ import org.opensha.sha.imr.ScalarIMR;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 public class MultiDatasetMapGen {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		File outputDir = new File("/home/kevin/CyberShake/maps/combined_17_3_and_15_4");
+		HardCodedInterpDiffMapCreator.LOCAL_MAPGEN = true;
+		
+//		File outputDir = new File("/home/kevin/CyberShake/maps/combined_17_3_and_15_4");
+		File outputDir = new File("/home/kevin/CyberShake/maps/combined_17_3_and_15_4_nobasemap");
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
 		int studyID1 = 81;
@@ -58,9 +63,37 @@ public class MultiDatasetMapGen {
 		
 		Region intersection = Region.intersect(region1, region2); // null if no overlap
 		
-		int imTypeID = 21; // 3 sec SA, GEOM
-		String imtLabel = "3sec SA GEOM";
-		Double customMax = 1.0;
+//		int imTypeID = 167; // 2 sec SA, RotD50
+//		String imtLabel = "2sec SA";
+//		Double customMax = 1.0;
+////		File baseMapFile = new File("/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-2sec/"
+////				+ "NGAWest_2014_NoIdr/curves/imrs1.bin");
+//		File baseMapFile = null;
+		
+//		int imTypeID = 162; // 3 sec SA, RotD50
+//		String imtLabel = "3sec SA";
+//		Double customMax = 1.0;
+////		File baseMapFile = new File("/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-3sec/"
+////				+ "NGAWest_2014_NoIdr/curves/imrs1.bin");
+//		File baseMapFile = null;
+		
+//		int imTypeID = 158; // 5 sec SA, RotD50
+//		String imtLabel = "5sec SA";
+//		Double customMax = 0.6;
+////		File baseMapFile = new File("/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-5sec/"
+////				+ "NGAWest_2014_NoIdr/curves/imrs1.bin");
+//		File baseMapFile = null;
+		
+		int imTypeID = 152; // 10 sec SA, RotD50
+		String imtLabel = "10sec SA";
+		Double customMax = 0.4;
+//		File baseMapFile = new File("/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-10sec/"
+//				+ "NGAWest_2014_NoIdr/curves/imrs1.bin");
+		File baseMapFile = null;
+		
+//		int imTypeID = 21; // 3 sec SA, GEOM
+//		String imtLabel = "3sec SA GEOM";
+//		Double customMax = 1.0;
 		
 		String imtPrefix = imtLabel.replaceAll(" ", "_");
 		
@@ -70,12 +103,11 @@ public class MultiDatasetMapGen {
 		String durationLabel = "2% in 50 yrs";
 		
 //		File baseMapFile = null;
-		File baseMapFile = new File("/home/kevin/CyberShake/baseMaps/2017_04_12-statewide-nobasin-cs-nga2-2sec/"
-				+ "NGAWest_2014_NoIdr/curves/imrs1.bin");
 //		ScalarIMR baseMapIMR = AttenRelRef.NGAWest_2014_AVG_NOIDRISS.instance(null);
 		ScalarIMR baseMapIMR = null;
 		double basemapSpacing = 0.005;
-		boolean downloadBasemap = true;
+//		double basemapSpacing = 0.01;
+		GriddedRegion basemapReg = new CaliforniaRegions.RELM_TESTING_GRIDDED(basemapSpacing);
 		// GMPE params
 		if (baseMapIMR != null) {
 			baseMapIMR.setParamDefaults();
@@ -84,11 +116,11 @@ public class MultiDatasetMapGen {
 		
 		// get CyberShake data
 		System.out.println("Getting CyberShake curves for "+name1);
-		HardCodedInterpDiffMapCreator.db = db1;
+		HardCodedInterpDiffMapCreator.cs_db = db1;
 		ArbDiscrGeoDataSet scatter1 = HardCodedInterpDiffMapCreator.getMainScatter(
 				isProbAt_IML, val, Lists.newArrayList(studyID1), imTypeID, null);
 		System.out.println("Getting CyberShake curves for "+name2);
-		HardCodedInterpDiffMapCreator.db = db2;
+		HardCodedInterpDiffMapCreator.cs_db = db2;
 		ArbDiscrGeoDataSet scatter2 = HardCodedInterpDiffMapCreator.getMainScatter(
 				isProbAt_IML, val, Lists.newArrayList(studyID2), imTypeID, null);
 		
@@ -144,17 +176,22 @@ public class MultiDatasetMapGen {
 		System.out.println("Averaged at "+overlaps+" overlap sites");
 
 		System.out.println("Getting GMPE curves");
-		HardCodedInterpDiffMapCreator.db = gmpeDB;
+		HardCodedInterpDiffMapCreator.cs_db = gmpeDB;
 		GeoDataSet basemap = null;
 		if (baseMapFile != null) {
 			System.out.println("Loading basemap from "+baseMapFile.getAbsolutePath());
 			BinaryHazardCurveReader reader = new BinaryHazardCurveReader(baseMapFile.getAbsolutePath());
 			Map<Location, ArbitrarilyDiscretizedFunc> curves = reader.getCurveMap();
-			basemap = new ArbDiscrGeoDataSet(scatter1.isLatitudeX());
+			basemap = new GriddedGeoDataSet(basemapReg, scatter1.isLatitudeX());
 			for (Location loc : curves.keySet())
 				basemap.set(loc, HazardDataSetLoader.getCurveVal(curves.get(loc), isProbAt_IML, val));
 		} else if (baseMapIMR != null) {
-			basemap = HardCodedInterpDiffMapCreator.loadBaseMap(baseMapIMR, isProbAt_IML, val, velModelIDforGMPE, imTypeID);
+			basemap = HardCodedInterpDiffMapCreator.loadBaseMap(
+					baseMapIMR, isProbAt_IML, val, velModelIDforGMPE, imTypeID, combRegion);
+			GriddedGeoDataSet gridData = new GriddedGeoDataSet(basemapReg, scatter1.isLatitudeX());
+			for (int i=0; i<basemap.size(); i++)
+				gridData.set(basemap.getLocation(i), basemap.get(i));
+			basemap = gridData;
 			
 			for (int i=0; i<basemap.size(); i++) {
 				Location loc = basemap.getLocation(i);
@@ -164,7 +201,12 @@ public class MultiDatasetMapGen {
 			}
 		}
 		
+//		combRegion = region2;
+//		combScatter = scatter1;
 		plotCombinedMap(combRegion, basemapSpacing, combScatter, basemap, outputDir, durationLabel, imtLabel, imtPrefix, customMax);
+		
+		db1.destroy();
+		db2.destroy();
 	}
 	
 	private static void plotIntersectionRatio(GeoDataSet scatter1, GeoDataSet scatter2, Region intersection,
@@ -173,7 +215,8 @@ public class MultiDatasetMapGen {
 		boolean logPlot = false;
 		boolean tightCPTs = false;
 		String label = imtLabel+" "+name1+" vs "+name2;
-		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(logPlot, scatter1, scatter2, label, tightCPTs, intersection);
+		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(
+				logPlot, scatter1, scatter2, label, tightCPTs, intersection);
 		
 		String diff = addrs[0];
 		String ratio = addrs[1];
@@ -181,16 +224,24 @@ public class MultiDatasetMapGen {
 		System.out.println("Comp map address:\n\tdiff: "+diff+"\n\tratio: "+ratio);
 		
 		if (outputDir != null) {
-			FileUtils.downloadURL(diff+"interpolated_marks.150.png", new File(outputDir, "diff_"+imtPrefix+".png"));
-			FileUtils.downloadURL(diff+"interpolated_marks.ps", new File(outputDir, "diff_"+imtPrefix+".ps"));
-			FileUtils.downloadURL(ratio+"interpolated_marks.150.png", new File(outputDir, "ratio_"+imtPrefix+".png"));
-			FileUtils.downloadURL(ratio+"interpolated_marks.ps", new File(outputDir, "ratio_"+imtPrefix+".ps"));
+			HardCodedInterpDiffMapCreator.fetchPlot(diff, "interpolated_marks.150.png",
+					new File(outputDir, "diff_"+imtPrefix+".png"));
+			HardCodedInterpDiffMapCreator.fetchPlot(diff, "interpolated_marks.ps",
+					new File(outputDir, "diff_"+imtPrefix+".ps"));
+			HardCodedInterpDiffMapCreator.fetchPlot(ratio, "interpolated_marks.150.png",
+					new File(outputDir, "ratio_"+imtPrefix+".png"));
+			HardCodedInterpDiffMapCreator.fetchPlot(ratio, "interpolated_marks.ps",
+					new File(outputDir, "ratio_"+imtPrefix+".ps"));
+			if (HardCodedInterpDiffMapCreator.LOCAL_MAPGEN) {
+				FileUtils.deleteRecursive(new File(diff));
+				FileUtils.deleteRecursive(new File(ratio));
+			}
 		}
 	}
 	
 	private static void plotCombinedMap(Region region, double spacing, GeoDataSet scatterData, GeoDataSet basemap,
 			File outputDir, String durationLabel, String imtLabel, String imtPrefix, Double customMax)
-					throws ClassNotFoundException, IOException {
+					throws ClassNotFoundException, IOException, GMT_MapException {
 		boolean logPlot = false;
 		Double customMin = null;
 		if (customMax != null)
@@ -220,17 +271,26 @@ public class MultiDatasetMapGen {
 		String metadata = label;
 		
 		System.out.println("Making map...");
-		String addr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
+		String addr;
+		if (HardCodedInterpDiffMapCreator.LOCAL_MAPGEN)
+			addr = HardCodedInterpDiffMapCreator.plotLocally(map);
+		else
+			addr = CS_InterpDiffMapServletAccessor.makeMap(null, map, metadata);
 		
 		System.out.println("Map address: " + addr);
 		if (outputDir != null) {
 			String prefix = "combined_"+imtPrefix;
-			FileUtils.downloadURL(addr+"interpolated_marks.150.png", new File(outputDir, prefix+"_marks.png"));
-			FileUtils.downloadURL(addr+"interpolated.150.png", new File(outputDir, prefix+".png"));
-			FileUtils.downloadURL(addr+"interpolated.ps", new File(outputDir, prefix+".ps"));
+			HardCodedInterpDiffMapCreator.fetchPlot(addr, "interpolated_marks.150.png",
+						new File(outputDir, prefix+"_marks.png"));
+			HardCodedInterpDiffMapCreator.fetchPlot(addr, "interpolated.150.png",
+					new File(outputDir, prefix+".png"));
+			HardCodedInterpDiffMapCreator.fetchPlot(addr, "interpolated.ps",
+					new File(outputDir, prefix+".ps"));
 			if (basemap != null)
-				FileUtils.downloadURL(addr+"basemap.150.png", new File(outputDir,
-						"basemap_"+imtPrefix+".png"));
+				HardCodedInterpDiffMapCreator.fetchPlot(addr, "basemap.150.png",
+						new File(outputDir, "basemap_"+imtPrefix+".png"));
+			if (HardCodedInterpDiffMapCreator.LOCAL_MAPGEN)
+				FileUtils.deleteRecursive(new File(addr));
 		}
 	}
 

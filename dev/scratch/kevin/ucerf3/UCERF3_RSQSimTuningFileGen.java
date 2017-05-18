@@ -16,14 +16,14 @@ import scratch.UCERF3.utils.FaultSystemIO;
 public class UCERF3_RSQSimTuningFileGen {
 
 	public static void main(String[] args) throws IOException, DocumentException {
-//		FaultSystemSolution sol = FaultSystemIO.loadSol(
-//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-//						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
-//		String solName = "fm3p1_branch_avg";
 		FaultSystemSolution sol = FaultSystemIO.loadSol(
 				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
-						+ "FM3_1_GEOL_MEAN_BRANCH_AVG_SOL.zip"));
-		String solName = "fm3p1_geol";
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+		String solName = "fm3p1_branch_avg";
+//		FaultSystemSolution sol = FaultSystemIO.loadSol(
+//				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+//						+ "FM3_1_GEOL_MEAN_BRANCH_AVG_SOL.zip"));
+//		String solName = "fm3p1_geol";
 		
 		double minMag = 0d;
 		

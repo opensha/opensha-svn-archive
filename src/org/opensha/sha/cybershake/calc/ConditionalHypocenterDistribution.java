@@ -15,12 +15,14 @@ import org.apache.commons.math3.distribution.RealDistribution;
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSetMath;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationUtils;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.GraphWindow;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
@@ -548,18 +550,20 @@ public class ConditionalHypocenterDistribution implements RuptureVariationProbab
 		ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 		HardCodedInterpDiffMapCreator.setTruncation(baseMapIMR, 3.0);
 		
+		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
+		
 		System.out.println("Modified:");
-		String addr = HardCodedInterpDiffMapCreator.getMap(scatter, logPlot, velModelID, imTypeID,
+		String addr = HardCodedInterpDiffMapCreator.getMap(region, scatter, logPlot, velModelID, imTypeID,
 				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, "Cond Prob Modified, "+valStr);
 		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, "cond_hypo_mod_map_"+valFileStr+".png"));
 		System.out.println("Orig:");
-		addr = HardCodedInterpDiffMapCreator.getMap(origScatter, logPlot, velModelID, imTypeID,
+		addr = HardCodedInterpDiffMapCreator.getMap(region, origScatter, logPlot, velModelID, imTypeID,
 				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, "Original Map, "+valStr);
 		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, "cond_hypo_orig_map_"+valFileStr+".png"));
 		
 		// now ratio
 		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(
-				false, scatter, origScatter, "Cond. Hypo. Dist, "+valStr, true);
+				false, scatter, origScatter, "Cond. Hypo. Dist, "+valStr, true, region);
 		FileUtils.downloadURL(addrs[0]+"/interpolated.150.png", new File(outputDir, "cond_hypo_diff_map_"+valFileStr+".png"));
 		FileUtils.downloadURL(addrs[1]+"/interpolated.150.png", new File(outputDir, "cond_hypo_ratio_map_"+valFileStr+".png"));
 		db.destroy();

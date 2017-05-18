@@ -9,10 +9,12 @@ import java.util.List;
 
 import org.jfree.data.Range;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.data.xyz.ArbDiscrGeoDataSet;
 import org.opensha.commons.data.xyz.GeoDataSet;
 import org.opensha.commons.exceptions.GMT_MapException;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.Region;
 import org.opensha.commons.gui.plot.HeadlessGraphPanel;
 import org.opensha.commons.gui.plot.PlotCurveCharacterstics;
 import org.opensha.commons.gui.plot.PlotLineType;
@@ -117,19 +119,21 @@ public class ModifiedMapCalc {
 
 		ScalarIMR baseMapIMR = AttenRelRef.NGA_2008_4AVG.instance(null);
 		HardCodedInterpDiffMapCreator.setTruncation(baseMapIMR, 3.0);
+		
+		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 
 		System.out.println("Modified:");
-		String addr = HardCodedInterpDiffMapCreator.getMap(modData, logPlot, velModelID, imTypeID,
+		String addr = HardCodedInterpDiffMapCreator.getMap(region, modData, logPlot, velModelID, imTypeID,
 				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, title+", Modified");
 		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, prefix+"_mod.png"));
 		System.out.println("Orig:");
-		addr = HardCodedInterpDiffMapCreator.getMap(origData, logPlot, velModelID, imTypeID,
+		addr = HardCodedInterpDiffMapCreator.getMap(region, origData, logPlot, velModelID, imTypeID,
 				customMin, customMax, isProbAt_IML, val, baseMapIMR, false, title+", Original");
 		FileUtils.downloadURL(addr+"/interpolated.150.png", new File(outputDir, prefix+"_orig.png"));
 
 		// now ratio
 		String[] addrs = HardCodedInterpDiffMapCreator.getCompareMap(
-				false, modData, origData, title, true);
+				false, modData, origData, title, true, region);
 		FileUtils.downloadURL(addrs[0]+"/interpolated.150.png", new File(outputDir, prefix+"_diff.png"));
 		FileUtils.downloadURL(addrs[1]+"/interpolated.150.png", new File(outputDir, prefix+"_ratio.png"));
 	}

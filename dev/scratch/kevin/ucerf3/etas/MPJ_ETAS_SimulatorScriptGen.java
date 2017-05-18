@@ -35,13 +35,21 @@ public class MPJ_ETAS_SimulatorScriptGen {
 	public static void main(String[] args) throws IOException {
 		File localDir = new File("/home/kevin/OpenSHA/UCERF3/etas/simulations");
 		
-		boolean stampede = true;
-		int threads = 2;
-		String queue = null;
-		String pbsNameAdd = null;
-//		int threads = 8;
-//		String queue = "scec";
-//		String pbsNameAdd = "-scec";
+		boolean stampede = false;
+//		int threads = 2;
+//		String queue = null;
+//		String pbsNameAdd = null;
+		boolean largeSCEC = false;
+		int threads;
+		String pbsNameAdd;
+		if (largeSCEC) {
+			threads = 20;
+			pbsNameAdd = "-scec-large";
+		} else {
+			threads = 8;
+			pbsNameAdd = "-scec";
+		}
+		String queue = "scec";
 		boolean smallTest = false;
 		
 		boolean writeConsolidate = true;
@@ -72,14 +80,16 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int numSims = 25000;
 //		int hours = 24;
 //		int nodes = 60;
-//		int numSims = 100000;
-//		int hours = 24;
+		int numSims = 10000;
+		int hours = 24;
 ////		int nodes = 100;
-//		int nodes = 34;
-		int numSims = 1000;
-		int hours = 2;
-//		int nodes = 100;
-		int nodes = 5;
+		int nodes = 34;
+		if (largeSCEC && !stampede)
+			nodes = 4;
+//		int numSims = 1000;
+//		int hours = 2;
+////		int nodes = 100;
+//		int nodes = 5;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -89,7 +99,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		
 //		TestScenario.NORTHRIDGE.updateMag(6.7);
 //		TestScenario[] scenarios = {TestScenario.NORTHRIDGE};
-		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+//		TestScenario[] scenarios = {TestScenario.MOJAVE_M7};
+//		TestScenario[] scenarios = {TestScenario.PARKFIELD};
 //		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = {TestScenario.SAN_JACINTO_0_M4p8};
 //		TestScenario[] scenarios = {TestScenario.MOJAVE_M5, TestScenario.MOJAVE_M5p5,
@@ -111,10 +122,12 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		boolean includeSpontaneous = true;
 //		TestScenario[] scenarios = {TestScenario.HAYWIRED_M7};
 //		TestScenario[] scenarios = { null };
-		boolean includeSpontaneous = false;
-		String customCatalog = null;
-		long customOT = Long.MIN_VALUE;
+//		boolean includeSpontaneous = false;
+//		String customCatalog = null;
+//		long customOT = Long.MIN_VALUE;
+//		String resetSectsArg = null;
 		boolean griddedOnly = false;
+		boolean customCatIncludeHistSurfaces = false;
 		
 //		TestScenario[] scenarios = { null };
 ////		boolean includeSpontaneous = false;
@@ -124,13 +137,23 @@ public class MPJ_ETAS_SimulatorScriptGen {
 ////		long customOT = 1474920000000l;
 //		long customOT = 1474990200000l;
 		
+		// USGS 5/17/17 exercise
+		TestScenario[] scenarios = { null };
+//		boolean includeSpontaneous = false;
+//		String customCatalog = "2016_bombay_swarm.txt";
+		boolean includeSpontaneous = false;
+		String customCatalog = "USGS_Exercise_Catalog.txt";
+//		long customOT = 1495039984000l; // make sure this is at least a few seconds after the last event
+		long customOT = 1495051260000l;
+		String resetSectsArg = "1495039984000:2370,2369,2368,2367";
+		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
 //				U3ETAS_ProbabilityModelOptions.NO_ERT};
-//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
-//		double totRateScaleFactor = 1.14;
-		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
-		double totRateScaleFactor = 1.0;
+		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD};
+		double totRateScaleFactor = 1.14;
+//		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.NO_ERT};
+//		double totRateScaleFactor = 1.0;
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.POISSON};
 //		boolean[] grCorrs = { false, true };
 		boolean[] grCorrs = { false };
@@ -143,7 +166,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		if (griddedOnly)
 			totRateScaleFactor = 1d;
 		
-		String nameAdd = "small-speed-test";
+//		String nameAdd = null;
+		String nameAdd = "sect-reset-1pm";
+//		String nameAdd = "small-speed-test";
 //		String nameAdd = "100krun1";
 //		String nameAdd = "20kmore4";
 //		String nameAdd = "scaleMFD1p14";
@@ -203,6 +228,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		} else {
 			if (queue == null)
 				memGigs = 9;
+			else if (largeSCEC)
+				memGigs = 220;
 			else
 				memGigs = 60;
 			remoteDir = new File("/home/scec-02/kmilner/ucerf3/etas_sim");
@@ -228,7 +255,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		if (histCatalog) {
 			histCatalogFile = new File(remoteDir, "ofr2013-1165_EarthquakeCat.txt");
 		}
-		if (histCatalog || customCatalog != null)
+		if ((histCatalog && customCatalog == null) || (customCatalog != null && customCatIncludeHistSurfaces))
 			rupSurfacesFile = new File(remoteDir, "finite_fault_mappings.xml");
 		
 		mpjWrite.setAutoMemDetect(false);
@@ -320,7 +347,7 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						argz = sep+"--min-dispatch "+threads
 								+" --max-dispatch "+threads+" --exact-dispatch "+threads;
 					} else {
-						argz = sep+"--min-dispatch 1 --max-dispatch "+threads*10;
+						argz = sep+"--min-dispatch 1 --max-dispatch "+threads*40;
 					}
 					
 					argz += sep+"--threads "+threads
@@ -378,6 +405,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 						argz += sep+"--no-spontaneous";
 					if (griddedOnly)
 						argz += sep+"--gridded-only";
+					if (resetSectsArg != null && !resetSectsArg.isEmpty())
+						argz += sep+"--reset-sections "+resetSectsArg;
 					
 					argz += sep+cacheDir.getAbsolutePath()+sep+remoteJobDir.getAbsolutePath();
 					

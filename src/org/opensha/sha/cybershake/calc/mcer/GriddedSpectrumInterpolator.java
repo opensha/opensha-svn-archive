@@ -10,6 +10,7 @@ import org.opensha.commons.data.xyz.EvenlyDiscrXYZ_DataSet;
 import org.opensha.commons.data.xyz.GriddedGeoDataSet;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
+import org.opensha.commons.geo.LocationUtils;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.mapping.gmt.GMT_Map;
 import org.opensha.commons.mapping.gmt.elements.GMT_CPT_Files;
@@ -152,6 +153,54 @@ public class GriddedSpectrumInterpolator {
 		int yInd = xyzs[0].getYIndex(lat);
 		
 		return getGridLocation(yInd, xInd);
+	}
+	
+	public Location getClosestDefinedGridLoc(Location loc) {
+		double lat = loc.getLatitude();
+		double lon = loc.getLongitude();
+		
+		int xInd = xyzs[0].getXIndex(lon);
+		int yInd = xyzs[0].getYIndex(lat);
+		
+		double minDist = Double.POSITIVE_INFINITY;
+		Location closestLoc = null;
+		
+		for (int x=xInd-1; x<=xInd+1; x++) {
+			if (xInd < 0 || xInd >= xyzs[0].getNumX())
+				continue;
+			for (int y=yInd-1; y<=yInd+1; y++) {
+				if (yInd < 0 || yInd >= xyzs[0].getNumY())
+					continue;
+				if (!isDefined(x, y))
+					continue;
+				Location gridLoc = getGridLocation(y, x);
+				double dist = LocationUtils.horzDistanceFast(loc, gridLoc);
+				if (dist < minDist) {
+					minDist = dist;
+					closestLoc = gridLoc;
+				}
+			}
+		}
+		
+		Preconditions.checkNotNull(closestLoc,
+				"Neither the closest grid loc, nor any direct neighbors of the closest grid loc are defined");
+		
+		return closestLoc;
+	}
+	
+	/**
+	 * 
+	 * @param xInd
+	 * @param yInd
+	 * @return true if at least one spectrum value defined
+	 */
+	private boolean isDefined(int xInd, int yInd) {
+		for (int i=0; i<periods.length; i++) {
+			double y = xyzs[i].get(xInd, yInd);
+			if (!Double.isNaN(y))
+				return true;
+		}
+		return false;
 	}
 	
 	private static void checkGridding(String name, double min, double max, int num, double spacing) {

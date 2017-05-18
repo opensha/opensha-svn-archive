@@ -13,7 +13,7 @@ public class CS_InterpDiffMapServletAccessor {
 	
 	public static String DEFAULT_METADATA_FILE_NAME = "metadata.txt";
 	
-	private static void checkLog(InterpDiffMap map) {
+	public static void checkLog(InterpDiffMap map) {
 		if (map.isLogPlot()) {
 			GeoDataSet gridded = map.getGriddedData();
 			GeoDataSet scatter = map.getScatter();

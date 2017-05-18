@@ -168,6 +168,53 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		for (int i=0; i<sols.length; i++)
 			sols[i] = FaultSystemIO.loadSol(solFile);
 		
+		if (cmd.hasOption("reset-sections")) {
+			// reset individual sections
+			// Format: epochMillis:s1,s2,...,sn[;epochMillis1:s1,s2]
+			String resetArg = cmd.getOptionValue("reset-sections").trim();
+			Preconditions.checkArgument(resetArg.contains(":"),
+					"Reset sections format: epochMillis:s1,s2,...,sn[;epochMillis1:s1,s2]");
+			List<String> args = Lists.newArrayList();
+			while (resetArg.contains(";")) {
+				int index = resetArg.indexOf(";");
+				String subArg = resetArg.substring(0, index);
+				Preconditions.checkState(!subArg.isEmpty());
+				args.add(subArg);
+				resetArg = resetArg.substring(index+1);
+			}
+			if (!resetArg.isEmpty())
+				args.add(resetArg);
+			Map<Long, int[]> resetMap = Maps.newHashMap();
+			for (String arg : args) {
+				if (rank == 0)
+					debug("Processing subsection reset arg: "+arg);
+				int index = arg.indexOf(":");
+				Preconditions.checkState(index > 0);
+				String timeStr = arg.substring(0, index);
+				long time = Long.parseLong(timeStr);
+				String sectStr = arg.substring(index+1);
+				String[] sectSplit = sectStr.split(",");
+				int[] sects = new int[sectSplit.length];
+				for (int i=0; i<sectSplit.length; i++) {
+					String sect = sectSplit[i];
+					int s = Integer.parseInt(sect);
+					sects[i] = s;
+				}
+				resetMap.put(time, sects);
+			}
+			
+			for (Long time : resetMap.keySet()) {
+				int[] sects = resetMap.get(time);
+				if (rank == 0)
+					debug("Resetting "+sects.length+" sects to "+time);
+				for (FaultSystemSolution sol : sols) {
+					FaultSystemRupSet rupSet = sol.getRupSet();
+					for (int s : sects)
+						rupSet.getFaultSectionData(s).setDateOfLastEvent(time);
+				}
+			}
+		}
+		
 		griddedOnly = cmd.hasOption("gridded-only");
 		if (griddedOnly) {
 			ETAS_Simulator_NoFaults.D = false;
@@ -207,18 +254,25 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 			if (rank == 0)
 				debug("Loaded "+loadedRups.size()+" rups from catalog");
 			int numWithSurfaces = 0;
+			double maxTriggerMag = 0d;
 			for (ObsEqkRupture rup : loadedRups) {
-				if (rup.getOriginTime() > ot)
+				if (rup.getOriginTime() > ot) {
 					// skip all ruptures that occur after simulation start
+					System.out.println("Skipping a M"+rup.getMag()+" after sim start ("
+							+rup.getOriginTime()+" > "+ot+"): "+rup);
 					continue;
+				}
 				ETAS_EqkRupture etasRup = new ETAS_EqkRupture(rup);
 				etasRup.setID(Integer.parseInt(rup.getEventId()));
 				histQkList.add(etasRup);
 				if (rup.getRuptureSurface() != null && !(rup.getRuptureSurface() instanceof PointSurface))
 					numWithSurfaces++;
+				maxTriggerMag = Math.max(maxTriggerMag, rup.getMag());
 			}
 			if (rank == 0)
 				debug("Seeding sim with "+histQkList.size()+" catalog ruptures ("+numWithSurfaces+" with surfaces)");
+			if (rank == 0)
+				debug("Max trigger mag in input catalog: "+maxTriggerMag);
 		}
 		
 		Location triggerHypo = null;
@@ -873,6 +927,12 @@ public class MPJ_ETAS_Simulator extends MPJTaskCalculator {
 		Option griddedOnly = new Option("grid", "gridded-only", false, "Flag for the gridded seismicity only model");
 		griddedOnly.setRequired(false);
 		ops.addOption(griddedOnly);
+		
+		Option resetSections = new Option("reset", "reset-sections", true,
+				"Reset date of last event of the given sub sections. "
+				+ "Format: epochMillis:s1,s2,...,sn[;epochMillis1:s1,s2]");
+		resetSections.setRequired(false);
+		ops.addOption(resetSections);
 		
 		return ops;
 	}

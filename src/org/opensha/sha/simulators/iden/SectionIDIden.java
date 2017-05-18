@@ -47,6 +47,14 @@ public class SectionIDIden extends AbstractRuptureIdentifier {
 				"SAF-Coachella", "SAF-Mojave", "SAF-San_Bernar"));
 	}
 	
+	public static SectionIDIden getALLCAL2_SSAF_Mojave(List<SimulatorElement> elems) {
+		return new SectionIDIden("SAF-Mojave", elems, parseNames(elems, "SAF-Mojave"));
+	}
+	
+	public static SectionIDIden getALLCAL2_SSAF_Coachella(List<SimulatorElement> elems) {
+		return new SectionIDIden("SAF-Coachella", elems, parseNames(elems, "SAF-Coachella"));
+	}
+	
 	public static SectionIDIden getALLCAL2_SanJacinto(List<SimulatorElement> elems) {
 		return new SectionIDIden("San Jacinto", elems, parseNames(elems, "Anza", "San_Bernardino", "San_Jacinto"));
 	}
