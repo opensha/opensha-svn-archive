@@ -25,15 +25,15 @@ import com.google.common.primitives.Doubles;
  * 
  *  1) Carefully define jUnit tests in order to cover all cases.
  *
- * @author field
+ * @author van der Elst
  *
  */
 public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel implements UnivariateFunction {
 	
-	Boolean D=true;	// debug flag
+	Boolean D=false;	// debug flag
 //	double alpha = 1;
 //	double mu = 1;
-	double capG, capH;
+	double rmax;
 	double ams, a, k, p, c;	
 //	
 	
@@ -45,11 +45,11 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	 * 
 	 */
 	public ETAS_AftershockModel_SequenceSpecific(ObsEqkRupture mainshock, ObsEqkRupList aftershocks,
-				double magCat, double[] aVec, double[] pVec, double[] cVec, double alpha, double b, double refMag, 	
+				double[] aVec, double[] pVec, double[] cVec, double alpha, double b, double refMag, 	
 				double dataStartTimeDays, double dataEndTimeDays, double forecastMinDays, double forecastMaxDays, 
 				double maxMag, int maxGenerations, int nSims) {
 		
-		this(mainshock, aftershocks, magCat, Double.NaN, Double.NaN, aVec, pVec, cVec, alpha, b, refMag,
+		this(mainshock, aftershocks, Double.POSITIVE_INFINITY, aVec, pVec, cVec, alpha, b, refMag,
 				dataStartTimeDays, dataEndTimeDays, forecastMinDays, forecastMaxDays, 
 				maxMag, maxGenerations, nSims);
 	}
@@ -57,18 +57,13 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	
 	
 	/**
-	 * This solves for the Reasenberg-Jones parameters from the given mainShock, aftershockList,
+	 * This solves for the ETAS parameters from the given mainShock, aftershockList,
 	 * and other specifications as described below, and for a time-dependent magnitude of completeness
-	 * model defined as Mc(t,Mm) = Max(Mm/2-G-H*log10(t); Mcat), where Mm is the main-shock magnitude, G and H 
-	 * are model parameters, and Mcat is the magnitude of completeness for the network during normal times. 
+	 * model defined by a maximum rate. 
 	 * Likelihood values are normalized so they sum to 1.0 over the range of parameter-values specified.
 	 * @param mainShock
 	 * @param aftershockList - events with mag below magComplete will be filtered out
-	 * @param magCat - "Mcat" in the in the time-dependent magnitude of completeness model defined above
-	 * @param capG - the "G" parameter in the time-dependent magnitude of completeness model defined above; 
-	 * 				 set as Double.NaN to apply time independent Mc (analytical integration), or set as 
-	 * 				 10.0 to effectively make it time independent (but numerical integration still performed)
-	 * @param capH - the "H" parameter in the time-dependent magnitude of completeness model defined above
+	 * @param rmax - maximum rate (default 200 events/day) assume events in excess of this rate are missed.
 	 * @param b - assumed b value
 	 * @param min_a \
 	 * @param max_a  | - range of a-values for grid search (set min=max and num=1 to constraint to single value)
@@ -80,8 +75,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	 * @param max_c  | - range of c-values for grid search (set min=max and num=1 to constraint to single value)
 	 * @param num_c /
 	 */
-	public ETAS_AftershockModel_SequenceSpecific(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,
-			 								double magCat, double capG, double capH,
+	public ETAS_AftershockModel_SequenceSpecific(ObsEqkRupture mainShock, ObsEqkRupList aftershockList,	double rmax,
 			 								double[] aVec, double[] pVec, double[] cVec, double alpha, double b, double refMag, 	
 			 								double dataStartTimeDays, double dataEndTimeDays, double forecastMinDays, double forecastMaxDays, 
 			 								double maxMag, int maxGenerations, int nSims) {
@@ -123,7 +117,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		this.b = b;
 		this.alpha = alpha;
 		this.refMag = refMag;
-		this.magComplete = magCat;
+		this.magComplete = refMag;
 		this.aftershockList=aftershockList;
 //		this.aftershockList = new ObsEqkRupList();
 		this.mainShock=mainShock;
@@ -132,8 +126,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		this.dataEndTimeDays=dataEndTimeDays;
 		this.forecastMinDays = forecastMinDays;
 		this.forecastMaxDays = forecastMaxDays;
-		this.capG=capG;
-		this.capH=capH;
+		this.rmax = rmax;
 		this.nSims = nSims;
 		this.maxMag = maxMag;
 		this.maxGenerations = maxGenerations;
@@ -152,8 +145,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 			System.out.println("a-values range:\t"+min_a+"\t"+max_a+"\t"+num_a);
 			System.out.println("p-values range:\t"+min_p+"\t"+max_p+"\t"+num_p+"\t");
 			System.out.println("log c-values range:\t"+min_c+"\t"+max_c+"\t"+num_c+"\t");
-			System.out.println("capH:\t"+capH);
-			System.out.println("capG:\t"+capG);
+			System.out.println("rmax:\t"+rmax);
 			System.out.println("magComplete:\t"+magComplete);
 		}
 		
@@ -185,7 +177,7 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 
 		for(int i = 0; i < relativeEventTimes.length; i++){
 			double[] temp = new double[]{relativeEventTimes[i], magAftershocks[i]};
-			if(temp[0] < dataEndTimeDays)
+			if(temp[0] <= dataEndTimeDays)
 				sortedEQlist.add(temp);
 		}
 
@@ -237,66 +229,6 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		this.nSims = nSims;
 	}
 
-	// TIME-DEPENDENT MC NOT YET IMPLEMENTED, FOLLOWING CODE IS FOR POTENTIAL SCAVENGING LATER
-//	private void computeSequenceSpecificParams() {
-////		SimpsonIntegrator integrator = new SimpsonIntegrator();
-//		likeArray = new double[num_a][num_p][num_c];
-//		double maxVal= Double.NEGATIVE_INFINITY;
-//		double ln10 = Math.log(10);
-//		for(int cIndex=0;cIndex<num_c;cIndex++) {
-//			c = get_c(cIndex);
-//
-//			// make the list of event times and Mc at those times for the given c
-//			double sum1=0;
-//			double sum2=0;
-//			int numEvents=0;
-//			for(ObsEqkRupture rup:aftershockList) {
-//				double timeSinceMainDays = (double)(rup.getOriginTime()-mainShock.getOriginTime()) / (double)AftershockStatsCalc.MILLISEC_PER_DAY;
-//				if(timeSinceMainDays<dataStartTimeDays || timeSinceMainDays>dataEndTimeDays) // not necessary if list already filtered
-//					continue;
-//				double magCompleteAtTime = getMagCompleteAtTime(timeSinceMainDays);
-////				System.out.println("magCompleteAtTime"+magCompleteAtTime);
-//
-//				if(rup.getMag()>=magCompleteAtTime) {
-//					numEvents += 1;
-//					sum1 += magMain-magCompleteAtTime;
-//					sum2 += Math.log(timeSinceMainDays+c);
-//				}
-//			}
-//
-//			// now loop over p and a
-//			for(int pIndex=0;pIndex<num_p;pIndex++) {
-//				p = get_p(pIndex);
-//				for(int aIndex=0;aIndex<num_a;aIndex++) {
-//					a = get_a(aIndex);
-//					double integral = ETAS_StatsCalc.adaptiveQuadratureIntegration(this, dataStartTimeDays, dataEndTimeDays);
-////					double integral = integrator.integrate(100000, this, dataStartTimeDays, dataEndTimeDays);
-////double term1=numEvents*a*ln10 + b*ln10*sum1 - p*sum2;
-////System.out.println("term1="+term1);
-////System.out.println("integral="+integral);
-//
-//
-//					double logLike = numEvents*a*ln10 + b*ln10*sum1 - p*sum2 - integral;
-////  System.out.println((float)a+"\t"+(float)p+"\t"+(float)c+"\t"+logLike);
-//
-//					likeArray[aIndex][pIndex][cIndex] = logLike;
-//					if(maxVal<logLike) {
-//						maxVal=logLike;
-//						max_a_index=aIndex;
-//						max_p_index=pIndex;
-//						max_c_index=cIndex;
-//					}
-//				}
-//			}
-//		}
-//		
-//		// convert array from log-likelihood to likelihood
-//		testTotalLikelihood = convertLogLikelihoodArrayToLikelihood(maxVal);
-//		
-//		
-
-//	}
-	
 	
 	/**
 	 * Get likelihood matrix with no time dependent Mc. Checks for supercriticality and gives a warning if too many supercritical parameter sets are found;
@@ -467,7 +399,11 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 		double timeIntegral = Double.NaN;
 		int Nas = relativeEventTimes.length;	//the number of aftershocks, not counting the mainshock
 				
-		//compute total number at end of fit window
+		//compute total number at end of fit window due to mainshock (NEEDS TO BE FIXED FOR RMAX)
+		// compute completeness time for this mainshock
+		double tcompleteMS = Math.pow(k/rmax,1d/p) - c;
+		if(tcompleteMS < 0) tcompleteMS = 0;
+		
 		double Ntot;
 		if (p == 1)
 			timeIntegral = Math.log(tMaxDays + c) - Math.log(tMinDays + c);
@@ -478,26 +414,57 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	
 		double[] productivity = new double[Nas];
 		double[] lambda = new double[Nas];
+		double[] tcomplete = new double[Nas];
+		
 		for(int i=0; i<Nas; i++){
-			//compute productivity for this aftershock
+			// compute productivity for this aftershock
 			productivity[i] = Math.pow(10, a + alpha*(aftershockMagnitudes[i] - Mc));	//productivity of this aftershock
+
+			// compute completeness time for this aftershock
+			tcomplete[i] = Math.pow(productivity[i]/rmax,1d/p) - c;
+			if(tcomplete[i] < 0) tcomplete[i]=0;
 			
-			//compute intensity at this moment due to previous earthquakes
+			// compute intensity at this moment due to previous earthquakes
 			lambda[i] = k/Math.pow(relativeEventTimes[i] + c, p); //from the mainshock
-			for(int j = 0; j < i; j++){
-				if(relativeEventTimes[j] < relativeEventTimes[i])
-					lambda[i] += productivity[j]/Math.pow(relativeEventTimes[i] - relativeEventTimes[j] + c, p);	//from the aftershocks
-				
+			if(lambda[i] > rmax) lambda[i] = rmax;
+			
+			for(int j = 0; j < i; j++){//from the aftershocks
+				if(relativeEventTimes[j] < relativeEventTimes[i]){
+					double lambdasub = productivity[j]/Math.pow(relativeEventTimes[i] - relativeEventTimes[j] + c, p);
+					if(lambdasub > rmax) lambdasub = rmax;
+					lambda[i] += lambdasub;
+				}
 			}
 	
 			//compute number at end of window due to this aftershock
 			if(relativeEventTimes[i] < tMaxDays){
+				double Nbase, Ntotsub, tIntegralStart;
+				
+				if(tcomplete[i] > 0){	//if there's an incomplete period
+					if(relativeEventTimes[i] + tcomplete[i] < tMaxDays){	//if the incomplete period ends before catalog end
+						//first compute the integral over the maxed out period
+						Nbase = rmax * tcomplete[i];
+						tIntegralStart = tcomplete[i] + relativeEventTimes[i]; //set integral start time to the completeness time
+					}else{ //if there's an incomplete period that lasts the whole duration of the catalog
+						// compute the integral over the maxed out period
+						Nbase = rmax * (tMaxDays - relativeEventTimes[i]);
+						tIntegralStart = tMaxDays; //set integral start time to catalog end time
+					}
+//					System.out.format("rmax exceeded for %f days, %f events\n", tcomplete[i], Nbase); 
+				}else{//otherwise, Nbase = 0 and tIntegralStart is the same as the earthquake origin time
+					Nbase = 0;
+					tIntegralStart = relativeEventTimes[i];
+				}
+			
+				//compute the remaining integral (may be zero)	
 				if(p == 1)
-					timeIntegral = Math.log(tMaxDays - relativeEventTimes[i] + c) - Math.log(c); 
+					timeIntegral = Math.log(tMaxDays - relativeEventTimes[i] + c) - Math.log(tIntegralStart - relativeEventTimes[i] + c); 
 				else
-					timeIntegral = (Math.pow(tMaxDays - relativeEventTimes[i] + c, 1-p) - Math.pow(c, 1-p)) / (1-p);
-
-				Ntot += productivity[i]*timeIntegral;	//aftershock Contributions
+					timeIntegral = (Math.pow(tMaxDays - relativeEventTimes[i] + c, 1-p) - Math.pow(tIntegralStart - relativeEventTimes[i] + c, 1-p)) / (1-p);
+				
+				Ntotsub = productivity[i]*timeIntegral;
+				
+				Ntot += Nbase + Ntotsub; 
 			}
 			//System.out.format(" %d", (int) Ntot); 
 		}
@@ -514,27 +481,6 @@ public class ETAS_AftershockModel_SequenceSpecific extends ETAS_AftershockModel 
 	}
 	
 	
-//	public double getMagCompleteAtTime(double timeSinceMainDays) {
-//		if(timeSinceMainDays==0d)
-//			return 10d;	// avoid infinity
-//		double magCompleteAtTime = magMain/2.0 - capG - capH*Math.log10(timeSinceMainDays);
-//		if(magCompleteAtTime>magComplete)
-//			return magCompleteAtTime;
-//		else 
-//			return magComplete;
-//
-//	}
-
-//	public double getRateAboveMagCompleteAtTime(double timeSinceMainDays) {
-//		if(timeSinceMainDays==0d)
-//			return 0d;
-//		return Math.pow(10d,a+b*(magMain-getMagCompleteAtTime(timeSinceMainDays)))*Math.pow(timeSinceMainDays+c, -p);
-//	}
-
-//	public double value(double timeSinceMainDays) {
-//		return getRateAboveMagCompleteAtTime(timeSinceMainDays);
-//	}
-//	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

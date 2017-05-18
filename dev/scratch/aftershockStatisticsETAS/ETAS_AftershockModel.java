@@ -46,7 +46,7 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 public abstract class ETAS_AftershockModel {
 	
-	Boolean D=true;	// debug flag
+	Boolean D=false;	// debug flag
 	
 	double base_a = Double.NaN;  
 	double mean_a, sigma_a;

@@ -192,10 +192,11 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 	private IntegerParameter cValNumParam;
 	
 	private BooleanParameter timeDepMcParam;
-	private DoubleParameter gParam;
-	private DoubleParameter hParam;
-	private DoubleParameter mCatParam;
-	
+	private DoubleParameter rmaxParam;
+//	private DoubleParameter gParam;
+//	private DoubleParameter hParam;
+//	private DoubleParameter mCatParam;
+
 	private ButtonParameter computeAftershockParamsButton;
 	
 	private DoubleParameter aValParam;
@@ -246,7 +247,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 //	private RJ_AftershockModel_Generic genericModel = null;
 //	private RJ_AftershockModel_Bayesian bayesianModel = null;
 
-	private ETAS_AftershockModel model;
+//	private ETAS_AftershockModel model;
 	
 	
 	
@@ -387,17 +388,21 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		timeDepMcParam.addParameterChangeListener(this);
 		fitParams.addParameter(timeDepMcParam);
 		
-		gParam = new DoubleParameter("G", 0.1d, 10d, new Double(0.25));
-		gParam.addParameterChangeListener(this);
-		fitParams.addParameter(gParam);
+		rmaxParam = new DoubleParameter("rmax", 1d, 1000d, new Double(200));
+		rmaxParam.addParameterChangeListener(this);
+		fitParams.addParameter(rmaxParam);
 		
-		hParam = new DoubleParameter("H", 0.25, 2d, new Double(1d));
-		hParam.addParameterChangeListener(this);
-		fitParams.addParameter(hParam);
-		
-		mCatParam = new DoubleParameter("Mcat", 1d, 7d, new Double(4.5));
-		mCatParam.addParameterChangeListener(this);
-		fitParams.addParameter(mCatParam);
+//		gParam = new DoubleParameter("G", 0.1d, 10d, new Double(0.25));
+//		gParam.addParameterChangeListener(this);
+//		fitParams.addParameter(gParam);
+//		
+//		hParam = new DoubleParameter("H", 0.25, 2d, new Double(1d));
+//		hParam.addParameterChangeListener(this);
+//		fitParams.addParameter(hParam);
+//		
+//		mCatParam = new DoubleParameter("Mcat", 1d, 7d, new Double(4.5));
+//		mCatParam.addParameterChangeListener(this);
+//		fitParams.addParameter(mCatParam);
 		
 		computeAftershockParamsButton = new ButtonParameter("Aftershock Params", "Compute");
 		computeAftershockParamsButton.addParameterChangeListener(this);
@@ -1117,11 +1122,10 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 	
 	private void plotCumulativeNum() {
 		double magMin;
-		
-		if (seqSpecModel != null && timeDepMcParam.getValue() == true)
-			magMin = mCatParam.getValue();
-		else
-			magMin = mcParam.getValue();
+///		if (seqSpecModel != null && timeDepMcParam.getValue() == true)	//removing Mc(t) method to replace with rmax method
+//			magMin = mCatParam.getValue();
+//		else
+		magMin = mcParam.getValue();
 		
 		ArbitrarilyDiscretizedFunc countFunc = new ArbitrarilyDiscretizedFunc();
 		double count = 0;
@@ -1381,10 +1385,28 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 
 		aftershocks = myAftershocks;
 		
-		doPostFetchCalculations();
-		setMainshock(myMainshock);
+		//update data end time with the maximum time in the catalog
+		ObsEqkRupture lastAftershock = aftershocks.get(aftershocks.size()-1);
+		System.out.println(lastAftershock.getOriginTime());
+		System.out.println(myMainshock.getOriginTime());
+		double maxDays = (double) (lastAftershock.getOriginTime() - myMainshock.getOriginTime()) / (double) ETAS_StatsCalc.MILLISEC_PER_DAY;
+		dataEndTimeParam.setValue(maxDays);
+		dataEndTimeParam.getEditor().refreshParamEditor();
+		
+		//update the forecast window based on the data window (default, one year from end of data window)
+		forecastStartTimeParam.setValue(Math.ceil(maxDays));
+		forecastStartTimeParam.getEditor().refreshParamEditor();
+		forecastEndTimeParam.setValue(Math.ceil(maxDays)+365);
+		forecastEndTimeParam.getEditor().refreshParamEditor();
+	
+
 		region = null;
+		doPostFetchCalculations();
+		
+		setMainshock(myMainshock);
+		
 		setEnableParamsPostFetch(true);
+		
 	}
 	
 	private void plotPDFs() {
@@ -2049,7 +2071,8 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		} else if (param == timeDepMcParam) {
 			setEnableParamsPostAfershockParams(false);
 			setEnableParamsPostComputeB(true);
-		} else if (param == gParam || param == hParam || param == mCatParam) {
+//		} else if (param == gParam || param == hParam || param == mCatParam) {
+		} else if (param == rmaxParam){
 			setEnableParamsPostAfershockParams(false);
 		} else if (param == computeAftershockParamsButton) {
 			setEnableParamsPostAfershockParams(false);
@@ -2074,22 +2097,25 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 					validateParameter(b, "b-value");
 					
 					if (timeDepMcParam.getValue()) {
-						Double g = gParam.getValue();
-						validateParameter(g, "G");
-						
-						Double h = hParam.getValue();
-						validateParameter(h, "H");
-						
-						Double mCat = mCatParam.getValue();
-						validateParameter(mCat, "Mcat");
-						
+//						Double g = gParam.getValue();
+//						validateParameter(g, "G");
+//						
+//						Double h = hParam.getValue();
+//						validateParameter(h, "H");
+//						
+//						Double mCat = mCatParam.getValue();
+//						validateParameter(mCat, "Mcat");
+//						
+						Double rmax = rmaxParam.getValue();
+						validateParameter(rmax, "rmax");
+//						
 //						model = new RJ_AftershockModel_SequenceSpecific(mainshock, aftershocks, mCat, g, h, b,
 //								dataStartTimeParam.getValue(), dataEndTimeParam.getValue(),
 //								aRange.getLowerBound(), aRange.getUpperBound(), aNum,
 //								pRange.getLowerBound(), pRange.getUpperBound(), pNum,
 //								cRange.getLowerBound(), cRange.getUpperBound(), cNum);
 						
-						seqSpecModel = new ETAS_AftershockModel_SequenceSpecific(mainshock, aftershocks, mCat, g, h,
+						seqSpecModel = new ETAS_AftershockModel_SequenceSpecific(mainshock, aftershocks, rmax,
 								ETAS_StatsCalc.linspace(aRange.getLowerBound(), aRange.getUpperBound(), aNum),
 								ETAS_StatsCalc.linspace(pRange.getLowerBound(), pRange.getUpperBound(), pNum),
 								ETAS_StatsCalc.logspace(cRange.getLowerBound(), cRange.getUpperBound(), cNum),
@@ -2100,7 +2126,7 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 						
 						
 					} else {
-						seqSpecModel = new ETAS_AftershockModel_SequenceSpecific(mainshock, aftershocks, mcParam.getValue(),
+						seqSpecModel = new ETAS_AftershockModel_SequenceSpecific(mainshock, aftershocks,
 								ETAS_StatsCalc.linspace(aRange.getLowerBound(), aRange.getUpperBound(), aNum),
 								ETAS_StatsCalc.linspace(pRange.getLowerBound(), pRange.getUpperBound(), pNum),
 								ETAS_StatsCalc.logspace(cRange.getLowerBound(), cRange.getUpperBound(), cNum),
@@ -2209,6 +2235,15 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		mmaxc = ETAS_StatsCalc.getMmaxC(aftershockMND);
 		mcParam.setValue(mmaxc+0.5);
 		mcParam.getEditor().refreshParamEditor();
+		
+//		//update data end time with the maximum time in the catalog
+//		ObsEqkRupture lastAftershock = aftershocks.get(aftershocks.size()-1);
+//		System.out.println(lastAftershock.getOriginTime());
+//		System.out.println(mainshock.getOriginTime());
+//		dataEndTimeParam.setValue((double) (lastAftershock.getOriginTime() - mainshock.getOriginTime()) / (double) ETAS_StatsCalc.MILLISEC_PER_DAY );
+//		dataEndTimeParam.getEditor().refreshParamEditor();
+//		
+		
 	}
 	
 	private void doPostFetchPlots() {
@@ -2270,9 +2305,11 @@ public class AftershockStatsGUI_ETAS extends JFrame implements ParameterChangeLi
 		cValNumParam.getEditor().setEnabled(enabled);
 		computeAftershockParamsButton.getEditor().setEnabled(enabled);
 		timeDepMcParam.getEditor().setEnabled(enabled);
-		gParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
-		hParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
-		mCatParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+		
+		rmaxParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+//		gParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+//		hParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
+//		mCatParam.getEditor().setEnabled(enabled && timeDepMcParam.getValue());
 		
 		if (!enabled)
 			setEnableParamsPostComputeB(enabled);
