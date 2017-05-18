@@ -57,6 +57,7 @@ public class ETAS_USGS_AftershockForecast {
 	private Table<Duration, Double, Double> numEventsLower;
 	private Table<Duration, Double, Double> numEventsUpper;
 	private Table<Duration, Double, Double> numEventsMedian;
+	private Table<Duration, Double, Double> numEventsMean;
 	
 	private Table<Duration, Double, Double> probs;
 	
@@ -81,6 +82,7 @@ public class ETAS_USGS_AftershockForecast {
 		this.eventDate = eventDate;
 		this.startDate = startDate;
 		
+		numEventsMean = HashBasedTable.create();
 		numEventsMedian = HashBasedTable.create();
 		numEventsLower = HashBasedTable.create();
 		numEventsUpper = HashBasedTable.create();
@@ -109,7 +111,9 @@ public class ETAS_USGS_AftershockForecast {
 				double minMag = minMags[m];
 				
 				double[] fractiles = model.getCumNumFractileWithAleatory(calcFractiles, minMag, tMinDays, tMaxDays);
+				double mean = model.getCumNumMeanWithAleatory(minMag, tMinDays, tMaxDays);
 				
+				numEventsMean.put(duration, minMag, mean);
 				numEventsLower.put(duration, minMag, fractiles[0]);
 				numEventsMedian.put(duration, minMag, fractiles[1]);
 				numEventsUpper.put(duration, minMag, fractiles[2]);
@@ -142,7 +146,7 @@ public class ETAS_USGS_AftershockForecast {
 	}
 	
 	private static String[] headers = {"Time Window For Analysis", "Magnitude Range",
-			"Median Number", "95% confidence range", "Probability of one or more aftershocks"};
+			"Median (Mean) Number", "95% confidence range", "Probability of one or more aftershocks"};
 	
 	public TableModel getTableModel() {
 		final int numEach = minMags.length+1;
@@ -188,7 +192,8 @@ public class ETAS_USGS_AftershockForecast {
 						return "M ≥ "+(float)mag;
 					} else if (columnIndex == 2) {
 						int median = (int)(numEventsMedian.get(durations[d], mag)+0.5);
-						return median;
+						double mean = numEventsMean.get(durations[d], mag);
+						return median + " (" + (int)mean + "." + (int)((mean - (int)mean)*100) + ")";
 					} else if (columnIndex == 3) {
 						int lower = (int)(numEventsLower.get(durations[d], mag)+0.5);
 						int upper = (int)(numEventsUpper.get(durations[d], mag)+0.5);

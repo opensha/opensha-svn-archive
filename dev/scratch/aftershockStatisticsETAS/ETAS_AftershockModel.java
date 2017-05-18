@@ -652,6 +652,20 @@ public ArbitrarilyDiscretizedFunc getFractileCumNumEventsWithLogTime(double magM
 		return fractValArray;
 	}
 
+	public double getCumNumMeanWithAleatory(double mag, double tMinDays, double tMaxDays) {
+		computeNum_DistributionFunc(tMinDays, tMaxDays, mag);
+//		
+		double mean;
+		
+			if(mag < magComplete){
+				mean =  num_DistributionFunc.getMean() * Math.pow(10, -b*(mag - magComplete));	
+			}
+			else
+				mean =  num_DistributionFunc.getMean();
+			
+		return mean;
+	}
+
 	
 	public double getSubSampleInterpolatedFractile(ArbDiscrEmpiricalDistFunc num_DistributionFunc, double fractile){
 		double xval = 0;
