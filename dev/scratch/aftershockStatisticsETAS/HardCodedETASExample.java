@@ -188,7 +188,7 @@ public class HardCodedETASExample {
 //		Make sequence specific model -- fits and computes.
 		ETAS_AftershockModel_SequenceSpecific seqSpecificETASmodel = new ETAS_AftershockModel_SequenceSpecific(
 				mainshock, aftershocks,
-				mCat, Double.NaN, Double.NaN, aVec, pVec, cVec, alpha, b, refMag, 
+				mCat, aVec, pVec, cVec, alpha, b, refMag, 
 				dataMinDays, dataMaxDays, forecastMinDays, forecastMaxDays, 9.5, 100, nSims); //maxMag = 9.5, maxGeneratons = 100;););
 		
 		// make one-month forecast
