@@ -73,7 +73,7 @@ public class BinaryXYZRandomAccessFile extends BinaryRandomAccessFile {
 		double x = threeDoubleBuffer.getBuffer().get();
 		double y = threeDoubleBuffer.getBuffer().get();
 		double z = threeDoubleBuffer.getBuffer().get();
-		return isPlaceholder(x) || isPlaceholder(y) || isPlaceholder(z);
+		return !isPlaceholder(x) && !isPlaceholder(y) && !isPlaceholder(z);
 	}
 	
 	private boolean isPlaceholder(double val) {
