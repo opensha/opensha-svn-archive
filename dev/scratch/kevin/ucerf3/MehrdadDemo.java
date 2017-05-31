@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.dom4j.DocumentException;
 import org.opensha.commons.data.Site;
@@ -32,6 +33,7 @@ import org.opensha.sha.imr.param.SiteParams.Vs30_Param;
 import org.opensha.sha.imr.param.SiteParams.Vs30_TypeParam;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
@@ -43,7 +45,7 @@ import scratch.UCERF3.utils.FaultSystemIO;
 public class MehrdadDemo {
 
 	public static void main(String[] args) throws IOException, DocumentException {
-		boolean ucerf2 = true;
+		boolean ucerf2 = false;
 		
 		int startYear = 2017;
 		double duration = 50;
@@ -76,6 +78,30 @@ public class MehrdadDemo {
 			for (int rupIndex : mojaveRups)
 				totMojaveRate += sol.getRateForRup(rupIndex);
 			System.out.println("Total Mojave supra-seismogenic rate: "+totMojaveRate);
+			
+			// find all subsections that rupture with the given parent sect ID
+			Map<Integer, Double> multiFaultParticRates = Maps.newHashMap();
+			for (int rupIndex : rupSet.getRupturesForParentSection(parentSectID)) {
+				// for each rupture which Mojave participates
+				
+				double rate = sol.getRateForRup(rupIndex);
+				for (int sectIndex : rupSet.getSectionsIndicesForRup(rupIndex)) {
+					// for each subsection of this rupture
+					
+					Double particRate = multiFaultParticRates.get(sectIndex);
+					if (particRate == null)
+						particRate = rate; // first rupture that we have encountered for this section
+					else
+						particRate += rate; // add it
+					multiFaultParticRates.put(sectIndex, particRate);
+				}
+			}
+			for (int sectIndex : multiFaultParticRates.keySet()) {
+				FaultSectionPrefData sect = rupSet.getFaultSectionData(sectIndex);
+				System.out.println("Section "+sectIndex+", "+sect.getSectionName()
+					+" participates with parent section "+parentSectID+" with rate "
+						+multiFaultParticRates.get(sectIndex));
+			}
 			
 			// create ERF from sol
 			erf = new FaultSystemSolutionERF(sol);
