@@ -39,7 +39,7 @@ public class BinaryDoubleScalarRandomAccessFile extends BinaryRandomAccessFile {
 	
 	public synchronized void write(int index, double val) throws IOException {
 		singleDoubleBuffer.buffer.put(0, val);
-		writeRecord(index, singleDoubleBuffer.getBytes());
+		writeRecord(index, cloneBytes(singleDoubleBuffer.getBytes()));
 	}
 
 	@Override
@@ -60,12 +60,12 @@ public class BinaryDoubleScalarRandomAccessFile extends BinaryRandomAccessFile {
 	}
 
 	@Override
-	protected byte[] getBlankRecord() {
+	protected synchronized byte[] getBlankRecord() {
 		singleDoubleBuffer.buffer.put(0, placeholder);
 		return cloneBytes(singleDoubleBuffer.bytes);
 	}
 	
-	public boolean isCalculated(int index) throws IOException {
+	public synchronized boolean isCalculated(int index) throws IOException {
 		byte[] record = readRecord(index);
 		for (int i=0; i<record.length; i++)
 			singleDoubleBuffer.getBytes()[i] = record[i];

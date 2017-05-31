@@ -47,7 +47,18 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 		Region region = new CaliforniaRegions.CYBERSHAKE_MAP_REGION();
 		Preconditions.checkState(outputDir.exists() || outputDir.mkdir());
 		
+//		File mcerFile = new File(new File(mainDir, prefix+"classCCD"), "NGAWest_2014_NoIdr_MeanUCERF3_downsampled_RotD100_mcer.bin");
+//		File probFile = new File(new File(mainDir, prefix+"classCCD"), "NGAWest_2014_NoIdr_MeanUCERF3_downsampled_RotD100_prob.bin");
+//		File detFile = new File(new File(mainDir, prefix+"classCCD"), "NGAWest_2014_NoIdr_MeanUCERF3_downsampled_RotD100_det.bin");
+//		File tmp = new File("/tmp");
+//		plotSpectrum(0.1, new BinaryHazardCurveReader(mcerFile.getAbsolutePath()).getCurveMap(), tmp, "CCD_mcer", spacing, region);
+//		plotSpectrum(0.1, new BinaryHazardCurveReader(probFile.getAbsolutePath()).getCurveMap(), tmp, "CCD_prob", spacing, region);
+//		plotSpectrum(0.1, new BinaryHazardCurveReader(detFile.getAbsolutePath()).getCurveMap(), tmp, "CCD_det", spacing, region);
+//		System.exit(0);
+		
 		double[] plotPeriods = {0.1d, 1d};
+//		double[] plotPeriods = null;
+		boolean replot = false;
 		
 		for (File dir : mainDir.listFiles()) {
 			if (!dir.isDirectory())
@@ -78,7 +89,7 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 			
 			if (plotPeriods != null)
 				for (double period : plotPeriods)
-					plotSpectrum(period, map, outputDir, identifier, spacing, region);
+					plotSpectrum(period, map, outputDir, identifier, spacing, region, replot);
 			
 			// now PGA
 			File pgaFile = new File(dir, pgaFileName);
@@ -86,12 +97,13 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 				System.out.println("Doing PGA");
 				ArbDiscrGeoDataSet pgaData = BinaryGeoDatasetRandomAccessFile.loadGeoDataset(pgaFile);
 				for (int i=0; i<pgaData.size(); i++)
-					Preconditions.checkState(Doubles.isFinite(pgaData.get(i)));
+					Preconditions.checkState(Doubles.isFinite(pgaData.get(i)),
+							"Non Finite PGA at index %s/%s: %s", i, pgaData.size(), pgaData.get(i));
 				System.out.println("All PGA values validated\n");
 				Files.copy(dataFile, new File(outputDir, identifier+"_pga.bin"));
 				
 				if (plotPeriods != null) {
-					plotPGA(pgaData, outputDir, identifier, spacing, region);
+					plotPGA(pgaData, outputDir, identifier, spacing, region, replot);
 				}
 			}
 		}
@@ -130,6 +142,7 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 		BinaryRandomAccessHazardCurveWriter dDefaultWrite = new BinaryRandomAccessHazardCurveWriter(
 				dDefaultOut, ByteOrder.BIG_ENDIAN, dMap.size(), dMap.values().iterator().next());
 		dDefaultWrite.initialize();
+		Map<Location, ArbitrarilyDiscretizedFunc> dDeafultMap = Maps.newHashMap();
 		for (int i=0; i<curveLocs.size(); i++) {
 			Location loc = curveLocs.get(i);
 			DiscretizedFunc dFunc = dMap.get(loc);
@@ -140,9 +153,14 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 				double dDefaultVal = Math.max(dFunc.getY(j), cFunc.getY(j));
 				dDefaultFunc.set(dFunc.getX(j), dDefaultVal);
 			}
+			dDeafultMap.put(loc, dDefaultFunc);
 			dDefaultWrite.writeCurve(i, loc, dDefaultFunc);
 		}
 		dDefaultWrite.close();
+		if (plotPeriods != null)
+			for (double period : plotPeriods)
+				plotSpectrum(period, dDeafultMap, outputDir, "classD_default", spacing, region, replot);
+		
 		// now the same but for PGA
 		File dInPGA = new File(new File(mainDir, prefix+"classD"), pgaFileName);
 		if (dInPGA.exists()) {
@@ -155,17 +173,24 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 			BinaryGeoDatasetRandomAccessFile dDefaultPGA = new BinaryGeoDatasetRandomAccessFile(
 					dDefaultPGAOut, ByteOrder.BIG_ENDIAN, dPGA.size());
 			dDefaultPGA.initialize();
+			ArbDiscrGeoDataSet dDefaultPGAData = new ArbDiscrGeoDataSet(false);
 			for (int i=0; i<dPGA.size(); i++) {
 				Location loc = dPGA.getLocation(i);
 				Preconditions.checkState(loc.equals(cPGA.getLocation(i)));
-				dDefaultPGA.write(i, loc, Math.max(dPGA.get(i), cPGA.get(i)));
+				double val = Math.max(dPGA.get(i), cPGA.get(i));
+				dDefaultPGA.write(i, loc, val);
+				dDefaultPGAData.set(loc, val);
 			}
 			dDefaultPGA.close();
+			if (plotPeriods != null) {
+				plotPGA(dDefaultPGAData, outputDir, "classD_default", spacing, region, replot);
+			}
 		}
 	}
 	
 	private static void plotSpectrum(double period, Map<Location, ? extends DiscretizedFunc> curveMap,
-			File outputDir, String identifier, double spacing, Region region) throws GMT_MapException, IOException {
+			File outputDir, String identifier, double spacing, Region region, boolean replot)
+					throws GMT_MapException, IOException {
 		ArbDiscrGeoDataSet xyz = new ArbDiscrGeoDataSet(false);
 		for (Location loc : curveMap.keySet()) {
 			double val = curveMap.get(loc).getY(period);
@@ -173,7 +198,7 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 		}
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
 		if (period == 1d) {
-			cpt = cpt.rescale(0d, 1.5d);
+			cpt = cpt.rescale(0d, 2d);
 		} else if (period == 0.1d) {
 			cpt = cpt.rescale(0d, 3d);
 		} else {
@@ -182,20 +207,30 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 		GMT_Map map = new GMT_Map(region, xyz, spacing, cpt);
 		String label = identifier+", MCER, "+(float)period+"s SA";
 		String prefix = identifier+"_"+(float)period;
+		if (!replot && new File(outputDir, prefix+".png").exists()) {
+			System.out.println("Skipping "+label);
+			return;
+		}
 		MCErMapGenerator.applyGMTSettings(map, cpt, label);
 		FaultBasedMapGen.LOCAL_MAPGEN = false;
+		System.out.println("Plotting map: "+label);
 		FaultBasedMapGen.plotMap(outputDir, prefix, false, map);
 	}
 	
-	private static void plotPGA(GeoDataSet xyz, File outputDir, String identifier, double spacing, Region region)
+	private static void plotPGA(GeoDataSet xyz, File outputDir, String identifier, double spacing, Region region, boolean replot)
 			throws GMT_MapException, IOException {
 		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
-		cpt = cpt.rescale(0d, 3d);
+		cpt = cpt.rescale(0d, 1.5d);
 		GMT_Map map = new GMT_Map(region, xyz, spacing, cpt);
 		String label = identifier+", PGA G";
 		String prefix = identifier+"_pga";
+		if (!replot && new File(outputDir, prefix+".png").exists()) {
+			System.out.println("Skipping "+label);
+			return;
+		}
 		MCErMapGenerator.applyGMTSettings(map, cpt, label);
 		FaultBasedMapGen.LOCAL_MAPGEN = false;
+		System.out.println("Plotting map: "+label);
 		FaultBasedMapGen.plotMap(outputDir, prefix, false, map);
 	}
 

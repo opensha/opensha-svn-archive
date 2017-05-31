@@ -40,7 +40,7 @@ public class BinaryRandomAccessHazardCurveWriter extends BinaryRandomAccessFile 
 	}
 
 	@Override
-	protected byte[] getHeader() {
+	protected synchronized byte[] getHeader() {
 		byte[] header = new byte[getHeaderLen()];
 		int pos = 0;
 		BufferWrapper<IntBuffer> buff = getIntBuffer(1);
@@ -57,7 +57,7 @@ public class BinaryRandomAccessHazardCurveWriter extends BinaryRandomAccessFile 
 	}
 
 	@Override
-	protected byte[] getBlankRecord() {
+	protected synchronized byte[] getBlankRecord() {
 		byte[] record = new byte[getRecordLen()];
 		int pos = 0;
 		BufferWrapper<DoubleBuffer> singleDoubleBuff = getDoubleBuffer(1);
@@ -78,7 +78,7 @@ public class BinaryRandomAccessHazardCurveWriter extends BinaryRandomAccessFile 
 		recordBuff.getBuffer().put(loc.getLongitude());
 		for (int i=0; i<numXVals; i++)
 			recordBuff.getBuffer().put(curve.getY(i));
-		writeRecord(index, recordBuff.getBytes());
+		writeRecord(index, cloneBytes(recordBuff.getBytes()));
 	}
 	
 	public synchronized boolean isCurveCalculated(int index, Location loc) throws IOException {

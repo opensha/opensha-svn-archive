@@ -65,11 +65,12 @@ public class BinaryXYZRandomAccessFile extends BinaryRandomAccessFile {
 		writeRecord(index, cloneBytes(threeDoubleBuffer.getBytes()));
 	}
 	
-	public boolean isCalculated(int index) throws IOException {
+	public synchronized boolean isCalculated(int index) throws IOException {
 		byte[] record = readRecord(index);
 		for (int i=0; i<record.length; i++)
 			threeDoubleBuffer.getBytes()[i] = record[i];
-		double x = threeDoubleBuffer.getBuffer().get(0);
+		threeDoubleBuffer.getBuffer().position(0);
+		double x = threeDoubleBuffer.getBuffer().get();
 		double y = threeDoubleBuffer.getBuffer().get();
 		double z = threeDoubleBuffer.getBuffer().get();
 		return isPlaceholder(x) || isPlaceholder(y) || isPlaceholder(z);
