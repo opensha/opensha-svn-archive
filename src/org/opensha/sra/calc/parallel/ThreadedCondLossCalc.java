@@ -1,10 +1,8 @@
 package org.opensha.sra.calc.parallel;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.List;
 
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
@@ -13,28 +11,19 @@ import org.opensha.commons.param.Parameter;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
 import org.opensha.sra.calc.parallel.MPJ_CondLossCalc.SiteResult;
-import org.opensha.sra.gui.portfolioeal.Asset;
-import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class ThreadedCondLossCalc {
 	
-	protected List<Asset> assets;
 	protected ERF[] erfs;
 	protected ScalarIMR[] imrs;
 	protected Site[] sites;
 	
-	private CalculationExceptionHandler handler;
-	
 	protected Deque<SiteResult> stack;
 	private ArbitrarilyDiscretizedFunc magThreshFunc;
 	
-	public ThreadedCondLossCalc(List<Asset> assets, ERF[] erfs, ScalarIMR[] imrs,
-			CalculationExceptionHandler handler, ArbitrarilyDiscretizedFunc magThreshFunc) {
-		Preconditions.checkNotNull(assets);
-		Preconditions.checkArgument(!assets.isEmpty());
+	public ThreadedCondLossCalc(ERF[] erfs, ScalarIMR[] imrs, ArbitrarilyDiscretizedFunc magThreshFunc) {
 		Preconditions.checkNotNull(erfs);
 		Preconditions.checkNotNull(imrs);
 		Preconditions.checkArgument(imrs.length > 0);
@@ -47,10 +36,8 @@ public class ThreadedCondLossCalc {
 		if (erfs.length > 1)
 			Preconditions.checkState(erfs.length == imrs.length);
 		
-		this.assets = assets;
 		this.erfs = erfs;
 		this.imrs = imrs;
-		this.handler = handler;
 		this.magThreshFunc = magThreshFunc;
 		
 		sites = new Site[imrs.length];
@@ -64,16 +51,6 @@ public class ThreadedCondLossCalc {
 		}
 	}
 	
-	public List<SiteResult> calculateBatch(int[] batch) throws InterruptedException {
-		ArrayDeque<SiteResult> deque = new ArrayDeque<SiteResult>();
-		for (int index : batch)
-			deque.add(new SiteResult(index, assets.get(index), handler));
-		List<SiteResult> results = Lists.newArrayList(deque);
-		calculateBatch(deque);
-		
-		return results;
-	}
-	
 	public synchronized SiteResult popAsset() {
 		try {
 			return stack.pop();
@@ -82,7 +59,7 @@ public class ThreadedCondLossCalc {
 		}
 	}
 	
-	private void calculateBatch(Deque<SiteResult> stack) throws InterruptedException {
+	public void calculateBatch(Deque<SiteResult> stack) throws InterruptedException {
 		this.stack = stack;
 		int numThreads = imrs.length;
 		
@@ -131,10 +108,6 @@ public class ThreadedCondLossCalc {
 				result = popAsset();
 			}
 		}
-	}
-
-	public List<Asset> getAssets() {
-		return assets;
 	}
 
 	public ERF[] getERFs() {

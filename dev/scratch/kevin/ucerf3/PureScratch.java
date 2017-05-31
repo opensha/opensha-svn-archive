@@ -70,6 +70,8 @@ import org.opensha.sha.earthquake.calc.ERF_Calculator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.parsers.UCERF3_CatalogParser;
+import org.opensha.sha.earthquake.param.BackgroundRupParam;
+import org.opensha.sha.earthquake.param.BackgroundRupType;
 import org.opensha.sha.earthquake.param.HistoricOpenIntervalParam;
 import org.opensha.sha.earthquake.param.ProbabilityModelOptions;
 import org.opensha.sha.earthquake.param.ProbabilityModelParam;
@@ -972,6 +974,17 @@ public class PureScratch {
 		for (FaultSectionPrefData sect : rupSet.getFaultSectionDataForRupture(index))
 			System.out.println(sect.getSectionId()+": "+sect.getSectionName());
 	}
+	
+	private static void test35() throws IOException, DocumentException {
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));
+
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.CROSSHAIR);
+		erf.updateForecast();
+		System.out.println("Total Num Ruptures: "+erf.getTotNumRups());
+	}
 
 	/**
 	 * @param args
@@ -1009,7 +1022,8 @@ public class PureScratch {
 //		test31();
 //		test32();
 //		test33();
-		test34();
+//		test34();
+		test35();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

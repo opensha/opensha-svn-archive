@@ -9,8 +9,10 @@ import org.opensha.commons.data.TimeSpan;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
 import org.opensha.sha.calc.hazardMap.HazardCurveSetCalculator;
+import org.opensha.sha.calc.hazardMap.HazardDataSetLoader;
 import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.util.component.ComponentTranslation;
@@ -81,6 +83,17 @@ public class GMPE_MCErProbabilisticCalc extends CurveBasedMCErProbabilisitCalc {
 		}
 		
 		return curves;
+	}
+	
+	public double calcPGA_G(Site site) {
+		gmpe.setIntensityMeasure(PGA_Param.NAME);
+		
+		DiscretizedFunc hazFunction = HazardCurveSetCalculator.getLogFunction(xVals);
+		curveCalc.getHazardCurve(hazFunction, site, gmpe, erf);
+		hazFunction = HazardCurveSetCalculator.unLogFunction(xVals, hazFunction);
+		
+		// get 2 % in 50 year value
+		return HazardDataSetLoader.getCurveVal(hazFunction, false, 0.0004);
 	}
 
 }

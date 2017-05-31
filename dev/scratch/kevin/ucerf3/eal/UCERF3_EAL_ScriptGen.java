@@ -2,6 +2,7 @@ package scratch.kevin.ucerf3.eal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -16,6 +17,8 @@ import org.opensha.sha.earthquake.param.IncludeBackgroundOption;
 import org.opensha.sha.earthquake.param.IncludeBackgroundParam;
 import org.opensha.sha.imr.AttenRelRef;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_WrapperFullParam;
+import org.opensha.sha.imr.attenRelImpl.ngaw2.NGAW2_WrapperFullParam.EpistemicOption;
 import org.opensha.sra.calc.parallel.MPJ_CondLossCalc;
 
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
@@ -39,28 +42,40 @@ public class UCERF3_EAL_ScriptGen {
 //		String runSubDirName = "2016_10_06-ucerf3-90percent-wald-san-bernardino";
 //		String runSubDirName = "2016_10_21-ucerf3-90percent-wald-coachella-valley";
 //		String runSubDirName = "2016_11_28-ucerf3-90percent-wills-san-bernardino";
-		String runSubDirName = "2016_11_28-ucerf3-90percent-wills-coachella-valley";
+//		String runSubDirName = "2016_11_28-ucerf3-90percent-wills-coachella-valley";
+//		String runSubDirName = "2017_05_22-stampede-2-test";
+		String runSubDirName = "2017_05_24-ucerf3-ngaw2-cea-proxy-wills2015";
+//		String runSubDirName = "2017_05_26-ucerf3-ngaw2-cea-proxy-wald";
+		
+		EpistemicOption ngaEpistemic = EpistemicOption.UPPER;
 		
 		writeDir = new File(writeDir, runSubDirName);
 		if (!writeDir.exists())
 			writeDir.mkdir();
 		
-		BatchScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
-		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/eal");
-		File remoteSubDir = new File(remoteMainDir, runSubDirName);
-		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
-		File mpjHome = USC_HPCC_ScriptWriter.FMPJ_HOME;
-		int maxHeapMB = 12000;
-		int bundleSize = 10;
-		
-//		BatchScriptWriter pbsWrite = new StampedeScriptWriter();
-//		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/eal");
+//		BatchScriptWriter pbsWrite = new USC_HPCC_ScriptWriter();
+//		File remoteMainDir = new File("/auto/scec-02/kmilner/ucerf3/eal");
 //		File remoteSubDir = new File(remoteMainDir, runSubDirName);
-//		File javaBin = StampedeScriptWriter.JAVA_BIN;
-//		File mpjHome = StampedeScriptWriter.FMPJ_HOME;
+//		File javaBin = USC_HPCC_ScriptWriter.JAVA_BIN;
+//		File mpjHome = USC_HPCC_ScriptWriter.FMPJ_HOME;
+//		int maxHeapMB = 12000;
+//		int numThreads = -1;
+//		int bundleSize = 10;
+		
+		BatchScriptWriter pbsWrite = new StampedeScriptWriter(true);
+//		File remoteMainDir = new File("/work/00950/kevinm/ucerf3/eal");
+		File remoteMainDir = new File("/scratch/00950/kevinm/ucerf3/eal");
+		File remoteSubDir = new File(remoteMainDir, runSubDirName);
+		File javaBin = StampedeScriptWriter.JAVA_BIN;
+		File mpjHome = StampedeScriptWriter.FMPJ_HOME;
 //		int maxHeapMB = 26000;
-//		int numThreads = -1
-//		int bundleSize = -1;
+//		int numThreads = -1;
+		int maxHeapMB = 78*1024;
+		int numThreads = 68*4;
+		int maxDispatch = numThreads*5;
+		
+		boolean gzip = false;
+		boolean tractResults = true;
 		
 		String meanSolFileName = "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL_WITH_MAPPING.zip";
 		File meanSolFile = new File(remoteMainDir, meanSolFileName);
@@ -81,20 +96,26 @@ public class UCERF3_EAL_ScriptGen {
 //		String portfolioFileName = "san_bernardino_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, san bernardino city
 //		String portfolioFileName = "coachella_valley_Porter-02-Jun-16-CA-ppty-90pct-Wald.txt"; // 90% Wald, Coachella Valley (20km circle, Rancho Mirage)
 //		String portfolioFileName = "san_bernardino_Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // 90% Wills, san bernardino city
-		String portfolioFileName = "coachella_valley_Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // 90% Wills, Coachella Valley (20km circle, Rancho Mirage)
+//		String portfolioFileName = "coachella_valley_Porter-22-May-14-CA-ppty-90pct-Wills.txt"; // 90% Wills, Coachella Valley (20km circle, Rancho Mirage)
+		// 2017 CEA proxy
+//		String portfolioFileName = "Porter-24May2017-CA-RES1-2017-Wills2015.csv"; // Wills 2015
+		String portfolioFileName = "Porter-24May2017-CA-RES1-2017-Wald.csv"; // Wald
 		File portfolioFile = new File(remoteMainDir, portfolioFileName);
 		
 		FastMPJShellScriptWriter javaWrite = new FastMPJShellScriptWriter(javaBin, maxHeapMB,
 				LogicTreePBSWriter.getClasspath(remoteMainDir, remoteSubDir), mpjHome);
 		javaWrite.setUseLaunchWrapper(true);
+		javaWrite.setInitialHeapSizeMB(maxHeapMB);
 		
 //		JavaShellScriptWriter javaWrite = new JavaShellScriptWriter(javaBin, maxHeapMB,
 //				LogicTreePBSWriter.getClasspath(remoteDir, remoteDir));
 		
-		int mins = 24*60;
+		int mins = 12*60;
 //		int nodes = 80;
 		int nodes = 20;
 		int ppn = 8;
+		if (numThreads > 0)
+			ppn = numThreads;
 		String queue = null;
 		
 		String className = MPJ_CondLossCalc.class.getName();
@@ -113,6 +134,8 @@ public class UCERF3_EAL_ScriptGen {
 		
 		for (AttenRelRef ref : imrs) {
 			String name = ref.name();
+			if (ngaEpistemic != null)
+				name += "_"+ngaEpistemic.name();
 			File localXML = new File(writeDir, name+".xml");
 			File remoteXML = new File(remoteSubDir, name+".xml");
 			
@@ -120,17 +143,29 @@ public class UCERF3_EAL_ScriptGen {
 			Element root = doc.getRootElement();
 			erf.toXMLMetadata(root);
 			ScalarIMR imr = ref.instance(null);
+			imr.setParamDefaults();
+			if (ngaEpistemic != null)
+				imr.getParameter(NGAW2_WrapperFullParam.EPISTEMIC_PARAM_NAME).setValue(ngaEpistemic);
 			imr.toXMLMetadata(root);
 			
 			XMLUtils.writeDocumentToFile(localXML, doc);
 			
 			File remoteOutput = new File(remoteSubDir, name+".bin");
 			
-			String bundleArg = "";
-			if (bundleSize > 0)
-				bundleArg = "--max-dispatch "+bundleSize+" ";
+			String jobArgs = "";
+			if (maxDispatch > 0) {
+				if (maxDispatch >= numThreads && numThreads > 0)
+					jobArgs += "--min-dispatch "+numThreads+" ";
+				jobArgs += "--max-dispatch "+maxDispatch+" ";
+			}
+			if (numThreads > 0)
+				jobArgs += "--threads "+numThreads+" ";
+			if (gzip)
+				jobArgs += "--gzip ";
+			if (tractResults)
+				jobArgs += "--tract-results ";
 			
-			String jobArgs = bundleArg+"--vuln-file \""+vulnFile.getAbsolutePath()+"\" \""+portfolioFile.getAbsolutePath()+"\" "
+			jobArgs += "--vuln-file \""+vulnFile.getAbsolutePath()+"\" \""+portfolioFile.getAbsolutePath()+"\" "
 					+remoteXML.getAbsolutePath()+" "+remoteOutput.getAbsolutePath();
 			
 			File jobFile = new File(writeDir, name+".pbs");

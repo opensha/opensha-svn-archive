@@ -589,7 +589,7 @@ implements IntensityMeasureRelationship {
 //						System.out.println("Parameter set successfully!");
 					} else {
 						System.err.println("Parameter "+param.getName()+" could not be set from XML!");
-						System.err.println("It is possible that the parameter type doesn't yet support loading from XML");
+//						System.err.println("It is possible that the parameter type doesn't yet support loading from XML");
 					}
 				}
 			}

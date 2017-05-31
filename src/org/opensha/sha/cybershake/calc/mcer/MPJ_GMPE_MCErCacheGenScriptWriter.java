@@ -15,13 +15,11 @@ import org.opensha.commons.data.siteData.OrderedSiteDataProviderList;
 import org.opensha.commons.data.siteData.SiteDataValue;
 import org.opensha.commons.data.siteData.SiteDataValueList;
 import org.opensha.commons.geo.GriddedRegion;
-import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.LocationList;
 import org.opensha.commons.hpc.JavaShellScriptWriter;
 import org.opensha.commons.hpc.mpj.FastMPJShellScriptWriter;
 import org.opensha.commons.hpc.mpj.MPJExpressShellScriptWriter;
 import org.opensha.commons.hpc.pbs.BatchScriptWriter;
-import org.opensha.commons.hpc.pbs.StampedeScriptWriter;
 import org.opensha.commons.hpc.pbs.USC_HPCC_ScriptWriter;
 import org.opensha.commons.param.Parameter;
 import org.opensha.commons.param.ParameterList;
@@ -34,7 +32,6 @@ import org.opensha.sha.util.SiteTranslator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class MPJ_GMPE_MCErCacheGenScriptWriter {
 	

@@ -22,6 +22,7 @@ import org.opensha.sha.simulators.SimulatorEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class MFDPlot extends AbstractPlot {
 	
@@ -240,7 +241,11 @@ public class MFDPlot extends AbstractPlot {
 			minY = Math.min(minY, minNonZero(func));
 			maxY = Math.max(maxY, func.getMaxY());
 		}
-		Range yRange = calcEncompassingLog10Range(minY, maxY);
+		Range yRange;
+		if (!Doubles.isFinite(minY))
+			yRange = new Range(1d, 10d);
+		else
+			yRange = calcEncompassingLog10Range(minY, maxY);
 		
 		HeadlessGraphPanel gp = getGraphPanel();
 		gp.drawGraphPanel(plot, false, true, xRange, yRange);

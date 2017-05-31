@@ -23,10 +23,13 @@ import org.dom4j.Element;
 import org.opensha.commons.data.Site;
 import org.opensha.commons.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.commons.data.function.DiscretizedFunc;
+import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
 import org.opensha.commons.param.ParameterList;
 import org.opensha.commons.util.ExceptionUtils;
 import org.opensha.commons.util.XMLUtils;
+import org.opensha.commons.util.binFile.BinaryDoubleScalarRandomAccessFile;
+import org.opensha.commons.util.binFile.BinaryGeoDatasetRandomAccessFile;
 import org.opensha.commons.util.threads.Task;
 import org.opensha.commons.util.threads.ThreadedTaskComputer;
 import org.opensha.sha.calc.hazardMap.components.BinaryCurveArchiver;
@@ -72,6 +75,7 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 	private static final boolean duplicateERF = false;
 	
 	private BinaryCurveArchiver archiver;
+	private Map<String, BinaryGeoDatasetRandomAccessFile> pgaFiles;
 	
 	public MPJ_GMPE_MCErCacheGen(CommandLine cmd) throws InvocationTargetException, MalformedURLException, DocumentException {
 		super(cmd);
@@ -164,11 +168,12 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 			periodsFunc.set(period, 0d);
 		
 		Map<String, DiscretizedFunc> xValsMap = Maps.newHashMap();
+		pgaFiles = Maps.newHashMap();
 		
 		for (int t=0; t<numThreads; t++) {
 			List<AttenuationRelationship> attenRels = attenRelsList.get(t);
-			AbstractMCErDeterministicCalc[] detCalcs = new AbstractMCErDeterministicCalc[attenRels.size()];
-			AbstractMCErProbabilisticCalc[] probCalcs = new AbstractMCErProbabilisticCalc[attenRels.size()];
+			GMPE_MCErDeterministicCalc[] detCalcs = new GMPE_MCErDeterministicCalc[attenRels.size()];
+			GMPE_MCErProbabilisticCalc[] probCalcs = new GMPE_MCErProbabilisticCalc[attenRels.size()];
 			for (int i=0; i<attenRels.size(); i++) {
 				cachePrefixes[i] = CyberShakeMCErMapGenerator.getCachePrefix(
 						-1, erfs[t], gmpeComp, Lists.newArrayList(attenRels.get(i)));
@@ -179,14 +184,31 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 					xValsMap.put(cachePrefixes[i]+"_det", periodsFunc);
 					xValsMap.put(cachePrefixes[i]+"_prob", periodsFunc);
 					xValsMap.put(cachePrefixes[i]+"_mcer", periodsFunc);
+					
+					pgaFiles.put(cachePrefixes[i]+"_pga_det",
+							new BinaryGeoDatasetRandomAccessFile(new File(outputDir, cachePrefixes[i]+"_pga_det.bin"),
+									BinaryCurveArchiver.byteOrder, sites.size()));
+					pgaFiles.put(cachePrefixes[i]+"_pga_prob",
+							new BinaryGeoDatasetRandomAccessFile(new File(outputDir, cachePrefixes[i]+"_pga_prob.bin"),
+									BinaryCurveArchiver.byteOrder, sites.size()));
+					pgaFiles.put(cachePrefixes[i]+"_pga",
+							new BinaryGeoDatasetRandomAccessFile(new File(outputDir, cachePrefixes[i]+"_pga.bin"),
+									BinaryCurveArchiver.byteOrder, sites.size()));
 				}
 			}
 			calcs[t] = new CalcRunnable(detCalcs, probCalcs);
 		}
 		
 		archiver = new BinaryCurveArchiver(outputDir, sites.size(), xValsMap);
-		if (rank == 0)
+		if (rank == 0) {
 			archiver.initialize();
+			try {
+				for (BinaryGeoDatasetRandomAccessFile pgaFile : pgaFiles.values())
+					pgaFile.initialize();
+			} catch (IOException e) {
+				ExceptionUtils.throwAsRuntimeException(e);
+			}
+		}
 		
 		calcTasks = Lists.newArrayList();
 		for (int i=0; i<sites.size(); i++) {
@@ -227,12 +249,12 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 	
 	private class CalcRunnable implements Runnable {
 		
-		private AbstractMCErDeterministicCalc[] detCalcs;
-		private AbstractMCErProbabilisticCalc[] probCalcs;
+		private GMPE_MCErDeterministicCalc[] detCalcs;
+		private GMPE_MCErProbabilisticCalc[] probCalcs;
 		
 		private Deque<CalcTask> tasks;
 		
-		public CalcRunnable(AbstractMCErDeterministicCalc[] detCalcs, AbstractMCErProbabilisticCalc[] probCalcs) {
+		public CalcRunnable(GMPE_MCErDeterministicCalc[] detCalcs, GMPE_MCErProbabilisticCalc[] probCalcs) {
 			this.detCalcs = detCalcs;
 			this.probCalcs = probCalcs;
 		}
@@ -290,35 +312,61 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 			this.site = site;
 		}
 		
-		public void compute(AbstractMCErDeterministicCalc[] detCalcs, AbstractMCErProbabilisticCalc[] probCalcs) {
+		public void compute(GMPE_MCErDeterministicCalc[] detCalcs, GMPE_MCErProbabilisticCalc[] probCalcs) {
 			String name = siteIndex+", prefix '"+cachePrefix+"'";
+			
+			// MCER
 			CurveMetadata mcerMetadata = new CurveMetadata(site, siteIndex, null, cachePrefix+"_mcer");
 			if (archiver.isCurveCalculated(mcerMetadata, periodsFunc)) {
-				debug("Site "+name+" already done!");
-				return;
+				debug("Site "+name+" MCEr dalready done!");
+			} else {
+				debug("Calculating MCEr deterministic, site "+name);
+				DiscretizedFunc det = AbstractMCErDeterministicCalc.toSpectrumFunc(detCalcs[gmpeIndex].calc(site, periods));
+				debug("Calculating MCEr probabilistic, site "+name);
+				DiscretizedFunc prob = probCalcs[gmpeIndex].calc(site, periods);
+				DiscretizedFunc asceDeterm = null;
+				try {
+					asceDeterm = ASCEDetLowerLimitCalc.calc(
+							periodsFunc, site.getParameter(Double.class, Vs30_Param.NAME).getValue(), site.getLocation());
+				} catch (Exception e1) {
+					System.out.println("WARNING: couldn't fetch Deterministic Lower Limit for site at "+site.getLocation());
+				}
+				DiscretizedFunc mcer = MCERDataProductsCalc.calcMCER(det, prob, asceDeterm);
+				
+				debug("Archiving MCEr site "+name);
+				try {
+					archiver.archiveCurve(det, new CurveMetadata(site, siteIndex, null, cachePrefix+"_det"));
+					archiver.archiveCurve(prob, new CurveMetadata(site, siteIndex, null, cachePrefix+"_prob"));
+					archiver.archiveCurve(mcer, mcerMetadata);
+				} catch (IOException e) {
+					ExceptionUtils.throwAsRuntimeException(e);
+				}
+				debug("DONE MCEr site "+name);
 			}
-			debug("Calculating deterministic, site "+name);
-			DiscretizedFunc det = AbstractMCErDeterministicCalc.toSpectrumFunc(detCalcs[gmpeIndex].calc(site, periods));
-			debug("Calculating probabilistic, site "+name);
-			DiscretizedFunc prob = probCalcs[gmpeIndex].calc(site, periods);
-			DiscretizedFunc asceDeterm = null;
-			try {
-				asceDeterm = ASCEDetLowerLimitCalc.calc(
-						periodsFunc, site.getParameter(Double.class, Vs30_Param.NAME).getValue(), site.getLocation());
-			} catch (Exception e1) {
-				System.out.println("WARNING: couldn't fetch Deterministic Lower Limit for site at "+site.getLocation());
-			}
-			DiscretizedFunc mcer = MCERDataProductsCalc.calcMCER(det, prob, asceDeterm);
 			
-			debug("Archiving site "+name);
+			// PGA
 			try {
-				archiver.archiveCurve(det, new CurveMetadata(site, siteIndex, null, cachePrefix+"_det"));
-				archiver.archiveCurve(prob, new CurveMetadata(site, siteIndex, null, cachePrefix+"_prob"));
-				archiver.archiveCurve(mcer, mcerMetadata);
+				if (pgaFiles.get(cachePrefix+"_pga").isCalculated(siteIndex)) {
+					debug("Site "+name+" PGA G dalready done!");
+				} else {
+					debug("Calculating PGA deterministic, site "+name);
+					double det = detCalcs[gmpeIndex].calcPGA_G(site).getVal();
+					debug("Calculating PGA probabilistic, site "+name);
+					double prob = probCalcs[gmpeIndex].calcPGA_G(site);
+					double vs30 = site.getParameter(Double.class, Vs30_Param.NAME).getValue();
+					double detLower = ASCEDetLowerLimitCalc.calcPGA_G(vs30);
+					double pga = MCErCalcUtils.calcMCER(det, prob, detLower);
+					
+					debug("Archiving PGA site "+name);
+					Location loc = site.getLocation();
+					pgaFiles.get(cachePrefix+"_pga_det").write(siteIndex, loc, det);
+					pgaFiles.get(cachePrefix+"_pga_prob").write(siteIndex, loc, prob);
+					pgaFiles.get(cachePrefix+"_pga").write(siteIndex, loc, pga);
+					debug("DONE PGA site "+name);
+				}
 			} catch (IOException e) {
 				ExceptionUtils.throwAsRuntimeException(e);
 			}
-			debug("DONE site "+name);
 		}
 	}
 
@@ -357,6 +405,9 @@ public class MPJ_GMPE_MCErCacheGen extends MPJTaskCalculator {
 	@Override
 	protected void doFinalAssembly() throws Exception {
 		// do nothing
+		archiver.close();
+		for (BinaryGeoDatasetRandomAccessFile pgaFile : pgaFiles.values())
+			pgaFile.close();
 	}
 	
 	public static Options createOptions() {

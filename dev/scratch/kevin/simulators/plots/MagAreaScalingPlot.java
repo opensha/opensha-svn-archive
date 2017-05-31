@@ -29,6 +29,7 @@ import org.opensha.sha.simulators.SimulatorElement;
 import org.opensha.sha.simulators.SimulatorEvent;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 public class MagAreaScalingPlot extends AbstractPlot {
 	
@@ -43,6 +44,8 @@ public class MagAreaScalingPlot extends AbstractPlot {
 	@Override
 	protected void doProcessEvent(SimulatorEvent e) {
 		double mag = e.getMagnitude();
+		if (!Doubles.isFinite(mag))
+			return;
 		double area = e.getArea(); // m^2
 		area /= 1e6;
 		
@@ -69,6 +72,8 @@ public class MagAreaScalingPlot extends AbstractPlot {
 		funcs.add(plotScatter);
 		plotScatter.setName(getCatalogName());
 		chars.add(new PlotCurveCharacterstics(PlotSymbol.CROSS, 3f, Color.BLACK));
+		
+		System.out.println("Scatter mag range: "+scatter.getMinY()+" "+scatter.getMaxY());
 		
 		WC1994_MagAreaRelationship wc = new WC1994_MagAreaRelationship();
 		EvenlyDiscretizedFunc wcFunc = new EvenlyDiscretizedFunc(scatter.getMinX(), scatter.getMaxX(), 1000);
@@ -140,7 +145,28 @@ public class MagAreaScalingPlot extends AbstractPlot {
 		}
 		xyz.log10();
 		
-		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance().rescale(xyz.getMinZ(), xyz.getMaxZ());
+		double minZ = Double.POSITIVE_INFINITY;
+		double maxZ = Double.NEGATIVE_INFINITY;
+		for (int i=0; i<xyz.size(); i++) {
+			double val = xyz.get(i);
+			if (!Doubles.isFinite(val))
+				continue;
+			if (val < minZ)
+				minZ = val;
+			if (val > maxZ)
+				maxZ = val;
+		}
+		
+		System.out.println("MinZ: "+minZ);
+		System.out.println("MaxZ: "+maxZ);
+		
+		CPT cpt = GMT_CPT_Files.MAX_SPECTRUM.instance();
+		if ((float)minZ == (float)maxZ)
+			cpt = cpt.rescale(minZ, minZ*2);
+		else if (!Doubles.isFinite(minZ))
+			cpt = cpt.rescale(0d, 1d);
+		else
+			cpt = cpt.rescale(minZ, maxZ);
 		cpt.setNanColor(Color.WHITE);
 		
 		String zAxisLabel = "Log10(Density)";

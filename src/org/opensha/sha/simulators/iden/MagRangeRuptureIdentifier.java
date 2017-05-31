@@ -4,6 +4,8 @@ import java.util.Set;
 
 import org.opensha.sha.simulators.SimulatorEvent;
 
+import com.google.common.primitives.Doubles;
+
 public class MagRangeRuptureIdentifier extends AbstractRuptureIdentifier {
 	
 	private double minMag, maxMag;
@@ -22,7 +24,7 @@ public class MagRangeRuptureIdentifier extends AbstractRuptureIdentifier {
 	@Override
 	public boolean isMatch(SimulatorEvent event) {
 		double mag = event.getMagnitude();
-		if (mag < minMag || mag >= maxMag)
+		if (mag < minMag || mag >= maxMag || !Doubles.isFinite(mag))
 			return false;
 		if (elementsInRegion == null)
 			return true;

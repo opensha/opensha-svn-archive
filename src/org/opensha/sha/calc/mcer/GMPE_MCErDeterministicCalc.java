@@ -9,6 +9,7 @@ import org.opensha.sha.earthquake.ERF;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.imr.ScalarIMR;
+import org.opensha.sha.imr.param.IntensityMeasureParams.PGA_Param;
 import org.opensha.sha.imr.param.IntensityMeasureParams.SA_Param;
 import org.opensha.sha.imr.param.OtherParams.Component;
 import org.opensha.sha.util.component.ComponentTranslation;
@@ -43,26 +44,7 @@ public class GMPE_MCErDeterministicCalc extends AbstractMCErDeterministicCalc {
 		
 		for (double period : periods) {
 			SA_Param.setPeriodInSA_Param(gmpe.getIntensityMeasure(), period);
-			DeterministicResult maxVal = null;
-			for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
-				ProbEqkSource source = erf.getSource(sourceID);
-				if (source.getMinDistance(site) > cutoffDist)
-					continue;
-				for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
-					ProbEqkRupture rup = source.getRupture(rupID);
-					if (rup.getProbability() == 0d)
-						continue;
-					gmpe.setEqkRupture(rup);
-					double logMean = gmpe.getMean();
-					double stdDev = gmpe.getStdDev();
-					NormalDistribution norm = new NormalDistribution(logMean, stdDev);
-					double val = Math.exp(norm.inverseCumulativeProbability(percentile/100d));
-					if (maxVal == null || val > maxVal.getVal()) {
-						maxVal = new DeterministicResult(
-								sourceID, rupID, rup.getMag(), source.getName(), val);
-					}
-				}
-			}
+			DeterministicResult maxVal = doCalc(site);
 			Preconditions.checkNotNull(maxVal);
 			if (converter != null)
 				maxVal.setVal(converter.getScaledValue(maxVal.getVal(), period));
@@ -71,6 +53,43 @@ public class GMPE_MCErDeterministicCalc extends AbstractMCErDeterministicCalc {
 		}
 		
 		return result;
+	}
+
+	private DeterministicResult doCalc(Site site) {
+		// assumes Site and IMT have been set
+		DeterministicResult maxVal = null;
+		for (int sourceID=0; sourceID<erf.getNumSources(); sourceID++) {
+			ProbEqkSource source = erf.getSource(sourceID);
+			if (source.getMinDistance(site) > cutoffDist)
+				continue;
+			for (int rupID=0; rupID<source.getNumRuptures(); rupID++) {
+				ProbEqkRupture rup = source.getRupture(rupID);
+				if (rup.getProbability() == 0d)
+					continue;
+				gmpe.setEqkRupture(rup);
+				double logMean = gmpe.getMean();
+				double stdDev = gmpe.getStdDev();
+				NormalDistribution norm = new NormalDistribution(logMean, stdDev);
+				double val = Math.exp(norm.inverseCumulativeProbability(percentile/100d));
+				if (maxVal == null || val > maxVal.getVal()) {
+					maxVal = new DeterministicResult(
+							sourceID, rupID, rup.getMag(), source.getName(), val);
+				}
+			}
+		}
+		return maxVal;
+	}
+	
+	public DeterministicResult calcPGA_G(Site site) {
+		gmpe.setSite(site);
+		
+		gmpe.setIntensityMeasure(PGA_Param.NAME);
+		
+		DeterministicResult maxVal = doCalc(site);
+		// do not convert component
+		Preconditions.checkNotNull(maxVal);
+		
+		return maxVal;
 	}
 
 }

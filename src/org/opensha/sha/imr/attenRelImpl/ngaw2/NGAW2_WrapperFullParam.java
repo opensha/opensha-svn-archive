@@ -3,6 +3,7 @@ package org.opensha.sha.imr.attenRelImpl.ngaw2;
 import static java.lang.Math.sin;
 import static org.opensha.commons.geo.GeoTools.TO_RAD;
 
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import org.opensha.commons.param.constraint.impl.DoubleDiscreteConstraint;
 import org.opensha.commons.param.constraint.impl.StringConstraint;
 import org.opensha.commons.param.event.ParameterChangeEvent;
 import org.opensha.commons.param.event.ParameterChangeListener;
+import org.opensha.commons.param.impl.EnumParameter;
 import org.opensha.commons.util.FaultUtils;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.faultSurface.RuptureSurface;
@@ -62,6 +64,26 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 	
 	// params not in parent class
 	private DistanceX_Parameter distanceXParam;
+	
+	public static final String EPISTEMIC_PARAM_NAME = "Additional Epistemic Uncertainty";
+	private EnumParameter<EpistemicOption> epiParam;
+	
+	public enum EpistemicOption {
+		UPPER("Upper", 1d),
+		LOWER("Lower", -1d);
+		
+		private String name;
+		private double sign;
+		private EpistemicOption(String name, double sign) {
+			this.name = name;
+			this.sign = sign;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 	
 	public NGAW2_WrapperFullParam(String shortName, NGAW2_GMM gmpe, boolean supportsPhiTau) {
 		this.shortName = shortName;
@@ -202,9 +224,10 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		
 		gmpe.set_IMT(imt);
 		
-		gmpe.set_Mw(magParam.getValue());
-		
-		gmpe.set_rJB(distanceJBParam.getValue());
+		double mag = magParam.getValue();
+		gmpe.set_Mw(mag);
+		double rJB = distanceJBParam.getValue();
+		gmpe.set_rJB(rJB);
 		gmpe.set_rRup(distanceRupParam.getValue());
 		gmpe.set_rX(distanceXParam.getValue());
 		
@@ -227,6 +250,15 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		gmpe.set_fault(style);
 		
 		gm = gmpe.calc();
+		
+		if (epiParam.getValue() != null) {
+			double sign = epiParam.getValue().sign;
+			double val = getUncertainty(mag, rJB);
+			if (supportsPhiTau)
+				gm = new DefaultGroundMotion(gm.mean()+val*sign, gm.stdDev(), gm.phi(), gm.tau());
+			else
+				gm = new DefaultGroundMotion(gm.mean(), gm.stdDev());
+		}
 		
 		return gm;
 	}
@@ -383,6 +415,12 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		tectonicRegionTypeParam.setConstraint(options);
 	    tectonicRegionTypeParam.setDefaultValue(gmpe.get_TRT().toString());
 	    tectonicRegionTypeParam.setValueAsDefault();
+	    
+		epiParam = new EnumParameter<EpistemicOption>(EPISTEMIC_PARAM_NAME,
+	    		EnumSet.allOf(EpistemicOption.class), null, "(Disabled)");
+	    epiParam.setValue(null);
+	    epiParam.addParameterChangeListener(this);
+	    otherParams.addParameter(epiParam);
 	}
 
 	@Override
@@ -393,7 +431,19 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 	@Override
 	public void setIntensityMeasure(String intensityMeasureName) throws ParameterException {
 		super.setIntensityMeasure(intensityMeasureName);
+		if (epiParam != null) {
+			boolean supports = supportsEpi(intensityMeasureName);
+			if (!supports) {
+				epiParam.setValue(null);
+				epiParam.getEditor().refreshParamEditor();
+			}
+			epiParam.getEditor().setEnabled(supports);
+		}
 		clear();
+	}
+	
+	private boolean supportsEpi(String imt) {
+		return imt.equals(PGA_Param.NAME) || imt.equals(SA_Param.NAME);
 	}
 
 	public NGAW2_GMM getGMM() {
@@ -443,6 +493,21 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		imlAtExceedProbIndependentParams.addParameterList(
 				exceedProbIndependentParams);
 		imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
+	}
+	
+	private static final double[][] EPI_VAL = {
+			{0.375, 0.250, 0.400},
+			{0.220, 0.230, 0.360},
+			{0.220, 0.230, 0.330}};
+
+	/*
+	 * Returns the epistemic uncertainty for the supplied magnitude (M) and
+	 * distance (D) that
+	 */
+	private static double getUncertainty(double M, double D) {
+		int mi = (M<6) ? 0 : (M<7) ? 1 : 2;
+		int di = (D<10) ? 0 : (D<30) ? 1 : 2;
+		return EPI_VAL[di][mi];
 	}
 
 }

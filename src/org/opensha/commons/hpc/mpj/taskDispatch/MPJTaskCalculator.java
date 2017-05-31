@@ -49,6 +49,8 @@ public abstract class MPJTaskCalculator {
 	
 	private String hostname;
 	
+	protected PostBatchHook postBatchHook;
+	
 	public MPJTaskCalculator(CommandLine cmd) {
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		int minDispatch = MIN_DISPATCH_DEFAULT;
@@ -156,7 +158,7 @@ public abstract class MPJTaskCalculator {
 			if (endIndex < 0)
 				endIndex = getNumTasks();
 			dispatcher = new DispatcherThread(size, getNumTasks(),
-					minDispatch, maxDispatch, exactDispatch, shuffle, startIndex, endIndex);
+					minDispatch, maxDispatch, exactDispatch, shuffle, startIndex, endIndex, postBatchHook);
 			if (rootDispatchOnly) {
 				debug("starting dispatcher serially");
 				dispatcher.run();
@@ -198,7 +200,7 @@ public abstract class MPJTaskCalculator {
 				MPI.COMM_WORLD.Recv(batch, 0, batch.length, MPI.INT, 0, TAG_NEW_BATCH);
 			} else {
 				debug("getting next batch directly");
-				batch = dispatcher.getNextBatch();
+				batch = dispatcher.getNextBatch(rank);
 				
 				if (batch == null || batch.length == 0) {
 					debug("DONE!");

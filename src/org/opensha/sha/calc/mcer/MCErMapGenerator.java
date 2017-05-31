@@ -549,7 +549,7 @@ public class MCErMapGenerator {
 		FaultBasedMapGen.plotMap(outputDir, prefix+"_contours_only", false, map);
 	}
 	
-	private static void applyGMTSettings(GMT_Map map, CPT cpt, String label) {
+	public static void applyGMTSettings(GMT_Map map, CPT cpt, String label) {
 		map.setInterpSettings(interpSettings);
 		map.setLogPlot(false); // already did manually
 		map.setMaskIfNotRectangular(true);

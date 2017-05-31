@@ -9,12 +9,19 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-
-import mpi.MPI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -29,9 +36,9 @@ import org.opensha.commons.data.function.LightFixedXFunc;
 import org.opensha.commons.geo.GriddedRegion;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.hpc.mpj.taskDispatch.MPJTaskCalculator;
+import org.opensha.commons.hpc.mpj.taskDispatch.PostBatchHook;
 import org.opensha.commons.util.ClassUtils;
 import org.opensha.commons.util.XMLUtils;
-import org.opensha.sha.calc.params.MagDistCutoffParam;
 import org.opensha.sha.earthquake.AbstractERF;
 import org.opensha.sha.earthquake.AbstractEpistemicListERF;
 import org.opensha.sha.earthquake.ERF;
@@ -48,12 +55,15 @@ import org.opensha.sra.gui.portfolioeal.CalculationExceptionHandler;
 import org.opensha.sra.gui.portfolioeal.Portfolio;
 import org.opensha.sra.gui.portfolioeal.PortfolioEALCalculatorController;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+
+import mpi.MPI;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 
-import com.google.common.base.Preconditions;
-
-public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationExceptionHandler {
+public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationExceptionHandler, PostBatchHook {
 	
 	public static final String BATCH_ELEMENT_NAME = "BatchCalculation";
 	
@@ -61,12 +71,22 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 //	protected double maxSourceDistance = 200; // TODO set
 	
 	private double[][] my_results;
+	private int numRups;
+	
+	private boolean keepTractResults = false;
+	private File tractMainDir;
+	private File tractNodeDir;
+	private Deque<TractWriteable> tractWriteQueue;
+//	private List<String> tractsSorted;
+//	private Map<String, double[][]> tractResults;
 	
 	private ThreadedCondLossCalc calc;
 	
 	private File outputFile;
 	
 	private ERF refERF;
+	
+	private boolean gzip = false;
 	
 	private static final boolean FILE_DEBUG = false;
 	
@@ -86,11 +106,17 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		
 		int numThreads = getNumThreads();
 		
+		if (rank == 0) {
+			debug("num threads: "+numThreads);
+		}
+		
 		int numERFs;
 		if (cmd.hasOption("mult-erfs"))
 			numERFs = numThreads; // could set to 1 for single instance
 		else
 			numERFs = 1;
+		
+		gzip = cmd.hasOption("gzip");
 		
 		debug("updating ERFs");
 		ERF[] erfs = new ERF[numERFs];
@@ -103,8 +129,10 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		refERF = erfs[0];
 		
 		my_results = new double[refERF.getNumSources()][];
-		for (int sourceID=0; sourceID<refERF.getNumSources(); sourceID++)
+		for (int sourceID=0; sourceID<refERF.getNumSources(); sourceID++) {
 			my_results[sourceID] = new double[refERF.getNumRuptures(sourceID)];
+			numRups += my_results[sourceID].length;
+		}
 		
 //		ERF erf = loadERF(el);
 //		erf.updateForecast();
@@ -114,7 +142,6 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 			imrs[i] = (ScalarIMR)AbstractIMR.fromXMLMetadata(el.element(AbstractIMR.XML_METADATA_NAME), null);
 		}
 		
-		// TODO mag thresh func
 //		OpenSHA default
 //		0, 5.25,  5.75, 6.25,  6.75, 7.25,  9
 //		0, 25,    40,   60,    80,   100,   500
@@ -130,7 +157,45 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		magThreshFunc.set(200d,	7.25);
 		magThreshFunc.set(500d,	9.00);
 		
-		calc = new ThreadedCondLossCalc(assets, erfs, imrs, this, magThreshFunc);
+		keepTractResults = cmd.hasOption("tract-results");
+		if (keepTractResults) {
+			shuffle = false; // will keep individual assets on fewer nodes
+			if (rank == 0 && numThreads > 60)
+				numThreads -= 2;
+			this.postBatchHook = this;
+			String prefix = this.outputFile.getName();
+			if (prefix.toLowerCase().endsWith(".bin"))
+				prefix = prefix.substring(0, prefix.lastIndexOf("."));
+			tractMainDir = new File(outputFile.getParentFile(), prefix+"_tract_results");
+			if (rank == 0) {
+				if (tractMainDir.exists()) {
+					// remove old results
+					for (File file : tractMainDir.listFiles()) {
+						if (file.getName().endsWith(".bin") || file.getName().endsWith(".bin.gz")) {
+							debug("Deleting old stale tract file: "+file.getName());
+							Preconditions.checkState(file.delete());
+						}
+					}
+				}
+				Preconditions.checkState(tractMainDir.exists() || tractMainDir.mkdir());
+			}
+			tractNodeDir = getTractNodeDir(rank);
+			tractWriteQueue = new LinkedList<MPJ_CondLossCalc.TractWriteable>();
+//			HashSet<String> tractNames = new HashSet<String>();
+//			for (Asset asset : assets)
+//				tractNames.add(getTractName(asset));
+//			tractsSorted = Lists.newArrayList(tractNames);
+//			Collections.sort(tractsSorted);
+//			if (rank == 0)
+//				debug("Storing results individually for "+tractsSorted.size()+" census tracts");
+//			tractResults = Maps.newHashMap();
+//			for (String tract : tractsSorted) {
+//				double[][] tract_results = new double[refERF.getNumSources()][];
+//				tractResults.put(tract, tract_results);
+//			}
+		}
+		
+		calc = new ThreadedCondLossCalc(erfs, imrs, magThreshFunc);
 		
 		if (cmd.hasOption("vuln-file")) {
 			File vulnFile = new File(cmd.getOptionValue("vuln-file"));
@@ -138,6 +203,14 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 			PortfolioEALCalculatorController.getVulnerabilities(vulnFile);
 			System.out.println("DONE loading vulns.");
 		}
+	}
+	
+	private File getTractNodeDir(int rank) {
+		return new File(tractMainDir, "process_"+rank);
+	}
+	
+	private static String getTractName(Asset asset) {
+		return asset.getParameterList().getParameter(String.class, "AssetName").getValue().trim().replaceAll("\\W+", "_");
 	}
 	
 	private ERF loadERF(Element root) throws InvocationTargetException {
@@ -155,10 +228,20 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 
 	@Override
 	protected void calculateBatch(int[] batch) throws Exception {
-		List<SiteResult> results = calc.calculateBatch(batch);
+		Deque<SiteResult> deque = new ArrayDeque<MPJ_CondLossCalc.SiteResult>();
+		for (int index : batch)
+			deque.add(new SiteResult(index, assets.get(index)));
+		calc.calculateBatch(deque); // will call registerResult on each one
 		
-		for (SiteResult result : results)
-			registerResult(result);
+		if (keepTractResults) {
+			while (!tractWriteQueue.isEmpty()) {
+				TractWriteable writeable = tractWriteQueue.pop();
+				File outFile = new File(tractNodeDir, writeable.name+".bin");
+				Preconditions.checkState(!outFile.exists());
+				debug("Writing tract info to "+outFile.getName());
+				writeResults(outFile, writeable.values);
+			}
+		}
 		
 		System.gc();
 		Runtime rt = Runtime.getRuntime();
@@ -172,34 +255,299 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		double[][] vals = result.results;
 		Preconditions.checkState(vals.length == my_results.length,
 				"Source count discrepancy. Expected "+my_results.length+", was "+vals.length);
+		double[][] tract_vals = null;
 		for (int sourceID=0; sourceID<vals.length; sourceID++) {
 			if (vals[sourceID] != null) {
 //				Preconditions.checkState(vals[sourceID].length == my_results[sourceID].length,
 //						"Rup count discrepancy for source "+sourceID+". Expected "+my_results[sourceID].length
 //						+", was "+vals[sourceID].length);
-				for (int rupID=0; rupID<vals[sourceID].length; rupID++)
+				if (tract_vals != null && tract_vals[sourceID] == null)
+					tract_vals[sourceID] = new double[my_results[sourceID].length];
+				for (int rupID=0; rupID<vals[sourceID].length; rupID++) {
 					my_results[sourceID][rupID] += vals[sourceID][rupID];
+					if (tract_vals != null)
+						tract_vals[sourceID][rupID] += vals[sourceID][rupID];
+				}
+			}
+		}
+		if (keepTractResults) {
+			TractWriteable writeable = new TractWriteable(getTractName(result.asset), vals);
+			// sometimes the filesystem can be slow
+			int numRetries = 0;
+			while (!tractNodeDir.exists()) {
+				if (tractNodeDir.mkdir())
+					break;
+				if (numRetries == 5)
+					throw new IllegalStateException("Couldn't create dir: "+tractNodeDir.getAbsolutePath());
+				debug("Could not create dir: "+tractNodeDir.getAbsolutePath()+", retrying in 5s");
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {}
+				numRetries++;
+			}
+			Preconditions.checkState(tractNodeDir.exists() || tractNodeDir.mkdir());
+			synchronized (tractWriteQueue) {
+				// will block if currently writing one
+				boolean duplicate = false;
+				for (TractWriteable other : tractWriteQueue) {
+					if (other.name.equals(writeable.name)) {
+						// just add these results to the existing one
+						other.addFrom(writeable);
+						duplicate = true;
+						break;
+					}
+				}
+				if (!duplicate)
+					tractWriteQueue.add(writeable);
 			}
 		}
 	}
 	
+	private class TractWriteable {
+		private String name;
+		private double[][] values;
+		
+		public TractWriteable(String name, double[][] values) {
+			this.name = name;
+			this.values = values;
+		}
+		
+		public void addFrom(TractWriteable o) {
+			add(o.values);
+		}
+		
+		public void add(double[][] otherValues) {
+			addTo(values, otherValues);
+		}
+	}
+	
+	public static void addTo(double[][] values, double[][] toBeAdded) {
+		for (int i=0; i<values.length; i++) {
+			double[] oVals = toBeAdded[i];
+			if (oVals == null)
+				continue;
+			double[] vals = values[i];
+			if (vals == null) {
+				values[i] = oVals;
+			} else {
+				for (int j=0; j<vals.length; j++)
+					vals[j] += oVals[j];
+			}
+		}
+	}
+	
+	private ExecutorService mergeExec;
+	private Deque<MergeTask> mergeDeque;
+	
+	private class MergeTask {
+		private File desination;
+		private List<File> origins;
+		
+		public MergeTask(File destination, File origin) {
+			this.desination = destination;
+			origins = Lists.newArrayList(origin);
+		}
+	}
+	
+	private class MergeRunnable implements Runnable {
+		
+		private MergeTask task;
+		
+		public MergeRunnable(MergeTask task) {
+			this.task = task;
+		}
+
+		@Override
+		public void run() {
+			try {
+				// remove from stack
+				synchronized (mergeDeque) {
+					Preconditions.checkState(mergeDeque.remove(task), "MergeRunnable: task wasn't in deque");
+				}
+				debug("Merging "+task.origins.size()+" files to "+task.desination.getName()
+					+" (exists? "+task.desination.exists()+"). Queued merges: "+mergeDeque.size());
+				Preconditions.checkState(!task.origins.isEmpty());
+				
+				if (!task.desination.exists()) {
+					// just do a move
+					Files.move(task.origins.remove(0), task.desination);
+					if (task.origins.isEmpty())
+						return;
+				}
+				
+				// process
+				double[][] results = loadResults(task.desination);
+				for (File origin : task.origins) {
+					double[][] subResults = loadResults(origin);
+					Preconditions.checkState(origin.delete());
+					if (results == null)
+						results = subResults;
+					else
+						addTo(results, subResults);
+				}
+				writeResults(task.desination, results);
+			} catch (Exception e) {
+				abortAndExit(e);
+			}
+		}
+		
+	}
+
+	@Override
+	public void batchProcessed(int[] batch, int processIndex) {
+		// will be called on rank 0 whenever a batch has been processed, if keepTractResults=true
+		// consolidate node results for each tract into the file for the given tract
+		if (batch.length == 0)
+			return;
+		Preconditions.checkState(keepTractResults);
+		HashSet<String> tracts = new HashSet<String>();
+		for (int index : batch)
+			tracts.add(getTractName(assets.get(index)));
+		
+		if (mergeDeque == null) {
+			mergeDeque = new ArrayDeque<MPJ_CondLossCalc.MergeTask>();
+			mergeExec = Executors.newSingleThreadExecutor();
+		}
+		
+		long stamp = System.currentTimeMillis();
+		
+		debug("post-batch considation for "+tracts.size()+" census tracts ("+batch.length+" assets)");
+		
+		List<MergeTask> myTasks = Lists.newArrayList();
+		
+		for (String tract : tracts) {
+			File procTractFile = new File(getTractNodeDir(processIndex), tract+".bin");
+			Preconditions.checkState(procTractFile.exists());
+			// move to a unique file for future (async) processing
+			File procDestFile = new File(procTractFile.getAbsolutePath()+"_merge_"+stamp);
+			try {
+				Files.move(procTractFile, procDestFile);
+			} catch (IOException e1) {
+				abortAndExit(e1);
+			}
+			String outName;
+			if (gzip)
+				outName = tract+".bin.gz";
+			else
+				outName = tract+".bin";
+			File globalTractFile = new File(tractMainDir, outName);
+			myTasks.add(new MergeTask(globalTractFile, procDestFile));
+//			try {
+//				debug("post-batch consolidating "+tract);
+//				double[][] procResults = loadResults(procTractFile);
+//				double[][] mergedResults;
+//				if (globalTractFile.exists()) {
+//					mergedResults = loadResults(globalTractFile);
+//					addTo(mergedResults, procResults);
+//				} else {
+//					mergedResults = procResults;
+//				}
+//				writeResults(globalTractFile, mergedResults);
+//				Preconditions.checkState(procTractFile.delete());
+//			} catch (IOException e) {
+//				abortAndExit(e);
+//			}
+		}
+		// add tasks
+		synchronized (mergeDeque) {
+			for (MergeTask task : myTasks) {
+				boolean match = false;
+				for (MergeTask existing : mergeDeque) {
+					if (task.desination.equals(existing.desination)) {
+						// add to existing task
+						existing.origins.add(task.origins.get(0));
+						match = true;
+						break;
+					}
+				}
+				if (!match) {
+					// new task, submit
+					mergeDeque.add(task);
+					mergeExec.submit(new MergeRunnable(task));
+				}
+			}
+		}
+	}
+	
+	private double[] packResults(double[][] results) {
+		double[] packed_results = new double[numRups];
+		int cnt = 0;
+		int numSources = refERF.getNumSources();
+		for (int sourceID=0; sourceID<numSources; sourceID++) {
+			int numRups = refERF.getNumRuptures(sourceID);
+			double[] vals = results[sourceID];
+			if (vals == null)
+				vals = new double[numRups];
+			for (int rupID=0; rupID<numRups; rupID++) {
+				packed_results[cnt++] = vals[rupID];
+			}
+		}
+		return packed_results;
+	}
+	
+	private double[][] unpackResults(double[] results) {
+		int numSources = refERF.getNumSources();
+		double[][] unpacked_results = new double[numSources][];
+		int cnt = 0;
+		for (int sourceID=0; sourceID<numSources; sourceID++) {
+			int numRups = refERF.getNumRuptures(sourceID);
+			unpacked_results[sourceID] = new double[numRups];
+			for (int rupID=0; rupID<numRups; rupID++)
+				unpacked_results[sourceID][rupID] = results[cnt++];
+		}
+		return unpacked_results;
+	}
+	
 	@Override
 	protected void doFinalAssembly() throws Exception {
-		// gather the loss
+		// global (totals)
 		
-		int TAG_GET_NUM = 0;
+		File outputDir = this.outputFile.getParentFile();
+		String prefix = this.outputFile.getName();
+		if (prefix.toLowerCase().endsWith(".bin"))
+			prefix = prefix.substring(0, prefix.lastIndexOf("."));
+		
+		double[][] results = fetchResults(my_results);
+		if (rank == 0) {
+			writeAll(outputDir, prefix, results);
+			
+			if (keepTractResults) {
+				// now handled after each batch
+//				HashSet<String> tracts = new HashSet<String>();
+//				for (Asset asset : assets)
+//					tracts.add(getTractName(asset));
+//				for (String tract : tracts) {
+//					TractWriteable tractResults = new TractWriteable(tract, null);
+//					for (int i=0; i<size; i++) {
+//						File nodeDir = getTractNodeDir(i);
+//						File tractFile = new File(nodeDir, tract+".bin");
+//						if (tractFile.exists()) {
+//							double[][] subTractResults = loadResults(tractFile);
+//							if (tractResults.values == null)
+//								tractResults.values = subTractResults;
+//							else
+//								tractResults.add(subTractResults);
+//						}
+//					}
+//					writeAll(tractMainDir, tract, tractResults.values);
+//				}
+				debug("Waiting on any outstanding merges: "+mergeDeque.size());
+				while (!mergeDeque.isEmpty()) {
+					debug("Merge count: "+mergeDeque.size());
+					Thread.sleep(10000);
+				}
+				for (int i=0; i<rank; i++)
+					getTractNodeDir(i).delete();
+			}
+		}
+	}
+	
+	private double[][] fetchResults(double[][] localResults) {
 		int TAG_GET_RESULTS = 1;
 		
 		// pack results into one dimensional array
-		int rupCount = 0;
-		for (int sourceID=0; sourceID<my_results.length; sourceID++)
-			rupCount += my_results[sourceID].length;
-		double[] packed_results = new double[rupCount];
-		int cnt = 0;
-		for (double[] vals : my_results)
-			for (double val : vals)
-				packed_results[cnt++] = val;
-		
+		double[] packed_results = packResults(localResults);
+		int rupCount = packed_results.length;
 		
 		if (rank == 0) {
 			double[] global_results = new double[rupCount];
@@ -219,30 +567,30 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 					global_results[i] += srcResults[i];
 			}
 			
-			// now unpack
-			double[][] unpacked_results = new double[my_results.length][];
-			cnt = 0;
-			for (int sourceID=0; sourceID<my_results.length; sourceID++) {
-				unpacked_results[sourceID] = new double[my_results[sourceID].length];
-				for (int rupID=0; rupID<my_results[sourceID].length; rupID++)
-					unpacked_results[sourceID][rupID] = global_results[cnt++];
-			}
-			writeResults(outputFile, unpacked_results);
-			
-			if (refERF instanceof FaultSystemSolutionERF) {
-				double[][] fssResults = mapResultsToFSS((FaultSystemSolutionERF)refERF, unpacked_results);
-				
-				String name = outputFile.getName();
-				if (name.toLowerCase().endsWith(".bin"))
-					name = name.substring(0, name.toLowerCase().indexOf(".bin"));
-				File fssOutputFile = new File(outputFile.getParentFile(), name+"_fss_index.bin");
-				writeResults(fssOutputFile, fssResults);
-				File fssGridOutputFile = new File(outputFile.getParentFile(), name+"_fss_gridded.bin");
-				writeFSSGridSourcesFile((FaultSystemSolutionERF)refERF, unpacked_results, fssGridOutputFile);
-			}
+			double[][] unpacked_results = unpackResults(global_results);
+			return unpacked_results;
 		} else {
 			// send results
 			MPI.COMM_WORLD.Send(packed_results, 0, packed_results.length, MPI.DOUBLE, 0, TAG_GET_RESULTS);
+			return null; // not processing locally
+		}
+	}
+	
+	private void writeAll(File outputDir, String prefix, double[][] results) throws IOException {
+		String suffix = ".bin";
+		if (gzip)
+			suffix += ".gz";
+		File outputFile = new File(outputDir, prefix+suffix);
+		
+		writeResults(outputFile, results);
+		
+		if (refERF instanceof FaultSystemSolutionERF) {
+			double[][] fssResults = mapResultsToFSS((FaultSystemSolutionERF)refERF, results);
+			
+			File fssOutputFile = new File(outputFile.getParentFile(), prefix+"_fss_index"+suffix);
+			writeResults(fssOutputFile, fssResults);
+			File fssGridOutputFile = new File(outputFile.getParentFile(), prefix+"_fss_gridded"+suffix);
+			writeFSSGridSourcesFile((FaultSystemSolutionERF)refERF, results, fssGridOutputFile);
 		}
 	}
 	
@@ -269,6 +617,26 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		return fssResults;
 	}
 	
+	public static final int buffer_len = 655360;
+	
+	private static OutputStream getOutputStream(File file) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
+		if (isGZIP(file))
+			return new GZIPOutputStream(fos, buffer_len);
+		return new BufferedOutputStream(fos, buffer_len);
+	}
+	
+	private static boolean isGZIP(File file) {
+		return file.getName().toLowerCase().endsWith(".gz");
+	}
+	
+	private static InputStream getInputStream(File file) throws IOException {
+		FileInputStream fis = new FileInputStream(file);
+		if (isGZIP(file))
+			return new GZIPInputStream(fis, buffer_len);
+		return new BufferedInputStream(fis, buffer_len);
+	}
+	
 	/**
 	 * This writes a file containing expected losses for each grid node/magnitude bin
 	 * 
@@ -277,7 +645,8 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 	 * @param file
 	 * @throws IOException
 	 */
-	public static void writeFSSGridSourcesFile(FaultSystemSolutionERF erf, double[][] origResults, File file) throws IOException {
+	public static void writeFSSGridSourcesFile(FaultSystemSolutionERF erf, double[][] origResults, File file)
+			throws IOException {
 		int fssSources = erf.getNumFaultSystemSources();
 		if (erf.getParameter(IncludeBackgroundParam.NAME).getValue() == IncludeBackgroundOption.ONLY)
 			fssSources = 0;
@@ -295,7 +664,7 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		
 		GridSourceProvider prov = erf.getSolution().getGridSourceProvider();
 
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		DataOutputStream out = new DataOutputStream(getOutputStream(file));
 		out.writeInt(numGridded);
 		
 		for (int srcIndex=fssSources; srcIndex<erf.getNumSources(); srcIndex++) {
@@ -338,7 +707,11 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 					// non SS rups have 2 for each mech type
 					fract *= 0.5;
 				
-				double loss = fract*origResults[srcIndex][r];
+				double loss;
+				if (origResults[srcIndex] == null)
+					loss = 0d;
+				else
+					loss = fract*origResults[srcIndex][r];
 				double mag = rup.getMag();
 				int ind = func.getXIndex(mag);
 				if (ind >= 0) {
@@ -374,9 +747,8 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 	 * @throws IOException 
 	 */
 	public static DiscretizedFunc[] loadGridSourcesFile(File file, GriddedRegion region) throws IOException {
-		InputStream is = new FileInputStream(file);
+		InputStream is = getInputStream(file);
 		Preconditions.checkNotNull(is, "InputStream cannot be null!");
-		is = new BufferedInputStream(is);
 
 		DataInputStream in = new DataInputStream(is);
 
@@ -410,23 +782,6 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		return results;
 	}
 	
-	// TODO
-//	private void writeOutputFile(SiteResult[] results) throws IOException {
-//		FileWriter fw = new FileWriter(outputFile);
-//		
-//		double portfolioEAL = StatUtils.sum(eal_vals);
-//		
-//		// TODO add metadata
-//		fw.write("Portfolio EAL: "+portfolioEAL+"\n");
-//		fw.write("\n");
-//		for (int i=0; i<eal_vals.length; i++) {
-//			int id = (Integer)assets.get(i).getParameterList().getParameter("AssetID").getValue();
-//			fw.write(id+","+eal_vals[i]+"\n");
-//		}
-//		fw.close();
-//	}
-	
-	// TODO
 	/**
 	 * File format:<br>
 	 * [num ERF sources]
@@ -437,7 +792,7 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 	 * @throws IOException 
 	 */
 	public static void writeResults(File file, double[][] results) throws IOException {
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		DataOutputStream out = new DataOutputStream(getOutputStream(file));
 		
 		int numSources = results.length;
 		
@@ -445,11 +800,15 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		
 		// get asset counts for each source/rup
 		for (int sourceID=0; sourceID<numSources; sourceID++) {
-			int numRups = results[sourceID].length;
-			out.writeInt(numRups);
-			
-			for (int rupID=0; rupID<numRups; rupID++)
-				out.writeDouble(results[sourceID][rupID]);
+			if (results[sourceID] == null) {
+				out.writeInt(-1);
+			} else {
+				int numRups = results[sourceID].length;
+				out.writeInt(numRups);
+				
+				for (int rupID=0; rupID<numRups; rupID++)
+					out.writeDouble(results[sourceID][rupID]);
+			}
 		}
 		
 		out.close();
@@ -484,9 +843,8 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 	 * @throws IOException
 	 */
 	public static double[][] loadResults(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
+		InputStream is = getInputStream(file);
 		Preconditions.checkNotNull(is, "InputStream cannot be null!");
-		is = new BufferedInputStream(is);
 
 		DataInputStream in = new DataInputStream(is);
 
@@ -498,9 +856,13 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		
 		for (int sourceID=0; sourceID<numSources; sourceID++) {
 			int numRups = in.readInt();
-			results[sourceID] = new double[numRups];
-			for (int rupID=0; rupID<numRups; rupID++) {
-				results[sourceID][rupID] = in.readDouble();
+			if (numRups == -1) {
+				results[sourceID] = null;
+			} else {
+				results[sourceID] = new double[numRups];
+				for (int rupID=0; rupID<numRups; rupID++) {
+					results[sourceID][rupID] = in.readDouble();
+				}
 			}
 		}
 		
@@ -519,6 +881,14 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		Option erfOp = new Option("e", "mult-erfs", false, "If set, a copy of the ERF will be instantiated for each thread.");
 		erfOp.setRequired(false);
 		ops.addOption(erfOp);
+		
+		Option tractOp = new Option("tract", "tract-results", false, "If set, results are stored for each census tract");
+		tractOp.setRequired(false);
+		ops.addOption(tractOp);
+		
+		Option gzipOp = new Option("gz", "gzip", false, "If set, results gzipped");
+		gzipOp.setRequired(false);
+		ops.addOption(gzipOp); 
 		
 		return ops;
 	}
@@ -575,24 +945,27 @@ public class MPJ_CondLossCalc extends MPJTaskCalculator implements CalculationEx
 		abortAndExit(new RuntimeException(errorMessage));
 	}
 	
-	public static class SiteResult implements Serializable, Comparable<SiteResult> {
+	public class SiteResult implements Serializable, Comparable<SiteResult> {
 		
 		private int index;
 		private transient Asset asset;
-		private transient CalculationExceptionHandler handler;
 		
 		// expected loss results per rupture: [sourceID][rupID]
 		private double[][] results;
 		
-		public SiteResult(int index, Asset asset, CalculationExceptionHandler handler) {
+		public SiteResult(int index, Asset asset) {
 			super();
 			this.index = index;
 			this.asset = asset;
-			this.handler = handler;
 		}
 		
 		void calculate(ERF erf, ScalarIMR imr, Site initialSite, ArbitrarilyDiscretizedFunc magThreshFunc) {
-			results = asset.calculateExpectedLossPerRup(imr, magThreshFunc, initialSite, erf, handler);
+			try {
+				results = asset.calculateExpectedLossPerRup(imr, magThreshFunc, initialSite, erf, MPJ_CondLossCalc.this);
+				registerResult(this);
+			} catch (Exception e) {
+				abortAndExit(e);
+			}
 		}
 
 		@Override

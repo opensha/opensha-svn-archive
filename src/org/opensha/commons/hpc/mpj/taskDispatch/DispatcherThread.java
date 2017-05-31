@@ -6,12 +6,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 
 import mpi.MPI;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class DispatcherThread extends Thread {
 	
@@ -24,12 +26,16 @@ public class DispatcherThread extends Thread {
 	
 	private Deque<Integer> stack;
 	
+	private PostBatchHook postBatchHook;
+	private Map<Integer, int[]> outstandingBatches;
+	
 	public DispatcherThread(int size, int numTasks, int minPerDispatch, int maxPerDispatch,
-			int exactDispatch, boolean shuffle, int startIndex, int endIndex) {
+			int exactDispatch, boolean shuffle, int startIndex, int endIndex, PostBatchHook postBatchHook) {
 		this.size = size;
 		this.minPerDispatch = minPerDispatch;
 		this.maxPerDispatch = maxPerDispatch;
 		this.exactDispatch = exactDispatch;
+		this.postBatchHook = postBatchHook;
 		Preconditions.checkArgument(minPerDispatch <= maxPerDispatch, "min per dispatch must be <= max");
 		Preconditions.checkArgument(minPerDispatch >= 1, "min per dispatch must be >= 1");
 		Preconditions.checkArgument(size >= 1, "size must be >= 1");
@@ -53,9 +59,23 @@ public class DispatcherThread extends Thread {
 			Collections.shuffle(list);
 		}
 		stack = new ArrayDeque<Integer>(list);
+		outstandingBatches = Maps.newHashMap();
 	}
 	
-	protected synchronized int[] getNextBatch() {
+	public void setPostBatchHook(PostBatchHook postBatchHook) {
+		this.postBatchHook = postBatchHook;
+	}
+	
+	protected synchronized int[] getNextBatch(int processIndex) {
+		if (outstandingBatches.containsKey(processIndex)) {
+			int[] prevBatch = outstandingBatches.get(processIndex);
+			if (postBatchHook != null) {
+				debug("process "+processIndex+" just finished a batch of length "+prevBatch.length+". running post-batch hook");
+				outstandingBatches.remove(processIndex);
+				postBatchHook.batchProcessed(prevBatch, processIndex);
+				debug("done running post-batch hook for process "+processIndex);
+			}
+		}
 		int numLeft = stack.size();
 		debug("getting batch with "+numLeft+" left");
 		if (numLeft == 0)
@@ -83,6 +103,8 @@ public class DispatcherThread extends Thread {
 		
 		debug("returning batch of size: "+numToDispatch);
 		
+		outstandingBatches.put(processIndex, batch);
+		
 		return batch;
 	}
 	
@@ -104,7 +126,7 @@ public class DispatcherThread extends Thread {
 				
 				debug("received READY from "+proc_id);
 				
-				int[] batch = getNextBatch();
+				int[] batch = getNextBatch(proc_id);
 				
 				// now we send the the length of the batch
 				single_int_buf[0] = batch.length;
@@ -133,7 +155,7 @@ public class DispatcherThread extends Thread {
 						}
 					}
 					if (allDone) {
-						// this means that all curves have been calculated
+						// this means that all tasks have been calculated
 						debug("DONE!");
 						break;
 					}

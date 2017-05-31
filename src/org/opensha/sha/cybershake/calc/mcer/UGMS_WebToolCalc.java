@@ -488,7 +488,7 @@ public class UGMS_WebToolCalc {
 				if (csDeterms.get(i) != null)
 					csDetSpectrum.set(periods[i], csDeterms.get(i).getVal());
 			
-			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, userVs30, site.getLocation(), tl);
+			DiscretizedFunc asceDeterm = ASCEDetLowerLimitCalc.calc(csProbSpectrum, userVs30, tl);
 			
 			csMCER = MCERDataProductsCalc.calcMCER(csDetSpectrum, csProbSpectrum, asceDeterm);
 			csMCER.setName("CyberShake MCER");

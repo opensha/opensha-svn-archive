@@ -190,6 +190,10 @@ public class RSQSimBatchPlotGen {
 			return buildPlots(catalogName, outputDir, minMag, u3Sol, arg, elemBundle);
 		}
 	}
+	/*
+	 * TODO:
+	 * * average slip vs mag (can get slip from Mw if needed)
+	 */
 	
 	public static Options createOptions() {
 		Options ops = new Options();
@@ -263,8 +267,8 @@ public class RSQSimBatchPlotGen {
 			String argStr = "--geometry-file "+geomFile.getAbsolutePath()+" --catalog-file "+dir.getAbsolutePath()
 					+" --output-dir "+outputDir.getAbsolutePath()+" --name TestCatalog"
 					+" --ucerf-sol "+solFile.getAbsolutePath();
-//			argStr += " --plot-all --min-mag 4";
-			argStr += " --mag-area-scaling --min-mag 4";
+			argStr += " --plot-all --min-mag 4";
+//			argStr += " --mag-area-scaling --min-mag 4";
 			argStr += " --skip-years 10000";
 			args = Splitter.on(" ").splitToList(argStr).toArray(new String[0]);
 		}
@@ -397,8 +401,14 @@ public class RSQSimBatchPlotGen {
 		for (int i=0; i<plots.size(); i++) {
 			PlotConfig conf = configs.get(i);
 			System.out.println("Writing plot(s): "+conf);
-			for (AbstractPlot plot : plots.get(i))
-				plot.finalize();
+			for (AbstractPlot plot : plots.get(i)) {
+				try {
+					plot.finalize();
+				} catch (Exception e1) {
+					System.err.println("Error processing plot, skipping");
+					e1.printStackTrace();
+				}
+			}
 		}
 		
 		System.out.println("DONE");
