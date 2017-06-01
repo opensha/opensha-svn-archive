@@ -1864,11 +1864,11 @@ public class ETAS_HazardMapCalc {
 		boolean calcLongTerm = true;
 		boolean mapParallel = true;
 		boolean plotCurves = false;
-		boolean plotMaps = true;
+		boolean plotMaps = false;
 		boolean plotLongTerm = false;
 		boolean onlyGainLongTerm = false;
-		boolean plotShakeMap = false;
-		boolean plotShakeMapPOE = false;
+		boolean plotShakeMap = true;
+		boolean plotShakeMapPOE = true;
 		HashSet<MapType> mapTypePlotSubset = new HashSet<MapType>(Lists.newArrayList(MapType.COMBINED));
 //		HashSet<MapType> mapTypePlotSubset = new HashSet<MapType>(Lists.newArrayList(MapType.COMBINED, MapType.U3TD, MapType.U3TI));
 //		HashSet<MapType> mapTypePlotSubset = null;
@@ -1906,10 +1906,10 @@ public class ETAS_HazardMapCalc {
 //				+ "2017_03_23-mojave_m7_combined_descendents-NGA2-0.02-site-effects-with-basin");
 //				+ "2017_03_23-mojave_m7_gridded_descendents-NGA2-0.02-site-effects-with-basin");
 //				+ "2017_03_23-northridge_combined_descendents-NGA2-0.02-site-effects-with-basin");
-//				+ "2017_03_23-northridge_gridded_descendents-NGA2-0.02-site-effects-with-basin");
+				+ "2017_03_23-northridge_gridded_descendents-NGA2-0.02-site-effects-with-basin");
 //				+ "2017_03_23-2016_bombay_swarm_combined_descendents-NGA2-0.02-site-effects-with-basin");
 				// other
-				+ "2017_05_17-2017_05-usgs_exercise-1pm-NGA2-0.02-site-effects-with-basin");
+//				+ "2017_05_17-2017_05-usgs_exercise-1pm-NGA2-0.02-site-effects-with-basin");
 		
 //		File faultBasedPrecalc = null;
 //		double spacing = 0.5;
@@ -1926,9 +1926,9 @@ public class ETAS_HazardMapCalc {
 //		String etasDirName = "2016_02_22-mojave_m7-10yr-full_td-no_ert-combined"; scenarioForRebound = TestScenario.MOJAVE_M7;
 //		String etasDirName = "2016_12_03-mojave_m7-10yr-gridded-only"; scenarioForRebound = TestScenario.MOJAVE_M7;
 //		String etasDirName = "2017_02_01-northridge-m6.7-10yr-full_td-no_ert-combined"; scenarioForRebound = TestScenario.NORTHRIDGE;
-//		String etasDirName = "2017_02_01-northridge-m6.7-10yr-gridded-only-combined200k"; scenarioForRebound = TestScenario.NORTHRIDGE;
+		String etasDirName = "2017_02_01-northridge-m6.7-10yr-gridded-only-combined200k"; scenarioForRebound = TestScenario.NORTHRIDGE;
 //		String etasDirName = "2016_10_27-2016_bombay_swarm-10yr-full_td-no_ert-combined";
-		String etasDirName = "2017_05_17-USGS_Exercise_Catalog-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-sect-reset-1pm";
+//		String etasDirName = "2017_05_17-USGS_Exercise_Catalog-10yr-full_td-subSeisSupraNucl-gridSeisCorr-scale1.14-noSpont-sect-reset-1pm";
 //		String etasFileName = "results_descendents_m5_preserve.bin";
 //		String etasFileName = "results_descendents_m5.bin";
 //		String etasFileName = "results_m5_preserve.bin";

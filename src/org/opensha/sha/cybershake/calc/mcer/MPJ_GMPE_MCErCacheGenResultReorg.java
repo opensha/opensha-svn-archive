@@ -100,7 +100,7 @@ public class MPJ_GMPE_MCErCacheGenResultReorg {
 					Preconditions.checkState(Doubles.isFinite(pgaData.get(i)),
 							"Non Finite PGA at index %s/%s: %s", i, pgaData.size(), pgaData.get(i));
 				System.out.println("All PGA values validated\n");
-				Files.copy(dataFile, new File(outputDir, identifier+"_pga.bin"));
+				Files.copy(pgaFile, new File(outputDir, identifier+"_pga.bin"));
 				
 				if (plotPeriods != null) {
 					plotPGA(pgaData, outputDir, identifier, spacing, region, replot);
