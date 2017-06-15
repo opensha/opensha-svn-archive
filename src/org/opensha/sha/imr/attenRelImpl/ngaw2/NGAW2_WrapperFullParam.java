@@ -383,7 +383,7 @@ public class NGAW2_WrapperFullParam extends AttenuationRelationship implements P
 		distanceRupParam = new DistanceRupParameter(new DoubleConstraint(0d, 400d), 0d);
 		propagationEffectParams.addParameter(distanceRupParam);
 		
-		distanceXParam = new DistanceX_Parameter(new DoubleConstraint(0d, 400d), 0d);
+		distanceXParam = new DistanceX_Parameter(new DoubleConstraint(-400, 400d), 0d);
 		propagationEffectParams.addParameter(distanceXParam);
 		
 		for (Parameter<?> param : propagationEffectParams)
