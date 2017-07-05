@@ -75,21 +75,28 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		int hours = 24;
 //		int nodes = 60;
 		
-		// for scenarios
-		double duration = 10; // SIM duration!!
-//		int numSims = 25000;
-//		int hours = 24;
-//		int nodes = 60;
+		// CSEP benchmarks
+//		double duration = 1d/365.25;
+		double duration = 3d/12d;
 		int numSims = 10000;
 		int hours = 24;
-////		int nodes = 100;
-		int nodes = 34;
-		if (largeSCEC && !stampede)
-			nodes = 4;
-//		int numSims = 1000;
-//		int hours = 2;
-////		int nodes = 100;
-//		int nodes = 5;
+		int nodes = 10;
+		
+		// for scenarios
+//		double duration = 10; // SIM duration!!
+////		int numSims = 25000;
+////		int hours = 24;
+////		int nodes = 60;
+//		int numSims = 10000;
+//		int hours = 24;
+//////		int nodes = 100;
+//		int nodes = 34;
+//		if (largeSCEC && !stampede)
+//			nodes = 4;
+////		int numSims = 1000;
+////		int hours = 2;
+//////		int nodes = 100;
+////		int nodes = 5;
 		
 //		Scenarios scenario = Scenarios.LA_HABRA;
 //		Scenarios[] scenarios = Scenarios.values();
@@ -126,8 +133,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 //		String customCatalog = null;
 //		long customOT = Long.MIN_VALUE;
 //		String resetSectsArg = null;
-		boolean griddedOnly = false;
-		boolean customCatIncludeHistSurfaces = false;
+//		boolean griddedOnly = false;
+//		boolean customCatIncludeHistSurfaces = false;
 		
 //		TestScenario[] scenarios = { null };
 ////		boolean includeSpontaneous = false;
@@ -137,15 +144,24 @@ public class MPJ_ETAS_SimulatorScriptGen {
 ////		long customOT = 1474920000000l;
 //		long customOT = 1474990200000l;
 		
-		// USGS 5/17/17 exercise
+		// CSEP like benchmark tests
 		TestScenario[] scenarios = { null };
-//		boolean includeSpontaneous = false;
-//		String customCatalog = "2016_bombay_swarm.txt";
 		boolean includeSpontaneous = false;
-		String customCatalog = "USGS_Exercise_Catalog.txt";
-//		long customOT = 1495039984000l; // make sure this is at least a few seconds after the last event
-		long customOT = 1495051260000l;
-		String resetSectsArg = "1495039984000:2370,2369,2368,2367";
+		String customCatalog = "CSEP_1yr_Input_Catalog.txt";
+		boolean customCatIncludeHistSurfaces = false;
+		long customOT = 1498201200000l;
+		boolean griddedOnly = false;
+		String resetSectsArg = null;
+		
+		// USGS 5/17/17 exercise
+//		TestScenario[] scenarios = { null };
+////		boolean includeSpontaneous = false;
+////		String customCatalog = "2016_bombay_swarm.txt";
+//		boolean includeSpontaneous = false;
+//		String customCatalog = "USGS_Exercise_Catalog.txt";
+////		long customOT = 1495039984000l; // make sure this is at least a few seconds after the last event
+//		long customOT = 1495051260000l;
+//		String resetSectsArg = "1495039984000:2370,2369,2368,2367";
 		
 //		U3ETAS_ProbabilityModelOptions[] probModels = U3ETAS_ProbabilityModelOptions.values();
 //		U3ETAS_ProbabilityModelOptions[] probModels = {U3ETAS_ProbabilityModelOptions.FULL_TD,
@@ -166,8 +182,8 @@ public class MPJ_ETAS_SimulatorScriptGen {
 		if (griddedOnly)
 			totRateScaleFactor = 1d;
 		
-//		String nameAdd = null;
-		String nameAdd = "sect-reset-1pm";
+		String nameAdd = null;
+//		String nameAdd = "sect-reset-1pm";
 //		String nameAdd = "small-speed-test";
 //		String nameAdd = "100krun1";
 //		String nameAdd = "20kmore4";
@@ -281,10 +297,28 @@ public class MPJ_ETAS_SimulatorScriptGen {
 					scenarioName += "-m"+(float)scenario.getMagnitude();
 			}
 //			if (duration > 1d) {
-				if (duration == Math.floor(duration))
-					scenarioName += "-"+(int)duration+"yr";
-				else
+			if (duration == Math.floor(duration)) {
+				scenarioName += "-"+(int)duration+"yr";
+			} else {
+				if (duration < 1d) {
+					// check for months, weeks, days
+					double months = duration * 12d;
+					double days = duration * 365.25;
+					if ((float)months >= 1f) {
+						if ((float)months == (float)Math.floor(months))
+							scenarioName += "-"+(int)months+"mo";
+						else
+							scenarioName += "-"+(float)months+"mo";
+					} else {
+						if ((float)days == (float)Math.floor(days))
+							scenarioName += "-"+(int)days+"day";
+						else
+							scenarioName += "-"+(float)days+"day";
+					}
+				} else {
 					scenarioName += "-"+(float)duration+"yr";
+				}
+			}
 //			}
 			for (U3ETAS_ProbabilityModelOptions probModel : probModels) {
 //				for (double maxCharFactor : maxCharFactors) {
@@ -312,9 +346,9 @@ public class MPJ_ETAS_SimulatorScriptGen {
 							jobName += "-gridSeisCorr";
 						if (totRateScaleFactor != 1)
 							jobName += "-scale"+(float)totRateScaleFactor;
-						if (!includeSpontaneous)
-							jobName += "-noSpont";
 					}
+					if (!includeSpontaneous)
+						jobName += "-noSpont";
 					
 					if (nameAdd != null && !nameAdd.isEmpty() && nameAddAtEnd)
 						jobName += "-"+nameAdd;

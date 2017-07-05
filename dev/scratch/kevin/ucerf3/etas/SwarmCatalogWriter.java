@@ -12,6 +12,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.opensha.commons.data.region.CaliforniaRegions;
 import org.opensha.commons.geo.Location;
 import org.opensha.commons.geo.Region;
 import org.opensha.commons.util.ExceptionUtils;
@@ -31,7 +32,7 @@ public class SwarmCatalogWriter {
 	
 	private static ObsEqkRupList fetchEvents(Region region, long startTime, long endTime, double minMag)
 			throws MalformedURLException {
-		EventWebService service = new EventWebService(new URL("http://earthquake.usgs.gov/fdsnws/event/1/"));
+		EventWebService service = new EventWebService(new URL("https://earthquake.usgs.gov/fdsnws/event/1/"));
 		
 		EventQuery query = new EventQuery();
 		
@@ -106,11 +107,18 @@ public class SwarmCatalogWriter {
 //		long endTime = 1474990200000l;
 ////		long endTime = Long.MIN_VALUE;
 //		File outputFile = new File("/tmp/2016_bombay_swarm.txt");
-		Region region = new Region(new Location(33.298, -115.713), 30d);
-		long startTime = 1237593600000l;
-		long endTime = 1238630400000l;
+		
+//		Region region = new Region(new Location(33.298, -115.713), 30d);
+//		long startTime = 1237593600000l;
+//		long endTime = 1238630400000l;
+////		long endTime = Long.MIN_VALUE;
+//		File outputFile = new File("/tmp/2009_bombay_swarm.txt");
+		
+		Region region = new CaliforniaRegions.RELM_TESTING();
+		long startTime = 	1466665200000l;
+		long endTime = 		1498201200000l;
 //		long endTime = Long.MIN_VALUE;
-		File outputFile = new File("/tmp/2009_bombay_swarm.txt");
+		File outputFile = new File("/tmp/csep_bench_inputs.txt");
 		
 		ObsEqkRupList events = fetchEvents(region, startTime, endTime, 2.5d);
 		events.sortByOriginTime();

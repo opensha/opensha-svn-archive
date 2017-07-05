@@ -775,6 +775,22 @@ public class GriddedRegion extends Region implements Iterable<Location> {
 		int gridIndex = ((latIndex) * numLonNodes) + lonIndex;
 		return gridIndices[gridIndex];
 	}
+	
+	/**
+	 * Returns the total number of latitude nodes. For rectangular regions, nodeCount = numLatNodes * numLonNodes
+	 * @return total number of latitude nodes
+	 */
+	public int getNumLatNodes() {
+		return numLatNodes;
+	}
+	
+	/**
+	 * Returns the total number of longitude nodes. For rectangular regions, nodeCount = numLatNodes * numLonNodes
+	 * @return total number of longitude nodes
+	 */
+	public int getNumLonNodes() {
+		return numLonNodes;
+	}
 
 	/**
 	 * Returns the minimum grid latitude. Note that there may not actually be

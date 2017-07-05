@@ -104,6 +104,7 @@ import scratch.UCERF3.FaultSystemRupSet;
 import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.enumTreeBranches.DeformationModels;
 import scratch.UCERF3.enumTreeBranches.FaultModels;
+import scratch.UCERF3.enumTreeBranches.TotalMag5Rate;
 import scratch.UCERF3.erf.FaultSystemSolutionERF;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO;
 import scratch.UCERF3.erf.ETAS.ETAS_CatalogIO.BinarayCatalogsIterable;
@@ -985,6 +986,28 @@ public class PureScratch {
 		erf.updateForecast();
 		System.out.println("Total Num Ruptures: "+erf.getTotNumRups());
 	}
+	
+	private static void test36() {
+		double rateM5 = TotalMag5Rate.RATE_7p9.getRateMag5();
+		double b = 1d;
+		GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(b, 1d, 5.05, 9.05, 41);
+		EvenlyDiscretizedFunc cumGR = gr.getCumRateDistWithOffset();
+		cumGR.scale(rateM5/cumGR.getY(0));
+		System.out.println(cumGR);
+	}
+	
+	private static void test37() throws IOException, DocumentException {
+		FaultSystemSolution sol = FaultSystemIO.loadSol(
+				new File("/home/kevin/workspace/OpenSHA/dev/scratch/UCERF3/data/scratch/InversionSolutions/"
+						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_2_MEAN_BRANCH_AVG_SOL.zip"));
+//						+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_TRUE_HAZARD_MEAN_SOL.zip"));
+		System.out.println("Fault ruptures: "+sol.getRupSet().getNumRuptures());
+		FaultSystemSolutionERF erf = new FaultSystemSolutionERF(sol);
+		erf.setParameter(BackgroundRupParam.NAME, BackgroundRupType.CROSSHAIR);
+		erf.updateForecast();
+		System.out.println("ERF rups from FSS: "+erf.getTotNumRupsFromFaultSystem());
+		System.out.println("Gridded ERF rups: "+(erf.getTotNumRups() - erf.getTotNumRupsFromFaultSystem()));
+	}
 
 	/**
 	 * @param args
@@ -1023,7 +1046,9 @@ public class PureScratch {
 //		test32();
 //		test33();
 //		test34();
-		test35();
+//		test35();
+//		test36();
+		test37();
 
 		////		FaultSystemSolution sol3 = FaultSystemIO.loadSol(new File("/tmp/avg_SpatSeisU3/"
 		////				+ "2013_05_10-ucerf3p3-production-10runs_COMPOUND_SOL_FM3_1_MEAN_BRANCH_AVG_SOL.zip"));

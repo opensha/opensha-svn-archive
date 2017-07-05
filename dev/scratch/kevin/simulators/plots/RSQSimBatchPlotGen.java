@@ -37,6 +37,13 @@ import scratch.UCERF3.FaultSystemSolution;
 import scratch.UCERF3.griddedSeismicity.GridSourceProvider;
 import scratch.UCERF3.utils.FaultSystemIO;
 
+/**
+ * TODO:
+ * * Multi fault participation
+ * * map based recurrence and ratios
+ * @author kevin
+ *
+ */
 public class RSQSimBatchPlotGen {
 	
 	private static final String DEFAULT_NAME = "RSQSim Catalog";
